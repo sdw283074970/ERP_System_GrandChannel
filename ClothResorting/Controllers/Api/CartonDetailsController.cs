@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Models.ApiTransformModels;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -22,16 +23,20 @@ namespace ClothResorting.Controllers.Api
 
         // GET /api/CartonDetails/输入po号，返回这个po号的所有CartonDetails
         [HttpPost]
-        public IHttpActionResult GetPurchaseOrderDetail([FromBody]int preId)
+        public IHttpActionResult GetPurchaseOrderDetail([FromBody]PreIdPoJsonObj obj)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
+            var preId = obj.PreId;
+            var po = obj.Po;
+
             var cartonDetails = _context.SilkIconCartonDetails
                 .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId)
+                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId 
+                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
                 .Select(Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>);
 
             return Ok(cartonDetails);

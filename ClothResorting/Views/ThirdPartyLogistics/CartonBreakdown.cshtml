@@ -37,13 +37,32 @@
     <script>
         $(document).ready(function () {
 
-            var po = JSON.stringify(window.location.search.substr(1));      //从地址栏url获取id
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            //从地址栏获取参数
+            var preid = getUrlParameter('preid');
+            var po = getUrlParameter('po').toString();
+            var data = { "preid": preid, "po": po };
 
             $.ajax({
                 type: "POST",
                 url: "/api/Inventory",
                 contentType: 'application/json; charset=utf-8',
-                data: po,
+                data: JSON.stringify(data),
                 dataType: "json",
                 success: function (data, status, xhr) {
                     $("#receive-table").DataTable({

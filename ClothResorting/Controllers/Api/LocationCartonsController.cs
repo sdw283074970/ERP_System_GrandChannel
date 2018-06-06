@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
+using ClothResorting.Models.ApiTransformModels;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -19,17 +21,23 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/InStockCartons/输入Po号，返回所有有收货记录的CartonBreakDown
+        // POST /api/LocationCartons/ 从地址栏获取preid和po，返回所有有收货记录的CartonBreakDown
         [HttpPost]
-        public IHttpActionResult GetCartonDetail([FromBody]string po)
+        public IHttpActionResult GetCartonDetail([FromBody]PreIdPoJsonObj obj)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
+            var preId = obj.PreId;
+            var po = obj.Po;
+
             var cartons = _context.CartonBreakDowns
-                .Where(c => c.PurchaseNumber == po && c.ActualPcs != 0)
+                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
+                .Where(c => c.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
+                    && c.SilkIconPackingList.PurchaseOrderNumber == po
+                    && c.ActualPcs != 0)
                 .Select(Mapper.Map<CartonBreakDown, CartonBreakDownDto>);
 
             return Ok(cartons);
