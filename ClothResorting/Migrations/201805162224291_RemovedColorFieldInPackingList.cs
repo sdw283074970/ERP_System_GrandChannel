@@ -1,0 +1,18 @@
+namespace ClothResorting.Migrations
+{
+    using System;
+    using System.Data.Entity.Migrations;
+    
+    public partial class RemovedColorFieldInPackingList : DbMigration
+    {
+        public override void Up()
+        {
+            DropColumn("dbo.SilkIconPackingLists", "Color");
+        }
+        
+        public override void Down()
+        {
+            AddColumn("dbo.SilkIconPackingLists", "Color", c => c.String());
+        }
+    }
+}

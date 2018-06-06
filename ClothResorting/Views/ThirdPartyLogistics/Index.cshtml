@@ -1,0 +1,201 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Pre-receive Order Overview</h2>
+
+<div class="maincontainer">
+    <div>
+        <input id="create1" type="button" class="btn btn-group" value="Creat A New Pre-receive Order"/>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Customer Name</th>
+                    <th>Created Date</th>
+                    <th>Status</th>
+                    <th>Total Vol.</th>
+                    <th>Total G.W.(lb)</th>
+                    <th>Total N.W.(lb)</th>
+                    <th>Forecast Cartons</th>
+                    <th>Receipt Cartons</th>
+                    <th>Available Cartons</th>
+                    <th>Forecast Pcs</th>
+                    <th>Receipt Pcs</th>
+                    <th>Available Pcs</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="iframe">
+    <div>
+        @*<button id="upload1" type="button" class="layui-btn"><i class="layui-icon">&#xe67c;</i>Upload Template File</button>*@
+        <input id="upload2" type="file" accept="xls/xlsx"/>
+    </div>
+    <div>
+        <input id="uploadfile" type="button" class="btn btn-default" value="上传文件" />
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+
+            $("#table").DataTable({
+                ajax: {
+                    url: "/api/Inventory",
+                    dataSrc: ""
+                },
+                columns:[
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<a href='/ThirdPartyLogistics/PrereceiveOrderDetail/?" + data + "'>" + data + "</a>";
+                        }
+                    },
+                    {
+                        data: "customerName",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "creatDate",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "totalGrossWeight",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "totalNetWeight",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "totalVol",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "totalCartons",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualReceived",
+                        render: function (data) {
+                            return "<font color='blue'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "available",
+                        render: function (data) {
+                            return "<font color='red'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "totalPcs",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualReceivedPcs",
+                        render: function (data) {
+                            return "<font color='blue'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "availablePcs",
+                        render: function (data) {
+                            return "<font color='red'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<button class='btn btn-danger js-delete'>Delete</button>";
+                        }
+                    }
+                ]
+            });
+
+            $("#create1").click(function () {
+                layui.use("layer", function () {
+                    var layer = layui.layer;
+
+                    layer.open({
+                        title: false,
+                        type: 1,
+                        shadeclose: true,
+                        area: ["40%", "40%"],
+                        content: $(".iframe")
+                    });
+                });
+            })
+
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0)
+                {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/ThirdPartyLogisticsApi",
+                    data: formData,
+                    success: function () {
+                        bootbox.alert("Extract successed!");
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("An error occured on the server!");
+                    }
+                });
+
+                layer.close(layer.index);
+                $(".iframe").hide();
+            });
+
+            $("#table").on("click", ".js-delete", function () {
+                bootbox.confirm("Are you sure to delete this record? All the related records will be deleted and this operation is not reversible.",
+                    function (result) {
+                        bootbox.alert("Delete success!", function () { });
+                    });
+            });
+        });
+    </script>
+}

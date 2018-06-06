@@ -1,0 +1,196 @@
+﻿
+@{
+    ViewBag.Title = "Location";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Allocating Location</h2>
+
+<div class="maincontainer">
+    <div>
+        <table id="receive-table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>PO#</th>
+                    <th>Style#</th>
+                    <th>Color</th>
+                    <th>C/NO From</th>
+                    <th>C/NO To</th>
+                    <th>Run Code</th>
+                    <th>Size</th>
+                    <th>Forecast Pcs</th>
+                    <th>Receipt Pcs</th>
+                    <th>Available Pcs</th>
+                    <th>Location</th>
+                    <th><input id="select-all" type="checkbox" value="12345"/> Select All</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div>
+            <button class="btn btn-default">Select All</button><button class="btn btn-group">Cancel All</button><button class="btn btn-default">Select Invert</button>
+        </div>
+        <div>
+            <font style="font-weight:bold;font-style:italic;" color="red">Apply location for all selected object:  
+                <input placeholder="e.g. A-12"/>  
+                <button id="update-button" class="btn btn-info">Confirm</button>
+            </font>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var id = JSON.stringify(window.location.search.substr(1));      //从地址栏url获取id
+
+            $.ajax({
+                type: "POST",
+                url: "/api/LocationCartons",
+                contentType: 'application/json; charset=utf-8',
+                data: id,
+                dataType: "json",
+                success: function (data, status, xhr) {
+                    $("#receive-table").DataTable({
+                        data: data,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseNumber",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "cartonNumberRangeFrom",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "cartonNumberRangeTo",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "runCode",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "size",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "forecastPcs",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "actualPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "availablePcs",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return data == null ? "<font>N/A</font>" : "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />"
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            $("#select-all").on("click", function () {
+                if ($("#select-all").is(":checked")) {
+                    $(".cb-selected").prop("checked", true);
+                }
+                else {
+                    $(".cb-selected").prop("checked", false);
+                }
+            });
+
+            //点击Confirm按钮上传更新选中对象的Location
+            $("#update-button").on("click", function () {
+                var button = $(this);
+                var locationValue = button.prev().val();
+                var arr = new Array();
+                
+                if (locationValue != "" && locationValue != null)
+                {
+                    //将所有被选中的CheckBox的值放到数组中
+                    $("input:checkbox[name='selected']:checked").each(function (i) {
+
+                        var val = $(this).val();
+                        arr.push(val);
+                    });
+
+                    var obj = { "arr": arr, "location": locationValue };
+                    alert(JSON.stringify(obj));
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/LocationUpdate",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        success: function (data) {
+                            alert("Update success!");
+                            location.reload();
+                        },
+                        error: function () {
+                            alert("An error occured!");
+                            alert(JSON.stringify(obj));
+                        }
+                    });
+                }
+                else
+                {
+                    alert("Location cannot be empty!");
+                }
+                
+            });
+
+        });
+    </script>
+}

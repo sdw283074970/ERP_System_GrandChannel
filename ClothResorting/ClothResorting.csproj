@@ -1,0 +1,1091 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E6BE1D48-6151-4A6A-B462-8975199C4200}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ClothResorting</RootNamespace>
+    <AssemblyName>ClothResorting</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=4.1.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.4.1.0\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.0.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.0.6\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AI.DependencyCollector, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.2.0\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.2.0\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.2.0\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AI.Web, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.2.0\lib\net45\Microsoft.AI.Web.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AI.WindowsServer, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.2.0\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.2.0\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.3\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Owin">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.1\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin">
+      <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Facebook">
+      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.3.0.1\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.3.0.1\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OAuth">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.1\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Google">
+      <HintPath>..\packages\Microsoft.Owin.Security.Google.3.0.1\lib\net45\Microsoft.Owin.Security.Google.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Twitter">
+      <HintPath>..\packages\Microsoft.Owin.Security.Twitter.3.0.1\lib\net45\Microsoft.Owin.Security.Twitter.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.MicrosoftAccount">
+      <HintPath>..\packages\Microsoft.Owin.Security.MicrosoftAccount.3.0.1\lib\net45\Microsoft.Owin.Security.MicrosoftAccount.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\IdentityConfig.cs" />
+    <Compile Include="App_Start\MappingProfile.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\Api\LocationUpdateController.cs" />
+    <Compile Include="Controllers\Api\CartonBreakdownPcsController.cs" />
+    <Compile Include="Controllers\Api\CartonDetailsController.cs" />
+    <Compile Include="Controllers\Api\InventoryController.cs" />
+    <Compile Include="Controllers\Api\LocationCartonsController.cs" />
+    <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
+    <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
+    <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
+    <Compile Include="Controllers\DropShippingController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
+    <Compile Include="Dtos\CartonBreakDownDto.cs" />
+    <Compile Include="Dtos\MeasurementDto.cs" />
+    <Compile Include="Dtos\SilkIconCartonDetailDto.cs" />
+    <Compile Include="Dtos\SilkIconPackingListDto.cs" />
+    <Compile Include="Dtos\SilkIconPreReceiveOrdersDto.cs" />
+    <Compile Include="Dtos\SizeRatioDto.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ExcelExtracter.cs" />
+    <Compile Include="Migrations\201805111640533_Initialization.cs" />
+    <Compile Include="Migrations\201805111640533_Initialization.Designer.cs">
+      <DependentUpon>201805111640533_Initialization.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111646528_AddedTableDistributionCenters.cs" />
+    <Compile Include="Migrations\201805111646528_AddedTableDistributionCenters.Designer.cs">
+      <DependentUpon>201805111646528_AddedTableDistributionCenters.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111648474_AddedTableSilkIconCartonDetails.cs" />
+    <Compile Include="Migrations\201805111648474_AddedTableSilkIconCartonDetails.Designer.cs">
+      <DependentUpon>201805111648474_AddedTableSilkIconCartonDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111651351_AddedTableSilkIconPODetails.cs" />
+    <Compile Include="Migrations\201805111651351_AddedTableSilkIconPODetails.Designer.cs">
+      <DependentUpon>201805111651351_AddedTableSilkIconPODetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111653443_AddedTableSilkIconPackingLists.cs" />
+    <Compile Include="Migrations\201805111653443_AddedTableSilkIconPackingLists.Designer.cs">
+      <DependentUpon>201805111653443_AddedTableSilkIconPackingLists.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111655116_AddedTableSilkIconPackingListOverViews.cs" />
+    <Compile Include="Migrations\201805111655116_AddedTableSilkIconPackingListOverViews.Designer.cs">
+      <DependentUpon>201805111655116_AddedTableSilkIconPackingListOverViews.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111656227_AddedTableSilkIconRevceiveOrders.cs" />
+    <Compile Include="Migrations\201805111656227_AddedTableSilkIconRevceiveOrders.Designer.cs">
+      <DependentUpon>201805111656227_AddedTableSilkIconRevceiveOrders.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111702098_ReTypedRelationshipInSilkIconPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201805111702098_ReTypedRelationshipInSilkIconPreReceiveOrder.Designer.cs">
+      <DependentUpon>201805111702098_ReTypedRelationshipInSilkIconPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111722184_OverridedOneToOneRelationshipBetweenSilkIconPackingListAndSilkIconPODetail.cs" />
+    <Compile Include="Migrations\201805111722184_OverridedOneToOneRelationshipBetweenSilkIconPackingListAndSilkIconPODetail.Designer.cs">
+      <DependentUpon>201805111722184_OverridedOneToOneRelationshipBetweenSilkIconPackingListAndSilkIconPODetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111744163_CommenedOutDistributionCenterProperties.cs" />
+    <Compile Include="Migrations\201805111744163_CommenedOutDistributionCenterProperties.Designer.cs">
+      <DependentUpon>201805111744163_CommenedOutDistributionCenterProperties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111756446_ModifiedCartonDetailProperties.cs" />
+    <Compile Include="Migrations\201805111756446_ModifiedCartonDetailProperties.Designer.cs">
+      <DependentUpon>201805111756446_ModifiedCartonDetailProperties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111800469_AddPropertiesDistributionCenterNameInSilkIconCartionDetail.cs" />
+    <Compile Include="Migrations\201805111800469_AddPropertiesDistributionCenterNameInSilkIconCartionDetail.Designer.cs">
+      <DependentUpon>201805111800469_AddPropertiesDistributionCenterNameInSilkIconCartionDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111807214_AddedPropertiesTotalCartonsInSilkIconCartonDetail.cs" />
+    <Compile Include="Migrations\201805111807214_AddedPropertiesTotalCartonsInSilkIconCartonDetail.Designer.cs">
+      <DependentUpon>201805111807214_AddedPropertiesTotalCartonsInSilkIconCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111820593_CommenedOutPropertiesInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201805111820593_CommenedOutPropertiesInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201805111820593_CommenedOutPropertiesInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111823341_AddedPropertiesInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201805111823341_AddedPropertiesInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201805111823341_AddedPropertiesInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111826174_ModifiedPropertiesInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201805111826174_ModifiedPropertiesInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201805111826174_ModifiedPropertiesInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112115060_AddedIdentityMainKeyInSilkIconPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201805112115060_AddedIdentityMainKeyInSilkIconPreReceiveOrder.Designer.cs">
+      <DependentUpon>201805112115060_AddedIdentityMainKeyInSilkIconPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112118330_RestoredSilkPreRecerveOrder.cs" />
+    <Compile Include="Migrations\201805112118330_RestoredSilkPreRecerveOrder.Designer.cs">
+      <DependentUpon>201805112118330_RestoredSilkPreRecerveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112139579_RemovedSilkIconPreReceiveOrderDbSet.cs" />
+    <Compile Include="Migrations\201805112139579_RemovedSilkIconPreReceiveOrderDbSet.Designer.cs">
+      <DependentUpon>201805112139579_RemovedSilkIconPreReceiveOrderDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112142094_ReAddedSilkIconPreReceiveOrderDbSet.cs" />
+    <Compile Include="Migrations\201805112142094_ReAddedSilkIconPreReceiveOrderDbSet.Designer.cs">
+      <DependentUpon>201805112142094_ReAddedSilkIconPreReceiveOrderDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112205128_ModifiedOneToOneRelationshipBetweenSilkPreReceiveOrderAndSilkPackingListOverView.cs" />
+    <Compile Include="Migrations\201805112205128_ModifiedOneToOneRelationshipBetweenSilkPreReceiveOrderAndSilkPackingListOverView.Designer.cs">
+      <DependentUpon>201805112205128_ModifiedOneToOneRelationshipBetweenSilkPreReceiveOrderAndSilkPackingListOverView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112225158_DeletedAllDbSets.cs" />
+    <Compile Include="Migrations\201805112225158_DeletedAllDbSets.Designer.cs">
+      <DependentUpon>201805112225158_DeletedAllDbSets.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112226289_AddedManyDbSets.cs" />
+    <Compile Include="Migrations\201805112226289_AddedManyDbSets.Designer.cs">
+      <DependentUpon>201805112226289_AddedManyDbSets.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112309316_ModifiedSomeColumns.cs" />
+    <Compile Include="Migrations\201805112309316_ModifiedSomeColumns.Designer.cs">
+      <DependentUpon>201805112309316_ModifiedSomeColumns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112315229_RefactoredSilkIconPODetail.cs" />
+    <Compile Include="Migrations\201805112315229_RefactoredSilkIconPODetail.Designer.cs">
+      <DependentUpon>201805112315229_RefactoredSilkIconPODetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112319217_RenamedColumnsInSilkIconPODetail.cs" />
+    <Compile Include="Migrations\201805112319217_RenamedColumnsInSilkIconPODetail.Designer.cs">
+      <DependentUpon>201805112319217_RenamedColumnsInSilkIconPODetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112335469_RemovedTotalVolColumnInSilkIconOverView.cs" />
+    <Compile Include="Migrations\201805112335469_RemovedTotalVolColumnInSilkIconOverView.Designer.cs">
+      <DependentUpon>201805112335469_RemovedTotalVolColumnInSilkIconOverView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112337221_AddedTotalVolInSilkIconOverView.cs" />
+    <Compile Include="Migrations\201805112337221_AddedTotalVolInSilkIconOverView.Designer.cs">
+      <DependentUpon>201805112337221_AddedTotalVolInSilkIconOverView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112344351_RemovedTotalVolColumnInSilkIconPackingListOverView.cs" />
+    <Compile Include="Migrations\201805112344351_RemovedTotalVolColumnInSilkIconPackingListOverView.Designer.cs">
+      <DependentUpon>201805112344351_RemovedTotalVolColumnInSilkIconPackingListOverView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112349127_RenameSilkIconCartonDetailTable.cs" />
+    <Compile Include="Migrations\201805112349127_RenameSilkIconCartonDetailTable.Designer.cs">
+      <DependentUpon>201805112349127_RenameSilkIconCartonDetailTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112353484_AddedSumPropertiesInSilkIconCartonDetail.cs" />
+    <Compile Include="Migrations\201805112353484_AddedSumPropertiesInSilkIconCartonDetail.Designer.cs">
+      <DependentUpon>201805112353484_AddedSumPropertiesInSilkIconCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112359241_RenameTwoColumnsInSilkIconCartonDetail.cs" />
+    <Compile Include="Migrations\201805112359241_RenameTwoColumnsInSilkIconCartonDetail.Designer.cs">
+      <DependentUpon>201805112359241_RenameTwoColumnsInSilkIconCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805120002184_RemovedAllDbSetsAgain.cs" />
+    <Compile Include="Migrations\201805120002184_RemovedAllDbSetsAgain.Designer.cs">
+      <DependentUpon>201805120002184_RemovedAllDbSetsAgain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805120004140_ReAddedAllDbSetsAgain.cs" />
+    <Compile Include="Migrations\201805120004140_ReAddedAllDbSetsAgain.Designer.cs">
+      <DependentUpon>201805120004140_ReAddedAllDbSetsAgain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805142234553_ModifiedLotsOfFieldTypes.cs" />
+    <Compile Include="Migrations\201805142234553_ModifiedLotsOfFieldTypes.Designer.cs">
+      <DependentUpon>201805142234553_ModifiedLotsOfFieldTypes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805142259536_AddColorColumnsInSilkIconPackingList.cs" />
+    <Compile Include="Migrations\201805142259536_AddColorColumnsInSilkIconPackingList.Designer.cs">
+      <DependentUpon>201805142259536_AddColorColumnsInSilkIconPackingList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805151605493_NoneabliezedPropertiesInSlikIconPackingListAndOverview.cs" />
+    <Compile Include="Migrations\201805151605493_NoneabliezedPropertiesInSlikIconPackingListAndOverview.Designer.cs">
+      <DependentUpon>201805151605493_NoneabliezedPropertiesInSlikIconPackingListAndOverview.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805151724443_DeletedAllDbSets1.cs" />
+    <Compile Include="Migrations\201805151724443_DeletedAllDbSets1.Designer.cs">
+      <DependentUpon>201805151724443_DeletedAllDbSets1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805151734028_ReAddedDbset.cs" />
+    <Compile Include="Migrations\201805151734028_ReAddedDbset.Designer.cs">
+      <DependentUpon>201805151734028_ReAddedDbset.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805151745283_RemovedDateFieldInSilkIconPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201805151745283_RemovedDateFieldInSilkIconPreReceiveOrder.Designer.cs">
+      <DependentUpon>201805151745283_RemovedDateFieldInSilkIconPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805152001549_AddedPONumberInSilkIconCartonDetails.cs" />
+    <Compile Include="Migrations\201805152001549_AddedPONumberInSilkIconCartonDetails.Designer.cs">
+      <DependentUpon>201805152001549_AddedPONumberInSilkIconCartonDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805162157553_ModifiedLotsOfModels.cs" />
+    <Compile Include="Migrations\201805162157553_ModifiedLotsOfModels.Designer.cs">
+      <DependentUpon>201805162157553_ModifiedLotsOfModels.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805162224291_RemovedColorFieldInPackingList.cs" />
+    <Compile Include="Migrations\201805162224291_RemovedColorFieldInPackingList.Designer.cs">
+      <DependentUpon>201805162224291_RemovedColorFieldInPackingList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805162313406_AddedMeasurementsDbSet.cs" />
+    <Compile Include="Migrations\201805162313406_AddedMeasurementsDbSet.Designer.cs">
+      <DependentUpon>201805162313406_AddedMeasurementsDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805162321576_ModifiedMeasurementModel.cs" />
+    <Compile Include="Migrations\201805162321576_ModifiedMeasurementModel.Designer.cs">
+      <DependentUpon>201805162321576_ModifiedMeasurementModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805162357029_RemovedNameListInCartonDetail.cs" />
+    <Compile Include="Migrations\201805162357029_RemovedNameListInCartonDetail.Designer.cs">
+      <DependentUpon>201805162357029_RemovedNameListInCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805170000053_ModifiedNullableInSizeRatio.cs" />
+    <Compile Include="Migrations\201805170000053_ModifiedNullableInSizeRatio.Designer.cs">
+      <DependentUpon>201805170000053_ModifiedNullableInSizeRatio.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805171658176_SimplifiedCartonDetail.cs" />
+    <Compile Include="Migrations\201805171658176_SimplifiedCartonDetail.Designer.cs">
+      <DependentUpon>201805171658176_SimplifiedCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805302040311_AddColorColumnInCartonDeatil.cs" />
+    <Compile Include="Migrations\201805302040311_AddColorColumnInCartonDeatil.Designer.cs">
+      <DependentUpon>201805302040311_AddColorColumnInCartonDeatil.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805311556500_AddActualReceivedColumnInPackingList.cs" />
+    <Compile Include="Migrations\201805311556500_AddActualReceivedColumnInPackingList.Designer.cs">
+      <DependentUpon>201805311556500_AddActualReceivedColumnInPackingList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805311600320_AddAndModifiedActualReceivedInPackingListAndCartonDetails.cs" />
+    <Compile Include="Migrations\201805311600320_AddAndModifiedActualReceivedInPackingListAndCartonDetails.Designer.cs">
+      <DependentUpon>201805311600320_AddAndModifiedActualReceivedInPackingListAndCartonDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805311604149_AddActualReceivedInPreReceivedOrder.cs" />
+    <Compile Include="Migrations\201805311604149_AddActualReceivedInPreReceivedOrder.Designer.cs">
+      <DependentUpon>201805311604149_AddActualReceivedInPreReceivedOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805311709411_AddAvailableInThreeDomainModels.cs" />
+    <Compile Include="Migrations\201805311709411_AddAvailableInThreeDomainModels.Designer.cs">
+      <DependentUpon>201805311709411_AddAvailableInThreeDomainModels.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805311825280_AddPcsDetailInCartonDetails.cs" />
+    <Compile Include="Migrations\201805311825280_AddPcsDetailInCartonDetails.Designer.cs">
+      <DependentUpon>201805311825280_AddPcsDetailInCartonDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805311828566_CorrectNameOfAvailable.cs" />
+    <Compile Include="Migrations\201805311828566_CorrectNameOfAvailable.Designer.cs">
+      <DependentUpon>201805311828566_CorrectNameOfAvailable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806012117548_AddCartonBreakdownDbSet.cs" />
+    <Compile Include="Migrations\201806012117548_AddCartonBreakdownDbSet.Designer.cs">
+      <DependentUpon>201806012117548_AddCartonBreakdownDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806012331394_AddRunCodePropertyInCartonBreakDown.cs" />
+    <Compile Include="Migrations\201806012331394_AddRunCodePropertyInCartonBreakDown.Designer.cs">
+      <DependentUpon>201806012331394_AddRunCodePropertyInCartonBreakDown.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806021604372_AddRelationshipBetweenCartonBreakDownAndSilkIconPackingList.cs" />
+    <Compile Include="Migrations\201806021604372_AddRelationshipBetweenCartonBreakDownAndSilkIconPackingList.Designer.cs">
+      <DependentUpon>201806021604372_AddRelationshipBetweenCartonBreakDownAndSilkIconPackingList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806041609418_AddLocationInSilkIconCartonDetail.cs" />
+    <Compile Include="Migrations\201806041609418_AddLocationInSilkIconCartonDetail.Designer.cs">
+      <DependentUpon>201806041609418_AddLocationInSilkIconCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806041652497_AddLicationInCartonBreakDown.cs" />
+    <Compile Include="Migrations\201806041652497_AddLicationInCartonBreakDown.Designer.cs">
+      <DependentUpon>201806041652497_AddLicationInCartonBreakDown.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806051736384_AddStatusInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201806051736384_AddStatusInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201806051736384_AddStatusInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806052201313_AddPcsDetailInPackList.cs" />
+    <Compile Include="Migrations\201806052201313_AddPcsDetailInPackList.Designer.cs">
+      <DependentUpon>201806052201313_AddPcsDetailInPackList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806052334327_AddPcsDetailInPreReceivedOrder.cs" />
+    <Compile Include="Migrations\201806052334327_AddPcsDetailInPreReceivedOrder.Designer.cs">
+      <DependentUpon>201806052334327_AddPcsDetailInPreReceivedOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
+    <Compile Include="Models\CartonBreakDown.cs" />
+    <Compile Include="Models\CartonDetail.cs" />
+    <Compile Include="Models\ErrorViewModel.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\LocationUpdatePackage.cs" />
+    <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\Measurement.cs" />
+    <Compile Include="Models\PackingList.cs" />
+    <Compile Include="Models\SilkIconCartonDetail.cs" />
+    <Compile Include="Models\PODetail.cs" />
+    <Compile Include="Models\PreReceiveOrder.cs" />
+    <Compile Include="Models\SilkIconPackingList.cs" />
+    <Compile Include="Models\SilkIconPreReceiveOrder.cs" />
+    <Compile Include="Models\SizeRatio.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\autoFill.bootstrap.css" />
+    <Content Include="Content\DataTables\css\autoFill.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\autoFill.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\autoFill.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\autoFill.dataTables.css" />
+    <Content Include="Content\DataTables\css\autoFill.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\autoFill.foundation.css" />
+    <Content Include="Content\DataTables\css\autoFill.foundation.min.css" />
+    <Content Include="Content\DataTables\css\autoFill.jqueryui.css" />
+    <Content Include="Content\DataTables\css\autoFill.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\autoFill.semanticui.css" />
+    <Content Include="Content\DataTables\css\autoFill.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\buttons.bootstrap.css" />
+    <Content Include="Content\DataTables\css\buttons.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\buttons.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\buttons.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\buttons.dataTables.css" />
+    <Content Include="Content\DataTables\css\buttons.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\buttons.foundation.css" />
+    <Content Include="Content\DataTables\css\buttons.foundation.min.css" />
+    <Content Include="Content\DataTables\css\buttons.jqueryui.css" />
+    <Content Include="Content\DataTables\css\buttons.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\buttons.semanticui.css" />
+    <Content Include="Content\DataTables\css\buttons.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\colReorder.bootstrap.css" />
+    <Content Include="Content\DataTables\css\colReorder.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\colReorder.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\colReorder.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\colReorder.dataTables.css" />
+    <Content Include="Content\DataTables\css\colReorder.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\colReorder.foundation.css" />
+    <Content Include="Content\DataTables\css\colReorder.foundation.min.css" />
+    <Content Include="Content\DataTables\css\colReorder.jqueryui.css" />
+    <Content Include="Content\DataTables\css\colReorder.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\colReorder.semanticui.css" />
+    <Content Include="Content\DataTables\css\colReorder.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\dataTables.bootstrap.css" />
+    <Content Include="Content\DataTables\css\dataTables.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\dataTables.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\dataTables.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\dataTables.foundation.css" />
+    <Content Include="Content\DataTables\css\dataTables.foundation.min.css" />
+    <Content Include="Content\DataTables\css\dataTables.jqueryui.css" />
+    <Content Include="Content\DataTables\css\dataTables.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\dataTables.material.css" />
+    <Content Include="Content\DataTables\css\dataTables.material.min.css" />
+    <Content Include="Content\DataTables\css\dataTables.semanticui.css" />
+    <Content Include="Content\DataTables\css\dataTables.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\dataTables.uikit.css" />
+    <Content Include="Content\DataTables\css\dataTables.uikit.min.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.bootstrap.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.dataTables.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.foundation.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.foundation.min.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.jqueryui.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.semanticui.css" />
+    <Content Include="Content\DataTables\css\fixedColumns.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.bootstrap.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.dataTables.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.foundation.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.foundation.min.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.jqueryui.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.semanticui.css" />
+    <Content Include="Content\DataTables\css\fixedHeader.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\jquery.dataTables.css" />
+    <Content Include="Content\DataTables\css\jquery.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\jquery.dataTables_themeroller.css" />
+    <Content Include="Content\DataTables\css\keyTable.bootstrap.css" />
+    <Content Include="Content\DataTables\css\keyTable.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\keyTable.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\keyTable.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\keyTable.dataTables.css" />
+    <Content Include="Content\DataTables\css\keyTable.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\keyTable.foundation.css" />
+    <Content Include="Content\DataTables\css\keyTable.foundation.min.css" />
+    <Content Include="Content\DataTables\css\keyTable.jqueryui.css" />
+    <Content Include="Content\DataTables\css\keyTable.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\keyTable.semanticui.css" />
+    <Content Include="Content\DataTables\css\keyTable.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\responsive.bootstrap.css" />
+    <Content Include="Content\DataTables\css\responsive.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\responsive.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\responsive.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\responsive.dataTables.css" />
+    <Content Include="Content\DataTables\css\responsive.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\responsive.foundation.css" />
+    <Content Include="Content\DataTables\css\responsive.foundation.min.css" />
+    <Content Include="Content\DataTables\css\responsive.jqueryui.css" />
+    <Content Include="Content\DataTables\css\responsive.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\responsive.semanticui.css" />
+    <Content Include="Content\DataTables\css\responsive.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\rowGroup.bootstrap.css" />
+    <Content Include="Content\DataTables\css\rowGroup.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\rowGroup.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\rowGroup.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\rowGroup.dataTables.css" />
+    <Content Include="Content\DataTables\css\rowGroup.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\rowGroup.foundation.css" />
+    <Content Include="Content\DataTables\css\rowGroup.foundation.min.css" />
+    <Content Include="Content\DataTables\css\rowGroup.jqueryui.css" />
+    <Content Include="Content\DataTables\css\rowGroup.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\rowGroup.semanticui.css" />
+    <Content Include="Content\DataTables\css\rowGroup.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\rowReorder.bootstrap.css" />
+    <Content Include="Content\DataTables\css\rowReorder.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\rowReorder.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\rowReorder.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\rowReorder.dataTables.css" />
+    <Content Include="Content\DataTables\css\rowReorder.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\rowReorder.foundation.css" />
+    <Content Include="Content\DataTables\css\rowReorder.foundation.min.css" />
+    <Content Include="Content\DataTables\css\rowReorder.jqueryui.css" />
+    <Content Include="Content\DataTables\css\rowReorder.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\rowReorder.semanticui.css" />
+    <Content Include="Content\DataTables\css\rowReorder.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\scroller.bootstrap.css" />
+    <Content Include="Content\DataTables\css\scroller.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\scroller.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\scroller.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\scroller.dataTables.css" />
+    <Content Include="Content\DataTables\css\scroller.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\scroller.foundation.css" />
+    <Content Include="Content\DataTables\css\scroller.foundation.min.css" />
+    <Content Include="Content\DataTables\css\scroller.jqueryui.css" />
+    <Content Include="Content\DataTables\css\scroller.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\scroller.semanticui.css" />
+    <Content Include="Content\DataTables\css\scroller.semanticui.min.css" />
+    <Content Include="Content\DataTables\css\select.bootstrap.css" />
+    <Content Include="Content\DataTables\css\select.bootstrap.min.css" />
+    <Content Include="Content\DataTables\css\select.bootstrap4.css" />
+    <Content Include="Content\DataTables\css\select.bootstrap4.min.css" />
+    <Content Include="Content\DataTables\css\select.dataTables.css" />
+    <Content Include="Content\DataTables\css\select.dataTables.min.css" />
+    <Content Include="Content\DataTables\css\select.foundation.css" />
+    <Content Include="Content\DataTables\css\select.foundation.min.css" />
+    <Content Include="Content\DataTables\css\select.jqueryui.css" />
+    <Content Include="Content\DataTables\css\select.jqueryui.min.css" />
+    <Content Include="Content\DataTables\css\select.semanticui.css" />
+    <Content Include="Content\DataTables\css\select.semanticui.min.css" />
+    <Content Include="Content\DataTables\images\details_close.png" />
+    <Content Include="Content\DataTables\images\details_open.png" />
+    <Content Include="Content\DataTables\images\sort_asc.png" />
+    <Content Include="Content\DataTables\images\sort_asc_disabled.png" />
+    <Content Include="Content\DataTables\images\sort_both.png" />
+    <Content Include="Content\DataTables\images\sort_desc.png" />
+    <Content Include="Content\DataTables\images\sort_desc_disabled.png" />
+    <Content Include="Content\DataTables\swf\flashExport.swf" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Scripts\bootbox.js" />
+    <Content Include="Scripts\bootbox.min.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="ApplicationInsights.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\DataTables\css\semanticui.scss" />
+    <Content Include="Content\DataTables\css\mixins.scss" />
+    <Content Include="Content\DataTables\css\common.scss" />
+    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\Customized\MyJavaScript.js" />
+    <Content Include="Scripts\DataTables\autoFill.bootstrap.js" />
+    <Content Include="Scripts\DataTables\autoFill.bootstrap.min.js" />
+    <Content Include="Scripts\DataTables\autoFill.bootstrap4.js" />
+    <Content Include="Scripts\DataTables\autoFill.bootstrap4.min.js" />
+    <Content Include="Scripts\DataTables\autoFill.foundation.js" />
+    <Content Include="Scripts\DataTables\autoFill.foundation.min.js" />
+    <Content Include="Scripts\DataTables\autoFill.jqueryui.js" />
+    <Content Include="Scripts\DataTables\autoFill.jqueryui.min.js" />
+    <Content Include="Scripts\DataTables\autoFill.semanticui.js" />
+    <Content Include="Scripts\DataTables\autoFill.semanticui.min.js" />
+    <Content Include="Scripts\DataTables\buttons.bootstrap.js" />
+    <Content Include="Scripts\DataTables\buttons.bootstrap.min.js" />
+    <Content Include="Scripts\DataTables\buttons.bootstrap4.js" />
+    <Content Include="Scripts\DataTables\buttons.bootstrap4.min.js" />
+    <Content Include="Scripts\DataTables\buttons.colVis.js" />
+    <Content Include="Scripts\DataTables\buttons.colVis.min.js" />
+    <Content Include="Scripts\DataTables\buttons.flash.js" />
+    <Content Include="Scripts\DataTables\buttons.flash.min.js" />
+    <Content Include="Scripts\DataTables\buttons.foundation.js" />
+    <Content Include="Scripts\DataTables\buttons.foundation.min.js" />
+    <Content Include="Scripts\DataTables\buttons.html5.js" />
+    <Content Include="Scripts\DataTables\buttons.html5.min.js" />
+    <Content Include="Scripts\DataTables\buttons.jqueryui.js" />
+    <Content Include="Scripts\DataTables\buttons.jqueryui.min.js" />
+    <Content Include="Scripts\DataTables\buttons.print.js" />
+    <Content Include="Scripts\DataTables\buttons.print.min.js" />
+    <Content Include="Scripts\DataTables\buttons.semanticui.js" />
+    <Content Include="Scripts\DataTables\buttons.semanticui.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.autoFill.js" />
+    <Content Include="Scripts\DataTables\dataTables.autoFill.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.bootstrap.js" />
+    <Content Include="Scripts\DataTables\dataTables.bootstrap.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.bootstrap4.js" />
+    <Content Include="Scripts\DataTables\dataTables.bootstrap4.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.buttons.js" />
+    <Content Include="Scripts\DataTables\dataTables.buttons.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.colReorder.js" />
+    <Content Include="Scripts\DataTables\dataTables.colReorder.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.fixedColumns.js" />
+    <Content Include="Scripts\DataTables\dataTables.fixedColumns.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.fixedHeader.js" />
+    <Content Include="Scripts\DataTables\dataTables.fixedHeader.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.foundation.js" />
+    <Content Include="Scripts\DataTables\dataTables.foundation.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.jqueryui.js" />
+    <Content Include="Scripts\DataTables\dataTables.jqueryui.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.keyTable.js" />
+    <Content Include="Scripts\DataTables\dataTables.keyTable.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.material.js" />
+    <Content Include="Scripts\DataTables\dataTables.material.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.responsive.js" />
+    <Content Include="Scripts\DataTables\dataTables.responsive.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.rowGroup.js" />
+    <Content Include="Scripts\DataTables\dataTables.rowGroup.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.rowReorder.js" />
+    <Content Include="Scripts\DataTables\dataTables.rowReorder.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.scroller.js" />
+    <Content Include="Scripts\DataTables\dataTables.scroller.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.select.js" />
+    <Content Include="Scripts\DataTables\dataTables.select.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.semanticui.js" />
+    <Content Include="Scripts\DataTables\dataTables.semanticui.min.js" />
+    <Content Include="Scripts\DataTables\dataTables.uikit.js" />
+    <Content Include="Scripts\DataTables\dataTables.uikit.min.js" />
+    <Content Include="Scripts\DataTables\jquery.dataTables.js" />
+    <Content Include="Scripts\DataTables\jquery.dataTables.min.js" />
+    <Content Include="Scripts\DataTables\responsive.bootstrap.js" />
+    <Content Include="Scripts\DataTables\responsive.bootstrap.min.js" />
+    <Content Include="Scripts\DataTables\responsive.bootstrap4.js" />
+    <Content Include="Scripts\DataTables\responsive.bootstrap4.min.js" />
+    <Content Include="Scripts\DataTables\responsive.foundation.js" />
+    <Content Include="Scripts\DataTables\responsive.foundation.min.js" />
+    <Content Include="Scripts\DataTables\responsive.jqueryui.js" />
+    <Content Include="Scripts\DataTables\responsive.jqueryui.min.js" />
+    <Content Include="Scripts\DataTables\responsive.semanticui.js" />
+    <Content Include="Scripts\DataTables\responsive.semanticui.min.js" />
+    <Content Include="Scripts\jquery-1.10.2.js" />
+    <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\Layui\layui.all.js" />
+    <Content Include="Scripts\Layui\layui.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\respond.js" />
+    <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\_references.js" />
+    <Content Include="Web.config" />
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Home\Test.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
+    <Content Include="Views\Account\ConfirmEmail.cshtml" />
+    <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
+    <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
+    <Content Include="Views\Account\ForgotPassword.cshtml" />
+    <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\ResetPassword.cshtml" />
+    <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
+    <Content Include="Views\Account\SendCode.cshtml" />
+    <Content Include="Views\Account\VerifyCode.cshtml" />
+    <Content Include="Views\Manage\AddPhoneNumber.cshtml" />
+    <Content Include="Views\Manage\ChangePassword.cshtml" />
+    <Content Include="Views\Manage\Index.cshtml" />
+    <Content Include="Views\Manage\ManageLogins.cshtml" />
+    <Content Include="Views\Manage\SetPassword.cshtml" />
+    <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
+    <Content Include="Views\Shared\Lockout.cshtml" />
+    <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\Index.cshtml" />
+    <Content Include="Views\DropShipping\Index.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PrereceiveOrderDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\CartonDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\CartonBreakdown.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\Location.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Scripts\Layui\css\" />
+    <Folder Include="Scripts\Layui\font\" />
+    <Folder Include="Scripts\Layui\images\" />
+    <Folder Include="Scripts\Layui\lay\" />
+    <Folder Include="UploadedFiles\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="packages.config" />
+    <None Include="Project_Readme.html" />
+    <Content Include="Scripts\jquery-1.10.2.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201805111640533_Initialization.resx">
+      <DependentUpon>201805111640533_Initialization.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111646528_AddedTableDistributionCenters.resx">
+      <DependentUpon>201805111646528_AddedTableDistributionCenters.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111648474_AddedTableSilkIconCartonDetails.resx">
+      <DependentUpon>201805111648474_AddedTableSilkIconCartonDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111651351_AddedTableSilkIconPODetails.resx">
+      <DependentUpon>201805111651351_AddedTableSilkIconPODetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111653443_AddedTableSilkIconPackingLists.resx">
+      <DependentUpon>201805111653443_AddedTableSilkIconPackingLists.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111655116_AddedTableSilkIconPackingListOverViews.resx">
+      <DependentUpon>201805111655116_AddedTableSilkIconPackingListOverViews.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111656227_AddedTableSilkIconRevceiveOrders.resx">
+      <DependentUpon>201805111656227_AddedTableSilkIconRevceiveOrders.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111702098_ReTypedRelationshipInSilkIconPreReceiveOrder.resx">
+      <DependentUpon>201805111702098_ReTypedRelationshipInSilkIconPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111722184_OverridedOneToOneRelationshipBetweenSilkIconPackingListAndSilkIconPODetail.resx">
+      <DependentUpon>201805111722184_OverridedOneToOneRelationshipBetweenSilkIconPackingListAndSilkIconPODetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111744163_CommenedOutDistributionCenterProperties.resx">
+      <DependentUpon>201805111744163_CommenedOutDistributionCenterProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111756446_ModifiedCartonDetailProperties.resx">
+      <DependentUpon>201805111756446_ModifiedCartonDetailProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111800469_AddPropertiesDistributionCenterNameInSilkIconCartionDetail.resx">
+      <DependentUpon>201805111800469_AddPropertiesDistributionCenterNameInSilkIconCartionDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111807214_AddedPropertiesTotalCartonsInSilkIconCartonDetail.resx">
+      <DependentUpon>201805111807214_AddedPropertiesTotalCartonsInSilkIconCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111820593_CommenedOutPropertiesInPreReceiveOrder.resx">
+      <DependentUpon>201805111820593_CommenedOutPropertiesInPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111823341_AddedPropertiesInPreReceiveOrder.resx">
+      <DependentUpon>201805111823341_AddedPropertiesInPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111826174_ModifiedPropertiesInPreReceiveOrder.resx">
+      <DependentUpon>201805111826174_ModifiedPropertiesInPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112115060_AddedIdentityMainKeyInSilkIconPreReceiveOrder.resx">
+      <DependentUpon>201805112115060_AddedIdentityMainKeyInSilkIconPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112118330_RestoredSilkPreRecerveOrder.resx">
+      <DependentUpon>201805112118330_RestoredSilkPreRecerveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112139579_RemovedSilkIconPreReceiveOrderDbSet.resx">
+      <DependentUpon>201805112139579_RemovedSilkIconPreReceiveOrderDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112142094_ReAddedSilkIconPreReceiveOrderDbSet.resx">
+      <DependentUpon>201805112142094_ReAddedSilkIconPreReceiveOrderDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112205128_ModifiedOneToOneRelationshipBetweenSilkPreReceiveOrderAndSilkPackingListOverView.resx">
+      <DependentUpon>201805112205128_ModifiedOneToOneRelationshipBetweenSilkPreReceiveOrderAndSilkPackingListOverView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112225158_DeletedAllDbSets.resx">
+      <DependentUpon>201805112225158_DeletedAllDbSets.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112226289_AddedManyDbSets.resx">
+      <DependentUpon>201805112226289_AddedManyDbSets.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112309316_ModifiedSomeColumns.resx">
+      <DependentUpon>201805112309316_ModifiedSomeColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112315229_RefactoredSilkIconPODetail.resx">
+      <DependentUpon>201805112315229_RefactoredSilkIconPODetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112319217_RenamedColumnsInSilkIconPODetail.resx">
+      <DependentUpon>201805112319217_RenamedColumnsInSilkIconPODetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112335469_RemovedTotalVolColumnInSilkIconOverView.resx">
+      <DependentUpon>201805112335469_RemovedTotalVolColumnInSilkIconOverView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112337221_AddedTotalVolInSilkIconOverView.resx">
+      <DependentUpon>201805112337221_AddedTotalVolInSilkIconOverView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112344351_RemovedTotalVolColumnInSilkIconPackingListOverView.resx">
+      <DependentUpon>201805112344351_RemovedTotalVolColumnInSilkIconPackingListOverView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112349127_RenameSilkIconCartonDetailTable.resx">
+      <DependentUpon>201805112349127_RenameSilkIconCartonDetailTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112353484_AddedSumPropertiesInSilkIconCartonDetail.resx">
+      <DependentUpon>201805112353484_AddedSumPropertiesInSilkIconCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112359241_RenameTwoColumnsInSilkIconCartonDetail.resx">
+      <DependentUpon>201805112359241_RenameTwoColumnsInSilkIconCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805120002184_RemovedAllDbSetsAgain.resx">
+      <DependentUpon>201805120002184_RemovedAllDbSetsAgain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805120004140_ReAddedAllDbSetsAgain.resx">
+      <DependentUpon>201805120004140_ReAddedAllDbSetsAgain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805142234553_ModifiedLotsOfFieldTypes.resx">
+      <DependentUpon>201805142234553_ModifiedLotsOfFieldTypes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805142259536_AddColorColumnsInSilkIconPackingList.resx">
+      <DependentUpon>201805142259536_AddColorColumnsInSilkIconPackingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805151605493_NoneabliezedPropertiesInSlikIconPackingListAndOverview.resx">
+      <DependentUpon>201805151605493_NoneabliezedPropertiesInSlikIconPackingListAndOverview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805151724443_DeletedAllDbSets1.resx">
+      <DependentUpon>201805151724443_DeletedAllDbSets1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805151734028_ReAddedDbset.resx">
+      <DependentUpon>201805151734028_ReAddedDbset.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805151745283_RemovedDateFieldInSilkIconPreReceiveOrder.resx">
+      <DependentUpon>201805151745283_RemovedDateFieldInSilkIconPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805152001549_AddedPONumberInSilkIconCartonDetails.resx">
+      <DependentUpon>201805152001549_AddedPONumberInSilkIconCartonDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805162157553_ModifiedLotsOfModels.resx">
+      <DependentUpon>201805162157553_ModifiedLotsOfModels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805162224291_RemovedColorFieldInPackingList.resx">
+      <DependentUpon>201805162224291_RemovedColorFieldInPackingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805162313406_AddedMeasurementsDbSet.resx">
+      <DependentUpon>201805162313406_AddedMeasurementsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805162321576_ModifiedMeasurementModel.resx">
+      <DependentUpon>201805162321576_ModifiedMeasurementModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805162357029_RemovedNameListInCartonDetail.resx">
+      <DependentUpon>201805162357029_RemovedNameListInCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805170000053_ModifiedNullableInSizeRatio.resx">
+      <DependentUpon>201805170000053_ModifiedNullableInSizeRatio.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805171658176_SimplifiedCartonDetail.resx">
+      <DependentUpon>201805171658176_SimplifiedCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805302040311_AddColorColumnInCartonDeatil.resx">
+      <DependentUpon>201805302040311_AddColorColumnInCartonDeatil.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805311556500_AddActualReceivedColumnInPackingList.resx">
+      <DependentUpon>201805311556500_AddActualReceivedColumnInPackingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805311600320_AddAndModifiedActualReceivedInPackingListAndCartonDetails.resx">
+      <DependentUpon>201805311600320_AddAndModifiedActualReceivedInPackingListAndCartonDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805311604149_AddActualReceivedInPreReceivedOrder.resx">
+      <DependentUpon>201805311604149_AddActualReceivedInPreReceivedOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805311709411_AddAvailableInThreeDomainModels.resx">
+      <DependentUpon>201805311709411_AddAvailableInThreeDomainModels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805311825280_AddPcsDetailInCartonDetails.resx">
+      <DependentUpon>201805311825280_AddPcsDetailInCartonDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805311828566_CorrectNameOfAvailable.resx">
+      <DependentUpon>201805311828566_CorrectNameOfAvailable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806012117548_AddCartonBreakdownDbSet.resx">
+      <DependentUpon>201806012117548_AddCartonBreakdownDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806012331394_AddRunCodePropertyInCartonBreakDown.resx">
+      <DependentUpon>201806012331394_AddRunCodePropertyInCartonBreakDown.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806021604372_AddRelationshipBetweenCartonBreakDownAndSilkIconPackingList.resx">
+      <DependentUpon>201806021604372_AddRelationshipBetweenCartonBreakDownAndSilkIconPackingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806041609418_AddLocationInSilkIconCartonDetail.resx">
+      <DependentUpon>201806041609418_AddLocationInSilkIconCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806041652497_AddLicationInCartonBreakDown.resx">
+      <DependentUpon>201806041652497_AddLicationInCartonBreakDown.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806051736384_AddStatusInPreReceiveOrder.resx">
+      <DependentUpon>201806051736384_AddStatusInPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806052201313_AddPcsDetailInPackList.resx">
+      <DependentUpon>201806052201313_AddPcsDetailInPackList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806052334327_AddPcsDetailInPreReceivedOrder.resx">
+      <DependentUpon>201806052334327_AddPcsDetailInPreReceivedOrder.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Core">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="Microsoft.Office.Interop.Excel">
+      <Guid>{00020813-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>9</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="VBIDE">
+      <Guid>{0002E157-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>5</VersionMajor>
+      <VersionMinor>3</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>59974</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:59974/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewBag.Title = "CartonBreakdown";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Receiving</h2>
+
+<div class="maincontainer">
+    <div>
+        <table id="receive-table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>PO#</th>
+                    <th>Style#</th>
+                    <th>Color</th>
+                    <th>C/NO From</th>
+                    <th>C/NO To</th>
+                    <th>Run Code</th>
+                    <th>Size</th>
+                    <th>Forecast Pcs</th>
+                    <th>Receipt Pcs</th>
+                    <th>Available Pcs</th>
+                    <th>Location</th>
+                    <th>Arrival Pcs</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var po = JSON.stringify(window.location.search.substr(1));      //从地址栏url获取id
+
+            $.ajax({
+                type: "POST",
+                url: "/api/Inventory",
+                contentType: 'application/json; charset=utf-8',
+                data: po,
+                dataType: "json",
+                success: function (data, status, xhr) {
+                    $("#receive-table").DataTable({
+                        data: data,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseNumber",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "cartonNumberRangeFrom",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "cartonNumberRangeTo",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "runCode",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "size",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "forecastPcs",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "actualPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "availablePcs",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return data == null ? "<font>N/A</font>" : "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<input id='" + data + "' style='width:50px'></input>" + "<button class='btn btn-link'>Confirm<button>";
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            $("#receive-table").on("click", "button", function () {
+                var button = $(this);
+                var value = button.prev().val();
+                var id = button.prev().attr("id");
+
+                var arr = new Array(id, value);
+
+                alert(JSON.stringify(arr));
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/CartonBreakdownPcs/",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(arr),
+                    dataType: "json",
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
+            });
+
+            $("#btn-confirm").on("click", function () {
+                var button = $(this);
+                var value = button.prev().val();
+                po = JSON.stringify(window.location.search.substr(1));
+
+                var obj = { "purchaseOrder": po, "receivedCartons": value };
+
+                //此处jsonstring转换有点问题，暂时手动强制转换
+                jsonStr = "{'purchaseOrder':" + po +", 'receivedCartons':" + value + "}";
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/ReceivedCartonBreakdowns/",
+                    contentType: 'application/json; charset=utf-8',
+                    data: jsonStr,
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Update success!");
+                        location.replace("/ThirdPartyLogistics/Index");
+                    },
+                    error: function () {
+                        alert("An error occured when updating!");
+                    }
+                });
+            });
+
+        });
+    </script>
+}
