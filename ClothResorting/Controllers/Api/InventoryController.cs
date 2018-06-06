@@ -21,7 +21,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-       //GET /api/Inventory/获取所有的PreReceiveOrders
+        //GET /api/Inventory/获取所有的PreReceiveOrders
         public IHttpActionResult GetPrereceiveOrder()
         {
             if (!ModelState.IsValid)

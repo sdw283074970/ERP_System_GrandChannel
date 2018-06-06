@@ -35,7 +35,7 @@ namespace ClothResorting.Controllers.Api
 
             var cartonDetails = _context.SilkIconCartonDetails
                 .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId 
+                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
                     && s.SilkIconPackingList.PurchaseOrderNumber == po)
                 .Select(Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>);
 

@@ -43,16 +43,20 @@ namespace ClothResorting.Controllers.Api
 
             //每更新一次CartonBreakdown的pcs收取数量，同步一次该po的pcs收货总量及库存数量
             var pl = cartonInDb.SilkIconPackingList;
+            var po = pl.PurchaseOrderNumber;
             var preId = pl.SilkIconPreReceiveOrder.Id;
 
+                //查询preId为当前packinglist且po为当前po的breakdown对象
             pl.ActualReceivedPcs = _context.CartonBreakDowns
                 .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId)
+                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
+                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
                 .Sum(s => s.ActualPcs);
 
             pl.AvailablePcs = _context.CartonBreakDowns
                 .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId)
+                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
+                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
                 .Sum(s => s.AvailablePcs);
 
             _context.SaveChanges();

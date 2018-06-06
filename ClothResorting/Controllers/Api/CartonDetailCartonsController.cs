@@ -21,12 +21,13 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/receivedcartons 每一个carton编号范围收取的carton数量
+        // POST /api/cartondetailcartons 每一个carton编号范围收取的carton数量
         [HttpPost]
         public IHttpActionResult UpdateReceivedCartons([FromBody]int[] arr)
         {
             var id = arr[0];
             var changeValue = arr[1];
+
             var cartonDetailInDb = _context.SilkIconCartonDetails
                 .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
                 .SingleOrDefault(s => s.Id == id);
@@ -37,14 +38,18 @@ namespace ClothResorting.Controllers.Api
 
             //每更新一次carton编号范围内收取数量，同步一次该po的收货总量及库存数量
             var pl = cartonDetailInDb.SilkIconPackingList;
+            var po = pl.PurchaseOrderNumber;
             var preReceivedId = pl.SilkIconPreReceiveOrder.Id;
 
+                //查询preId为当前packinglist且po为当前po的cartondetail对象
             pl.ActualReceived = _context.SilkIconCartonDetails
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preReceivedId)
+                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preReceivedId
+                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
                 .Sum(s => s.ActualReceived);
 
             pl.Available = _context.SilkIconCartonDetails
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preReceivedId)
+                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preReceivedId
+                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
                 .Sum(s => s.Available);
 
             _context.SaveChanges();

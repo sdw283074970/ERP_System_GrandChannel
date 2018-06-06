@@ -1,12 +1,10 @@
-﻿
+﻿﻿
 @{
     ViewBag.Title = "Location";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <h1>Third-party Logistics Distribution System</h1>
 <h2>Allocating Location</h2>
-
 <div class="maincontainer">
     <div>
         <table id="receive-table" class="table table-condensed table-hover table-striped">
@@ -24,7 +22,7 @@
                     <th>Receipt Pcs</th>
                     <th>Available Pcs</th>
                     <th>Location</th>
-                    <th><input id="select-all" type="checkbox" value="12345"/> Select All</th>
+                    <th><input id="select-all" type="checkbox" value="12345" /> Select All</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -33,14 +31,14 @@
             <button class="btn btn-default">Select All</button><button class="btn btn-group">Cancel All</button><button class="btn btn-default">Select Invert</button>
         </div>
         <div>
-            <font style="font-weight:bold;font-style:italic;" color="red">Apply location for all selected object:  
-                <input placeholder="e.g. A-12"/>  
+            <font style="font-weight:bold;font-style:italic;" color="red">
+                Apply location for all selected object:
+                <input placeholder="e.g. A-12" />
                 <button id="update-button" class="btn btn-info">Confirm</button>
             </font>
         </div>
     </div>
 </div>
-
 @section scripts
 {
     <script>
@@ -175,7 +173,7 @@
                 var button = $(this);
                 var locationValue = button.prev().val();
                 var arr = new Array();
-                
+
                 if (locationValue != "" && locationValue != null)
                 {
                     //将所有被选中的CheckBox的值放到数组中
@@ -208,7 +206,7 @@
                 {
                     alert("Location cannot be empty!");
                 }
-                
+
             });
 
         });
