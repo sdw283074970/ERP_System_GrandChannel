@@ -60,6 +60,8 @@
                 data: id,
                 dataType: "json",
                 success: function (data, status, xhr) {
+                    var inOneCarton = false;
+
                     $("#table").DataTable({
                         data: data,
                         columns: [
@@ -132,25 +134,26 @@
                             {
                                 data: "sumOfCarton",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</text>";
+                                    data == 0 ? inOneCarton = true : inOneCarton = false;
+                                    return inOneCarton ? "" : "<font color='green'>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "actualReceived",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return inOneCarton ? "" : "<font color='green'>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "available",
                                 render: function (data) {
-                                    return "<font color='red'>" + data + "</font>";
+                                    return inOneCarton ? "" : "<font color='green'>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input id='" + data + "' style='width:30px'></input>" + "<button style='width:30px' class='btn btn-link btn-confirm'>Ok<button>";
+                                    return inOneCarton ? "" : "<input id='" + data + "' style='width:30px'></input>" + "<button style='width:30px' class='btn btn-link btn-confirm'>Ok<button>";
                                 }
                             }
                         ]

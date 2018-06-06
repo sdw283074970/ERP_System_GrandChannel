@@ -89,6 +89,12 @@ namespace ClothResorting.Controllers.Api
                 .Sum(s => s.TotalPcs);
 
             _context.SaveChanges();
+
+            //在CartonDetail中消除在同一箱的不同货物造成的重复计箱问题
+            var checker = new InOneCartonChecker();
+            checker.ReplaceRepeatedEntry();
+
+            _context.SaveChanges();
         }
     }
 }

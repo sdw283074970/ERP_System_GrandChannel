@@ -68,6 +68,12 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
 
+            //每更新一次CartonBreakdown的pcs收取数量，同步一次与此Breakdown对应的Carton Details中的pcs收货总量及库存数量
+            pl = _context.SilkIconPackingLists
+                .Include(s => s.SilkIconCartonDetails)
+                .Single(s => s.PurchaseOrderNumber == cartonInDb.PurchaseNumber);
+            
+
             var carton = Mapper.Map<CartonBreakDown, CartonBreakDownDto>(cartonInDb);
 
             return Ok(carton);

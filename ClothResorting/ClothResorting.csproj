@@ -233,6 +233,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ExcelExtracter.cs" />
+    <Compile Include="Helpers\InOneCartonChecker.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.Designer.cs">
       <DependentUpon>201805111640533_Initialization.cs</DependentUpon>
@@ -491,6 +492,7 @@
     <Compile Include="Models\CartonBreakDown.cs" />
     <Compile Include="Models\CartonDetail.cs" />
     <Compile Include="Models\ErrorViewModel.cs" />
+    <Compile Include="Models\Interface\IApplicationDbContext.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LocationUpdatePackage.cs" />
     <Compile Include="Models\ManageViewModels.cs" />

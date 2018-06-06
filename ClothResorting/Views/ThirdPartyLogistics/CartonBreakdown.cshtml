@@ -5,7 +5,7 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Receiving</h2>
+<h2>Carton Breakdown Receiving</h2>
 
 <div class="maincontainer">
     <div>
@@ -124,7 +124,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input id='" + data + "' style='width:50px'></input>" + "<button class='btn btn-link'>Confirm<button>";
+                                    return "<input id='" + data + "' style='width:30px'></input>" + "<button class='btn btn-link'>Ok</button>";
                                 }
                             }
                         ]
@@ -153,31 +153,31 @@
                 });
             });
 
-            $("#btn-confirm").on("click", function () {
-                var button = $(this);
-                var value = button.prev().val();
-                po = JSON.stringify(window.location.search.substr(1));
+            //$("#btn-confirm").on("click", function () {
+            //    var button = $(this);
+            //    var value = button.prev().val();
+            //    po = JSON.stringify(window.location.search.substr(1));
 
-                var obj = { "purchaseOrder": po, "receivedCartons": value };
+            //    var obj = { "purchaseOrder": po, "receivedCartons": value };
 
-                //此处jsonstring转换有点问题，暂时手动强制转换
-                jsonStr = "{'purchaseOrder':" + po +", 'receivedCartons':" + value + "}";
+            //    //此处jsonstring转换有点问题，暂时手动强制转换
+            //    jsonStr = "{'purchaseOrder':" + po +", 'receivedCartons':" + value + "}";
 
-                $.ajax({
-                    type: "POST",
-                    url: "/api/ReceivedCartonBreakdowns/",
-                    contentType: 'application/json; charset=utf-8',
-                    data: jsonStr,
-                    dataType: "json",
-                    success: function (data) {
-                        alert("Update success!");
-                        location.replace("/ThirdPartyLogistics/Index");
-                    },
-                    error: function () {
-                        alert("An error occured when updating!");
-                    }
-                });
-            });
+            //    $.ajax({
+            //        type: "POST",
+            //        url: "/api/ReceivedCartonBreakdowns/",
+            //        contentType: 'application/json; charset=utf-8',
+            //        data: jsonStr,
+            //        dataType: "json",
+            //        success: function (data) {
+            //            alert("Update success!");
+            //            location.replace("/ThirdPartyLogistics/Index");
+            //        },
+            //        error: function () {
+            //            alert("An error occured when updating!");
+            //        }
+            //    });
+            //});
 
         });
     </script>
