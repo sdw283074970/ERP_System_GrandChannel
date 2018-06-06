@@ -52,6 +52,7 @@
     <script>
         $(document).ready(function () {
 
+            var preId = JSON.stringify(window.location.search.substr(1));
             $(".iframe").hide();
 
             $("#table").DataTable({

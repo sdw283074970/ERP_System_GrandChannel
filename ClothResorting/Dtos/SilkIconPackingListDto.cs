@@ -5,6 +5,8 @@ namespace ClothResorting.Dtos
 {
     public class SilkIconPackingListDto
     {
+        public string Id { get; set; }
+
         public string PurchaseOrderNumber { get; set; }
 
         public string StyleNumber { get; set; }

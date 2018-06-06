@@ -15,6 +15,7 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>PO#</th>
                     <th>Style#</th>
                     <th>Vol.</th>
@@ -40,6 +41,7 @@
         $(document).ready(function () {
 
             var id = window.location.search;
+            var preId = window.location.search.substr(1);
 
             var urlstring = "/api/Inventory/" + id.substr(1);
 
@@ -48,11 +50,17 @@
                     url: urlstring,
                     dataSrc: ""
                 },
-                columns:[
+                columns: [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<a href='/ThirdPartyLogistics/CartonDetail/?" + preId + "'>" + data + "</a>";
+                        }
+                    },
                     {
                         data: "purchaseOrderNumber",
                         render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/CartonDetail/?" + data + "'>" + data + "</a>";
+                            return "<text>" + data + "</text>";
                         }
                     },
                     {
@@ -116,11 +124,11 @@
                         }
                     },
                     {
-                        data: "purchaseOrderNumber",
+                        data: "id",
                         render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/CartonDetail/?" + data + "'><button class='btn btn-link'>Receiving Ctns</button></a><br>"
-                                + "<a href='/ThirdPartyLogistics/CartonBreakdown/?" + data + "'><button class='btn btn-link'>Receiving Pcs</button></a><br>"
-                                + "<a href='/ThirdPartyLogistics/Location/?" + data + "'><button class='btn btn-link'>Allocating Location</button></a>";
+                            return "<a href='/ThirdPartyLogistics/CartonDetail/?" + preId + "'><button class='btn btn-link'>Receiving Ctns</button></a><br>"
+                                + "<a href='/ThirdPartyLogistics/CartonBreakdown/?" + preId + "'><button class='btn btn-link'>Receiving Pcs</button></a><br>"
+                                + "<a href='/ThirdPartyLogistics/Location/?" + preId + "'><button class='btn btn-link'>Allocating Location</button></a>";
                         }
                     }
                 ]

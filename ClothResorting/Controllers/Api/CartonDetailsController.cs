@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -21,7 +22,7 @@ namespace ClothResorting.Controllers.Api
 
         // GET /api/CartonDetails/输入po号，返回这个po号的所有CartonDetails
         [HttpPost]
-        public IHttpActionResult GetPurchaseOrderDetail([FromBody]string po)
+        public IHttpActionResult GetPurchaseOrderDetail([FromBody]int preId)
         {
             if (!ModelState.IsValid)
             {
@@ -29,7 +30,8 @@ namespace ClothResorting.Controllers.Api
             }
 
             var cartonDetails = _context.SilkIconCartonDetails
-                .Where(s => s.PurchaseOrderNumber == po)
+                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
+                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId)
                 .Select(Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>);
 
             return Ok(cartonDetails);
