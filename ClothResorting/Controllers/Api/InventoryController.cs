@@ -51,25 +51,21 @@ namespace ClothResorting.Controllers.Api
         }
 
 
-        // POST /api/Inventory/输入po号，返回CartonBreakDown的所有细节
+        // POST /api/Inventory/输入cartondetail的id，返回该id下的CartonBreakDown的所有细节
         [HttpPost]
-        public IHttpActionResult GetCartonDetail([FromBody]PreIdPoJsonObj obj)
+        public IHttpActionResult GetCartonDetail([FromBody]int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var preId = obj.PreId;
-            var po = obj.Po;
-
             var cartons = _context.CartonBreakDowns
-                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(c => c.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
-                    && c.SilkIconPackingList.PurchaseOrderNumber == po)
+                .Include(c => c.SilkIconPackingList)
+                .Where(c => c.SilkIconCartonDetail.Id == id)
                 .Select(Mapper.Map<CartonBreakDown, CartonBreakDownDto>);
 
-            return Ok(cartons);
+            return Created(new Uri(Request.RequestUri + "/" + "cartondetailid=" + id), cartons);
         }
     }
 }

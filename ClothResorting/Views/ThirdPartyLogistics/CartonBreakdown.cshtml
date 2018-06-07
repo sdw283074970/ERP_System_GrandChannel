@@ -7,6 +7,9 @@
 <h2>Carton Breakdown Receiving</h2>
 <div class="maincontainer">
     <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
         <table id="receive-table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -27,6 +30,13 @@
             </thead>
             <tbody></tbody>
         </table>
+        <div>
+            <font style="font-weight:bold;font-style:italic;" color="red">
+                Input actual carton quantity:
+                <input placeholder="example: 12" />
+                <button id="btn-confirm" class="btn btn-info">Confirm</button>
+            </font>
+        </div>
     </div>
 </div>
 @section scripts
@@ -51,15 +61,13 @@
             };
 
             //从地址栏获取参数
-            var preid = getUrlParameter('preid');
-            var po = getUrlParameter('po').toString();
-            var data = { "preid": preid, "po": po };
+            var cartonId = location.search.substring(1);
 
             $.ajax({
                 type: "POST",
                 url: "/api/Inventory",
                 contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(data),
+                data: JSON.stringify(cartonId),
                 dataType: "json",
                 success: function (data, status, xhr) {
                     $("#receive-table").DataTable({
@@ -169,32 +177,35 @@
                 });
             });
 
-            //$("#btn-confirm").on("click", function () {
-            //    var button = $(this);
-            //    var value = button.prev().val();
-            //    po = JSON.stringify(window.location.search.substr(1));
+            $("#btn-confirm").on("click", function () {
+                var button = $(this);
+                var value = button.prev().val();
+                po = JSON.stringify(window.location.search.substr(1));
 
-            //    var obj = { "purchaseOrder": po, "receivedCartons": value };
+                var obj = { "purchaseOrder": po, "receivedCartons": value };
 
-            //    //此处jsonstring转换有点问题，暂时手动强制转换
-            //    jsonStr = "{'purchaseOrder':" + po +", 'receivedCartons':" + value + "}";
+                //此处jsonstring转换有点问题，暂时手动强制转换
+                jsonStr = "{'purchaseOrder':" + po +", 'receivedCartons':" + value + "}";
 
-            //    $.ajax({
-            //        type: "POST",
-            //        url: "/api/ReceivedCartonBreakdowns/",
-            //        contentType: 'application/json; charset=utf-8',
-            //        data: jsonStr,
-            //        dataType: "json",
-            //        success: function (data) {
-            //            alert("Update success!");
-            //            location.replace("/ThirdPartyLogistics/Index");
-            //        },
-            //        error: function () {
-            //            alert("An error occured when updating!");
-            //        }
-            //    });
-            //});
+                $.ajax({
+                    type: "POST",
+                    url: "/api/ReceivedCartonBreakdowns/",
+                    contentType: 'application/json; charset=utf-8',
+                    data: jsonStr,
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Update success!");
+                        location.replace("/ThirdPartyLogistics/Index");
+                    },
+                    error: function () {
+                        alert("An error occured when updating!");
+                    }
+                });
+            });
 
+            $(".btn-back").on("click", function () {
+                window.history.back(-1)
+            });
         });
     </script>
 }

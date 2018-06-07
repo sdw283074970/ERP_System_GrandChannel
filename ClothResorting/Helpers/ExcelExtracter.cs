@@ -7,6 +7,7 @@ using _Excel = Microsoft.Office.Interop.Excel;
 using System.Collections;
 using ClothResorting.Models;
 using System.Diagnostics;
+using System.Data.Entity;
 
 namespace ClothResorting.Helpers
 {
@@ -170,6 +171,10 @@ namespace ClothResorting.Helpers
                 int j = 3;
                 _ws = _wb.Worksheets[w];
 
+                var preReceiveOrderInDb = _context.SilkIconPreReceiveOrders     //获取刚建立的PreReceiveOrder
+                    .OrderByDescending(c => c.Id)
+                    .First();
+
                 //确定有多少行Carton需要扫描
                 while (_ws.Cells[i, j].Value2 != null)
                 {
@@ -184,13 +189,14 @@ namespace ClothResorting.Helpers
 
                 //找到与这一页CartonDetail相关的PackingList
                 _purchaseOrderNumber = _ws.Cells[1, 2].Value2.ToString();
-                var plInDb = _context.SilkIconPackingLists.SingleOrDefault(s => s.PurchaseOrderNumber == _purchaseOrderNumber);
+                var plInDb = _context.SilkIconPackingLists.Include(s => s.SilkIconPreReceiveOrder)
+                    .SingleOrDefault(s => s.PurchaseOrderNumber == _purchaseOrderNumber
+                        && s.SilkIconPreReceiveOrder.Id == preReceiveOrderInDb.Id);
 
                 //为每一个CartonDetail扫描数据
                 for (int c = 0; c < cartonClassCount; c++)
                 {
                     var sizeList = new List<SizeRatio>();
-
 
                     for (int n = 0; n < _numberOfSizeRatio; n++)
                     {

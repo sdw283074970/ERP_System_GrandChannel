@@ -6,4 +6,20 @@
 
 <h1>Third-party Logistics Distribution System</h1>
 <h2>Searching</h2>
+<div>
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1)
+            });
+        });
+    </script>
+}
 

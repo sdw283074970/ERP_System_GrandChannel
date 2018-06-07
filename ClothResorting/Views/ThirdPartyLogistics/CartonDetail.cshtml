@@ -7,7 +7,7 @@
 <h2>Carton Details</h2>
 <div class="maincontainer">
     <div>
-        <input type="button" class="btn btn-default" value="<< Back" />
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -153,12 +153,19 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return inOneCarton ? "" : "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
+                                    return inOneCarton ? "" : "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                        + data + "' /><button class='btn btn-link btn-edit' value='" + data + "'>Maual Edit</button>";
                                 }
                             }
                         ]
                     });
                 }
+            });
+
+            //点击Manul Edit，跳转到相应的breakdown页面
+            $("#table").on("click", ".btn-edit", function () {
+                var id = $(this).val();
+                window.location.href = "/ThirdPartyLogistics/CartonBreakdown/?" + id;
             });
 
             //勾选全选选项，则选择所有对象
@@ -191,6 +198,7 @@
 
             });
 
+            //批量确认收货按钮
             $("#btn-confirm").on("click", function () {
                 var button = $(this);
                 var arr = new Array();
@@ -217,7 +225,11 @@
                         alert(JSON.stringify(arr));
                     }
                 });
-            }); 
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1)
+            });
         });
     </script>
 }

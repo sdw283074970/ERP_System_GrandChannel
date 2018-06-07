@@ -28,7 +28,6 @@ namespace ClothResorting.Controllers.Api
         {
             var fileSavePath = "";
 
-
             //方法1：写入磁盘系统
             if (HttpContext.Current.Request.Files.AllKeys.Any())
             {
