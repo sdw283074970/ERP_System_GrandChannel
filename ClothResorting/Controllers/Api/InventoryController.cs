@@ -51,7 +51,7 @@ namespace ClothResorting.Controllers.Api
         }
 
 
-        // POST /api/Inventory/输入cartondetail的id，返回该id下的CartonBreakDown的所有细节
+        // POST /api/Inventory/输入cartondetail的id，返回该id下箱子中所有的CartonBreakDown的所有细节
         [HttpPost]
         public IHttpActionResult GetCartonDetail([FromBody]int id)
         {
@@ -60,12 +60,29 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
 
-            var cartons = _context.CartonBreakDowns
-                .Include(c => c.SilkIconPackingList)
-                .Where(c => c.SilkIconCartonDetail.Id == id)
-                .Select(Mapper.Map<CartonBreakDown, CartonBreakDownDto>);
+            var cartonInDb = _context.SilkIconCartonDetails
+                .Include(s => s.SilkIconPackingList.SilkIconPreReceiveOrder)
+                .SingleOrDefault(s => s.Id == id);
 
-            return Created(new Uri(Request.RequestUri + "/" + "cartondetailid=" + id), cartons);
+            //需要确保返回的breakdown结果与该cartondetail属于同一个po以及preReceivedOrder下
+            var cartonNumberRangeTo = cartonInDb.CartonNumberRangeTo;
+            var po = cartonInDb.PurchaseOrderNumber;
+            var preId = cartonInDb.SilkIconPackingList.SilkIconPreReceiveOrder.Id;
+
+            if (cartonNumberRangeTo != null)
+            {
+                var cartons = _context.CartonBreakDowns
+                    .Include(c => c.SilkIconCartonDetail.SilkIconPackingList.SilkIconPreReceiveOrder)
+                    .Where(c => c.CartonNumberRangeTo == cartonNumberRangeTo
+                        && c.PurchaseNumber == po
+                        && c.SilkIconCartonDetail.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId)
+                    .Select(Mapper.Map<CartonBreakDown, CartonBreakDownDto>);
+                return Created(new Uri(Request.RequestUri + "/" + "cartondetailid=" + id), cartons);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }
