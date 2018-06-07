@@ -211,6 +211,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
     <Compile Include="Controllers\Api\LocationUpdateController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownPcsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailsController.cs" />
@@ -234,6 +235,7 @@
     </Compile>
     <Compile Include="Helpers\ExcelExtracter.cs" />
     <Compile Include="Helpers\InOneCartonChecker.cs" />
+    <Compile Include="Helpers\DbSynchronizer.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.Designer.cs">
       <DependentUpon>201805111640533_Initialization.cs</DependentUpon>
@@ -485,6 +487,14 @@
     <Compile Include="Migrations\201806052334327_AddPcsDetailInPreReceivedOrder.cs" />
     <Compile Include="Migrations\201806052334327_AddPcsDetailInPreReceivedOrder.Designer.cs">
       <DependentUpon>201806052334327_AddPcsDetailInPreReceivedOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806071627131_AddOneToManyRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs" />
+    <Compile Include="Migrations\201806071627131_AddOneToManyRelationshipBetweenCartonDetailsAndCartonBreakdowns.Designer.cs">
+      <DependentUpon>201806071627131_AddOneToManyRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs" />
+    <Compile Include="Migrations\201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.Designer.cs">
+      <DependentUpon>201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -813,6 +823,7 @@
     <Content Include="Views\ThirdPartyLogistics\CartonDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdown.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\Location.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1019,6 +1030,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806052334327_AddPcsDetailInPreReceivedOrder.resx">
       <DependentUpon>201806052334327_AddPcsDetailInPreReceivedOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806071627131_AddOneToManyRelationshipBetweenCartonDetailsAndCartonBreakdowns.resx">
+      <DependentUpon>201806071627131_AddOneToManyRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.resx">
+      <DependentUpon>201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

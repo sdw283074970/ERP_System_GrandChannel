@@ -37,5 +37,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // 搜索页面
+        public ActionResult Search()
+        {
+            return View();
+        }
     }
 }

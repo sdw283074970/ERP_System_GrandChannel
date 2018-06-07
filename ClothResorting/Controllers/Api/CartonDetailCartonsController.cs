@@ -12,6 +12,7 @@ using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api
 {
+    //即将删除
     public class CartonDetailCartonsController : ApiController
     {
         private ApplicationDbContext _context;

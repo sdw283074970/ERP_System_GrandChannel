@@ -243,25 +243,24 @@ namespace ClothResorting.Helpers
 
                     for (int k = 0; k < sizeList.Count; k++)
                     {
-                        if (sizeList[k].Count != 0)
+                        //即使数量是0也要记录，以防一个箱子中塞入额外不同尺寸pcs的情况
+                        var cartonBreakDown = new CartonBreakDown
                         {
-                            var cartonBreakDown = new CartonBreakDown
-                            {
-                                PurchaseNumber = _purchaseOrderNumber.ToString(),
-                                Style = _style,
-                                Color = _color,
-                                CartonNumberRangeFrom = (int)_cartonNumberRangeFrom,
-                                CartonNumberRangeTo = (int)_cartonNumberRangeTo,
-                                RunCode = _runCode == null ? "" : _runCode,
-                                Size = sizeList[k].SizeName,
-                                ForecastPcs = sizeList[k].Count * sumOfCartons,
-                                ActualPcs = 0,
-                                AvailablePcs = 0,
-                                SilkIconPackingList = plInDb,
-                                Location = null
-                            };
-                            cartonBreakDownList.Add(cartonBreakDown);
-                        }
+                            PurchaseNumber = _purchaseOrderNumber.ToString(),
+                            Style = _style,
+                            Color = _color,
+                            CartonNumberRangeFrom = (int)_cartonNumberRangeFrom,
+                            CartonNumberRangeTo = (int)_cartonNumberRangeTo,
+                            RunCode = _runCode == null ? "" : _runCode,
+                            Size = sizeList[k].SizeName,
+                            ForecastPcs = sizeList[k].Count * sumOfCartons,
+                            ActualPcs = 0,
+                            AvailablePcs = 0,
+                            SilkIconPackingList = plInDb,
+                            Location = null,
+                            SilkIconCartonDetail = carton
+                        };
+                        cartonBreakDownList.Add(cartonBreakDown);
                     }
 
                     list.Add(carton);

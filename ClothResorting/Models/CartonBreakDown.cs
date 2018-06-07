@@ -32,5 +32,7 @@ namespace ClothResorting.Models
         public string Location { get; set; }
 
         public SilkIconPackingList SilkIconPackingList { get; set; }
+
+        public SilkIconCartonDetail SilkIconCartonDetail { get; set; }
     }
 }

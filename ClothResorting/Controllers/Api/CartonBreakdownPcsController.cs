@@ -11,7 +11,7 @@ using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api
 {
-    //每一个cartonBreakDown收取的数量
+    //每一个cartonBreakDown收取的数量 等待删除
     public class CartonBreakdownPcsController : ApiController
     {
         private ApplicationDbContext _context;

@@ -13,7 +13,6 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Id</th>
                     <th>PO#</th>
                     <th>Style#</th>
                     <th>Color</th>
@@ -23,25 +22,22 @@
                     <th>Dimension</th>
                     <th>G.W./CTN</th>
                     <th>N.W./CTN</th>
-                    <th>Location</th>
                     <th>Forecasst Cartons</th>
                     <th>Receipt Cartons</th>
                     <th>Available Cartons</th>
-                    <th>Arrival Cartons</th>
+                    <th width="100"><input id="select-all" type="checkbox" value="12345" />Select All</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
-    @*<div>
+    <div>
             <font style="font-weight:bold;font-style:italic;" color="red">
-                Received cartons of this Purchase Order:
-                <input placeholder="Input total ctns received..." />
-                <button id="btn-confirm" class="btn btn-info">
-                    Confirm
+                <button id="btn-confirm" class="btn btn-block">
+                    Confirm received without problems
                 </button>
             </font>
-        </div>*@
+        </div>
 </div>
 @section scripts
 {
@@ -81,12 +77,6 @@
                     $("#table").DataTable({
                         data: data,
                         columns: [
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
                             {
                                 data: "purchaseOrderNumber",
                                 render: function (data) {
@@ -142,12 +132,6 @@
                                 }
                             },
                             {
-                                data: "location",
-                                render: function (data) {
-                                    return data == null ? "<font>N/A</font>" : "<font>" + data + "</font>";
-                                }
-                            },
-                            {
                                 data: "sumOfCarton",
                                 render: function (data) {
                                     data == 0 ? inOneCarton = true : inOneCarton = false;
@@ -157,23 +141,33 @@
                             {
                                 data: "actualReceived",
                                 render: function (data) {
-                                    return inOneCarton ? "" : "<font color='green'>" + data + "</text>";
+                                    return inOneCarton ? "" : "<font color='blue'>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "available",
                                 render: function (data) {
-                                    return inOneCarton ? "" : "<font color='green'>" + data + "</text>";
+                                    return inOneCarton ? "" : "<font color='red'>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return inOneCarton ? "" : "<input id='" + data + "' style='width:30px'></input>" + "<button style='width:30px' class='btn btn-link btn-confirm'>Ok<button>";
+                                    return inOneCarton ? "" : "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
                                 }
                             }
                         ]
                     });
+                }
+            });
+
+            //勾选全选选项，则选择所有对象
+            $("#select-all").on("click", function () {
+                if ($("#select-all").is(":checked")) {
+                    $(".cb-selected").prop("checked", true);
+                }
+                else {
+                    $(".cb-selected").prop("checked", false);
                 }
             });
 
@@ -197,31 +191,33 @@
 
             });
 
-            //$("#btn-confirm").on("click", function () {
-            //    var button = $(this);
-            //    var value = button.prev().val();
-            //    po = JSON.stringify(window.location.search.substr(1));
+            $("#btn-confirm").on("click", function () {
+                var button = $(this);
+                var arr = new Array();
 
-            //    var obj = { "purchaseOrder": po, "receivedCartons": value };
+                //将所有被选中的CheckBox的对象的id放到数组中
+                $("input:checkbox[name='selected']:checked").each(function (i) {
+                    var val = $(this).val();
+                    arr.push(val);
+                });
 
-            //    //此处jsonstring转换有点问题，暂时手动强制转换
-            //    jsonStr = "{'purchaseOrder':" + po + ", 'receivedCartons':" + value + "}";
-
-            //    $.ajax({
-            //        type: "POST",
-            //        url: "/api/cartondetailreceiving/",
-            //        contentType: 'application/json; charset=utf-8',
-            //        data: jsonStr,
-            //        dataType: "json",
-            //        success: function (data) {
-            //            bootbox.alert("Update success!");
-            //            location.replace("/ThirdPartyLogistics/Index");
-            //        },
-            //        error: function () {
-            //            alert("An error occured when updating!");
-            //        }
-            //    });
-            //});
+                //将所有被选中的对象视为正常正确收货，即实际收货数量及库存数量直接等于应收货数量
+                $.ajax({
+                    type: "POST",
+                    url: "/api/CartonDetailConfirmation",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(arr),
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Update success!");
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("An error occured!");
+                        alert(JSON.stringify(arr));
+                    }
+                });
+            }); 
         });
     </script>
 }

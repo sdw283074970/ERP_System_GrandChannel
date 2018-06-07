@@ -43,6 +43,8 @@ namespace ClothResorting.Models
 
         public IList<SizeRatio> SizeRatios { get; set; }
 
+        public ICollection<CartonBreakDown> CartonBreakdowns { get; set; }
+
         public SilkIconPackingList SilkIconPackingList { get; set; }
     }
 }
