@@ -39,6 +39,8 @@ namespace ClothResorting.Dtos
 
         public int? AvailablePcs { get; set; }
 
+        public string Location { get; set; }
+
         public IList<SizeRatioDto> SizeRatios { get; set; }
     }
 }

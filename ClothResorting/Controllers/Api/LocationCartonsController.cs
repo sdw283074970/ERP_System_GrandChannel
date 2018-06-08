@@ -21,7 +21,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/LocationCartons/ 从地址栏获取preid和po，返回所有有收货记录的CartonBreakDown
+        // POST /api/LocationCartons/ 从地址栏获取preid和po，返回所有有收货记录的CartonDetail
         [HttpPost]
         public IHttpActionResult GetCartonDetail([FromBody]PreIdPoJsonObj obj)
         {
@@ -33,14 +33,14 @@ namespace ClothResorting.Controllers.Api
             var preId = obj.PreId;
             var po = obj.Po;
 
-            var cartons = _context.CartonBreakDowns
+            var cartons = _context.SilkIconCartonDetails
                 .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
                 .Where(c => c.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
                     && c.SilkIconPackingList.PurchaseOrderNumber == po
-                    && c.ActualPcs != 0)
-                .Select(Mapper.Map<CartonBreakDown, CartonBreakDownDto>);
+                    && c.ActualReceived != 0)
+                .Select(Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>);
 
-            return Ok(cartons);
+            return Created(new Uri(Request.RequestUri + "/"), cartons);
         }
     }
 }

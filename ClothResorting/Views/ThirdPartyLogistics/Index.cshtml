@@ -39,7 +39,7 @@
             <tbody>
             </tbody>
         </table>
-    </div>
+    </div> 
 </div>
 
 <div class="iframe">
@@ -183,23 +183,32 @@
                     type: "POST",
                     url: "/api/ThirdPartyLogisticsApi",
                     data: formData,
+                    beforeSend: function(){
+                        layui.use('layer', function () {
+                            var layer = layui.layer;
+                            layer.msg('Extracting files...', {
+                                icon: 16,
+                                shade: 0.01,
+                                time: 99*1000
+                            });;
+                        });
+                    },
                     success: function () {
-                        alert("Extract successed!");
-                        location.reload();
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
                     },
                     error: function () {
-                        alert("An error occured on the server!");
+                        layer.alert("An error occured on the server!");
                     }
                 });
-
-                layer.close(layer.index);
                 $(".iframe").hide();
             });
 
             $("#table").on("click", ".js-delete", function () {
                 bootbox.confirm("Are you sure to delete this record? All the related records will be deleted and this operation is not reversible.",
                     function (result) {
-                        bootbox.alert("Delete success!", function () { });
+                        bootbox.alert("Delete success!");
                     });
             });
         });

@@ -20,7 +20,6 @@
                     <th>C/NO From</th>
                     <th>C/NO To</th>
                     <th>Run Code</th>
-                    <th>Size</th>
                     <th>Forecast Pcs</th>
                     <th>Receipt Pcs</th>
                     <th>Available Pcs</th>
@@ -85,7 +84,7 @@
                                 }
                             },
                             {
-                                data: "purchaseNumber",
+                                data: "purchaseOrderNumber",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -121,25 +120,19 @@
                                 }
                             },
                             {
-                                data: "size",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "forecastPcs",
+                                data: "sumOfCarton",
                                 render: function (data) {
                                     return "<font color='green'>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "actualPcs",
+                                data: "actualReceived",
                                 render: function (data) {
                                     return "<font color='blue'>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "availablePcs",
+                                data: "available",
                                 render: function (data) {
                                     return "<font color='red'>" + data + "</text>";
                                 }
@@ -147,7 +140,7 @@
                             {
                                 data: "location",
                                 render: function (data) {
-                                    return data == null ? "<font>N/A</font>" : "<font>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {

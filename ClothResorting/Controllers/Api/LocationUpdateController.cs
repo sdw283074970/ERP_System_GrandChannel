@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -30,13 +31,26 @@ namespace ClothResorting.Controllers.Api
 
             foreach (var id in package.Arr)
             {
-                var cartonBreakDownInDb = _context.CartonBreakDowns.SingleOrDefault(c => c.Id == id);
-                cartonBreakDownInDb.Location = package.Location;
+                var cartonDetailInDb = _context.SilkIconCartonDetails
+                    .Include(s => s.CartonBreakdowns)
+                    .SingleOrDefault(c => c.Id == id);
+                cartonDetailInDb.Location = package.Location;
+
+                //同步更新carton内部pcs的location
+                foreach(var bk in cartonDetailInDb.CartonBreakdowns)
+                {
+                    bk.Location = package.Location;
+                }
             }
 
             _context.SaveChanges();
 
-            return Ok(_context.CartonBreakDowns.SingleOrDefault(c => c.Id == sampleId));
+            var cartonSample = _context.SilkIconCartonDetails
+                .SingleOrDefault(c => c.Id == sampleId);
+
+            var cartonDto = Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>(cartonSample);
+
+            return Created(new Uri(Request.RequestUri + "/" + sampleId), cartonDto);
         }
     }
 }

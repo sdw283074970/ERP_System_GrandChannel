@@ -241,7 +241,7 @@ namespace ClothResorting.Helpers
                         TotalPcs = _totalPcs == null ? 0 : (int)_totalPcs,
                         SilkIconPackingList = plInDb,
                         SizeRatios = sizeList,
-                        Location = null
+                        Location = "N/A"
                     };
 
                     //顺便添加CartonBreakDown信息到CartonBreakDown表中
@@ -263,7 +263,7 @@ namespace ClothResorting.Helpers
                             ActualPcs = 0,
                             AvailablePcs = 0,
                             SilkIconPackingList = plInDb,
-                            Location = null,
+                            Location = "N/A",
                             SilkIconCartonDetail = carton
                         };
                         cartonBreakDownList.Add(cartonBreakDown);
