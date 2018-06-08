@@ -71,20 +71,19 @@ namespace ClothResorting.Controllers.Api
             foreach(var pl in preReceiveOrder.SilkIconPackingLists)
             {
                 pl.TotalPcs = _context.SilkIconCartonDetails
-                    .Include(c => c.SilkIconPackingList)
-                    .Where(c => c.SilkIconPackingList.PurchaseOrderNumber == pl.PurchaseOrderNumber)
+                    .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
+                    .Where(c => c.SilkIconPackingList.PurchaseOrderNumber == pl.PurchaseOrderNumber
+                        && c.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preReceiveOrder.Id)
                     .Sum(c => c.TotalPcs);
             }
 
             _context.SaveChanges();
 
             //根据每一个packinglist中po的Pcs数量计算整个pre-receive order应收取的pcs总数
-            preReceiveOrder = _context.SilkIconPreReceiveOrders
-                .Include(s => s.SilkIconPackingLists)
-                .OrderByDescending(s => s.Id)
-                .First();
 
-            preReceiveOrder.TotalPcs = preReceiveOrder.SilkIconPackingLists
+            preReceiveOrder.TotalPcs = _context.SilkIconPackingLists
+                .Include(s => s.SilkIconPreReceiveOrder)
+                .Where(s => s.SilkIconPreReceiveOrder.Id == preReceiveOrder.Id)
                 .Sum(s => s.TotalPcs);
 
             _context.SaveChanges();
