@@ -78,17 +78,24 @@ namespace ClothResorting.Controllers.Api
                 result = result.Where(r => r.Vender == vendor).ToList();
             }
 
-            //如果Color为默认值，则返回结果不做任何改变，否则返回指定结果
+            //如果Style为默认值，则返回结果不做任何改变，否则返回指定结果
             if (arr[3] != "default")
             {
-                var color = arr[3];
+                var style = arr[3];
+                result = result.Where(r => r.Style == style).ToList();
+            }
+
+            //如果Color为默认值，则返回结果不做任何改变，否则返回指定结果
+            if (arr[4] != "default")
+            {
+                var color = arr[4];
                 result = result.Where(r => r.Color == color).ToList();
             }
 
             //如果Size为默认值，则返回结果不做任何改变，否则返回指定结果
-            if (arr[4] != "default")
+            if (arr[5] != "default")
             {
-                var size = arr[4];
+                var size = arr[5];
                 result = result.Where(r => r.Size == size).ToList();
             }
 

@@ -25,9 +25,12 @@
                 <input id="vendor" style="width:100px" />
             </font>
             <font>
+                Style:
+                <input id="style" style="width:100px" />
+            </font>
+            <font>
                 Color:
                 <input id="color" style="width:100px" />
-
             </font>
             <font>
                 Size:
@@ -61,7 +64,7 @@
 {
     <script>
         $(document).ready(function () {
-            var arrData = new Array("default", "default", "default", "default", "default");
+            var arrData = new Array("default", "default", "default", "default", "default", "default");
             var table;
 
             $(".btn-back").on("click", function () {
@@ -74,8 +77,9 @@
                 $("#containerNumber").val() == "" ? arrData[0] = "default" : arrData[0] = $("#containerNumber").val();
                 $("#poNumber").val() == "" ? arrData[1] = "default" : arrData[1] = $("#poNumber").val();
                 $("#vendor").val() == "" ? arrData[2] = "default" : arrData[2] = $("#vendor").val();
-                $("#color").val() == "" ? arrData[3] = "default" : arrData[3] = $("#color").val();
-                $("#size").val() == "" ? arrData[4] = "default" : arrData[4] = $("#size").val();
+                $("#style").val() == "" ? arrData[3] = "default" : arrData[3] = $("#style").val();
+                $("#color").val() == "" ? arrData[4] = "default" : arrData[4] = $("#color").val();
+                $("#size").val() == "" ? arrData[5] = "default" : arrData[5] = $("#size").val();
 
                 $.ajax({
                     type: "POST",
