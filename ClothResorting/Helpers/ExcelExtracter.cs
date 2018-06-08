@@ -76,7 +76,7 @@ namespace ClothResorting.Helpers
                 TotalGrossWeight = Math.Round(_ws.Cells[5, 2].Value2 * 2.205, 2),
                 TotalNetWeight = Math.Round(_ws.Cells[6, 2].Value2 * 2.205, 2),
                 TotalVol = Math.Round(_ws.Cells[4, 2].Value2 * 35.315, 2),
-                Status = "Created",
+                ContainerNumber = "UNKOWN",
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
                 AvailablePcs = 0

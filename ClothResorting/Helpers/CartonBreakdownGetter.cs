@@ -1,0 +1,74 @@
+﻿using ClothResorting.Models;
+using ClothResorting.Models.Interface;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace ClothResorting.Helpers
+{
+    public class CartonBreakdownGetter
+    {
+        private ICartonBreakDown _c;
+
+        public CartonBreakdownGetter(CartonBreakDown c)
+        {
+            _c = c;
+        }
+
+        public string GetContainerNumber()
+        {
+            return _c.SilkIconPackingList.SilkIconPreReceiveOrder.ContainerNumber;
+        }
+
+        public string GetPurchaseOrderNumber()
+        {
+            return _c.PurchaseNumber;
+        }
+
+        public string GetVendor()
+        {
+            return _c.SilkIconPackingList.SilkIconPreReceiveOrder.CustomerName;
+        }
+
+        public string GetStyle()
+        {
+            return _c.Style;
+        }
+
+        public string GetColor()
+        {
+            return _c.Color;
+        }
+
+        public int? GetCartonNumberFrom()
+        {
+            return _c.CartonNumberRangeFrom;
+        }
+
+        public int? GetCartonNumberTo()
+        {
+            return _c.CartonNumberRangeTo;
+        }
+
+        public string GetSize()
+        {
+            return _c.Size;
+        }
+
+        public int? GetAvailablePcs()
+        {
+            return _c.AvailablePcs;
+        }
+
+        public int? GetReceivedPcs()
+        {
+            return _c.ActualPcs;
+        }
+
+        public string GetLocation()
+        {
+            return _c.Location;
+        }
+    }
+}

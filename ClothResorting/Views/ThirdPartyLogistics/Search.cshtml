@@ -10,14 +10,158 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
+    <div>
+        <div>
+            <font>
+                Container Number: 
+                <input id="containerNumber" style="width:100px" />
+            </font>
+            <font>
+                PO Number:
+                <input id="poNumber" style="width:100px" />
+            </font>
+            <font>
+                Vendor:
+                <input id="vendor" style="width:100px" />
+            </font>
+            <font>
+                Color:
+                <input id="color" style="width:100px" />
+
+            </font>
+            <font>
+                Size:
+                <input id="size" style="width:100px" />
+            </font>
+            <input id="btn-search" type="button" class="btn btn-info" value="Go Search" />
+        </div>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>CTNR#</th>
+                    <th>PO#</th>
+                    <th>Vendor</th>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>C/NO From</th>
+                    <th>C/NO To</th>
+                    <th>Size</th>
+                    <th>Received Pcs</th>
+                    <th>Available Pcs</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
+            var arrData = new Array("default", "default", "default", "default", "default");
+            var table;
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1)
+            });
+
+            $("#btn-search").on("click", function () {
+
+                //检查用户输入的查询条件
+                $("#containerNumber").val() == "" ? arrData[0] = "default" : arrData[0] = $("#containerNumber").val();
+                $("#poNumber").val() == "" ? arrData[1] = "default" : arrData[1] = $("#poNumber").val();
+                $("#vendor").val() == "" ? arrData[2] = "default" : arrData[2] = $("#vendor").val();
+                $("#color").val() == "" ? arrData[3] = "default" : arrData[3] = $("#color").val();
+                $("#size").val() == "" ? arrData[4] = "default" : arrData[4] = $("#size").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/SearchResult",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(arrData),
+                    dataType: "json",
+                    success: function (data, status, xhr) {
+                        if (table)
+                        {
+                            table.destroy();
+                        }
+                        table = $("#table").DataTable({
+                            destroy: true,
+                            data: data,
+                            columns: [
+                                {
+                                    data: "containerNumber",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {                                    
+                                    data: "purchaseOrderNumber",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "vender",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "cartonNumberRangeFrom",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "cartonNumberRangeTo",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "size",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "receivedPcs",
+                                    render: function (data) {
+                                        return "<font color='blue'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "availablePcs",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<font style='font-weight:bold' color='#698B22'>" + data + "</font>";
+                                    },
+                                }
+                            ]
+                        });
+                    }
+                });
             });
         });
     </script>

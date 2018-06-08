@@ -9,12 +9,11 @@
 
 <div class="maincontainer">
     <div>
-        <input id="create1" type="button" class="btn btn-group" value="Creat A New Pre-receive Order"/>
-    </div>
-    <div>
+        <input id="create1" type="button" class="btn btn-group" value="Creat A New Pre-receive Order" />
         <a href="/ThirdPartyLogistics/search">
-            <input id="btn-search" type="button" class="btn btn-info" value="Search"/>
+            <input id="btn-search" type="button" class="btn btn-info" value="Search" />
         </a>
+        <input id="btn-delete" type="button" class="btn btn-danger" value="Delete All" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -23,7 +22,7 @@
                     <th>Id</th>
                     <th>Customer Name</th>
                     <th>Created Date</th>
-                    <th>Status</th>
+                    <th>Container#</th>
                     <th>Total Vol.</th>
                     <th>Total G.W.(lb)</th>
                     <th>Total N.W.(lb)</th>
@@ -36,16 +35,15 @@
                     <th>Operation</th>
                 </tr>
             </thead>
-            <tbody>
-            </tbody>
+            <tbody></tbody>
         </table>
-    </div> 
+    </div>
 </div>
 
 <div class="iframe">
     <div>
         @*<button id="upload1" type="button" class="layui-btn"><i class="layui-icon">&#xe67c;</i>Upload Template File</button>*@
-        <input id="upload2" type="file" accept="xls/xlsx"/>
+        <input id="upload2" type="file" accept="xls/xlsx" />
     </div>
     <div>
         <input id="uploadfile" type="button" class="btn btn-default" value="上传文件" />
@@ -65,7 +63,7 @@
                     url: "/api/Inventory",
                     dataSrc: ""
                 },
-                columns:[
+                columns: [
                     {
                         data: "id",
                         render: function (data) {
@@ -85,7 +83,7 @@
                         }
                     },
                     {
-                        data: "status",
+                        data: "containerNumber",
                         render: function (data) {
                             return "<font color='green'>" + data + "</font>";
                         }
@@ -171,8 +169,7 @@
                 var formData = new FormData();
                 var files = $("#upload2").get(0).files;
 
-                if (files.length > 0)
-                {
+                if (files.length > 0) {
                     formData.append("fileName", files[0]);
                 }
 
@@ -183,13 +180,13 @@
                     type: "POST",
                     url: "/api/ThirdPartyLogisticsApi",
                     data: formData,
-                    beforeSend: function(){
+                    beforeSend: function () {
                         layui.use('layer', function () {
                             var layer = layui.layer;
                             layer.msg('Extracting files...', {
                                 icon: 16,
                                 shade: 0.01,
-                                time: 99*1000
+                                time: 99 * 1000
                             });;
                         });
                     },
@@ -210,6 +207,38 @@
                     function (result) {
                         bootbox.alert("Delete success!");
                     });
+            });
+
+            $("#btn-delete").on("click", function () {
+                bootbox.confirm("Are you sure to delete ALL records? All the records will be deleted and this operation is not reversible.", function (result) {
+                    if (result) {
+                        $.ajax({
+                            contentType: false,
+                            cache: false,
+                            processData: false,
+                            type: "DELETE",
+                            url: "/api/Inventory",
+                            beforeSend: function () {
+                                layui.use('layer', function () {
+                                    var layer = layui.layer;
+                                    layer.msg('Deleting...', {
+                                        icon: 16,
+                                        shade: 0.01,
+                                        time: 99 * 1000
+                                    });;
+                                });
+                            },
+                            success: function () {
+                                layer.alert("Delete successed!", function () {
+                                    location.reload();
+                                });
+                            },
+                            error: function () {
+                                layer.alert("Error!");
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>

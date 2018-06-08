@@ -220,6 +220,7 @@
     <Compile Include="Controllers\Api\LocationCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
+    <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -234,6 +235,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CartonBreakdownGetter.cs" />
     <Compile Include="Helpers\ExcelExtracter.cs" />
     <Compile Include="Helpers\InOneCartonChecker.cs" />
     <Compile Include="Helpers\DbSynchronizer.cs" />
@@ -497,13 +499,19 @@
     <Compile Include="Migrations\201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.Designer.cs">
       <DependentUpon>201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
+    <Compile Include="Models\ApiTransformModels\SearchResult.cs" />
     <Compile Include="Models\CartonBreakDown.cs" />
     <Compile Include="Models\CartonDetail.cs" />
     <Compile Include="Models\ErrorViewModel.cs" />
+    <Compile Include="Models\Interface\ICartonBreakDown.cs" />
     <Compile Include="Models\Interface\IApplicationDbContext.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LocationUpdatePackage.cs" />
@@ -1037,6 +1045,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.resx">
       <DependentUpon>201806071628547_AddManyToOneRelationshipBetweenCartonDetailsAndCartonBreakdowns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.resx">
+      <DependentUpon>201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -84,5 +84,37 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
         }
+
+        // DELETE /api/Inventory
+        [HttpDelete]
+        public void RemoveAllRecord()
+        {
+            //移除数据库中[ClothSorting].[dbo].[SizeRatios]
+            var sizeRatios = _context.SizeRatios.Where(c => c.Id > 0);
+            _context.SizeRatios.RemoveRange(sizeRatios);
+
+            //移除数据库中[ClothSorting].[dbo].[CartonBreakDowns]
+            var cartonBreakdowns = _context.CartonBreakDowns.Where(c => c.Id > 0);
+            _context.CartonBreakDowns.RemoveRange(cartonBreakdowns);
+
+
+            //移除数据库中[ClothSorting].[dbo].[SilkIconCartonDetails]
+            var cartonDetails = _context.SilkIconCartonDetails.Where(c => c.Id > 0);
+            _context.SilkIconCartonDetails.RemoveRange(cartonDetails);
+
+            //移除数据库中[ClothSorting].[dbo].[Measurements]
+            var measurements = _context.Measurements.Where(c => c.Id > 0);
+            _context.Measurements.RemoveRange(measurements);
+
+            //移除数据库中[ClothSorting].[dbo].[SilkIconPackingLists]
+            var packingLists = _context.SilkIconPackingLists.Where(c => c.Id > 0);
+            _context.SilkIconPackingLists.RemoveRange(packingLists);
+
+            //移除数据库中[ClothSorting].[dbo].[SilkIconPreReceiveOrders]
+            var preReceiveOrders = _context.SilkIconPreReceiveOrders.Where(c => c.Id > 0);
+            _context.SilkIconPreReceiveOrders.RemoveRange(preReceiveOrders);
+
+            _context.SaveChanges();
+        }
     }
 }

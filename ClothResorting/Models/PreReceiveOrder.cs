@@ -23,7 +23,7 @@ namespace ClothResorting.Models
 
 		public int? Available { get; set; }
 
-		public string Status { get; set; }
+		public string ContainerNumber { get; set; }
 
         public int? TotalPcs { get; set; }
 
