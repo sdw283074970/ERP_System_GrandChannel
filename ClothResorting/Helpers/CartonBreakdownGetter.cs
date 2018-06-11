@@ -51,6 +51,11 @@ namespace ClothResorting.Helpers
             return _c.CartonNumberRangeTo;
         }
 
+        public string GetRunCode()
+        {
+            return _c.RunCode;
+        }
+
         public string GetSize()
         {
             return _c.Size;

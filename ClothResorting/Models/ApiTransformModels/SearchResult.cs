@@ -21,6 +21,8 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public int? CartonNumberRangeTo { get; set; }
 
+        public string RunCode { get; set; }
+
         public string Size { get; set; }
 
         public int? ReceivedPcs { get; set; }

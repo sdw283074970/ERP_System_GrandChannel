@@ -50,6 +50,7 @@
                     <th>Color</th>
                     <th>C/NO From</th>
                     <th>C/NO To</th>
+                    <th>Run Code</th>
                     <th>Size</th>
                     <th>Received Pcs</th>
                     <th>Available Pcs</th>
@@ -134,6 +135,12 @@
                                 },
                                 {
                                     data: "cartonNumberRangeTo",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "runCode",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }

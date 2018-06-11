@@ -57,6 +57,7 @@ namespace ClothResorting.Controllers.Api
                     Color = c.GetColor(),
                     CartonNumberRangeFrom = c.GetCartonNumberFrom(),
                     CartonNumberRangeTo = c.GetCartonNumberTo(),
+                    RunCode = c.GetRunCode(),
                     Size = c.GetSize(),
                     ReceivedPcs = c.GetReceivedPcs(),
                     AvailablePcs = c.GetAvailablePcs(),
