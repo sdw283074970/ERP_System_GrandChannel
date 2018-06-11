@@ -11,6 +11,8 @@ namespace ClothResorting.Dtos
 
         public string CustomerName { get; set; }
 
+        public string ContainerNumber { get; set; }
+
         public DateTime? CreatDate { get; set; }
 
         public int? TotalCartons { get; set; }

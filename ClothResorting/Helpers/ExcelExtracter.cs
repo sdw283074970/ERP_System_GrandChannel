@@ -139,7 +139,7 @@ namespace ClothResorting.Helpers
                     NetWeight = Math.Round(_netWeight * 2.205, 2),
                     GrossWeight = Math.Round(_grossWeight * 2.205, 2),
                     CFT = Math.Round(_cFT * 35.315, 2),
-                    Date = null,
+                    ReceivedDate = null,
                     NumberOfSizeRatio = (int)_numberOfSizeRatio,
                     PackedCartons = (int)_packedCartons,
                     NumberOfDemension = (int)_numberOfDemension,

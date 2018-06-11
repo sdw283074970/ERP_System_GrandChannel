@@ -503,8 +503,13 @@
     <Compile Include="Migrations\201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.Designer.cs">
       <DependentUpon>201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806111828115_AddedDateColumnInCartonBreakdown.cs" />
+    <Compile Include="Migrations\201806111828115_AddedDateColumnInCartonBreakdown.Designer.cs">
+      <DependentUpon>201806111828115_AddedDateColumnInCartonBreakdown.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ApiTransformModels\InventoryResult.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
     <Compile Include="Models\ApiTransformModels\SearchResult.cs" />
@@ -1048,6 +1053,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.resx">
       <DependentUpon>201806081625052_RenameStatusToContainerNumberInPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806111828115_AddedDateColumnInCartonBreakdown.resx">
+      <DependentUpon>201806111828115_AddedDateColumnInCartonBreakdown.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,8 @@ namespace ClothResorting.Models
 {
     public class SilkIconCartonDetail : CartonDetail
     {
+        public DateTime? ReceivedDate { get; set; }
+
         public string PurchaseOrderNumber { get; set; }
 
         public string Style { get; set; }
