@@ -530,6 +530,14 @@
     <Compile Include="Migrations\201806122057433_AddedLoadPlanRecordsDbSet.Designer.cs">
       <DependentUpon>201806122057433_AddedLoadPlanRecordsDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806122108400_AddedShouldReturnPcsInRetriveRecord.cs" />
+    <Compile Include="Migrations\201806122108400_AddedShouldReturnPcsInRetriveRecord.Designer.cs">
+      <DependentUpon>201806122108400_AddedShouldReturnPcsInRetriveRecord.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806122136108_AddedShortageInRetrievingRecord.cs" />
+    <Compile Include="Migrations\201806122136108_AddedShortageInRetrievingRecord.Designer.cs">
+      <DependentUpon>201806122136108_AddedShortageInRetrievingRecord.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\RetrievingRequestJsonObj.cs" />
@@ -1097,6 +1105,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806122057433_AddedLoadPlanRecordsDbSet.resx">
       <DependentUpon>201806122057433_AddedLoadPlanRecordsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806122108400_AddedShouldReturnPcsInRetriveRecord.resx">
+      <DependentUpon>201806122108400_AddedShouldReturnPcsInRetriveRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806122136108_AddedShortageInRetrievingRecord.resx">
+      <DependentUpon>201806122136108_AddedShortageInRetrievingRecord.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

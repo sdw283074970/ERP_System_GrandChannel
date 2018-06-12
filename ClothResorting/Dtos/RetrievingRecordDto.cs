@@ -29,6 +29,10 @@ namespace ClothResorting.Dtos
 
         public bool IsOpened { get; set; }
 
+        public int? ShoulReturnPcs { get; set; }
+
+        public int Shortage { get; set; }
+
         public DateTime? RetrievedDate { get; set; }
     }
 }

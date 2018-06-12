@@ -59,7 +59,8 @@ namespace ClothResorting.Helpers
                         NumberOfCartons = sumOfCartons,
                         RetrievedDate = DateTime.Today,
                         LoadPlanRecord = loadPlan,
-                        ShoulReturnPcs = (int)retrievedPcs - (int)originalTargetQuantity
+                        ShoulReturnPcs = (int)retrievedPcs - (int)originalTargetQuantity,
+                        Shortage = 0
                     });
 
                     //分别在cartonDetail、packingList、PrereceiveOrder相关Pcs存货中减去拿走的件数
@@ -157,7 +158,13 @@ namespace ClothResorting.Helpers
                     }
                 }
             }
-            return result;
+            if (targetQuantity == 0)
+                return result;
+            if (targetQuantity > 0)
+                result.Add(new RetrievingRecord {
+                    Shortage = (int)targetQuantity
+                });
+                return result;
         }
 
         //用于判断是否有打开的箱子

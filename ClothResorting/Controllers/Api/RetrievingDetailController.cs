@@ -37,7 +37,9 @@ namespace ClothResorting.Controllers.Api
             var cartonBreakdowns = _context.CartonBreakDowns
                 .Include(c => c.SilkIconCartonDetail)
                 .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(c => c.PurchaseNumber == obj.PurchaseOrder && c.AvailablePcs != 0);
+                .Where(c => c.PurchaseNumber == obj.PurchaseOrder 
+                    && c.AvailablePcs != 0 
+                    && c.RunCode == "");
 
             cartonBreakdowns = cartonBreakdowns.Where(c => c.Style == obj.Style);
             cartonBreakdowns = cartonBreakdowns.Where(c => c.Color == obj.Color);
