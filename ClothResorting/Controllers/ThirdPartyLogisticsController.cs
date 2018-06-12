@@ -15,7 +15,7 @@ namespace ClothResorting.Controllers
         }
 
         // 预收货细节页面/PO统计页面
-        public ActionResult PrereceiveOrderDetail()
+        public ActionResult PackingListOverview()
         {
             return View();
         }
@@ -40,6 +40,12 @@ namespace ClothResorting.Controllers
 
         // 搜索页面
         public ActionResult Search()
+        {
+            return View();
+        }
+
+        // 从库存取货页面
+        public ActionResult RetrievingDetail()
         {
             return View();
         }

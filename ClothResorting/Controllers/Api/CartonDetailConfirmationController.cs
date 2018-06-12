@@ -36,11 +36,13 @@ namespace ClothResorting.Controllers.Api
                 cartonDetailInDb.Available = cartonDetailInDb.SumOfCarton;
                 cartonDetailInDb.ActualReceivedPcs = cartonDetailInDb.TotalPcs;
                 cartonDetailInDb.AvailablePcs = cartonDetailInDb.TotalPcs;
+                cartonDetailInDb.ReceivedDate = DateTime.Today;
 
                 foreach(var breakdown in cartonDetailInDb.CartonBreakdowns)
                 {
                     breakdown.ActualPcs = breakdown.ForecastPcs;
                     breakdown.AvailablePcs = breakdown.ForecastPcs;
+                    breakdown.ReceivedDate = DateTime.Today;
                 }
             }
 

@@ -1,10 +1,10 @@
 ﻿﻿
 @{
-    ViewBag.Title = "PrereceiveOrderDetail";
+    ViewBag.Title = "PackingListOverview";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Purchase Order Details</h2>
+<h2>Purchase Order Overview</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
@@ -123,9 +123,9 @@
                     {
                         data: "purchaseOrderNumber",
                         render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving Ctns</button></a><br>"
-                                //+ "<a href='/ThirdPartyLogistics/CartonBreakdown/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving Pcs</button></a><br>"
-                                + "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>";
+                            return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
+                                + "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>"
+                                + "<a href='/ThirdPartyLogistics/RetrievingDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Retrieving</button></a>";
                         }
                     }
                 ]

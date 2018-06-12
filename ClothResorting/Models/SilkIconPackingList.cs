@@ -39,7 +39,7 @@ namespace ClothResorting.Models
 		public IList<CartonBreakDown> CartonBreakDowns { get; set; }
 
 		public IList<Measurement> TotalMeasurements { get; set; }
-
+		
 		public ICollection<SilkIconCartonDetail> SilkIconCartonDetails { get; set; }
 
 		public SilkIconPreReceiveOrder SilkIconPreReceiveOrder { get; set; }

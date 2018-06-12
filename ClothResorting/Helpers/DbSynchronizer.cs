@@ -51,7 +51,8 @@ namespace ClothResorting.Helpers
             _context.SaveChanges();
         }
 
-        //每确认一次carton收取情况，同步一次该po的ctn收货总量、库存数量及pcs收货总量、库存数量
+        //每确认一次carton收取情况，同步一次该PreRecieveOrder的ctn收货总量、库存数量及pcs收货总量、
+            //库存数量
         public void SyncPreReceivedOrder(SilkIconCartonDetail cartonDetailSample)
         {
             var pl = cartonDetailSample.SilkIconPackingList;

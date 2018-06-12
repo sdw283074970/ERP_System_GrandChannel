@@ -5,11 +5,9 @@ using System.Web;
 
 namespace ClothResorting.Models.ApiTransformModels
 {
-    public class InventoryResult
+    public class RetrievingRequestJsonObj
     {
-        public string Location { get; set; }
-
-        public string PurchaseOrderNumber { get; set; }
+        public string PurchaseOrder { get; set; }
 
         public string Style { get; set; }
 
@@ -17,8 +15,6 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string Size { get; set; }
 
-        public int? TargetPcs { get; set; }
-
-        public int? NumberOfCartons { get; set; }
+        public int GrandTotal { get; set; }
     }
 }

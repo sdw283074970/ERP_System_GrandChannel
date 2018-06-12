@@ -260,6 +260,7 @@ namespace ClothResorting.Helpers
                             RunCode = _runCode == null ? "" : _runCode,
                             Size = sizeList[k].SizeName,
                             ForecastPcs = sizeList[k].Count * sumOfCartons,
+                            PcsPerCartons = sizeList[k].Count,
                             ActualPcs = 0,
                             AvailablePcs = 0,
                             SilkIconPackingList = plInDb,

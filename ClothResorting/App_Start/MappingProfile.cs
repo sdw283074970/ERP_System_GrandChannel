@@ -18,6 +18,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<SilkIconCartonDetail, SilkIconCartonDetailDto>();
             Mapper.CreateMap<SizeRatio, SizeRatioDto>();
             Mapper.CreateMap<CartonBreakDown, CartonBreakDownDto>();
+            Mapper.CreateMap<RetrievingRecord, RetrievingRecordDto>();
         }
     }
 }
