@@ -31,16 +31,16 @@ namespace ClothResorting.Controllers.Api
             if (arr[0] == "default")
             {
                 query = _context.CartonBreakDowns
-                    .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
+                    .Include(c => c.PackingList.PreReceiveOrder)
                     .Where(c => c.AvailablePcs != 0)
                     .ToList();
             }
             else
             {
                 query = _context.CartonBreakDowns
-                    .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
+                    .Include(c => c.PackingList.PreReceiveOrder)
                     .Where(c => c.AvailablePcs != 0 
-                        && c.SilkIconPackingList.SilkIconPreReceiveOrder.ContainerNumber == arr[0])
+                        && c.PackingList.PreReceiveOrder.ContainerNumber == arr[0])
                     .ToList();
             }
 
@@ -51,7 +51,7 @@ namespace ClothResorting.Controllers.Api
                 result.Add(new SearchResult
                 {
                     ContainerNumber = c.GetContainerNumber(),
-                    PurchaseOrderNumber = c.GetPurchaseOrderNumber(),
+                    PurchaseOrder = c.GetPurchaseOrder(),
                     Vender = c.GetVendor(),
                     Style = c.GetStyle(),
                     Color = c.GetColor(),
@@ -69,7 +69,7 @@ namespace ClothResorting.Controllers.Api
             if(arr[1] != "default")
             {
                 var po = arr[1];
-                result = result.Where(r => r.PurchaseOrderNumber == po).ToList();
+                result = result.Where(r => r.PurchaseOrder == po).ToList();
             }
 
             //如果Vendor为默认值，则返回结果不做任何改变，否则返回指定结果

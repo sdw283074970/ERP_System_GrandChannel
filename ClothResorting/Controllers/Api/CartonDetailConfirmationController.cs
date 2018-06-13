@@ -28,7 +28,7 @@ namespace ClothResorting.Controllers.Api
         {
             foreach(var id in arr)
             {
-                var cartonDetailInDb = _context.SilkIconCartonDetails
+                var cartonDetailInDb = _context.CartonDetails
                     .Include(s => s.CartonBreakdowns)
                     .SingleOrDefault(s => s.Id == id);
 
@@ -50,10 +50,10 @@ namespace ClothResorting.Controllers.Api
 
             //返回第一个样本
             var idFirst = arr[0];
-            var cartonDetailSample = _context.SilkIconCartonDetails
-                .Include(s => s.SilkIconPackingList.SilkIconPreReceiveOrder)
+            var cartonDetailSample = _context.CartonDetails
+                .Include(s => s.PackingList.PreReceiveOrder)
                 .SingleOrDefault(s => s.Id == idFirst);
-            var cartonDetail = Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>(cartonDetailSample);
+            var cartonDetail = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonDetailSample);
 
             //同步purchase order中ctn和pcs的数量
             var sync = new DbSynchronizer();

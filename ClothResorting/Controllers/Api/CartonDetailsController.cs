@@ -33,11 +33,11 @@ namespace ClothResorting.Controllers.Api
             var preId = obj.PreId;
             var po = obj.Po;
 
-            var cartonDetails = _context.SilkIconCartonDetails
-                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
-                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
-                .Select(Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>);
+            var cartonDetails = _context.CartonDetails
+                .Include(c => c.PackingList.PreReceiveOrder)
+                .Where(s => s.PackingList.PreReceiveOrder.Id == preId
+                    && s.PackingList.PurchaseOrder == po)
+                .Select(Mapper.Map<CartonDetail, SilkIconCartonDetailDto>);
 
             return Ok(cartonDetails);
         }

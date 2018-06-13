@@ -12,7 +12,7 @@ namespace ClothResorting.Models
 
         public DateTime? ReceivedDate { get; set; }
 
-        public string PurchaseNumber { get; set; }
+        public string PurchaseOrder { get; set; }
 
         public string Style { get; set; }
 
@@ -36,8 +36,8 @@ namespace ClothResorting.Models
 
         public string Location { get; set; }
         
-        public SilkIconPackingList SilkIconPackingList { get; set; }
+        public PackingList PackingList { get; set; }
 
-        public SilkIconCartonDetail SilkIconCartonDetail { get; set; }
+        public CartonDetail CartonDetail { get; set; }
     }
 }

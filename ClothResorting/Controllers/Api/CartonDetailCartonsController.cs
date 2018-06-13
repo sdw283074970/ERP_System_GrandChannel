@@ -29,8 +29,8 @@ namespace ClothResorting.Controllers.Api
             var id = arr[0];
             var changeValue = arr[1];
 
-            var cartonDetailInDb = _context.SilkIconCartonDetails
-                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
+            var cartonDetailInDb = _context.CartonDetails
+                .Include(c => c.PackingList.PreReceiveOrder)
                 .SingleOrDefault(s => s.Id == id);
 
             cartonDetailInDb.ActualReceived += changeValue;
@@ -38,39 +38,39 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
 
             //每更新一次carton编号范围内收取数量，同步一次该po的收货总量及库存数量
-            var pl = cartonDetailInDb.SilkIconPackingList;
-            var po = pl.PurchaseOrderNumber;
-            var preReceivedId = pl.SilkIconPreReceiveOrder.Id;
+            var pl = cartonDetailInDb.PackingList;
+            var po = pl.PurchaseOrder;
+            var preReceivedId = pl.PreReceiveOrder.Id;
 
                 //查询preId为当前packinglist且po为当前po的cartondetail对象
-            pl.ActualReceived = _context.SilkIconCartonDetails
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preReceivedId
-                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
+            pl.ActualReceived = _context.CartonDetails
+                .Where(s => s.PackingList.PreReceiveOrder.Id == preReceivedId
+                    && s.PackingList.PurchaseOrder == po)
                 .Sum(s => s.ActualReceived);
 
-            pl.Available = _context.SilkIconCartonDetails
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preReceivedId
-                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
+            pl.Available = _context.CartonDetails
+                .Where(s => s.PackingList.PreReceiveOrder.Id == preReceivedId
+                    && s.PackingList.PurchaseOrder == po)
                 .Sum(s => s.Available);
 
             _context.SaveChanges();
 
             //每更新一次carton编号范围内收取数量，同步一次该Pre-receive Order的收货总量及库存数量
-            var preReceive = pl.SilkIconPreReceiveOrder;
+            var preReceive = pl.PreReceiveOrder;
 
-            preReceive.ActualReceived = _context.SilkIconPackingLists
-                .Include(s => s.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPreReceiveOrder.Id == preReceivedId)
+            preReceive.ActualReceived = _context.PackingLists
+                .Include(s => s.PreReceiveOrder)
+                .Where(s => s.PreReceiveOrder.Id == preReceivedId)
                 .Sum(s => s.ActualReceived);
 
-            preReceive.Available = _context.SilkIconPackingLists
-                .Include(s => s.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPreReceiveOrder.Id == preReceivedId)
+            preReceive.Available = _context.PackingLists
+                .Include(s => s.PreReceiveOrder)
+                .Where(s => s.PreReceiveOrder.Id == preReceivedId)
                 .Sum(s => s.Available);
 
             _context.SaveChanges();
 
-            var cartonDetail = Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>(cartonDetailInDb);
+            var cartonDetail = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonDetailInDb);
 
             return Ok(cartonDetail);
         }

@@ -55,7 +55,7 @@
                         }
                     },
                     {
-                        data: "purchaseOrderNumber",
+                        data: "purchaseOrder",
                         render: function (data) {
                             return "<text>" + data + "</text>";
                         }
@@ -121,7 +121,7 @@
                         }
                     },
                     {
-                        data: "purchaseOrderNumber",
+                        data: "purchaseOrder",
                         render: function (data) {
                             return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
                                 + "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>";

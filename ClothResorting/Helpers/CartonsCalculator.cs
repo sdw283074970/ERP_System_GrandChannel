@@ -53,7 +53,7 @@ namespace ClothResorting.Helpers
                     result.Add(new RetrievingRecord
                     {
                         Location = cartonBreakdown.Location,
-                        PurchaseOrderNumber = cartonBreakdown.PurchaseNumber,
+                        PurchaseOrder = cartonBreakdown.PurchaseOrder,
                         Style = cartonBreakdown.Style,
                         Color = cartonBreakdown.Color,
                         Size = cartonBreakdown.Size,
@@ -106,7 +106,7 @@ namespace ClothResorting.Helpers
                             result.Add(new RetrievingRecord
                             {
                                 Location = cartonBreakdown.Location,
-                                PurchaseOrderNumber = cartonBreakdown.PurchaseNumber,
+                                PurchaseOrder = cartonBreakdown.PurchaseOrder,
                                 Style = cartonBreakdown.Style,
                                 Color = cartonBreakdown.Color,
                                 Size = cartonBreakdown.Size,
@@ -163,7 +163,7 @@ namespace ClothResorting.Helpers
                     result.Add(new RetrievingRecord
                     {
                         Location = cartonBreakdown.Location,
-                        PurchaseOrderNumber = cartonBreakdown.PurchaseNumber,
+                        PurchaseOrder = cartonBreakdown.PurchaseOrder,
                         Style = cartonBreakdown.Style,
                         Color = cartonBreakdown.Color,
                         Size = cartonBreakdown.Size,
@@ -204,7 +204,7 @@ namespace ClothResorting.Helpers
                 result.Add(new RetrievingRecord
                 {
                     Location = carton.Location,
-                    PurchaseOrderNumber = carton.PurchaseNumber,
+                    PurchaseOrder = carton.PurchaseOrder,
                     Style = carton.Style,
                     Color = carton.Color,
                     Size = carton.Size,
@@ -227,17 +227,17 @@ namespace ClothResorting.Helpers
         //让其他各项减去pcs达到同步数量的目的
         public void SyncPcs(CartonBreakDown carton, int? pcs)
         {
-            carton.SilkIconCartonDetail.AvailablePcs -= pcs;
-            carton.SilkIconPackingList.AvailablePcs -= pcs;
-            carton.SilkIconPackingList.SilkIconPreReceiveOrder.AvailablePcs -= pcs;
+            carton.CartonDetail.AvailablePcs -= pcs;
+            carton.PackingList.AvailablePcs -= pcs;
+            carton.PackingList.PreReceiveOrder.AvailablePcs -= pcs;
         }
 
         //让其他各项减去Ctns达到同步数量的目的
         public void SyncCtns(CartonBreakDown carton, int? ctns)
         {
-            carton.SilkIconCartonDetail.Available -= ctns;
-            carton.SilkIconPackingList.Available -= ctns;
-            carton.SilkIconPackingList.SilkIconPreReceiveOrder.Available -= ctns;
+            carton.CartonDetail.Available -= ctns;
+            carton.PackingList.Available -= ctns;
+            carton.PackingList.PreReceiveOrder.Available -= ctns;
         }
     }
 }

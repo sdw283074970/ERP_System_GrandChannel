@@ -9,7 +9,7 @@ namespace ClothResorting.Models.ApiTransformModels
     {
         public string ContainerNumber { get; set; }
 
-        public string PurchaseOrderNumber { get; set; }
+        public string PurchaseOrder { get; set; }
 
         public string Vender { get; set; }
 

@@ -9,4 +9,3 @@ namespace ClothResorting.Models
 		public int Id { get; set; }
 	} 
 }
-    

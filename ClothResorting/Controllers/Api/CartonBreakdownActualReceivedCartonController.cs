@@ -28,8 +28,8 @@ namespace ClothResorting.Controllers.Api
             var id = arr[0];
             var value = arr[1];
 
-            var cartonInDb = _context.SilkIconCartonDetails
-                .Include(s => s.SilkIconPackingList.SilkIconPreReceiveOrder)
+            var cartonInDb = _context.CartonDetails
+                .Include(s => s.PackingList.PreReceiveOrder)
                 .SingleOrDefault(s => s.Id == id);
 
             cartonInDb.ActualReceived += value;
@@ -46,7 +46,7 @@ namespace ClothResorting.Controllers.Api
             sync.SyncPreReceivedOrder(cartonInDb);
             _context.SaveChanges();
 
-            var cartonInDbDto = Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>(cartonInDb);
+            var cartonInDbDto = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonInDb);
 
             return Created(new Uri(Request.RequestUri + "/" + arr[0]), cartonInDbDto);
         }

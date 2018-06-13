@@ -17,35 +17,35 @@ namespace ClothResorting.Helpers
         }
 
         //每确认一次carton收取情况，同步一次该po的ctn收货总量、库存数量及pcs收货总量、库存数量
-        public void SyncPurchaseOrder(SilkIconCartonDetail cartonDetailSample)
+        public void SyncPurchaseOrder(CartonDetail cartonDetailSample)
         {
-            var pl = cartonDetailSample.SilkIconPackingList;
-            var po = pl.PurchaseOrderNumber;
-            var preId = pl.SilkIconPreReceiveOrder.Id;
+            var pl = cartonDetailSample.PackingList;
+            var po = pl.PurchaseOrder;
+            var preId = pl.PreReceiveOrder.Id;
 
             //查询preId为当前packinglist且po为当前po的cartondetail对象
             //同步ctn收货总量、库存数量
-            pl.ActualReceived = _context.SilkIconCartonDetails
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
-                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
+            pl.ActualReceived = _context.CartonDetails
+                .Where(s => s.PackingList.PreReceiveOrder.Id == preId
+                    && s.PackingList.PurchaseOrder == po)
                 .Sum(s => s.ActualReceived);
 
-            pl.Available = _context.SilkIconCartonDetails
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
-                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
+            pl.Available = _context.CartonDetails
+                .Where(s => s.PackingList.PreReceiveOrder.Id == preId
+                    && s.PackingList.PurchaseOrder == po)
                 .Sum(s => s.Available);
 
             //同步pcs收货总量、库存数量
             pl.ActualReceivedPcs = _context.CartonBreakDowns
-                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
-                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
+                .Include(c => c.PackingList.PreReceiveOrder)
+                .Where(s => s.PackingList.PreReceiveOrder.Id == preId
+                    && s.PackingList.PurchaseOrder == po)
                 .Sum(s => s.ActualPcs);
 
             pl.AvailablePcs = _context.CartonBreakDowns
-                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId
-                    && s.SilkIconPackingList.PurchaseOrderNumber == po)
+                .Include(c => c.PackingList.PreReceiveOrder)
+                .Where(s => s.PackingList.PreReceiveOrder.Id == preId
+                    && s.PackingList.PurchaseOrder == po)
                 .Sum(s => s.AvailablePcs);
 
             _context.SaveChanges();
@@ -53,33 +53,33 @@ namespace ClothResorting.Helpers
 
         //每确认一次carton收取情况，同步一次该PreRecieveOrder的ctn收货总量、库存数量及pcs收货总量、
             //库存数量
-        public void SyncPreReceivedOrder(SilkIconCartonDetail cartonDetailSample)
+        public void SyncPreReceivedOrder(CartonDetail cartonDetailSample)
         {
-            var pl = cartonDetailSample.SilkIconPackingList;
-            var po = pl.PurchaseOrderNumber;
-            var preId = pl.SilkIconPreReceiveOrder.Id;
-            var preReceivedOrder = pl.SilkIconPreReceiveOrder;
+            var pl = cartonDetailSample.PackingList;
+            var po = pl.PurchaseOrder;
+            var preId = pl.PreReceiveOrder.Id;
+            var preReceivedOrder = pl.PreReceiveOrder;
 
             //同步一次该preReceivedOrder的ctn收货总量、库存数量
-            preReceivedOrder.ActualReceived = _context.SilkIconPackingLists
-                .Include(s => s.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPreReceiveOrder.Id == preId)
+            preReceivedOrder.ActualReceived = _context.PackingLists
+                .Include(s => s.PreReceiveOrder)
+                .Where(s => s.PreReceiveOrder.Id == preId)
                 .Sum(s => s.ActualReceived);
 
-            preReceivedOrder.Available = _context.SilkIconPackingLists
-                .Include(s => s.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPreReceiveOrder.Id == preId)
+            preReceivedOrder.Available = _context.PackingLists
+                .Include(s => s.PreReceiveOrder)
+                .Where(s => s.PreReceiveOrder.Id == preId)
                 .Sum(s => s.Available);
 
             //同步一次该preReceivedOrder的pcs收货总量、库存数量
-            preReceivedOrder.ActualReceivedPcs = _context.SilkIconPackingLists
-                .Include(s => s.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPreReceiveOrder.Id == preId)
+            preReceivedOrder.ActualReceivedPcs = _context.PackingLists
+                .Include(s => s.PreReceiveOrder)
+                .Where(s => s.PreReceiveOrder.Id == preId)
                 .Sum(s => s.ActualReceivedPcs);
 
-            preReceivedOrder.AvailablePcs = _context.SilkIconPackingLists
-                .Include(s => s.SilkIconPreReceiveOrder)
-                .Where(s => s.SilkIconPreReceiveOrder.Id == preId)
+            preReceivedOrder.AvailablePcs = _context.PackingLists
+                .Include(s => s.PreReceiveOrder)
+                .Where(s => s.PreReceiveOrder.Id == preId)
                 .Sum(s => s.AvailablePcs);
 
             _context.SaveChanges();

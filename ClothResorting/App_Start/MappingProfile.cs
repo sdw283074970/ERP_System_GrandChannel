@@ -12,10 +12,10 @@ namespace ClothResorting.App_Start
     {
         public MappingProfile()
         {
-            Mapper.CreateMap<SilkIconPreReceiveOrder, SilkIconPreReceiveOrdersDto>();
-            Mapper.CreateMap<SilkIconPackingList, SilkIconPackingListDto>();
+            Mapper.CreateMap<PreReceiveOrder, SilkIconPreReceiveOrdersDto>();
+            Mapper.CreateMap<PackingList, SilkIconPackingListDto>();
             Mapper.CreateMap<Measurement, MeasurementDto>();
-            Mapper.CreateMap<SilkIconCartonDetail, SilkIconCartonDetailDto>();
+            Mapper.CreateMap<CartonDetail, SilkIconCartonDetailDto>();
             Mapper.CreateMap<SizeRatio, SizeRatioDto>();
             Mapper.CreateMap<CartonBreakDown, CartonBreakDownDto>();
             Mapper.CreateMap<RetrievingRecord, RetrievingRecordDto>();

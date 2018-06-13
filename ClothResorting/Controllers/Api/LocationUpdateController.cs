@@ -31,7 +31,7 @@ namespace ClothResorting.Controllers.Api
 
             foreach (var id in package.Arr)
             {
-                var cartonDetailInDb = _context.SilkIconCartonDetails
+                var cartonDetailInDb = _context.CartonDetails
                     .Include(s => s.CartonBreakdowns)
                     .SingleOrDefault(c => c.Id == id);
                 cartonDetailInDb.Location = package.Location;
@@ -45,10 +45,10 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
 
-            var cartonSample = _context.SilkIconCartonDetails
+            var cartonSample = _context.CartonDetails
                 .SingleOrDefault(c => c.Id == sampleId);
 
-            var cartonDto = Mapper.Map<SilkIconCartonDetail, SilkIconCartonDetailDto>(cartonSample);
+            var cartonDto = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonSample);
 
             return Created(new Uri(Request.RequestUri + "/" + sampleId), cartonDto);
         }

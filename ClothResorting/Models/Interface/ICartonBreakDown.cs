@@ -10,10 +10,10 @@
         int? ForecastPcs { get; set; }
         int Id { get; set; }
         string Location { get; set; }
-        string PurchaseNumber { get; set; }
+        string PurchaseOrder { get; set; }
         string RunCode { get; set; }
-        SilkIconCartonDetail SilkIconCartonDetail { get; set; }
-        SilkIconPackingList SilkIconPackingList { get; set; }
+        CartonDetail CartonDetail { get; set; }
+        PackingList PackingList { get; set; }
         string Size { get; set; }
         string Style { get; set; }
     }

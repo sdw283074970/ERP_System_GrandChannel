@@ -11,7 +11,7 @@ namespace ClothResorting.Models
 
         public string Location { get; set; }
 
-        public string PurchaseOrderNumber { get; set; }
+        public string PurchaseOrder { get; set; }
 
         public string Style { get; set; }
 

@@ -538,6 +538,10 @@
     <Compile Include="Migrations\201806122136108_AddedShortageInRetrievingRecord.Designer.cs">
       <DependentUpon>201806122136108_AddedShortageInRetrievingRecord.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.cs" />
+    <Compile Include="Migrations\201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.Designer.cs">
+      <DependentUpon>201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\RetrievingRequestJsonObj.cs" />
@@ -547,7 +551,6 @@
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
     <Compile Include="Models\ApiTransformModels\SearchResult.cs" />
     <Compile Include="Models\CartonBreakDown.cs" />
-    <Compile Include="Models\CartonDetail.cs" />
     <Compile Include="Models\ErrorViewModel.cs" />
     <Compile Include="Models\Interface\ICartonBreakDown.cs" />
     <Compile Include="Models\Interface\IApplicationDbContext.cs" />
@@ -555,12 +558,10 @@
     <Compile Include="Models\LocationUpdatePackage.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Measurement.cs" />
-    <Compile Include="Models\PackingList.cs" />
-    <Compile Include="Models\SilkIconCartonDetail.cs" />
+    <Compile Include="Models\CartonDetail.cs" />
     <Compile Include="Models\PODetail.cs" />
+    <Compile Include="Models\PackingList.cs" />
     <Compile Include="Models\PreReceiveOrder.cs" />
-    <Compile Include="Models\SilkIconPackingList.cs" />
-    <Compile Include="Models\SilkIconPreReceiveOrder.cs" />
     <Compile Include="Models\SizeRatio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -1111,6 +1112,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806122136108_AddedShortageInRetrievingRecord.resx">
       <DependentUpon>201806122136108_AddedShortageInRetrievingRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.resx">
+      <DependentUpon>201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

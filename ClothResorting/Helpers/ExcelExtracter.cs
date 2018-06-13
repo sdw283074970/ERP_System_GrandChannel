@@ -24,7 +24,7 @@ namespace ClothResorting.Helpers
 
         //PackingList全局变量
         #region
-        private string _purchaseOrderNumber;
+        private string _purchaseOrder;
         private string _styleNumber;
         private double _packedCartons;
         private double _netWeight;
@@ -66,7 +66,7 @@ namespace ClothResorting.Helpers
             
 
             //建立一个PreReceiveOrder对象
-            var newOrder = new SilkIconPreReceiveOrder
+            var newOrder = new PreReceiveOrder
             {
                 Available = 0,
                 ActualReceived = 0,
@@ -82,7 +82,7 @@ namespace ClothResorting.Helpers
                 AvailablePcs = 0
             };
 
-            _context.SilkIconPreReceiveOrders.Add(newOrder);
+            _context.PreReceiveOrders.Add(newOrder);
             _context.SaveChanges();
         }
         #endregion
@@ -91,8 +91,8 @@ namespace ClothResorting.Helpers
         #region
         public void ExtractSilkIconPackingList()
         {
-            var list = new List<SilkIconPackingList>();
-            var preReceiveOrderInDb = _context.SilkIconPreReceiveOrders     //获取刚建立的PreReceiveOrder
+            var list = new List<PackingList>();
+            var preReceiveOrderInDb = _context.PreReceiveOrders     //获取刚建立的PreReceiveOrder
                 .OrderByDescending(c => c.Id)
                 .First();
 
@@ -104,7 +104,7 @@ namespace ClothResorting.Helpers
                 int t;
 
                 _ws = _wb.Worksheets[k];
-                _purchaseOrderNumber = _ws.Cells[1, 2].Value2.ToString();
+                _purchaseOrder = _ws.Cells[1, 2].Value2.ToString();
                 _styleNumber = _ws.Cells[2, 2].Value2.ToString();
                 _packedCartons = _ws.Cells[3, 2].Value2;
                 _cFT = _ws.Cells[4, 2].Value2;
@@ -126,15 +126,15 @@ namespace ClothResorting.Helpers
                 {
                     demensions.Add(new Measurement {
                         Record = _ws.Cells[t + d, 1].Value2,
-                        PurchaseOrderNumber = _purchaseOrderNumber.ToString()
+                        PurchaseOrder = _purchaseOrder.ToString()
                     });
                 }
 
-                list.Add(new SilkIconPackingList
+                list.Add(new PackingList
                 {
                     Available = 0,
                     ActualReceived = 0,
-                    PurchaseOrderNumber = _purchaseOrderNumber.ToString(),
+                    PurchaseOrder = _purchaseOrder.ToString(),
                     StyleNumber = _styleNumber,
                     NetWeight = Math.Round(_netWeight * 2.205, 2),
                     GrossWeight = Math.Round(_grossWeight * 2.205, 2),
@@ -144,14 +144,14 @@ namespace ClothResorting.Helpers
                     PackedCartons = (int)_packedCartons,
                     NumberOfDemension = (int)_numberOfDemension,
                     TotalMeasurements = demensions == null ? null : demensions,
-                    SilkIconPreReceiveOrder = preReceiveOrderInDb,
+                    PreReceiveOrder = preReceiveOrderInDb,
                     TotalPcs = 0,
                     ActualReceivedPcs = 0,
                     AvailablePcs = 0
                 });
             }
 
-            _context.SilkIconPackingLists.AddRange(list);
+            _context.PackingLists.AddRange(list);
             _context.SaveChanges();
         }
         #endregion
@@ -164,14 +164,14 @@ namespace ClothResorting.Helpers
             //扫描每一张Sheet
             for (int w = 2; w <= _wb.Worksheets.Count; w++)
             {
-                var list = new List<SilkIconCartonDetail>();
+                var list = new List<CartonDetail>();
                 var cartonBreakDownList = new List<CartonBreakDown>();
                 var cartonClassCount = 0;
                 int i = 11;
                 int j = 3;
                 _ws = _wb.Worksheets[w];
 
-                var preReceiveOrderInDb = _context.SilkIconPreReceiveOrders     //获取刚建立的PreReceiveOrder
+                var preReceiveOrderInDb = _context.PreReceiveOrders     //获取刚建立的PreReceiveOrder
                     .OrderByDescending(c => c.Id)
                     .First();
 
@@ -188,10 +188,10 @@ namespace ClothResorting.Helpers
                 _numberOfSizeRatio = (int)_ws.Cells[2, 5].Value2;
 
                 //找到与这一页CartonDetail相关的PackingList
-                _purchaseOrderNumber = _ws.Cells[1, 2].Value2.ToString();
-                var plInDb = _context.SilkIconPackingLists.Include(s => s.SilkIconPreReceiveOrder)
-                    .SingleOrDefault(s => s.PurchaseOrderNumber == _purchaseOrderNumber
-                        && s.SilkIconPreReceiveOrder.Id == preReceiveOrderInDb.Id);
+                _purchaseOrder = _ws.Cells[1, 2].Value2.ToString();
+                var plInDb = _context.PackingLists.Include(s => s.PreReceiveOrder)
+                    .SingleOrDefault(s => s.PurchaseOrder == _purchaseOrder
+                        && s.PreReceiveOrder.Id == preReceiveOrderInDb.Id);
 
                 //为每一个CartonDetail扫描数据
                 for (int c = 0; c < cartonClassCount; c++)
@@ -221,7 +221,7 @@ namespace ClothResorting.Helpers
                     _totalPcs = _ws.Cells[i, j + 13].Value2;
                     _style = _ws.Cells[i, j - 2].Value2.ToString();
 
-                    var carton = new SilkIconCartonDetail
+                    var carton = new CartonDetail
                     {
                         ActualReceivedPcs = 0,
                         AvailablePcs = 0,
@@ -229,7 +229,7 @@ namespace ClothResorting.Helpers
                         ActualReceived = 0,
                         Style = _style,
                         Color = _color,
-                        PurchaseOrderNumber = _purchaseOrderNumber.ToString(),
+                        PurchaseOrder = _purchaseOrder.ToString(),
                         CartonNumberRangeFrom = (int)_cartonNumberRangeFrom,
                         CartonNumberRangeTo = (int)_cartonNumberRangeTo,
                         SumOfCarton = (int)_sumOfCarton,
@@ -239,7 +239,7 @@ namespace ClothResorting.Helpers
                         GrossWeightPerCartons = _grossWeightPerCartons == null ? 0 : Math.Round((double)_grossWeightPerCartons * 2.205, 2),
                         PcsPerCartons = _pcsPerCartons == null ? 0 : (int)_pcsPerCartons,
                         TotalPcs = _totalPcs == null ? 0 : (int)_totalPcs,
-                        SilkIconPackingList = plInDb,
+                        PackingList = plInDb,
                         SizeRatios = sizeList,
                         Location = "N/A"
                     };
@@ -252,7 +252,7 @@ namespace ClothResorting.Helpers
                         //即使数量是0也要记录，以防一个箱子中塞入额外不同尺寸pcs的情况
                         var cartonBreakDown = new CartonBreakDown
                         {
-                            PurchaseNumber = _purchaseOrderNumber.ToString(),
+                            PurchaseOrder = _purchaseOrder.ToString(),
                             Style = _style,
                             Color = _color,
                             CartonNumberRangeFrom = (int)_cartonNumberRangeFrom,
@@ -263,9 +263,9 @@ namespace ClothResorting.Helpers
                             PcsPerCartons = sizeList[k].Count,
                             ActualPcs = 0,
                             AvailablePcs = 0,
-                            SilkIconPackingList = plInDb,
+                            PackingList = plInDb,
                             Location = "N/A",
-                            SilkIconCartonDetail = carton
+                            CartonDetail = carton
                         };
                         cartonBreakDownList.Add(cartonBreakDown);
                     }
@@ -275,7 +275,7 @@ namespace ClothResorting.Helpers
                 }
 
                 _context.CartonBreakDowns.AddRange(cartonBreakDownList);
-                _context.SilkIconCartonDetails.AddRange(list);
+                _context.CartonDetails.AddRange(list);
                 _context.SaveChanges();
             }
         }

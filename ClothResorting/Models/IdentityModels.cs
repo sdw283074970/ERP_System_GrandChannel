@@ -27,9 +27,9 @@ namespace ClothResorting.Models
         {
         }
 
-        public DbSet<SilkIconCartonDetail> SilkIconCartonDetails { get; set; }
-        public DbSet<SilkIconPackingList> SilkIconPackingLists { get; set; }
-        public DbSet<SilkIconPreReceiveOrder> SilkIconPreReceiveOrders { get; set; }
+        public DbSet<CartonDetail> CartonDetails { get; set; }
+        public DbSet<PackingList> PackingLists { get; set; }
+        public DbSet<PreReceiveOrder> PreReceiveOrders { get; set; }
         public DbSet<SizeRatio> SizeRatios { get; set; }
         public DbSet<Measurement> Measurements { get; set; }
         public DbSet<CartonBreakDown> CartonBreakDowns { get; set; }

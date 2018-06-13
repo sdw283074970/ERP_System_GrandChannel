@@ -35,9 +35,9 @@ namespace ClothResorting.Controllers.Api
             };
 
             var cartonBreakdowns = _context.CartonBreakDowns
-                .Include(c => c.SilkIconCartonDetail)
-                .Include(c => c.SilkIconPackingList.SilkIconPreReceiveOrder)
-                .Where(c => c.PurchaseNumber == obj.PurchaseOrder 
+                .Include(c => c.CartonDetail)
+                .Include(c => c.PackingList.PreReceiveOrder)
+                .Where(c => c.PurchaseOrder == obj.PurchaseOrder 
                     && c.AvailablePcs != 0 
                     && c.RunCode == "");
 

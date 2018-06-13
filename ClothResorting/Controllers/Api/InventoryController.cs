@@ -29,8 +29,8 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
 
-            var preReceiveOrderLists = _context.SilkIconPreReceiveOrders
-                .Select(Mapper.Map<SilkIconPreReceiveOrder, SilkIconPreReceiveOrdersDto>);
+            var preReceiveOrderLists = _context.PreReceiveOrders
+                .Select(Mapper.Map<PreReceiveOrder, SilkIconPreReceiveOrdersDto>);
 
             return Ok(preReceiveOrderLists);
         }
@@ -43,9 +43,9 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
 
-            var purchaseOrderDetails = _context.SilkIconPackingLists
-                .Where(s => s.SilkIconPreReceiveOrder.Id == id)
-                .Select(Mapper.Map<SilkIconPackingList, SilkIconPackingListDto>);
+            var purchaseOrderDetails = _context.PackingLists
+                .Where(s => s.PreReceiveOrder.Id == id)
+                .Select(Mapper.Map<PackingList, SilkIconPackingListDto>);
 
             return Ok(purchaseOrderDetails);
         }
@@ -60,22 +60,22 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
 
-            var cartonInDb = _context.SilkIconCartonDetails
-                .Include(s => s.SilkIconPackingList.SilkIconPreReceiveOrder)
+            var cartonInDb = _context.CartonDetails
+                .Include(s => s.PackingList.PreReceiveOrder)
                 .SingleOrDefault(s => s.Id == id);
 
             //需要确保返回的breakdown结果与该cartondetail属于同一个po以及preReceivedOrder下
             var cartonNumberRangeTo = cartonInDb.CartonNumberRangeTo;
-            var po = cartonInDb.PurchaseOrderNumber;
-            var preId = cartonInDb.SilkIconPackingList.SilkIconPreReceiveOrder.Id;
+            var po = cartonInDb.PurchaseOrder;
+            var preId = cartonInDb.PackingList.PreReceiveOrder.Id;
 
             if (cartonNumberRangeTo != null)
             {
                 var cartons = _context.CartonBreakDowns
-                    .Include(c => c.SilkIconCartonDetail.SilkIconPackingList.SilkIconPreReceiveOrder)
+                    .Include(c => c.CartonDetail.PackingList.PreReceiveOrder)
                     .Where(c => c.CartonNumberRangeTo == cartonNumberRangeTo
-                        && c.PurchaseNumber == po
-                        && c.SilkIconCartonDetail.SilkIconPackingList.SilkIconPreReceiveOrder.Id == preId)
+                        && c.PurchaseOrder == po
+                        && c.CartonDetail.PackingList.PreReceiveOrder.Id == preId)
                     .Select(Mapper.Map<CartonBreakDown, CartonBreakDownDto>);
                 return Created(new Uri(Request.RequestUri + "/" + "cartondetailid=" + id), cartons);
             }
@@ -99,20 +99,20 @@ namespace ClothResorting.Controllers.Api
 
 
             //移除数据库中[ClothSorting].[dbo].[SilkIconCartonDetails]
-            var cartonDetails = _context.SilkIconCartonDetails.Where(c => c.Id > 0);
-            _context.SilkIconCartonDetails.RemoveRange(cartonDetails);
+            var cartonDetails = _context.CartonDetails.Where(c => c.Id > 0);
+            _context.CartonDetails.RemoveRange(cartonDetails);
 
             //移除数据库中[ClothSorting].[dbo].[Measurements]
             var measurements = _context.Measurements.Where(c => c.Id > 0);
             _context.Measurements.RemoveRange(measurements);
 
             //移除数据库中[ClothSorting].[dbo].[SilkIconPackingLists]
-            var packingLists = _context.SilkIconPackingLists.Where(c => c.Id > 0);
-            _context.SilkIconPackingLists.RemoveRange(packingLists);
+            var packingLists = _context.PackingLists.Where(c => c.Id > 0);
+            _context.PackingLists.RemoveRange(packingLists);
 
             //移除数据库中[ClothSorting].[dbo].[SilkIconPreReceiveOrders]
-            var preReceiveOrders = _context.SilkIconPreReceiveOrders.Where(c => c.Id > 0);
-            _context.SilkIconPreReceiveOrders.RemoveRange(preReceiveOrders);
+            var preReceiveOrders = _context.PreReceiveOrders.Where(c => c.Id > 0);
+            _context.PreReceiveOrders.RemoveRange(preReceiveOrders);
 
             _context.SaveChanges();
         }

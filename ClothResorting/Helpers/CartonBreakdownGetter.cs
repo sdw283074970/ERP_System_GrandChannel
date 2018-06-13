@@ -18,17 +18,17 @@ namespace ClothResorting.Helpers
 
         public string GetContainerNumber()
         {
-            return _c.SilkIconPackingList.SilkIconPreReceiveOrder.ContainerNumber;
+            return _c.PackingList.PreReceiveOrder.ContainerNumber;
         }
 
-        public string GetPurchaseOrderNumber()
+        public string GetPurchaseOrder()
         {
-            return _c.PurchaseNumber;
+            return _c.PurchaseOrder;
         }
 
         public string GetVendor()
         {
-            return _c.SilkIconPackingList.SilkIconPreReceiveOrder.CustomerName;
+            return _c.PackingList.PreReceiveOrder.CustomerName;
         }
 
         public string GetStyle()

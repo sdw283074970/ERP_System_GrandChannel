@@ -9,7 +9,7 @@ namespace ClothResorting.Dtos
     {
         public int Id { get; set; }
 
-        public string PurchaseNumber { get; set; }
+        public string PurchaseOrder { get; set; }
 
         public string Style { get; set; }
 
