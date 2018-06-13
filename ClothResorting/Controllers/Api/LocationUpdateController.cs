@@ -48,7 +48,7 @@ namespace ClothResorting.Controllers.Api
             var cartonSample = _context.CartonDetails
                 .SingleOrDefault(c => c.Id == sampleId);
 
-            var cartonDto = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonSample);
+            var cartonDto = Mapper.Map<CartonDetail, CartonDetailDto>(cartonSample);
 
             return Created(new Uri(Request.RequestUri + "/" + sampleId), cartonDto);
         }

@@ -48,9 +48,9 @@
                     <th>Total Ctns In Location</th>
                     <th>Retrieve Pcs</th>
                     <th>Target Pcs</th>
-                    <th>Return Pcs</th>
-                    <th>Retrieve Date</th>
                     <th>Is Opened CT?</th>
+                    <th>Should Open A new CT?</th>
+                    <th>Retrieve Date</th>
                     <th>Shortage</th>
                 </tr>
             </thead>
@@ -63,6 +63,7 @@
     <script>
         $(document).ready(function () {
             var arr = new Array("default", "default", "default", "default", 0);
+            var table;
 
             $("#btn-retrieve").on("click", function () {
                 $("#poNumber").val() == "" ? alert("All feilds cannot be empty!") : arr[0] = $("#poNumber").val();
@@ -88,7 +89,11 @@
                     data: JSON.stringify(obj),
                     dataType: "json",
                     success: function (data, status, xhr) {
-                        $("#table").DataTable({
+                        if (table) {
+                            table.destroy();
+                        }
+                        table = $("#table").DataTable({
+                            destroy: true,
                             data: data,
                             columns: [
                                 {
@@ -146,21 +151,21 @@
                                     }
                                 },
                                 {
-                                    data: "shoulReturnPcs",
+                                    data: "isOpened",
                                     render: function (data) {
-                                        return data == null ? "" : "<text>" + data + "</text>";
+                                        return data == true ? "<text>YES</text>" : "<text>NO</text>";
+                                    }
+                                },
+                                {
+                                    data: "ifOpen",
+                                    render: function (data) {
+                                        return data == null ? "<text>Unnecessary</text>" : "<text>Open 1 CT</text>";
                                     }
                                 },
                                 {
                                     data: "retrievedDate",
                                     render: function (data) {
                                         return data == null ? "" : "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "isOpened",
-                                    render: function (data) {
-                                        return data == true ? "<text>YES</text>" : "<text>NO</text>";
                                     }
                                 },
                                 {

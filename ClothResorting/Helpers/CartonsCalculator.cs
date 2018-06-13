@@ -31,6 +31,7 @@ namespace ClothResorting.Helpers
                 //定义局部变量
                 var sumOfCartons = 0;
                 var isOpened = false;
+                var ifOpen = false;
                 int retrievedPcs = 0;    //实际拿出来的货
                 var cartonBreakdown = cartonBreakdownInDb[index];
                 var available = (int)cartonBreakdown.AvailablePcs;
@@ -64,7 +65,7 @@ namespace ClothResorting.Helpers
                         NumberOfCartons = sumOfCartons,
                         RetrievedDate = DateTime.Now,
                         LoadPlanRecord = loadPlan,
-                        ShoulReturnPcs = 0,
+                        IfOpen = ifOpen,
                         Shortage = 0
                     });
 
@@ -117,7 +118,7 @@ namespace ClothResorting.Helpers
                                 NumberOfCartons = sumOfCartons,
                                 RetrievedDate = DateTime.Now,
                                 LoadPlanRecord = loadPlan,
-                                ShoulReturnPcs = 0
+                                IfOpen = ifOpen
                             });
 
                             cartonBreakdown.AvailablePcs -= retrievedPcs;
@@ -134,7 +135,7 @@ namespace ClothResorting.Helpers
 
                             return result;
                         }
-                        else        //否则直接拿走箱子
+                        else        //如果已打开的箱子中Pcs数量不够需求，则直接拿走箱子
                         {
                             sumOfCartons += 1;      //直接拿走打开的箱子
                             targetPcsRemains -= resPcs;
@@ -150,9 +151,10 @@ namespace ClothResorting.Helpers
                         sumOfCartons += (int)Math.Ceiling((double)targetPcsRemains / (double)pcsPerCtn);
                         retrievedPcs = sumOfCartons * pcsPerCtn + resPcs;
 
-                        //如果拿多了且确实之前没拿够，当场开箱还一箱回去，只取出需要的pcs
+                        //如果拿多了且确实之前没拿够，当场开箱还一箱回去，只取出需要的pcs数量
                         if (retrievedPcs - targetPcsRemains > 0 && targetPcsRemains != 0)
                         {
+                            ifOpen = true;
                             shouldReturn = retrievedPcs - targetPcsRemains;       //需要返回库存的pcs数量
                             retrievedPcs = targetPcsRemains + resPcs;      //只取需要的，即当前部分加上之前已打开的箱子的Pcs
                             sumOfCartons -= 1;      //还箱子
@@ -174,7 +176,7 @@ namespace ClothResorting.Helpers
                         NumberOfCartons = sumOfCartons,
                         RetrievedDate = DateTime.Now,
                         LoadPlanRecord = loadPlan,
-                        ShoulReturnPcs = 0
+                        IfOpen = ifOpen
                     });
 
                     cartonBreakdown.AvailablePcs -= retrievedPcs;

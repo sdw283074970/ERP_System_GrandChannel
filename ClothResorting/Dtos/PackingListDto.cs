@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ClothResorting.Dtos
 {
-    public class SilkIconPackingListDto
+    public class PackingListDto
     {
         public string Id { get; set; }
 
@@ -39,6 +39,6 @@ namespace ClothResorting.Dtos
 
         public IList<MeasurementDto> TotalMeasurements { get; set; }
 
-        public ICollection<SilkIconCartonDetailDto> SilkIconCartonDetails { get; set; }
+        public ICollection<CartonDetailDto> SilkIconCartonDetails { get; set; }
     }
 }

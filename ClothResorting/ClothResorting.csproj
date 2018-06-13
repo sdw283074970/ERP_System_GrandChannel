@@ -230,9 +230,9 @@
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
     <Compile Include="Dtos\RetrievingRecordDto.cs" />
-    <Compile Include="Dtos\SilkIconCartonDetailDto.cs" />
-    <Compile Include="Dtos\SilkIconPackingListDto.cs" />
-    <Compile Include="Dtos\SilkIconPreReceiveOrdersDto.cs" />
+    <Compile Include="Dtos\CartonDetailDto.cs" />
+    <Compile Include="Dtos\PackingListDto.cs" />
+    <Compile Include="Dtos\PreReceiveOrdersDto.cs" />
     <Compile Include="Dtos\SizeRatioDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -541,6 +541,10 @@
     <Compile Include="Migrations\201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.cs" />
     <Compile Include="Migrations\201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.Designer.cs">
       <DependentUpon>201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806132158348_ReplaceShouldReturnToIfOpen.cs" />
+    <Compile Include="Migrations\201806132158348_ReplaceShouldReturnToIfOpen.Designer.cs">
+      <DependentUpon>201806132158348_ReplaceShouldReturnToIfOpen.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1115,6 +1119,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.resx">
       <DependentUpon>201806132134335_RenamePurchaseOrderNumberToPurchaseOrderAndDeletedAllSilkIconWords.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806132158348_ReplaceShouldReturnToIfOpen.resx">
+      <DependentUpon>201806132158348_ReplaceShouldReturnToIfOpen.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

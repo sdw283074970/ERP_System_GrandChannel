@@ -30,5 +30,7 @@ namespace ClothResorting.Dtos
         public int? AvailablePcs { get; set; }
 
         public string Location { get; set; }
+
+        public DateTime? ReceivedDate { get; set; }
     }
 }

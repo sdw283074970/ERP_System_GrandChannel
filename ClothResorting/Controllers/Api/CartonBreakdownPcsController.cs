@@ -36,6 +36,7 @@ namespace ClothResorting.Controllers.Api
                 .Include(s => s.PackingList.CartonDetails)
                 .SingleOrDefault(s => s.Id == id);
 
+            cartonInDb.ReceivedDate = DateTime.Now;
             cartonInDb.ActualPcs += changeValue;
             cartonInDb.AvailablePcs += changeValue;
 

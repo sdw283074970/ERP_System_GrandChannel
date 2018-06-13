@@ -37,7 +37,7 @@ namespace ClothResorting.Controllers.Api
                 .Include(c => c.PackingList.PreReceiveOrder)
                 .Where(s => s.PackingList.PreReceiveOrder.Id == preId
                     && s.PackingList.PurchaseOrder == po)
-                .Select(Mapper.Map<CartonDetail, SilkIconCartonDetailDto>);
+                .Select(Mapper.Map<CartonDetail, CartonDetailDto>);
 
             return Ok(cartonDetails);
         }

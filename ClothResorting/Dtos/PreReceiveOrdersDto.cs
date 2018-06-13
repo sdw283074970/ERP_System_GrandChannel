@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ClothResorting.Dtos
 {
-    public class SilkIconPreReceiveOrdersDto
+    public class PreReceiveOrdersDto
     {
         public int Id { get; set; }
 
@@ -35,6 +35,6 @@ namespace ClothResorting.Dtos
 
         public int? AvailablePcs { get; set; }
 
-        public ICollection<SilkIconPackingListDto> SilkIconPackingLists { get; set; }
+        public ICollection<PackingListDto> SilkIconPackingLists { get; set; }
     }
 }

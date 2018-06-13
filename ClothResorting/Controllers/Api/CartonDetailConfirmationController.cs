@@ -21,10 +21,10 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/cartondetailconfirmation
+        // PUT /api/cartondetailconfirmation
         //将所有被选中的对象(id数组)视为正常正确收货，即实际收货数量及库存数量直接等于应收货数量
-        [HttpPost]
-        public IHttpActionResult SetSelectedObjNormalReceived([FromBody]int[] arr)
+        [HttpPut]
+        public void SetSelectedObjNormalReceived([FromBody]int[] arr)
         {
             foreach(var id in arr)
             {
@@ -36,35 +36,35 @@ namespace ClothResorting.Controllers.Api
                 cartonDetailInDb.Available = cartonDetailInDb.SumOfCarton;
                 cartonDetailInDb.ActualReceivedPcs = cartonDetailInDb.TotalPcs;
                 cartonDetailInDb.AvailablePcs = cartonDetailInDb.TotalPcs;
-                cartonDetailInDb.ReceivedDate = DateTime.Today;
+                cartonDetailInDb.ReceivedDate = DateTime.Now;
 
                 foreach(var breakdown in cartonDetailInDb.CartonBreakdowns)
                 {
                     breakdown.ActualPcs = breakdown.ForecastPcs;
                     breakdown.AvailablePcs = breakdown.ForecastPcs;
-                    breakdown.ReceivedDate = DateTime.Today;
+                    breakdown.ReceivedDate = DateTime.Now;
                 }
             }
 
             _context.SaveChanges();
 
-            //返回第一个样本
-            var idFirst = arr[0];
-            var cartonDetailSample = _context.CartonDetails
-                .Include(s => s.PackingList.PreReceiveOrder)
-                .SingleOrDefault(s => s.Id == idFirst);
-            var cartonDetail = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonDetailSample);
+            ////返回第一个样本
+            //var idFirst = arr[0];
+            //var cartonDetailSample = _context.CartonDetails
+            //    .Include(s => s.PackingList.PreReceiveOrder)
+            //    .SingleOrDefault(s => s.Id == idFirst);
+            //var cartonDetail = Mapper.Map<CartonDetail, CartonDetailDto>(cartonDetailSample);
 
-            //同步purchase order中ctn和pcs的数量
-            var sync = new DbSynchronizer();
-            sync.SyncPurchaseOrder(cartonDetailSample);
-            _context.SaveChanges();
+            ////同步purchase order中ctn和pcs的数量
+            //var sync = new DbSynchronizer();
+            //sync.SyncPurchaseOrder(cartonDetailSample);
+            //_context.SaveChanges();
 
-            //同步pre-receive order中ctn和pcs的数量
-            sync.SyncPreReceivedOrder(cartonDetailSample);
-            _context.SaveChanges();
+            ////同步pre-receive order中ctn和pcs的数量
+            //sync.SyncPreReceivedOrder(cartonDetailSample);
+            //_context.SaveChanges();
 
-            return Created(new Uri(Request.RequestUri + "/" + arr[0]), cartonDetail);
+            //return Created(new Uri(Request.RequestUri + "/" + arr[0]), cartonDetail);
         }
     }
 }

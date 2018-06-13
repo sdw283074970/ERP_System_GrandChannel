@@ -34,6 +34,7 @@ namespace ClothResorting.Controllers.Api
 
             cartonInDb.ActualReceived += value;
             cartonInDb.Available += value;
+            cartonInDb.ReceivedDate = DateTime.Now;
 
             _context.SaveChanges();
 
@@ -46,7 +47,7 @@ namespace ClothResorting.Controllers.Api
             sync.SyncPreReceivedOrder(cartonInDb);
             _context.SaveChanges();
 
-            var cartonInDbDto = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonInDb);
+            var cartonInDbDto = Mapper.Map<CartonDetail, CartonDetailDto>(cartonInDb);
 
             return Created(new Uri(Request.RequestUri + "/" + arr[0]), cartonInDbDto);
         }

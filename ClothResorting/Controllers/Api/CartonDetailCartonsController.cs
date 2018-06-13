@@ -70,7 +70,7 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
 
-            var cartonDetail = Mapper.Map<CartonDetail, SilkIconCartonDetailDto>(cartonDetailInDb);
+            var cartonDetail = Mapper.Map<CartonDetail, CartonDetailDto>(cartonDetailInDb);
 
             return Ok(cartonDetail);
         }

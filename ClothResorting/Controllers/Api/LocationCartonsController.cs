@@ -38,7 +38,7 @@ namespace ClothResorting.Controllers.Api
                 .Where(c => c.PackingList.PreReceiveOrder.Id == preId
                     && c.PackingList.PurchaseOrder == po
                     && c.ActualReceived != 0)
-                .Select(Mapper.Map<CartonDetail, SilkIconCartonDetailDto>);
+                .Select(Mapper.Map<CartonDetail, CartonDetailDto>);
 
             return Created(new Uri(Request.RequestUri + "/"), cartons);
         }

@@ -29,7 +29,7 @@ namespace ClothResorting.Models
 
         public bool IsOpened { get; set; }
 
-        public int? ShoulReturnPcs { get; set; }
+        public bool IfOpen { get; set; }
 
         public int Shortage { get; set; }
 

@@ -30,7 +30,7 @@ namespace ClothResorting.Controllers.Api
             }
 
             var preReceiveOrderLists = _context.PreReceiveOrders
-                .Select(Mapper.Map<PreReceiveOrder, SilkIconPreReceiveOrdersDto>);
+                .Select(Mapper.Map<PreReceiveOrder, PreReceiveOrdersDto>);
 
             return Ok(preReceiveOrderLists);
         }
@@ -45,7 +45,7 @@ namespace ClothResorting.Controllers.Api
 
             var purchaseOrderDetails = _context.PackingLists
                 .Where(s => s.PreReceiveOrder.Id == id)
-                .Select(Mapper.Map<PackingList, SilkIconPackingListDto>);
+                .Select(Mapper.Map<PackingList, PackingListDto>);
 
             return Ok(purchaseOrderDetails);
         }
