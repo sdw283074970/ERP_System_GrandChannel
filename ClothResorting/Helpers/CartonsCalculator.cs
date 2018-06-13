@@ -16,23 +16,23 @@ namespace ClothResorting.Helpers
         }
 
         //按照PO, Style, Size, Color筛选出CartonBreakdown的结果List, 再通过给出需求件数, 得出RetrievingRecord结果列表, 这个列表就是取货单列表
-        public IEnumerable<RetrievingRecord> CalculateCartons (List<CartonBreakDown> cartonInDb, int? targetQuantity, LoadPlanRecord loadPlan)
+        public IEnumerable<RetrievingRecord> CalculateCartons (List<CartonBreakDown> cartonBreakdownInDb, int targetQuantity, LoadPlanRecord loadPlan)
         {
             var result = new List<RetrievingRecord>();
             var index = 0;
             var originalTargetQuantity = targetQuantity;
             
             //存货先进先出
-            cartonInDb.OrderBy(c => c.ReceivedDate);
+            cartonBreakdownInDb.OrderBy(c => c.ReceivedDate).OrderByDescending(c => c.Id);
 
-            while(targetQuantity > 0 && index < cartonInDb.Count)
+            while(targetQuantity > 0 && index < cartonBreakdownInDb.Count)
             {
                 var sumOfCartons = 0;
                 var isOpened = false;
-                int? retrievedPcs = 0;    //实际拿出来的货
-                var carton = cartonInDb[index];
-                var available = carton.AvailablePcs;
-                var pcsPerCtn = carton.PcsPerCartons;
+                int retrievedPcs = 0;    //实际拿出来的货
+                var cartonBreakdown = cartonBreakdownInDb[index];
+                var available = (int)cartonBreakdown.AvailablePcs;
+                var pcsPerCtn = (int)cartonBreakdown.PcsPerCartons;
                 //如果该项储存单位cartonbreakdown存货小于取货目标数，则把箱子全拿走
                 if (available - targetQuantity <= 0)
                 {
@@ -40,42 +40,44 @@ namespace ClothResorting.Helpers
                     isOpened = CheckIfOpened(available, pcsPerCtn);
 
                     //向上取整获得箱数
-                    sumOfCartons = (int)Math.Ceiling((double)carton.AvailablePcs / (double)carton.PcsPerCartons);
+                    sumOfCartons = (int)Math.Ceiling((double)available / (double)cartonBreakdown.PcsPerCartons);
 
-                    retrievedPcs = carton.AvailablePcs;
+                    retrievedPcs = available;       //所有库存都被拿走
 
                     //将结果传入总结果
                     result.Add(new RetrievingRecord
                     {
-                        Location = carton.Location,
-                        PurchaseOrderNumber = carton.PurchaseNumber,
-                        Style = carton.Style,
-                        Color = carton.Color,
-                        Size = carton.Size,
+                        Location = cartonBreakdown.Location,
+                        PurchaseOrderNumber = cartonBreakdown.PurchaseNumber,
+                        Style = cartonBreakdown.Style,
+                        Color = cartonBreakdown.Color,
+                        Size = cartonBreakdown.Size,
                         TargetPcs = originalTargetQuantity,
                         IsOpened = isOpened,
                         RetrivedPcs = retrievedPcs,
-                        TotalOfCartons = carton.CartonNumberRangeTo - carton.CartonNumberRangeFrom + 1,
+                        TotalOfCartons = cartonBreakdown.CartonNumberRangeTo - cartonBreakdown.CartonNumberRangeFrom + 1,
                         NumberOfCartons = sumOfCartons,
-                        RetrievedDate = DateTime.Today,
+                        RetrievedDate = DateTime.Now,
                         LoadPlanRecord = loadPlan,
-                        ShoulReturnPcs = (int)retrievedPcs - (int)originalTargetQuantity,
+                        ShoulReturnPcs = 0,
                         Shortage = 0
                     });
 
-                    //分别在cartonDetail、packingList、PrereceiveOrder相关Pcs存货中减去拿走的件数
-                    SyncPcs(carton, carton.AvailablePcs);
+                    targetQuantity -= retrievedPcs;
+                    cartonBreakdown.AvailablePcs -= retrievedPcs;
 
                     //分别在cartonDetail、packingList、PrereceiveOrder相关Pcs存货中减去拿走的件数
-                    SyncCtns(carton, sumOfCartons);
+                    SyncPcs(cartonBreakdown, available);
 
-                    carton.AvailablePcs = 0;
-                    index += 1;
-
+                    //分别在cartonDetail、packingList、PrereceiveOrder相关Pcs存货中减去拿走的件数
+                    SyncCtns(cartonBreakdown, sumOfCartons);
+                    
                     loadPlan.OutBoundCtns += sumOfCartons;
-                    loadPlan.OutBoundPcs += (int)retrievedPcs;
+                    loadPlan.OutBoundPcs += retrievedPcs;
 
                     _context.SaveChanges();
+
+                    index += 1;
                 }
                 //如果该项储存单位cartonbreakdown存货大于取货目标数，则计算具体拿几箱
                 else
@@ -87,7 +89,7 @@ namespace ClothResorting.Helpers
                     if (isOpened)
                     {
                         //查询打开的箱子中还有多少件衣服
-                        var res = carton.AvailablePcs % carton.PcsPerCartons;
+                        var res = (int)cartonBreakdown.AvailablePcs % (int)cartonBreakdown.PcsPerCartons;
 
                         sumOfCartons += 1;      //直接拿走打开的箱子
                         targetQuantity -= res;
@@ -97,24 +99,25 @@ namespace ClothResorting.Helpers
                         retrievedPcs = sumOfCartons * pcsPerCtn + res;
 
                         result.Add(new RetrievingRecord {
-                            Location = carton.Location,
-                            PurchaseOrderNumber = carton.PurchaseNumber,
-                            Style = carton.Style,
-                            Color = carton.Color,
-                            Size = carton.Size,
+                            Location = cartonBreakdown.Location,
+                            PurchaseOrderNumber = cartonBreakdown.PurchaseNumber,
+                            Style = cartonBreakdown.Style,
+                            Color = cartonBreakdown.Color,
+                            Size = cartonBreakdown.Size,
                             TargetPcs = originalTargetQuantity,
                             IsOpened = isOpened,
                             RetrivedPcs = retrievedPcs,
-                            TotalOfCartons = carton.CartonNumberRangeTo - carton.CartonNumberRangeFrom + 1,
+                            TotalOfCartons = cartonBreakdown.CartonNumberRangeTo - cartonBreakdown.CartonNumberRangeFrom + 1,
                             NumberOfCartons = sumOfCartons,
-                            RetrievedDate = DateTime.Today,
+                            RetrievedDate = DateTime.Now,
                             LoadPlanRecord = loadPlan,
                             ShoulReturnPcs = (int)retrievedPcs - (int)originalTargetQuantity
                         });
 
-                        carton.AvailablePcs -= retrievedPcs;
-                        SyncPcs(carton, retrievedPcs);
-                        SyncCtns(carton, sumOfCartons);
+                        cartonBreakdown.AvailablePcs -= retrievedPcs;
+                        targetQuantity -= retrievedPcs;
+                        SyncPcs(cartonBreakdown, retrievedPcs);
+                        SyncCtns(cartonBreakdown, sumOfCartons);
                         index += 1;
 
                         loadPlan.OutBoundCtns += sumOfCartons;
@@ -131,40 +134,57 @@ namespace ClothResorting.Helpers
 
                         result.Add(new RetrievingRecord
                         {
-                            Location = carton.Location,
-                            PurchaseOrderNumber = carton.PurchaseNumber,
-                            Style = carton.Style,
-                            Color = carton.Color,
-                            Size = carton.Size,
+                            Location = cartonBreakdown.Location,
+                            PurchaseOrderNumber = cartonBreakdown.PurchaseNumber,
+                            Style = cartonBreakdown.Style,
+                            Color = cartonBreakdown.Color,
+                            Size = cartonBreakdown.Size,
                             TargetPcs = originalTargetQuantity,
                             IsOpened = isOpened,
                             RetrivedPcs = retrievedPcs,
-                            TotalOfCartons = carton.CartonNumberRangeTo - carton.CartonNumberRangeFrom + 1,
+                            TotalOfCartons = cartonBreakdown.CartonNumberRangeTo - cartonBreakdown.CartonNumberRangeFrom + 1,
                             NumberOfCartons = sumOfCartons,
-                            RetrievedDate = DateTime.Today,
+                            RetrievedDate = DateTime.Now,
                             LoadPlanRecord = loadPlan,
-                            ShoulReturnPcs = (int)retrievedPcs - (int)originalTargetQuantity
+                            ShoulReturnPcs = retrievedPcs > originalTargetQuantity ? retrievedPcs - originalTargetQuantity : 0
                         });
 
-                        carton.AvailablePcs -= retrievedPcs;
-                        SyncPcs(carton, retrievedPcs);
-                        SyncCtns(carton, sumOfCartons);
-                        index += 1;
+                        cartonBreakdown.AvailablePcs -= retrievedPcs;
+                        targetQuantity -= retrievedPcs;
+                        SyncPcs(cartonBreakdown, retrievedPcs);
+                        SyncCtns(cartonBreakdown, sumOfCartons);
 
                         loadPlan.OutBoundCtns += sumOfCartons;
-                        loadPlan.OutBoundPcs += (int)retrievedPcs;
+                        loadPlan.OutBoundPcs += retrievedPcs;
 
                         _context.SaveChanges();
+
+                        index += 1;
                     }
                 }
             }
-            if (targetQuantity == 0)
+
+            //如果目标件数没有剩余或小于0，则说明库存量满足需求，甚至有多的
+            if (targetQuantity == 0 || targetQuantity < 0)
                 return result;
-            if (targetQuantity > 0)
-                result.Add(new RetrievingRecord {
-                    Shortage = (int)targetQuantity
+            //当目标件数仍然有剩余，则说明库存货物不足
+            else
+            {
+                var carton = cartonBreakdownInDb[0];
+
+                //将短缺信息返回至结果并储存到数据库中
+                result.Add(new RetrievingRecord
+                {
+                    Location = carton.Location,
+                    PurchaseOrderNumber = carton.PurchaseNumber,
+                    Style = carton.Style,
+                    Color = carton.Color,
+                    Size = carton.Size,
+                    Shortage = targetQuantity,
+                    RetrievedDate = DateTime.Now
                 });
                 return result;
+            }
         }
 
         //用于判断是否有打开的箱子

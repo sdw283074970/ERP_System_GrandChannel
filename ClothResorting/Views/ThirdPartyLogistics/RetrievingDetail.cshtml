@@ -30,9 +30,9 @@
             </font>
             <font>
                 Grand Total:
-                <input id="size" style="width:100px" />
+                <input id="total" style="width:100px" />
             </font>
-            <input id="btn-search" type="button" class="btn btn-info" value="Retrieve" />
+            <input id="btn-retrieve" type="button" class="btn btn-info" value="Retrieve" />
         </div>
     </div>
     <div>
@@ -44,11 +44,14 @@
                     <th>Style</th>
                     <th>Color</th>
                     <th>Size</th>
-                    <th>Recieved date</th>
+                    <th>Retrieve Ctns</th>
+                    <th>Total Ctns In Location</th>
+                    <th>Retrieve Pcs</th>
                     <th>Target Pcs</th>
-                    <th>Is opened carton existed</th>>
-                    <th>Quantity of cartons</th>
-                    <th>Remark</th>
+                    <th>Return Pcs</th>
+                    <th>Retrieve Date</th>
+                    <th>Is Opened CT?</th>
+                    <th>Shortage</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -58,6 +61,127 @@
 @section scripts
 {
     <script>
+        $(document).ready(function () {
+            var arr = new Array("default", "default", "default", "default", 0);
 
+            $("#btn-retrieve").on("click", function () {
+                $("#poNumber").val() == "" ? alert("All feilds cannot be empty!") : arr[0] = $("#poNumber").val();
+                $("#style").val() == "" ? alert("All feilds cannot be empty!") : arr[1] = $("#style").val();
+                $("#color").val() == "" ? alert("All feilds cannot be empty!") : arr[2] = $("#color").val();
+                $("#size").val() == "" ? alert("All feilds cannot be empty!") : arr[3] = $("#size").val();
+                $("#total").val() == "" ? alert("All feilds cannot be empty!") : arr[4] = $("#total").val();
+                
+                var obj = {
+                    "purchaseOrder": $("#poNumber").val(),
+                    "style": $("#style").val(),
+                    "color": $("#color").val(),
+                    "size": $("#size").val(),
+                    "grandTotal": $("#total").val()
+                };
+
+                alert(JSON.stringify(obj));
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/RetrievingDetail",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    success: function (data, status, xhr) {
+                        $("#table").DataTable({
+                            data: data,
+                            columns: [
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrderNumber",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "size",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "numberOfCartons",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "totalOfCartons",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "retrivedPcs",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "targetPcs",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shoulReturnPcs",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "retrievedDate",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "isOpened",
+                                    render: function (data) {
+                                        return data == true ? "<text>YES</text>" : "<text>NO</text>";
+                                    }
+                                },
+                                {
+                                    data: "shortage",
+                                    render: function (data) {
+                                        return data == 0 ? "" : "<text>" + data + "</text>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function () {
+                        alert("Retrieving failed. Reason: One or multiple Sizes are out of stock.")
+                    }
+                });
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+
+        });
     </script>
 }

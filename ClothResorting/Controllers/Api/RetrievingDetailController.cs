@@ -29,7 +29,7 @@ namespace ClothResorting.Controllers.Api
             var result = new List<RetrievingRecordDto>();
             var loadPlan = new LoadPlanRecord {
                 PurchaseOrder = obj.PurchaseOrder,
-                OutBoundDate = DateTime.Today,
+                OutBoundDate = DateTime.Now,
                 OutBoundPcs = 0,
                 OutBoundCtns = 0
             };
@@ -41,20 +41,29 @@ namespace ClothResorting.Controllers.Api
                     && c.AvailablePcs != 0 
                     && c.RunCode == "");
 
+            //分别按照style、color、size筛选
             cartonBreakdowns = cartonBreakdowns.Where(c => c.Style == obj.Style);
             cartonBreakdowns = cartonBreakdowns.Where(c => c.Color == obj.Color);
             var cartons = cartonBreakdowns.Where(c => c.Size == obj.Size).ToList();
 
             var calculator = new CartonsCalculator();
 
+            //调用Helper中CartonsCalculator的方法
             var query = calculator.CalculateCartons(cartons, obj.GrandTotal, loadPlan).ToList();
 
             _context.LoadPlanRecords.Add(loadPlan);
+            _context.RetrievingRecords.AddRange(query);
             _context.SaveChanges();
 
-            result.AddRange(Mapper.Map<List<RetrievingRecord>, List<RetrievingRecordDto>>(query));
+            var count = query.Count;
 
-            return Created(Request.RequestUri + "/" + 123, result);
+            var q = _context.RetrievingRecords
+                .OrderByDescending(r => r.Id)
+                .Select(Mapper.Map<RetrievingRecord, RetrievingRecordDto>)
+                .Take(count)
+                .OrderBy(r => r.Id);
+
+            return Created(Request.RequestUri + "/" + 222, q);
         }
     }
 }

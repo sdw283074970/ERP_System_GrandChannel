@@ -124,15 +124,14 @@
                         data: "purchaseOrderNumber",
                         render: function (data) {
                             return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
-                                + "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>"
-                                + "<a href='/ThirdPartyLogistics/RetrievingDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Retrieving</button></a>";
+                                + "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>";
                         }
                     }
                 ]
             });
 
             $(".btn-back").on("click", function () {
-                window.history.back(-1)
+                window.history.back(-1);
             });
 
         });
