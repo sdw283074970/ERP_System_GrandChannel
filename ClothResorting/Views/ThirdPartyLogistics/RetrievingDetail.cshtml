@@ -11,6 +11,9 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
+        <input id="btn-loadplan" type="button" class="btn btn-info" value="Upload File" />
+    </div>
+    <div>
         <div>
             <font>
                 PO Number:
@@ -58,13 +61,23 @@
         </table>
     </div>
 </div>
+<div class="iframe">
+    <div>
+        <input id="upload3" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile2" type="button" class="btn btn-default" value="上传文件" />
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
             var arr = new Array("default", "default", "default", "default", 0);
             var table;
+            $(".iframe").hide();
 
+            //获取单个散货取件信息
             $("#btn-retrieve").on("click", function () {
                 $("#poNumber").val() == "" ? alert("All feilds cannot be empty!") : arr[0] = $("#poNumber").val();
                 $("#style").val() == "" ? alert("All feilds cannot be empty!") : arr[1] = $("#style").val();
@@ -187,6 +200,146 @@
                 window.history.back(-1);
             });
 
+            //打开上传按钮界面事件
+            $("#btn-loadplan").click(function () {
+                layui.use("layer", function () {
+                    var layer = layui.layer;
+
+                    layer.open({
+                        title: false,
+                        type: 1,
+                        shadeclose: true,
+                        area: ["40%", "40%"],
+                        content: $(".iframe")
+                    });
+                });
+            });
+
+            //上传文件按钮事件
+            $("#uploadfile2").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload3").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/RereivingDetailExcelFile",
+                    data: formData,
+                    beforeSend: function () {
+                        layui.use('layer', function () {
+                            var layer = layui.layer;
+                            layer.msg('Extracting files...', {
+                                icon: 16,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });;
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Extract successed!");
+
+                        if (table)
+                            table.destroy();
+
+                        table = $("#table").DataTable({
+                            destroy: true,
+                            data: data,
+                            columns: [
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "size",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "numberOfCartons",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "totalOfCartons",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "retrivedPcs",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "targetPcs",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "isOpened",
+                                    render: function (data) {
+                                        return data == true ? "<text>YES</text>" : "<text>NO</text>";
+                                    }
+                                },
+                                {
+                                    data: "ifOpen",
+                                    render: function (data) {
+                                        return data == null ? "<text>Unnecessary</text>" : "<text>Open 1 CT</text>";
+                                    }
+                                },
+                                {
+                                    data: "retrievedDate",
+                                    render: function (data) {
+                                        return data == null ? "" : "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shortage",
+                                    render: function (data) {
+                                        return data == 0 ? "" : "<font color='red'  style='width:30px'>" + data + "</font>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server!");
+                    }
+                });
+
+                $(".iframe").hide();
+
+            });
         });
     </script>
 }

@@ -75,5 +75,10 @@ namespace ClothResorting.Helpers
         {
             return _c.Location;
         }
+
+        public DateTime? GetReceivedDate()
+        {
+            return _c.ReceivedDate;
+        }
     }
 }

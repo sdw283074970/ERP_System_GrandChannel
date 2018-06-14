@@ -48,21 +48,21 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
 
-            ////返回第一个样本
-            //var idFirst = arr[0];
-            //var cartonDetailSample = _context.CartonDetails
-            //    .Include(s => s.PackingList.PreReceiveOrder)
-            //    .SingleOrDefault(s => s.Id == idFirst);
-            //var cartonDetail = Mapper.Map<CartonDetail, CartonDetailDto>(cartonDetailSample);
+            //返回第一个样本
+            var idFirst = arr[0];
+            var cartonDetailSample = _context.CartonDetails
+                .Include(s => s.PackingList.PreReceiveOrder)
+                .SingleOrDefault(s => s.Id == idFirst);
+            var cartonDetail = Mapper.Map<CartonDetail, CartonDetailDto>(cartonDetailSample);
 
-            ////同步purchase order中ctn和pcs的数量
-            //var sync = new DbSynchronizer();
-            //sync.SyncPurchaseOrder(cartonDetailSample);
-            //_context.SaveChanges();
+            //同步purchase order中ctn和pcs的数量
+            var sync = new DbSynchronizer();
+            sync.SyncPurchaseOrder(cartonDetailSample);
+            _context.SaveChanges();
 
-            ////同步pre-receive order中ctn和pcs的数量
-            //sync.SyncPreReceivedOrder(cartonDetailSample);
-            //_context.SaveChanges();
+            //同步pre-receive order中ctn和pcs的数量
+            sync.SyncPreReceivedOrder(cartonDetailSample);
+            _context.SaveChanges();
 
             //return Created(new Uri(Request.RequestUri + "/" + arr[0]), cartonDetail);
         }

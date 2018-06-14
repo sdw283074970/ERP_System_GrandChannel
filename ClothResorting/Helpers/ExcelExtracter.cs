@@ -63,7 +63,6 @@ namespace ClothResorting.Helpers
         public void CreateSilkIconPreReceiveOrderAndOverView()
         {
             _ws = _wb.Worksheets[1];
-            
 
             //建立一个PreReceiveOrder对象
             var newOrder = new PreReceiveOrder

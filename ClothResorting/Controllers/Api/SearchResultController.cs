@@ -20,7 +20,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/searchresult
+        // POST /api/searchresult 需要DTO
         [HttpPost]
         public IHttpActionResult SearchByConditions([FromBody]string[] arr)
         {
@@ -61,7 +61,8 @@ namespace ClothResorting.Controllers.Api
                     Size = c.GetSize(),
                     ReceivedPcs = c.GetReceivedPcs(),
                     AvailablePcs = c.GetAvailablePcs(),
-                    Location = c.GetLocation()
+                    Location = c.GetLocation(),
+                    RecievedDate = c.GetReceivedDate()
                 });
             }
 
@@ -100,7 +101,7 @@ namespace ClothResorting.Controllers.Api
                 result = result.Where(r => r.Size == size).ToList();
             }
 
-            //uri临时设置一个
+            //uri临时设置一个，缺失DTO
             return Created(new Uri(Request.RequestUri + "/" + 1101), result);
         }
     }

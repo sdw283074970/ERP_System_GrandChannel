@@ -30,5 +30,7 @@ namespace ClothResorting.Models.ApiTransformModels
         public int? AvailablePcs { get; set; }
 
         public string Location { get; set; }
+
+        public DateTime? RecievedDate { get; set; }
     }
 }

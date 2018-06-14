@@ -220,6 +220,7 @@
     <Compile Include="Controllers\Api\LocationCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
+    <Compile Include="Controllers\Api\RereivingDetailExcelFileController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailController.cs" />
     <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
@@ -242,6 +243,7 @@
     <Compile Include="Helpers\ExcelExtracter.cs" />
     <Compile Include="Helpers\InOneCartonChecker.cs" />
     <Compile Include="Helpers\DbSynchronizer.cs" />
+    <Compile Include="Helpers\LoadPlanExtracter.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.Designer.cs">
       <DependentUpon>201805111640533_Initialization.cs</DependentUpon>
@@ -549,6 +551,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\RetrievingRequestJsonObj.cs" />
+    <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\LoadPlanRecord.cs" />
     <Compile Include="Models\RetrievingRecord.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />

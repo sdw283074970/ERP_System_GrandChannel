@@ -1,4 +1,6 @@
-﻿namespace ClothResorting.Models.Interface
+﻿using System;
+
+namespace ClothResorting.Models.Interface
 {
     public interface ICartonBreakDown
     {
@@ -16,5 +18,6 @@
         PackingList PackingList { get; set; }
         string Size { get; set; }
         string Style { get; set; }
+        DateTime? ReceivedDate { get; set; }
     }
 }
