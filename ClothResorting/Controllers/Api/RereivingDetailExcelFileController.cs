@@ -62,12 +62,19 @@ namespace ClothResorting.Controllers.Api
             _context.LoadPlanRecords.Add(loadPlan);
             _context.SaveChanges();
 
+            //首先获取库存中可用的条目
             var cartonBreakdowns = _context.CartonBreakDowns
                 .Include(c => c.CartonDetail)
                 .Include(c => c.PackingList.PreReceiveOrder)
                 .Where(c => c.PurchaseOrder == po
                     && c.AvailablePcs != 0
                     && c.RunCode == "");
+
+            //如果没有可用条目，则返回错误
+            if (cartonBreakdowns.Count() == 0)
+            {
+                return BadRequest();
+            }
 
             var loadPlanInDb = _context.LoadPlanRecords
                 .OrderByDescending(c => c.Id).First();

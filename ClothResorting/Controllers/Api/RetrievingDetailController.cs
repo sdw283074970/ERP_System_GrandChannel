@@ -41,6 +41,12 @@ namespace ClothResorting.Controllers.Api
                     && c.AvailablePcs != 0 
                     && c.RunCode == "");
 
+            //如果没有可用条目，则返回错误
+            if (cartonBreakdowns.Count() == 0)
+            {
+                return BadRequest();
+            }
+
             //分别按照style、color、size筛选
             cartonBreakdowns = cartonBreakdowns.Where(c => c.Style == obj.Style);
             cartonBreakdowns = cartonBreakdowns.Where(c => c.Color == obj.Color);

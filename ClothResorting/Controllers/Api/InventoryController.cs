@@ -98,7 +98,7 @@ namespace ClothResorting.Controllers.Api
             _context.CartonBreakDowns.RemoveRange(cartonBreakdowns);
 
 
-            //移除数据库中[ClothSorting].[dbo].[SilkIconCartonDetails]
+            //移除数据库中[ClothSorting].[dbo].[CartonDetails]
             var cartonDetails = _context.CartonDetails.Where(c => c.Id > 0);
             _context.CartonDetails.RemoveRange(cartonDetails);
 
@@ -106,13 +106,21 @@ namespace ClothResorting.Controllers.Api
             var measurements = _context.Measurements.Where(c => c.Id > 0);
             _context.Measurements.RemoveRange(measurements);
 
-            //移除数据库中[ClothSorting].[dbo].[SilkIconPackingLists]
+            //移除数据库中[ClothSorting].[dbo].[PackingLists]
             var packingLists = _context.PackingLists.Where(c => c.Id > 0);
             _context.PackingLists.RemoveRange(packingLists);
 
-            //移除数据库中[ClothSorting].[dbo].[SilkIconPreReceiveOrders]
+            //移除数据库中[ClothSorting].[dbo].[PreReceiveOrders]
             var preReceiveOrders = _context.PreReceiveOrders.Where(c => c.Id > 0);
             _context.PreReceiveOrders.RemoveRange(preReceiveOrders);
+
+            //移除数据库中[ClothSorting].[dbo].[RetrievingRecords]
+            var retrievingRecords = _context.RetrievingRecords.Where(c => c.Id > 0);
+            _context.RetrievingRecords.RemoveRange(retrievingRecords);
+
+            //移除数据库中[ClothSorting].[dbo].[LoadPlanRecords]
+            var loadPlanRecords = _context.LoadPlanRecords.Where(c => c.Id > 0);
+            _context.LoadPlanRecords.RemoveRange(loadPlanRecords);
 
             _context.SaveChanges();
         }
