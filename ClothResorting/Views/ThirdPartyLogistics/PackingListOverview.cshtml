@@ -16,9 +16,9 @@
                     <th>Id</th>
                     <th>PO#</th>
                     <th>Style#</th>
-                    <th>Vol.</th>
+                    @*<th>Vol.</th>
                     <th>G.W.(lb)</th>
-                    <th>N.W.(lb)</th>
+                    <th>N.W.(lb)</th>*@
                     <th>Forecast Cartons</th>
                     <th>Receipt Cartons</th>
                     <th>Available Cartons</th>
@@ -66,24 +66,24 @@
                             return "<text>" + data + "</text>";
                         }
                     },
-                    {
-                        data: "cft",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "grossWeight",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "netWeight",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
+                    //{
+                    //    data: "cft",
+                    //    render: function (data) {
+                    //        return "<text>" + data + "</text>";
+                    //    }
+                    //},
+                    //{
+                    //    data: "grossWeight",
+                    //    render: function (data) {
+                    //        return "<text>" + data + "</text>";
+                    //    }
+                    //},
+                    //{
+                    //    data: "netWeight",
+                    //    render: function (data) {
+                    //        return "<text>" + data + "</text>";
+                    //    }
+                    //},
                     {
                         data: "packedCartons",
                         render: function (data) {

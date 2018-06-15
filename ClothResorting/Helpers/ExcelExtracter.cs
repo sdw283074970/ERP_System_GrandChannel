@@ -29,9 +29,8 @@ namespace ClothResorting.Helpers
         private double _packedCartons;
         private double _netWeight;
         private double _grossWeight;
-        private double _cFT;
-        private double _numberOfDemension;
-        private double _numberOfSizeRatio;
+        private double? _numberOfDemension;
+        private double? _numberOfSizeRatio;
         #endregion
 
         //CartonDetail全局变量
@@ -45,6 +44,7 @@ namespace ClothResorting.Helpers
         private string _dimension;
         private double? _grossWeightPerCartons;
         private double? _netWeightPerCartons;
+        private double _cFT;
         private double? _pcsPerCartons;
         private double? _totalPcs;
         #endregion
@@ -70,7 +70,7 @@ namespace ClothResorting.Helpers
                 Available = 0,
                 ActualReceived = 0,
                 CustomerName = _ws.Cells[1, 2].Value2,
-                CreatDate = DateTime.Today,
+                CreatDate = DateTime.Now,
                 TotalCartons = (int)_ws.Cells[3, 2].Value2,
                 TotalGrossWeight = Math.Round(_ws.Cells[5, 2].Value2 * 2.205, 2),
                 TotalNetWeight = Math.Round(_ws.Cells[6, 2].Value2 * 2.205, 2),
@@ -106,9 +106,9 @@ namespace ClothResorting.Helpers
                 _purchaseOrder = _ws.Cells[1, 2].Value2.ToString();
                 _styleNumber = _ws.Cells[2, 2].Value2.ToString();
                 _packedCartons = _ws.Cells[3, 2].Value2;
-                _cFT = _ws.Cells[4, 2].Value2;
-                _grossWeight = _ws.Cells[5, 2].Value2;
-                _netWeight = _ws.Cells[6, 2].Value2;
+                _cFT = _ws.Cells[4, 2].Value2 == null ? 0 : _ws.Cells[4, 2].Value2;
+                _grossWeight = _ws.Cells[5, 2].Value2 == null ? 0 : _ws.Cells[5, 2].Value2;
+                _netWeight = _ws.Cells[6, 2].Value2 == null ? 0 : _ws.Cells[6, 2].Value2;
                 _numberOfDemension = _ws.Cells[1, 5].Value2;
                 _numberOfSizeRatio = _ws.Cells[2, 5].Value2;
 
@@ -175,7 +175,7 @@ namespace ClothResorting.Helpers
                     .First();
 
                 //确定有多少行Carton需要扫描
-                while (_ws.Cells[i, j].Value2 != null)
+                while (_ws.Cells[i, 6].Value2 != null)
                 {
                     i += 1;
                     cartonClassCount += 1;
@@ -199,18 +199,22 @@ namespace ClothResorting.Helpers
 
                     for (int n = 0; n < _numberOfSizeRatio; n++)
                     {
-                        sizeList.Add(new SizeRatio
+                        if (_ws.Cells[i, 18 + n].Value2 != null && _ws.Cells[i, 18 + n].Value2 != 0)
                         {
-                            Count = _ws.Cells[i, 18 + n].Value2 == null ? 0 : (int)_ws.Cells[i, 18 + n].Value2,
-                            SizeName = _ws.Cells[10, 18 + n].Value2
-                        });
+                            sizeList.Add(new SizeRatio
+                            {
+                                Count = (int)_ws.Cells[i, 18 + n].Value2,
+                                SizeName = _ws.Cells[10, 18 + n].Value2
+                            });
+                        }
                     }
 
                     //读取扫描结果
                     _style = _ws.Cells[i, j - 2].Value2.ToString();
                     _color = _ws.Cells[i, j - 1].Value2;
-                    _cartonNumberRangeFrom = _ws.Cells[i, j].Value2;
-                    _cartonNumberRangeTo = _ws.Cells[i, j + 2].Value2;
+                    //箱号范围有两种格式，即分开的和通过'-'合并的，分别获取箱号范围值
+                    _cartonNumberRangeFrom = _ws.Cells[i, j].Value2 == null ? GetFrom(_ws.Cells[i, j + 1].Value2) : _ws.Cells[i, j].Value2;
+                    _cartonNumberRangeTo = _ws.Cells[i, j + 2].Value2 == null ? GetTo(_ws.Cells[i, j + 1].Value2) : _ws.Cells[i, j + 2].Value2;
                     _sumOfCarton = _ws.Cells[i, j + 3].Value2;
                     _runCode = _ws.Cells[i, j + 5].Value2;
                     _dimension = _ws.Cells[i, j + 7].Value2;
@@ -279,6 +283,36 @@ namespace ClothResorting.Helpers
             }
         }
         #endregion
+
+        //从类似"12-25"字符串中获取箱号范围的前段
+        public int GetFrom(string cn)
+        {
+            string[] arr;
+            if(cn.Contains('-'))
+            {
+                arr = cn.Split('-');
+                return int.Parse(arr[0]);
+            }
+            else
+            {
+                return int.Parse(cn);
+            }
+        }
+
+        //获取后段
+        public int GetTo(string cn)
+        {
+            string[] arr;
+            if (cn.Contains('-'))
+            {
+                arr = cn.Split('-');
+                return int.Parse(arr[1]);
+            }
+            else
+            {
+                return int.Parse(cn);
+            }
+        }
 
         public void Dispose()
         {

@@ -27,6 +27,10 @@ namespace ClothResorting.Controllers.Api
         public void SaveUploadedFileAndExtractExcel()
         {
             var fileSavePath = "";
+            var killer = new ExcelKiller();
+
+            //首先强行中止一切EXCEL进程
+            killer.Dispose();
 
             //方法1：写入磁盘系统
             if (HttpContext.Current.Request.Files.AllKeys.Any())
@@ -57,7 +61,7 @@ namespace ClothResorting.Controllers.Api
 
             excel.ExtractSilkIconCartonDetails();
 
-            //强行释放EXCEL资源(终止EXCEL进程)
+            //再次强行释放EXCEL资源(终止EXCEL进程)
             excel.Dispose();
 
             //因为源文件没有每一单po的总pcs数量，所以需要写算法计算

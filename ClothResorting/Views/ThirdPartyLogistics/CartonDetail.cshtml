@@ -19,9 +19,9 @@
                     <th>C/NO From</th>
                     <th>C/NO To</th>
                     <th>Run Code</th>
-                    <th>Dimension</th>
+                    @*<th>Dimension</th>
                     <th>G.W./CTN</th>
-                    <th>N.W./CTN</th>
+                    <th>N.W./CTN</th>*@
                     <th>Forecasst Cartons</th>
                     <th>Receipt Cartons</th>
                     <th>Available Cartons</th>
@@ -113,24 +113,24 @@
                                     return "<text>" + data + "</text>";
                                 }
                             },
-                            {
-                                data: "dimension",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "grossWeightPerCartons",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "netWeightPerCartons",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
+                            //{
+                            //    data: "dimension",
+                            //    render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
+                            //{
+                            //    data: "grossWeightPerCartons",
+                            //    render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
+                            //{
+                            //    data: "netWeightPerCartons",
+                            //    render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
                             {
                                 data: "sumOfCarton",
                                 render: function (data) {

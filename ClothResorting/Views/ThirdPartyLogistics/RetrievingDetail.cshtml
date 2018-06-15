@@ -11,7 +11,9 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-loadplan" type="button" class="btn btn-info" value="Upload File" />
+        <input id="btn-regular" type="button" class="btn btn-info" value="Upload Regular Order File" /> 
+        <input id="btn-pepack" type="button" class="btn btn-info" value="Upload pre-pack File" />
+
     </div>
     <div>
         <div>
@@ -201,7 +203,7 @@
             });
 
             //打开上传按钮界面事件
-            $("#btn-loadplan").click(function () {
+            $("#btn-regular").click(function () {
                 layui.use("layer", function () {
                     var layer = layui.layer;
 
