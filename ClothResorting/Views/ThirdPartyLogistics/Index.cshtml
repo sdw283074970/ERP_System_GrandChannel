@@ -17,6 +17,9 @@
         <a href="/ThirdPartyLogistics/RetrievingDetail/">
             <input id="btn-search" type="button" class="btn btn-info" value="Pick Order" />
         </a>
+        <a href="/ThirdPartyLogistics/NewBulkLoad/">
+            <input id="btn-bulkload" type="button" class="btn btn-info" value="Creat New Bulkload" />
+        </a>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -181,7 +184,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/ThirdPartyLogisticsApi",
+                    url: "/api/NewBulkload",
                     data: formData,
                     beforeSend: function () {
                         layui.use('layer', function () {

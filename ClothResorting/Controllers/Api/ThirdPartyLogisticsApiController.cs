@@ -27,10 +27,6 @@ namespace ClothResorting.Controllers.Api
         public void SaveUploadedFileAndExtractExcel()
         {
             var fileSavePath = "";
-            var killer = new ExcelKiller();
-
-            //首先强行中止一切EXCEL进程
-            killer.Dispose();
 
             //方法1：写入磁盘系统
             if (HttpContext.Current.Request.Files.AllKeys.Any())

@@ -1,0 +1,31 @@
+﻿
+@{
+    ViewBag.Title = "NewBulkload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Bulkload</h2>
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-add" type="button" class="btn btn-info" value="Add a new record" />
+    </div>
+    <div>
+        <table id="receive-table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>PO#</th>
+                    <th>Style#</th>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Number of Ctns</th>
+                    <th>Pcs QTY</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

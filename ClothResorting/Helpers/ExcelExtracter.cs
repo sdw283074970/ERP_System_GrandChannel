@@ -250,7 +250,7 @@ namespace ClothResorting.Helpers
                     //顺便添加CartonBreakDown信息到CartonBreakDown表中
                     var sumOfCartons = (int)_sumOfCarton;
 
-                    for (int k = 0; k < sizeList.Count; k++)
+                    for (int s = 0; s < sizeList.Count; s++)
                     {
                         //即使数量是0也要记录，以防一个箱子中塞入额外不同尺寸pcs的情况
                         var cartonBreakDown = new CartonBreakDown
@@ -261,9 +261,9 @@ namespace ClothResorting.Helpers
                             CartonNumberRangeFrom = (int)_cartonNumberRangeFrom,
                             CartonNumberRangeTo = (int)_cartonNumberRangeTo,
                             RunCode = _runCode == null ? "" : _runCode,
-                            Size = sizeList[k].SizeName,
-                            ForecastPcs = sizeList[k].Count * sumOfCartons,
-                            PcsPerCartons = sizeList[k].Count,
+                            Size = sizeList[s].SizeName,
+                            ForecastPcs = sizeList[s].Count * sumOfCartons,
+                            PcsPerCartons = sizeList[s].Count,
                             ActualPcs = 0,
                             AvailablePcs = 0,
                             PackingList = plInDb,
@@ -280,6 +280,9 @@ namespace ClothResorting.Helpers
                 _context.CartonBreakDowns.AddRange(cartonBreakDownList);
                 _context.CartonDetails.AddRange(list);
                 _context.SaveChanges();
+
+                //释放EXCEL资源
+                Dispose();
             }
         }
         #endregion
@@ -323,5 +326,112 @@ namespace ClothResorting.Helpers
                 procs.Kill();
             }
         }
+
+        //以CartonDetail为单位，抽取批量散货的excel信息(与packinglist无关，仅散货)
+        #region
+        public void ExtractBulkloadRecord()
+        {
+
+            var numberOfWorkSheet = _wb.Worksheets.Count;
+
+            //遍历每一张ws
+            for(int i = 1; i <= numberOfWorkSheet; i++)
+            {
+                var n = 3;
+                var cartonBreakDownList = new List<CartonBreakDown>();
+                var list = new List<CartonDetail>();
+                var cartonClassCount = 0;
+
+                _ws = _wb.Worksheets[i];
+                _purchaseOrder = _ws.Cells[1, 2].Value2 == null ? "" : _ws.Cells[1, 2].Value2.ToString();
+                _numberOfSizeRatio = _ws.Cells[1, 4].Value2;
+
+                //数有多少carton储存对象(cartonDetail)
+                while (_ws.Cells[n, 3].Value2 != null)
+                {
+                    cartonClassCount += 1;
+                    n += 1;
+                }
+
+                //将ws中的每一个cartonDetail对象添加到代添加到数据库的列表中
+                for (int k = 0; k < cartonClassCount; k++)
+                {
+                    //获取SizeRaio表
+                    var sizeList = new List<SizeRatio>();
+
+                    //扫描当前cartonDetail包含的sizeRatio
+                    for (int p = 0; p < _numberOfSizeRatio; p++)
+                    {
+                        if (_ws.Cells[k + 3, 5 + p].Value2 != null && _ws.Cells[k + 3, 5 + p].Value2 != 0)
+                        {
+                            sizeList.Add(new SizeRatio
+                            {
+                                Count = (int)_ws.Cells[k + 3, 5 + p].Value2,
+                                SizeName = _ws.Cells[2, 5 + p].Value2
+                            });
+                        }
+                    }
+
+                    //将ws中的关键变量储存至内存中
+                    _style = _ws.Cells[k + 3, 1].Value2.ToString();
+                    _color = _ws.Cells[k + 3, 2].Value2.ToString();
+                    int numberOfCartons = (int)_ws.Cells[k + 3, 3].Value2;
+                    var location = _ws.Cells[k + 3, 4].Value2.ToString();
+
+                    //新建CartonDetail对象，将其添加到list中
+                    var carton = new CartonDetail
+                    {
+                        PurchaseOrder = _purchaseOrder,
+                        Style = _style,
+                        Color = _color,
+                        SumOfCarton = 0,
+                        ActualReceived = numberOfCartons,
+                        Available = numberOfCartons,
+                        Location = location,
+                        ActualReceivedPcs = 0,
+                        AvailablePcs = 0,
+                        SizeRatios = sizeList
+                    };
+
+                    //遍历sizeRatios，生成数个cartonBreakdown
+                    for (int s = 0; s < sizeList.Count; s++)
+                    {
+                        var cartonBreakDown = new CartonBreakDown
+                        {
+                            PurchaseOrder = _purchaseOrder.ToString(),
+                            Style = _style,
+                            Color = _color,
+                            CartonNumberRangeFrom = 0,
+                            CartonNumberRangeTo = 0,
+                            RunCode = "",
+                            Size = sizeList[s].SizeName,
+                            ForecastPcs = 0,
+                            PcsPerCartons = sizeList[s].Count,
+                            ActualPcs = sizeList[s].Count,
+                            AvailablePcs = 0,
+                            Location = location,
+                            CartonDetail = carton
+                        };
+
+                        carton.ActualReceivedPcs = sizeList[s].Count;
+                        carton.AvailablePcs = sizeList[s].Count;
+
+                        cartonBreakDownList.Add(cartonBreakDown);
+                    }
+
+                    list.Add(carton);
+                    i += 1;
+                }
+
+                //写进数据库
+                _context.CartonBreakDowns.AddRange(cartonBreakDownList);
+                _context.CartonDetails.AddRange(list);
+                _context.SaveChanges();
+
+                //释放EXCEL资源
+                Dispose();
+            }
+        }
+        #endregion
     }
 }

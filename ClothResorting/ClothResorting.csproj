@@ -226,6 +226,7 @@
     <Compile Include="Controllers\Api\LocationCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
+    <Compile Include="Controllers\Api\NewBulkloadController.cs" />
     <Compile Include="Controllers\Api\RereivingDetailExcelFileController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
@@ -560,6 +561,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\RetrievingRequestJsonObj.cs" />
+    <Compile Include="Models\DataTransferModels\Bulkload.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\LoadPlanRecord.cs" />
     <Compile Include="Models\RetrievingRecord.cs" />
@@ -889,6 +891,7 @@
     <Content Include="Views\ThirdPartyLogistics\Location.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\Search.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\RetrievingDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\NewBulkload.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -936,6 +939,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805111744163_CommenedOutDistributionCenterProperties.resx">
       <DependentUpon>201805111744163_CommenedOutDistributionCenterProperties.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805111756446_ModifiedCartonDetailProperties.resx">
       <DependentUpon>201805111756446_ModifiedCartonDetailProperties.cs</DependentUpon>
@@ -948,6 +952,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805111820593_CommenedOutPropertiesInPreReceiveOrder.resx">
       <DependentUpon>201805111820593_CommenedOutPropertiesInPreReceiveOrder.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805111823341_AddedPropertiesInPreReceiveOrder.resx">
       <DependentUpon>201805111823341_AddedPropertiesInPreReceiveOrder.cs</DependentUpon>

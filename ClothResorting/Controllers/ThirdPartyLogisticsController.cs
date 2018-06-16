@@ -49,5 +49,12 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // 散货收取/添加库存页面
+
+        public ActionResult NewBulkload()
+        {
+            return View();
+        }
     }
 }
