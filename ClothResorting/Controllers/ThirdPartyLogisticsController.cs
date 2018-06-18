@@ -51,8 +51,13 @@ namespace ClothResorting.Controllers
         }
 
         // 散货收取/添加库存页面
-
         public ActionResult NewBulkload()
+        {
+            return View();
+        }
+
+        // CartonBreakdown查询可用库存去向页面
+        public ActionResult CartonBreakdownOutbound()
         {
             return View();
         }

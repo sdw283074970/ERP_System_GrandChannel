@@ -39,5 +39,7 @@ namespace ClothResorting.Models
         public PackingList PackingList { get; set; }
 
         public CartonDetail CartonDetail { get; set; }
+
+        public ICollection<CartonBreakdownOutbound> CartonBreakdownOutbounds { get; set; }
     }
 }

@@ -9,10 +9,12 @@ namespace ClothResorting.Helpers
     public class CartonsCalculator
     {
         private ApplicationDbContext _context;
+        private DateTime _now; 
 
         public CartonsCalculator()
         {
             _context = new ApplicationDbContext();
+            _now = DateTime.Now;
         }
 
         //按照PO, Style, Size, Color筛选出CartonBreakdown的结果List, 再通过给出需求件数, 得出RetrievingRecord结果列表, 这个列表就是取货单列表
@@ -63,7 +65,7 @@ namespace ClothResorting.Helpers
                         RetrivedPcs = retrievedPcs,
                         TotalOfCartons = cartonBreakdown.CartonNumberRangeTo - cartonBreakdown.CartonNumberRangeFrom + 1,
                         NumberOfCartons = sumOfCartons,
-                        RetrievedDate = DateTime.Now,
+                        RetrievedDate = _now,
                         LoadPlanRecord = loadPlan,
                         IfOpen = ifOpen,
                         Shortage = 0
@@ -77,7 +79,10 @@ namespace ClothResorting.Helpers
 
                     //分别在cartonDetail、packingList、PrereceiveOrder相关Pcs存货中减去拿走的件数
                     SyncCtns(cartonBreakdown, sumOfCartons);
-                    
+
+                    //建立一个直接与cartonbreakdown相连的Outbound细节
+                    CreatPcsOutboundDetail(cartonBreakdown, retrievedPcs);
+
                     loadPlan.OutBoundCtns += sumOfCartons;
                     loadPlan.OutBoundPcs += retrievedPcs;
 
@@ -116,7 +121,7 @@ namespace ClothResorting.Helpers
                                 RetrivedPcs = retrievedPcs,
                                 TotalOfCartons = cartonBreakdown.CartonNumberRangeTo - cartonBreakdown.CartonNumberRangeFrom + 1,
                                 NumberOfCartons = sumOfCartons,
-                                RetrievedDate = DateTime.Now,
+                                RetrievedDate = _now,
                                 LoadPlanRecord = loadPlan,
                                 IfOpen = ifOpen
                             });
@@ -125,7 +130,7 @@ namespace ClothResorting.Helpers
                             targetPcsRemains -= retrievedPcs;
                             SyncPcs(cartonBreakdown, retrievedPcs);
                             SyncCtns(cartonBreakdown, sumOfCartons);
-
+                            CreatPcsOutboundDetail(cartonBreakdown, retrievedPcs);
                             loadPlan.OutBoundCtns += sumOfCartons;
                             loadPlan.OutBoundPcs += retrievedPcs;
 
@@ -174,7 +179,7 @@ namespace ClothResorting.Helpers
                         RetrivedPcs = retrievedPcs,
                         TotalOfCartons = cartonBreakdown.CartonNumberRangeTo - cartonBreakdown.CartonNumberRangeFrom + 1,
                         NumberOfCartons = sumOfCartons,
-                        RetrievedDate = DateTime.Now,
+                        RetrievedDate = _now,
                         LoadPlanRecord = loadPlan,
                         IfOpen = ifOpen
                     });
@@ -183,6 +188,7 @@ namespace ClothResorting.Helpers
                     targetPcsRemains -= retrievedPcs;
                     SyncPcs(cartonBreakdown, retrievedPcs);
                     SyncCtns(cartonBreakdown, sumOfCartons);
+                    CreatPcsOutboundDetail(cartonBreakdown, retrievedPcs);
                     index += 1;
 
                     loadPlan.OutBoundCtns += sumOfCartons;
@@ -211,7 +217,7 @@ namespace ClothResorting.Helpers
                     Color = carton.Color,
                     Size = carton.Size,
                     Shortage = targetPcsRemains,
-                    RetrievedDate = DateTime.Now
+                    RetrievedDate = _now
                 });
                 return result;
             }
@@ -240,6 +246,18 @@ namespace ClothResorting.Helpers
             carton.CartonDetail.Available -= ctns;
             carton.PackingList.Available -= ctns;
             carton.PackingList.PreReceiveOrder.Available -= ctns;
+        }
+
+        //为当前的CartonBreakdown建立pcs出库细节
+        public void CreatPcsOutboundDetail(CartonBreakDown carton, int? pcs)
+        {
+            new CartonBreakdownOutbound {
+                CartonBreakdown = carton,
+                Pcs = (int)pcs,
+                TimeOfOutbound = _now,
+                //预留
+                PickPurchaseNumber = ""
+            };
         }
     }
 }

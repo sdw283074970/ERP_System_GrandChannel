@@ -44,6 +44,11 @@
 <script>
     $(document).ready(function () {
 
+        var po;
+        var style;
+        var color;
+        var size;
+
         //解析url中的参数函数
         function getUrlParameter(sParam) {
             var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -82,18 +87,21 @@
                         {
                             data: "purchaseOrder",
                             render: function (data) {
+                                po = data;
                                 return "<text>" + data + "</text>";
                             }
                         },
                         {
                             data: "style",
                             render: function (data) {
+                                style = data;
                                 return "<text>" + data + "</text>";
                             }
                         },
                         {
                             data: "color",
                             render: function (data) {
+                                color = data;
                                 return "<text>" + data + "</text>";
                             }
                         },
@@ -118,6 +126,7 @@
                         {
                             data: "size",
                             render: function (data) {
+                                size = data;
                                 return "<text>" + data + "</text>";
                             }
                         },
@@ -136,7 +145,7 @@
                         {
                             data: "availablePcs",
                             render: function (data) {
-                                return "<font color='red'>" + data + "</text>";
+                                return "<a href='/ThirdPartyLogistics/cartonbreakdownoutbound/?po=" + po + "&style=" + style + "&color=" + color + "&size=" + size + "' ><font color='red'>" + data + "</text></a>";
                             }
                         },
                         {

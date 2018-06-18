@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "CartonBreakdownOutbound";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>CartonBreakdown Outbound Record</h2>
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+        <input id="test" type="button" class="btn btn-lg" value="test" />
+
+    </div>
+    <div>
+        <text>Purchase Order: <text id="po"></text></text><br>
+        <text>Style: <text id="style"></text></text><br>
+        <text>Color: <text id="color"></text></text><br>
+        <text>Size: <text id="size"></text></text>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Pick Purchase Order</th>
+                    <th>Outbound Date</th>
+                    <th>Pcs</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

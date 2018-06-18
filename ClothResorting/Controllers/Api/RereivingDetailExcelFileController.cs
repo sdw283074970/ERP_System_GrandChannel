@@ -14,7 +14,7 @@ using AutoMapper;
 
 namespace ClothResorting.Controllers.Api
 {
-    // To DO: 此api代码需要重构
+    // To DO: 此api代码需要重构 
     public class RereivingDetailExcelFileController : ApiController
     {
         private ApplicationDbContext _context;
@@ -24,7 +24,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/RetrievingDetailExcelFile
+        // POST /api/RetrievingDetailExcelFile 从ExcelFile中批量抽取
         [HttpPost]
         public IHttpActionResult GetRetrievingRecord()
         {
@@ -51,6 +51,7 @@ namespace ClothResorting.Controllers.Api
             var result = new List<RetrievingRecordDto>();
             var po = pickRequestList[0].PurchaseOrder;
             var count = 0;      //记录本次取货生成多少条记录
+            //向数据库中添加一个loadplan对象，用来记录本次发生的所有出库情况
             var loadPlan = new LoadPlanRecord
             {
                 PurchaseOrder = po,
@@ -76,6 +77,7 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
 
+            //获取刚刚建立的LoadPlan
             var loadPlanInDb = _context.LoadPlanRecords
                 .OrderByDescending(c => c.Id).First();
 

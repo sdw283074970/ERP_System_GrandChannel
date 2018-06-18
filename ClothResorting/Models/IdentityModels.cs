@@ -35,6 +35,7 @@ namespace ClothResorting.Models
         public DbSet<CartonBreakDown> CartonBreakDowns { get; set; }
         public DbSet<RetrievingRecord> RetrievingRecords { get; set; } 
         public DbSet<LoadPlanRecord> LoadPlanRecords { get; set; }
+        public DbSet<CartonBreakdownOutbound> CartonBreakdownOutbounds { get; set; }
 
         public static ApplicationDbContext Create()
         {
