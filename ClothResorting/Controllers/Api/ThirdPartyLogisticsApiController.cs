@@ -37,6 +37,8 @@ namespace ClothResorting.Controllers.Api
                 {
                     fileSavePath = @"D:\TempFiles\" + httpPostedFile.FileName;
 
+                    //fileSavePath = fileSavePath.Replace("[/\\\\:*?<>|]", "");
+
                     httpPostedFile.SaveAs(fileSavePath);
                 }
             }
@@ -88,7 +90,7 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
 
-            //在CartonDetail中消除在同一箱的不同货物造成的重复计箱问题
+            //在CartonDetail中消除在【同一箱】的不同货物造成的重复计箱问题
             var checker = new InOneCartonChecker();
             checker.ReplaceRepeatedEntry();
 

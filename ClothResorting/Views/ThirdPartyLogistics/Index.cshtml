@@ -157,7 +157,7 @@
                 ]
             });
 
-                $("#create1").click(function () {
+            $("#create1").click(function () {
                 layui.use("layer", function () {
                     var layer = layui.layer;
 
@@ -184,7 +184,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/NewBulkload",
+                    url: "/api/ThirdPartyLogisticsApi",
                     data: formData,
                     beforeSend: function () {
                         layui.use('layer', function () {

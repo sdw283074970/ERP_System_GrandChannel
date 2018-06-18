@@ -159,9 +159,10 @@ namespace ClothResorting.Helpers
         #region
         public void ExtractSilkIconCartonDetails()
         {
+            var wbCount = _wb.Worksheets.Count;
 
             //扫描每一张Sheet
-            for (int w = 2; w <= _wb.Worksheets.Count; w++)
+            for (int w = 2; w <= wbCount; w++)
             {
                 var list = new List<CartonDetail>();
                 var cartonBreakDownList = new List<CartonBreakDown>();
@@ -280,9 +281,6 @@ namespace ClothResorting.Helpers
                 _context.CartonBreakDowns.AddRange(cartonBreakDownList);
                 _context.CartonDetails.AddRange(list);
                 _context.SaveChanges();
-
-                //释放EXCEL资源
-                Dispose();
             }
         }
         #endregion
@@ -331,7 +329,6 @@ namespace ClothResorting.Helpers
         #region
         public void ExtractBulkloadRecord()
         {
-
             var numberOfWorkSheet = _wb.Worksheets.Count;
 
             //遍历每一张ws
@@ -417,7 +414,6 @@ namespace ClothResorting.Helpers
 
                         carton.ActualReceivedPcs = sizeList[s].Count;
                         carton.AvailablePcs = sizeList[s].Count;
-
                         cartonBreakDownList.Add(cartonBreakDown);
                     }
 
