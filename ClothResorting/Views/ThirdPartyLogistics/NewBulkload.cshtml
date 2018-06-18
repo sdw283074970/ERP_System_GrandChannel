@@ -9,9 +9,9 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <input id="createbulkload" type="button" class="btn btn-group" value="Creat A New Pre-receive Order" />
+    <input id="createbulkload" type="button" class="btn btn-info" value="Upload bulkload collection" />
     <div>
-        <table id="receive-table" class="table table-condensed table-hover table-striped">
+        <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
                     <th>PO#</th>
@@ -40,6 +40,8 @@
 {
     <script>
         $(document).ready(function () {
+
+            var table;
 
             $("#createbulkload").click(function () {
                 layui.use("layer", function () {
@@ -81,8 +83,66 @@
                         });
                     },
                     success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
+                        //批量抽取散货成功后，返回刚刚抽取的记录
+                        layer.alert("Extract successed!");
+                        if (table != null) {
+                            table.destroy();
+                        }
+                        table = $("#table").DataTable({
+                            ajax: {
+                                url: "/api/newbulkloadresults",
+                                dataSrc: ""
+                            },
+                            columns: [
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "size",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "numberOfCartons",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "pcs",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "inboundDate",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                }
+                            ]
                         });
                     },
                     error: function () {

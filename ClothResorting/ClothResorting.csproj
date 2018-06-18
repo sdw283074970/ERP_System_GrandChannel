@@ -227,6 +227,7 @@
     <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
     <Compile Include="Controllers\Api\NewBulkloadController.cs" />
+    <Compile Include="Controllers\Api\NewBulkloadResultsController.cs" />
     <Compile Include="Controllers\Api\RereivingDetailExcelFileController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
@@ -560,6 +561,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
     <Compile Include="Models\ApiTransformModels\RetrievingRequestJsonObj.cs" />
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />

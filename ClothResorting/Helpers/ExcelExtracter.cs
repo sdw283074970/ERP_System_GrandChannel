@@ -20,6 +20,7 @@ namespace ClothResorting.Helpers
         private _Application _excel;
         private Workbook _wb;
         private Worksheet _ws;
+        private DateTime dateTimeNow = DateTime.Now;
         #endregion
 
         //PackingList全局变量
@@ -70,7 +71,7 @@ namespace ClothResorting.Helpers
                 Available = 0,
                 ActualReceived = 0,
                 CustomerName = _ws.Cells[1, 2].Value2,
-                CreatDate = DateTime.Now,
+                CreatDate = dateTimeNow,
                 TotalCartons = (int)_ws.Cells[3, 2].Value2,
                 TotalGrossWeight = Math.Round(_ws.Cells[5, 2].Value2 * 2.205, 2),
                 TotalNetWeight = Math.Round(_ws.Cells[6, 2].Value2 * 2.205, 2),
@@ -388,7 +389,7 @@ namespace ClothResorting.Helpers
                         ActualReceivedPcs = 0,
                         AvailablePcs = 0,
                         SizeRatios = sizeList,
-                        ReceivedDate = DateTime.Now
+                        ReceivedDate = dateTimeNow
                     };
 
                     //遍历sizeRatios，生成数个cartonBreakdown
@@ -409,7 +410,7 @@ namespace ClothResorting.Helpers
                             AvailablePcs = 0,
                             Location = location,
                             CartonDetail = carton,
-                            ReceivedDate = DateTime.Now
+                            ReceivedDate = dateTimeNow
                         };
 
                         carton.ActualReceivedPcs = sizeList[s].Count;
