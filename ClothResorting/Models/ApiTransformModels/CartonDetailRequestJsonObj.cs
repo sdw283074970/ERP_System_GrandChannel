@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ClothResorting.Models.ApiTransformModels
 {
-    public class RetrievingRequestJsonObj
+    public class CartonDetailRequestJsonObj
     {
         public string PurchaseOrder { get; set; }
 

@@ -24,7 +24,7 @@ namespace ClothResorting.Controllers.Api
 
         // POST /api/RetrievingDetail 给出拣货要求，输出拣货单
         [HttpPost]
-        public IHttpActionResult CreateRetrievingRecord([FromBody]RetrievingRequestJsonObj obj)
+        public IHttpActionResult CreateRetrievingRecord([FromBody]CartonDetailRequestJsonObj obj)
         {
             var result = new List<RetrievingRecordDto>();
             var loadPlan = new LoadPlanRecord {
