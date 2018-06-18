@@ -29,3 +29,15 @@
         </table>
     </div>
 </div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

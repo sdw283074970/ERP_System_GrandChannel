@@ -376,7 +376,7 @@ namespace ClothResorting.Helpers
                     _style = _ws.Cells[k + 3, 1].Value2.ToString();
                     _color = _ws.Cells[k + 3, 2].Value2.ToString();
                     int numberOfCartons = (int)_ws.Cells[k + 3, 3].Value2;
-                    var location = _ws.Cells[k + 3, 4].Value2.ToString();
+                    var location = _ws.Cells[k + 3, 4].Value2 == null ? "N/A" : _ws.Cells[k + 3, 4].Value2.ToString();
 
                     //新建CartonDetail对象，将其添加到list中
                     var carton = new CartonDetail
@@ -390,7 +390,8 @@ namespace ClothResorting.Helpers
                         Location = location,
                         ActualReceivedPcs = 0,
                         AvailablePcs = 0,
-                        SizeRatios = sizeList
+                        SizeRatios = sizeList,
+                        ReceivedDate = DateTime.Now
                     };
 
                     //遍历sizeRatios，生成数个cartonBreakdown
@@ -410,7 +411,8 @@ namespace ClothResorting.Helpers
                             ActualPcs = sizeList[s].Count,
                             AvailablePcs = 0,
                             Location = location,
-                            CartonDetail = carton
+                            CartonDetail = carton,
+                            ReceivedDate = DateTime.Now
                         };
 
                         carton.ActualReceivedPcs = sizeList[s].Count;
