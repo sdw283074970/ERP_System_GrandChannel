@@ -79,7 +79,8 @@ namespace ClothResorting.Helpers
                 ContainerNumber = "UNKOWN",
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
-                AvailablePcs = 0
+                AvailablePcs = 0,
+                Status = "Created"
             };
 
             _context.PreReceiveOrders.Add(newOrder);

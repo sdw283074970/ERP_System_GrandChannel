@@ -563,6 +563,10 @@
     <Compile Include="Migrations\201806182055295_AddedCartonBreakdownOutBoundsDbSet.Designer.cs">
       <DependentUpon>201806182055295_AddedCartonBreakdownOutBoundsDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806182246174_AddedStatusInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201806182246174_AddedStatusInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201806182246174_AddedStatusInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
@@ -1150,6 +1154,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806182055295_AddedCartonBreakdownOutBoundsDbSet.resx">
       <DependentUpon>201806182055295_AddedCartonBreakdownOutBoundsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806182246174_AddedStatusInPreReceiveOrder.resx">
+      <DependentUpon>201806182246174_AddedStatusInPreReceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
