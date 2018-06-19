@@ -19,12 +19,14 @@
                     @*<th>Vol.</th>
                     <th>G.W.(lb)</th>
                     <th>N.W.(lb)</th>*@
-                    <th>Forecast Cartons</th>
-                    <th>Receipt Cartons</th>
-                    <th>Available Cartons</th>
-                    <th>Forecast Pcs</th>
-                    <th>Receipt Pcs</th>
-                    <th>Available Pcs</th>
+                    <th>Fcs Ctns</th>
+                    <th>Rcp Ctns</th>
+                    <th>Avl Ctns</th>
+                    <th>Inv Ctns</th>
+                    <th>Fcs Pcs</th>
+                    <th>Rcp Pcs</th>
+                    <th>Avl Pcs</th>
+                    <th>Inv Pcs</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -103,6 +105,12 @@
                         }
                     },
                     {
+                        data: "inventoryCtn",
+                        render: function (data) {
+                            return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
                         data: "totalPcs",
                         render: function (data) {
                             return "<font color='green'>" + data + "</font>";
@@ -121,10 +129,17 @@
                         }
                     },
                     {
+                        data: "inventoryPcs",
+                        render: function (data) {
+                            return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
                         data: "purchaseOrder",
                         render: function (data) {
                             return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
-                                + "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>";
+                                //+ "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>"
+                                + "<a href='/ThirdPartyLogistics/LocationDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
                         }
                     }
                 ]

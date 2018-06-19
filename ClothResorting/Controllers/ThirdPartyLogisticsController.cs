@@ -61,5 +61,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+        
+        // LocationDetail 批量上传/查询库存细节页面
+        public ActionResult LocationDetail()
+        {
+            return View();
+        }
     }
 }

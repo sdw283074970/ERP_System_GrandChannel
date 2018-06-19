@@ -31,11 +31,15 @@ namespace ClothResorting.Dtos
 
         public int? Available { get; set; }
 
+        public int? InventoryCtn { get; set; }
+
         public int? TotalPcs { get; set; }
 
         public int? ActualReceivedPcs { get; set; }
 
         public int? AvailablePcs { get; set; }
+
+        public int? InventoryPcs { get; set; }
 
         public IList<MeasurementDto> TotalMeasurements { get; set; }
 

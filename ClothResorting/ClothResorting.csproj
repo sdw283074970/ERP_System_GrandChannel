@@ -219,6 +219,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
+    <Compile Include="Controllers\Api\PurchaseOrderDetailController.cs" />
     <Compile Include="Controllers\Api\LocationUpdateController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownPcsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailsController.cs" />
@@ -580,6 +581,14 @@
     <Compile Include="Migrations\201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.Designer.cs">
       <DependentUpon>201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806192102493_AddedInventoryPcsAndeCtnInPackingList.cs" />
+    <Compile Include="Migrations\201806192102493_AddedInventoryPcsAndeCtnInPackingList.Designer.cs">
+      <DependentUpon>201806192102493_AddedInventoryPcsAndeCtnInPackingList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806192210317_RemovePurchaseOrderDetail.cs" />
+    <Compile Include="Migrations\201806192210317_RemovePurchaseOrderDetail.Designer.cs">
+      <DependentUpon>201806192210317_RemovePurchaseOrderDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -590,7 +599,6 @@
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\LoadPlanRecord.cs" />
     <Compile Include="Models\LocationDetail.cs" />
-    <Compile Include="Models\PurchaseOrderDetail.cs" />
     <Compile Include="Models\RetrievingRecord.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
@@ -920,6 +928,7 @@
     <Content Include="Views\ThirdPartyLogistics\RetrievingDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\NewBulkload.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdownOutbound.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\LocationDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1182,6 +1191,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.resx">
       <DependentUpon>201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806192102493_AddedInventoryPcsAndeCtnInPackingList.resx">
+      <DependentUpon>201806192102493_AddedInventoryPcsAndeCtnInPackingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806192210317_RemovePurchaseOrderDetail.resx">
+      <DependentUpon>201806192210317_RemovePurchaseOrderDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

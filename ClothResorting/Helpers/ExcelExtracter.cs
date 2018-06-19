@@ -148,7 +148,9 @@ namespace ClothResorting.Helpers
                     PreReceiveOrder = preReceiveOrderInDb,
                     TotalPcs = 0,
                     ActualReceivedPcs = 0,
-                    AvailablePcs = 0
+                    AvailablePcs = 0,
+                    InventoryCtn = 0,
+                    InventoryPcs = 0
                 });
             }
 
