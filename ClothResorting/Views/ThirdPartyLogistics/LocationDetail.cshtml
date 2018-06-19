@@ -75,13 +75,51 @@
 {
     <script>
         $(document).ready(function () {
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
 
-            $("#table").DataTable({
-                ajax: {
-                    url: "/api/LocationDetail",
-                    dataSrc: ""
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            //从地址栏获取参数
+            var preid = getUrlParameter('preid');
+            var po = getUrlParameter('po').toString();
+            var data = { "preid": preid, "po": po };
+
+            $.ajax({
+                type: "GET",
+                url: "/api/LocationDetail",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(data),
+                dataType: "json",
+                success: function (data) {
+                    $("#table").DataTable({
+                        destroy: true,
+                        data: data,
+                        column: [
+                            {
+                                data: "",
+                                render: function (data) {
+                                    return 0;
+                                }
+                            }
+                        ]
+                    });
                 },
-                columns:[]
+                error: function () {
+                    alert("An error occured!");
+                    alert(JSON.stringify(obj));
+                }
             });
 
             $(".btn-back").on("click", function () {

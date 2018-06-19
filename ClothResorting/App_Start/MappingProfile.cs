@@ -19,6 +19,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<SizeRatio, SizeRatioDto>();
             Mapper.CreateMap<CartonBreakDown, CartonBreakDownDto>();
             Mapper.CreateMap<RetrievingRecord, RetrievingRecordDto>();
+            Mapper.CreateMap<LocationDetail, LocationDetailDto>();
         }
     }
 }
