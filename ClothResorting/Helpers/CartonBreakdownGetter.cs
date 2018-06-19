@@ -18,7 +18,7 @@ namespace ClothResorting.Helpers
 
         public string GetContainerNumber()
         {
-            return _c.PackingList.PreReceiveOrder.ContainerNumber;
+            return _c.PackingList == null ? "N/A" : _c.PackingList.PreReceiveOrder.ContainerNumber;
         }
 
         public string GetPurchaseOrder()
@@ -28,7 +28,7 @@ namespace ClothResorting.Helpers
 
         public string GetVendor()
         {
-            return _c.PackingList.PreReceiveOrder.CustomerName;
+            return _c.PackingList == null ? "N/A" : _c.PackingList.PreReceiveOrder.CustomerName;
         }
 
         public string GetStyle()
@@ -43,12 +43,12 @@ namespace ClothResorting.Helpers
 
         public int? GetCartonNumberFrom()
         {
-            return _c.CartonNumberRangeFrom;
+            return _c.CartonNumberRangeFrom == null ? 0 : _c.CartonNumberRangeFrom;
         }
 
         public int? GetCartonNumberTo()
         {
-            return _c.CartonNumberRangeTo;
+            return _c.CartonNumberRangeTo == null ? 0 : _c.CartonNumberRangeTo;
         }
 
         public string GetRunCode()
