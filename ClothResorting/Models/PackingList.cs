@@ -44,6 +44,8 @@ namespace ClothResorting.Models
 		
 		public ICollection<CartonDetail> CartonDetails { get; set; }
 
+		public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+
 		public PreReceiveOrder PreReceiveOrder { get; set; }
 	}
 }

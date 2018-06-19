@@ -568,6 +568,18 @@
     <Compile Include="Migrations\201806182246174_AddedStatusInPreReceiveOrder.Designer.cs">
       <DependentUpon>201806182246174_AddedStatusInPreReceiveOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806192003521_AddedLocationDetailDbSet.cs" />
+    <Compile Include="Migrations\201806192003521_AddedLocationDetailDbSet.Designer.cs">
+      <DependentUpon>201806192003521_AddedLocationDetailDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806192029431_AddedPurchaseOrderDetailDbSet.cs" />
+    <Compile Include="Migrations\201806192029431_AddedPurchaseOrderDetailDbSet.Designer.cs">
+      <DependentUpon>201806192029431_AddedPurchaseOrderDetailDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.cs" />
+    <Compile Include="Migrations\201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.Designer.cs">
+      <DependentUpon>201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -577,6 +589,8 @@
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\LoadPlanRecord.cs" />
+    <Compile Include="Models\LocationDetail.cs" />
+    <Compile Include="Models\PurchaseOrderDetail.cs" />
     <Compile Include="Models\RetrievingRecord.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
@@ -1159,6 +1173,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806182246174_AddedStatusInPreReceiveOrder.resx">
       <DependentUpon>201806182246174_AddedStatusInPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806192003521_AddedLocationDetailDbSet.resx">
+      <DependentUpon>201806192003521_AddedLocationDetailDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806192029431_AddedPurchaseOrderDetailDbSet.resx">
+      <DependentUpon>201806192029431_AddedPurchaseOrderDetailDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.resx">
+      <DependentUpon>201806192032091_ModifiedRelationshipAmongPackingListAndPurchaseOrderDetailAndLocationDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
