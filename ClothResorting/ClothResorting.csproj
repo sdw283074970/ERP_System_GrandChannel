@@ -603,6 +603,14 @@
     <Compile Include="Migrations\201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.Designer.cs">
       <DependentUpon>201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806202114236_AddedInvColumnsInLocationDetail.cs" />
+    <Compile Include="Migrations\201806202114236_AddedInvColumnsInLocationDetail.Designer.cs">
+      <DependentUpon>201806202114236_AddedInvColumnsInLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806202231069_RenamedPurchaseOrderSummaries.cs" />
+    <Compile Include="Migrations\201806202231069_RenamedPurchaseOrderSummaries.Designer.cs">
+      <DependentUpon>201806202231069_RenamedPurchaseOrderSummaries.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -1220,6 +1228,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.resx">
       <DependentUpon>201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806202114236_AddedInvColumnsInLocationDetail.resx">
+      <DependentUpon>201806202114236_AddedInvColumnsInLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806202231069_RenamedPurchaseOrderSummaries.resx">
+      <DependentUpon>201806202231069_RenamedPurchaseOrderSummaries.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

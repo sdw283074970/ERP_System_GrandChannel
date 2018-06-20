@@ -157,7 +157,7 @@ namespace ClothResorting.Helpers
                 });
             }
 
-            _context.PurchaseOrderSummarys.AddRange(list);
+            _context.PurchaseOrderSummaries.AddRange(list);
             _context.SaveChanges();
         }
         #endregion
@@ -196,7 +196,7 @@ namespace ClothResorting.Helpers
 
                 //找到与这一页CartonDetail相关的PackingList
                 _purchaseOrder = _ws.Cells[1, 2].Value2.ToString();
-                var plInDb = _context.PurchaseOrderSummarys.Include(s => s.PreReceiveOrder)
+                var plInDb = _context.PurchaseOrderSummaries.Include(s => s.PreReceiveOrder)
                     .SingleOrDefault(s => s.PurchaseOrder == _purchaseOrder
                         && s.PreReceiveOrder.Id == preReceiveOrderInDb.Id);
 
@@ -445,7 +445,7 @@ namespace ClothResorting.Helpers
             int n = 3;
             int countOfObj = 0;
             var preReceiveOrder = _context.PreReceiveOrders.Find(preid);
-            var packingList = _context.PurchaseOrderSummarys
+            var packingList = _context.PurchaseOrderSummaries
                 .SingleOrDefault(c => c.PreReceiveOrder.Id == preid && c.PurchaseOrder == po);
             var locationDetailList = new List<LocationDetail>();
 
@@ -472,8 +472,10 @@ namespace ClothResorting.Helpers
                     Style = _ws.Cells[3 + i, 1].Value2.ToString(),
                     Color = _ws.Cells[3 + i, 2].Value2.ToString(),
                     Size = _ws.Cells[3 + i, 3].Value2.ToString(),
-                    NumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
-                    Pcs = (int)_ws.Cells[3 + i, 5].Value2(),
+                    OrgNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
+                    InvNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
+                    OrgPcs = (int)_ws.Cells[3 + i, 5].Value2(),
+                    InvPcs = (int)_ws.Cells[3 + i, 5].Value2(),
                     Location = _ws.Cells[3 + i, 6].Value2(),
                     InboundDate = dateTimeNow
                 });

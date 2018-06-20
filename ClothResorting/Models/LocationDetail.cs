@@ -17,9 +17,13 @@ namespace ClothResorting.Models
 
         public string Size { get; set; }
 
-        public int NumberOfCartons { get; set; }
+        public int OrgNumberOfCartons { get; set; }
 
-        public int Pcs { get; set; }
+        public int InvNumberOfCartons { get; set; }
+
+        public int OrgPcs { get; set; }
+
+        public int InvPcs { get; set; }
 
         public string Location { get; set; }
 

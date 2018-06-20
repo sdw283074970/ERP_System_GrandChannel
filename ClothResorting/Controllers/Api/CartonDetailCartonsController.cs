@@ -58,12 +58,12 @@ namespace ClothResorting.Controllers.Api
             //每更新一次carton编号范围内收取数量，同步一次该Pre-receive Order的收货总量及库存数量
             var preReceive = pl.PreReceiveOrder;
 
-            preReceive.ActualReceived = _context.PurchaseOrderSummarys
+            preReceive.ActualReceived = _context.PurchaseOrderSummaries
                 .Include(s => s.PreReceiveOrder)
                 .Where(s => s.PreReceiveOrder.Id == preReceivedId)
                 .Sum(s => s.ActualReceived);
 
-            preReceive.Available = _context.PurchaseOrderSummarys
+            preReceive.Available = _context.PurchaseOrderSummaries
                 .Include(s => s.PreReceiveOrder)
                 .Where(s => s.PreReceiveOrder.Id == preReceivedId)
                 .Sum(s => s.Available);

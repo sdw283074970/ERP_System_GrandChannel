@@ -24,7 +24,7 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult UpdateReceivedCartonBreakdowns([FromBody]PurchaseOrderReceivedCartons poCartons)
         {
             //根据po获取数据库的packing list对象
-            var packingListInDb = _context.PurchaseOrderSummarys
+            var packingListInDb = _context.PurchaseOrderSummaries
                 .SingleOrDefault(s => s.PurchaseOrder == poCartons.PurchaseOrder);
 
             packingListInDb.ActualReceived += poCartons.ReceivedCartons;

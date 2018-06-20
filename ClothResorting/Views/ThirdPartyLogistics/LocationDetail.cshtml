@@ -53,8 +53,10 @@
                     <th>Style</th>
                     <th>Color</th>
                     <th>Size</th>
-                    <th>Ctn</th>
-                    <th>Qty</th>
+                    <th>Org Ctn</th>
+                    <th>Inv Ctn</th>
+                    <th>Org Pcs</th>
+                    <th>Inv Pcs</th>
                     <th>Location</th>
                     <th>Inbound Date</th>
                 </tr>
@@ -128,13 +130,25 @@
                                 }
                             },
                             {
-                                data: "numberOfCartons",
+                                data: "orgNumberOfCartons",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "pcs",
+                                data: "invNumberOfCartons",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orgPcs",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "invPcs",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }

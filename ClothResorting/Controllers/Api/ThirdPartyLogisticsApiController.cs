@@ -81,7 +81,7 @@ namespace ClothResorting.Controllers.Api
 
             //根据每一个packinglist中po的Pcs数量计算整个pre-receive order应收取的pcs总数
 
-            preReceiveOrder.TotalPcs = _context.PurchaseOrderSummarys
+            preReceiveOrder.TotalPcs = _context.PurchaseOrderSummaries
                 .Include(s => s.PreReceiveOrder)
                 .Where(s => s.PreReceiveOrder.Id == preReceiveOrder.Id)
                 .Sum(s => s.TotalPcs);
