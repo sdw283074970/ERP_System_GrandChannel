@@ -21,10 +21,10 @@ namespace ClothResorting.Helpers
         public void ReplaceRepeatedEntry()
         {
             var preReceive = _context.PreReceiveOrders
-                .Include(c => c.PurchaseOrderOverview.Select(s => s.CartonDetails))
+                .Include(c => c.PurchaseOrderSummary.Select(s => s.CartonDetails))
                 .OrderByDescending(c => c.Id).First();
 
-            var packLists = preReceive.PurchaseOrderOverview.ToList();
+            var packLists = preReceive.PurchaseOrderSummary.ToList();
 
             foreach(var pl in packLists)
             {

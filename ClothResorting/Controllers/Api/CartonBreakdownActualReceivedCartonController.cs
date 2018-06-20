@@ -29,7 +29,7 @@ namespace ClothResorting.Controllers.Api
             var value = arr[1];
 
             var cartonInDb = _context.CartonDetails
-                .Include(s => s.PurchaseOrderOverview.PreReceiveOrder)
+                .Include(s => s.PurchaseOrderSummary.PreReceiveOrder)
                 .SingleOrDefault(s => s.Id == id);
 
             cartonInDb.ActualReceived += value;

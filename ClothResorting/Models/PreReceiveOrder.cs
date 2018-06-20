@@ -35,6 +35,6 @@ namespace ClothResorting.Models
 
         public string Status { get; set; }
 
-        public ICollection<PurchaseOrderOverview> PurchaseOrderOverview { get; set; }
+        public ICollection<PurchaseOrderSummary> PurchaseOrderSummary { get; set; }
     }
 }

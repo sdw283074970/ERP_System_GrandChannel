@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClothResorting.Models
 {
-	public class PurchaseOrderOverview
+	public class PurchaseOrderSummary
 	{
 		public int Id { get; set; }
 

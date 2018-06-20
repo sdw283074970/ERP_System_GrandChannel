@@ -43,9 +43,9 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
 
-            var purchaseOrderDetails = _context.PurchaseOrderOverview
+            var purchaseOrderDetails = _context.PurchaseOrderSummary
                 .Where(s => s.PreReceiveOrder.Id == id)
-                .Select(Mapper.Map<PurchaseOrderOverview, PackingListDto>);
+                .Select(Mapper.Map<PurchaseOrderSummary, PackingListDto>);
 
             return Ok(purchaseOrderDetails);
         }
@@ -61,21 +61,21 @@ namespace ClothResorting.Controllers.Api
             }
 
             var cartonInDb = _context.CartonDetails
-                .Include(s => s.PurchaseOrderOverview.PreReceiveOrder)
+                .Include(s => s.PurchaseOrderSummary.PreReceiveOrder)
                 .SingleOrDefault(s => s.Id == id);
 
             //需要确保返回的breakdown结果与该cartondetail属于同一个po以及preReceivedOrder下
             var cartonNumberRangeTo = cartonInDb.CartonNumberRangeTo;
             var po = cartonInDb.PurchaseOrder;
-            var preId = cartonInDb.PurchaseOrderOverview.PreReceiveOrder.Id;
+            var preId = cartonInDb.PurchaseOrderSummary.PreReceiveOrder.Id;
 
             if (cartonNumberRangeTo != null)
             {
                 var cartons = _context.CartonBreakDowns
-                    .Include(c => c.CartonDetail.PurchaseOrderOverview.PreReceiveOrder)
+                    .Include(c => c.CartonDetail.PurchaseOrderSummary.PreReceiveOrder)
                     .Where(c => c.CartonNumberRangeTo == cartonNumberRangeTo
                         && c.PurchaseOrder == po
-                        && c.CartonDetail.PurchaseOrderOverview.PreReceiveOrder.Id == preId)
+                        && c.CartonDetail.PurchaseOrderSummary.PreReceiveOrder.Id == preId)
                     .Select(Mapper.Map<CartonBreakDown, CartonBreakDownDto>);
                 return Created(new Uri(Request.RequestUri + "/" + "cartondetailid=" + id), cartons);
             }
@@ -111,8 +111,8 @@ namespace ClothResorting.Controllers.Api
             _context.Measurements.RemoveRange(measurements);
 
             //移除数据库中[ClothSorting].[dbo].[PackingLists]
-            var packingLists = _context.PurchaseOrderOverview.Where(c => c.Id > 0);
-            _context.PurchaseOrderOverview.RemoveRange(packingLists);
+            var packingLists = _context.PurchaseOrderSummary.Where(c => c.Id > 0);
+            _context.PurchaseOrderSummary.RemoveRange(packingLists);
 
             //移除数据库中[ClothSorting].[dbo].[PreReceiveOrders]
             var preReceiveOrders = _context.PreReceiveOrders.Where(c => c.Id > 0);

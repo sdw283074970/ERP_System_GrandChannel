@@ -7,7 +7,7 @@ namespace ClothResorting.Models.Interface
         DbSet<CartonBreakDown> CartonBreakDowns { get; set; }
         DbSet<Measurement> Measurements { get; set; }
         DbSet<CartonDetail> CartonDetails { get; set; }
-        DbSet<PurchaseOrderOverview> PurchaseOrderOverview { get; set; }
+        DbSet<PurchaseOrderSummary> PurchaseOrderSummary { get; set; }
         DbSet<PreReceiveOrder> PreReceiveOrders { get; set; }
         DbSet<SizeRatio> SizeRatios { get; set; }
     }

@@ -18,7 +18,7 @@ namespace ClothResorting.Helpers
 
         public string GetContainerNumber()
         {
-            return _c.PurchaseOrderOverview == null ? "N/A" : _c.PurchaseOrderOverview.PreReceiveOrder.ContainerNumber;
+            return _c.PurchaseOrderSummary == null ? "N/A" : _c.PurchaseOrderSummary.PreReceiveOrder.ContainerNumber;
         }
 
         public string GetPurchaseOrder()
@@ -28,7 +28,7 @@ namespace ClothResorting.Helpers
 
         public string GetVendor()
         {
-            return _c.PurchaseOrderOverview == null ? "N/A" : _c.PurchaseOrderOverview.PreReceiveOrder.CustomerName;
+            return _c.PurchaseOrderSummary == null ? "N/A" : _c.PurchaseOrderSummary.PreReceiveOrder.CustomerName;
         }
 
         public string GetStyle()

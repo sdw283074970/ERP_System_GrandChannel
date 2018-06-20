@@ -51,7 +51,7 @@ namespace ClothResorting.Controllers.Api
             //返回第一个样本
             var idFirst = arr[0];
             var cartonDetailSample = _context.CartonDetails
-                .Include(s => s.PurchaseOrderOverview.PreReceiveOrder)
+                .Include(s => s.PurchaseOrderSummary.PreReceiveOrder)
                 .SingleOrDefault(s => s.Id == idFirst);
             var cartonDetail = Mapper.Map<CartonDetail, CartonDetailDto>(cartonDetailSample);
 
@@ -60,7 +60,7 @@ namespace ClothResorting.Controllers.Api
             sync.SyncPurchaseOrder(cartonDetailSample);
 
             //更改Pre-ReceiveOrder的状态
-            cartonDetailSample.PurchaseOrderOverview.PreReceiveOrder.Status = "Arrived";
+            cartonDetailSample.PurchaseOrderSummary.PreReceiveOrder.Status = "Arrived";
             _context.SaveChanges();
 
             //同步pre-receive order中ctn和pcs的数量

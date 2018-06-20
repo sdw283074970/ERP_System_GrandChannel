@@ -30,8 +30,8 @@ namespace ClothResorting.Controllers.Api
             var result = new List<LocationDetail>();
 
             var query = _context.LocationDetails
-                .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
-                .Where(c => c.PurchaseOrder == obj.Po && c.PurchaseOrderOverview.PreReceiveOrder.Id == obj.PreId)
+                .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
+                .Where(c => c.PurchaseOrder == obj.Po && c.PurchaseOrderSummary.PreReceiveOrder.Id == obj.PreId)
                 .ToList();
 
             result.AddRange(query);

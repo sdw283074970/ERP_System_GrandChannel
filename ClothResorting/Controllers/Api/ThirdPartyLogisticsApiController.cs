@@ -63,17 +63,17 @@ namespace ClothResorting.Controllers.Api
             //因为源文件没有每一单po的总pcs数量，所以需要写算法计算
             //算法如下
             var preReceiveOrder = _context.PreReceiveOrders
-                .Include(s => s.PurchaseOrderOverview)
+                .Include(s => s.PurchaseOrderSummary)
                 .OrderByDescending(s => s.Id)
                 .First();
 
             //根据每一个packinglist中的cartondetail中的每一类Pcs数量计算每一单po应收取的Pcs总数
-            foreach(var pl in preReceiveOrder.PurchaseOrderOverview)
+            foreach(var pl in preReceiveOrder.PurchaseOrderSummary)
             {
                 pl.TotalPcs = _context.CartonDetails
-                    .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
-                    .Where(c => c.PurchaseOrderOverview.PurchaseOrder == pl.PurchaseOrder
-                        && c.PurchaseOrderOverview.PreReceiveOrder.Id == preReceiveOrder.Id)
+                    .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
+                    .Where(c => c.PurchaseOrderSummary.PurchaseOrder == pl.PurchaseOrder
+                        && c.PurchaseOrderSummary.PreReceiveOrder.Id == preReceiveOrder.Id)
                     .Sum(c => c.TotalPcs);
             }
 
@@ -81,7 +81,7 @@ namespace ClothResorting.Controllers.Api
 
             //根据每一个packinglist中po的Pcs数量计算整个pre-receive order应收取的pcs总数
 
-            preReceiveOrder.TotalPcs = _context.PurchaseOrderOverview
+            preReceiveOrder.TotalPcs = _context.PurchaseOrderSummary
                 .Include(s => s.PreReceiveOrder)
                 .Where(s => s.PreReceiveOrder.Id == preReceiveOrder.Id)
                 .Sum(s => s.TotalPcs);

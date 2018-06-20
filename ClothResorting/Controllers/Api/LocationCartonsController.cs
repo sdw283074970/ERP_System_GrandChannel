@@ -34,9 +34,9 @@ namespace ClothResorting.Controllers.Api
             var po = obj.Po;
 
             var cartons = _context.CartonDetails
-                .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
-                .Where(c => c.PurchaseOrderOverview.PreReceiveOrder.Id == preId
-                    && c.PurchaseOrderOverview.PurchaseOrder == po
+                .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
+                .Where(c => c.PurchaseOrderSummary.PreReceiveOrder.Id == preId
+                    && c.PurchaseOrderSummary.PurchaseOrder == po
                     && c.ActualReceived != 0)
                 .Select(Mapper.Map<CartonDetail, CartonDetailDto>);
 

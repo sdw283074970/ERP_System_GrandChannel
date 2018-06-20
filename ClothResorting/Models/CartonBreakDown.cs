@@ -36,7 +36,7 @@ namespace ClothResorting.Models
 
         public string Location { get; set; }
         
-        public PurchaseOrderOverview PurchaseOrderOverview { get; set; }
+        public PurchaseOrderSummary PurchaseOrderSummary { get; set; }
 
         public CartonDetail CartonDetail { get; set; }
 
