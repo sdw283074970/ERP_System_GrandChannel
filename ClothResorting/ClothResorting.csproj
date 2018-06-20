@@ -255,7 +255,7 @@
     <Compile Include="Helpers\ExcelExtracter.cs" />
     <Compile Include="Helpers\ExcelKiller.cs" />
     <Compile Include="Helpers\FilesGetter.cs" />
-    <Compile Include="Helpers\InOneCartonChecker.cs" />
+    <Compile Include="Helpers\CartonChecker.cs" />
     <Compile Include="Helpers\DbSynchronizer.cs" />
     <Compile Include="Helpers\LoadPlanExtracter.cs" />
     <Compile Include="Helpers\Tester.cs" />
@@ -598,6 +598,10 @@
     <Compile Include="Migrations\201806201639104_RenamedPurchaseOrderOverviewToPurchaseOrderSummary.cs" />
     <Compile Include="Migrations\201806201639104_RenamedPurchaseOrderOverviewToPurchaseOrderSummary.Designer.cs">
       <DependentUpon>201806201639104_RenamedPurchaseOrderOverviewToPurchaseOrderSummary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.cs" />
+    <Compile Include="Migrations\201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.Designer.cs">
+      <DependentUpon>201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1213,6 +1217,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806201639104_RenamedPurchaseOrderOverviewToPurchaseOrderSummary.resx">
       <DependentUpon>201806201639104_RenamedPurchaseOrderOverviewToPurchaseOrderSummary.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.resx">
+      <DependentUpon>201806201846170_AddedOrderTypePropertyInPurchaseOrderSummary.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace ClothResorting.Dtos
 {
-    public class PackingListDto
+    public class PurchaseOrderSummaryDto
     {
         public string Id { get; set; }
 
         public string PurchaseOrder { get; set; }
 
         public string StyleNumber { get; set; }
+
+        public string OrderType { get; set; }
 
         public string PurchaseOrder_StyleNumber { get; set; }
 

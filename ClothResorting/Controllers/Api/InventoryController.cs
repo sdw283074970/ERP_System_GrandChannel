@@ -43,9 +43,9 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             }
 
-            var purchaseOrderDetails = _context.PurchaseOrderSummary
+            var purchaseOrderDetails = _context.PurchaseOrderSummarys
                 .Where(s => s.PreReceiveOrder.Id == id)
-                .Select(Mapper.Map<PurchaseOrderSummary, PackingListDto>);
+                .Select(Mapper.Map<PurchaseOrderSummary, PurchaseOrderSummaryDto>);
 
             return Ok(purchaseOrderDetails);
         }
@@ -111,8 +111,8 @@ namespace ClothResorting.Controllers.Api
             _context.Measurements.RemoveRange(measurements);
 
             //移除数据库中[ClothSorting].[dbo].[PackingLists]
-            var packingLists = _context.PurchaseOrderSummary.Where(c => c.Id > 0);
-            _context.PurchaseOrderSummary.RemoveRange(packingLists);
+            var packingLists = _context.PurchaseOrderSummarys.Where(c => c.Id > 0);
+            _context.PurchaseOrderSummarys.RemoveRange(packingLists);
 
             //移除数据库中[ClothSorting].[dbo].[PreReceiveOrders]
             var preReceiveOrders = _context.PreReceiveOrders.Where(c => c.Id > 0);

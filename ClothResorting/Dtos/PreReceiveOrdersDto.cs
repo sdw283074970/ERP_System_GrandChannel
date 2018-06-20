@@ -35,6 +35,6 @@ namespace ClothResorting.Dtos
 
         public int? AvailablePcs { get; set; }
 
-        public ICollection<PackingListDto> SilkIconPackingLists { get; set; }
+        public ICollection<PurchaseOrderSummaryDto> SilkIconPackingLists { get; set; }
     }
 }

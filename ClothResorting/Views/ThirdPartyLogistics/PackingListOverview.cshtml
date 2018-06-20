@@ -19,6 +19,7 @@
                     @*<th>Vol.</th>
                     <th>G.W.(lb)</th>
                     <th>N.W.(lb)</th>*@
+                    <th>Order Type</th>
                     <th>Fcs Ctns</th>
                     <th>Rcp Ctns</th>
                     <th>Avl Ctns</th>
@@ -86,6 +87,12 @@
                     //        return "<text>" + data + "</text>";
                     //    }
                     //},
+                    {
+                        data: "orderType",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
                     {
                         data: "packedCartons",
                         render: function (data) {

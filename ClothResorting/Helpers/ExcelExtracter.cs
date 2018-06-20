@@ -152,11 +152,12 @@ namespace ClothResorting.Helpers
                     ActualReceivedPcs = 0,
                     AvailablePcs = 0,
                     InventoryCtn = 0,
-                    InventoryPcs = 0
+                    InventoryPcs = 0,
+                    OrderType = "Replenishment"
                 });
             }
 
-            _context.PurchaseOrderSummary.AddRange(list);
+            _context.PurchaseOrderSummarys.AddRange(list);
             _context.SaveChanges();
         }
         #endregion
@@ -195,7 +196,7 @@ namespace ClothResorting.Helpers
 
                 //找到与这一页CartonDetail相关的PackingList
                 _purchaseOrder = _ws.Cells[1, 2].Value2.ToString();
-                var plInDb = _context.PurchaseOrderSummary.Include(s => s.PreReceiveOrder)
+                var plInDb = _context.PurchaseOrderSummarys.Include(s => s.PreReceiveOrder)
                     .SingleOrDefault(s => s.PurchaseOrder == _purchaseOrder
                         && s.PreReceiveOrder.Id == preReceiveOrderInDb.Id);
 
@@ -444,7 +445,7 @@ namespace ClothResorting.Helpers
             int n = 3;
             int countOfObj = 0;
             var preReceiveOrder = _context.PreReceiveOrders.Find(preid);
-            var packingList = _context.PurchaseOrderSummary
+            var packingList = _context.PurchaseOrderSummarys
                 .SingleOrDefault(c => c.PreReceiveOrder.Id == preid && c.PurchaseOrder == po);
             var locationDetailList = new List<LocationDetail>();
 

@@ -13,7 +13,7 @@ namespace ClothResorting.App_Start
         public MappingProfile()
         {
             Mapper.CreateMap<PreReceiveOrder, PreReceiveOrdersDto>();
-            Mapper.CreateMap<PurchaseOrderSummary, PackingListDto>();
+            Mapper.CreateMap<PurchaseOrderSummary, PurchaseOrderSummaryDto>();
             Mapper.CreateMap<Measurement, MeasurementDto>();
             Mapper.CreateMap<CartonDetail, CartonDetailDto>();
             Mapper.CreateMap<SizeRatio, SizeRatioDto>();

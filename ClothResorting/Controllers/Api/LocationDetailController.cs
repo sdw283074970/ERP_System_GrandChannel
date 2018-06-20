@@ -69,7 +69,19 @@ namespace ClothResorting.Controllers.Api
             var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
 
             //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
+            var purchaseOrderSummary = _context.PurchaseOrderSummarys
+                .SingleOrDefault(c => c.PurchaseOrder == obj.Po && c.PreReceiveOrder.Id == obj.PreId);
 
+            var sumOfCartons = result.Sum(c => c.NumberOfCartons);
+            var sumOfPcs = result.Sum(c => c.Pcs);
+
+            purchaseOrderSummary.InventoryCtn += sumOfCartons;
+            purchaseOrderSummary.Available -= sumOfCartons;
+
+            purchaseOrderSummary.InventoryPcs += sumOfPcs;
+            purchaseOrderSummary.AvailablePcs -= sumOfPcs;
+
+            _context.SaveChanges();
 
             return Created(Request.RequestUri + "/" + 333, resultDto);
         }

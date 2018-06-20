@@ -81,7 +81,7 @@ namespace ClothResorting.Controllers.Api
 
             //根据每一个packinglist中po的Pcs数量计算整个pre-receive order应收取的pcs总数
 
-            preReceiveOrder.TotalPcs = _context.PurchaseOrderSummary
+            preReceiveOrder.TotalPcs = _context.PurchaseOrderSummarys
                 .Include(s => s.PreReceiveOrder)
                 .Where(s => s.PreReceiveOrder.Id == preReceiveOrder.Id)
                 .Sum(s => s.TotalPcs);
@@ -89,8 +89,9 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
 
             //在CartonDetail中消除在【同一箱】的不同货物造成的重复计箱问题
-            var checker = new InOneCartonChecker();
+            var checker = new CartonChecker();
             checker.ReplaceRepeatedEntry();
+            checker.CheckRunCode();
 
             _context.SaveChanges();
         }

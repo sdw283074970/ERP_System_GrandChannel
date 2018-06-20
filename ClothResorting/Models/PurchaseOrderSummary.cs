@@ -12,6 +12,8 @@ namespace ClothResorting.Models
 
 		public string StyleNumber { get; set; }
 
+		public string OrderType { get; set; }
+
 		public int? ActualReceived {get; set; }
 
 		public int? Available { get; set; }
