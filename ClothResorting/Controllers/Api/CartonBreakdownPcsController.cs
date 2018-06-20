@@ -32,8 +32,8 @@ namespace ClothResorting.Controllers.Api
                 return BadRequest();
             
             var cartonInDb = _context.CartonBreakDowns
-                .Include(s => s.PackingList.PreReceiveOrder)
-                .Include(s => s.PackingList.CartonDetails)
+                .Include(s => s.PurchaseOrderOverview.PreReceiveOrder)
+                .Include(s => s.PurchaseOrderOverview.CartonDetails)
                 .SingleOrDefault(s => s.Id == id);
 
             cartonInDb.ReceivedDate = DateTime.Now;
@@ -43,35 +43,35 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
 
             //每更新一次CartonBreakdown的pcs收取数量，同步一次该po的pcs收货总量及库存数量
-            var pl = cartonInDb.PackingList;
+            var pl = cartonInDb.PurchaseOrderOverview;
             var po = pl.PurchaseOrder;
             var preId = pl.PreReceiveOrder.Id;
 
                 //查询preId为当前packinglist且po为当前po的breakdown对象
             pl.ActualReceivedPcs = _context.CartonBreakDowns
-                .Include(c => c.PackingList.PreReceiveOrder)
-                .Where(s => s.PackingList.PreReceiveOrder.Id == preId
-                    && s.PackingList.PurchaseOrder == po)
+                .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
+                .Where(s => s.PurchaseOrderOverview.PreReceiveOrder.Id == preId
+                    && s.PurchaseOrderOverview.PurchaseOrder == po)
                 .Sum(s => s.ActualPcs);
 
             pl.AvailablePcs = _context.CartonBreakDowns
-                .Include(c => c.PackingList.PreReceiveOrder)
-                .Where(s => s.PackingList.PreReceiveOrder.Id == preId
-                    && s.PackingList.PurchaseOrder == po)
+                .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
+                .Where(s => s.PurchaseOrderOverview.PreReceiveOrder.Id == preId
+                    && s.PurchaseOrderOverview.PurchaseOrder == po)
                 .Sum(s => s.AvailablePcs);
 
             _context.SaveChanges();
 
             //每更新一次CartonBreakdown的pcs收取数量，同步一次该pre-receive Order的pcs收货总量及库存数量
             var preReceiveOrder = _context.PreReceiveOrders
-                .Include(s => s.SilkIconPackingLists)
+                .Include(s => s.PurchaseOrderOverview)
                 .SingleOrDefault(s => s.Id == preId);
 
             preReceiveOrder.ActualReceivedPcs = preReceiveOrder
-                .SilkIconPackingLists.Sum(s => s.ActualReceivedPcs);
+                .PurchaseOrderOverview.Sum(s => s.ActualReceivedPcs);
 
             preReceiveOrder.AvailablePcs = preReceiveOrder
-                .SilkIconPackingLists.Sum(s => s.AvailablePcs);
+                .PurchaseOrderOverview.Sum(s => s.AvailablePcs);
 
             _context.SaveChanges();
 

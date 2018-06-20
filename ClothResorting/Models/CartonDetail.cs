@@ -49,6 +49,6 @@ namespace ClothResorting.Models
 
         public ICollection<CartonBreakDown> CartonBreakdowns { get; set; }
 
-        public PackingList PackingList { get; set; }
+        public PurchaseOrderOverview PurchaseOrderOverview { get; set; }
     }
 }

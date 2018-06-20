@@ -591,6 +591,10 @@
     <Compile Include="Migrations\201806192210317_RemovePurchaseOrderDetail.Designer.cs">
       <DependentUpon>201806192210317_RemovePurchaseOrderDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806201633558_RenamedPackingListToPurchaseOrderOverview.cs" />
+    <Compile Include="Migrations\201806201633558_RenamedPackingListToPurchaseOrderOverview.Designer.cs">
+      <DependentUpon>201806201633558_RenamedPackingListToPurchaseOrderOverview.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -615,7 +619,7 @@
     <Compile Include="Models\Measurement.cs" />
     <Compile Include="Models\CartonDetail.cs" />
     <Compile Include="Models\PODetail.cs" />
-    <Compile Include="Models\PackingList.cs" />
+    <Compile Include="Models\PurchaseOrderOverview.cs" />
     <Compile Include="Models\PreReceiveOrder.cs" />
     <Compile Include="Models\SizeRatio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1199,6 +1203,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806192210317_RemovePurchaseOrderDetail.resx">
       <DependentUpon>201806192210317_RemovePurchaseOrderDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806201633558_RenamedPackingListToPurchaseOrderOverview.resx">
+      <DependentUpon>201806201633558_RenamedPackingListToPurchaseOrderOverview.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

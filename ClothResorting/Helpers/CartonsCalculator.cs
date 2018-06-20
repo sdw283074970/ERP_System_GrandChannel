@@ -236,16 +236,16 @@ namespace ClothResorting.Helpers
         public void SyncPcs(CartonBreakDown carton, int? pcs)
         {
             carton.CartonDetail.AvailablePcs -= pcs;
-            carton.PackingList.AvailablePcs -= pcs;
-            carton.PackingList.PreReceiveOrder.AvailablePcs -= pcs;
+            carton.PurchaseOrderOverview.AvailablePcs -= pcs;
+            carton.PurchaseOrderOverview.PreReceiveOrder.AvailablePcs -= pcs;
         }
 
         //让其他各项减去Ctns达到同步数量的目的
         public void SyncCtns(CartonBreakDown carton, int? ctns)
         {
             carton.CartonDetail.Available -= ctns;
-            carton.PackingList.Available -= ctns;
-            carton.PackingList.PreReceiveOrder.Available -= ctns;
+            carton.PurchaseOrderOverview.Available -= ctns;
+            carton.PurchaseOrderOverview.PreReceiveOrder.Available -= ctns;
         }
 
         //为当前的CartonBreakdown建立pcs出库细节

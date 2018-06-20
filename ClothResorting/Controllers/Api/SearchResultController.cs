@@ -31,16 +31,16 @@ namespace ClothResorting.Controllers.Api
             if (arr[0] == "default")
             {
                 query = _context.CartonBreakDowns
-                    .Include(c => c.PackingList.PreReceiveOrder)
+                    .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
                     .Where(c => c.AvailablePcs != 0)
                     .ToList();
             }
             else
             {
                 query = _context.CartonBreakDowns
-                    .Include(c => c.PackingList.PreReceiveOrder)
+                    .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
                     .Where(c => c.AvailablePcs != 0 
-                        && c.PackingList.PreReceiveOrder.ContainerNumber == arr[0])
+                        && c.PurchaseOrderOverview.PreReceiveOrder.ContainerNumber == arr[0])
                     .ToList();
             }
 

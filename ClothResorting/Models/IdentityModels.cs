@@ -28,7 +28,7 @@ namespace ClothResorting.Models
         }
 
         public DbSet<CartonDetail> CartonDetails { get; set; }
-        public DbSet<PackingList> PackingLists { get; set; }
+        public DbSet<PurchaseOrderOverview> PurchaseOrderOverview { get; set; }
         public DbSet<PreReceiveOrder> PreReceiveOrders { get; set; }
         public DbSet<SizeRatio> SizeRatios { get; set; }
         public DbSet<Measurement> Measurements { get; set; }

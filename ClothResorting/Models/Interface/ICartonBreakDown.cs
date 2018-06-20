@@ -15,7 +15,7 @@ namespace ClothResorting.Models.Interface
         string PurchaseOrder { get; set; }
         string RunCode { get; set; }
         CartonDetail CartonDetail { get; set; }
-        PackingList PackingList { get; set; }
+        PurchaseOrderOverview PurchaseOrderOverview { get; set; }
         string Size { get; set; }
         string Style { get; set; }
         DateTime? ReceivedDate { get; set; }

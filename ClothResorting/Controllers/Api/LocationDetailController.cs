@@ -30,8 +30,8 @@ namespace ClothResorting.Controllers.Api
             var result = new List<LocationDetail>();
 
             var query = _context.LocationDetails
-                .Include(c => c.PackingList.PreReceiveOrder)
-                .Where(c => c.PurchaseOrder == obj.Po && c.PackingList.PreReceiveOrder.Id == obj.PreId)
+                .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
+                .Where(c => c.PurchaseOrder == obj.Po && c.PurchaseOrderOverview.PreReceiveOrder.Id == obj.PreId)
                 .ToList();
 
             result.AddRange(query);
@@ -69,6 +69,7 @@ namespace ClothResorting.Controllers.Api
             var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
 
             //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
+
 
             return Created(Request.RequestUri + "/" + 333, resultDto);
         }

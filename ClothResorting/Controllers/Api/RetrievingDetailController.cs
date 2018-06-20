@@ -36,7 +36,7 @@ namespace ClothResorting.Controllers.Api
 
             var cartonBreakdowns = _context.CartonBreakDowns
                 .Include(c => c.CartonDetail)
-                .Include(c => c.PackingList.PreReceiveOrder)
+                .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
                 .Where(c => c.PurchaseOrder == obj.PurchaseOrder 
                     && c.AvailablePcs != 0 
                     && c.RunCode == "");

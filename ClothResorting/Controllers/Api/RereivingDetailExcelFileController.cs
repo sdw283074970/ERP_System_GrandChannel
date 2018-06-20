@@ -66,7 +66,7 @@ namespace ClothResorting.Controllers.Api
             //首先获取库存中可用的条目
             var cartonBreakdowns = _context.CartonBreakDowns
                 .Include(c => c.CartonDetail)
-                .Include(c => c.PackingList.PreReceiveOrder)
+                .Include(c => c.PurchaseOrderOverview.PreReceiveOrder)
                 .Where(c => c.PurchaseOrder == po
                     && c.AvailablePcs != 0
                     && c.RunCode == "");

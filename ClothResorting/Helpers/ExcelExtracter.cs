@@ -94,7 +94,7 @@ namespace ClothResorting.Helpers
         #region
         public void ExtractPackingList()
         {
-            var list = new List<PackingList>();
+            var list = new List<PurchaseOrderOverview>();
             var preReceiveOrderInDb = _context.PreReceiveOrders     //获取刚建立的PreReceiveOrder
                 .OrderByDescending(c => c.Id)
                 .First();
@@ -133,7 +133,7 @@ namespace ClothResorting.Helpers
                     });
                 }
 
-                list.Add(new PackingList
+                list.Add(new PurchaseOrderOverview
                 {
                     Available = 0,
                     ActualReceived = 0,
@@ -156,7 +156,7 @@ namespace ClothResorting.Helpers
                 });
             }
 
-            _context.PackingLists.AddRange(list);
+            _context.PurchaseOrderOverview.AddRange(list);
             _context.SaveChanges();
         }
         #endregion
@@ -195,7 +195,7 @@ namespace ClothResorting.Helpers
 
                 //找到与这一页CartonDetail相关的PackingList
                 _purchaseOrder = _ws.Cells[1, 2].Value2.ToString();
-                var plInDb = _context.PackingLists.Include(s => s.PreReceiveOrder)
+                var plInDb = _context.PurchaseOrderOverview.Include(s => s.PreReceiveOrder)
                     .SingleOrDefault(s => s.PurchaseOrder == _purchaseOrder
                         && s.PreReceiveOrder.Id == preReceiveOrderInDb.Id);
 
@@ -249,7 +249,7 @@ namespace ClothResorting.Helpers
                         GrossWeightPerCartons = _grossWeightPerCartons == null ? 0 : Math.Round((double)_grossWeightPerCartons * 2.205, 2),
                         PcsPerCartons = _pcsPerCartons == null ? 0 : (int)_pcsPerCartons,
                         TotalPcs = _totalPcs == null ? 0 : (int)_totalPcs,
-                        PackingList = plInDb,
+                        PurchaseOrderOverview = plInDb,
                         SizeRatios = sizeList,
                         Location = "N/A"
                     };
@@ -273,7 +273,7 @@ namespace ClothResorting.Helpers
                             PcsPerCartons = sizeList[s].Count,
                             ActualPcs = 0,
                             AvailablePcs = 0,
-                            PackingList = plInDb,
+                            PurchaseOrderOverview = plInDb,
                             Location = "N/A",
                             CartonDetail = carton
                         };
@@ -444,7 +444,7 @@ namespace ClothResorting.Helpers
             int n = 3;
             int countOfObj = 0;
             var preReceiveOrder = _context.PreReceiveOrders.Find(preid);
-            var packingList = _context.PackingLists
+            var packingList = _context.PurchaseOrderOverview
                 .SingleOrDefault(c => c.PreReceiveOrder.Id == preid && c.PurchaseOrder == po);
             var locationDetailList = new List<LocationDetail>();
 
@@ -466,7 +466,7 @@ namespace ClothResorting.Helpers
             for(int i = 0; i < countOfObj; i++)
             {
                 locationDetailList.Add(new LocationDetail {
-                    PackingList = packingList,
+                    PurchaseOrderOverview = packingList,
                     PurchaseOrder = _purchaseOrder,
                     Style = _ws.Cells[3 + i, 1].Value2.ToString(),
                     Color = _ws.Cells[3 + i, 2].Value2.ToString(),
