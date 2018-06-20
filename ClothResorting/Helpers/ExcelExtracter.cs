@@ -8,6 +8,8 @@ using System.Collections;
 using ClothResorting.Models;
 using System.Diagnostics;
 using System.Data.Entity;
+using System.Web.Http;
+using System.Net;
 
 namespace ClothResorting.Helpers
 {
@@ -61,7 +63,7 @@ namespace ClothResorting.Helpers
 
         //建立一个Pre-Recieve Order对象并添加进数据库
         #region
-        public void CreateSilkIconPreReceiveOrderAndOverView()
+        public void CreatePreReceiveOrderAndOverView()
         {
             _ws = _wb.Worksheets[1];
 
@@ -90,7 +92,7 @@ namespace ClothResorting.Helpers
 
         //扫描并抽取每一页的Carton信息概览
         #region
-        public void ExtractSilkIconPackingList()
+        public void ExtractPackingList()
         {
             var list = new List<PackingList>();
             var preReceiveOrderInDb = _context.PreReceiveOrders     //获取刚建立的PreReceiveOrder
@@ -161,7 +163,7 @@ namespace ClothResorting.Helpers
 
         //抽取SilkIcon公司发来的Excel表格中的CartonDetails
         #region
-        public void ExtractSilkIconCartonDetails()
+        public void ExtractCartonDetails()
         {
             var wbCount = _wb.Worksheets.Count;
 
@@ -435,5 +437,51 @@ namespace ClothResorting.Helpers
             }
         }
         #endregion
+
+        //以LocationDetail为单位，从入库报告中抽取信息(与PackingList关联)
+        public void ExtractLocationDetail(int preid, string po)
+        {
+            int n = 3;
+            int countOfObj = 0;
+            var preReceiveOrder = _context.PreReceiveOrders.Find(preid);
+            var packingList = _context.PackingLists
+                .SingleOrDefault(c => c.PreReceiveOrder.Id == preid && c.PurchaseOrder == po);
+            var locationDetailList = new List<LocationDetail>();
+
+            _ws = _wb.Worksheets[1];
+            _purchaseOrder = _ws.Cells[1, 2] == null? "" : _ws.Cells[1, 2].Value2.ToString();
+
+            if (_purchaseOrder != po)
+            {
+                Dispose();
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            while(_ws.Cells[n, 3].Value2 != null)
+            {
+                countOfObj += 1;
+                n += 1;
+            }
+
+            for(int i = 0; i < countOfObj; i++)
+            {
+                locationDetailList.Add(new LocationDetail {
+                    PackingList = packingList,
+                    PurchaseOrder = _purchaseOrder,
+                    Style = _ws.Cells[3 + i, 1].Value2.ToString(),
+                    Color = _ws.Cells[3 + i, 2].Value2.ToString(),
+                    Size = _ws.Cells[3 + i, 3].Value2.ToString(),
+                    NumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
+                    Pcs = (int)_ws.Cells[3 + i, 5].Value2(),
+                    Location = _ws.Cells[3 + i, 6].Value2(),
+                    InboundDate = dateTimeNow
+                });
+            }
+
+            _context.LocationDetails.AddRange(locationDetailList);
+            _context.SaveChanges();
+
+            Dispose();
+        }
     }
 }

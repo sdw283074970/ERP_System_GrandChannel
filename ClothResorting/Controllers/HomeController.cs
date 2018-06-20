@@ -57,11 +57,11 @@ namespace ClothResorting.Controllers
 
             var excel = new ExcelExtracter(@"c:\users\downw\desktop\ExcelTest.xlsx");
 
-            excel.CreateSilkIconPreReceiveOrderAndOverView();
+            excel.CreatePreReceiveOrderAndOverView();
 
-            excel.ExtractSilkIconPackingList();
+            excel.ExtractPackingList();
 
-            excel.ExtractSilkIconCartonDetails();
+            excel.ExtractCartonDetails();
 
             ViewBag.Message = "Your application description page.";
 

@@ -37,8 +37,6 @@ namespace ClothResorting.Controllers.Api
                 {
                     fileSavePath = @"D:\TempFiles\" + httpPostedFile.FileName;
 
-                    //fileSavePath = fileSavePath.Replace("[/\\\\:*?<>|]", "");
-
                     httpPostedFile.SaveAs(fileSavePath);
                 }
             }
@@ -53,11 +51,11 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.CreateSilkIconPreReceiveOrderAndOverView();
+            excel.CreatePreReceiveOrderAndOverView();
 
-            excel.ExtractSilkIconPackingList();
+            excel.ExtractPackingList();
 
-            excel.ExtractSilkIconCartonDetails();
+            excel.ExtractCartonDetails();
 
             //再次强行释放EXCEL资源(终止EXCEL进程)
             excel.Dispose();

@@ -9,6 +9,8 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
 using AutoMapper;
+using System.Web;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -21,7 +23,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/locationdeatil
+        // GET /api/locationdetail/?preid={id}&po={po}
         [HttpGet]
         public IHttpActionResult GetLocationDetail([FromUri]PreIdPoJsonObj obj)
         {
@@ -37,6 +39,38 @@ namespace ClothResorting.Controllers.Api
             var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
 
             return Ok(resultDto);
+        }
+
+        // POST /api/locationdetail
+        [HttpPost]
+        public IHttpActionResult GreateLocationDetails([FromUri]PreIdPoJsonObj obj)
+        {
+            var fileSavePath = "";
+
+            //从httpRequest中获取文件并写入磁盘系统
+            var filesGetter = new FilesGetter();
+
+            fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+
+            if(fileSavePath == "")
+            {
+                return BadRequest();
+            }
+
+            //从上传的文件中抽取LocationDetails
+            var excel = new ExcelExtracter(fileSavePath);
+
+            excel.ExtractLocationDetail(obj.PreId, obj.Po);
+
+            var time = _context.LocationDetails.OrderByDescending(c => c.Id).First().InboundDate;
+
+            var result = _context.LocationDetails.Where(c => c.InboundDate == time).ToList();
+
+            var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
+
+            //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
+
+            return Created(Request.RequestUri + "/" + 333, resultDto);
         }
     }
 }

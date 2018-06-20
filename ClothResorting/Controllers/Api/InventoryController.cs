@@ -89,6 +89,10 @@ namespace ClothResorting.Controllers.Api
         [HttpDelete]
         public void RemoveAllRecord()
         {
+            //移除数据库中[ClothSorting].[dbo].[LocationDetails]
+            var locationDetails = _context.LocationDetails.Where(c => c.Id > 0);
+            _context.LocationDetails.RemoveRange(locationDetails);
+
             //移除数据库中[ClothSorting].[dbo].[SizeRatios]
             var sizeRatios = _context.SizeRatios.Where(c => c.Id > 0);
             _context.SizeRatios.RemoveRange(sizeRatios);

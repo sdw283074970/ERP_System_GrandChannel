@@ -75,6 +75,9 @@
 {
     <script>
         $(document).ready(function () {
+
+            $(".iframe").hide();
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -94,23 +97,58 @@
             //从地址栏获取参数
             var preid = getUrlParameter('preid');
             var po = getUrlParameter('po').toString();
-            var data = { "preid": preid, "po": po };
+            //var data = { "preid": preid, "po": po };
 
             $.ajax({
                 type: "GET",
-                url: "/api/LocationDetail",
+                url: "/api/LocationDetail/?preid=" + preid + "&po=" + po,
                 contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(data),
                 dataType: "json",
                 success: function (data) {
                     $("#table").DataTable({
                         destroy: true,
                         data: data,
-                        column: [
+                        columns: [
                             {
-                                data: "",
+                                data: "style",
                                 render: function (data) {
-                                    return 0;
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "size",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "numberOfCartons",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pcs",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
                                 }
                             }
                         ]
@@ -120,6 +158,57 @@
                     alert("An error occured!");
                     alert(JSON.stringify(obj));
                 }
+            });
+
+            $("#btn-upload").on("click", function () {
+                layui.use("layer", function () {
+                    var layer = layui.layer;
+
+                    layer.open({
+                        title: false,
+                        type: 1,
+                        shadeclose: true,
+                        area: ["40%", "40%"],
+                        content: $(".iframe")
+                    });
+                });
+            });
+
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/LocationDetail/?preid=" + preid + "&po=" + po,
+                    data: formData,
+                    beforeSend: function () {
+                        layui.use('layer', function () {
+                            var layer = layui.layer;
+                            layer.msg('Extracting files...', {
+                                icon: 16,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });;
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server! Please make sure the po in file matches the po of this page.");
+                    }
+                });
+                $(".iframe").hide();
             });
 
             $(".btn-back").on("click", function () {
