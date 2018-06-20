@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Location Distribution</h2>
+<h2>Replenishment Location Distribution</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
@@ -132,25 +132,25 @@
                             {
                                 data: "orgNumberOfCartons",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<font color='blue'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "invNumberOfCartons",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "orgPcs",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<font color='blue'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "invPcs",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                             {

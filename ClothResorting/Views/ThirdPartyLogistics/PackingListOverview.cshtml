@@ -42,6 +42,7 @@
 
             var id = window.location.search;
             var preId = window.location.search.substr(1);
+            var isReplenishment = true;
 
             var urlstring = "/api/Inventory/" + id.substr(1);
 
@@ -90,6 +91,14 @@
                     {
                         data: "orderType",
                         render: function (data) {
+                            if (data == "Regular")
+                            {
+                                isReplenishment = false;
+                            }
+                            else if (data == "Replenishment")
+                            {
+                                isReplenishment = true;
+                            }
                             return "<text>" + data + "</text>";
                         }
                     },
@@ -144,9 +153,18 @@
                     {
                         data: "purchaseOrder",
                         render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
-                                //+ "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>"
-                                + "<a href='/ThirdPartyLogistics/LocationDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
+                            if (isReplenishment == true)
+                            {
+                                return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
+                                        //+ "<a href='/ThirdPartyLogistics/Location/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Allocating Location</button></a>"
+                                        + "<a href='/ThirdPartyLogistics/LocationDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
+                            }
+                            else
+                            {
+                                return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
+                                        + "<a href='/ThirdPartyLogistics/RegularLocationDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
+                            }
+
                         }
                     }
                 ]
