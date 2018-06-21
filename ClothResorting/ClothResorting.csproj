@@ -230,6 +230,7 @@
     <Compile Include="Controllers\Api\NewBulkloadController.cs" />
     <Compile Include="Controllers\Api\NewBulkloadResultsController.cs" />
     <Compile Include="Controllers\Api\NewBulkloadSingleReceivingController.cs" />
+    <Compile Include="Controllers\Api\RegularLocationDetail.cs" />
     <Compile Include="Controllers\Api\RereivingDetailExcelFileController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
@@ -242,6 +243,7 @@
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
     <Compile Include="Dtos\LocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
+    <Compile Include="Dtos\RegularLocationDetailDto.cs" />
     <Compile Include="Dtos\RetrievingRecordDto.cs" />
     <Compile Include="Dtos\CartonDetailDto.cs" />
     <Compile Include="Dtos\PackingListDto.cs" />
@@ -611,6 +613,10 @@
     <Compile Include="Migrations\201806202231069_RenamedPurchaseOrderSummaries.Designer.cs">
       <DependentUpon>201806202231069_RenamedPurchaseOrderSummaries.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806202318494_AddedRegularLocationDetailsDbSet.cs" />
+    <Compile Include="Migrations\201806202318494_AddedRegularLocationDetailsDbSet.Designer.cs">
+      <DependentUpon>201806202318494_AddedRegularLocationDetailsDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -621,6 +627,7 @@
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\LoadPlanRecord.cs" />
     <Compile Include="Models\LocationDetail.cs" />
+    <Compile Include="Models\RegularLocationDetail.cs" />
     <Compile Include="Models\RetrievingRecord.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
@@ -1235,6 +1242,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806202231069_RenamedPurchaseOrderSummaries.resx">
       <DependentUpon>201806202231069_RenamedPurchaseOrderSummaries.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806202318494_AddedRegularLocationDetailsDbSet.resx">
+      <DependentUpon>201806202318494_AddedRegularLocationDetailsDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -78,7 +78,156 @@
 {
     <script>
         $(document).ready(function () {
+            $(".iframe").hide();
 
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            //从地址栏获取参数
+            var preid = getUrlParameter('preid');
+            var po = getUrlParameter('po').toString();
+            //var data = { "preid": preid, "po": po };
+
+            $.ajax({
+                type: "GET",
+                url: "/api/RegularLocationDetail/?preid=" + preid + "&po=" + po,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    $("#table").DataTable({
+                        destroy: true,
+                        data: data,
+                        columns: [
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "size",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orgNumberOfCartons",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "invNumberOfCartons",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "orgPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "invPcs",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function () {
+                    alert("An error occured!");
+                    alert(JSON.stringify(obj));
+                }
+            });
+
+            $("#btn-upload").on("click", function () {
+                layui.use("layer", function () {
+                    var layer = layui.layer;
+
+                    layer.open({
+                        title: false,
+                        type: 1,
+                        shadeclose: true,
+                        area: ["40%", "40%"],
+                        content: $(".iframe")
+                    });
+                });
+            });
+
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/RegularLocationDetail/?preid=" + preid + "&po=" + po,
+                    data: formData,
+                    beforeSend: function () {
+                        layui.use('layer', function () {
+                            var layer = layui.layer;
+                            layer.msg('Extracting files...', {
+                                icon: 16,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });;
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server! Please make sure the po in file matches the po of this page.");
+                    }
+                });
+                $(".iframe").hide();
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
         });
     </script>
 }

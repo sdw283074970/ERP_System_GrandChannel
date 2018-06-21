@@ -12,13 +12,14 @@ using AutoMapper;
 using System.Web;
 using ClothResorting.Helpers;
 
+
 namespace ClothResorting.Controllers.Api
 {
-    public class LocationDetailController : ApiController
+    public class RegularLocationDetailController : ApiController
     {
         private ApplicationDbContext _context;
 
-        public LocationDetailController()
+        public RegularLocationDetailController()
         {
             _context = new ApplicationDbContext();
         }
@@ -27,23 +28,23 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetRegularLocationDetail([FromUri]PreIdPoJsonObj obj)
         {
-            var result = new List<LocationDetail>();
+            var result = new List<RegularLocationDetail>();
 
-            var query = _context.LocationDetails
+            var query = _context.RegularLocationDetails
                 .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
                 .Where(c => c.PurchaseOrder == obj.Po && c.PurchaseOrderSummary.PreReceiveOrder.Id == obj.PreId)
                 .ToList();
 
             result.AddRange(query);
 
-            var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
+            var resultDto = Mapper.Map<List<RegularLocationDetail>, List<RegularLocationDetailDto>>(result);
 
             return Ok(resultDto);
         }
 
-        // POST /api/regularlocationdetail/?preid={id}&po={po}
+        // POST /api/locationdetail/?preid={id}&po={po}
         [HttpPost]
-        public IHttpActionResult CreateRegularLocationDetails([FromUri]PreIdPoJsonObj obj)
+        public IHttpActionResult CreateLocationDetails([FromUri]PreIdPoJsonObj obj)
         {
             var fileSavePath = "";
 
@@ -52,7 +53,7 @@ namespace ClothResorting.Controllers.Api
 
             fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
 
-            if(fileSavePath == "")
+            if (fileSavePath == "")
             {
                 return BadRequest();
             }
@@ -60,23 +61,23 @@ namespace ClothResorting.Controllers.Api
             //从上传的文件中抽取LocationDetails
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractReplenishimentLocationDetail(obj.PreId, obj.Po);
+            excel.ExtractRegularLocationDetail(obj.PreId, obj.Po);
 
             //EF无法准确通过datetime查询对象，只能通过按inbound时间分组获取对象
-            var group = _context.LocationDetails
+            var group = _context.RegularLocationDetails
                 .GroupBy(c => c.InboundDate).ToList();
 
             var groupCount = group.Count;
 
             var count = group[groupCount - 1].Count();
 
-            var result = _context.LocationDetails
+            var result = _context.RegularLocationDetails
                 .OrderByDescending(c => c.Id)
                 .Take(count)
                 .OrderBy(c => c.Id)
                 .ToList();
 
-            var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
+            var resultDto = Mapper.Map<List<RegularLocationDetail>, List<RegularLocationDetailDto>>(result);
 
             //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
             var purchaseOrderSummary = _context.PurchaseOrderSummaries

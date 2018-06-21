@@ -37,6 +37,7 @@ namespace ClothResorting.Models
         public DbSet<LoadPlanRecord> LoadPlanRecords { get; set; }
         public DbSet<CartonBreakdownOutbound> CartonBreakdownOutbounds { get; set; }
         public DbSet<LocationDetail> LocationDetails { get; set; }
+        public DbSet<RegularLocationDetail> RegularLocationDetails { get; set; }
 
         public static ApplicationDbContext Create()
         {

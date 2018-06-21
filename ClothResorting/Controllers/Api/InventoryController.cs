@@ -89,6 +89,10 @@ namespace ClothResorting.Controllers.Api
         [HttpDelete]
         public void RemoveAllRecord()
         {
+            //移除数据库中[ClothSorting].[dbo].[RegularLocationDetails]
+            var regularLocationDetail = _context.RegularLocationDetails.Where(c => c.Id > 0);
+            _context.RegularLocationDetails.RemoveRange(regularLocationDetail);
+
             //移除数据库中[ClothSorting].[dbo].[LocationDetails]
             var locationDetails = _context.LocationDetails.Where(c => c.Id > 0);
             _context.LocationDetails.RemoveRange(locationDetails);
@@ -110,7 +114,7 @@ namespace ClothResorting.Controllers.Api
             var measurements = _context.Measurements.Where(c => c.Id > 0);
             _context.Measurements.RemoveRange(measurements);
 
-            //移除数据库中[ClothSorting].[dbo].[PackingLists]
+            //移除数据库中[ClothSorting].[dbo].[PurchaseOrderSummaries]
             var packingLists = _context.PurchaseOrderSummaries.Where(c => c.Id > 0);
             _context.PurchaseOrderSummaries.RemoveRange(packingLists);
 

@@ -440,7 +440,8 @@ namespace ClothResorting.Helpers
         #endregion
 
         //以LocationDetail为单位，从入库报告中抽取信息(与PackingList关联)
-        public void ExtractLocationDetail(int preid, string po)
+        #region
+        public void ExtractReplenishimentLocationDetail(int preid, string po)
         {
             int n = 3;
             int countOfObj = 0;
@@ -482,6 +483,57 @@ namespace ClothResorting.Helpers
             }
 
             _context.LocationDetails.AddRange(locationDetailList);
+            _context.SaveChanges();
+
+            Dispose();
+        }
+        #endregion
+
+        //以RegularLocationDetail为单位，从入库报告中抽取信息(与PackingList关联)
+        //TO DO: 与上一个方法合并
+        public void ExtractRegularLocationDetail(int preid, string po)
+        {
+            int n = 3;
+            int countOfObj = 0;
+            var preReceiveOrder = _context.PreReceiveOrders.Find(preid);
+            var packingList = _context.PurchaseOrderSummaries
+                .SingleOrDefault(c => c.PreReceiveOrder.Id == preid && c.PurchaseOrder == po);
+            var locationDetailList = new List<RegularLocationDetail>();
+
+            _ws = _wb.Worksheets[1];
+            _purchaseOrder = _ws.Cells[1, 2] == null ? "" : _ws.Cells[1, 2].Value2.ToString();
+
+            if (_purchaseOrder != po)
+            {
+                Dispose();
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            while (_ws.Cells[n, 3].Value2 != null)
+            {
+                countOfObj += 1;
+                n += 1;
+            }
+
+            for (int i = 0; i < countOfObj; i++)
+            {
+                locationDetailList.Add(new RegularLocationDetail
+                {
+                    PurchaseOrderSummary = packingList,
+                    PurchaseOrder = _purchaseOrder,
+                    Style = _ws.Cells[3 + i, 1].Value2.ToString(),
+                    Color = _ws.Cells[3 + i, 2].Value2.ToString(),
+                    RunCode = _ws.Cells[3 + i, 3].Value2.ToString(),
+                    OrgNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
+                    InvNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
+                    OrgPcs = (int)_ws.Cells[3 + i, 5].Value2(),
+                    InvPcs = (int)_ws.Cells[3 + i, 5].Value2(),
+                    Location = _ws.Cells[3 + i, 6].Value2(),
+                    InboundDate = dateTimeNow
+                });
+            }
+
+            _context.RegularLocationDetails.AddRange(locationDetailList);
             _context.SaveChanges();
 
             Dispose();
