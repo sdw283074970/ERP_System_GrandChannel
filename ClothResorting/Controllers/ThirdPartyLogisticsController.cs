@@ -73,5 +73,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // GrabReplenishmentOrder 根据Loadplan提取ReplenishmentOrder页面
+        public ActionResult GrabReplenishmentOrder()
+        {
+            return View();
+        }
     }
 }

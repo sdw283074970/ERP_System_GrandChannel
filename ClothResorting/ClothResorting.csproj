@@ -243,6 +243,7 @@
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
     <Compile Include="Dtos\LocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
+    <Compile Include="Dtos\PermanentLocIORecordDto.cs" />
     <Compile Include="Dtos\RegularLocationDetailDto.cs" />
     <Compile Include="Dtos\RetrievingRecordDto.cs" />
     <Compile Include="Dtos\CartonDetailDto.cs" />
@@ -617,6 +618,22 @@
     <Compile Include="Migrations\201806202318494_AddedRegularLocationDetailsDbSet.Designer.cs">
       <DependentUpon>201806202318494_AddedRegularLocationDetailsDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806211806297_AddedParmenentLocationsDbSet.cs" />
+    <Compile Include="Migrations\201806211806297_AddedParmenentLocationsDbSet.Designer.cs">
+      <DependentUpon>201806211806297_AddedParmenentLocationsDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806211841253_AddedRelocatingRecordsDbSet.cs" />
+    <Compile Include="Migrations\201806211841253_AddedRelocatingRecordsDbSet.Designer.cs">
+      <DependentUpon>201806211841253_AddedRelocatingRecordsDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806212053247_AddedPermanentLocIORecordDbSet.cs" />
+    <Compile Include="Migrations\201806212053247_AddedPermanentLocIORecordDbSet.Designer.cs">
+      <DependentUpon>201806212053247_AddedPermanentLocIORecordDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806212057598_DeletedRelocationRecordsDbSet.cs" />
+    <Compile Include="Migrations\201806212057598_DeletedRelocationRecordsDbSet.Designer.cs">
+      <DependentUpon>201806212057598_DeletedRelocationRecordsDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -627,6 +644,8 @@
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\LoadPlanRecord.cs" />
     <Compile Include="Models\LocationDetail.cs" />
+    <Compile Include="Models\PermanentLocation.cs" />
+    <Compile Include="Models\PermanentLocIORecord.cs" />
     <Compile Include="Models\RegularLocationDetail.cs" />
     <Compile Include="Models\RetrievingRecord.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
@@ -959,6 +978,7 @@
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdownOutbound.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\LocationDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\RegularLocationDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\GrabReplenishmentOrder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1245,6 +1265,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806202318494_AddedRegularLocationDetailsDbSet.resx">
       <DependentUpon>201806202318494_AddedRegularLocationDetailsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806211806297_AddedParmenentLocationsDbSet.resx">
+      <DependentUpon>201806211806297_AddedParmenentLocationsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806211841253_AddedRelocatingRecordsDbSet.resx">
+      <DependentUpon>201806211841253_AddedRelocatingRecordsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806212053247_AddedPermanentLocIORecordDbSet.resx">
+      <DependentUpon>201806212053247_AddedPermanentLocIORecordDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806212057598_DeletedRelocationRecordsDbSet.resx">
+      <DependentUpon>201806212057598_DeletedRelocationRecordsDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -21,6 +21,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<RetrievingRecord, RetrievingRecordDto>();
             Mapper.CreateMap<LocationDetail, LocationDetailDto>();
             Mapper.CreateMap<RegularLocationDetail, RegularLocationDetailDto>();
+            Mapper.CreateMap<PermanentLocIORecord, PermanentLocIORecordDto>();
         }
     }
 }
