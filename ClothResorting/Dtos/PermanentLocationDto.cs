@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ClothResorting.Models
+namespace ClothResorting.Dtos
 {
-    public class PermanentLocation
+    public class PermanentLocationDto
     {
         public int Id { get; set; }
 
@@ -22,7 +22,5 @@ namespace ClothResorting.Models
         public int Quantity { get; set; }
 
         public string Location { get; set; }
-
-        public ICollection<PermanentLocIORecord> PermanentLocIORecords { get; set; }
     }
 }

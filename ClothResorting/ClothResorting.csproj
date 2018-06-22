@@ -244,6 +244,7 @@
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
     <Compile Include="Dtos\LocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
+    <Compile Include="Dtos\PermanentLocationDto.cs" />
     <Compile Include="Dtos\PermanentLocIORecordDto.cs" />
     <Compile Include="Dtos\RegularLocationDetailDto.cs" />
     <Compile Include="Dtos\RetrievingRecordDto.cs" />
@@ -638,6 +639,10 @@
     <Compile Include="Migrations\201806212241149_ModifiedPermanentLocation.cs" />
     <Compile Include="Migrations\201806212241149_ModifiedPermanentLocation.Designer.cs">
       <DependentUpon>201806212241149_ModifiedPermanentLocation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.cs" />
+    <Compile Include="Migrations\201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.Designer.cs">
+      <DependentUpon>201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1285,6 +1290,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806212241149_ModifiedPermanentLocation.resx">
       <DependentUpon>201806212241149_ModifiedPermanentLocation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.resx">
+      <DependentUpon>201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

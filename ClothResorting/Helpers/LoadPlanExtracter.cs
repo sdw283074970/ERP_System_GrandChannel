@@ -91,6 +91,7 @@ namespace ClothResorting.Helpers
                             InvChange = -permanentLocInDb.Quantity,
                             InvAfter = 0,
                             FromLocation = "",
+                            TargetBalance = targetPcs - permanentLocInDb.Quantity,
                             OperationDate = timeNow,
                             PermanentLocation = permanentLocInDb
                         };
@@ -127,6 +128,7 @@ namespace ClothResorting.Helpers
                                 InvChange = replenishment.InvPcs,
                                 InvAfter = replenishment.InvPcs,
                                 FromLocation = replenishment.Location,
+                                TargetBalance = targetPcs,
                                 OperationDate = timeNow,
                                 PermanentLocation = permanentLocInDb
                             };
@@ -152,7 +154,8 @@ namespace ClothResorting.Helpers
                                 InvBefore = 0,
                                 InvChange = 0,
                                 InvAfter = 0,
-                                FromLocation = "Shortage: " + targetPcs.ToString(),
+                                FromLocation = "Shortage",
+                                TargetBalance = -targetPcs,
                                 OperationDate = timeNow
                             };
 
@@ -178,6 +181,7 @@ namespace ClothResorting.Helpers
                         InvChange = -targetPcs,
                         InvAfter = permanentLocInDb.Quantity - targetPcs,
                         FromLocation = "",
+                        TargetBalance = 0,
                         OperationDate = timeNow,
                         PermanentLocation = permanentLocInDb
                     };
@@ -186,6 +190,8 @@ namespace ClothResorting.Helpers
                 }
             }
 
+            _context.PermanentLocIORecord.AddRange(records);
+            _context.SaveChanges();
             return records;
         }
     }

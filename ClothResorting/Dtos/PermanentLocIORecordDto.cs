@@ -28,5 +28,7 @@ namespace ClothResorting.Dtos
         public string FromLocation { get; set; }
 
         public DateTime OperationDate { get; set; }
+
+        public int TargetBanlance { get; set; }
     }
 }

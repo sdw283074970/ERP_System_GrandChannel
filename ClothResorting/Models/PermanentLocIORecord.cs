@@ -29,6 +29,8 @@ namespace ClothResorting.Models
 
         public string FromLocation { get; set; }
 
+        public int TargetBalance { get; set; }
+
         public DateTime OperationDate { get; set; }
 
         public PermanentLocation PermanentLocation { get; set; }

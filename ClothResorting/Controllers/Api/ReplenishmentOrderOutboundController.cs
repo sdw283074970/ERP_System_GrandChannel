@@ -42,9 +42,6 @@ namespace ClothResorting.Controllers.Api
 
             var records = extractor.OutputPermanentLocIORecord(pickRequests);
 
-            _context.PermanentLocIORecord.AddRange(records);
-            _context.SaveChanges();
-
             var resultDto = Mapper.Map<IEnumerable<PermanentLocIORecord>, IEnumerable<PermanentLocIORecordDto>>(records);
 
             var killer = new ExcelKiller();
