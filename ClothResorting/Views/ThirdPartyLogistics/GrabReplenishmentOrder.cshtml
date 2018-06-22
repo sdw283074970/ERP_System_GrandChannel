@@ -6,6 +6,75 @@
 
 <h1>Third-party Logistics Distribution System</h1>
 <h2>Grab Replenishment Order</h2>
+<div>
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-loadplan" type="button" class="btn btn-info" value="Upload load plan File" />
+    </div>
+</div>
+<div class="iframe">
+    <div>
+        <input id="upload3" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile2" type="button" class="btn btn-default" value="上传文件" />
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            //打开上传按钮界面事件
+            $("#btn-loadplan").click(function () {
+                layui.use("layer", function () {
+                    var layer = layui.layer;
 
+                    layer.open({
+                        title: false,
+                        type: 1,
+                        shadeclose: true,
+                        area: ["40%", "40%"],
+                        content: $(".iframe")
+                    });
+                });
+            });
 
+            //上传文件按钮事件
+            $("#uploadfile2").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload3").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/replenishmentOrderOutbound",
+                    data: formData,
+                    beforeSend: function () {
+                        layui.use('layer', function () {
+                            var layer = layui.layer;
+                            layer.msg('Extracting files...', {
+                                icon: 16,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });;
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Extract successed!");
+                    }
+                });
+
+                $(".iframe").hide();
+            });
+        });
+    </script>
+}
 

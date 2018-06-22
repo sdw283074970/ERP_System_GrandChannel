@@ -6,6 +6,7 @@ using Microsoft.Office.Interop.Excel;
 using ClothResorting.Models;
 using ClothResorting.Models.DataTransferModels;
 using System.Diagnostics;
+using System.Data.Entity;
 
 namespace ClothResorting.Helpers
 {
@@ -18,6 +19,7 @@ namespace ClothResorting.Helpers
         private _Application _excel;
         private Workbook _wb;
         private Worksheet _ws;
+        private DateTime timeNow = DateTime.Now;
         #endregion
 
         //构造器
@@ -48,22 +50,143 @@ namespace ClothResorting.Helpers
                         Style = _ws.Cells[2, 2].Value2.ToString(),
                         Color = _ws.Cells[3, 2].Value2.ToString(),
                         Size = _ws.Cells[4, 2 + j].Value2,
-                        TotalPcs = (int)_ws.Cells[5, 2 + j].Value2
+                        TargetPcs = (int)_ws.Cells[5, 2 + j].Value2
                     });
                 }
             }
             return PickRequestList;
         }
 
-        //强行中止释放EXCEL进程
-        public void Dispose()
+        //输入pickRequests集合，经过算法，输出PermanentLocIORecord
+        public IEnumerable<PermanentLocIORecord> OutputPermanentLocIORecord(IEnumerable<PickRequest> requests)
         {
-            var excelProcs = Process.GetProcessesByName("EXCEL");
+            var records = new List<PermanentLocIORecord>();
 
-            foreach (var procs in excelProcs)
+            foreach(var request in requests)
             {
-                procs.Kill();
+                var permanentLocInDb = _context.PermanentLocations
+                    .Where(c => c.Id > 0)
+                    .SingleOrDefault(c => c.PurchaseOrder == request.PurchaseOrder
+                        && c.Style == request.Style
+                        && c.Color == request.Color
+                        && c.Size == request.Size);
+
+                var targetPcs = request.TargetPcs;
+
+                //当目标件数大于库存件数时，执行此循环
+                while(targetPcs - permanentLocInDb.Quantity >= 0)
+                {
+                    //如果固定地点留存件数不为0，则全拿走，此条为出库记录
+                    if (permanentLocInDb.Quantity != 0)
+                    {
+                        var record = new PermanentLocIORecord
+                        {
+                            PermanentLoc = permanentLocInDb.Location,
+                            PurchaseOrder = request.PurchaseOrder,
+                            Style = request.Style,
+                            Color = request.Color,
+                            Size = request.Size,
+                            TargetPcs = targetPcs,
+                            InvBefore = permanentLocInDb.Quantity,
+                            InvChange = -permanentLocInDb.Quantity,
+                            InvAfter = 0,
+                            FromLocation = "",
+                            OperationDate = timeNow,
+                            PermanentLocation = permanentLocInDb
+                        };
+
+                        records.Add(record);
+                        targetPcs -= permanentLocInDb.Quantity;
+                        permanentLocInDb.Quantity = 0;
+                    }
+                    //如果固定地点留存件数为0，则先查找库存其他地方是否有余货，有则补货，没有则生成缺货记录。此条为补货/移库记录
+                    else
+                    {
+                        var replenishments = _context.LocationDetails
+                            .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
+                            .Where(c => c.PurchaseOrder == request.PurchaseOrder
+                            && c.Style == request.Style
+                            && c.Color == request.Color
+                            && c.Size == request.Size
+                            && c.InvPcs != 0)
+                            .OrderBy(c => c.InboundDate)    //先进先出
+                            .ThenBy(c => c.Id).ToList();
+                        
+                        if (replenishments.Count != 0)
+                        {
+                            var replenishment = replenishments.First();
+                            var record = new PermanentLocIORecord
+                            {
+                                PermanentLoc = permanentLocInDb.Location,
+                                PurchaseOrder = request.PurchaseOrder,
+                                Style = request.Style,
+                                Color = request.Color,
+                                Size = request.Size,
+                                TargetPcs = targetPcs,
+                                InvBefore = 0,
+                                InvChange = replenishment.InvPcs,
+                                InvAfter = replenishment.InvPcs,
+                                FromLocation = replenishment.Location,
+                                OperationDate = timeNow,
+                                PermanentLocation = permanentLocInDb
+                            };
+
+                            records.Add(record);
+                            replenishment.PurchaseOrderSummary.InventoryPcs -= replenishment.InvPcs;
+                            //暂留 此处应该在该关联的PreReceiveOrder中减去相应的件数
+                            permanentLocInDb.Quantity = replenishment.InvPcs;
+                            replenishment.InvPcs = 0;
+
+                            _context.SaveChanges();
+                        }
+                        else
+                        {
+                            var record = new PermanentLocIORecord
+                            {
+                                PermanentLoc = permanentLocInDb.Location,
+                                PurchaseOrder = request.PurchaseOrder,
+                                Style = request.Style,
+                                Color = request.Color,
+                                Size = request.Size,
+                                TargetPcs = targetPcs,
+                                InvBefore = 0,
+                                InvChange = 0,
+                                InvAfter = 0,
+                                FromLocation = "Shortage: " + targetPcs.ToString(),
+                                OperationDate = timeNow
+                            };
+
+                            records.Add(record);
+                            break;
+                        }
+                    }
+                }
+
+                //当目标件数等于库存件数时，不操作，库存留空
+                //当目标件数小于库存件数时
+                if (targetPcs - permanentLocInDb.Quantity < 0)
+                {
+                    var record = new PermanentLocIORecord
+                    {
+                        PermanentLoc = permanentLocInDb.Location,
+                        PurchaseOrder = request.PurchaseOrder,
+                        Style = request.Style,
+                        Color = request.Color,
+                        Size = request.Size,
+                        TargetPcs = targetPcs,
+                        InvBefore = permanentLocInDb.Quantity,
+                        InvChange = -targetPcs,
+                        InvAfter = permanentLocInDb.Quantity - targetPcs,
+                        FromLocation = "",
+                        OperationDate = timeNow,
+                        PermanentLocation = permanentLocInDb
+                    };
+
+                    records.Add(record);
+                }
             }
+
+            return records;
         }
     }
 }

@@ -15,6 +15,6 @@ namespace ClothResorting.Models.DataTransferModels
 
         public string Size { get; set; }
 
-        public int TotalPcs { get; set; }
+        public int TargetPcs { get; set; }
     }
 }

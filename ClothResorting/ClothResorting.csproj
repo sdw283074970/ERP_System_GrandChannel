@@ -231,6 +231,7 @@
     <Compile Include="Controllers\Api\NewBulkloadResultsController.cs" />
     <Compile Include="Controllers\Api\NewBulkloadSingleReceivingController.cs" />
     <Compile Include="Controllers\Api\RegularLocationDetail.cs" />
+    <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\RereivingDetailExcelFileController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
@@ -633,6 +634,10 @@
     <Compile Include="Migrations\201806212057598_DeletedRelocationRecordsDbSet.cs" />
     <Compile Include="Migrations\201806212057598_DeletedRelocationRecordsDbSet.Designer.cs">
       <DependentUpon>201806212057598_DeletedRelocationRecordsDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806212241149_ModifiedPermanentLocation.cs" />
+    <Compile Include="Migrations\201806212241149_ModifiedPermanentLocation.Designer.cs">
+      <DependentUpon>201806212241149_ModifiedPermanentLocation.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1277,6 +1282,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806212057598_DeletedRelocationRecordsDbSet.resx">
       <DependentUpon>201806212057598_DeletedRelocationRecordsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806212241149_ModifiedPermanentLocation.resx">
+      <DependentUpon>201806212241149_ModifiedPermanentLocation.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

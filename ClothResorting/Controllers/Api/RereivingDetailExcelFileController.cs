@@ -93,7 +93,7 @@ namespace ClothResorting.Controllers.Api
                     var calculator = new CartonsCalculator();
 
                     //调用Helper中CartonsCalculator的方法
-                    var query = calculator.CalculateCartons(cartonBreakdownResults, request.TotalPcs, loadPlanInDb).ToList();
+                    var query = calculator.CalculateCartons(cartonBreakdownResults, request.TargetPcs, loadPlanInDb).ToList();
 
                     _context.RetrievingRecords.AddRange(query);
                     _context.SaveChanges();
@@ -109,7 +109,8 @@ namespace ClothResorting.Controllers.Api
                 .OrderBy(r => r.Id);
 
             //强行释放EXCEL资源(终止EXCEL进程)
-            excel.Dispose();
+            var killer = new ExcelKiller();
+            killer.Dispose();
 
             return Created(Request.RequestUri + "/" + 111, q);
         }
