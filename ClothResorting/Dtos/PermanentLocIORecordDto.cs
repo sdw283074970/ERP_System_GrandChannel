@@ -11,6 +11,8 @@ namespace ClothResorting.Dtos
 
         public string PermanentLoc { get; set; }
 
+        public string PurchaseOrder { get; set; }
+
         public string Style { get; set; }
 
         public string Color { get; set; }
@@ -27,8 +29,8 @@ namespace ClothResorting.Dtos
 
         public string FromLocation { get; set; }
 
-        public DateTime OperationDate { get; set; }
+        public int TargetBalance { get; set; }
 
-        public int TargetBanlance { get; set; }
+        public DateTime OperationDate { get; set; }
     }
 }

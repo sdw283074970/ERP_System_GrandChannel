@@ -135,6 +135,7 @@ namespace ClothResorting.Helpers
 
                             records.Add(record);
                             replenishment.PurchaseOrderSummary.InventoryPcs -= replenishment.InvPcs;
+                            replenishment.PurchaseOrderSummary.PreReceiveOrder.InvPcs -= replenishment.InvPcs;
                             //暂留 此处应该在该关联的PreReceiveOrder中减去相应的件数
                             permanentLocInDb.Quantity = replenishment.InvPcs;
                             replenishment.InvPcs = 0;
@@ -156,7 +157,8 @@ namespace ClothResorting.Helpers
                                 InvAfter = 0,
                                 FromLocation = "Shortage",
                                 TargetBalance = -targetPcs,
-                                OperationDate = timeNow
+                                OperationDate = timeNow,
+                                PermanentLocation = permanentLocInDb
                             };
 
                             records.Add(record);

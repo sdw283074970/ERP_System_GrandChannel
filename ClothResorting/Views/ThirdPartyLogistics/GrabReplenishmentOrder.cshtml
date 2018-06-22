@@ -13,6 +13,27 @@
     <div>
         <input id="btn-loadplan" type="button" class="btn btn-info" value="Upload load plan File" />
     </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Permanent Loc</th>
+                    <th>PO</th>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Target Pcs</th>
+                    <th>Inv Before</th>
+                    <th>Inv Change</th>
+                    <th>Inv After</th>
+                    <th>From Location</th>
+                    <th>Balance</th>
+                    <th>Operation Date</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 <div class="iframe">
     <div>
@@ -26,12 +47,14 @@
 {
     <script>
         $(document).ready(function () {
+            var index;
+
             //打开上传按钮界面事件
             $("#btn-loadplan").click(function () {
                 layui.use("layer", function () {
                     var layer = layui.layer;
 
-                    layer.open({
+                    index = layer.open({
                         title: false,
                         type: 1,
                         shadeclose: true,
@@ -58,9 +81,11 @@
                     url: "/api/replenishmentOrderOutbound",
                     data: formData,
                     beforeSend: function () {
+                        layer.close(index);
+
                         layui.use('layer', function () {
                             var layer = layui.layer;
-                            layer.msg('Extracting files...', {
+                            index = layer.msg('Extracting files...', {
                                 icon: 16,
                                 shade: 0.01,
                                 time: 99 * 1000
@@ -68,12 +93,100 @@
                         });
                     },
                     success: function (data) {
-                        layer.alert("Extract successed!");
+
+                        layer.close(index);
+
+                        $("#table").DataTable({
+                            destroy: true,
+                            data: data,
+                            columns: [
+                                {
+                                    data: "permanentLoc",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "size",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "targetPcs",
+                                    render: function (data) {
+                                        return "<font color='blue'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "invBefore",
+                                    render: function (data) {
+                                        return "<font color='green'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "invChange",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "invAfter",
+                                    render: function (data) {
+                                        return "<font color='green'>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "fromLocation",
+                                    render: function (data) {
+                                        return "<font color='orange'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "targetBalance",
+                                    render: function (data) {
+                                        return "<font color='blue'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "operationDate",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (data) {
+                        alert("Error");
                     }
                 });
 
                 $(".iframe").hide();
             });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+
         });
     </script>
 }

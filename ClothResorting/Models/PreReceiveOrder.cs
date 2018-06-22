@@ -33,6 +33,8 @@ namespace ClothResorting.Models
 
         public int? AvailablePcs { get; set; }
 
+        public int InvPcs { get; set; }
+
         public string Status { get; set; }
 
         public ICollection<PurchaseOrderSummary> PurchaseOrderSummary { get; set; }

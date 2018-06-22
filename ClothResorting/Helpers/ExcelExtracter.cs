@@ -82,6 +82,7 @@ namespace ClothResorting.Helpers
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
                 AvailablePcs = 0,
+                InvPcs = 0,
                 Status = "Created"
             };
 

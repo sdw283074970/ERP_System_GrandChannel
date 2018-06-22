@@ -78,6 +78,7 @@
     <script>
         $(document).ready(function () {
 
+            var index;
             $(".iframe").hide();
 
             //解析url中的参数函数
@@ -178,7 +179,7 @@
                 layui.use("layer", function () {
                     var layer = layui.layer;
 
-                    layer.open({
+                    index = layer.open({
                         title: false,
                         type: 1,
                         shadeclose: true,
@@ -204,6 +205,8 @@
                     url: "/api/LocationDetail/?preid=" + preid + "&po=" + po,
                     data: formData,
                     beforeSend: function () {
+                        layer.close(index);
+
                         layui.use('layer', function () {
                             var layer = layui.layer;
                             layer.msg('Extracting files...', {

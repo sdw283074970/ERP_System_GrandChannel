@@ -80,6 +80,7 @@ namespace ClothResorting.Controllers.Api
 
             //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
             var purchaseOrderSummary = _context.PurchaseOrderSummaries
+                .Include(c => c.PreReceiveOrder)
                 .SingleOrDefault(c => c.PurchaseOrder == obj.Po && c.PreReceiveOrder.Id == obj.PreId);
 
             var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
@@ -87,9 +88,12 @@ namespace ClothResorting.Controllers.Api
 
             purchaseOrderSummary.InventoryCtn += sumOfCartons;
             purchaseOrderSummary.Available -= sumOfCartons;
+            purchaseOrderSummary.PreReceiveOrder.Available -= sumOfCartons;
 
             purchaseOrderSummary.InventoryPcs += sumOfPcs;
             purchaseOrderSummary.AvailablePcs -= sumOfPcs;
+            purchaseOrderSummary.PreReceiveOrder.AvailablePcs -= sumOfPcs;
+            purchaseOrderSummary.PreReceiveOrder.InvPcs += sumOfPcs;
 
             _context.SaveChanges();
 

@@ -644,6 +644,10 @@
     <Compile Include="Migrations\201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.Designer.cs">
       <DependentUpon>201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806221829506_AddedInvPcsPropertyInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201806221829506_AddedInvPcsPropertyInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201806221829506_AddedInvPcsPropertyInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -1293,6 +1297,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.resx">
       <DependentUpon>201806221637136_AddedVenderPropertyInPermanentLocationAndAddedTartgetBanlancePropertyInPermanentLocIORecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806221829506_AddedInvPcsPropertyInPreReceiveOrder.resx">
+      <DependentUpon>201806221829506_AddedInvPcsPropertyInPreReceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -30,15 +30,16 @@
                     <th>Customer Name</th>
                     <th>Created Date</th>
                     <th>Container#</th>
-                    <th>Total Vol.</th>
+                    @*<th>Total Vol.</th>
                     <th>Total G.W.(lb)</th>
-                    <th>Total N.W.(lb)</th>
-                    <th>Forecast Cartons</th>
-                    <th>Receipt Cartons</th>
-                    <th>Available Cartons</th>
-                    <th>Forecast Pcs</th>
-                    <th>Receipt Pcs</th>
-                    <th>Available Pcs</th>
+                    <th>Total N.W.(lb)</th>*@
+                    <th>Fcs Ctns</th>
+                    <th>Rcp Ctns</th>
+                    <th>Avl Ctns</th>
+                    <th>Fcs Pcs</th>
+                    <th>Rcp Pcs</th>
+                    <th>Avl Pcs</th>
+                    <th>Inv Pcs</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -63,6 +64,7 @@
         $(document).ready(function () {
 
             var preId = JSON.stringify(window.location.search.substr(1));
+            var index;
             $(".iframe").hide();
 
             $("#table").DataTable({
@@ -95,24 +97,24 @@
                             return "<font color='green'>" + data + "</font>";
                         }
                     },
-                    {
-                        data: "totalGrossWeight",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "totalNetWeight",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "totalVol",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
+                    //{
+                    //    data: "totalGrossWeight",
+                    //    render: function (data) {
+                    //        return "<text>" + data + "</text>";
+                    //    }
+                    //},
+                    //{
+                    //    data: "totalNetWeight",
+                    //    render: function (data) {
+                    //        return "<text>" + data + "</text>";
+                    //    }
+                    //},
+                    //{
+                    //    data: "totalVol",
+                    //    render: function (data) {
+                    //        return "<text>" + data + "</text>";
+                    //    }
+                    //},
                     {
                         data: "totalCartons",
                         render: function (data) {
@@ -150,6 +152,12 @@
                         }
                     },
                     {
+                        data: "invPcs",
+                        render: function (data) {
+                            return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
                         data: "id",
                         render: function (data) {
                             return "<button class='btn btn-danger js-delete'>Delete</button>";
@@ -162,7 +170,7 @@
                 layui.use("layer", function () {
                     var layer = layui.layer;
 
-                    layer.open({
+                    index = layer.open({
                         title: false,
                         type: 1,
                         shadeclose: true,
@@ -188,6 +196,8 @@
                     url: "/api/ThirdPartyLogisticsApi",
                     data: formData,
                     beforeSend: function () {
+                        layer.close(index);
+
                         layui.use('layer', function () {
                             var layer = layui.layer;
                             layer.msg('Extracting files...', {
