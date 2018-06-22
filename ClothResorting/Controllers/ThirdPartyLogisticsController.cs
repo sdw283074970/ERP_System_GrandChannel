@@ -79,5 +79,12 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // PermanentLocManagment 固定库位的管理页面
+        public ActionResult PermanentLocManagment()
+        {
+            return View();
+        }
+
     }
 }

@@ -40,7 +40,7 @@ namespace ClothResorting.Controllers.Api
 
             var pickRequests = extractor.GetPickRequestsFromXlsx();
 
-            var records = extractor.OutputPermanentLocIORecord(pickRequests);
+            var records = extractor.OutputReplenishmentOrderIORecord(pickRequests);
 
             var resultDto = Mapper.Map<IEnumerable<PermanentLocIORecord>, IEnumerable<PermanentLocIORecordDto>>(records);
 

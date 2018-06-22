@@ -18,6 +18,7 @@
             <thead>
                 <tr>
                     <th>Permanent Loc</th>
+                    <th>OPO</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Color</th>
@@ -102,6 +103,12 @@
                             columns: [
                                 {
                                     data: "permanentLoc",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "orderPurchaseOrder",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }

@@ -9,6 +9,8 @@ namespace ClothResorting.Models.DataTransferModels
     {
         public string PurchaseOrder { get; set; }
 
+        public string OrderPurchaseOrder { get; set; }
+
         public string Style { get; set; }
 
         public string Color { get; set; }

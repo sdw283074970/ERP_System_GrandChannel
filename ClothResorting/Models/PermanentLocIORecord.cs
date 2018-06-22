@@ -11,6 +11,8 @@ namespace ClothResorting.Models
 
         public string PermanentLoc { get; set; }
 
+        public string OrderPurchaseOrder { get; set; }
+
         public string PurchaseOrder { get; set; }
 
         public string Style { get; set; }
