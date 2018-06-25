@@ -220,6 +220,7 @@
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
     <Compile Include="Controllers\Api\LocationDetailController.cs" />
+    <Compile Include="Controllers\Api\LocationDetailSingleInboundController.cs" />
     <Compile Include="Controllers\Api\LocationUpdateController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownPcsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailsController.cs" />
@@ -659,6 +660,7 @@
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
     <Compile Include="Models\ApiTransformModels\CartonDetailRequestJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />

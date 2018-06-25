@@ -161,7 +161,8 @@
                     url: "/api/PermanentLocManagement",
                     data: JSON.stringify(obj),
                     success: function (data, status, xhr) {
-                        if (table) {
+                        if (table)
+                        {
                             table.destroy();
                         }
                         table = $("#table").DataTable({
@@ -223,6 +224,10 @@
                         layer.alert("error");
                     }
                 });
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
             });
 
         });

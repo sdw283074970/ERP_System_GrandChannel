@@ -50,6 +50,7 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Inbound Date</th>
                     <th>Style</th>
                     <th>Color</th>
                     <th>Size</th>
@@ -58,7 +59,6 @@
                     <th>Org Pcs</th>
                     <th>Inv Pcs</th>
                     <th>Location</th>
-                    <th>Inbound Date</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -79,6 +79,7 @@
         $(document).ready(function () {
 
             var index;
+            var table;
             $(".iframe").hide();
 
             //解析url中的参数函数
@@ -108,10 +109,22 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    $("#table").DataTable({
+                    if (table)
+                    {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
+                        "ordering": false,
                         destroy: true,
                         data: data,
                         columns: [
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
                             {
                                 data: "style",
                                 render: function (data) {
@@ -156,12 +169,6 @@
                             },
                             {
                                 data: "location",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "inboundDate",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -226,6 +233,108 @@
                     }
                 });
                 $(".iframe").hide();
+            });
+
+            //单件入库
+            $("#btn-inbound").on("click", function () {
+                var style = $("#style").val().toString();
+                var color = $("#color").val().toString();
+                var size = $("#size").val().toString();
+                var ctns = $("#ctns").val();
+                var quantity = $("#quantity").val();
+                var tlocation = $("#location").val().toString();
+
+                if (style == "" || color == "" || size == "" || ctns == "" || quantity == "" || tlocation == "")
+                {
+                    alert("All fields are required!");
+                }
+                else
+                {
+                    var obj = {
+                        "preId": preid,
+                        "purchaseOrder": po,
+                        "style": style,
+                        "color": color,
+                        "size": size,
+                        "ctns": ctns,
+                        "quantity": quantity,
+                        "location": tlocation
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/LocationDetailSingleInbound",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        success: function (data) {
+                            $("#table").DataTable({
+                                "ordering": false,
+                                destroy: true,
+                                data: data,
+                                columns: [
+                                    {
+                                        data: "inboundDate",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "style",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "color",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "size",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "orgNumberOfCartons",
+                                        render: function (data) {
+                                            return "<font color='blue'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "invNumberOfCartons",
+                                        render: function (data) {
+                                            return "<font color='orange'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "orgPcs",
+                                        render: function (data) {
+                                            return "<font color='blue'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "invPcs",
+                                        render: function (data) {
+                                            return "<font color='orange'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "location",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    }
+                                ]
+                            });
+                        },
+                        error: function () {
+                            alert("error!");
+                        }
+                    });
+                }
             });
 
             $(".btn-back").on("click", function () {

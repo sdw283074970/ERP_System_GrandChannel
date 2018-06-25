@@ -32,6 +32,7 @@ namespace ClothResorting.Controllers.Api
             var query = _context.LocationDetails
                 .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
                 .Where(c => c.PurchaseOrder == obj.Po && c.PurchaseOrderSummary.PreReceiveOrder.Id == obj.PreId)
+                .OrderByDescending(c => c.Id)
                 .ToList();
 
             result.AddRange(query);
@@ -73,7 +74,6 @@ namespace ClothResorting.Controllers.Api
             var result = _context.LocationDetails
                 .OrderByDescending(c => c.Id)
                 .Take(count)
-                .OrderBy(c => c.Id)
                 .ToList();
 
             var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
