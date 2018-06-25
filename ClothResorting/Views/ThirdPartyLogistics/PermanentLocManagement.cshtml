@@ -71,9 +71,8 @@
             var size;
 
             $.ajax({
-                contentType: false,
-                cache: false,
-                processData: false,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
                 type: "GET",
                 url: "/api/PermanentLocManagement",
                 success: function (data, status, xhr) {
@@ -82,6 +81,7 @@
                         table.destory();
                     }
                     table = $("#table").DataTable({
+                        "ordering": false,
                         data: data,
                         columns: [
                             {
@@ -161,11 +161,14 @@
                     url: "/api/PermanentLocManagement",
                     data: JSON.stringify(obj),
                     success: function (data, status, xhr) {
+                        alert("Success!");
+
                         if (table)
                         {
                             table.destroy();
                         }
                         table = $("#table").DataTable({
+                            "ordering": false,
                             destroy: true,
                             data: data,
                             columns: [

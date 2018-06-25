@@ -37,10 +37,11 @@ namespace ClothResorting.Controllers.Api
             }
 
             var extractor = new LoadPlanExtracter(fileSavePath);
+            var recorder = new OutboundRecorder();
 
             var pickRequests = extractor.GetPickRequestsFromXlsx();
 
-            var records = extractor.OutputReplenishmentOrderIORecord(pickRequests);
+            var records = recorder.OutputReplenishmentOrderIORecord(pickRequests);
 
             var resultDto = Mapper.Map<IEnumerable<PermanentLocIORecord>, IEnumerable<PermanentLocIORecordDto>>(records);
 

@@ -27,6 +27,7 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult CreateSingleInboundRecord([FromBody]SingleInboundJsonObj obj)
         {
             var purchaseOrderSummaryInDb = _context.PurchaseOrderSummaries
+                .Include(x => x.PreReceiveOrder)
                 .Single(c => c.PurchaseOrder == obj.PurchaseOrder);
 
             var record = new LocationDetail {
@@ -42,7 +43,13 @@ namespace ClothResorting.Controllers.Api
                 Location = obj.Location,
                 PurchaseOrderSummary = purchaseOrderSummaryInDb
             };
-            
+
+            purchaseOrderSummaryInDb.InventoryPcs += obj.Quantity;
+            purchaseOrderSummaryInDb.InventoryCtn += obj.Ctns;
+            purchaseOrderSummaryInDb.PreReceiveOrder.InvPcs += obj.Ctns;
+            //由于是散货，非正常操作才会用到这个接口，所以不考虑从purchaseordersummary中的临时库位(Available)减去的情况
+
+
             _context.LocationDetails.Add(record);
             _context.SaveChanges();
 
