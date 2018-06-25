@@ -230,6 +230,7 @@
     <Compile Include="Controllers\Api\NewBulkloadController.cs" />
     <Compile Include="Controllers\Api\NewBulkloadResultsController.cs" />
     <Compile Include="Controllers\Api\NewBulkloadSingleReceivingController.cs" />
+    <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\RegularLocationDetail.cs" />
     <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\RereivingDetailExcelFileController.cs" />
@@ -655,6 +656,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
     <Compile Include="Models\ApiTransformModels\CartonDetailRequestJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
@@ -997,7 +999,7 @@
     <Content Include="Views\ThirdPartyLogistics\LocationDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\RegularLocationDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\GrabReplenishmentOrder.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\PermanentLocManagment.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PermanentLocManagement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,230 @@
+﻿
+@{
+    ViewBag.Title = "PermanentLocManagment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>PermanentLocManagment</h2>
+<div>
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <div>
+            <font>
+                LOCATION:
+                <input id="location" style="width:100px" />
+            </font>
+            <font>
+                VENDER:
+                <input id="vender" style="width:100px" />
+            </font>
+            <font>
+                PO:
+                <input id="purchaseorder" style="width:100px" />
+            </font>
+            <font>
+                STYLE:
+                <input id="style" style="width:100px" />
+            </font>
+            <font>
+                COLOR:
+                <input id="color" style="width:100px" />
+            </font>
+            <font>
+                SIZE:
+                <input id="size" style="width:100px" />
+            </font>
+            <input id="btn-addloc" type="button" class="btn btn-info" value="Add new Pmt-Loc" />
+        </div>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Vender</th>
+                    <th>Po</th>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Quantity</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var table;
+            var pLocation;
+            var vender;
+            var po;
+            var style;
+            var color;
+            var size;
+
+            $.ajax({
+                contentType: false,
+                cache: false,
+                processData: false,
+                type: "GET",
+                url: "/api/PermanentLocManagement",
+                success: function (data, status, xhr) {
+                    if (table != null)
+                    {
+                        table.destory();
+                    }
+                    table = $("#table").DataTable({
+                        data: data,
+                        columns: [
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "vender",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "size",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            $("#btn-addloc").on("click", function () {
+                pLocation = $("#location").val();
+                vender = $("#vender").val();
+                po = $("#purchaseorder").val();
+                style = $("#style").val();
+                color = $("#color").val();
+                size = $("#size").val();
+
+                var obj = {
+                    "location": pLocation,
+                    "vender": vender,
+                    "color": color,
+                    "size": size,
+                    "purchaseOrder": po.toString(),
+                    "style": style.toString()
+                };
+
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    type: "POST",
+                    dataType: "json",
+                    url: "/api/PermanentLocManagement",
+                    data: JSON.stringify(obj),
+                    success: function (data, status, xhr) {
+                        if (table) {
+                            table.destroy();
+                        }
+                        table = $("#table").DataTable({
+                            destroy: true,
+                            data: data,
+                            columns: [
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "vender",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "size",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "quantity",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function () {
+                        layer.alert("error");
+                    }
+                });
+            });
+
+        });
+    </script>
+}
