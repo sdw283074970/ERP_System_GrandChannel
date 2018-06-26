@@ -42,7 +42,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // POST /api/regularlocationdetail/?preid={id}&po={po}
+        // POST /api/regularlocationdetail/?po={po}
         [HttpPost]
         public IHttpActionResult CreateRegularLocationDetails([FromUri]string po)
         {
@@ -78,22 +78,33 @@ namespace ClothResorting.Controllers.Api
 
             var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
 
-            //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
-            var purchaseOrderSummary = _context.PurchaseOrderSummaries
-                .Include(c => c.PreReceiveOrder)
+            ////将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
+            //var purchaseOrderSummary = _context.PurchaseOrderSummaries
+            //    .Include(c => c.PreReceiveOrder)
+            //    .SingleOrDefault(c => c.PurchaseOrder == po);
+
+            //var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
+            //var sumOfPcs = result.Sum(c => c.OrgPcs);
+
+            //purchaseOrderSummary.InventoryCtn += sumOfCartons;
+            //purchaseOrderSummary.Available -= sumOfCartons;
+            //purchaseOrderSummary.PreReceiveOrder.Available -= sumOfCartons;
+
+            //purchaseOrderSummary.InventoryPcs += sumOfPcs;
+            //purchaseOrderSummary.AvailablePcs -= sumOfPcs;
+            //purchaseOrderSummary.PreReceiveOrder.AvailablePcs -= sumOfPcs;
+            //purchaseOrderSummary.PreReceiveOrder.InvPcs += sumOfPcs;
+
+            //将批量导入的Species数据的箱数件数更新至purchaseOrderInventoryInDb中
+            var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
+                .Include(c => c.LocationDetails)
                 .SingleOrDefault(c => c.PurchaseOrder == po);
 
             var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
             var sumOfPcs = result.Sum(c => c.OrgPcs);
 
-            purchaseOrderSummary.InventoryCtn += sumOfCartons;
-            purchaseOrderSummary.Available -= sumOfCartons;
-            purchaseOrderSummary.PreReceiveOrder.Available -= sumOfCartons;
-
-            purchaseOrderSummary.InventoryPcs += sumOfPcs;
-            purchaseOrderSummary.AvailablePcs -= sumOfPcs;
-            purchaseOrderSummary.PreReceiveOrder.AvailablePcs -= sumOfPcs;
-            purchaseOrderSummary.PreReceiveOrder.InvPcs += sumOfPcs;
+            purchaseOrderInventoryInDb.InvCtns += sumOfCartons;
+            purchaseOrderInventoryInDb.InvPcs += sumOfPcs;
 
             _context.SaveChanges();
 

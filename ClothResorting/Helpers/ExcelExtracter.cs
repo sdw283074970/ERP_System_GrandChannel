@@ -454,13 +454,17 @@ namespace ClothResorting.Helpers
             var purchaseOrderInDb = _context.PurchaseOrderInventories
                 .SingleOrDefault(c => c.PurchaseOrder == _purchaseOrder);
 
+
             if (_purchaseOrder != po)
             {
                 Dispose();
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
-            while(_ws.Cells[n, 3].Value2 != null)
+            //获取数据库中所有的speciesInventory记录，用于判断入库报告中是否有新种类入库
+            var species = _context.SpeciesInventories.Where(c => c.Id > 0).ToList();
+
+            while (_ws.Cells[n, 3].Value2 != null)
             {
                 countOfObj += 1;
                 n += 1;
@@ -468,7 +472,8 @@ namespace ClothResorting.Helpers
 
             for(int i = 0; i < countOfObj; i++)
             {
-                locationDetailList.Add(new LocationDetail {
+                var locationDetail = new LocationDetail
+                {
                     PurchaseOrderInventory = purchaseOrderInDb,
                     PurchaseOrder = _purchaseOrder,
                     Style = _ws.Cells[3 + i, 1].Value2.ToString(),
@@ -480,7 +485,12 @@ namespace ClothResorting.Helpers
                     InvPcs = (int)_ws.Cells[3 + i, 5].Value2(),
                     Location = _ws.Cells[3 + i, 6].Value2(),
                     InboundDate = dateTimeNow
-                });
+                };
+
+                locationDetailList.Add(locationDetail);
+
+                //判断入库的对象是否是新种类，如果是，则在SpeciesInventories表中添加该类
+                
             }
 
             _context.LocationDetails.AddRange(locationDetailList);
@@ -490,8 +500,7 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
-        //以RegularLocationDetail为单位，从入库报告中抽取信息(与PackingList关联)
-        //TO DO: 与上一个方法合并
+        //以RegularLocationDetail为单位，从入库报告中抽取信息(与PackingList无关联)
         public void ExtractRegularLocationDetail(string po)
         {
             int n = 3;
