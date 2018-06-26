@@ -30,5 +30,6 @@ namespace ClothResorting.Models
         public DateTime InboundDate { get; set; }
 
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
+
     }
 }

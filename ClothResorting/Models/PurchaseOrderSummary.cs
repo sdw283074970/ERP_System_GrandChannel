@@ -50,10 +50,6 @@ namespace ClothResorting.Models
 		
 		public ICollection<CartonDetail> CartonDetails { get; set; }
 
-		public ICollection<LocationDetail> LocationDetails { get; set; }
-
-		public ICollection<RegularLocationDetail> RegularLocationDetails { get; set; }
-
 		public PreReceiveOrder PreReceiveOrder { get; set; }
 	}
 }

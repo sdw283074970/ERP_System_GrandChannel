@@ -674,6 +674,38 @@
     <Compile Include="Migrations\201806262043048_AddedSpeciesInventoryDbSET.Designer.cs">
       <DependentUpon>201806262043048_AddedSpeciesInventoryDbSET.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806262256515_ReAddedRelationshipBetweenLocationDetailAndPoSummariesForDeleting.cs" />
+    <Compile Include="Migrations\201806262256515_ReAddedRelationshipBetweenLocationDetailAndPoSummariesForDeleting.Designer.cs">
+      <DependentUpon>201806262256515_ReAddedRelationshipBetweenLocationDetailAndPoSummariesForDeleting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806262302003_RestoreThreeFiles.cs" />
+    <Compile Include="Migrations\201806262302003_RestoreThreeFiles.Designer.cs">
+      <DependentUpon>201806262302003_RestoreThreeFiles.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806262310307_ModifiedPurchaseOrderSummaryAndLocationDetailModels.cs" />
+    <Compile Include="Migrations\201806262310307_ModifiedPurchaseOrderSummaryAndLocationDetailModels.Designer.cs">
+      <DependentUpon>201806262310307_ModifiedPurchaseOrderSummaryAndLocationDetailModels.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806262312240_RenamedColumnInLocationDetail.cs" />
+    <Compile Include="Migrations\201806262312240_RenamedColumnInLocationDetail.Designer.cs">
+      <DependentUpon>201806262312240_RenamedColumnInLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806262326175_RenamePackingList.cs" />
+    <Compile Include="Migrations\201806262326175_RenamePackingList.Designer.cs">
+      <DependentUpon>201806262326175_RenamePackingList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806262334528_DeleteRelationshipBetweenPackingListAndLocationDetail.cs" />
+    <Compile Include="Migrations\201806262334528_DeleteRelationshipBetweenPackingListAndLocationDetail.Designer.cs">
+      <DependentUpon>201806262334528_DeleteRelationshipBetweenPackingListAndLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806262340395_RenamePackingListToPurchaseOrderSummary.cs" />
+    <Compile Include="Migrations\201806262340395_RenamePackingListToPurchaseOrderSummary.Designer.cs">
+      <DependentUpon>201806262340395_RenamePackingListToPurchaseOrderSummary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.cs" />
+    <Compile Include="Migrations\201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.Designer.cs">
+      <DependentUpon>201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -1348,6 +1380,30 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806262043048_AddedSpeciesInventoryDbSET.resx">
       <DependentUpon>201806262043048_AddedSpeciesInventoryDbSET.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262256515_ReAddedRelationshipBetweenLocationDetailAndPoSummariesForDeleting.resx">
+      <DependentUpon>201806262256515_ReAddedRelationshipBetweenLocationDetailAndPoSummariesForDeleting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262302003_RestoreThreeFiles.resx">
+      <DependentUpon>201806262302003_RestoreThreeFiles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262310307_ModifiedPurchaseOrderSummaryAndLocationDetailModels.resx">
+      <DependentUpon>201806262310307_ModifiedPurchaseOrderSummaryAndLocationDetailModels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262312240_RenamedColumnInLocationDetail.resx">
+      <DependentUpon>201806262312240_RenamedColumnInLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262326175_RenamePackingList.resx">
+      <DependentUpon>201806262326175_RenamePackingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262334528_DeleteRelationshipBetweenPackingListAndLocationDetail.resx">
+      <DependentUpon>201806262334528_DeleteRelationshipBetweenPackingListAndLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262340395_RenamePackingListToPurchaseOrderSummary.resx">
+      <DependentUpon>201806262340395_RenamePackingListToPurchaseOrderSummary.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.resx">
+      <DependentUpon>201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

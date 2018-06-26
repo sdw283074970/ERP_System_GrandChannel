@@ -451,7 +451,7 @@ namespace ClothResorting.Helpers
             _ws = _wb.Worksheets[1];
             _purchaseOrder = _ws.Cells[1, 2] == null? "" : _ws.Cells[1, 2].Value2.ToString();
 
-            var purchaseOrderInDb = _context.PurchaseOrderInventories
+            var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
                 .SingleOrDefault(c => c.PurchaseOrder == _purchaseOrder);
 
 
@@ -463,6 +463,8 @@ namespace ClothResorting.Helpers
 
             //获取数据库中所有的speciesInventory记录，用于判断入库报告中是否有新种类入库
             var species = _context.SpeciesInventories.Where(c => c.Id > 0).ToList();
+            //临时表储存新加入的speciesInventory，用于避免在循环中多次查询数据库，以提高效率
+            var speciesList = new List<SpeciesInventory>();
 
             while (_ws.Cells[n, 3].Value2 != null)
             {
@@ -474,7 +476,7 @@ namespace ClothResorting.Helpers
             {
                 var locationDetail = new LocationDetail
                 {
-                    PurchaseOrderInventory = purchaseOrderInDb,
+                    PurchaseOrderInventory = purchaseOrderInventoryInDb,
                     PurchaseOrder = _purchaseOrder,
                     Style = _ws.Cells[3 + i, 1].Value2.ToString(),
                     Color = _ws.Cells[3 + i, 2].Value2.ToString(),
@@ -489,11 +491,28 @@ namespace ClothResorting.Helpers
 
                 locationDetailList.Add(locationDetail);
 
-                //判断入库的对象是否是新种类，如果是，则在SpeciesInventories表中添加该类
-                
+                //判断入库的对象是否是新种类，如果临时List和数据库species中都没有则说明是新种类，则在SpeciesInventories表中添加该类
+                if (species.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder 
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size) == null && speciesList.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size) == null)
+                {
+                    speciesList.Add(new SpeciesInventory {
+                        PurchaseOrder = locationDetail.PurchaseOrder,
+                        Style = locationDetail.Style,
+                        Color = locationDetail.Color,
+                        Size = locationDetail.Size,
+                        Quantity = 0,
+                        PurchaseOrderInventory = purchaseOrderInventoryInDb
+                    });
+                }
             }
-
+            
             _context.LocationDetails.AddRange(locationDetailList);
+            _context.SpeciesInventories.AddRange(speciesList);
             _context.SaveChanges();
 
             Dispose();
