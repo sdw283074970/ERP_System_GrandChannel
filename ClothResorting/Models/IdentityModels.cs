@@ -41,6 +41,7 @@ namespace ClothResorting.Models
         public DbSet<PermanentLocation> PermanentLocations { get; set; }
         public DbSet<PermanentLocIORecord> PermanentLocIORecord { get; set; }
         public DbSet<PurchaseOrderInventory> PurchaseOrderInventories { get; set; }
+        public DbSet<SpeciesInventory> SpeciesInventories { get; set; }
 
         public static ApplicationDbContext Create()
         {

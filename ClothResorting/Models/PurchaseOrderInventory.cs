@@ -20,5 +20,7 @@ namespace ClothResorting.Models
         public int InvCtns { get; set; }
 
         public ICollection<LocationDetail> LocationDetails { get; set; }
+
+        public ICollection<SpeciesInventory> SpeciesInventories { get; set; }
     }
 }

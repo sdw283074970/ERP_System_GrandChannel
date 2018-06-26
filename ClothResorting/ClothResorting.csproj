@@ -670,6 +670,10 @@
     <Compile Include="Migrations\201806260051065_ModifiedSomeProperties.Designer.cs">
       <DependentUpon>201806260051065_ModifiedSomeProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806262043048_AddedSpeciesInventoryDbSET.cs" />
+    <Compile Include="Migrations\201806262043048_AddedSpeciesInventoryDbSET.Designer.cs">
+      <DependentUpon>201806262043048_AddedSpeciesInventoryDbSET.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -704,6 +708,7 @@
     <Compile Include="Models\PurchaseOrderSummary.cs" />
     <Compile Include="Models\PreReceiveOrder.cs" />
     <Compile Include="Models\SizeRatio.cs" />
+    <Compile Include="Models\SpeciesInventory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -1340,6 +1345,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806260051065_ModifiedSomeProperties.resx">
       <DependentUpon>201806260051065_ModifiedSomeProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806262043048_AddedSpeciesInventoryDbSET.resx">
+      <DependentUpon>201806262043048_AddedSpeciesInventoryDbSET.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
