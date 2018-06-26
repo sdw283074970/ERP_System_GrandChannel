@@ -86,5 +86,11 @@ namespace ClothResorting.Controllers
             return View();
         }
 
+        // 全库的PO管理页面
+        public ActionResult PurchaseOrderManagement()
+        {
+            return View();
+        }
+
     }
 }

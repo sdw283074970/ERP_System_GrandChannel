@@ -26,8 +26,7 @@ namespace ClothResorting.Controllers.Api
         [HttpPost]
         public IHttpActionResult CreateSingleInboundRecord([FromBody]SingleInboundJsonObj obj)
         {
-            var purchaseOrderSummaryInDb = _context.PurchaseOrderSummaries
-                .Include(x => x.PreReceiveOrder)
+            var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
                 .Single(c => c.PurchaseOrder == obj.PurchaseOrder);
 
             var record = new LocationDetail {
@@ -41,15 +40,12 @@ namespace ClothResorting.Controllers.Api
                 OrgPcs = obj.Quantity,
                 InvPcs = obj.Quantity,
                 Location = obj.Location,
-                PurchaseOrderSummary = purchaseOrderSummaryInDb
+                PurchaseOrderInventory = purchaseOrderInventoryInDb
             };
 
-            purchaseOrderSummaryInDb.InventoryPcs += obj.Quantity;
-            purchaseOrderSummaryInDb.InventoryCtn += obj.Ctns;
-            purchaseOrderSummaryInDb.PreReceiveOrder.InvPcs += obj.Ctns;
-            //由于是散货，非正常操作才会用到这个接口，所以不考虑从purchaseordersummary中的临时库位(Available)减去的情况
-
-
+            purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
+            purchaseOrderInventoryInDb.InvCtns += obj.Ctns;
+            
             _context.LocationDetails.Add(record);
             _context.SaveChanges();
 
@@ -61,8 +57,8 @@ namespace ClothResorting.Controllers.Api
             var result = new List<LocationDetail>();
 
             var query = _context.LocationDetails
-                .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
-                .Where(c => c.PurchaseOrder == obj.PurchaseOrder && c.PurchaseOrderSummary.PreReceiveOrder.Id == obj.PreId)
+                .Include(c => c.PurchaseOrderInventory)
+                .Where(c => c.PurchaseOrder == obj.PurchaseOrder)
                 .OrderByDescending(c => c.Id)
                 .ToList();
 

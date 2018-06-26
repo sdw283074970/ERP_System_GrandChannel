@@ -10,7 +10,7 @@ namespace ClothResorting.Models
 
 		public string PurchaseOrder { get; set; }
 
-		public string StyleNumber { get; set; }
+		public string Style { get; set; }
 
 		public string OrderType { get; set; }
 

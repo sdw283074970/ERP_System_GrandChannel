@@ -99,13 +99,11 @@
             };
 
             //从地址栏获取参数
-            var preid = getUrlParameter('preid');
             var po = getUrlParameter('po').toString();
-            //var data = { "preid": preid, "po": po };
 
             $.ajax({
                 type: "GET",
-                url: "/api/LocationDetail/?preid=" + preid + "&po=" + po,
+                url: "/api/LocationDetail/?po=" + po,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -115,7 +113,6 @@
                     }
 
                     table = $("#table").DataTable({
-                        "ordering": false,
                         destroy: true,
                         data: data,
                         columns: [
@@ -209,7 +206,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/LocationDetail/?preid=" + preid + "&po=" + po,
+                    url: "/api/LocationDetail/?po=" + po,
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);
@@ -251,7 +248,6 @@
                 else
                 {
                     var obj = {
-                        "preId": preid,
                         "purchaseOrder": po,
                         "style": style,
                         "color": color,
@@ -269,7 +265,6 @@
                         dataType: "json",
                         success: function (data) {
                             $("#table").DataTable({
-                                "ordering": false,
                                 destroy: true,
                                 data: data,
                                 columns: [

@@ -139,7 +139,7 @@ namespace ClothResorting.Helpers
                     Available = 0,
                     ActualReceived = 0,
                     PurchaseOrder = _purchaseOrder.ToString(),
-                    StyleNumber = _styleNumber,
+                    Style = _styleNumber,
                     NetWeight = Math.Round(_netWeight * 2.205, 2),
                     GrossWeight = Math.Round(_grossWeight * 2.205, 2),
                     CFT = Math.Round(_cFT * 35.315, 2),
@@ -440,19 +440,19 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
-        //以LocationDetail为单位，从入库报告中抽取信息(与PackingList关联)
+        //以LocationDetail为单位，从入库报告中抽取信息(与PackingList无关联，与整个库存的PO对象有关联)
         #region
-        public void ExtractReplenishimentLocationDetail(int preid, string po)
+        public void ExtractReplenishimentLocationDetail(string po)
         {
             int n = 3;
             int countOfObj = 0;
-            var preReceiveOrder = _context.PreReceiveOrders.Find(preid);
-            var packingList = _context.PurchaseOrderSummaries
-                .SingleOrDefault(c => c.PreReceiveOrder.Id == preid && c.PurchaseOrder == po);
             var locationDetailList = new List<LocationDetail>();
 
             _ws = _wb.Worksheets[1];
             _purchaseOrder = _ws.Cells[1, 2] == null? "" : _ws.Cells[1, 2].Value2.ToString();
+
+            var purchaseOrderInDb = _context.PurchaseOrderInventories
+                .SingleOrDefault(c => c.PurchaseOrder == _purchaseOrder);
 
             if (_purchaseOrder != po)
             {
@@ -469,7 +469,7 @@ namespace ClothResorting.Helpers
             for(int i = 0; i < countOfObj; i++)
             {
                 locationDetailList.Add(new LocationDetail {
-                    PurchaseOrderSummary = packingList,
+                    PurchaseOrderInventory = purchaseOrderInDb,
                     PurchaseOrder = _purchaseOrder,
                     Style = _ws.Cells[3 + i, 1].Value2.ToString(),
                     Color = _ws.Cells[3 + i, 2].Value2.ToString(),
@@ -492,17 +492,17 @@ namespace ClothResorting.Helpers
 
         //以RegularLocationDetail为单位，从入库报告中抽取信息(与PackingList关联)
         //TO DO: 与上一个方法合并
-        public void ExtractRegularLocationDetail(int preid, string po)
+        public void ExtractRegularLocationDetail(string po)
         {
             int n = 3;
             int countOfObj = 0;
-            var preReceiveOrder = _context.PreReceiveOrders.Find(preid);
-            var packingList = _context.PurchaseOrderSummaries
-                .SingleOrDefault(c => c.PreReceiveOrder.Id == preid && c.PurchaseOrder == po);
             var locationDetailList = new List<RegularLocationDetail>();
 
             _ws = _wb.Worksheets[1];
             _purchaseOrder = _ws.Cells[1, 2] == null ? "" : _ws.Cells[1, 2].Value2.ToString();
+
+            var purchaseOrderInDb = _context.PurchaseOrderInventories
+                .SingleOrDefault(c => c.PurchaseOrder == _purchaseOrder);
 
             if (_purchaseOrder != po)
             {
@@ -520,7 +520,7 @@ namespace ClothResorting.Helpers
             {
                 locationDetailList.Add(new RegularLocationDetail
                 {
-                    PurchaseOrderSummary = packingList,
+                    PurchaseOrderInventory = purchaseOrderInDb,
                     PurchaseOrder = _purchaseOrder,
                     Style = _ws.Cells[3 + i, 1].Value2.ToString(),
                     Color = _ws.Cells[3 + i, 2].Value2.ToString(),

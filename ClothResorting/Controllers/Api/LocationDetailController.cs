@@ -30,8 +30,8 @@ namespace ClothResorting.Controllers.Api
             var result = new List<LocationDetail>();
 
             var query = _context.LocationDetails
-                .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
-                .Where(c => c.PurchaseOrder == obj.Po && c.PurchaseOrderSummary.PreReceiveOrder.Id == obj.PreId)
+                .Include(c => c.PurchaseOrderInventory)
+                .Where(c => c.PurchaseOrder == obj.Po)
                 .OrderByDescending(c => c.Id)
                 .ToList();
 
@@ -44,7 +44,7 @@ namespace ClothResorting.Controllers.Api
 
         // POST /api/regularlocationdetail/?preid={id}&po={po}
         [HttpPost]
-        public IHttpActionResult CreateRegularLocationDetails([FromUri]PreIdPoJsonObj obj)
+        public IHttpActionResult CreateRegularLocationDetails([FromUri]string po)
         {
             var fileSavePath = "";
 
@@ -61,7 +61,7 @@ namespace ClothResorting.Controllers.Api
             //从上传的文件中抽取LocationDetails
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractReplenishimentLocationDetail(obj.PreId, obj.Po);
+            excel.ExtractReplenishimentLocationDetail(po);
 
             //EF无法准确通过datetime查询对象，只能通过按inbound时间分组获取对象
             var group = _context.LocationDetails
@@ -81,7 +81,7 @@ namespace ClothResorting.Controllers.Api
             //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
             var purchaseOrderSummary = _context.PurchaseOrderSummaries
                 .Include(c => c.PreReceiveOrder)
-                .SingleOrDefault(c => c.PurchaseOrder == obj.Po && c.PreReceiveOrder.Id == obj.PreId);
+                .SingleOrDefault(c => c.PurchaseOrder == po);
 
             var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
             var sumOfPcs = result.Sum(c => c.OrgPcs);

@@ -26,13 +26,13 @@ namespace ClothResorting.Controllers.Api
 
         // GET /api/regularlocationdetail/?preid={id}&po={po}
         [HttpGet]
-        public IHttpActionResult GetRegularLocationDetail([FromUri]PreIdPoJsonObj obj)
+        public IHttpActionResult GetRegularLocationDetail([FromUri]string po)
         {
             var result = new List<RegularLocationDetail>();
 
             var query = _context.RegularLocationDetails
-                .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
-                .Where(c => c.PurchaseOrder == obj.Po && c.PurchaseOrderSummary.PreReceiveOrder.Id == obj.PreId)
+                .Include(c => c.PurchaseOrderInventory)
+                .Where(c => c.PurchaseOrder == po)
                 .ToList();
 
             result.AddRange(query);
@@ -42,9 +42,9 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // POST /api/locationdetail/?preid={id}&po={po}
+        // POST /api/locationdetail/?po={po}
         [HttpPost]
-        public IHttpActionResult CreateLocationDetails([FromUri]PreIdPoJsonObj obj)
+        public IHttpActionResult CreateLocationDetails([FromUri]string po)
         {
             var fileSavePath = "";
 
@@ -61,7 +61,7 @@ namespace ClothResorting.Controllers.Api
             //从上传的文件中抽取LocationDetails
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractRegularLocationDetail(obj.PreId, obj.Po);
+            excel.ExtractRegularLocationDetail(po);
 
             //EF无法准确通过datetime查询对象，只能通过按inbound时间分组获取对象
             var group = _context.RegularLocationDetails
@@ -81,7 +81,7 @@ namespace ClothResorting.Controllers.Api
 
             //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
             var purchaseOrderSummary = _context.PurchaseOrderSummaries
-                .SingleOrDefault(c => c.PurchaseOrder == obj.Po && c.PreReceiveOrder.Id == obj.PreId);
+                .SingleOrDefault(c => c.PurchaseOrder == po);
 
             var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
             var sumOfPcs = result.Sum(c => c.OrgPcs);

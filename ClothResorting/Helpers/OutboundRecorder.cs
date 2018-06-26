@@ -72,15 +72,14 @@ namespace ClothResorting.Helpers
                     else
                     {
                         var replenishments = _context.LocationDetails
-                            .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
+                            .Include(c => c.PurchaseOrderInventory)
                             .Where(c => c.PurchaseOrder == request.PurchaseOrder
                             && c.Style == request.Style
                             && c.Color == request.Color
                             && c.Size == request.Size
                             && c.InvPcs != 0)
                             .OrderBy(c => c.InboundDate)    //先进先出
-                            .ThenBy(c => c.Id)
-                            .ToList();
+                            .ThenBy(c => c.Id).ToList();
 
                         //如果备选库存地点数量不为0，则调货，生成移库记录
                         if (replenishments.Count != 0)
@@ -105,8 +104,7 @@ namespace ClothResorting.Helpers
                             };
 
                             records.Add(record);
-                            replenishment.PurchaseOrderSummary.InventoryPcs -= replenishment.InvPcs;
-                            replenishment.PurchaseOrderSummary.PreReceiveOrder.InvPcs -= replenishment.InvPcs;
+                            replenishment.PurchaseOrderInventory.InvPcs -= replenishment.InvPcs;
 
                             permanentLocInDb.Quantity = replenishment.InvPcs;
                             replenishment.InvPcs = 0;
@@ -171,7 +169,7 @@ namespace ClothResorting.Helpers
                 if (targetPcs == 0 && permanentLocInDb.Quantity == 0)
                 {
                     var replenishments = _context.LocationDetails
-                        .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
+                        .Include(c => c.PurchaseOrderInventory)
                         .Where(c => c.PurchaseOrder == request.PurchaseOrder
                         && c.Style == request.Style
                         && c.Color == request.Color
@@ -201,8 +199,7 @@ namespace ClothResorting.Helpers
                         };
 
                         records.Add(record);
-                        replenishment.PurchaseOrderSummary.InventoryPcs -= replenishment.InvPcs;
-                        replenishment.PurchaseOrderSummary.PreReceiveOrder.InvPcs -= replenishment.InvPcs;
+                        replenishment.PurchaseOrderInventory.InvPcs -= replenishment.InvPcs;
 
                         permanentLocInDb.Quantity = replenishment.InvPcs;
                         replenishment.InvPcs = 0;

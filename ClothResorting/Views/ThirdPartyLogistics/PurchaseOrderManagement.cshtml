@@ -1,0 +1,149 @@
+﻿
+@{
+    ViewBag.Title = "PurchaseOrderManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Purchase Order Management</h2>
+<div>
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <div>
+            <font>
+                Purchase Order:
+                <input id="po" style="width:100px" />
+            </font>
+            <font>
+                Order Type:
+                <input id="type" style="width:100px" />
+            </font>
+            <font>
+                Vender:
+                <input id="vender" style="width:100px" />
+            </font>
+            <input id="btn-addpo" type="button" class="btn btn-info" value="Add new Po" />
+        </div>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Purchase Order</th>
+                    <th>Order Type</th>
+                    <th>Vender</th>
+                    <th>Inv Ctns</th>
+                    <th>Inv Pcs</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var table;
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                type: "GET",
+                dataType: "json",
+                url: "/api/PurchaseOrderManagement",
+                success: function (data) {
+                    if (table) {
+                        table.destroy();
+                    }
+                    table = $("#table").DataTable({
+                        "ordering": false,
+                        destroy: true,
+                        data: data,
+                        columns: [
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "vender",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orderType",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "invCtns",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "invPcs",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<a href='/ThirdPartyLogistics/LocationDetail/?po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            $("#btn-addpo").on("click", function () {
+
+                var po = $("#po").val().toString();
+                var type = $("#type").val().toString();
+                var vender = $("#vender").val().toString();
+
+                if (po == "" || type == "" || vender == "")
+                {
+                    alert("All fields are required!");
+                }
+                else
+                {
+                    var obj = {
+                        "purchaseOrder": po,
+                        "orderType": type,
+                        "vender": vender
+                    };
+
+                    $.ajax({
+                        contentType: 'application/json; charset=utf-8',
+                        type: "POST",
+                        dataType: "json",
+                        url: "/api/PurchaseOrderManagement",
+                        data: JSON.stringify(obj),
+                        success: function (data) {
+                            alert("Success!");
+
+                            location.reload();
+                        },
+                        error: function (data) {
+                            alert("error!");
+                        }
+                    });
+                }
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

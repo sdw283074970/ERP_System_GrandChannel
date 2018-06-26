@@ -144,89 +144,96 @@
                 style = $("#style").val();
                 color = $("#color").val();
                 size = $("#size").val();
+                
+                if(pLocation == "" || vender == "" || po == "" || style == "" || color == "" || size == "")
+                {
+                    alert("All fields are required!");
+                }
+                else
+                {
+                    var obj = {
+                        "location": pLocation,
+                        "vender": vender,
+                        "color": color,
+                        "size": size,
+                        "purchaseOrder": po.toString(),
+                        "style": style.toString()
+                    };
 
-                var obj = {
-                    "location": pLocation,
-                    "vender": vender,
-                    "color": color,
-                    "size": size,
-                    "purchaseOrder": po.toString(),
-                    "style": style.toString()
-                };
+                    $.ajax({
+                        contentType: 'application/json; charset=utf-8',
+                        type: "POST",
+                        dataType: "json",
+                        url: "/api/PermanentLocManagement",
+                        data: JSON.stringify(obj),
+                        success: function (data, status, xhr) {
+                            alert("Success!");
 
-                $.ajax({
-                    contentType: 'application/json; charset=utf-8',
-                    type: "POST",
-                    dataType: "json",
-                    url: "/api/PermanentLocManagement",
-                    data: JSON.stringify(obj),
-                    success: function (data, status, xhr) {
-                        alert("Success!");
-
-                        if (table)
-                        {
-                            table.destroy();
+                            if (table) {
+                                table.destroy();
+                            }
+                            table = $("#table").DataTable({
+                                "ordering": false,
+                                destroy: true,
+                                data: data,
+                                columns: [
+                                    {
+                                        data: "location",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "vender",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "purchaseOrder",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "style",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "color",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "size",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "quantity",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "id",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    }
+                                ]
+                            });
+                        },
+                        error: function () {
+                            layer.alert("error");
                         }
-                        table = $("#table").DataTable({
-                            "ordering": false,
-                            destroy: true,
-                            data: data,
-                            columns: [
-                                {
-                                    data: "location",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "vender",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "purchaseOrder",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "style",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "color",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "size",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "quantity",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                }
-                            ]
-                        });
-                    },
-                    error: function () {
-                        layer.alert("error");
-                    }
-                });
+                    });
+                }
+
             });
 
             $(".btn-back").on("click", function () {

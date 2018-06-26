@@ -16,13 +16,16 @@
         </a>
         <input id="btn-delete" type="button" class="btn btn-danger" value="Delete All" />
         <a href="/ThirdPartyLogistics/GrabReplenishmentOrder/">
-            <input id="btn-search" type="button" class="btn btn-info" value="Grab Replenishment Order" />
+            <input id="btn-replenishmentorder" type="button" class="btn btn-info" value="Grab Replenishment Order" />
         </a>
         <a href="/ThirdPartyLogistics/PermanentLocManagement/">
-            <input id="btn-bulkload" type="button" class="btn btn-info" value="Manage Permanent Location" />
+            <input id="btn-location" type="button" class="btn btn-info" value="Manage Permanent Location" />
         </a>
         <a href="/ThirdPartyLogistics/NewBulkLoad/">
             <input id="btn-bulkload" type="button" class="btn btn-info" value="Creat New Bulkload" />
+        </a>
+        <a href="/ThirdPartyLogistics/PurchaseOrderManagement">
+            <input id="btn-po" type="button" class="btn btn-info" value="Manage Purchase Order" />
         </a>
     </div>
     <div>
@@ -42,7 +45,6 @@
                     <th>Fcs Pcs</th>
                     <th>Rcp Pcs</th>
                     <th>Avl Pcs</th>
-                    <th>Inv Pcs</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -152,12 +154,6 @@
                         data: "availablePcs",
                         render: function (data) {
                             return "<font color='red'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "invPcs",
-                        render: function (data) {
-                            return "<font color='orange'>" + data + "</font>";
                         }
                     },
                     {
