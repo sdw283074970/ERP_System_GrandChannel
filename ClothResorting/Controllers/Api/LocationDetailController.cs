@@ -108,6 +108,11 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
 
+            //结束后台未释放的EXCEL进程
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
+
             return Created(Request.RequestUri + "/" + 333, resultDto);
         }
     }

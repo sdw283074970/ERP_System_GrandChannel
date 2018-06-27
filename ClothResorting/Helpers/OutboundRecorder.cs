@@ -184,6 +184,8 @@ namespace ClothResorting.Helpers
                     permanentLocInDb.Quantity -= targetPcs;
                     //调整库存种类件数统计
                     speciesInDb.InvPcs -= targetPcs;
+                    //调整Po件数统计
+                    purchaserOrderInventoryInDb.InvPcs -= permanentLocInDb.Quantity;
                     //调整目标抓取件数
                     targetPcs = 0;
 
@@ -191,7 +193,7 @@ namespace ClothResorting.Helpers
                 }
 
                 //当最后永久库位留存件数小于30件时，搜寻整个库存可用记录，如有可用，则调取移库。此条为移库记录
-                if (targetPcs < 30 && permanentLocInDb.Quantity == 0)
+                if (targetPcs == 0 && permanentLocInDb.Quantity < 30)
                 {
                     var replenishments = _context.LocationDetails
                         .Include(c => c.PurchaseOrderInventory)

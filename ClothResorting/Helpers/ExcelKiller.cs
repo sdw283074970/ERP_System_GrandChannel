@@ -15,6 +15,7 @@ namespace ClothResorting.Helpers
             foreach (var procs in excelProcs)
             {
                 procs.Kill();
+                procs.WaitForExit();
             }
         }
     }

@@ -45,7 +45,9 @@ namespace ClothResorting.Controllers.Api
 
             var resultDto = Mapper.Map<IEnumerable<PermanentLocIORecord>, IEnumerable<PermanentLocIORecordDto>>(records);
 
+            //强行关闭进程
             var killer = new ExcelKiller();
+
             killer.Dispose();
 
             return Created(Request.RequestUri + "/" + 12345, resultDto);
