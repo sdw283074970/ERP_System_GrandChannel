@@ -97,5 +97,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // 每一个Species包含的调整记录页面
+        public ActionResult AdjustmentDetail()
+        {
+            return View();
+        }
     }
 }

@@ -25,6 +25,7 @@ namespace ClothResorting.Helpers
 
             foreach (var request in requests)
             {
+                //抓取货物之前必须先添加永久库位，有专门的用户页面可供手动添加，强依赖
                 var permanentLocInDb = _context.PermanentLocations
                     .Where(c => c.Id > 0)
                     .SingleOrDefault(c => c.PurchaseOrder == request.PurchaseOrder
@@ -32,12 +33,14 @@ namespace ClothResorting.Helpers
                         && c.Color == request.Color
                         && c.Size == request.Size);
 
+                //抓取货物之前必须添加货物种类到数据库，在入库时会自动添加，强依赖
                 var speciesInDb = _context.SpeciesInventories
                     .SingleOrDefault(c => c.PurchaseOrder == request.PurchaseOrder
                         && c.Style == request.Style
                         && c.Color == request.Color
                         && c.Size == request.Size);
 
+                //抓取货物之前必须有PO容器，有专门的用户页面可供手动添加，强依赖
                 var purchaserOrderInventoryInDb = _context.PurchaseOrderInventories
                         .SingleOrDefault(c => c.PurchaseOrder == request.PurchaseOrder);
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models;
+using ClothResorting.Models.ApiTransformModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace ClothResorting.Controllers.Api
     public class PurchaseOrderStatisticsController : ApiController
     {
         private ApplicationDbContext _context;
+        private DateTime _timeNow = DateTime.Now;
 
         public PurchaseOrderStatisticsController()
         {
@@ -38,9 +40,35 @@ namespace ClothResorting.Controllers.Api
 
         // GET /api/purchaseOrderStatistics
         [HttpPost]
-        public IHttpActionResult CreateAdjustmentRecord()
+        public IHttpActionResult CreateAdjustmentRecord([FromBody]AdjustmentJsonObj obj)
         {
-            return Ok();
+            var speciesInDb = _context.SpeciesInventories
+                .SingleOrDefault(c => c.PurchaseOrder == obj.PurchaseOrder
+                    && c.Style == obj.Style
+                    && c.Color == obj.Color
+                    && c.Size == obj.Size);
+
+            _context.AdjustmentRecords.Add(new AdjustmentRecord {
+                PurchaseOrder = obj.PurchaseOrder,
+                Style = obj.Style,
+                Color = obj.Color,
+                Size = obj.Size,
+                Adjustment = obj.Adjust < 0 ? "-" + -obj.Adjust : "+" + obj.Adjust,
+                AdjustDate = _timeNow,
+                SpeciesInventory = speciesInDb
+            });
+
+            speciesInDb.AdjPcs += obj.Adjust;
+
+            _context.SaveChanges();
+
+            var sampleInDb = _context.AdjustmentRecords
+                .OrderByDescending(c => c.Id)
+                .First();
+
+            var sampleDto = Mapper.Map<AdjustmentRecord, AdjustmentRecordDto>(sampleInDb);
+
+            return Created(Request.RequestUri + "/" + sampleInDb.Id, sampleDto);
         }
     }
 }

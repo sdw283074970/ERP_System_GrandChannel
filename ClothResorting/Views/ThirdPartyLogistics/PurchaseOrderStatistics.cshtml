@@ -43,6 +43,7 @@
                     <th>Org Pcs</th>
                     <th>Adj Pcs</th>
                     <th>Inv Pcs</th>
+                    <th>Adjust Detail</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -81,7 +82,7 @@
                 success: function (data) {
                     if(table)
                     {
-                        table.destory();
+                        table.destroy();
                     }
                     table = $("#table").DataTable({
                         destroy: true,
@@ -128,6 +129,12 @@
                                 render: function (data) {
                                     return "<font color='red'>" + data + "</font>";
                                 }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<a href='/ThirdPartyLogistics/AdjustmentDetail/?poid=" + data + "'><button class='btn btn-link'>Adjustment History</button></a>"
+                                }
                             }
                         ]
                     });
@@ -141,7 +148,7 @@
                 var style = $("#style").val().toString();
                 var color = $("#color").val().toString();
                 var size = $("#size").val().toString();
-                var adjust = $("#adjust").val().toString();
+                var adjust = $("#adjust").val();
 
                 var obj = {
                     "purchaseOrder": po,
@@ -158,8 +165,10 @@
                     dataType: "json",
                     data: JSON.stringify(obj),
                     success: function (data) {
+                        alert("success!");
+
                         if (table) {
-                            table.destory();
+                            table.destroy();
                         }
                         table = $("#table").DataTable({
                             destroy: true,
@@ -209,6 +218,9 @@
                                 }
                             ]
                         });
+                    },
+                    error: function () {
+                        alert("error");
                     }
                 });
             });
