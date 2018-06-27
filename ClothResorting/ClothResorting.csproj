@@ -706,6 +706,10 @@
     <Compile Include="Migrations\201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.Designer.cs">
       <DependentUpon>201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806270011572_RenamedPropertyInSpeciesInventory.cs" />
+    <Compile Include="Migrations\201806270011572_RenamedPropertyInSpeciesInventory.Designer.cs">
+      <DependentUpon>201806270011572_RenamedPropertyInSpeciesInventory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
@@ -1404,6 +1408,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.resx">
       <DependentUpon>201806262341592_RemoveRelationshipBetweenRegularLocationDetailAndPurchaseOrderSummary.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806270011572_RenamedPropertyInSpeciesInventory.resx">
+      <DependentUpon>201806270011572_RenamedPropertyInSpeciesInventory.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

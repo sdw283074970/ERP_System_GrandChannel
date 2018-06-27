@@ -43,8 +43,19 @@ namespace ClothResorting.Controllers.Api
                 PurchaseOrderInventory = purchaseOrderInventoryInDb
             };
 
+
+            var speciesInDb = _context.SpeciesInventories
+                .Single(c => c.PurchaseOrder == record.PurchaseOrder
+                    && c.Style == record.Style
+                    && c.Color == record.Color
+                    && c.Size == record.Size);
+
             purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
             purchaseOrderInventoryInDb.InvCtns += obj.Ctns;
+
+            speciesInDb.OrgPcs += obj.Quantity;
+            speciesInDb.AdjPcs += obj.Quantity;
+            speciesInDb.InvPcs += obj.Quantity;
             
             _context.LocationDetails.Add(record);
             _context.SaveChanges();

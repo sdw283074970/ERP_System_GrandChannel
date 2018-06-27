@@ -17,7 +17,11 @@ namespace ClothResorting.Models
 
         public string Size { get; set; }
 
-        public int Quantity { get; set; }
+        public int OrgPcs { get; set; }
+
+        public int AdjPcs { get; set; }
+
+        public int InvPcs { get; set; }
 
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
     }

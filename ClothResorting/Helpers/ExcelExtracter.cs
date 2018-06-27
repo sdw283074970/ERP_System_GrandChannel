@@ -505,7 +505,9 @@ namespace ClothResorting.Helpers
                         Style = locationDetail.Style,
                         Color = locationDetail.Color,
                         Size = locationDetail.Size,
-                        Quantity = 0,
+                        OrgPcs = 0,
+                        AdjPcs = 0,
+                        InvPcs = 0,
                         PurchaseOrderInventory = purchaseOrderInventoryInDb
                     });
                 }
@@ -515,11 +517,36 @@ namespace ClothResorting.Helpers
             _context.SpeciesInventories.AddRange(speciesList);
             _context.SaveChanges();
 
+            //从入库报告中同步pcs数量到speciesInventory的原始数量、调整数量和库存数量中
+            var speciesInventoryInDb = _context.SpeciesInventories.Where(c => c.Id > 0);
+            foreach(var locationDetail in locationDetailList)
+            {
+                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size)
+                    .OrgPcs += locationDetail.OrgPcs;
+
+                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size)
+                    .AdjPcs += locationDetail.OrgPcs;
+
+                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size)
+                    .InvPcs += locationDetail.OrgPcs;
+            }
+
+            _context.SaveChanges();
+
             Dispose();
         }
         #endregion
 
-        //以RegularLocationDetail为单位，从入库报告中抽取信息(与PackingList无关联)
+        //以RegularLocationDetail为单位，从入库报告中抽取信息(与PackingList无关联), 暂时没用
         public void ExtractRegularLocationDetail(string po)
         {
             int n = 3;
