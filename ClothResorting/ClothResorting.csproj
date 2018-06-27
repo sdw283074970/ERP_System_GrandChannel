@@ -712,8 +712,13 @@
     <Compile Include="Migrations\201806270011572_RenamedPropertyInSpeciesInventory.Designer.cs">
       <DependentUpon>201806270011572_RenamedPropertyInSpeciesInventory.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.cs" />
+    <Compile Include="Migrations\201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.Designer.cs">
+      <DependentUpon>201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AdjustmentRecord.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
@@ -1414,6 +1419,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806270011572_RenamedPropertyInSpeciesInventory.resx">
       <DependentUpon>201806270011572_RenamedPropertyInSpeciesInventory.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.resx">
+      <DependentUpon>201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

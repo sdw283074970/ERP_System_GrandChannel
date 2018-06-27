@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ClothResorting.Models
 {
-    public class SpeciesInventory
+    public class AdjustmentRecord
     {
         public int Id { get; set; }
 
@@ -17,14 +17,10 @@ namespace ClothResorting.Models
 
         public string Size { get; set; }
 
-        public int OrgPcs { get; set; }
+        public string Adjustment { get; set; }
 
-        public int AdjPcs { get; set; }
+        public DateTime AdjustDate { get; set; }
 
-        public int InvPcs { get; set; }
-
-        public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
-
-        public ICollection<AdjustmentRecord> AdjustmentRecords { get; set; }
+        public SpeciesInventory SpeciesInventory { get; set; }
     }
 }

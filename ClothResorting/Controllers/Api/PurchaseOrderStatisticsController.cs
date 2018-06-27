@@ -35,5 +35,12 @@ namespace ClothResorting.Controllers.Api
 
             return Ok(resultDto);
         }
+
+        // GET /api/purchaseOrderStatistics
+        [HttpPost]
+        public IHttpActionResult CreateAdjustmentRecord()
+        {
+            return Ok();
+        }
     }
 }

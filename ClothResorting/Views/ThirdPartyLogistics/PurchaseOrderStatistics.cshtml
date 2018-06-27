@@ -27,7 +27,7 @@
             </font>
             <font>
                 Adjust:
-                <input id="adj" style="width:100px" />
+                <input id="adjust" style="width:100px" />
             </font>
             <input id="btn-adj" type="button" class="btn btn-info" value="Adjust" />
         </div>
@@ -135,6 +135,82 @@
                 error: function () {
                     alert("error!");
                 }
+            });
+
+            $("#btn-adj").on("click", function () {
+                var style = $("#style").val().toString();
+                var color = $("#color").val().toString();
+                var size = $("#size").val().toString();
+                var adjust = $("#adjust").val().toString();
+
+                var obj = {
+                    "purchaseOrder": po,
+                    "style": style,
+                    "color": color,
+                    "size": size,
+                    "adjust": adjust
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/purchaseorderstatistics/",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    success: function (data) {
+                        if (table) {
+                            table.destory();
+                        }
+                        table = $("#table").DataTable({
+                            destroy: true,
+                            data: data,
+                            columns: [
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "size",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "orgPcs",
+                                    render: function (data) {
+                                        return "<font color='blue'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "adjPcs",
+                                    render: function (data) {
+                                        return "<font color='orange'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "invPcs",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                }
+                            ]
+                        });
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {
