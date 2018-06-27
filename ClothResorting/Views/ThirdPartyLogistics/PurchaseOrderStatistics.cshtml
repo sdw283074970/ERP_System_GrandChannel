@@ -1,11 +1,12 @@
 ﻿
 @{
-    ViewBag.Title = "PurchaseOrderManagement";
+    ViewBag.Title = "PurchaseOrderStatistics";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Purchase Order Management</h2>
+<h2>Purchase Order Statistics</h2>
+
 <div>
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
@@ -13,18 +14,22 @@
     <div>
         <div>
             <font>
-                Purchase Order:
-                <input id="po" style="width:100px" />
+                Style:
+                <input id="style" style="width:100px" />
             </font>
             <font>
-                Order Type:
-                <input id="type" style="width:100px" />
+                Color:
+                <input id="color" style="width:100px" />
             </font>
             <font>
-                Vender:
-                <input id="vender" style="width:100px" />
+                Size:
+                <input id="size" style="width:100px" />
             </font>
-            <input id="btn-addpo" type="button" class="btn btn-info" value="Add new Po" />
+            <font>
+                Adjust:
+                <input id="adj" style="width:100px" />
+            </font>
+            <input id="btn-adj" type="button" class="btn btn-info" value="Adjust" />
         </div>
     </div>
     <div>
@@ -32,11 +37,12 @@
             <thead>
                 <tr>
                     <th>Purchase Order</th>
-                    <th>Order Type</th>
-                    <th>Vender</th>
-                    <th>Inv Ctns</th>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Org Pcs</th>
+                    <th>Adj Pcs</th>
                     <th>Inv Pcs</th>
-                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -47,20 +53,37 @@
 {
     <script>
         $(document).ready(function () {
-
             var table;
 
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var po = getUrlParameter('po');
+
             $.ajax({
-                contentType: 'application/json; charset=utf-8',
                 type: "GET",
+                url: "/api/purchaseorderstatistics/?po=" + po,
+                contentType: 'application/json; charset=utf-8',
                 dataType: "json",
-                url: "/api/PurchaseOrderManagement",
                 success: function (data) {
-                    if (table) {
-                        table.destroy();
+                    if(table)
+                    {
+                        table.destory();
                     }
                     table = $("#table").DataTable({
-                        "ordering": false,
                         destroy: true,
                         data: data,
                         columns: [
@@ -71,80 +94,53 @@
                                 }
                             },
                             {
-                                data: "vender",
+                                data: "style",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "orderType",
+                                data: "color",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "invCtns",
+                                data: "size",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orgPcs",
                                 render: function (data) {
                                     return "<font color='blue'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "invPcs",
+                                data: "adjPcs",
                                 render: function (data) {
                                     return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "purchaseOrder",
+                                data: "invPcs",
                                 render: function (data) {
-                                    return "<a href='/ThirdPartyLogistics/PurchaseOrderStatistics/?po=" + data + "'><button class='btn btn-link'>Inventory Statistics</button></a><br>"
-                                        + "<a href='/ThirdPartyLogistics/LocationDetail/?po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
+                                    return "<font color='red'>" + data + "</font>";
                                 }
                             }
                         ]
                     });
-                }
-            });
-
-            $("#btn-addpo").on("click", function () {
-
-                var po = $("#po").val().toString();
-                var type = $("#type").val().toString();
-                var vender = $("#vender").val().toString();
-
-                if (po == "" || type == "" || vender == "")
-                {
-                    alert("All fields are required!");
-                }
-                else
-                {
-                    var obj = {
-                        "purchaseOrder": po,
-                        "orderType": type,
-                        "vender": vender
-                    };
-
-                    $.ajax({
-                        contentType: 'application/json; charset=utf-8',
-                        type: "POST",
-                        dataType: "json",
-                        url: "/api/PurchaseOrderManagement",
-                        data: JSON.stringify(obj),
-                        success: function (data) {
-                            alert("Success!");
-
-                            location.reload();
-                        },
-                        error: function (data) {
-                            alert("error!");
-                        }
-                    });
+                },
+                error: function () {
+                    alert("error!");
                 }
             });
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });
+
         });
     </script>
 }

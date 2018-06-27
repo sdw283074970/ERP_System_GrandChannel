@@ -92,5 +92,10 @@ namespace ClothResorting.Controllers
             return View();
         }
 
+        // 每一个PO中所包含内容的统计页面
+        public ActionResult PurchaseOrderStatistics()
+        {
+            return View();
+        }
     }
 }

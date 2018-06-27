@@ -233,6 +233,7 @@
     <Compile Include="Controllers\Api\NewBulkloadSingleReceivingController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
+    <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
     <Compile Include="Controllers\Api\RegularLocationDetail.cs" />
     <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
@@ -257,6 +258,7 @@
     <Compile Include="Dtos\PackingListDto.cs" />
     <Compile Include="Dtos\PreReceiveOrdersDto.cs" />
     <Compile Include="Dtos\SizeRatioDto.cs" />
+    <Compile Include="Dtos\SpeciesInventoryDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -1062,6 +1064,7 @@
     <Content Include="Views\ThirdPartyLogistics\GrabReplenishmentOrder.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PermanentLocManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PurchaseOrderManagement.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PurchaseOrderStatistics.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
