@@ -62,8 +62,15 @@ namespace ClothResorting.Helpers
             //遍历每一组，为每一组生成一个PickRequest对象放入pickRequestList中
             for (int i = 1; i <= sumOfGroups; i++)
             {
-                //如果size缺失，则不导入任何pcikrequest记录
-                int sumOfSize = _ws.Cells[startRow, 4].Value2 == null ? 0 : (int)_ws.Cells[startRow, 4].Value2;
+                //扫描每组有多少个size
+                int sumOfSize = 0;
+                int k = 0;
+
+                while(_ws.Cells[startRow + 3 , 2 + k].Value != null)
+                {
+                    sumOfSize += 1;
+                    k += 1;
+                }
 
                 for (int j = 0; j < sumOfSize; j++)
                 {

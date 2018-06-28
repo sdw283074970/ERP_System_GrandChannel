@@ -89,6 +89,14 @@ namespace ClothResorting.Controllers.Api
         [HttpDelete]
         public void RemoveAllRecord()
         {
+            //移除数据库中[ClothSorting].[dbo].[PermanentLocIORecords]
+            var permanentIORecords = _context.PermanentLocIORecord.Where(c => c.Id > 0);
+            _context.PermanentLocIORecord.RemoveRange(permanentIORecords);
+
+            //移除数据库中[ClothSorting].[dbo].[PermanentLocations]
+            var permanentLoc = _context.PermanentLocations.Where(c => c.Id > 0);
+            _context.PermanentLocations.RemoveRange(permanentLoc);
+
             //移除数据库中[ClothSorting].[dbo].[AdjustmentRecords]
             var adjustmentRecords = _context.AdjustmentRecords.Where(c => c.Id > 0);
             _context.AdjustmentRecords.RemoveRange(adjustmentRecords);
@@ -116,7 +124,6 @@ namespace ClothResorting.Controllers.Api
             //移除数据库中[ClothSorting].[dbo].[CartonBreakDowns]
             var cartonBreakdowns = _context.CartonBreakDowns.Where(c => c.Id > 0);
             _context.CartonBreakDowns.RemoveRange(cartonBreakdowns);
-
 
             //移除数据库中[ClothSorting].[dbo].[CartonDetails]
             var cartonDetails = _context.CartonDetails.Where(c => c.Id > 0);

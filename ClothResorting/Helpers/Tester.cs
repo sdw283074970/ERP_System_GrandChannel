@@ -38,22 +38,40 @@ namespace ClothResorting.Helpers
         }
 
         //仅测试用：为每一个Species自动建立库位为TESTLOC的永久性库位
+        //20180628更新：现在能检测是否会建立重复的永久库位
         public void CreatePermanentLocForEachSpecies(ApplicationDbContext context)
         {
-            var speciesInDb = context.SpeciesInventories.Where(c => c.Id > 0);
+            var speciesToList = context.SpeciesInventories.Where(c => c.Id > 0).ToList();
+            var permanentLocToList = context.PermanentLocations.Where(c => c.Id > 0).ToList();
             var permanentLocList = new List<PermanentLocation>();
 
-            foreach(var species in speciesInDb)
+            foreach(var species in speciesToList)
             {
-                permanentLocList.Add(new PermanentLocation {
-                    PurchaseOrder = "TEST",
+                //可简化
+                //根据已有的种类来建立对应的永久库位
+                var permanentLoc = new PermanentLocation
+                {
+                    PurchaseOrder = species.PurchaseOrder,
                     Style = species.Style,
                     Color = species.Color,
                     Size = species.Size,
                     Location = "A-9999-B",
                     Vender = "SILKICON",
                     Quantity = 0
-                });
+                };
+
+                //查询永久库位中是否有4个属性与刚建立的新对象完全相同的对象
+                var permanentInDbCheck = permanentLocToList
+                    .SingleOrDefault(c => c.PurchaseOrder == permanentLoc.PurchaseOrder
+                        && c.Style == permanentLoc.Style
+                        && c.Color == permanentLoc.Color
+                        && c.Size == permanentLoc.Size);
+
+                //若没有，则添加进永久性库位
+                if (permanentInDbCheck == null)
+                {
+                    permanentLocList.Add(permanentLoc);
+                }
             }
 
             context.PermanentLocations.AddRange(permanentLocList);

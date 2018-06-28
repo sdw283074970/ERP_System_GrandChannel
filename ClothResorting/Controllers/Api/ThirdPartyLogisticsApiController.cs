@@ -57,9 +57,6 @@ namespace ClothResorting.Controllers.Api
 
             excel.ExtractCartonDetails();
 
-            //再次强行释放EXCEL资源(终止EXCEL进程)
-            excel.Dispose();
-
             //因为源文件没有每一单po的总pcs数量，所以需要写算法计算
             //算法如下
             var preReceiveOrder = _context.PreReceiveOrders
@@ -94,6 +91,11 @@ namespace ClothResorting.Controllers.Api
             checker.CheckRunCode();
 
             _context.SaveChanges();
+
+            //强行关闭进程
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
         }
     }
 }

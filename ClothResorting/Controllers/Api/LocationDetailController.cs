@@ -78,23 +78,6 @@ namespace ClothResorting.Controllers.Api
 
             var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
 
-            ////将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
-            //var purchaseOrderSummary = _context.PurchaseOrderSummaries
-            //    .Include(c => c.PreReceiveOrder)
-            //    .SingleOrDefault(c => c.PurchaseOrder == po);
-
-            //var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
-            //var sumOfPcs = result.Sum(c => c.OrgPcs);
-
-            //purchaseOrderSummary.InventoryCtn += sumOfCartons;
-            //purchaseOrderSummary.Available -= sumOfCartons;
-            //purchaseOrderSummary.PreReceiveOrder.Available -= sumOfCartons;
-
-            //purchaseOrderSummary.InventoryPcs += sumOfPcs;
-            //purchaseOrderSummary.AvailablePcs -= sumOfPcs;
-            //purchaseOrderSummary.PreReceiveOrder.AvailablePcs -= sumOfPcs;
-            //purchaseOrderSummary.PreReceiveOrder.InvPcs += sumOfPcs;
-
             //将批量导入的Species数据的箱数件数更新至purchaseOrderInventoryInDb中
             var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
                 .Include(c => c.LocationDetails)
@@ -112,10 +95,10 @@ namespace ClothResorting.Controllers.Api
             var tester = new Tester();
             tester.CreatePermanentLocForEachSpecies(_context);
 
-            ////结束后台未释放的EXCEL进程
-            //var killer = new ExcelKiller();
+            //强行关闭进程
+            var killer = new ExcelKiller();
 
-            //killer.Dispose();
+            killer.Dispose();
 
             return Created(Request.RequestUri + "/" + 333, resultDto);
         }

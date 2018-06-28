@@ -541,8 +541,6 @@ namespace ClothResorting.Helpers
             }
 
             _context.SaveChanges();
-
-            Dispose();
         }
         #endregion
 

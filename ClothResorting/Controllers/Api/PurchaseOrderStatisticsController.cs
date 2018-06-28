@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -43,6 +44,7 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult CreateAdjustmentRecord([FromBody]AdjustmentJsonObj obj)
         {
             var speciesInDb = _context.SpeciesInventories
+                .Include(c => c.PurchaseOrderInventory)
                 .SingleOrDefault(c => c.PurchaseOrder == obj.PurchaseOrder
                     && c.Style == obj.Style
                     && c.Color == obj.Color
@@ -59,6 +61,8 @@ namespace ClothResorting.Controllers.Api
             });
 
             speciesInDb.AdjPcs += obj.Adjust;
+            speciesInDb.InvPcs += obj.Adjust;
+            speciesInDb.PurchaseOrderInventory.InvPcs += obj.Adjust;
 
             _context.SaveChanges();
 

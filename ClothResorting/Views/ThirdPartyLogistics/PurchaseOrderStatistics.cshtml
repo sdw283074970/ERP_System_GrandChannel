@@ -80,10 +80,6 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    if(table)
-                    {
-                        table.destroy();
-                    }
                     table = $("#table").DataTable({
                         destroy: true,
                         data: data,
@@ -166,58 +162,7 @@
                     data: JSON.stringify(obj),
                     success: function (data) {
                         alert("success!");
-
-                        if (table) {
-                            table.destroy();
-                        }
-                        table = $("#table").DataTable({
-                            destroy: true,
-                            data: data,
-                            columns: [
-                                {
-                                    data: "purchaseOrder",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "style",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "color",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "size",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "orgPcs",
-                                    render: function (data) {
-                                        return "<font color='blue'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "adjPcs",
-                                    render: function (data) {
-                                        return "<font color='orange'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "invPcs",
-                                    render: function (data) {
-                                        return "<font color='red'>" + data + "</font>";
-                                    }
-                                }
-                            ]
-                        });
+                        location.reload();
                     },
                     error: function () {
                         alert("error");

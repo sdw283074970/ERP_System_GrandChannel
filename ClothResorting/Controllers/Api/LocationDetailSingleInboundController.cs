@@ -29,6 +29,8 @@ namespace ClothResorting.Controllers.Api
             var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
                 .Single(c => c.PurchaseOrder == obj.PurchaseOrder);
 
+            var speciesInDbs = _context.SpeciesInventories.Where(c => c.Id > 0);
+
             var record = new LocationDetail {
                 PurchaseOrder = obj.PurchaseOrder,
                 Style = obj.Style,
@@ -43,23 +45,43 @@ namespace ClothResorting.Controllers.Api
                 PurchaseOrderInventory = purchaseOrderInventoryInDb
             };
 
-
-            var speciesInDb = _context.SpeciesInventories
-                .Single(c => c.PurchaseOrder == record.PurchaseOrder
+            //检查speciesInDbToList中是否有这种类型的记录。有则直接在种类的基础上加pcs数量
+            var speciesInDb = speciesInDbs
+                .SingleOrDefault(c => c.PurchaseOrder == record.PurchaseOrder
                     && c.Style == record.Style
                     && c.Color == record.Color
                     && c.Size == record.Size);
 
-            purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
-            purchaseOrderInventoryInDb.InvCtns += obj.Ctns;
+            //如果没有则说明这是新种类，添加进数据库
+            if (speciesInDb == null)
+            {
+                _context.SpeciesInventories.Add(new SpeciesInventory {
+                    PurchaseOrder = obj.PurchaseOrder,
+                    Style = obj.Style,
+                    Color = obj.Color,
+                    Size = obj.Size,
+                    AdjPcs = obj.Quantity,
+                    OrgPcs = obj.Quantity,
+                    InvPcs = obj.Quantity
+                });
 
-            speciesInDb.OrgPcs += obj.Quantity;
-            speciesInDb.AdjPcs += obj.Quantity;
-            speciesInDb.InvPcs += obj.Quantity;
+                _context.LocationDetails.Add(record);
+                _context.SaveChanges();
+            }
+            else//如果有，则调整该种类的pcs数据
+            {
+
+                purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
+                purchaseOrderInventoryInDb.InvCtns += obj.Ctns;
+
+                speciesInDb.OrgPcs += obj.Quantity;
+                speciesInDb.AdjPcs += obj.Quantity;
+                speciesInDb.InvPcs += obj.Quantity;
+
+                _context.LocationDetails.Add(record);
+                _context.SaveChanges();
+            }
             
-            _context.LocationDetails.Add(record);
-            _context.SaveChanges();
-
             var sample = _context.LocationDetails
                 .OrderByDescending(c => c.Id)
                 .First();
