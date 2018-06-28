@@ -185,7 +185,7 @@ namespace ClothResorting.Helpers
                     //调整库存种类件数统计
                     speciesInDb.InvPcs -= targetPcs;
                     //调整Po件数统计
-                    purchaserOrderInventoryInDb.InvPcs -= permanentLocInDb.Quantity;
+                    purchaserOrderInventoryInDb.InvPcs -= targetPcs;
                     //调整目标抓取件数
                     targetPcs = 0;
 

@@ -29,36 +29,57 @@ namespace ClothResorting.Helpers
             _path = path;
             _excel = new Application();
             _wb = _excel.Workbooks.Open(_path);
+            _ws = _wb.Worksheets[1];
+
         }
 
         //读取xlsx文件,分析内容并抽取PickRequest对象
         public IEnumerable<PickRequest> GetPickRequestsFromXlsx()
         {
             var PickRequestList = new List<PickRequest>();
-            var sumOfWs = _wb.Worksheets.Count;
+            var sumOfGroups = 0;
+            var startRow = 1;
+            var n = 1;
 
-            for (int i = 1; i <= sumOfWs; i++)
+            //计算有多少groups
+            while (n > 0)
             {
-                _ws = _wb.Worksheets[i];
-                int sumOfSize = (int)_ws.Cells[1, 4].Value2;
+                var cpt_1 = _ws.Cells[n, 1].Value2;
+                var cpt_2 = _ws.Cells[n + 1, 1].Value2;
 
-                for(int j = 0; j < sumOfSize; j++)
+                if (cpt_1 == null)
+                {
+                    sumOfGroups += 1;
+                }
+
+                if (cpt_1 == null && cpt_2 == null)
+                {
+                    break;
+                }
+                n += 1;
+            }
+
+            //遍历每一组，为每一组生成一个PickRequest对象放入pickRequestList中
+            for (int i = 1; i <= sumOfGroups; i++)
+            {
+                //如果size缺失，则不导入任何pcikrequest记录
+                int sumOfSize = _ws.Cells[startRow, 4].Value2 == null ? 0 : (int)_ws.Cells[startRow, 4].Value2;
+
+                for (int j = 0; j < sumOfSize; j++)
                 {
                     PickRequestList.Add(new PickRequest
                     {
-                        PurchaseOrder = _ws.Cells[1, 2].Value2 == null ? "" : _ws.Cells[1, 2].Value2.ToString(),
-                        OrderPurchaseOrder = _ws.Cells[1, 6].Value2 == null ? "" : _ws.Cells[1, 6].Value2.ToString(),
-                        Style = _ws.Cells[2, 2].Value2.ToString(),
-                        Color = _ws.Cells[3, 2].Value2.ToString(),
-                        Size = _ws.Cells[4, 2 + j].Value2,
-                        TargetPcs = (int)_ws.Cells[5, 2 + j].Value2
+                        PurchaseOrder = _ws.Cells[startRow, 2].Value2 == null ? "" : _ws.Cells[startRow, 2].Value2.ToString(),
+                        OrderPurchaseOrder = _ws.Cells[startRow, 6].Value2 == null ? "" : _ws.Cells[startRow, 6].Value2.ToString(),
+                        Style = _ws.Cells[startRow + 1, 2].Value2 == null ? "" : _ws.Cells[startRow + 1, 2].Value2.ToString(),
+                        Color = _ws.Cells[startRow + 2, 2].Value2 == null ? "" : _ws.Cells[startRow + 2, 2].Value2.ToString(),
+                        Size = _ws.Cells[startRow + 3, 2 + j].Value2,
+                        TargetPcs = (int)_ws.Cells[startRow + 4, 2 + j].Value2
                     });
                 }
+
+                startRow += 6;
             }
-
-            var killer = new ExcelKiller();
-
-            killer.Dispose();
 
             return PickRequestList;
         }
