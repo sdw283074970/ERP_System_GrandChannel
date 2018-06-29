@@ -19,6 +19,8 @@ namespace ClothResorting.Models
 
         public string Adjustment { get; set; }
 
+        public string Balance { get; set; }
+
         public DateTime AdjustDate { get; set; }
 
         public SpeciesInventory SpeciesInventory { get; set; }

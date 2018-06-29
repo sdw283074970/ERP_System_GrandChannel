@@ -57,7 +57,8 @@ namespace ClothResorting.Controllers.Api
                 Size = obj.Size,
                 Adjustment = obj.Adjust < 0 ? "-" + -obj.Adjust : "+" + obj.Adjust,
                 AdjustDate = _timeNow,
-                SpeciesInventory = speciesInDb
+                SpeciesInventory = speciesInDb,
+                Balance = (speciesInDb.InvPcs + obj.Adjust).ToString()
             });
 
             speciesInDb.AdjPcs += obj.Adjust;

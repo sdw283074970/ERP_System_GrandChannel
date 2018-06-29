@@ -10,36 +10,34 @@ using System.Web.Http;
 
 namespace ClothResorting.Controllers.Api
 {
-    public class OutboundHistoryController : ApiController
+    public class AdjustedHistoryController : ApiController
     {
         private ApplicationDbContext _context;
 
-        public OutboundHistoryController()
+        public AdjustedHistoryController()
         {
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/outboundhistory
+        // POST /api/adjustedHistory
         [HttpPost]
-        public IHttpActionResult ReturnOutboundHistoryRecords([FromBody]BasicFourAttrsJsonObj obj)
+        public IHttpActionResult ReturnAdjustedHistory([FromBody]BasicFourAttrsJsonObj obj)
         {
-            var outboundHistoryList = new List<OutboundHistoryRecord>();
+            var adjustedRecordList = new List<AdjustedRecord>();
 
-            var records = _context.PermanentLocIORecord
+            var adjustmentRecords = _context.AdjustmentRecords
                 .Where(c => c.PurchaseOrder == obj.PurchaseOrder
                     && c.Style == obj.Style
                     && c.Color == obj.Color
-                    && c.Size == obj.Size
-                    && c.FromLocation == "")
+                    && c.Size == obj.Size)
                 .ToList();
 
-            foreach(var record in records)
+            foreach(var record in adjustmentRecords)
             {
-                outboundHistoryList.Add(new OutboundHistoryRecord {
-                    OutboundDate = record.OperationDate,
-                    FromLocation = record.PermanentLoc,
-                    OutboundPcs = "-" + -record.InvChange,
-                    OrderPurchaseOrder = record.OrderPurchaseOrder
+                adjustedRecordList.Add(new AdjustedRecord {
+                    AdjustedDate = record.AdjustDate,
+                    AdjustedPcs = record.Adjustment,
+                    Balance = record.Balance
                 });
             }
 
@@ -47,7 +45,7 @@ namespace ClothResorting.Controllers.Api
                 + "/" + obj.PurchaseOrder
                 + "&" + obj.Style
                 + "&" + obj.Color
-                + "&" + obj.Size, outboundHistoryList);
+                + "&" + obj.Size, adjustedRecordList);
         }
     }
 }

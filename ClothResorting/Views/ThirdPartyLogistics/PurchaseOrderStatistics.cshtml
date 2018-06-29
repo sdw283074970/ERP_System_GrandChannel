@@ -43,7 +43,7 @@
                     <th>Org Pcs</th>
                     <th>Adj Pcs</th>
                     <th>Inv Pcs</th>
-                    <th>Adjust Detail</th>
+                    <th>Detail</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -137,8 +137,8 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<a href='/ThirdPartyLogistics/AdjustmentDetail/?poid=" + data + "'><button class='btn btn-link'>Adjustment History</button></a>"
-                                        + "<a href='/ThirdPartyLogistics/IOHistory/?po=" + purchaseOrder + "&style=" + style + "&color=" + color + "&size=" + size + "'><button class='btn btn-link'>I/O History</button></a>";
+                                    return "<a href='/ThirdPartyLogistics/IOHistory/?po=" + purchaseOrder + "&style=" + style + "&color=" + color + "&size=" + size + "'><button class='btn btn-link'>IORA History</button></a>";
+                                    // + "<a href='/ThirdPartyLogistics/AdjustmentDetail/?poid=" + data + "'><button class='btn btn-link'>Adjustment History</button></a>";
                                 }
                             }
                         ]

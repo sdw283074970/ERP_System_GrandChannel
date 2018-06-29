@@ -217,6 +217,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\Api\AdjustedHistoryController.cs" />
     <Compile Include="Controllers\Api\AdjustmentDetailController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
@@ -721,6 +722,10 @@
     <Compile Include="Migrations\201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.Designer.cs">
       <DependentUpon>201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806292046289_AddedBalancePropertyInAdjustmentRecord.cs" />
+    <Compile Include="Migrations\201806292046289_AddedBalancePropertyInAdjustmentRecord.Designer.cs">
+      <DependentUpon>201806292046289_AddedBalancePropertyInAdjustmentRecord.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -733,9 +738,12 @@
     <Compile Include="Models\ApiTransformModels\CartonDetailRequestJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
+    <Compile Include="Models\DataTransferModels\AdjustedRecord.cs" />
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
     <Compile Include="Models\DataTransferModels\InboundHistoryRecord.cs" />
+    <Compile Include="Models\DataTransferModels\OutboundHistoryRecord.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
+    <Compile Include="Models\DataTransferModels\RelocationHistoryRecord.cs" />
     <Compile Include="Models\LoadPlanRecord.cs" />
     <Compile Include="Models\LocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
@@ -1432,6 +1440,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.resx">
       <DependentUpon>201806271842472_AddedAdjustmentRecordsRelatedToSpeciesInventory.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806292046289_AddedBalancePropertyInAdjustmentRecord.resx">
+      <DependentUpon>201806292046289_AddedBalancePropertyInAdjustmentRecord.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
