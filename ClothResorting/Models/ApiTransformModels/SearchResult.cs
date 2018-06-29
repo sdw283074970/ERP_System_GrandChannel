@@ -5,25 +5,17 @@ using System.Web;
 
 namespace ClothResorting.Models.ApiTransformModels
 {
-    public class SearchResult
+    public class SearchResult : BasicFourAttrsJsonObj
     {
         public string ContainerNumber { get; set; }
 
-        public string PurchaseOrder { get; set; }
-
         public string Vender { get; set; }
-
-        public string Style { get; set; }
-
-        public string Color { get; set; }
 
         public int? CartonNumberRangeFrom { get; set; }
 
         public int? CartonNumberRangeTo { get; set; }
 
         public string RunCode { get; set; }
-
-        public string Size { get; set; }
 
         public int? ReceivedPcs { get; set; }
 

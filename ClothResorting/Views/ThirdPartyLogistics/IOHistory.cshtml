@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewBag.Title = "IOHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Inbound/Outbound History</h2>
+
+<div>
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <font>Purchase Order: <font style="font-weight:bold;" color="green" id="text-po"></font></font><br>
+        <font>Style: <font style="font-weight:bold;" color="green" id="text-style"></font></font><br>
+        <font>Color: <font style="font-weight:bold;" color="green" id="text-color"></font></font><br>
+        <font>Size: <font style="font-weight:bold;" color="green" id="text-size"></font></font><br>
+    </div>
+    <div>
+        <input id="btn-inbound" type="button" class="btn btn-primary" value="Inbound History"/>
+        <input id="btn-outbound" type="button" class="btn btn-primary" value="Outbound History" />
+        <input id="btn-relocation" type="button" class="btn btn-primary" value="Relocation History" />
+
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th id="change-date">Date Change</th>
+                    <th id="change-pcs">Pcs Change</th>
+                    <th id="memo1">Memo1</th>
+                    <th id="memo2">Memo2</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var table;
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var po = getUrlParameter('po');
+            var style = getUrlParameter('style');
+            var color = getUrlParameter('color');
+            var size = getUrlParameter('size');
+
+            $("#text-po").html(po);
+            $("#text-style").html(style);
+            $("#text-color").html(color);
+            $("#text-size").html(size);
+
+            var obj = {
+                "purchaseOrder": po,
+                "style": style,
+                "color": color,
+                "size": size
+            };
+
+            //点击入库记录按钮
+            $("#btn-inbound").on("click", function () {
+                $("#change-date").html("Inbound Date");
+                $("#change-pcs").html("Inbound Pcs");
+                $("#memo1").html("Residual Pcs");
+                $("#memo2").html("Location");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/InboundHistory",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    success: function (data) {
+                        if(table)
+                        {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            destroy: true,
+                            data: data,
+                            columns: [
+                                {
+                                    data: "inboundDate",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "inboundPcs",
+                                    render: function (data) {
+                                        return "<font color='green'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "residualPcs",
+                                    render: function (data) {
+                                        return "<font color='orange'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (data) {
+                        alert("error!");
+                    }
+                });
+            });
+
+            //点击出库记录按钮
+            $("#btn-outbound").on("click", function () {
+                $("#change-date").html("Outbound Date");
+                $("#change-date").html("Outbound Pcs");
+                $("#memo1").html("From Location");
+                $("#memo2").html("Memo2");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/OutboundHistory",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    success: function (data) {
+
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+
+            //点击移库记录按钮
+            $("#btn-relocation").on("click", function () {
+                $("#change-date").html("Relocation Date");
+                $("#memo1").html("From");
+                $("#memo2").html("To");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/RelocationHistory",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    success: function (data) {
+
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

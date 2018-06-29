@@ -15,7 +15,7 @@
 
     </div>
     <div>
-        <font>Po#: <text id="po"></text></font>
+        <font>Po#: <font color="red" id="potext"></font></font>
     </div>
     <div>
         <div>
@@ -82,6 +82,7 @@
             var table;
             $(".iframe").hide();
 
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -100,6 +101,8 @@
 
             //从地址栏获取参数
             var po = getUrlParameter('po').toString();
+
+            $("#potext").html(po);
 
             $.ajax({
                 type: "GET",

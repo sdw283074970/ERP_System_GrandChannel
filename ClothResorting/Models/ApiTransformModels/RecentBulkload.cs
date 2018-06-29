@@ -5,16 +5,8 @@ using System.Web;
 
 namespace ClothResorting.Models.ApiTransformModels
 {
-    public class RecentBulkload
+    public class RecentBulkload : BasicFourAttrsJsonObj
     {
-        public string PurchaseOrder { get; set; }
-
-        public string Style { get; set; }
-
-        public string Color { get; set; }
-
-        public string Size { get; set; }
-
         public int NumberOfCartons { get; set; }
 
         public int Pcs { get; set; }

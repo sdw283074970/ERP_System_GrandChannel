@@ -5,18 +5,10 @@ using System.Web;
 
 namespace ClothResorting.Models.ApiTransformModels
 {
-    public class PermanentLocJsonObj
+    public class PermanentLocJsonObj : BasicFourAttrsJsonObj
     {
         public string Location { get; set; }
 
         public string Vender { get; set; }
-
-        public string PurchaseOrder { get; set; }
-
-        public string Style { get; set; }
-
-        public string Color { get; set; }
-
-        public string Size { get; set; }
     }
 }

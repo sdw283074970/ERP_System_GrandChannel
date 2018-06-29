@@ -103,5 +103,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // 每一个Species的进库出库记录页面
+        public ActionResult IOHistory()
+        {
+            return View();
+        }
     }
 }

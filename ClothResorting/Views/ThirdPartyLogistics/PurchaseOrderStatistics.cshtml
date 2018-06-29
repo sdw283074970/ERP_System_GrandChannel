@@ -55,6 +55,10 @@
     <script>
         $(document).ready(function () {
             var table;
+            var purchaseOrder;
+            var style;
+            var color;
+            var size;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -87,24 +91,28 @@
                             {
                                 data: "purchaseOrder",
                                 render: function (data) {
+                                    purchaseOrder = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "style",
                                 render: function (data) {
+                                    style = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "color",
                                 render: function (data) {
+                                    color = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "size",
                                 render: function (data) {
+                                    size = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -130,6 +138,7 @@
                                 data: "id",
                                 render: function (data) {
                                     return "<a href='/ThirdPartyLogistics/AdjustmentDetail/?poid=" + data + "'><button class='btn btn-link'>Adjustment History</button></a>"
+                                        + "<a href='/ThirdPartyLogistics/IOHistory/?po=" + purchaseOrder + "&style=" + style + "&color=" + color + "&size=" + size + "'><button class='btn btn-link'>I/O History</button></a>";
                                 }
                             }
                         ]
