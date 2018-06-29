@@ -27,7 +27,12 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult CreateSingleInboundRecord([FromBody]SingleInboundJsonObj obj)
         {
             var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
-                .Single(c => c.PurchaseOrder == obj.PurchaseOrder);
+                .SingleOrDefault(c => c.PurchaseOrder == obj.PurchaseOrder);
+
+            if (purchaseOrderInventoryInDb == null)
+            {
+                return BadRequest();
+            }
 
             var speciesInDbs = _context.SpeciesInventories.Where(c => c.Id > 0);
 
@@ -62,9 +67,11 @@ namespace ClothResorting.Controllers.Api
                     Size = obj.Size,
                     AdjPcs = obj.Quantity,
                     OrgPcs = obj.Quantity,
-                    InvPcs = obj.Quantity
+                    InvPcs = obj.Quantity,
+                    PurchaseOrderInventory = purchaseOrderInventoryInDb
                 });
 
+                purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
                 _context.LocationDetails.Add(record);
                 _context.SaveChanges();
             }
