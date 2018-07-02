@@ -102,35 +102,72 @@ namespace ClothResorting.Helpers
                         //如果备选库存地点数量不为0，则调货，生成移库记录
                         if (replenishments.Count != 0)
                         {
-                            var replenishment = replenishments.First();
-                            var record = new PermanentLocIORecord
+                            var selfLocation = replenishments.SingleOrDefault(c => c.Location == permanentLocInDb.Location);
+
+                            //首先判断永久库位本身是否被当作普通库位使用，如果有货，则直接原地转移库存
+                            if (selfLocation != null)
                             {
-                                PermanentLoc = permanentLocInDb.Location,
-                                PurchaseOrder = request.PurchaseOrder,
-                                OrderPurchaseOrder = request.OrderPurchaseOrder,
-                                Style = request.Style,
-                                Color = request.Color,
-                                Size = request.Size,
-                                TargetPcs = targetPcs,
-                                InvBefore = permanentLocInDb.Quantity,
-                                InvChange = replenishment.InvPcs,
-                                InvAfter = replenishment.InvPcs + permanentLocInDb.Quantity,
-                                FromLocation = replenishment.Location,
-                                TargetBalance = targetPcs,
-                                OperationDate = _timeNow,
-                                PermanentLocation = permanentLocInDb
-                            };
+                                var record = new PermanentLocIORecord
+                                {
+                                    PermanentLoc = permanentLocInDb.Location,
+                                    PurchaseOrder = request.PurchaseOrder,
+                                    OrderPurchaseOrder = request.OrderPurchaseOrder,
+                                    Style = request.Style,
+                                    Color = request.Color,
+                                    Size = request.Size,
+                                    TargetPcs = targetPcs,
+                                    InvBefore = permanentLocInDb.Quantity,
+                                    InvChange = selfLocation.InvPcs,
+                                    InvAfter = selfLocation.InvPcs + permanentLocInDb.Quantity,
+                                    FromLocation = selfLocation.Location,
+                                    TargetBalance = targetPcs,
+                                    OperationDate = _timeNow,
+                                    PermanentLocation = permanentLocInDb
+                                };
 
-                            records.Add(record);
+                                records.Add(record);
 
-                            //移库不造成件数总数的变化
+                                //移库不造成件数总数的变化
 
-                            //调整永久库位件数
-                            permanentLocInDb.Quantity = replenishment.InvPcs;
-                            //调整原库位的件数
-                            replenishment.InvPcs = 0;
+                                //调整永久库位件数
+                                permanentLocInDb.Quantity = selfLocation.InvPcs;
+                                //调整原库位的件数
+                                selfLocation.InvPcs = 0;
 
-                            _context.SaveChanges();
+                                _context.SaveChanges();
+                            }
+                            else    //如果有货永久库位没被当作普通库位，则在其他库位寻找商品
+                            {
+                                var replenishment = replenishments.First();
+                                var record = new PermanentLocIORecord
+                                {
+                                    PermanentLoc = permanentLocInDb.Location,
+                                    PurchaseOrder = request.PurchaseOrder,
+                                    OrderPurchaseOrder = request.OrderPurchaseOrder,
+                                    Style = request.Style,
+                                    Color = request.Color,
+                                    Size = request.Size,
+                                    TargetPcs = targetPcs,
+                                    InvBefore = permanentLocInDb.Quantity,
+                                    InvChange = replenishment.InvPcs,
+                                    InvAfter = replenishment.InvPcs + permanentLocInDb.Quantity,
+                                    FromLocation = replenishment.Location,
+                                    TargetBalance = targetPcs,
+                                    OperationDate = _timeNow,
+                                    PermanentLocation = permanentLocInDb
+                                };
+
+                                records.Add(record);
+
+                                //移库不造成件数总数的变化
+
+                                //调整永久库位件数
+                                permanentLocInDb.Quantity = replenishment.InvPcs;
+                                //调整原库位的件数
+                                replenishment.InvPcs = 0;
+
+                                _context.SaveChanges();
+                            }
                         }
                         //否则，生成缺货记录
                         else
