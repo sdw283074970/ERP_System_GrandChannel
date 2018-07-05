@@ -84,5 +84,57 @@ namespace ClothResorting.Helpers
 
             _context.SaveChanges();
         }
+
+        //重新计算(刷新)一次某一具体SpeciesInventory的数据
+        public void SyncSpeciesInvenory(int speciesId)
+        {
+            var id = speciesId;
+            var locationInv = 0;
+            var permanentInv = 0;
+
+            var speciesInDb = _context.SpeciesInventories.Find(id);
+
+            //查询当前种类在普通库存剩余的总件数
+            locationInv = _context.LocationDetails.Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+                && c.Style == speciesInDb.Style
+                && c.Color == speciesInDb.Color
+                && c.Size == speciesInDb.Size)
+                .Select(c => c.InvPcs)
+                .Sum();
+
+            //查询当前种类在永久库位中剩余的件数
+            permanentInv = _context.PermanentLocations.Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+                && c.Style == speciesInDb.Style
+                && c.Color == speciesInDb.Color
+                && c.Size == speciesInDb.Size)
+                .Select(c => c.Quantity)
+                .Sum();
+
+            //重新计算该种类在数据库的库存数据
+            speciesInDb.InvPcs = locationInv + permanentInv;
+
+            //重新计算该种类在数据库的起始数据(调整前数据)
+            speciesInDb.OrgPcs = _context.LocationDetails.Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+                && c.Style == speciesInDb.Style
+                && c.Color == speciesInDb.Color
+                && c.Size == speciesInDb.Size)
+                .Select(c => c.OrgPcs)
+                .Sum();
+
+            _context.SaveChanges();
+        }
+
+        //重新计算(刷新)一次某一具体PurchaseOrderSummary的数据
+        public void SyncPurchaseOrderInventory(int poId)
+        {
+            var poInDb = _context.PurchaseOrderInventories.Find(poId);
+
+            //重新计算该po下的所有种类的件数之和
+            poInDb.InvPcs = _context.SpeciesInventories.Where(c => c.PurchaseOrder == poInDb.PurchaseOrder)
+                .Select(c => c.InvPcs)
+                .Sum();
+
+            _context.SaveChanges();
+        }
     }
 }

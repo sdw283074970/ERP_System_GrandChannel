@@ -12,10 +12,12 @@ namespace ClothResorting.Helpers
     {
         private ApplicationDbContext _context;
         private DateTime _timeNow = DateTime.Now;
+        private DbSynchronizer _sync;
 
         public OutboundRecorder()
         {
             _context = new ApplicationDbContext();
+            _sync = new DbSynchronizer();
         }
 
         //输入pickRequests集合，经过算法，输出PermanentLocIORecord移库/出库记录
@@ -73,12 +75,12 @@ namespace ClothResorting.Helpers
                         records.Add(record);
                         //调整目标件数
                         targetPcs -= permanentLocInDb.Quantity;
-                        //调整库中的种类件数统计
-                        speciesInDb.InvPcs -= permanentLocInDb.Quantity;
-                        //调整Po件数统计
-                        purchaserOrderInventoryInDb.InvPcs -= permanentLocInDb.Quantity;
                         //调整永久库位件数
                         permanentLocInDb.Quantity = 0;
+                        //刷新种类件数统计数据
+                        _sync.SyncSpeciesInvenory(speciesInDb.Id);
+                        //刷新Po件数统计数据
+                        _sync.SyncPurchaseOrderInventory(purchaserOrderInventoryInDb.Id);
 
                         //如果永久库存存量为0且targetpcs也为0，则跳出循环
                         if (permanentLocInDb.Quantity == targetPcs)
@@ -219,10 +221,10 @@ namespace ClothResorting.Helpers
 
                     //调整永久库位剩余件数
                     permanentLocInDb.Quantity -= targetPcs;
-                    //调整库存种类件数统计
-                    speciesInDb.InvPcs -= targetPcs;
-                    //调整Po件数统计
-                    purchaserOrderInventoryInDb.InvPcs -= targetPcs;
+                    //刷新种类件数统计数据
+                    _sync.SyncSpeciesInvenory(speciesInDb.Id);
+                    //刷新Po件数统计数据
+                    _sync.SyncPurchaseOrderInventory(purchaserOrderInventoryInDb.Id);
                     //调整目标抓取件数
                     targetPcs = 0;
 

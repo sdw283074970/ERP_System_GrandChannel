@@ -17,6 +17,7 @@ namespace ClothResorting.Controllers.Api
     public class LocationDetailController : ApiController
     {
         private ApplicationDbContext _context;
+        private bool _isUnDoable = false;
 
         public LocationDetailController()
         {
@@ -100,7 +101,32 @@ namespace ClothResorting.Controllers.Api
 
             killer.Dispose();
 
+            //标记以上整个操作为可撤销
+            _isUnDoable = true;
+
             return Created(Request.RequestUri + "/" + 333, resultDto);
+        }
+
+        // DELETE /api/locationdetail
+        [HttpDelete]
+        public void Undo()
+        {
+            //如果为可撤销操作，则按照时间分组，在数据库中删除掉最新时间组的所有对象
+            if (_isUnDoable == true)
+            {
+                var group = _context.LocationDetails
+                    .GroupBy(c => c.InboundDate).ToList();
+
+                var groupCount = group.Count;
+                var count = group[groupCount - 1].Count();
+                var result = _context.LocationDetails
+                    .OrderByDescending(c => c.Id)
+                    .Take(count);
+
+                _isUnDoable = false;
+                _context.LocationDetails.RemoveRange(result);
+                _context.SaveChanges();
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Web;
 
 namespace ClothResorting.Helpers
 {
+    //暂时废弃
     public class CartonsCalculator
     {
         private ApplicationDbContext _context;
