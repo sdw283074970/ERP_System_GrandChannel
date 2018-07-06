@@ -95,31 +95,54 @@ namespace ClothResorting.Helpers
             var speciesInDb = _context.SpeciesInventories.Find(id);
 
             //查询当前种类在普通库存剩余的总件数
-            locationInv = _context.LocationDetails.Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
-                && c.Style == speciesInDb.Style
-                && c.Color == speciesInDb.Color
-                && c.Size == speciesInDb.Size)
+            locationInv = _context.LocationDetails
+                .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+                    && c.Style == speciesInDb.Style
+                    && c.Color == speciesInDb.Color
+                    && c.Size == speciesInDb.Size)
                 .Select(c => c.InvPcs)
                 .Sum();
 
             //查询当前种类在永久库位中剩余的件数
-            permanentInv = _context.PermanentLocations.Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
-                && c.Style == speciesInDb.Style
-                && c.Color == speciesInDb.Color
-                && c.Size == speciesInDb.Size)
+            permanentInv = _context.PermanentLocations
+                .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+                    && c.Style == speciesInDb.Style
+                    && c.Color == speciesInDb.Color
+                    && c.Size == speciesInDb.Size)
                 .Select(c => c.Quantity)
                 .Sum();
 
             //重新计算该种类在数据库的库存数据
             speciesInDb.InvPcs = locationInv + permanentInv;
 
-            //重新计算该种类在数据库的起始数据(调整前数据)
-            speciesInDb.OrgPcs = _context.LocationDetails.Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
-                && c.Style == speciesInDb.Style
-                && c.Color == speciesInDb.Color
-                && c.Size == speciesInDb.Size)
+            //重新计算该种类在数据库的原始件数数据(调整前数据)
+            speciesInDb.OrgPcs = _context.LocationDetails
+                .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+                    && c.Style == speciesInDb.Style
+                    && c.Color == speciesInDb.Color
+                    && c.Size == speciesInDb.Size)
                 .Select(c => c.OrgPcs)
                 .Sum();
+
+            //重新计算该种类在数据库中的调整后数据
+            var adjInDb = _context.AdjustmentRecords
+                .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+                    && c.Style == speciesInDb.Style
+                    && c.Color == speciesInDb.Color
+                    && c.Size == speciesInDb.Size);
+
+            if (adjInDb == null)        //如果该种类没有调整记录，则调整件数数据就为原始件数数据
+            {
+                speciesInDb.AdjPcs = speciesInDb.OrgPcs;
+            }
+            else    //否则，调整件数等于原始件数加上最古老的调整件数减去（最古老剩余件数与最新剩余件数的差）
+            {
+                var oldestAdjPcs = Convert.ToInt32(adjInDb.First().Adjustment);
+                var oldestBanlance = Convert.ToInt32(adjInDb.First().Balance);
+                var newestBanlance = Convert.ToInt32(adjInDb.OrderByDescending(c => c.Id).First().Balance);
+
+                speciesInDb.AdjPcs = speciesInDb.OrgPcs + oldestAdjPcs - oldestBanlance + newestBanlance;
+            }
 
             _context.SaveChanges();
         }

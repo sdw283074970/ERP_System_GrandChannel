@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -16,10 +17,12 @@ namespace ClothResorting.Controllers.Api
     {
         private ApplicationDbContext _context;
         private DateTime _timeNow = DateTime.Now;
+        private DbSynchronizer _sync;
 
         public LocationDetailSingleInboundController()
         {
             _context = new ApplicationDbContext();
+            _sync = new DbSynchronizer();
         }
 
         // POST /api/locationdetailsingleinbound
@@ -77,6 +80,9 @@ namespace ClothResorting.Controllers.Api
             }
             else//如果有，则调整该种类的pcs数据
             {
+                //入库操作时使用同步器反而会增加数据库读写次数
+                //_sync.SyncSpeciesInvenory(speciesInDb.Id);
+                //_sync.SyncPurchaseOrderInventory(purchaseOrderInventoryInDb.Id);
 
                 purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
                 purchaseOrderInventoryInDb.InvCtns += obj.Ctns;
@@ -88,7 +94,9 @@ namespace ClothResorting.Controllers.Api
                 _context.LocationDetails.Add(record);
                 _context.SaveChanges();
             }
-            
+
+            GlobalVariable.IsUndoable = true;
+
             var sample = _context.LocationDetails
                 .OrderByDescending(c => c.Id)
                 .First();

@@ -521,6 +521,7 @@ namespace ClothResorting.Helpers
             var speciesInventoryInDb = _context.SpeciesInventories.Where(c => c.Id > 0);
             foreach(var locationDetail in locationDetailList)
             {
+                //此处不使用sync来同步统计是因为在循环中使用sync会多次读写数据库，降低运行效率
                 speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
                     && c.Style == locationDetail.Style
                     && c.Color == locationDetail.Color

@@ -17,11 +17,12 @@ namespace ClothResorting.Controllers.Api
     public class LocationDetailController : ApiController
     {
         private ApplicationDbContext _context;
-        private bool _isUnDoable = false;
+        private DbSynchronizer _sync;
 
         public LocationDetailController()
         {
             _context = new ApplicationDbContext();
+            _sync = new DbSynchronizer();
         }
 
         // GET /api/regularlocationdetail/?preid={id}&po={po}
@@ -79,16 +80,11 @@ namespace ClothResorting.Controllers.Api
 
             var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
 
-            //将批量导入的Species数据的箱数件数更新至purchaseOrderInventoryInDb中
+            //同步刷新批量导入的LocationDetail所对应purchaseOrderInventory中的pcs件数
             var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
-                .Include(c => c.LocationDetails)
                 .SingleOrDefault(c => c.PurchaseOrder == po);
 
-            var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
-            var sumOfPcs = result.Sum(c => c.OrgPcs);
-
-            purchaseOrderInventoryInDb.InvCtns += sumOfCartons;
-            purchaseOrderInventoryInDb.InvPcs += sumOfPcs;
+            _sync.SyncPurchaseOrderInventory(purchaseOrderInventoryInDb.Id);
 
             _context.SaveChanges();
 
@@ -102,30 +98,55 @@ namespace ClothResorting.Controllers.Api
             killer.Dispose();
 
             //标记以上整个操作为可撤销
-            _isUnDoable = true;
+            GlobalVariable.IsUndoable = true;
 
             return Created(Request.RequestUri + "/" + 333, resultDto);
         }
 
         // DELETE /api/locationdetail
         [HttpDelete]
-        public void Undo()
+        public void Undo([FromUri]string po)
         {
             //如果为可撤销操作，则按照时间分组，在数据库中删除掉最新时间组的所有对象
-            if (_isUnDoable == true)
+            if (GlobalVariable.IsUndoable == true)
             {
                 var group = _context.LocationDetails
                     .GroupBy(c => c.InboundDate).ToList();
 
                 var groupCount = group.Count;
+                var groupInDb = group[groupCount - 1];
                 var count = group[groupCount - 1].Count();
-                var result = _context.LocationDetails
+                var results = _context.LocationDetails
                     .OrderByDescending(c => c.Id)
                     .Take(count);
 
-                _isUnDoable = false;
-                _context.LocationDetails.RemoveRange(result);
+                GlobalVariable.IsUndoable = false;      //全局静态变量，用于储存是否允许Undo操作
+
+                _context.LocationDetails.RemoveRange(results);
                 _context.SaveChanges();
+
+                //撤销操作后重新同步各个收到UNDO操作影响的species的件数
+                foreach(var result in results)
+                {
+                    var speciesId = _context.SpeciesInventories
+                        .Single(c => c.PurchaseOrder == result.PurchaseOrder
+                            && c.Style == result.Style
+                            && c.Color == result.Color
+                            && c.Size == result.Size)
+                        .Id;
+
+                    _sync.SyncSpeciesInvenory(speciesId);
+                }
+
+                //撤销操作后重新同步PurchaseInventory的件数
+                var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
+                    .SingleOrDefault(c => c.PurchaseOrder == po);
+
+                _sync.SyncPurchaseOrderInventory(purchaseOrderInventoryInDb.Id);
+            }
+            else
+            {
+                throw new HttpUnhandledException();
             }
         }
     }
