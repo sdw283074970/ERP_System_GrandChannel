@@ -299,7 +299,6 @@ namespace ClothResorting.Helpers
                         }
                     }
                 }
-                
             }
 
             _context.PermanentLocIORecord.AddRange(records);

@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ClothResorting.Models
 {
-    public class RegularLocationDetail
+    public class RegularSpeciesInventory
     {
         public int Id { get; set; }
 
@@ -15,25 +15,16 @@ namespace ClothResorting.Models
 
         public string Color { get; set; }
 
-        public string RunCode { get; set; }
+        public string SizeBundle { get; set; }
 
-        public string SizeCombine { get; set; }
+        public int PcsBundle { get; set; }
 
-        public string PcsCombine { get; set; }
+        public int InvCartons { get; set; }
 
-        public int OrgNumberOfCartons { get; set; }
-
-        public int InvNumberOfCartons { get; set; }
-
-        public int OrgPcs { get; set; }
+        public int PcsPerCarton { get; set; }
 
         public int InvPcs { get; set; }
 
-        public string Location { get; set; }
-
-        public DateTime InboundDate { get; set; }
-
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
-
     }
 }

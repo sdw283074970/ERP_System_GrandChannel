@@ -726,6 +726,10 @@
     <Compile Include="Migrations\201806292046289_AddedBalancePropertyInAdjustmentRecord.Designer.cs">
       <DependentUpon>201806292046289_AddedBalancePropertyInAdjustmentRecord.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807092229045_AdjustedRegularLocationDetailModel.cs" />
+    <Compile Include="Migrations\201807092229045_AdjustedRegularLocationDetailModel.Designer.cs">
+      <DependentUpon>201807092229045_AdjustedRegularLocationDetailModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -751,6 +755,7 @@
     <Compile Include="Models\PermanentLocIORecord.cs" />
     <Compile Include="Models\PurchaseOrderInventory.cs" />
     <Compile Include="Models\RegularLocationDetail.cs" />
+    <Compile Include="Models\RegularSpeciesInventory.cs" />
     <Compile Include="Models\RetrievingRecord.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
@@ -1444,6 +1449,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806292046289_AddedBalancePropertyInAdjustmentRecord.resx">
       <DependentUpon>201806292046289_AddedBalancePropertyInAdjustmentRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807092229045_AdjustedRegularLocationDetailModel.resx">
+      <DependentUpon>201807092229045_AdjustedRegularLocationDetailModel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
