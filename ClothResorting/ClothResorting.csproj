@@ -242,8 +242,6 @@
     <Compile Include="Controllers\Api\RelocationHistoryController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
-    <Compile Include="Controllers\Api\RereivingDetailExcelFileController.cs" />
-    <Compile Include="Controllers\Api\RetrievingDetailController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
     <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
@@ -269,7 +267,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CartonBreakdownGetter.cs" />
-    <Compile Include="Helpers\CartonsCalculator.cs" />
     <Compile Include="Helpers\ExcelExtracter.cs" />
     <Compile Include="Helpers\ExcelKiller.cs" />
     <Compile Include="Helpers\FilesGetter.cs" />
@@ -730,6 +727,10 @@
     <Compile Include="Migrations\201807092229045_AdjustedRegularLocationDetailModel.Designer.cs">
       <DependentUpon>201807092229045_AdjustedRegularLocationDetailModel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.cs" />
+    <Compile Include="Migrations\201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.Designer.cs">
+      <DependentUpon>201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -749,14 +750,12 @@
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\DataTransferModels\RelocationHistoryRecord.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
-    <Compile Include="Models\LoadPlanRecord.cs" />
     <Compile Include="Models\LocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
     <Compile Include="Models\PermanentLocIORecord.cs" />
     <Compile Include="Models\PurchaseOrderInventory.cs" />
     <Compile Include="Models\RegularLocationDetail.cs" />
     <Compile Include="Models\RegularSpeciesInventory.cs" />
-    <Compile Include="Models\RetrievingRecord.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
     <Compile Include="Models\ApiTransformModels\SearchResult.cs" />
@@ -1452,6 +1451,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807092229045_AdjustedRegularLocationDetailModel.resx">
       <DependentUpon>201807092229045_AdjustedRegularLocationDetailModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.resx">
+      <DependentUpon>201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -141,14 +141,6 @@ namespace ClothResorting.Controllers.Api
             var preReceiveOrders = _context.PreReceiveOrders.Where(c => c.Id > 0);
             _context.PreReceiveOrders.RemoveRange(preReceiveOrders);
 
-            //移除数据库中[ClothSorting].[dbo].[RetrievingRecords]
-            var retrievingRecords = _context.RetrievingRecords.Where(c => c.Id > 0);
-            _context.RetrievingRecords.RemoveRange(retrievingRecords);
-
-            //移除数据库中[ClothSorting].[dbo].[LoadPlanRecords]
-            var loadPlanRecords = _context.LoadPlanRecords.Where(c => c.Id > 0);
-            _context.LoadPlanRecords.RemoveRange(loadPlanRecords);
-
             _context.SaveChanges();
         }
     }

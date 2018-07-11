@@ -33,8 +33,6 @@ namespace ClothResorting.Models
         public DbSet<SizeRatio> SizeRatios { get; set; }
         public DbSet<Measurement> Measurements { get; set; }
         public DbSet<CartonBreakDown> CartonBreakDowns { get; set; }
-        public DbSet<RetrievingRecord> RetrievingRecords { get; set; }
-        public DbSet<LoadPlanRecord> LoadPlanRecords { get; set; }
         public DbSet<CartonBreakdownOutbound> CartonBreakdownOutbounds { get; set; }
         public DbSet<LocationDetail> LocationDetails { get; set; }
         public DbSet<RegularLocationDetail> RegularLocationDetails { get; set; }
