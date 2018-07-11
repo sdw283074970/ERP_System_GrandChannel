@@ -70,9 +70,6 @@ namespace ClothResorting.Controllers.Api
             preReceiveOrder.ActualReceivedPcs = preReceiveOrder
                 .PurchaseOrderSummary.Sum(s => s.ActualReceivedPcs);
 
-            preReceiveOrder.AvailablePcs = preReceiveOrder
-                .PurchaseOrderSummary.Sum(s => s.AvailablePcs);
-
             _context.SaveChanges();
 
             //每更新一次CartonBreakdown的pcs收取数量，同步一次与此Breakdown对应的Carton Details中的pcs收货总量及库存数量

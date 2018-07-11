@@ -41,10 +41,8 @@
                     <th>Total N.W.(lb)</th>*@
                     <th>Fcs Ctns</th>
                     <th>Rcp Ctns</th>
-                    <th>Avl Ctns</th>
                     <th>Fcs Pcs</th>
                     <th>Rcp Pcs</th>
-                    <th>Avl Pcs</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -133,12 +131,6 @@
                         }
                     },
                     {
-                        data: "available",
-                        render: function (data) {
-                            return "<font color='red'>" + data + "</font>";
-                        }
-                    },
-                    {
                         data: "totalPcs",
                         render: function (data) {
                             return "<font color='green'>" + data + "</font>";
@@ -148,12 +140,6 @@
                         data: "actualReceivedPcs",
                         render: function (data) {
                             return "<font color='blue'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "availablePcs",
-                        render: function (data) {
-                            return "<font color='red'>" + data + "</font>";
                         }
                     },
                     {

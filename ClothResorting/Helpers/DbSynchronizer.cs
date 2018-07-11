@@ -61,26 +61,16 @@ namespace ClothResorting.Helpers
             var preReceivedOrder = pl.PreReceiveOrder;
 
             //同步一次该preReceivedOrder的ctn收货总量、库存数量
-            preReceivedOrder.ActualReceived = _context.PurchaseOrderSummaries
+            preReceivedOrder.ActualReceivedCtns = _context.PurchaseOrderSummaries
                 .Include(s => s.PreReceiveOrder)
                 .Where(s => s.PreReceiveOrder.Id == preId)
                 .Sum(s => s.ActualReceived);
-
-            preReceivedOrder.Available = _context.PurchaseOrderSummaries
-                .Include(s => s.PreReceiveOrder)
-                .Where(s => s.PreReceiveOrder.Id == preId)
-                .Sum(s => s.Available);
 
             //同步一次该preReceivedOrder的pcs收货总量、库存数量
             preReceivedOrder.ActualReceivedPcs = _context.PurchaseOrderSummaries
                 .Include(s => s.PreReceiveOrder)
                 .Where(s => s.PreReceiveOrder.Id == preId)
                 .Sum(s => s.ActualReceivedPcs);
-
-            preReceivedOrder.AvailablePcs = _context.PurchaseOrderSummaries
-                .Include(s => s.PreReceiveOrder)
-                .Where(s => s.PreReceiveOrder.Id == preId)
-                .Sum(s => s.AvailablePcs);
 
             _context.SaveChanges();
         }

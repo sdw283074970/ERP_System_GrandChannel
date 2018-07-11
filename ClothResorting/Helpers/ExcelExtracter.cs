@@ -70,8 +70,7 @@ namespace ClothResorting.Helpers
             //建立一个PreReceiveOrder对象
             var newOrder = new PreReceiveOrder
             {
-                Available = 0,
-                ActualReceived = 0,
+                ActualReceivedCtns = 0,
                 CustomerName = _ws.Cells[1, 2].Value2,
                 CreatDate = dateTimeNow,
                 TotalCartons = (int)_ws.Cells[3, 2].Value2,
@@ -81,8 +80,6 @@ namespace ClothResorting.Helpers
                 ContainerNumber = "UNKOWN",
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
-                AvailablePcs = 0,
-                InvPcs = 0,
                 Status = "Created"
             };
 

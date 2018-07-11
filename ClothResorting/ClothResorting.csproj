@@ -731,6 +731,10 @@
     <Compile Include="Migrations\201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.Designer.cs">
       <DependentUpon>201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807111713367_Deleted3PropertiesOfPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201807111713367_Deleted3PropertiesOfPreReceiveOrder.Designer.cs">
+      <DependentUpon>201807111713367_Deleted3PropertiesOfPreReceiveOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1454,6 +1458,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.resx">
       <DependentUpon>201807111647528_RemovedRetrievingRecordsAndLoadPlanRecordsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807111713367_Deleted3PropertiesOfPreReceiveOrder.resx">
+      <DependentUpon>201807111713367_Deleted3PropertiesOfPreReceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
