@@ -593,5 +593,11 @@ namespace ClothResorting.Helpers
 
             Dispose();
         }
+
+        //抽取FreeCountry的PackingList模板
+        public void ExtractFCPLTemplate()
+        {
+
+        }
     }
 }
