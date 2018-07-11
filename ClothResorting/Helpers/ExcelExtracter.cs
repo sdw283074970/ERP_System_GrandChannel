@@ -22,13 +22,14 @@ namespace ClothResorting.Helpers
         private _Application _excel;
         private Workbook _wb;
         private Worksheet _ws;
-        private DateTime dateTimeNow = DateTime.Now;
+        private DateTime _dateTimeNow = DateTime.Now;
         #endregion
 
         //PackingList全局变量
         #region
         private string _purchaseOrder;
         private string _styleNumber;
+        private int _countOfPo;
         private double _packedCartons;
         private double _netWeight;
         private double _grossWeight;
@@ -63,7 +64,7 @@ namespace ClothResorting.Helpers
 
         //建立一个Pre-Recieve Order对象并添加进数据库
         #region
-        public void CreatePreReceiveOrderAndOverView()
+        public void CreateSILKICONPreReceiveOrder()
         {
             _ws = _wb.Worksheets[1];
 
@@ -72,7 +73,7 @@ namespace ClothResorting.Helpers
             {
                 ActualReceivedCtns = 0,
                 CustomerName = _ws.Cells[1, 2].Value2,
-                CreatDate = dateTimeNow,
+                CreatDate = _dateTimeNow,
                 TotalCartons = (int)_ws.Cells[3, 2].Value2,
                 TotalGrossWeight = Math.Round(_ws.Cells[5, 2].Value2 * 2.205, 2),
                 TotalNetWeight = Math.Round(_ws.Cells[6, 2].Value2 * 2.205, 2),
@@ -80,7 +81,7 @@ namespace ClothResorting.Helpers
                 ContainerNumber = "UNKOWN",
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
-                Status = "Created"
+                Status = "New Created"
             };
 
             _context.PreReceiveOrders.Add(newOrder);
@@ -149,8 +150,6 @@ namespace ClothResorting.Helpers
                     TotalPcs = 0,
                     ActualReceivedPcs = 0,
                     AvailablePcs = 0,
-                    InventoryCtn = 0,
-                    InventoryPcs = 0,
                     OrderType = "Replenishment"
                 });
             }
@@ -393,7 +392,7 @@ namespace ClothResorting.Helpers
                         ActualReceivedPcs = 0,
                         AvailablePcs = 0,
                         SizeRatios = sizeList,
-                        ReceivedDate = dateTimeNow
+                        ReceivedDate = _dateTimeNow
                     };
 
                     //遍历sizeRatios，生成数个cartonBreakdown
@@ -414,7 +413,7 @@ namespace ClothResorting.Helpers
                             AvailablePcs = 0,
                             Location = location,
                             CartonDetail = carton,
-                            ReceivedDate = dateTimeNow
+                            ReceivedDate = _dateTimeNow
                         };
 
                         carton.ActualReceivedPcs = sizeList[s].Count;
@@ -483,7 +482,7 @@ namespace ClothResorting.Helpers
                     OrgPcs = (int)_ws.Cells[3 + i, 5].Value2(),
                     InvPcs = (int)_ws.Cells[3 + i, 5].Value2(),
                     Location = _ws.Cells[3 + i, 6].Value2(),
-                    InboundDate = dateTimeNow
+                    InboundDate = _dateTimeNow
                 };
 
                 locationDetailList.Add(locationDetail);
@@ -581,7 +580,7 @@ namespace ClothResorting.Helpers
                     OrgPcs = (int)_ws.Cells[3 + i, 5].Value2(),
                     InvPcs = (int)_ws.Cells[3 + i, 5].Value2(),
                     Location = _ws.Cells[3 + i, 6].Value2(),
-                    InboundDate = dateTimeNow
+                    InboundDate = _dateTimeNow
                 });
             }
 
@@ -591,10 +590,164 @@ namespace ClothResorting.Helpers
             Dispose();
         }
 
-        //抽取FreeCountry的PackingList模板
-        public void ExtractFCPLTemplate()
+        //新建FreeCountry的预收货订单
+        public void CreateFCPreReceiveOrder()
         {
+            _context.PreReceiveOrders.Add(new PreReceiveOrder
+            {
+                CustomerName = "Free Country",
+                CreatDate = _dateTimeNow,
+                ContainerNumber = "UNKONOWN",
+                TotalCartons = 0,
+                ActualReceivedCtns = 0,
+                TotalPcs = 0,
+                ActualReceivedPcs = 0,
+                Status = "New Created",
+                TotalGrossWeight = 0,
+                TotalNetWeight = 0,
+                TotalVol = 0,
+            });
 
+            _context.SaveChanges();
+        }
+
+        //抽取excel文件中的PO信息，并与之前新建的FC预收订单关联
+        public void ExtractPackingListSummary()
+        {
+            _ws = _wb.Worksheets[1];
+            var packingList = new List<POSummary>();
+            var index = 2;
+            var latestPreReceiveOrder = _context.PreReceiveOrders.OrderByDescending(c => c.Id).FirstOrDefault();
+            _countOfPo = 0;
+
+            while (index > 0)
+            {
+                _countOfPo += 1;
+
+                if (_ws.Cells[index + 1, 1].Value2 == null && _ws.Cells[index + 2, 1].Value2 == null)
+                {
+                    break;
+                }
+
+                index += 1;
+            }
+
+            index = 2;
+
+            for(int i = 0; i < _countOfPo; i++)
+            {
+                packingList.Add(new POSummary {
+                    PurchaseOrder = _ws.Cells[index, 1].Value2.ToString(),
+                    Style = _ws.Cells[index, 2].Value2.ToString(),
+                    PoLine = (int)_ws.Cells[index, 3].Value2,
+                    Customer = _ws.Cells[index, 5].Value2.ToString(),
+                    Quantity = (int)_ws.Cells[index, 6].Value2,
+                    Cartons = (int)_ws.Cells[index, 7].Value2,
+                    GrossWeight = 0,
+                    NetWeight = 0,
+                    NNetWeight = 0,
+                    CBM = 0,
+                    PreReceiveOrder = latestPreReceiveOrder
+                });
+
+                index += 2;
+            }
+
+            //可以在本页面获取packingList的总量
+            latestPreReceiveOrder.TotalCartons = (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
+            latestPreReceiveOrder.TotalPcs = (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
+
+            _context.POSummaries.AddRange(packingList);
+            _context.SaveChanges();
+        }
+
+        //抽取Detail中的各个PO详细信息
+        public void ExtractPODetail()
+        {
+            _ws = _wb.Worksheets[2];
+            var rowIndex = 1;
+            var preReceiveOrderId = _context.PreReceiveOrders.OrderByDescending(c => c.Id).First().Id;
+            var regularCartonDetailList = new List<RegularCartonDetail>();
+
+            //扫描Detail页面中有多少个RegularCartonDetal对象
+            for (int i = 0; i < _countOfPo; i++)
+            {
+                var countOfRow = 0;
+                var countOfColumn = 0;
+                var startIndex = rowIndex;
+                var columnIndex = 1;
+                string purchaseOrder = _ws.Cells[startIndex + 1, 1].Value2.ToString();
+
+                var poSummaryInDb = _context.POSummaries
+                    .Include(c => c.PreReceiveOrder)
+                    .Where(c => c.PurchaseOrder == purchaseOrder 
+                        && c.PreReceiveOrder.Id == preReceiveOrderId)
+                    .First();
+
+                //扫描该RegularCartonDetail对象占多少行
+                while (_ws.Cells[rowIndex, 1].Value2 != null)
+                {
+                    countOfRow += 1;
+                    rowIndex += 1;
+                }
+
+                //扫描该RegularCartonDetail对象占多少列
+                while (_ws.Cells[startIndex + 2, columnIndex].Value2 != null)
+                {
+                    countOfColumn += 1;
+                    columnIndex += 1;
+                }
+
+                //扫描该RegularCartonDetail的所有SKU
+                var countOfSKU = countOfRow - 4;
+                var countOfSize = countOfColumn - 13;
+
+                for (int j = 0; j < countOfSKU; j++)
+                {
+                    //扫描每一种SKU有多少种Size及数量
+                    var sizeList = new List<SizeRatio>();
+
+                    for (int k = 0; k < countOfSize; k++)
+                    {
+                        sizeList.Add(new SizeRatio
+                        {
+                            SizeName = _ws.Cells[startIndex + 2, 12 + k].Value2.ToString(),
+                            Count = (int)_ws.Cells[startIndex + 3 + j, 12 + k].Value2
+                        });
+                    }
+
+                    var sizeBundle = "";
+                    var pcsBundle = "";
+
+                    //统计当前SKU中的size组合
+                    foreach(var size in sizeList)
+                    {
+                        sizeBundle += size.SizeName + " ";
+                        pcsBundle += size.Count.ToString() + " ";
+                    }
+
+                    regularCartonDetailList.Add(new RegularCartonDetail {
+                        CartonRange = _ws.Cells[startIndex + 3 +j, 1].Value2.ToString(),
+                        PurchaseOrder = _ws.Cells[startIndex + 3 + j, 2].Value2.ToString(),
+                        Style = _ws.Cells[startIndex + 3 + j, 3].Value2.ToString(),
+                        Customer = _ws.Cells[startIndex + 3 + j, 4].Value2.ToString(),
+                        Dimension = _ws.Cells[startIndex + 3 + j, 5].Value2.ToString(),
+                        GrossWeight = 0,
+                        NetWeight = 0,
+                        Color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString(),
+                        Cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2,
+                        SizeBundle = sizeBundle,
+                        PcsBundle = pcsBundle,
+                        PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, 17].Value2,
+                        Quantity = (int)_ws.Cells[startIndex + 3 + j, 18].Value2,
+                        POSumary = poSummaryInDb
+                    });
+                }
+
+                //未来可以有更高级的定位方法
+                rowIndex += 5; 
+            }
+            _context.RegularCartonDetails.AddRange(regularCartonDetailList);
         }
     }
 }

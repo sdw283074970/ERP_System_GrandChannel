@@ -18,8 +18,6 @@ namespace ClothResorting.Models
 
 		public int? Available { get; set; }
 
-		public int? InventoryCtn { get; set; }
-
 		public string PurchaseOrder_StyleNumber { get; set; }
 
 		public DateTime? ReceivedDate { get; set; }
@@ -41,8 +39,6 @@ namespace ClothResorting.Models
 		public int? ActualReceivedPcs { get; set; }
 
 		public int? AvailablePcs { get; set; }
-
-		public int? InventoryPcs { get; set; }
 
 		public IList<CartonBreakDown> CartonBreakDowns { get; set; }
 

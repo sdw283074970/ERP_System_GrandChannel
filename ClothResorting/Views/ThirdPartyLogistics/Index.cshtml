@@ -11,6 +11,8 @@
     <div>
         <input id="create1" type="button" class="btn btn-group" value="Creat A New Pre-receive Order" />
         <input id="download" type="button" class="btn btn-primary" value="Download Pre-receive Order Template" />
+        <input id="fc" type="button" class="btn btn-group" value="Manage FC Orders" />
+
         <a href="/ThirdPartyLogistics/search/">
             <input id="btn-search" type="button" class="btn btn-info" value="Search" />
         </a>
@@ -68,6 +70,7 @@
 
             var preId = JSON.stringify(window.location.search.substr(1));
             var index;
+            var customer;
             $(".iframe").hide();
 
             $("#table").DataTable({
@@ -79,12 +82,13 @@
                     {
                         data: "id",
                         render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/PackingListOverview/?" + data + "'>" + data + "</a>";
+                            return "<text>" + data + "</text>";
                         }
                     },
                     {
                         data: "customerName",
                         render: function (data) {
+                            customer = data;
                             return "<text>" + data + "</text>";
                         }
                     },
@@ -125,7 +129,7 @@
                         }
                     },
                     {
-                        data: "actualReceived",
+                        data: "actualReceivedCtns",
                         render: function (data) {
                             return "<font color='blue'>" + data + "</font>";
                         }
@@ -145,7 +149,10 @@
                     {
                         data: "id",
                         render: function (data) {
-                            return "<button class='btn btn-danger js-delete'>Delete</button>";
+                            if (customer == "SILK-ICON")
+                                return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-link'>Manage</button></a>";
+                            else
+                                return "<a href='/ThirdPartyLogistics/FCPackingListOverview/?" + data + "'><button class='btn btn-link'>Manage</button></a>";
                         }
                     }
                 ]

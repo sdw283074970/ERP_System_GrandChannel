@@ -17,14 +17,14 @@ namespace ClothResorting.Helpers
         {
             _context = new ApplicationDbContext();
             _preReceive = _context.PreReceiveOrders
-                .Include(c => c.PurchaseOrderSummary.Select(s => s.CartonDetails))
+                .Include(c => c.PurchaseOrderSummaries.Select(s => s.CartonDetails))
                 .OrderByDescending(c => c.Id).First();
         }
 
         //由于客户给的packinglist中有多种不同style和color的pcs在同一箱的情况，需要算法将这种情况甄别并合并
         public void ReplaceRepeatedEntry()
         {
-            var purchaseOrderSummarys = _preReceive.PurchaseOrderSummary.ToList();
+            var purchaseOrderSummarys = _preReceive.PurchaseOrderSummaries.ToList();
 
             foreach(var pos in purchaseOrderSummarys)
             {
@@ -51,7 +51,7 @@ namespace ClothResorting.Helpers
         //根据CartonDetail内容是否有RunCode来确定Po类型
         public void CheckRunCode()
         {
-            var purchaseOrderSummarys = _preReceive.PurchaseOrderSummary.ToList();
+            var purchaseOrderSummarys = _preReceive.PurchaseOrderSummaries.ToList();
 
             foreach(var pos in purchaseOrderSummarys)
             {

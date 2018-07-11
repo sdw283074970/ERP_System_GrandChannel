@@ -246,6 +246,7 @@
     <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
+    <Compile Include="Controllers\FreeCountryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
@@ -735,6 +736,18 @@
     <Compile Include="Migrations\201807111713367_Deleted3PropertiesOfPreReceiveOrder.Designer.cs">
       <DependentUpon>201807111713367_Deleted3PropertiesOfPreReceiveOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807112227278_AddedRegularCaronDetailsDbSet.cs" />
+    <Compile Include="Migrations\201807112227278_AddedRegularCaronDetailsDbSet.Designer.cs">
+      <DependentUpon>201807112227278_AddedRegularCaronDetailsDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807112317179_AddedTwoPropretiesInRegularCartonDetail.cs" />
+    <Compile Include="Migrations\201807112317179_AddedTwoPropretiesInRegularCartonDetail.Designer.cs">
+      <DependentUpon>201807112317179_AddedTwoPropretiesInRegularCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807112352235_RemovedTwoUselessProportiesInPurchaseOrderSummary.cs" />
+    <Compile Include="Migrations\201807112352235_RemovedTwoUselessProportiesInPurchaseOrderSummary.Designer.cs">
+      <DependentUpon>201807112352235_RemovedTwoUselessProportiesInPurchaseOrderSummary.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -757,7 +770,9 @@
     <Compile Include="Models\LocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
     <Compile Include="Models\PermanentLocIORecord.cs" />
+    <Compile Include="Models\POSummary.cs" />
     <Compile Include="Models\PurchaseOrderInventory.cs" />
+    <Compile Include="Models\RegularCartonDetail.cs" />
     <Compile Include="Models\RegularLocationDetail.cs" />
     <Compile Include="Models\RegularSpeciesInventory.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
@@ -1081,7 +1096,7 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\Index.cshtml" />
     <Content Include="Views\DropShipping\Index.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\PackingListOverview.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\SIPurchaseOrderOverview.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\CartonDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdown.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\Location.cshtml" />
@@ -1097,6 +1112,8 @@
     <Content Include="Views\ThirdPartyLogistics\PurchaseOrderStatistics.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\AdjustmentDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\IOHistory.cshtml" />
+    <Content Include="Views\FreeCountry\Index.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\FCPackingListOverview.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1461,6 +1478,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807111713367_Deleted3PropertiesOfPreReceiveOrder.resx">
       <DependentUpon>201807111713367_Deleted3PropertiesOfPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807112227278_AddedRegularCaronDetailsDbSet.resx">
+      <DependentUpon>201807112227278_AddedRegularCaronDetailsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807112317179_AddedTwoPropretiesInRegularCartonDetail.resx">
+      <DependentUpon>201807112317179_AddedTwoPropretiesInRegularCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807112352235_RemovedTwoUselessProportiesInPurchaseOrderSummary.resx">
+      <DependentUpon>201807112352235_RemovedTwoUselessProportiesInPurchaseOrderSummary.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

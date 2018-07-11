@@ -15,7 +15,7 @@ namespace ClothResorting.Controllers
         }
 
         // 预收货细节页面/PO统计页面
-        public ActionResult PackingListOverview()
+        public ActionResult SIPurchaseOrderOverview()
         {
             return View();
         }
@@ -106,6 +106,12 @@ namespace ClothResorting.Controllers
 
         // 每一个Species的进库出库记录页面
         public ActionResult IOHistory()
+        {
+            return View();
+        }
+
+        // FC的预收货细节页面/PO统计页面
+        public ActionResult FCPurchaseOrderOverview()
         {
             return View();
         }

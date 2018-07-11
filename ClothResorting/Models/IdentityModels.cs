@@ -41,6 +41,8 @@ namespace ClothResorting.Models
         public DbSet<PurchaseOrderInventory> PurchaseOrderInventories { get; set; }
         public DbSet<SpeciesInventory> SpeciesInventories { get; set; }
         public DbSet<AdjustmentRecord> AdjustmentRecords { get; set; }
+        public DbSet<POSummary> POSummaries { get; set; }
+        public DbSet<RegularCartonDetail> RegularCartonDetails { get; set; }
 
         public static ApplicationDbContext Create()
         {

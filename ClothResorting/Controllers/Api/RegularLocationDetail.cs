@@ -85,11 +85,9 @@ namespace ClothResorting.Controllers.Api
 
             var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
             var sumOfPcs = result.Sum(c => c.OrgPcs);
-
-            purchaseOrderSummary.InventoryCtn += sumOfCartons;
+            
             purchaseOrderSummary.Available -= sumOfCartons;
 
-            purchaseOrderSummary.InventoryPcs += sumOfPcs;
             purchaseOrderSummary.AvailablePcs -= sumOfPcs;
 
             _context.SaveChanges();

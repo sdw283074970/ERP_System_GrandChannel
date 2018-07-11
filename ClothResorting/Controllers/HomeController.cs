@@ -57,7 +57,7 @@ namespace ClothResorting.Controllers
 
             var excel = new ExcelExtracter(@"c:\users\downw\desktop\ExcelTest.xlsx");
 
-            excel.CreatePreReceiveOrderAndOverView();
+            excel.CreateSILKICONPreReceiveOrder();
 
             excel.ExtractPackingList();
 

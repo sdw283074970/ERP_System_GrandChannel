@@ -51,7 +51,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.CreatePreReceiveOrderAndOverView();
+            excel.CreateSILKICONPreReceiveOrder();
 
             excel.ExtractPackingList();
 
@@ -60,12 +60,12 @@ namespace ClothResorting.Controllers.Api
             //因为源文件没有每一单po的总pcs数量，所以需要写算法计算
             //算法如下
             var preReceiveOrder = _context.PreReceiveOrders
-                .Include(s => s.PurchaseOrderSummary)
+                .Include(s => s.PurchaseOrderSummaries)
                 .OrderByDescending(s => s.Id)
                 .First();
 
             //根据每一个packinglist中的cartondetail中的每一类Pcs数量计算每一单po应收取的Pcs总数
-            foreach(var pl in preReceiveOrder.PurchaseOrderSummary)
+            foreach(var pl in preReceiveOrder.PurchaseOrderSummaries)
             {
                 pl.TotalPcs = _context.CartonDetails
                     .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
