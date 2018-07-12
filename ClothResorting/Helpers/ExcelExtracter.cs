@@ -675,33 +675,36 @@ namespace ClothResorting.Helpers
             //扫描Detail页面中有多少个RegularCartonDetal对象
             for (int i = 0; i < _countOfPo; i++)
             {
+                var countOfSpace = 0;
                 var countOfRow = 0;
                 var countOfColumn = 4;      //FC的装箱单第4列不知为何未空，必须从第五列开始计数
-                var startIndex = rowIndex;
+                var startIndex = rowIndex;      //rowIndex会变化，startIndex是不变的
                 var columnIndex = 5;
+                var poLine = (int)_ws.Cells[startIndex + 1, 3].Value2;
                 string purchaseOrder = _ws.Cells[startIndex + 1, 1].Value2.ToString();
 
                 var poSummaryInDb = _context.POSummaries
                     .Include(c => c.PreReceiveOrder)
                     .Where(c => c.PurchaseOrder == purchaseOrder 
-                        && c.PreReceiveOrder.Id == preReceiveOrderId)
+                        && c.PreReceiveOrder.Id == preReceiveOrderId
+                        && c.PoLine == poLine)
                     .First();
 
-                //扫描该RegularCartonDetail对象占多少行
+                //扫描该PoSummary对象占多少行
                 while (_ws.Cells[rowIndex, 1].Value2 != null)
                 {
                     countOfRow += 1;
                     rowIndex += 1;
                 }
 
-                //扫描该RegularCartonDetail对象占多少列
+                //扫描该PoSummary对象占多少列
                 while (_ws.Cells[startIndex + 2, columnIndex].Value2 != null)
                 {
                     countOfColumn += 1;
                     columnIndex += 1;
                 }
 
-                //扫描该RegularCartonDetail的所有SKU
+                //扫描该PoSummary的所有SKU(RegularCartonDetail数量)
                 var countOfSKU = countOfRow - 4;
                 var countOfSize = countOfColumn - 13;
 
@@ -746,9 +749,13 @@ namespace ClothResorting.Helpers
                         POSumary = poSummaryInDb
                     });
                 }
-
-                //未来可以有更高级的定位方法
-                rowIndex += 4; 
+                
+                //扫描该PoSummary对象与下一个对象之间的间隔行数
+                while (_ws.Cells[rowIndex, 1].Value2 == null && countOfSpace <= 5)
+                {
+                    countOfSpace += 1;
+                    rowIndex += 1;
+                }
             }
             _context.RegularCartonDetails.AddRange(regularCartonDetailList);
             _context.SaveChanges();
