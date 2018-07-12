@@ -91,7 +91,7 @@ namespace ClothResorting.Helpers
 
         //扫描并抽取每一页的Carton信息概览
         #region
-        public void ExtractPackingList()
+        public void ExtractSIPurchaseOrderSummary()
         {
             var list = new List<PurchaseOrderSummary>();
             var preReceiveOrderInDb = _context.PreReceiveOrders     //获取刚建立的PreReceiveOrder
@@ -612,7 +612,7 @@ namespace ClothResorting.Helpers
         }
 
         //抽取excel文件中的PO信息，并与之前新建的FC预收订单关联
-        public void ExtractPackingListSummary()
+        public void ExtractFCPurchaseOrderSummary()
         {
             _ws = _wb.Worksheets[1];
             var packingList = new List<POSummary>();
@@ -622,7 +622,10 @@ namespace ClothResorting.Helpers
 
             while (index > 0)
             {
-                _countOfPo += 1;
+                if (_ws.Cells[index, 1].Value2 != null)
+                {
+                    _countOfPo += 1;
+                }
 
                 if (_ws.Cells[index + 1, 1].Value2 == null && _ws.Cells[index + 2, 1].Value2 == null)
                 {
@@ -642,7 +645,7 @@ namespace ClothResorting.Helpers
                     PoLine = (int)_ws.Cells[index, 3].Value2,
                     Customer = _ws.Cells[index, 5].Value2.ToString(),
                     Quantity = (int)_ws.Cells[index, 6].Value2,
-                    Cartons = (int)_ws.Cells[index, 7].Value2,
+                    Cartons = (int)_ws.Cells[index, 8].Value2,
                     GrossWeight = 0,
                     NetWeight = 0,
                     NNetWeight = 0,
@@ -662,7 +665,7 @@ namespace ClothResorting.Helpers
         }
 
         //抽取Detail中的各个PO详细信息
-        public void ExtractPODetail()
+        public void ExtractFCPurchaseOrderDetail()
         {
             _ws = _wb.Worksheets[2];
             var rowIndex = 1;
@@ -673,9 +676,9 @@ namespace ClothResorting.Helpers
             for (int i = 0; i < _countOfPo; i++)
             {
                 var countOfRow = 0;
-                var countOfColumn = 0;
+                var countOfColumn = 4;      //FC的装箱单第4列不知为何未空，必须从第五列开始计数
                 var startIndex = rowIndex;
-                var columnIndex = 1;
+                var columnIndex = 5;
                 string purchaseOrder = _ws.Cells[startIndex + 1, 1].Value2.ToString();
 
                 var poSummaryInDb = _context.POSummaries
@@ -738,16 +741,17 @@ namespace ClothResorting.Helpers
                         Cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2,
                         SizeBundle = sizeBundle,
                         PcsBundle = pcsBundle,
-                        PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, 17].Value2,
-                        Quantity = (int)_ws.Cells[startIndex + 3 + j, 18].Value2,
+                        PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
+                        Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
                         POSumary = poSummaryInDb
                     });
                 }
 
                 //未来可以有更高级的定位方法
-                rowIndex += 5; 
+                rowIndex += 4; 
             }
             _context.RegularCartonDetails.AddRange(regularCartonDetailList);
+            _context.SaveChanges();
         }
     }
 }

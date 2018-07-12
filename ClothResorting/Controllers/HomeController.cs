@@ -55,13 +55,13 @@ namespace ClothResorting.Controllers
             //    throw raise;
             //}
 
-            var excel = new ExcelExtracter(@"c:\users\downw\desktop\ExcelTest.xlsx");
+            var excel = new ExcelExtracter(@"c:\users\downw\desktop\FC\SU85P0035FT-18 PL.xlsx");
 
-            excel.CreateSILKICONPreReceiveOrder();
+            excel.CreateFCPreReceiveOrder();
 
-            excel.ExtractPackingList();
+            excel.ExtractFCPurchaseOrderSummary();
 
-            excel.ExtractCartonDetails();
+            excel.ExtractFCPurchaseOrderDetail();
 
             ViewBag.Message = "Your application description page.";
 

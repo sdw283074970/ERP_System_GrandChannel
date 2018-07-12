@@ -53,7 +53,7 @@ namespace ClothResorting.Controllers.Api
 
             excel.CreateSILKICONPreReceiveOrder();
 
-            excel.ExtractPackingList();
+            excel.ExtractSIPurchaseOrderSummary();
 
             excel.ExtractCartonDetails();
 
