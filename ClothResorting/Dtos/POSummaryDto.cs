@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ClothResorting.Models
+namespace ClothResorting.Dtos
 {
-    public class POSummary
+    public class POSummaryDto
     {
         public int Id { get; set; }
 
@@ -34,9 +34,5 @@ namespace ClothResorting.Models
         public double NNetWeight { get; set; }
 
         public string Container { get; set; }
-
-        public PreReceiveOrder PreReceiveOrder { get; set; }
-
-        public ICollection<RegularCartonDetail> RegularCartonDetails { get; set; }
     }
 }

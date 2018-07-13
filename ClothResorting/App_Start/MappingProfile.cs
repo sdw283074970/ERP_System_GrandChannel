@@ -25,6 +25,8 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<PurchaseOrderInventory, PurchaseOrderInventoryDto>();
             Mapper.CreateMap<SpeciesInventory, SpeciesInventoryDto>();
             Mapper.CreateMap<AdjustmentRecord, AdjustmentRecordDto>();
+            Mapper.CreateMap<POSummary, POSummaryDto>();
+            Mapper.CreateMap<RegularCartonDetail, RegularCartonDetailDto>();
         }
     }
 }

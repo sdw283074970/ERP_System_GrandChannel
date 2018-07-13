@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ClothResorting.Models
+namespace ClothResorting.Dtos
 {
-    public class RegularCartonDetail
+    public class RegularCartonDetailDto
     {
         public int Id { get; set; }
 
@@ -40,7 +40,5 @@ namespace ClothResorting.Models
         public int ActualPcs { get; set; }
 
         public DateTime InboundDate { get; set; }
-
-        public POSummary POSummary { get; set; }
     }
 }

@@ -15,10 +15,12 @@ namespace ClothResorting.Controllers.Api
     public class CartonDetailConfirmationController : ApiController
     {
         private ApplicationDbContext _context;
+        private DateTime _timeNow;
 
         public CartonDetailConfirmationController()
         {
             _context = new ApplicationDbContext();
+            _timeNow = DateTime.Now;
         }
 
         // PUT /api/cartondetailconfirmation
@@ -36,13 +38,13 @@ namespace ClothResorting.Controllers.Api
                 cartonDetailInDb.Available = cartonDetailInDb.SumOfCarton;
                 cartonDetailInDb.ActualReceivedPcs = cartonDetailInDb.TotalPcs;
                 cartonDetailInDb.AvailablePcs = cartonDetailInDb.TotalPcs;
-                cartonDetailInDb.ReceivedDate = DateTime.Now;
+                cartonDetailInDb.ReceivedDate = _timeNow;
 
                 foreach(var breakdown in cartonDetailInDb.CartonBreakdowns)
                 {
                     breakdown.ActualPcs = breakdown.ForecastPcs;
                     breakdown.AvailablePcs = breakdown.ForecastPcs;
-                    breakdown.ReceivedDate = DateTime.Now;
+                    breakdown.ReceivedDate = _timeNow;
                 }
             }
 

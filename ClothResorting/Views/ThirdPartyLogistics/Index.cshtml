@@ -59,7 +59,10 @@
         <input id="upload2" type="file" accept="xls/xlsx" />
     </div>
     <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="上传文件" />
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload SILKICON" />
+    </div>
+    <div>
+        <input id="uploadfc" type="button" class="btn btn-default" value="Upload FC" />
     </div>
 </div>
 
@@ -152,7 +155,7 @@
                             if (customer == "SILK-ICON")
                                 return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-link'>Manage</button></a>";
                             else
-                                return "<a href='/ThirdPartyLogistics/FCPackingListOverview/?" + data + "'><button class='btn btn-link'>Manage</button></a>";
+                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?" + data + "'><button class='btn btn-link'>Manage</button></a>";
                         }
                     }
                 ]
@@ -211,11 +214,43 @@
                 $(".iframe").hide();
             });
 
-            $("#table").on("click", ".js-delete", function () {
-                bootbox.confirm("Are you sure to delete this record? All the related records will be deleted and this operation is not reversible.",
-                    function (result) {
-                        bootbox.alert("Delete success!");
-                    });
+            $("#uploadfc").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/FreeCountryInventory",
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+
+                        layui.use('layer', function () {
+                            var layer = layui.layer;
+                            layer.msg('Extracting files...', {
+                                icon: 16,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });;
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server!");
+                    }
+                });
+                $(".iframe").hide();
             });
 
             $("#btn-delete").on("click", function () {

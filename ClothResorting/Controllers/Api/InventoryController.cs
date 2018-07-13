@@ -21,7 +21,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        //GET /api/Inventory/获取所有的PreReceiveOrders
+        //GET /api/Inventory/ 获取所有的PreReceiveOrders
         public IHttpActionResult GetPrereceiveOrder()
         {
             if (!ModelState.IsValid)
@@ -35,7 +35,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(preReceiveOrderLists);
         }
 
-        //GET /api/Inventory/id/输入PreReceiveOrder的Id，返回所有的Po细节概览
+        //GET /api/Inventory/{id} 输入PreReceiveOrder的Id，返回所有的Po细节概览
         public IHttpActionResult GetPurchaseOrderDetail(int id)
         {
             if (!ModelState.IsValid)
@@ -51,7 +51,7 @@ namespace ClothResorting.Controllers.Api
         }
 
 
-        // POST /api/Inventory/输入cartondetail的id，返回该id下箱子中所有的CartonBreakDown的所有细节
+        // POST /api/Inventory/ 输入cartondetail的id，返回该id下箱子中所有的CartonBreakDown的所有细节
         [HttpPost]
         public IHttpActionResult GetCartonDetail([FromBody]int id)
         {

@@ -115,5 +115,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // FC的Regular订单详情页面
+        public ActionResult FCRegularCartonDetail()
+        {
+            return View();
+        }
     }
 }

@@ -650,6 +650,9 @@ namespace ClothResorting.Helpers
                     NetWeight = 0,
                     NNetWeight = 0,
                     CBM = 0,
+                    ActualCtns = 0,
+                    ActualPcs = 0,
+                    Container = "Unkown",
                     PreReceiveOrder = latestPreReceiveOrder
                 });
 
@@ -733,7 +736,7 @@ namespace ClothResorting.Helpers
                     }
 
                     regularCartonDetailList.Add(new RegularCartonDetail {
-                        CartonRange = _ws.Cells[startIndex + 3 +j, 1].Value2.ToString(),
+                        CartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2.ToString(),
                         PurchaseOrder = _ws.Cells[startIndex + 3 + j, 2].Value2.ToString(),
                         Style = _ws.Cells[startIndex + 3 + j, 3].Value2.ToString(),
                         Customer = _ws.Cells[startIndex + 3 + j, 4].Value2.ToString(),
@@ -746,7 +749,9 @@ namespace ClothResorting.Helpers
                         PcsBundle = pcsBundle,
                         PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
                         Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
-                        POSumary = poSummaryInDb
+                        ActualCtns = 0,
+                        ActualPcs = 0,
+                        POSummary = poSummaryInDb
                     });
                 }
                 
