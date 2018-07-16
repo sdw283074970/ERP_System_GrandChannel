@@ -9,6 +9,7 @@ using System.Web.Mvc;
 
 namespace ClothResorting.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private ApplicationDbContext _context;

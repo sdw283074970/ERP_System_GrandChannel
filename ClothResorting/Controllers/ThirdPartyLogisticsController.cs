@@ -121,5 +121,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // FC的收货报告
+        public ActionResult FCReceivingReport()
+        {
+            return View();
+        }
     }
 }

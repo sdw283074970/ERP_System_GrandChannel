@@ -5,10 +5,14 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>FCPackingListOverview</h2>
+<h2>Free Country Purchase Order Overview</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-report" type="button" class="btn btn-info" value="Generate receiving report" />
+        <input id="btn-location" type="button" class="btn btn-info" value="View location distribution" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -37,11 +41,11 @@
     <script>
         $(document).ready(function () {
 
-            var id = window.location.search;
+            var id = window.location.search.substr(1);
             var preId = window.location.search.substr(1);
             var isReplenishment = false;
 
-            var urlstring = "/api/freecountryinventory/" + id.substr(1);
+            var urlstring = "/api/freecountryinventory/" + id;
 
             $("#table").DataTable({
                 ajax: {
@@ -130,6 +134,14 @@
                         }
                     }
                 ]
+            });
+
+            $("#btn-report").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/FCReceivingReport/?' + id.toString());
+            });
+
+            $("#btn-location").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/RegularLocationDetail/?' + id.toString());
             });
 
             $(".btn-back").on("click", function () {

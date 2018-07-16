@@ -24,27 +24,27 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/regularlocationdetail/?preid={id}&po={po}
+        // GET /api/regularlocationdetail/?preid={id}
         [HttpGet]
-        public IHttpActionResult GetRegularLocationDetail([FromUri]string po)
+        public IHttpActionResult GetRegularLocationDetail([FromUri]string preid)
         {
-            var result = new List<RegularLocationDetail>();
+            var result = new List<FCRegularLocation>();
 
-            var query = _context.RegularLocationDetails
-                .Include(c => c.PurchaseOrderInventory)
-                .Where(c => c.PurchaseOrder == po)
+            var query = _context.FCRegularLocations
+                .Include(c => c.PreReceiveOrder)
+                .Where(c => c.PurchaseOrder == preid)
                 .ToList();
 
             result.AddRange(query);
 
-            var resultDto = Mapper.Map<List<RegularLocationDetail>, List<RegularLocationDetailDto>>(result);
+            var resultDto = Mapper.Map<List<FCRegularLocation>, List<FCRegularLocationDto>>(result);
 
             return Ok(resultDto);
         }
 
         // POST /api/locationdetail/?po={po}
         [HttpPost]
-        public IHttpActionResult CreateLocationDetails([FromUri]string po)
+        public IHttpActionResult CreateLocationDetails([FromUri]int preid)
         {
             var fileSavePath = "";
 
@@ -61,7 +61,7 @@ namespace ClothResorting.Controllers.Api
             //从上传的文件中抽取LocationDetails
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractRegularLocationDetail(po);
+            excel.ExtractRegularLocationDetail("test");
 
             //EF无法准确通过datetime查询对象，只能通过按inbound时间分组获取对象
             var group = _context.RegularLocationDetails
@@ -81,7 +81,7 @@ namespace ClothResorting.Controllers.Api
 
             //将该po的available箱数件数减去入库后的箱数件数，并更新该po的入库件数
             var purchaseOrderSummary = _context.PurchaseOrderSummaries
-                .SingleOrDefault(c => c.PurchaseOrder == po);
+                .SingleOrDefault(c => c.PurchaseOrder == "test");
 
             var sumOfCartons = result.Sum(c => c.OrgNumberOfCartons);
             var sumOfPcs = result.Sum(c => c.OrgPcs);

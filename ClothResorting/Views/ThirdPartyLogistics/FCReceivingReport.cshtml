@@ -1,0 +1,138 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        @Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")
+    </head>
+    <body>
+        <h1>Free Country Receiving Report</h1>
+        <h2>Invoice: <text id="invoice">SU85P0035FT</text></h2>
+        <div class="maincontainer">
+            <div>
+                <table id="table" class="table table-condensed table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:80px">Range</th>
+                            <th style="width:100px">PO</th>
+                            <th style="width:120px">Style</th>
+                            <th style="width:50px">Line</th>
+                            <th style="width:50px">Customer</th>
+                            <th style="width:100px">Size</th>
+                            <th style="width:80px">Pcs</th>
+                            <th style="width:80px">Fcs Qty</th>
+                            <th style="width:100px">Inbound Qty</th>
+                            <th style="width:80px">Fcs Ctns</th>
+                            <th style="width:100px">Inbound Ctns</th>
+                            <th>Memo</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")
+    </body>
+</html>
+<script>
+    $(document).ready(function () {
+
+        var id = window.location.search;
+
+        var urlstring = "/api/fcreceivingreport/" + id.substr(1);
+
+        $.ajax({
+            type: "POST",
+            url: urlstring,
+            contentType: 'application/json; charset=utf-8',
+            dataType: "json",
+            success: function (data, status, xhr) {
+                $("#table").DataTable({
+                    data: data,
+                    columns: [
+                        {
+                            data: "cartonRange",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "purchaseOrder",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "style",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "line",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "customer",
+                            render: function (data) {
+                                return "<font'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "sizeBundle",
+                            render: function (data) {
+                                return "<font color='blue'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "pcsBundle",
+                            render: function (data) {
+                                return "<font color='blue'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "receivableQty",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "receivedQty",
+                            render: function (data) {
+                                return "<font color='red'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "receivableCtns",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "receivedCtns",
+                            render: function (data) {
+                                return "<font color='red'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "memo",
+                            render: function (data) {
+                                return "<font color='orange'>" + data + "</font>";
+                            }
+                        }
+                    ]
+                });
+            }
+        });
+    });
+</script>

@@ -221,7 +221,9 @@
     <Compile Include="Controllers\Api\AdjustmentDetailController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
+    <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
+    <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
     <Compile Include="Controllers\Api\FreeCountryInventoryController.cs" />
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
     <Compile Include="Controllers\Api\LocationDetailController.cs" />
@@ -255,6 +257,7 @@
     <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
     <Compile Include="Dtos\AdjustmentRecordDto.cs" />
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
+    <Compile Include="Dtos\FCRegularLocationDto.cs" />
     <Compile Include="Dtos\LocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
     <Compile Include="Dtos\PermanentLocationDto.cs" />
@@ -773,6 +776,14 @@
     <Compile Include="Migrations\201807131611162_AddedInboundDateInRegularCartonDetail.Designer.cs">
       <DependentUpon>201807131611162_AddedInboundDateInRegularCartonDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807161701306_AddedFCRegularLocationsDbSet.cs" />
+    <Compile Include="Migrations\201807161701306_AddedFCRegularLocationsDbSet.Designer.cs">
+      <DependentUpon>201807161701306_AddedFCRegularLocationsDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807161847112_AddedInboundDateInRegularLocation.cs" />
+    <Compile Include="Migrations\201807161847112_AddedInboundDateInRegularLocation.Designer.cs">
+      <DependentUpon>201807161847112_AddedInboundDateInRegularLocation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -787,10 +798,12 @@
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
     <Compile Include="Models\DataTransferModels\AdjustedRecord.cs" />
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
+    <Compile Include="Models\DataTransferModels\FCReceivingReport.cs" />
     <Compile Include="Models\DataTransferModels\InboundHistoryRecord.cs" />
     <Compile Include="Models\DataTransferModels\OutboundHistoryRecord.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\DataTransferModels\RelocationHistoryRecord.cs" />
+    <Compile Include="Models\FCRegularLocation.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
     <Compile Include="Models\LocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
@@ -1140,6 +1153,7 @@
     <Content Include="Views\FreeCountry\Index.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCPurchaseOrderOverview.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCRegularCartonDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\FCReceivingReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1528,6 +1542,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807131611162_AddedInboundDateInRegularCartonDetail.resx">
       <DependentUpon>201807131611162_AddedInboundDateInRegularCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807161701306_AddedFCRegularLocationsDbSet.resx">
+      <DependentUpon>201807161701306_AddedFCRegularLocationsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807161847112_AddedInboundDateInRegularLocation.resx">
+      <DependentUpon>201807161847112_AddedInboundDateInRegularLocation.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

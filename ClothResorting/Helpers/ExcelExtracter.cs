@@ -765,5 +765,50 @@ namespace ClothResorting.Helpers
             _context.RegularCartonDetails.AddRange(regularCartonDetailList);
             _context.SaveChanges();
         }
+
+        // 抽取FreeCountry正常订单的库存分配信息
+        public void ExtractFCRegularLocation(int preid)
+        {
+            _ws = _wb.Worksheets[1];
+
+            int countOfRow = 0;
+            int index = 2;
+            var locationList = new List<FCRegularLocation>();
+            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preid);
+
+            // 扫描有多少行即有多少个条目
+            while(index > 0)
+            {
+                if (_ws.Cells[index, 1].Value2 != null)
+                {
+                    countOfRow += 1;
+                    index += 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            for (int i = 0; i < countOfRow; i++)
+            {
+                locationList.Add(new FCRegularLocation {
+                    PurchaseOrder = _ws.Cells[i + 2, 1].Value2.ToString(),
+                    Style = _ws.Cells[i + 2, 2].Value2.ToString(),
+                    Color = _ws.Cells[i + 2, 3].Value2.ToString(),
+                    CustomerCode = _ws.Cells[i + 2, 4].Value2.ToString(),
+                    SizeBundle = _ws.Cells[i + 2, 5].Value2.ToString(),
+                    PcsBundle = _ws.Cells[i + 2, 1].Value2.ToString(),
+                    Cartons = (int)_ws.Cells[i + 2, 1].Value2,
+                    Quantity = (int)_ws.Cells[i + 2, 1].Value2,
+                    Location = _ws.Cells[i + 2, 1].Value2.ToString(),
+                    InboundDate = _dateTimeNow,
+                    PreReceiveOrder = preReceiveOrderInDb
+                });
+            }
+
+            _context.FCRegularLocations.AddRange(locationList);
+            _context.SaveChanges();
+        }
     }
 }

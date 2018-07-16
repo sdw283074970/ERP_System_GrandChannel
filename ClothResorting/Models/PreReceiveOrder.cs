@@ -34,5 +34,7 @@ namespace ClothResorting.Models
         public ICollection<PurchaseOrderSummary> PurchaseOrderSummaries { get; set; }
 
         public ICollection<POSummary> POSummaries { get; set; }
+
+        public ICollection<FCRegularLocation> FCRegularLocations { get; set; }
     }
 }
