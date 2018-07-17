@@ -752,6 +752,10 @@ namespace ClothResorting.Helpers
                         Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
                         ActualCtns = 0,
                         ActualPcs = 0,
+                        InboundDate = null,
+                        Status = "Created",
+                        ToBeAllocatedCtns = 0,
+                        ToBeAllocatedPcs = 0,
                         POSummary = poSummaryInDb
                     });
                 }

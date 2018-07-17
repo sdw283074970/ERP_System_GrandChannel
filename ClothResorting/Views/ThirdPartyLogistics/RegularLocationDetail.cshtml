@@ -11,43 +11,6 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-upload" type="button" class="btn btn-info" value="Upload location distribution" />
-        <input id="btn-download" type="button" class="btn btn-info" value="Download location distribution template" />
-
-    </div>
-    <div>
-        <font>Po#: <text id="potext">TEST</text></font>
-    </div>
-    <div>
-        <div>
-            <font>
-                Style:
-                <input id="style" style="width:100px" />
-            </font>
-            <font>
-                Color:
-                <input id="color" style="width:100px" />
-            </font>
-            <font>
-                Size:
-                <input id="size" style="width:100px" />
-            </font>
-            <font>
-                Ctns:
-                <input id="ctns" style="width:100px" />
-            </font>
-            <font>
-                Quantity:
-                <input id="quantity" style="width:100px" />
-            </font>
-            <font>
-                Location:
-                <input id="location" style="width:100px" />
-            </font>
-            <input id="btn-inbound" type="button" class="btn btn-info" value="Single inbound" />
-        </div>
-    </div>
-    <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -57,29 +20,20 @@
                     <th>Customer Code</th>
                     <th>Size Bundle</th>
                     <th>Pcs Bundle</th>
-                    <th>Ctns</th>
-                    <th>Pcs</th>
+                    <th>Status</th>
+                    <th>TBA Ctns</th>
+                    <th>Cartons</th>
                     <th>Location</th>
-                    <th>Inbound Date</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 </div>
-<div class="iframe">
-    <div>
-        <input id="upload" type="file" accept="xls/xlsx" />
-    </div>
-    <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="上传文件" />
-    </div>
-</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
-            $(".iframe").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -98,11 +52,11 @@
             };
 
             //从地址栏获取参数
-            var preid = window.location.search.substr(1);
+            var preid = getUrlParameter('preid');
 
             $.ajax({
                 type: "GET",
-                url: "/api/FCRegularLocationDetail/" + preid,
+                url: "/api/FCRegularLocationAllocating/" + preid,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -129,7 +83,7 @@
                                 }
                             },
                             {
-                                data: "customerCode",
+                                data: "customer",
                                 render: function (data) {
                                     return "<font color='blue'>" + data + "</font>";
                                 }
@@ -147,27 +101,27 @@
                                 }
                             },
                             {
-                                data: "cartons",
+                                data: "status",
                                 render: function (data) {
                                     return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "quantity",
+                                data: "toBeAllocatedCtns",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<font color='green'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "location",
+                                data: "id",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
                                 }
                             },
                             {
-                                data: "inboundDate",
+                                data: "id",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<input style='width:100px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate'>OK</button>";
                                 }
                             }
                         ]

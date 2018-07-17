@@ -36,7 +36,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // PUT /api/fcregularcartondetails
+        // PUT /api/fcregularcartondetails 收货算法
         [HttpPut]
         public void UpdateReceivedCtns([FromBody]int[] arr)
         {
@@ -47,6 +47,14 @@ namespace ClothResorting.Controllers.Api
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .SingleOrDefault(c => c.Id == id);
 
+            //将状态改为待分配
+            regularCartonDetailInDb.Status = "To Be Allocated";
+
+            //更新待分配的件数和箱数
+            regularCartonDetailInDb.ToBeAllocatedCtns += changeValue;
+            regularCartonDetailInDb.ToBeAllocatedPcs += changeValue * regularCartonDetailInDb.PcsPerCarton;
+
+            //更新已收货件数箱数
             regularCartonDetailInDb.ActualCtns += changeValue;
             regularCartonDetailInDb.ActualPcs += changeValue * regularCartonDetailInDb.PcsPerCarton;
 

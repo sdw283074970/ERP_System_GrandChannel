@@ -39,6 +39,12 @@ namespace ClothResorting.Dtos
 
         public int ActualPcs { get; set; }
 
+        public int ToBeAllocatedCtns { get; set; }
+
+        public int ToBeAllocatedPcs { get; set; }
+
+        public string Status { get; set; }
+
         public DateTime InboundDate { get; set; }
     }
 }

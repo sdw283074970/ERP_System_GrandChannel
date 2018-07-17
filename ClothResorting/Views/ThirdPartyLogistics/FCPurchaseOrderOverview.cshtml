@@ -11,8 +11,8 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        @*<input id="btn-report" type="button" class="btn btn-info" value="Generate receiving report" />*@
-        <input id="btn-location" type="button" class="btn btn-info" value="View location distribution" />
+        <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
+        <input id="btn-location" type="button" class="btn btn-info" value="View location" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -192,9 +192,9 @@
                 }
             });
 
-            //$("#btn-report").on("click", function () {
-            //    $(window.location).attr('href', '/ThirdPartyLogistics/FCReceivingReport/?preId=' + id.toString());
-            //});
+            $("#btn-allocate").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/RegularLocationDetail/?preid=' + id.toString());
+            });
 
             $("#btn-location").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/RegularLocationDetail/?' + id.toString());

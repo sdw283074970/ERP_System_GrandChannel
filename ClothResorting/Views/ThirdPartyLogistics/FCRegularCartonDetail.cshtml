@@ -211,7 +211,7 @@
                 //将所有被选中的对象视为正常正确收货，即实际收货数量及库存数量直接等于应收货数量
                 $.ajax({
                     type: "PUT",
-                    url: "/api/RegularCartonDetailConfirmation",
+                    url: "/api/FCRegularCartonDetailConfirmation",
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(arr),
                     dataType: "json",

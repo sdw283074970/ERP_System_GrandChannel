@@ -224,6 +224,7 @@
     <Compile Include="Controllers\Api\FCPurchaseOrderOverviewController.cs" />
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
+    <Compile Include="Controllers\Api\FCRegularLocationAllocatingController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
     <Compile Include="Controllers\Api\FreeCountryInventoryController.cs" />
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
@@ -243,7 +244,7 @@
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
-    <Compile Include="Controllers\Api\RegularCartonDetailConfirmationController.cs" />
+    <Compile Include="Controllers\Api\FCRegularCartonDetailConfirmationController.cs" />
     <Compile Include="Controllers\Api\RegularLocationDetail.cs" />
     <Compile Include="Controllers\Api\RelocationHistoryController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
@@ -788,6 +789,10 @@
     <Compile Include="Migrations\201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.cs" />
     <Compile Include="Migrations\201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.Designer.cs">
       <DependentUpon>201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.cs" />
+    <Compile Include="Migrations\201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.Designer.cs">
+      <DependentUpon>201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1558,6 +1563,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.resx">
       <DependentUpon>201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.resx">
+      <DependentUpon>201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

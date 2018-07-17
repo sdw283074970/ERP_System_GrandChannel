@@ -21,7 +21,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/regularlocationdetail/?{id}
+        // GET /api/regularlocationdetail/{id}
         public IHttpActionResult GetRegularLocationDetail([FromUri]int id)
         {
             var result = new List<FCRegularLocation>();
