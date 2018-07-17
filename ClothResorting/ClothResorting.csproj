@@ -221,6 +221,7 @@
     <Compile Include="Controllers\Api\AdjustmentDetailController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
+    <Compile Include="Controllers\Api\FCPurchaseOrderOverviewController.cs" />
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
@@ -784,12 +785,17 @@
     <Compile Include="Migrations\201807161847112_AddedInboundDateInRegularLocation.Designer.cs">
       <DependentUpon>201807161847112_AddedInboundDateInRegularLocation.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.cs" />
+    <Compile Include="Migrations\201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.Designer.cs">
+      <DependentUpon>201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
     <Compile Include="Models\ApiTransformModels\AdjustmentJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\BasicFourAttrsJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\IntArrayAndString.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
@@ -1549,6 +1555,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807161847112_AddedInboundDateInRegularLocation.resx">
       <DependentUpon>201807161847112_AddedInboundDateInRegularLocation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.resx">
+      <DependentUpon>201807170000120_ModefiedInboundDateToNullableInRegularCartonDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

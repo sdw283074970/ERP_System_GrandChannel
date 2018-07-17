@@ -19,15 +19,16 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/fcreceivingreport
-        [HttpPost]
-        public IHttpActionResult GenerateReceivingReport([FromUri]int id)
+        // GET /api/fcreceivingreport/?preid={preId}&container={container}
+        [HttpGet]
+        public IHttpActionResult GenerateReceivingReport([FromUri]int preid, [FromUri]string container)
         {
             var resultList = new List<FCReceivingReport>();
 
             var fcRegualrCartonDetailsInDb = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
-                .Where(c => c.POSummary.PreReceiveOrder.Id == id)
+                .Where(c => c.POSummary.PreReceiveOrder.Id == preid
+                    && c.POSummary.Container == container)
                 .ToList();
 
             foreach(var cartonDetail in fcRegualrCartonDetailsInDb)

@@ -22,7 +22,7 @@ namespace ClothResorting.Helpers
         private _Application _excel;
         private Workbook _wb;
         private Worksheet _ws;
-        private DateTime _dateTimeNow = DateTime.Now;
+        private DateTime _dateTimeNow;
         #endregion
 
         //PackingList全局变量
@@ -58,6 +58,7 @@ namespace ClothResorting.Helpers
         {
             _context = new ApplicationDbContext();
             _path = path;
+            _dateTimeNow = DateTime.Now;
             _excel = new _Excel.Application();
             _wb = _excel.Workbooks.Open(_path);
         }

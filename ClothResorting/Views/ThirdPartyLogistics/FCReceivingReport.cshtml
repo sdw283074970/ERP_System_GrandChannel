@@ -13,7 +13,7 @@
     </head>
     <body>
         <h1>Free Country Receiving Report</h1>
-        <h2>Invoice: <text id="invoice">SU85P0035FT</text></h2>
+        <h2>Container: <text id="container">SU85P0035FT</text></h2>
         <div class="maincontainer">
             <div>
                 <table id="table" class="table table-condensed table-hover table-striped">
@@ -45,12 +45,31 @@
 <script>
     $(document).ready(function () {
 
-        var id = window.location.search;
+        //解析url中的参数函数
+        function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
 
-        var urlstring = "/api/fcreceivingreport/" + id.substr(1);
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
+        var preId = getUrlParameter('preid');
+        var container = getUrlParameter('container');
+
+        $("#container").html(container);
+
+        var urlstring = "/api/fcreceivingreport/?preid=" + preId + "&container=" + container;
 
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: urlstring,
             contentType: 'application/json; charset=utf-8',
             dataType: "json",
