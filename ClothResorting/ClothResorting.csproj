@@ -226,7 +226,7 @@
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationAllocatingController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
-    <Compile Include="Controllers\Api\FreeCountryInventoryController.cs" />
+    <Compile Include="Controllers\Api\FCInventoryController.cs" />
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
     <Compile Include="Controllers\Api\LocationDetailController.cs" />
     <Compile Include="Controllers\Api\LocationDetailSingleInboundController.cs" />
@@ -237,9 +237,6 @@
     <Compile Include="Controllers\Api\LocationCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
-    <Compile Include="Controllers\Api\NewBulkloadController.cs" />
-    <Compile Include="Controllers\Api\NewBulkloadResultsController.cs" />
-    <Compile Include="Controllers\Api\NewBulkloadSingleReceivingController.cs" />
     <Compile Include="Controllers\Api\OutboundHistoryController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
@@ -1151,8 +1148,6 @@
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdown.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\Location.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\Search.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\RetrievingDetail.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\NewBulkload.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdownOutbound.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\LocationDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\RegularLocationDetail.cshtml" />

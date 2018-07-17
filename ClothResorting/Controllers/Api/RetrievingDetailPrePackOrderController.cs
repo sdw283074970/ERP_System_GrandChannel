@@ -16,7 +16,5 @@ namespace ClothResorting.Controllers.Api
         {
             _context = new ApplicationDbContext();
         }
-
-
     }
 }

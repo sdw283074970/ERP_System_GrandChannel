@@ -11,11 +11,11 @@ using System.Web.Http;
 
 namespace ClothResorting.Controllers.Api
 {
-    public class FreeCountryInventoryController : ApiController
+    public class FCInventoryController : ApiController
     {
         private ApplicationDbContext _context;
 
-        public FreeCountryInventoryController()
+        public FCInventoryController()
         {
             _context = new ApplicationDbContext();
         }
