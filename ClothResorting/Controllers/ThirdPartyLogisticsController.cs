@@ -122,8 +122,14 @@ namespace ClothResorting.Controllers
             return View();
         }
 
-        // FC的收货报告
+        // 以集装箱为单位，FC的收货报告
         public ActionResult FCReceivingReport()
+        {
+            return View();
+        }
+
+        // FC正常订单的库位分布查询
+        public ActionResult FCRegularLocationDetail()
         {
             return View();
         }

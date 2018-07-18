@@ -34,21 +34,41 @@ namespace ClothResorting.Controllers.Api
         }
 
         // POST /api/fcregularlocationallocating/ 根据传入数据分解已收货对象
-        //[HttpPost]
-        //public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj)
-        //{
-        //    var cartonDetailInDb = _context.RegularCartonDetails.Find(obj.Id);
+        [HttpPost]
+        public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj)
+        {
+            var cartonDetailInDb = _context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .SingleOrDefault(c => c.Id == obj.Id);
 
-        //    cartonDetailInDb.Status = "Allocating";
+            cartonDetailInDb.Status = "Allocating";
 
-        //    cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
-        //    cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
+            cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
+            cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
 
+            _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail {
+                Container = cartonDetailInDb.POSummary.Container,
+                PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                Style = cartonDetailInDb.Style,
+                Color = cartonDetailInDb.Color,
+                CustomerCode = cartonDetailInDb.Customer,
+                SizeBundle = cartonDetailInDb.SizeBundle,
+                PcsBundle = cartonDetailInDb.PcsBundle,
+                Cartons = obj.Cartons,
+                Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                Location = obj.Location,
+                PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                Status = "New Inbound",
+                InboundDate = DateTime.Now,
+                PreReceiveOrder = cartonDetailInDb.POSummary.PreReceiveOrder
+            });
 
+            _context.SaveChanges();
 
-        //    _context.SaveChanges();
+            var sample = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).First();
+            var sampleDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(sample);
 
-        //    return Created();
-        //}
+            return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+        }
     }
 }

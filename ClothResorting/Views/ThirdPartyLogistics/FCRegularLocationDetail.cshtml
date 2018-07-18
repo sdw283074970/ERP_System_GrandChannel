@@ -1,11 +1,11 @@
 ﻿
 @{
-    ViewBag.Title = "FCRegularLocationAllocating";
+    ViewBag.Title = "FCRegularLocationDetail";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Regular Order Put Away Page</h2>
+<h2>Free Country Regular Order Location Detail</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
@@ -14,15 +14,17 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Container</th>
+                    <th>Status</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Color</th>
-                    <th>Customer Code</th>
-                    <th>Size Bundle</th>
-                    <th>Pcs Bundle</th>
-                    <th>Status</th>
-                    <th>TBA Ctns</th>
+                    <th>CC</th>
+                    <th>Size BD</th>
+                    <th>Pcs BD</th>
                     <th>Cartons</th>
+                    <th>Quantity</th>
+                    <th>Inbound Date</th>
                     <th>Location</th>
                 </tr>
             </thead>
@@ -56,14 +58,26 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/FCRegularLocationAllocating/" + preid,
+                url: "/api/FCRegularLocationDetail/" + preid,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
                     $("#table").DataTable({
-                        data: data,
+                        data: data, 
                         destroy: true,
                         columns: [
+                            {
+                                data: "container",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    return "<text style='color:Red'>" + data + "</text>";
+                                }
+                            },
                             {
                                 data: "purchaseOrder",
                                 render: function (data) {
@@ -73,17 +87,17 @@
                             {
                                 data: "style",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<font color='blue'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "color",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "customer",
+                                data: "customerCode",
                                 render: function (data) {
                                     return "<font color='blue'>" + data + "</font>";
                                 }
@@ -97,93 +111,41 @@
                             {
                                 data: "pcsBundle",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<font color='green'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "status",
-                                render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "toBeAllocatedCtns",
+                                data: "cartons",
                                 render: function (data) {
                                     return "<font color='green'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "id",
+                                data: "quantity",
                                 render: function (data) {
-                                    return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                    return "<font color='green'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "id",
+                                data: "inboundDate",
                                 render: function (data) {
-                                    return "<input style='width:100px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                    return "<font color='green'>" + data + "</font>";
                                 }
-                            }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
                         ]
                     });
                 },
                 error: function () {
-                    alert("An error occured!");
+                    alert("error!");
                 }
             });
 
-            // 获取将要打散入库的箱数、库位
-            $("#table").on("click", ".btn-allocate", function () {
-                var button = $(this);
-                var id = button.attr("id");
-                var cartons = $("#ctns-" + id.toString()).val();
-                var locator = $("#loc-" + id.toString()).val();
-                tbaCtns = button.parent().parent("tr").children('td').eq(7).children('font').html();
-
-                if (cartons == "" || locator == "")
-                {
-                    alert("Cartons and Location cannot be empty.");
-                }
-                else if (parseInt(cartons) > parseInt(tbaCtns))
-                {
-                    alert(cartons);
-                    alert(tbaCtns);
-                    alert("There is not enough cartons to be allocated!");
-                }
-                else if (cartons <= 0)
-                {
-                    alert("Cartons cannot be negative!");
-                }
-                else
-                {
-                    var obj = {
-                        "preId": preid,
-                        "id": id,
-                        "cartons": cartons,
-                        "location": locator
-                    };
-
-                    //将obj打包传入后端，根据包中内容分解已收货对象
-                    $.ajax({
-                        type: "POST",
-                        data: JSON.stringify(obj),
-                        url: "/api/FCRegularLocationAllocating/",
-                        contentType: 'application/json; charset=utf-8',
-                        dataType: "json",
-                        success: function (data) {
-                            alert("Success!");
-                            window.location.reload();
-                        },
-                        error: function (data) {
-                            alert("error!");
-                        }
-                    });
-                }
-            });
-            
-            $(".btn-back").on("click", function () {
-                window.history.back(-1);
-            });
         });
     </script>
 }

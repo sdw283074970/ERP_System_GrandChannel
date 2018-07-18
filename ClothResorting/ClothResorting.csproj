@@ -226,6 +226,7 @@
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationAllocatingController.cs" />
     <Compile Include="Controllers\Api\FCInventoryController.cs" />
+    <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
     <Compile Include="Controllers\Api\LocationDetailController.cs" />
     <Compile Include="Controllers\Api\LocationDetailSingleInboundController.cs" />
@@ -254,6 +255,7 @@
     <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
     <Compile Include="Dtos\AdjustmentRecordDto.cs" />
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
+    <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDto.cs" />
     <Compile Include="Dtos\LocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
@@ -796,6 +798,22 @@
     <Compile Include="Migrations\201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.Designer.cs">
       <DependentUpon>201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807181633403_ChangedNameFromFCRegularLocationToFCRegularLocationDetail.cs" />
+    <Compile Include="Migrations\201807181633403_ChangedNameFromFCRegularLocationToFCRegularLocationDetail.Designer.cs">
+      <DependentUpon>201807181633403_ChangedNameFromFCRegularLocationToFCRegularLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807181638058_AddedContainerInFCRegularLocationDetail.cs" />
+    <Compile Include="Migrations\201807181638058_AddedContainerInFCRegularLocationDetail.Designer.cs">
+      <DependentUpon>201807181638058_AddedContainerInFCRegularLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807181647338_AddedTwoPropertiesInFCRegularLocationDetail.cs" />
+    <Compile Include="Migrations\201807181647338_AddedTwoPropertiesInFCRegularLocationDetail.Designer.cs">
+      <DependentUpon>201807181647338_AddedTwoPropertiesInFCRegularLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.Designer.cs">
+      <DependentUpon>201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -817,7 +835,7 @@
     <Compile Include="Models\DataTransferModels\OutboundHistoryRecord.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\DataTransferModels\RelocationHistoryRecord.cs" />
-    <Compile Include="Models\FCRegularLocation.cs" />
+    <Compile Include="Models\FCRegularLocationDetail.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
     <Compile Include="Models\LocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
@@ -1166,6 +1184,7 @@
     <Content Include="Views\ThirdPartyLogistics\FCPurchaseOrderOverview.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCRegularCartonDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCReceivingReport.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\FCRegularLocationDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1572,6 +1591,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.resx">
       <DependentUpon>201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807181633403_ChangedNameFromFCRegularLocationToFCRegularLocationDetail.resx">
+      <DependentUpon>201807181633403_ChangedNameFromFCRegularLocationToFCRegularLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807181638058_AddedContainerInFCRegularLocationDetail.resx">
+      <DependentUpon>201807181638058_AddedContainerInFCRegularLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807181647338_AddedTwoPropertiesInFCRegularLocationDetail.resx">
+      <DependentUpon>201807181647338_AddedTwoPropertiesInFCRegularLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.resx">
+      <DependentUpon>201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

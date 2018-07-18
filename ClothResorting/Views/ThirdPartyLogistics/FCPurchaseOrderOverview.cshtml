@@ -126,14 +126,7 @@
                     {
                         data: "id",
                         render: function (data) {
-                            if (isReplenishment == true)
-                            {
-                                return "<a href='/ThirdPartyLogistics/CartonDetail/?preid=" + preId + "&po=" + data + "'><button class='btn btn-link'>Receiving</button></a><br>";
-                            }
-                            else
-                            {
-                                return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><br>";
-                            }
+                            return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
                         }
                     }
                 ]
@@ -197,7 +190,7 @@
             });
 
             $("#btn-location").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/RegularLocationDetail/?' + id.toString());
+                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + id.toString());
             });
 
             $(".btn-back").on("click", function () {
