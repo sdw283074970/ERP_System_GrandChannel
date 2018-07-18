@@ -69,7 +69,7 @@ namespace ClothResorting.Controllers
         }
 
         // RegularLocationDetail 批量Replenishment类型po的上传/查询库存细节页面
-        public ActionResult RegularLocationDetail()
+        public ActionResult FCRegularLocationAllocating()
         {
             return View();
         }

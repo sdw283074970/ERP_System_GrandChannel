@@ -8,6 +8,7 @@ using System.Web.Http;
 using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Models.ApiTransformModels;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -31,5 +32,22 @@ namespace ClothResorting.Controllers.Api
 
             return Ok(result);
         }
+
+        // POST /api/fcregularlocationallocating/ 根据传入数据分解已收货对象
+        //[HttpPost]
+        //public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj)
+        //{
+        //    var cartonDetailInDb = _context.RegularCartonDetails.Find(obj.Id);
+
+        //    cartonDetailInDb.Status = "Allocating";
+
+        //    cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
+        //    cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
+            
+
+        //    _context.SaveChanges();
+
+        //    return Created();
+        //}
     }
 }

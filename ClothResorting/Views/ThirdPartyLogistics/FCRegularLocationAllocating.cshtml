@@ -1,11 +1,11 @@
 ﻿
 @{
-    ViewBag.Title = "RegularLocationDetail";
+    ViewBag.Title = "FCRegularLocationAllocating";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Regular Location Distribution</h2>
+<h2>Regular Order Put Away Page</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
@@ -61,8 +61,8 @@
                 dataType: "json",
                 success: function (data) {
                     $("#table").DataTable({
-                        destroy: true,
                         data: data,
+                        destroy: true,
                         columns: [
                             {
                                 data: "purchaseOrder",
@@ -121,7 +121,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input style='width:100px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate'>OK</button>";
+                                    return "<input style='width:100px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
                                 }
                             }
                         ]
@@ -132,61 +132,48 @@
                 }
             });
 
-            $("#btn-upload").on("click", function () {
-                layui.use("layer", function () {
-                    var layer = layui.layer;
+            // 获取将要打散入库的箱数、库位
+            $("#table").on("click", ".btn-allocate", function () {
+                var button = $(this);
+                var id = button.attr("id");
+                var cartons = $("#ctns-" + id.toString()).val();
+                var locator = $("#loc-" + id.toString()).val();
+                var tbaCtns = button.parent().parent("tr").children('td').eq(7).children('font').html();
 
-                    layer.open({
-                        title: false,
-                        type: 1,
-                        shadeclose: true,
-                        area: ["40%", "40%"],
-                        content: $(".iframe")
-                    });
-                });
-            });
-
-            $("#uploadfile").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
+                if (cartons == "" || locator == "")
+                {
+                    alert("Cartons and Location cannot be empty.");
                 }
+                else if (cartons > tbaCtns)
+                {
+                    alert("There is not enough cartons to be allocated!");
+                }
+                else
+                {
+                    var obj = {
+                        "preId": preid,
+                        "id": id,
+                        "cartons": cartons,
+                        "location": locator
+                    };
 
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/FCRegularLocationDetail/" + preid,
-                    data: formData,
-                    beforeSend: function () {
-                        layui.use('layer', function () {
-                            var layer = layui.layer;
-                            layer.msg('Extracting files...', {
-                                icon: 16,
-                                shade: 0.01,
-                                time: 99 * 1000
-                            });;
-                        });
-                    },
-                    success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured on the server! Please make sure the po in file matches the po of this page.");
-                    }
-                });
-                $(".iframe").hide();
+                    //将obj打包传入后端，根据包中内容分解已收货对象
+                    $.ajax({
+                        type: "POST",
+                        data: JSON.stringify(obj),
+                        url: "/api/FCRegularLocationAllocating/",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
+                            alert("Success!");
+                        },
+                        error: function (data) {
+                            alert("error!");
+                        }
+                    });
+                }
             });
-
-            $("#btn-inbound").on("click", function () {
-                alert("This function is still in construction.");
-            });
-
+            
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });

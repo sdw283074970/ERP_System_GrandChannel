@@ -225,7 +225,6 @@
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationAllocatingController.cs" />
-    <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
     <Compile Include="Controllers\Api\FCInventoryController.cs" />
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
     <Compile Include="Controllers\Api\LocationDetailController.cs" />
@@ -242,7 +241,6 @@
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailConfirmationController.cs" />
-    <Compile Include="Controllers\Api\RegularLocationDetail.cs" />
     <Compile Include="Controllers\Api\RelocationHistoryController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
@@ -791,12 +789,17 @@
     <Compile Include="Migrations\201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.Designer.cs">
       <DependentUpon>201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807180020075_RemovedRegularLocationDetails.cs" />
+    <Compile Include="Migrations\201807180020075_RemovedRegularLocationDetails.Designer.cs">
+      <DependentUpon>201807180020075_RemovedRegularLocationDetails.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
     <Compile Include="Models\ApiTransformModels\AdjustmentJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\BasicFourAttrsJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\FCRegularLocationAllocatingJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\IntArrayAndString.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
@@ -819,7 +822,6 @@
     <Compile Include="Models\POSummary.cs" />
     <Compile Include="Models\PurchaseOrderInventory.cs" />
     <Compile Include="Models\RegularCartonDetail.cs" />
-    <Compile Include="Models\RegularLocationDetail.cs" />
     <Compile Include="Models\RegularSpeciesInventory.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdPoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PurchaseOrderReceivedCartons.cs" />
@@ -1150,7 +1152,7 @@
     <Content Include="Views\ThirdPartyLogistics\Search.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdownOutbound.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\LocationDetail.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\RegularLocationDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\FCRegularLocationAllocating.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\GrabReplenishmentOrder.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PermanentLocManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PurchaseOrderManagement.cshtml" />
@@ -1561,6 +1563,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.resx">
       <DependentUpon>201807172118280_AddedStatusAndTwoPropertiesInRegularCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807180020075_RemovedRegularLocationDetails.resx">
+      <DependentUpon>201807180020075_RemovedRegularLocationDetails.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

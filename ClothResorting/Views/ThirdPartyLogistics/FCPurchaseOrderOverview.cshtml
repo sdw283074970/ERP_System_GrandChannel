@@ -19,6 +19,7 @@
             <thead>
                 <tr>
                     <th><input id="select-all" type="checkbox" value="0" /></th>
+                    <th>Container</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Order Type</th>
@@ -28,7 +29,6 @@
                     <th>Received Pcs</th>
                     <th>Cartons</th>
                     <th>Received Ctns</th>
-                    <th>Container</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -61,6 +61,12 @@
                         render: function (data) {
                             return "<input name='selected' type='checkbox' class='cb-selected' value='"
                                         + data + "' />";
+                        }
+                    },
+                    {
+                        data: "container",
+                        render: function (data) {
+                            return "<a href='/ThirdPartyLogistics/FCReceivingReport/?preid=" + preId + "&container=" + data + "'><button class='btn btn-link btn-report'>" + data + "</button></a><br>";
                         }
                     },
                     {
@@ -115,12 +121,6 @@
                         data: "actualCtns",
                         render: function (data) {
                             return "<font color='green'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "container",
-                        render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/FCReceivingReport/?preid=" + preId + "&container=" + data + "'><button class='btn btn-link btn-report'>" + data + "</button></a><br>";
                         }
                     },
                     {
@@ -193,7 +193,7 @@
             });
 
             $("#btn-allocate").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/RegularLocationDetail/?preid=' + id.toString());
+                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationAllocating/?preid=' + id.toString());
             });
 
             $("#btn-location").on("click", function () {

@@ -542,55 +542,6 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
-        //以RegularLocationDetail为单位，从入库报告中抽取信息(与PackingList无关联), 暂时没用
-        public void ExtractRegularLocationDetail(string po)
-        {
-            int n = 3;
-            int countOfObj = 0;
-            var locationDetailList = new List<RegularLocationDetail>();
-
-            _ws = _wb.Worksheets[1];
-            _purchaseOrder = _ws.Cells[1, 2] == null ? "" : _ws.Cells[1, 2].Value2.ToString();
-
-            var purchaseOrderInDb = _context.PurchaseOrderInventories
-                .SingleOrDefault(c => c.PurchaseOrder == _purchaseOrder);
-
-            if (_purchaseOrder != po)
-            {
-                Dispose();
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
-            }
-
-            while (_ws.Cells[n, 3].Value2 != null)
-            {
-                countOfObj += 1;
-                n += 1;
-            }
-
-            for (int i = 0; i < countOfObj; i++)
-            {
-                locationDetailList.Add(new RegularLocationDetail
-                {
-                    PurchaseOrderInventory = purchaseOrderInDb,
-                    PurchaseOrder = _purchaseOrder,
-                    Style = _ws.Cells[3 + i, 1].Value2.ToString(),
-                    Color = _ws.Cells[3 + i, 2].Value2.ToString(),
-                    RunCode = _ws.Cells[3 + i, 3].Value2.ToString(),
-                    OrgNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
-                    InvNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
-                    OrgPcs = (int)_ws.Cells[3 + i, 5].Value2(),
-                    InvPcs = (int)_ws.Cells[3 + i, 5].Value2(),
-                    Location = _ws.Cells[3 + i, 6].Value2(),
-                    InboundDate = _dateTimeNow
-                });
-            }
-
-            _context.RegularLocationDetails.AddRange(locationDetailList);
-            _context.SaveChanges();
-
-            Dispose();
-        }
-
         //新建FreeCountry的预收货订单
         public void CreateFCPreReceiveOrder()
         {
@@ -772,48 +723,48 @@ namespace ClothResorting.Helpers
         }
 
         // 抽取FreeCountry正常订单的库存分配信息
-        public void ExtractFCRegularLocation(int preid)
-        {
-            _ws = _wb.Worksheets[1];
+        //public void ExtractFCRegularLocation(int preid)
+        //{
+        //    _ws = _wb.Worksheets[1];
 
-            int countOfRow = 0;
-            int index = 2;
-            var locationList = new List<FCRegularLocation>();
-            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preid);
+        //    int countOfRow = 0;
+        //    int index = 2;
+        //    var locationList = new List<FCRegularLocation>();
+        //    var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preid);
 
-            // 扫描有多少行即有多少个条目
-            while(index > 0)
-            {
-                if (_ws.Cells[index, 1].Value2 != null)
-                {
-                    countOfRow += 1;
-                    index += 1;
-                }
-                else
-                {
-                    break;
-                }
-            }
+        //    // 扫描有多少行即有多少个条目
+        //    while(index > 0)
+        //    {
+        //        if (_ws.Cells[index, 1].Value2 != null)
+        //        {
+        //            countOfRow += 1;
+        //            index += 1;
+        //        }
+        //        else
+        //        {
+        //            break;
+        //        }
+        //    }
 
-            for (int i = 0; i < countOfRow; i++)
-            {
-                locationList.Add(new FCRegularLocation {
-                    PurchaseOrder = _ws.Cells[i + 2, 1].Value2.ToString(),
-                    Style = _ws.Cells[i + 2, 2].Value2.ToString(),
-                    Color = _ws.Cells[i + 2, 3].Value2.ToString(),
-                    CustomerCode = _ws.Cells[i + 2, 4].Value2.ToString(),
-                    SizeBundle = _ws.Cells[i + 2, 5].Value2.ToString(),
-                    PcsBundle = _ws.Cells[i + 2, 1].Value2.ToString(),
-                    Cartons = (int)_ws.Cells[i + 2, 1].Value2,
-                    Quantity = (int)_ws.Cells[i + 2, 1].Value2,
-                    Location = _ws.Cells[i + 2, 1].Value2.ToString(),
-                    InboundDate = _dateTimeNow,
-                    PreReceiveOrder = preReceiveOrderInDb
-                });
-            }
+        //    for (int i = 0; i < countOfRow; i++)
+        //    {
+        //        locationList.Add(new FCRegularLocation {
+        //            PurchaseOrder = _ws.Cells[i + 2, 1].Value2.ToString(),
+        //            Style = _ws.Cells[i + 2, 2].Value2.ToString(),
+        //            Color = _ws.Cells[i + 2, 3].Value2.ToString(),
+        //            CustomerCode = _ws.Cells[i + 2, 4].Value2.ToString(),
+        //            SizeBundle = _ws.Cells[i + 2, 5].Value2.ToString(),
+        //            PcsBundle = _ws.Cells[i + 2, 1].Value2.ToString(),
+        //            Cartons = (int)_ws.Cells[i + 2, 1].Value2,
+        //            Quantity = (int)_ws.Cells[i + 2, 1].Value2,
+        //            Location = _ws.Cells[i + 2, 1].Value2.ToString(),
+        //            InboundDate = _dateTimeNow,
+        //            PreReceiveOrder = preReceiveOrderInDb
+        //        });
+        //    }
 
-            _context.FCRegularLocations.AddRange(locationList);
-            _context.SaveChanges();
-        }
+        //    _context.FCRegularLocations.AddRange(locationList);
+        //    _context.SaveChanges();
+        //}
     }
 }
