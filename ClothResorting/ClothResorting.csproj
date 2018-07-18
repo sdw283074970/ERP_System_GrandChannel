@@ -262,7 +262,6 @@
     <Compile Include="Dtos\POSummaryDto.cs" />
     <Compile Include="Dtos\PurchaseOrderInventoryDto.cs" />
     <Compile Include="Dtos\RegularCartonDetailDto.cs" />
-    <Compile Include="Dtos\RegularLocationDetailDto.cs" />
     <Compile Include="Dtos\RetrievingRecordDto.cs" />
     <Compile Include="Dtos\CartonDetailDto.cs" />
     <Compile Include="Dtos\PackingListDto.cs" />
@@ -792,6 +791,10 @@
     <Compile Include="Migrations\201807180020075_RemovedRegularLocationDetails.cs" />
     <Compile Include="Migrations\201807180020075_RemovedRegularLocationDetails.Designer.cs">
       <DependentUpon>201807180020075_RemovedRegularLocationDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.cs" />
+    <Compile Include="Migrations\201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.Designer.cs">
+      <DependentUpon>201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1566,6 +1569,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807180020075_RemovedRegularLocationDetails.resx">
       <DependentUpon>201807180020075_RemovedRegularLocationDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.resx">
+      <DependentUpon>201807180025300_DisconnectedFCRegularLocationWithPrereceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

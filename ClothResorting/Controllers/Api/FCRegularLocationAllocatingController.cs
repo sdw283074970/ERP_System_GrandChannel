@@ -43,7 +43,8 @@ namespace ClothResorting.Controllers.Api
 
         //    cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
         //    cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
-            
+
+
 
         //    _context.SaveChanges();
 
