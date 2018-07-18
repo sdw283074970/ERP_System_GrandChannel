@@ -224,6 +224,7 @@
     <Compile Include="Controllers\Api\FCPurchaseOrderOverviewController.cs" />
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
+    <Compile Include="Controllers\Api\FCRegularLocationAllocatingBatchController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationAllocatingController.cs" />
     <Compile Include="Controllers\Api\FCInventoryController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
@@ -821,7 +822,8 @@
     <Compile Include="Models\ApiTransformModels\BasicFourAttrsJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\FCRegularLocationAllocatingJsonObj.cs" />
-    <Compile Include="Models\ApiTransformModels\IntArrayAndString.cs" />
+    <Compile Include="Models\ApiTransformModels\ArrPreIdLocationJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\ArrPreIdContainerJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />

@@ -25,6 +25,7 @@ namespace ClothResorting.Controllers.Api
         [HttpPut]
         public void UpdateReceiving([FromBody]int[] arr)
         {
+            Array.Sort(arr);
             var firstId = arr[0];
             var lastId = arr.Last();
 

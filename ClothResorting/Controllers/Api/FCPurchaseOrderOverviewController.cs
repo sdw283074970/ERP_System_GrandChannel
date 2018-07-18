@@ -21,11 +21,11 @@ namespace ClothResorting.Controllers.Api
 
         // PUT /api/fcpurchaseorderoverview 更新pl的container信息
         [HttpPut]
-        public void UpdateContainer([FromBody]IntArrayIntString obj)
+        public void UpdateContainer([FromBody]ArrPreIdContainerJsonObj obj)
         {
-            var arr = obj.arr;
-            var container = obj.container;
-            var preId = obj.preId;
+            var arr = obj.Arr;
+            var container = obj.Container;
+            var preId = obj.PreId;
 
             var poSummariesInDb = _context.POSummaries
                 .Include(c => c.PreReceiveOrder)

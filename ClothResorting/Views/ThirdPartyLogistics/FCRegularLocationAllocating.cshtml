@@ -14,6 +14,7 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th><input id="select-all" type="checkbox" value="12345" /></th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Color</th>
@@ -28,6 +29,9 @@
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+    <div>
+        <input id="input-batchlocation" type="text" class="input-lg" placeholder="Location" /> <button id="btn-batchupdate" class="btn btn-info">Batch Update</button>
     </div>
 </div>
 @section scripts
@@ -64,6 +68,13 @@
                         data: data,
                         destroy: true,
                         columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                        + data + "' />";
+                                }
+                            },
                             {
                                 data: "purchaseOrder",
                                 render: function (data) {
@@ -181,6 +192,57 @@
                 }
             });
             
+            //勾选全选选项，则选择所有对象
+            $("#select-all").on("click", function () {
+                if ($("#select-all").is(":checked")) {
+                    $(".cb-selected").prop("checked", true);
+                }
+                else {
+                    $(".cb-selected").prop("checked", false);
+                }
+            });
+
+            //批量指定库位按钮
+            $("#btn-batchupdate").on("click", function () {
+                var button = $(this);
+                var arr = new Array();
+
+                //将所有被选中的CheckBox的对象的id放到数组中
+                $("input:checkbox[name='selected']:checked").each(function (i) {
+                    var val = $(this).val();
+                    arr.push(val);
+                });
+
+                if (button.prev().val() == "" || arr == null)
+                {
+                    alert("Location cannot be empty");
+                }
+                {
+                    //将数组和location封装进一个对象以供POST传出
+                    var obj = {
+                        "arr": arr,
+                        "preId": preid,
+                        "location": button.prev().val()
+                    };
+
+                    //将所有被选中的对象默认视为分配所有已有箱数(通常只有一两箱)，即入库箱数等于待分配箱数
+                    $.ajax({
+                        type: "POST",
+                        data: JSON.stringify(obj),
+                        url: "/api/FCRegularLocationAllocatingBatch/",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
+                            alert("Success!");
+                            window.location.reload();
+                        },
+                        error: function (data) {
+                            alert("error!");
+                        }
+                    });
+                }
+            });
+
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });
