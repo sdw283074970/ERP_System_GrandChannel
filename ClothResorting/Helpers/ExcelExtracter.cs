@@ -638,13 +638,6 @@ namespace ClothResorting.Helpers
                 var poLine = (int)_ws.Cells[startIndex + 1, 3].Value2;
                 string purchaseOrder = _ws.Cells[startIndex + 1, 1].Value2.ToString();
 
-                var poSummaryInDb = _context.POSummaries
-                    .Include(c => c.PreReceiveOrder)
-                    .Where(c => c.PurchaseOrder == purchaseOrder 
-                        && c.PreReceiveOrder.Id == preReceiveOrderId
-                        && c.PoLine == poLine)
-                    .First();
-
                 //扫描该PoSummary对象占多少行
                 while (_ws.Cells[rowIndex, 1].Value2 != null)
                 {
@@ -686,29 +679,86 @@ namespace ClothResorting.Helpers
                         sizeBundle += size.SizeName + " ";
                         pcsBundle += size.Count.ToString() + " ";
                     }
+                    
+                    var poSummaryInDbs = _context.POSummaries
+                        .Include(c => c.PreReceiveOrder)
+                        .Include(c => c.RegularCartonDetails)
+                        .Where(c => c.PurchaseOrder == purchaseOrder
+                            && c.PreReceiveOrder.Id == preReceiveOrderId
+                            && c.PoLine == poLine);
 
-                    regularCartonDetailList.Add(new RegularCartonDetail {
-                        CartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2.ToString(),
-                        PurchaseOrder = _ws.Cells[startIndex + 3 + j, 2].Value2.ToString(),
-                        Style = _ws.Cells[startIndex + 3 + j, 3].Value2.ToString(),
-                        Customer = _ws.Cells[startIndex + 3 + j, 4].Value2.ToString(),
-                        Dimension = _ws.Cells[startIndex + 3 + j, 5].Value2.ToString(),
-                        GrossWeight = 0,
-                        NetWeight = 0,
-                        Color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString(),
-                        Cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2,
-                        SizeBundle = sizeBundle,
-                        PcsBundle = pcsBundle,
-                        PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
-                        Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
-                        ActualCtns = 0,
-                        ActualPcs = 0,
-                        InboundDate = null,
-                        Status = "Created",
-                        ToBeAllocatedCtns = 0,
-                        ToBeAllocatedPcs = 0,
-                        POSummary = poSummaryInDb
-                    });
+                    //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
+                    if (poSummaryInDbs.Count() == 1)
+                    {
+                        var poSummaryInDb = poSummaryInDbs.First();
+
+                        regularCartonDetailList.Add(new RegularCartonDetail
+                        {
+                            CartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2.ToString(),
+                            PurchaseOrder = _ws.Cells[startIndex + 3 + j, 2].Value2.ToString(),
+                            Style = _ws.Cells[startIndex + 3 + j, 3].Value2.ToString(),
+                            Customer = _ws.Cells[startIndex + 3 + j, 4].Value2.ToString(),
+                            Dimension = _ws.Cells[startIndex + 3 + j, 5].Value2.ToString(),
+                            GrossWeight = 0,
+                            NetWeight = 0,
+                            Color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString(),
+                            Cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2,
+                            SizeBundle = sizeBundle,
+                            PcsBundle = pcsBundle,
+                            PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
+                            Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
+                            ActualCtns = 0,
+                            ActualPcs = 0,
+                            InboundDate = null,
+                            Status = "Created",
+                            ToBeAllocatedCtns = 0,
+                            ToBeAllocatedPcs = 0,
+                            POSummary = poSummaryInDb
+                        });
+                    }
+                    else if (poSummaryInDbs.Count() > 1)
+                    {
+                        var regularCartonDetail = new RegularCartonDetail
+                        {
+                            CartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2.ToString(),
+                            PurchaseOrder = _ws.Cells[startIndex + 3 + j, 2].Value2.ToString(),
+                            Style = _ws.Cells[startIndex + 3 + j, 3].Value2.ToString(),
+                            Customer = _ws.Cells[startIndex + 3 + j, 4].Value2.ToString(),
+                            Dimension = _ws.Cells[startIndex + 3 + j, 5].Value2.ToString(),
+                            GrossWeight = 0,
+                            NetWeight = 0,
+                            Color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString(),
+                            Cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2,
+                            SizeBundle = sizeBundle,
+                            PcsBundle = pcsBundle,
+                            PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
+                            Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
+                            ActualCtns = 0,
+                            ActualPcs = 0,
+                            InboundDate = null,
+                            Status = "Created",
+                            ToBeAllocatedCtns = 0,
+                            ToBeAllocatedPcs = 0
+                        };
+
+                        foreach (var poSummaryIndb in poSummaryInDbs)
+                        {
+                            if (regularCartonDetailList
+                                .SingleOrDefault(c => c.PurchaseOrder == regularCartonDetail.PurchaseOrder
+                                    && c.Style == regularCartonDetail.Style
+                                    && c.Customer == regularCartonDetail.Customer
+                                    && c.Color == regularCartonDetail.Color
+                                    && c.PcsBundle == regularCartonDetail.PcsBundle
+                                    && c.SizeBundle == regularCartonDetail.SizeBundle
+                                    && c.POSummary == poSummaryIndb) == null)
+                            {
+                                regularCartonDetail.POSummary = poSummaryIndb;
+                                regularCartonDetailList.Add(regularCartonDetail);
+                                break;
+                            }
+                        }
+                    }
+
                 }
                 
                 //扫描该PoSummary对象与下一个对象之间的间隔行数
