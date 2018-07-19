@@ -29,23 +29,14 @@ namespace ClothResorting.Controllers.Api
             var fileSavePath = "";
 
             //方法1：写入磁盘系统
-            if (HttpContext.Current.Request.Files.AllKeys.Any())
+            //从httpRequest中获取文件并写入磁盘系统
+            var filesGetter = new FilesGetter();
+
+            fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+
+            if (fileSavePath == "")
             {
-                var httpPostedFile = HttpContext.Current.Request.Files[0];
-
-                if (httpPostedFile != null)
-                {
-                    var timeStamp = DateTime.Now.Year.ToString()
-                        + DateTime.Now.Month.ToString()
-                        + DateTime.Now.Day.ToString()
-                        + DateTime.Now.Hour.ToString()
-                        + DateTime.Now.Second.ToString()
-                        + DateTime.Now.Millisecond.ToString();
-
-                    fileSavePath = @"D:\TempFiles\" + timeStamp + " - " + httpPostedFile.FileName;
-
-                    httpPostedFile.SaveAs(fileSavePath);
-                }
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
             ////方法2：不写入磁盘系统
