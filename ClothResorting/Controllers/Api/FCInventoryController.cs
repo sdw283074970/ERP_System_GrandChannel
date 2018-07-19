@@ -21,6 +21,7 @@ namespace ClothResorting.Controllers.Api
         }
 
         // POST /api/freecountryinventory
+        [HttpPost]
         public void UploadAndExtractFreeCountryExcel()
         {
             var fileSavePath = "";
