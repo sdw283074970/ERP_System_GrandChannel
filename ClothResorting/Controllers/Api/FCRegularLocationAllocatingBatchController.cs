@@ -7,6 +7,9 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Helpers;
+using AutoMapper;
+using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -23,7 +26,7 @@ namespace ClothResorting.Controllers.Api
 
         // POST /api/FCRegularLocationAllocatingBatch
         [HttpPost]
-        public void CreateBatchLocationDetail([FromBody]ArrPreIdLocationJsonObj obj)
+        public IHttpActionResult CreateBatchLocationDetail([FromBody]ArrPreIdLocationJsonObj obj)
         {
             var locationDeatilList = new List<FCRegularLocationDetail>();
             var regularCartonDetailsIndb = _context.RegularCartonDetails
@@ -58,6 +61,19 @@ namespace ClothResorting.Controllers.Api
 
             _context.FCRegularLocationDetails.AddRange(locationDeatilList);
             _context.SaveChanges();
+
+            //获取刚写入数据库的记录
+            var latestRecords = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).Take(locationDeatilList.Count);
+            var breaker = new CartonBreaker();
+
+            foreach (var record in latestRecords)
+            {
+                breaker.BreakCartonBundle(record);
+            }
+
+            var recordsDto = Mapper.Map<List<FCRegularLocationDetail>, List<FCRegularLocationDetailDto>>(latestRecords.ToList());
+
+            return Created(Request.RequestUri + "/" + latestRecords.OrderBy(c => c.Id).First().Id + ":" + latestRecords.First().Id, recordsDto);
         }
     }
 }

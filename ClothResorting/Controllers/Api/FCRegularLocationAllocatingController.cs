@@ -9,6 +9,7 @@ using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -65,10 +66,15 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
 
-            var sample = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).First();
-            var sampleDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(sample);
+            var latestRecord = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).First();
 
-            return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+            var breaker = new CartonBreaker();
+
+            breaker.BreakCartonBundle(latestRecord);
+
+            var latestRecordDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(latestRecord);
+
+            return Created(Request.RequestUri + "/" + latestRecordDto.Id, latestRecordDto);
         }
     }
 }

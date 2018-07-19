@@ -275,6 +275,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CartonBreakdownGetter.cs" />
+    <Compile Include="Helpers\CartonBreaker.cs" />
     <Compile Include="Helpers\ExcelExtracter.cs" />
     <Compile Include="Helpers\ExcelKiller.cs" />
     <Compile Include="Helpers\FilesGetter.cs" />
@@ -815,6 +816,10 @@
     <Compile Include="Migrations\201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.Designer.cs">
       <DependentUpon>201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807192047144_AddedCartonInsides.cs" />
+    <Compile Include="Migrations\201807192047144_AddedCartonInsides.Designer.cs">
+      <DependentUpon>201807192047144_AddedCartonInsides.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -830,6 +835,7 @@
     <Compile Include="Models\ApiTransformModels\CartonDetailRequestJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
+    <Compile Include="Models\CartonInside.cs" />
     <Compile Include="Models\DataTransferModels\AdjustedRecord.cs" />
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
     <Compile Include="Models\DataTransferModels\FCReceivingReport.cs" />
@@ -1045,6 +1051,7 @@
     <Content Include="Content\DataTables\css\semanticui.scss" />
     <Content Include="Content\DataTables\css\mixins.scss" />
     <Content Include="Content\DataTables\css\common.scss" />
+    <None Include="Properties\PublishProfiles\Refine.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -1198,7 +1205,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Scripts\Layui\css\" />
     <Folder Include="Scripts\Layui\font\" />
     <Folder Include="Scripts\Layui\images\" />
@@ -1614,6 +1620,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.resx">
       <DependentUpon>201807181659043_ConnectedFCRegularLocationDetailWithPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807192047144_AddedCartonInsides.resx">
+      <DependentUpon>201807192047144_AddedCartonInsides.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

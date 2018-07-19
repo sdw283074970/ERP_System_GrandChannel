@@ -36,5 +36,7 @@ namespace ClothResorting.Models
         public DateTime InboundDate { get; set; }
 
         public PreReceiveOrder PreReceiveOrder { get; set; }
+
+        public ICollection<CartonInside> CartonInsides { get; set; }
     }
 }

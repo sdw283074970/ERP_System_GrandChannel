@@ -43,6 +43,7 @@ namespace ClothResorting.Models
         public DbSet<POSummary> POSummaries { get; set; }
         public DbSet<RegularCartonDetail> RegularCartonDetails { get; set; }
         public DbSet<FCRegularLocationDetail> FCRegularLocationDetails { get; set; }
+        public DbSet<CartonInside> CartonInsides { get; set; }
 
         public static ApplicationDbContext Create()
         {

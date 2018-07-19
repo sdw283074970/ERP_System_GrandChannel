@@ -18,9 +18,9 @@ namespace ClothResorting.Helpers
 
                 if (httpPostedFile != null)
                 {
-                    var timeStamp = DateTime.Now.Year.ToString() 
-                        + DateTime.Now.Month.ToString() 
-                        + DateTime.Now.Day.ToString() 
+                    var timeStamp = DateTime.Now.Year.ToString()
+                        + DateTime.Now.Month.ToString()
+                        + DateTime.Now.Day.ToString()
                         + DateTime.Now.Hour.ToString()
                         + DateTime.Now.Second.ToString()
                         + DateTime.Now.Millisecond.ToString();
