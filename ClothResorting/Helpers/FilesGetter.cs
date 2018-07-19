@@ -25,7 +25,7 @@ namespace ClothResorting.Helpers
                         + DateTime.Now.Second.ToString()
                         + DateTime.Now.Millisecond.ToString();
 
-                    _filePath = targetRootPath + httpPostedFile.FileName + timeStamp;
+                    _filePath = targetRootPath + timeStamp  + " - " + httpPostedFile.FileName;
 
                     httpPostedFile.SaveAs(_filePath);
                 }

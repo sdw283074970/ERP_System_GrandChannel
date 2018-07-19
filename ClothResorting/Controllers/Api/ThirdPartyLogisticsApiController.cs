@@ -35,7 +35,14 @@ namespace ClothResorting.Controllers.Api
 
                 if (httpPostedFile != null)
                 {
-                    fileSavePath = @"D:\TempFiles\" + httpPostedFile.FileName;
+                    var timeStamp = DateTime.Now.Year.ToString()
+                        + DateTime.Now.Month.ToString()
+                        + DateTime.Now.Day.ToString()
+                        + DateTime.Now.Hour.ToString()
+                        + DateTime.Now.Second.ToString()
+                        + DateTime.Now.Millisecond.ToString();
+
+                    fileSavePath = @"D:\TempFiles\" + timeStamp + " - " + httpPostedFile.FileName;
 
                     httpPostedFile.SaveAs(fileSavePath);
                 }
