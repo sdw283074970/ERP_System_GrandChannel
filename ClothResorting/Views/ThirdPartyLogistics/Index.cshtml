@@ -154,9 +154,9 @@
                         data: "id",
                         render: function (data) {
                             if (customer == "SILK-ICON")
-                                return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-link'>Manage</button></a>";
+                                return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                             else
-                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-link'>Manage</button></a>";
+                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                         }
                     }
                 ]
@@ -284,6 +284,10 @@
                         });
                     }
                 });
+            });
+
+            $("#table").on("click", ".btn-delete", function () {
+                alert("This feature did not finish yet.");
             });
         });
     </script>
