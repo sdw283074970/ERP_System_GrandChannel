@@ -15,6 +15,8 @@ namespace ClothResorting.Models
 
         public string PickTicketsRange { get; set; }
 
+        public string Status { get; set; }
+
         public PreReceiveOrder PreReceiveOrder { get; set; }
 
         public ICollection<PickingRecord> PickingRecords { get; set; }

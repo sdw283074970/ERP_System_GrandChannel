@@ -29,7 +29,7 @@ namespace ClothResorting.Models
 
         public int Quantity { get; set; }
 
-        public int PcsPerCaron { get; set; }
+        public int PcsPerCarton { get; set; }
 
         public string Location { get; set; }
 

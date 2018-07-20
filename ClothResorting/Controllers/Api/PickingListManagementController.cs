@@ -44,7 +44,8 @@ namespace ClothResorting.Controllers.Api
                 CreateDate = DateTime.Now,
                 OrderPurchaseOrder = obj.OrderPurchaseOrder,
                 PickTicketsRange = obj.Range,
-                PreReceiveOrder = preReceiveOrderInDb
+                PreReceiveOrder = preReceiveOrderInDb,
+                Status = "Picking"
             });
 
             _context.SaveChanges();

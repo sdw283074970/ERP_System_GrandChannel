@@ -11,9 +11,6 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Picking List Management" />
-    </div>
-    <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -78,7 +75,18 @@
                             {
                                 data: "status",
                                 render: function (data) {
-                                    return "<text style='color:Red'>" + data + "</text>";
+                                    if (data == "Picking")
+                                    {
+                                        return "<text style='color:Red'>" + data + "</text>";
+                                    }
+                                    else if (data == "Shipped")
+                                    {
+                                        return "<text style='color:Blue'>" + data + "</text>";
+                                    }
+                                    else
+                                    {
+                                        return "<text style='color:Green'>" + data + "</text>";
+                                    }
                                 }
                             },
                             {
@@ -90,55 +98,55 @@
                             {
                                 data: "style",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "color",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "customerCode",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "sizeBundle",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "pcsBundle",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "cartons",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "quantity",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "inboundDate",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "location",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                         ]
@@ -147,10 +155,6 @@
                 error: function () {
                     alert("error!");
                 }
-            });
-
-            $("#btn-plmanage").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/PickingListManagement/?preid=' + preid.toString());
             });
 
             $(".btn-back").on("click", function () {

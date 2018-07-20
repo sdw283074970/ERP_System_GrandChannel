@@ -836,6 +836,14 @@
     <Compile Include="Migrations\201807192359295_AddedOPOInPickingRecord.Designer.cs">
       <DependentUpon>201807192359295_AddedOPOInPickingRecord.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807201608004_CorrectedPcikRecordName.cs" />
+    <Compile Include="Migrations\201807201608004_CorrectedPcikRecordName.Designer.cs">
+      <DependentUpon>201807201608004_CorrectedPcikRecordName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807201615334_AddedStatusPropertyInPickingList.cs" />
+    <Compile Include="Migrations\201807201615334_AddedStatusPropertyInPickingList.Designer.cs">
+      <DependentUpon>201807201615334_AddedStatusPropertyInPickingList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1654,6 +1662,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807192359295_AddedOPOInPickingRecord.resx">
       <DependentUpon>201807192359295_AddedOPOInPickingRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807201608004_CorrectedPcikRecordName.resx">
+      <DependentUpon>201807201608004_CorrectedPcikRecordName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807201615334_AddedStatusPropertyInPickingList.resx">
+      <DependentUpon>201807201615334_AddedStatusPropertyInPickingList.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

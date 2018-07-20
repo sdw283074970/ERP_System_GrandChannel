@@ -12,7 +12,8 @@
     </div>
     <div>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
-        <input id="btn-location" type="button" class="btn btn-info" value="View location" />
+        <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
+        <input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Manage picking list" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -44,11 +45,26 @@
     <script>
         $(document).ready(function () {
 
-            var id = window.location.search.substr(1);
-            var preId = window.location.search.substr(1);
-            var isReplenishment = false;
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
 
-            var urlstring = "/api/fcinventory/" + id;
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            //从地址栏获取参数
+            var preId = getUrlParameter('preid');
+
+            var urlstring = "/api/fcinventory/" + preId;
 
             $("#table").DataTable({
                 ajax: {
@@ -186,11 +202,15 @@
             });
 
             $("#btn-allocate").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationAllocating/?preid=' + id.toString());
+                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationAllocating/?preid=' + preId.toString());
             });
 
             $("#btn-location").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + id.toString());
+                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + preId.toString());
+            });
+
+            $("#btn-plmanage").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/PickingListManagement/?preid=' + preId.toString());
             });
 
             $(".btn-back").on("click", function () {

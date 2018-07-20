@@ -18,10 +18,11 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Picking List Id</th>
+                    <th>Id</th>
                     <th>OPO</th>
                     <th>Picking Tickets Range</th>
                     <th>Create Date</th>
+                    <th>Status</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -88,9 +89,15 @@
                                 }
                             },
                             {
+                                data: "status",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
+                                    return "<button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
                                 }
                             }
                         ]

@@ -67,7 +67,7 @@ namespace ClothResorting.Controllers.Api
                     CustomerCode = location.CustomerCode,
                     Cartons = location.Cartons,
                     Quantity = location.Quantity,
-                    PcsPerCaron = location.PcsPerCaron,
+                    PcsPerCarton = location.PcsPerCaron,
                     Location = location.Location,
                     PickingDate = _timeNow,
                     PickingList = pickingListInDb,
