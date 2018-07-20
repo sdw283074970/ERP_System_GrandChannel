@@ -73,7 +73,7 @@
                             {
                                 data: "orderPurchaseOrder",
                                 render: function (data) {
-                                    return "<button class='btn btn-link btn-opo'>" + data + "</button>";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
@@ -102,9 +102,16 @@
                                 }
                             },
                             {
-                                data: "id",
+                                data: "status",
                                 render: function (data) {
-                                    return "<button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
+                                    if (data == "Shipped")
+                                    {
+                                        return "<button class='btn btn-link btn-cancel'>Cancel</button>";
+                                    }
+                                    else
+                                    {
+                                        return "<button class='btn btn-link btn-opo'>View</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
+                                    }
                                 }
                             }
                         ]
@@ -168,6 +175,14 @@
                         alert("Error!");
                     }
                 });
+            });
+
+            $("#table").on("click", ".btn-cancel", function () {
+                alert("This feature did not finish yet.");
+            });
+
+            $("#table").on("click", ".btn-print", function () {
+                alert("This feature did not finish yet.");
             });
 
             $(".btn-back").on("click", function () {

@@ -32,6 +32,7 @@
                     <th>Quantity</th>
                     <th>Inbound Date</th>
                     <th>Location</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -162,6 +163,12 @@
                                     return "<font color='orange'>" + data + "</font>";
                                 }
                             },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                }
+                            }
                         ]
                     });
                 },
@@ -290,6 +297,12 @@
                                         return "<font color='orange'>" + data + "</font>";
                                     }
                                 },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                    }
+                                }
                             ]
                         });
                     },
@@ -297,6 +310,10 @@
                         alert("error!");
                     }
                 });
+            });
+
+            $("#table").on("click", ".btn-relocate", function () {
+                alert("This featrue did not finish yet.");
             });
 
             $(".btn-back").on("click", function () {
