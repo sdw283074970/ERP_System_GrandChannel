@@ -71,7 +71,8 @@ namespace ClothResorting.Controllers.Api
                     Location = location.Location,
                     PickingDate = _timeNow,
                     PickingList = pickingListInDb,
-                    OrderPurchaseOrder = opo
+                    OrderPurchaseOrder = opo,
+                    FCRegularLocationDetail = location
                 });
             }
 

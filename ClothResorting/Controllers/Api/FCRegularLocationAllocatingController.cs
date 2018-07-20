@@ -42,6 +42,8 @@ namespace ClothResorting.Controllers.Api
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .SingleOrDefault(c => c.Id == obj.Id);
 
+            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(obj.PreId);
+
             cartonDetailInDb.Status = "Allocating";
 
             cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
@@ -61,16 +63,17 @@ namespace ClothResorting.Controllers.Api
                 PcsPerCaron = cartonDetailInDb.PcsPerCarton,
                 Status = "In Stock",
                 InboundDate = DateTime.Now,
-                PreReceiveOrder = cartonDetailInDb.POSummary.PreReceiveOrder
+                PreReceiveOrder = preReceiveOrderInDb
             });
 
             _context.SaveChanges();
 
             var latestRecord = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).First();
 
-            var breaker = new CartonBreaker();
+            //打散箱子算法中存在同时占用同一个context的问题，目前也没有必要打散
+            //var breaker = new CartonBreaker(_context);
 
-            breaker.BreakCartonBundle(latestRecord);
+            //breaker.BreakCartonBundle(latestRecord);
 
             var latestRecordDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(latestRecord);
 

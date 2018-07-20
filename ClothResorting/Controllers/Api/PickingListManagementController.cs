@@ -21,7 +21,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/pickinglistmanagement/{id}
+        // GET /api/pickinglistmanagement/{id}(preReceivedId)
         public IHttpActionResult GetAllPackingList([FromUri]int id)
         {
             var result = _context.PickingLists
@@ -34,7 +34,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // GET /api/pickinglistmanagement/
+        // POST /api/pickinglistmanagement/
         [HttpPost]
         public IHttpActionResult CreatePickingList([FromBody]OpoRangePreidJsonObj obj)
         {
@@ -55,6 +55,27 @@ namespace ClothResorting.Controllers.Api
             var latestRecordDto = Mapper.Map<PickingList, PickingListDto>(latestRecord);
 
             return Created(Request.RequestUri + "/" + latestRecord.Id, latestRecordDto);
+        }
+
+        // PUT /api/picklinglistmanagement/{id}(pickingListId)
+        [HttpPut]
+        public void UpdatePickingListStatus([FromUri]int id)
+        {
+            var pickingRecordsInDb = _context.PickingRecords
+                .Include(c => c.FCRegularLocationDetail)
+                .Include(c => c.PickingList)
+                .Where(c => c.PickingList.Id == id);
+
+            foreach(var record in pickingRecordsInDb)
+            {
+                record.FCRegularLocationDetail.Status = "Shipped";
+            }
+
+            var pickingListInDb = _context.PickingLists.Find(id);
+
+            pickingListInDb.Status = "Shipped";
+
+            _context.SaveChanges();
         }
     }
 }

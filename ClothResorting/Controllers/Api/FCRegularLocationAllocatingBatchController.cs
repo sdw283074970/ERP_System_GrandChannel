@@ -64,12 +64,14 @@ namespace ClothResorting.Controllers.Api
 
             //获取刚写入数据库的记录
             var latestRecords = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).Take(locationDeatilList.Count);
-            var breaker = new CartonBreaker();
 
-            foreach (var record in latestRecords)
-            {
-                breaker.BreakCartonBundle(record);
-            }
+            //打散箱子算法中存在同时占用同一个context的问题，目前也没有必要打散
+            //var breaker = new CartonBreaker(_context);
+
+            //foreach (var record in latestRecords)
+            //{
+            //    breaker.BreakCartonBundle(record);
+            //}
 
             var recordsDto = Mapper.Map<List<FCRegularLocationDetail>, List<FCRegularLocationDetailDto>>(latestRecords.ToList());
 

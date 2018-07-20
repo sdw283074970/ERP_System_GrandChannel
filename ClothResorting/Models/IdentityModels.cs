@@ -54,6 +54,11 @@ namespace ClothResorting.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            //一对零关系插入‘零’对象时报错，显示无法插入，原因为无外键暴露。暂时用一对多关系顶替。
+            //modelBuilder.Entity<FCRegularLocationDetail>()
+            //    .HasOptional(c => c.PickingRecord)
+            //    .WithRequired(c => c.FCRegularLocationDetail);
+
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -844,6 +844,18 @@
     <Compile Include="Migrations\201807201615334_AddedStatusPropertyInPickingList.Designer.cs">
       <DependentUpon>201807201615334_AddedStatusPropertyInPickingList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807201659359_OverridedOneToOneReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs" />
+    <Compile Include="Migrations\201807201659359_OverridedOneToOneReplationshipBetweenFCRegularLocationDetailAndPickingRecord.Designer.cs">
+      <DependentUpon>201807201659359_OverridedOneToOneReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807201725043_OverridedOneToZeroReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs" />
+    <Compile Include="Migrations\201807201725043_OverridedOneToZeroReplationshipBetweenFCRegularLocationDetailAndPickingRecord.Designer.cs">
+      <DependentUpon>201807201725043_OverridedOneToZeroReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs" />
+    <Compile Include="Migrations\201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.Designer.cs">
+      <DependentUpon>201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1668,6 +1680,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807201615334_AddedStatusPropertyInPickingList.resx">
       <DependentUpon>201807201615334_AddedStatusPropertyInPickingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807201659359_OverridedOneToOneReplationshipBetweenFCRegularLocationDetailAndPickingRecord.resx">
+      <DependentUpon>201807201659359_OverridedOneToOneReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807201725043_OverridedOneToZeroReplationshipBetweenFCRegularLocationDetailAndPickingRecord.resx">
+      <DependentUpon>201807201725043_OverridedOneToZeroReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.resx">
+      <DependentUpon>201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

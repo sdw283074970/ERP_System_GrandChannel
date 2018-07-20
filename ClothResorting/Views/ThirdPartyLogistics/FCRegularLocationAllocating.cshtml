@@ -14,11 +14,12 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th><input id="select-all" type="checkbox" value="12345" /></th>
+                    <th><input id="select-all" type="checkbox" value="12345" /></th>.
+                    <th>Container</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Color</th>
-                    <th>Customer Code</th>
+                    <th>CC</th>
                     <th>Size Bundle</th>
                     <th>Pcs Bundle</th>
                     <th>Status</th>
@@ -76,6 +77,12 @@
                                 }
                             },
                             {
+                                data: "container",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "purchaseOrder",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
@@ -96,31 +103,38 @@
                             {
                                 data: "customer",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "sizeBundle",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "pcsBundle",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "status",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    if (data == "To Be Allocated")
+                                    {
+                                        return "<font style='color:Red'>" + data + "</font>";
+                                    }
+                                    else
+                                    {
+                                        return "<font style='color:Orange'>" + data + "</font>";
+                                    }
                                 }
                             },
                             {
                                 data: "toBeAllocatedCtns",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<font color='blue'>" + data + "</font>";
                                 }
                             },
                             {

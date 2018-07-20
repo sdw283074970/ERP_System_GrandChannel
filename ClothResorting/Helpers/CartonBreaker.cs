@@ -10,9 +10,9 @@ namespace ClothResorting.Helpers
     {
         private ApplicationDbContext _context;
 
-        public CartonBreaker()
+        public CartonBreaker(ApplicationDbContext context)
         {
-            _context = new ApplicationDbContext();
+            _context = context;
         }
 
         //用来将SizeBundle和PcsBundle打碎成独立的条目

@@ -36,5 +36,7 @@ namespace ClothResorting.Models
         public DateTime? PickingDate { get; set; }
 
         public PickingList PickingList { get; set; }
+
+        public FCRegularLocationDetail FCRegularLocationDetail { get; set; }
     }
 }

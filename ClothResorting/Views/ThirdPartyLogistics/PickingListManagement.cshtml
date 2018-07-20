@@ -91,7 +91,14 @@
                             {
                                 data: "status",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    if (data == "Picking")
+                                    {
+                                        return "<text style='color:Red'>" + data + "</text>";
+                                    }
+                                    else
+                                    {
+                                        return "<text style='color:Blue'>" + data + "</text>";
+                                    }
                                 }
                             },
                             {
@@ -142,6 +149,25 @@
                         }
                     });
                 }
+            });
+
+            $("#table").on("click", ".btn-ship", function () {
+                var button = $(this);
+                var pickingListId = button.parent().parent("tr").children('td').eq(0).children('text').html();
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/pickinglistmanagement/" + pickingListId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Selected picking list has been shipped.");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error!");
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {
