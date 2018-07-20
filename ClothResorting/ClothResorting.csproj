@@ -226,7 +226,6 @@
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationAllocatingBatchController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationAllocatingController.cs" />
-    <Compile Include="Controllers\Api\FCInventoryController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationDetailController.cs" />
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
     <Compile Include="Controllers\Api\LocationDetailController.cs" />
@@ -855,6 +854,10 @@
     <Compile Include="Migrations\201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs" />
     <Compile Include="Migrations\201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.Designer.cs">
       <DependentUpon>201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807201826063_AddedContainerPropertyInRegularCartonDetail.cs" />
+    <Compile Include="Migrations\201807201826063_AddedContainerPropertyInRegularCartonDetail.Designer.cs">
+      <DependentUpon>201807201826063_AddedContainerPropertyInRegularCartonDetail.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1689,6 +1692,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.resx">
       <DependentUpon>201807201759115_OverridedOneToManyReplationshipBetweenFCRegularLocationDetailAndPickingRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807201826063_AddedContainerPropertyInRegularCartonDetail.resx">
+      <DependentUpon>201807201826063_AddedContainerPropertyInRegularCartonDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

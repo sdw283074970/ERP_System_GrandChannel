@@ -7,6 +7,9 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using AutoMapper;
+using ClothResorting.Dtos;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -17,6 +20,51 @@ namespace ClothResorting.Controllers.Api
         public FCPurchaseOrderOverviewController()
         {
             _context = new ApplicationDbContext();
+        }
+
+        // GET /api/fcpurchaseorderoverview/{id} 以id查找并返回preReceiveOrder中的所有PO
+        public IHttpActionResult GetPurchaseOrderDetail(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var purchaseOrderDetails = _context.POSummaries
+                .Where(s => s.PreReceiveOrder.Id == id)
+                .Select(Mapper.Map<POSummary, POSummaryDto>);
+
+            return Ok(purchaseOrderDetails);
+        }
+
+        // POST /api/fcpurchaseorderoverview
+        [HttpPost]
+        public void UploadAndExtractFreeCountryExcel()
+        {
+            var fileSavePath = "";
+
+            //从httpRequest中获取文件并写入磁盘系统
+            var filesGetter = new FilesGetter();
+
+            fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+
+            if (fileSavePath == "")
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            var excel = new ExcelExtracter(fileSavePath);
+
+            excel.CreateFCPreReceiveOrder();
+
+            excel.ExtractFCPurchaseOrderSummary();
+
+            excel.ExtractFCPurchaseOrderDetail();
+
+            //强行关闭进程
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
         }
 
         // PUT /api/fcpurchaseorderoverview 更新pl的container信息
