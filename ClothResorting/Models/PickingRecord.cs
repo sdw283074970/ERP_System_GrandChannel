@@ -9,6 +9,8 @@ namespace ClothResorting.Models
     {
         public int Id { get; set; }
 
+        public string OrderPurchaseOrder { get; set; }
+
         public string Container { get; set; }
 
         public string PurchaseOrder { get; set; }

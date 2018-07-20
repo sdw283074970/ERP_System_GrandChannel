@@ -133,5 +133,17 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // PickingList管理页面
+        public ActionResult PickingListManagement()
+        {
+            return View();
+        }
+
+        // PickingList记录页面
+        public ActionResult PickingRecords()
+        {
+            return View();
+        }
     }
 }

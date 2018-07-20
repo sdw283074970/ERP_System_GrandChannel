@@ -239,6 +239,7 @@
     <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
     <Compile Include="Controllers\Api\OutboundHistoryController.cs" />
+    <Compile Include="Controllers\Api\PickingListManagementController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
@@ -262,6 +263,7 @@
     <Compile Include="Dtos\MeasurementDto.cs" />
     <Compile Include="Dtos\PermanentLocationDto.cs" />
     <Compile Include="Dtos\PermanentLocIORecordDto.cs" />
+    <Compile Include="Dtos\PickingListDto.cs" />
     <Compile Include="Dtos\POSummaryDto.cs" />
     <Compile Include="Dtos\PurchaseOrderInventoryDto.cs" />
     <Compile Include="Dtos\RegularCartonDetailDto.cs" />
@@ -824,6 +826,14 @@
     <Compile Include="Migrations\201807192228427_AddedPickingListsAndPickingRecordsDbSet.Designer.cs">
       <DependentUpon>201807192228427_AddedPickingListsAndPickingRecordsDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807192356199_AddedOPOInPickingList.cs" />
+    <Compile Include="Migrations\201807192356199_AddedOPOInPickingList.Designer.cs">
+      <DependentUpon>201807192356199_AddedOPOInPickingList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807192359295_AddedOPOInPickingRecord.cs" />
+    <Compile Include="Migrations\201807192359295_AddedOPOInPickingRecord.Designer.cs">
+      <DependentUpon>201807192359295_AddedOPOInPickingRecord.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -833,6 +843,7 @@
     <Compile Include="Models\ApiTransformModels\FCRegularLocationAllocatingJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ArrPreIdLocationJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ArrPreIdContainerJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\OpoRangePreidJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
@@ -1208,6 +1219,8 @@
     <Content Include="Views\ThirdPartyLogistics\FCRegularCartonDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCReceivingReport.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCRegularLocationDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PickingListManagement.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PickingRecords.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1632,6 +1645,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807192228427_AddedPickingListsAndPickingRecordsDbSet.resx">
       <DependentUpon>201807192228427_AddedPickingListsAndPickingRecordsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807192356199_AddedOPOInPickingList.resx">
+      <DependentUpon>201807192356199_AddedOPOInPickingList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807192359295_AddedOPOInPickingRecord.resx">
+      <DependentUpon>201807192359295_AddedOPOInPickingRecord.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

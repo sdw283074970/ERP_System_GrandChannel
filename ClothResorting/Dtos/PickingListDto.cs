@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ClothResorting.Models
+namespace ClothResorting.Dtos
 {
-    public class PickingList
+    public class PickingListDto
     {
         public int Id { get; set; }
 
@@ -14,9 +14,5 @@ namespace ClothResorting.Models
         public DateTime? CreateDate { get; set; }
 
         public string PickTicketsRange { get; set; }
-
-        public PreReceiveOrder PreReceiveOrder { get; set; }
-
-        public ICollection<PickingRecord> PickingRecords { get; set; }
     }
 }

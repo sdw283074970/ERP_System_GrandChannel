@@ -28,6 +28,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<RegularCartonDetail, RegularCartonDetailDto>();
             Mapper.CreateMap<FCRegularLocationDto, FCRegularLocationDto>();
             Mapper.CreateMap<FCRegularLocationDetail, FCRegularLocationDetailDto>();
+            Mapper.CreateMap<PickingList, PickingListDto>();
         }
     }
 }

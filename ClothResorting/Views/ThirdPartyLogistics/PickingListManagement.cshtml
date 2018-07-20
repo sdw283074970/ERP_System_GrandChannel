@@ -1,0 +1,145 @@
+﻿
+@{
+    ViewBag.Title = "PickingListManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Picking List Management</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="input-opo" type="text" class="input-lg" placeholder="Order Purchaser Order" /> <input id="input-range" type="text" class="input-lg" placeholder="Pick Tickets Range" /> <button id="btn-create" class="btn btn-lg">Create New</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Picking List Id</th>
+                    <th>OPO</th>
+                    <th>Picking Tickets Range</th>
+                    <th>Create Date</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            //从地址栏获取参数
+            var preid = getUrlParameter('preid');
+
+            $.ajax({
+                type: "GET",
+                url: "/api/pickinglistmanagement/" + preid,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    $("#table").DataTable({
+                        data: data,
+                        destroy: true,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orderPurchaseOrder",
+                                render: function (data) {
+                                    return "<button class='btn btn-link btn-opo'>" + data + "</button>";
+                                }
+                            },
+                            {
+                                data: "pickTicketsRange",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "createDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            $("#table").on("click", ".btn-opo", function () {
+                var button = $(this);
+                var plid = button.parent().parent("tr").children('td').eq(0).children('text').html();
+                $(window.location).attr('href', '/ThirdPartyLogistics/PickingRecords/?preid=' + preid.toString() + "&plid=" + plid.toString());
+            });
+
+            $("#btn-create").on("click", function () {
+                var button = $(this);
+                var opo = button.prev().prev().val().toString();
+                var range = button.prev().val().toString();
+
+                if (opo == "" || range == "")
+                {
+                    alert("Opo and pick tickets range cannot be empty.");
+                }
+                else
+                {
+                    var obj = {
+                        "orderPurchaseOrder": opo,
+                        "range": range,
+                        "preid": preid
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/pickinglistmanagement/",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert("Error!");
+                        }
+                    });
+                }
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

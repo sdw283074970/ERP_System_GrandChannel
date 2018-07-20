@@ -1,33 +1,32 @@
 ﻿
 @{
-    ViewBag.Title = "FCRegularLocationDetail";
+    ViewBag.Title = "PickingRecords";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Free Country Regular Order Location Detail</h2>
+<h2>Picking List Records</h2>
+
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Picking List Management" />
+        <input id="input-cutpo" type="text" class="input-lg" placeholder="Input cut po here" /> <button id="btn-update" class="btn btn-lg">Pick</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Container</th>
-                    <th>Status</th>
-                    <th>PO</th>
+                    <th>Order PO</th>
+                    <th>Cut PO</th>
                     <th>Style</th>
                     <th>Color</th>
-                    <th>CC</th>
-                    <th>Size BD</th>
-                    <th>Pcs BD</th>
+                    <th>Size Bundle</th>
+                    <th>Pcs Bundle</th>
+                    <th>Pack</th>
                     <th>Cartons</th>
                     <th>Quantity</th>
-                    <th>Inbound Date</th>
                     <th>Location</th>
                 </tr>
             </thead>
@@ -39,6 +38,8 @@
 {
     <script>
         $(document).ready(function () {
+
+            var table;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -58,27 +59,25 @@
 
             //从地址栏获取参数
             var preid = getUrlParameter('preid');
+            var plid = getUrlParameter('plid');
 
             $.ajax({
                 type: "GET",
-                url: "/api/FCRegularLocationDetail/" + preid,
+                url: "/api/packinglistrecords/" + plid,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    $("#table").DataTable({
-                        data: data, 
+                    if (table) {
+                        table.destroy();
+                    }
+                    table = $("table").DataTable({
                         destroy: true,
+                        data: data,
                         columns: [
                             {
-                                data: "container",
+                                data: "orderPurchaseOrder",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "status",
-                                render: function (data) {
-                                    return "<text style='color:Red'>" + data + "</text>";
                                 }
                             },
                             {
@@ -90,72 +89,59 @@
                             {
                                 data: "style",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "color",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "customerCode",
-                                render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "sizeBundle",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "pcsBundle",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pack",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "cartons",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "quantity",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "inboundDate",
-                                render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "location",
                                 render: function (data) {
-                                    return "<font color='green'>" + data + "</font>";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                         ]
                     });
                 },
-                error: function () {
-                    alert("error!");
+                error: function (data) {
+                    alert("Error!");
                 }
             });
 
-            $("#btn-plmanage").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/PickingListManagement/?preid=' + preid.toString());
-            });
-
-            $(".btn-back").on("click", function () {
-                window.history.back(-1);
-            });
 
         });
     </script>
