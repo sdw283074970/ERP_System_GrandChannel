@@ -241,6 +241,7 @@
     <Compile Include="Controllers\Api\OutboundHistoryController.cs" />
     <Compile Include="Controllers\Api\PickingListManagementController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
+    <Compile Include="Controllers\Api\PickingRecordsController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailConfirmationController.cs" />
@@ -264,6 +265,7 @@
     <Compile Include="Dtos\PermanentLocationDto.cs" />
     <Compile Include="Dtos\PermanentLocIORecordDto.cs" />
     <Compile Include="Dtos\PickingListDto.cs" />
+    <Compile Include="Dtos\PickingRecordDto.cs" />
     <Compile Include="Dtos\POSummaryDto.cs" />
     <Compile Include="Dtos\PurchaseOrderInventoryDto.cs" />
     <Compile Include="Dtos\RegularCartonDetailDto.cs" />
@@ -843,6 +845,7 @@
     <Compile Include="Models\ApiTransformModels\FCRegularLocationAllocatingJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ArrPreIdLocationJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ArrPreIdContainerJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\IdCpoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\OpoRangePreidJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />

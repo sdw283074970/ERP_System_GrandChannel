@@ -12,7 +12,7 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="input-cutpo" type="text" class="input-lg" placeholder="Input cut po here" /> <button id="btn-update" class="btn btn-lg">Pick</button>
+        <input id="input-cutpo" type="text" class="input-lg" placeholder="Input cut po here" /> <button id="btn-pick" class="btn btn-lg">Pick</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -63,7 +63,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/packinglistrecords/" + plid,
+                url: "/api/pickingrecords/" + plid,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -142,7 +142,108 @@
                 }
             });
 
+            $("#btn-pick").on("click", function () {
+                var button = $(this);
+                var cpo = $("#input-cutpo").val().toString();
 
+                if (cpo == "")
+                {
+                    alert("Order purchase order cannot be empty!");
+                }
+                else
+                {
+                    var obj = {
+                        "pickingListId": plid,
+                        "purchaseOrder": cpo
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/pickingrecords/",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        success: function (data) {
+                            if (table) {
+                                table.destroy();
+                            }
+                            table = $("table").DataTable({
+                                destroy: true,
+                                data: data,
+                                columns: [
+                                    {
+                                        data: "orderPurchaseOrder",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "purchaseOrder",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "style",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "color",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "sizeBundle",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "pcsBundle",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "pcsPerCaron",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "cartons",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "quantity",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "location",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                ]
+                            });
+                        },
+                        error: function () {
+                            alert("Error!");
+                        }
+                    });
+                }
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
         });
     </script>
 }

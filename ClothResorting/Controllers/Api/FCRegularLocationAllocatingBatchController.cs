@@ -48,7 +48,7 @@ namespace ClothResorting.Controllers.Api
                     Cartons = regularCartonDetail.ToBeAllocatedCtns,
                     Quantity = regularCartonDetail.ToBeAllocatedPcs,
                     PcsPerCaron = regularCartonDetail.PcsPerCarton,
-                    Status = "New Inbound",
+                    Status = "In Stocck",
                     Location = obj.Location,
                     InboundDate = _timeNow,
                     PreReceiveOrder = regularCartonDetailsIndb.First().POSummary.PreReceiveOrder

@@ -59,7 +59,7 @@ namespace ClothResorting.Controllers.Api
                 Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
                 Location = obj.Location,
                 PcsPerCaron = cartonDetailInDb.PcsPerCarton,
-                Status = "New Inbound",
+                Status = "In Stock",
                 InboundDate = DateTime.Now,
                 PreReceiveOrder = cartonDetailInDb.POSummary.PreReceiveOrder
             });
