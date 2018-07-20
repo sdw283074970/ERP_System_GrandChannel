@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Microsoft.Office.Interop.Excel;
-using _Excel = Microsoft.Office.Interop.Excel;
 using System.Collections;
 using ClothResorting.Models;
 using System.Diagnostics;
@@ -59,7 +58,7 @@ namespace ClothResorting.Helpers
             _context = new ApplicationDbContext();
             _path = path;
             _dateTimeNow = DateTime.Now;
-            _excel = new _Excel.Application();
+            _excel = new Application();
             _wb = _excel.Workbooks.Open(_path);
         }
 
