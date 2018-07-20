@@ -11,10 +11,10 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-all" type="button" class="btn btn-info" value="View all" />
-        <input id="btn-instock" type="button" class="btn btn-info" value="View stock" />
-        <input id="btn-picking" type="button" class="btn btn-default btn-info" value="View picking" />
-        <input id="btn-shipped" type="button" class="btn btn-default btn-info" value="View shipped" />
+        <input id="btn-all" type="button" class="btn btn-info btn-view" value="View all" />
+        <input id="btn-instock" type="button" class="btn btn-info btn-view" value="View stock" />
+        <input id="btn-picking" type="button" class="btn btn-default btn-info btn-view" value="View picking" />
+        <input id="btn-shipped" type="button" class="btn btn-default btn-info btn-view" value="View shipped" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -43,6 +43,8 @@
     <script>
         $(document).ready(function () {
 
+            var table;
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -68,7 +70,12 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    $("#table").DataTable({
+
+                    if (table) {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
                         data: data, 
                         destroy: true,
                         columns: [
@@ -161,6 +168,135 @@
                 error: function () {
                     alert("error!");
                 }
+            });
+
+            $(".btn-view").on("click", function () {
+                var button = $(this);
+                var url = "/api/FCRegularLocationDetail/" + preid;
+
+                if (button.val() == "View all")
+                {
+                    url = "/api/FCRegularLocationDetail/" + preid;
+                }
+                else if (button.val() == "View stock")
+                {
+                    url = "/api/FCRegularLocationDetailStock/" + preid;
+                }
+                else if (button.val() == "View picking")
+                {
+                    url = "/api/FCRegularLocationDetailpicking/" + preid;
+                }
+                else if (button.val() == "View shipped")
+                {
+                    url = "/api/FCRegularLocationDetailshipped/" + preid;
+                }
+                else
+                {
+                    alert("Invalid button.");
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            data: data,
+                            destroy: true,
+                            columns: [
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "status",
+                                    render: function (data) {
+                                        if (data == "Picking") {
+                                            return "<text style='color:Red'>" + data + "</text>";
+                                        }
+                                        else if (data == "Shipped") {
+                                            return "<text style='color:Blue'>" + data + "</text>";
+                                        }
+                                        else {
+                                            return "<text style='color:Green'>" + data + "</text>";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "customerCode",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "sizeBundle",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "pcsBundle",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "cartons",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "quantity",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "inboundDate",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<font color='orange'>" + data + "</font>";
+                                    }
+                                },
+                            ]
+                        });
+                    },
+                    error: function () {
+                        alert("error!");
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {
