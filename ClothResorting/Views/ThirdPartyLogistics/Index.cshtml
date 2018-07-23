@@ -287,8 +287,51 @@
             });
 
             $("#table").on("click", ".btn-delete", function () {
-                alert("This feature did not finish yet.");
+                var button = $(this);
+                var id = button.attr('id');
+                var customer = button.parent().parent("tr").children('td').eq(1).children('text').html();
+                var url;
+
+                if (customer == "Free Country")
+                {
+                    url = "/api/fcpurchaseOrderOverview/" + id;
+
+                    bootbox.confirm("Are you sure to delete ALL records? All the records will be deleted and this operation is not reversible.", function (result) {
+                        if (result) {
+                            $.ajax({
+                                contentType: false,
+                                cache: false,
+                                processData: false,
+                                type: "DELETE",
+                                url: url,
+                                beforeSend: function () {
+                                    layui.use('layer', function () {
+                                        var layer = layui.layer;
+                                        layer.msg('Deleting...', {
+                                            icon: 16,
+                                            shade: 0.01,
+                                            time: 99 * 1000
+                                        });;
+                                    });
+                                },
+                                success: function () {
+                                    layer.alert("Delete successed!", function () {
+                                        location.reload();
+                                    });
+                                },
+                                error: function () {
+                                    layer.alert("Error!");
+                                }
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    alert("This feature did not finish yet.");
+                }
             });
+
         });
     </script>
 }
