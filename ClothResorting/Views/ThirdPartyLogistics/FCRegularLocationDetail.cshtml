@@ -313,7 +313,21 @@
             });
 
             $("#table").on("click", ".btn-relocate", function () {
-                alert("This featrue did not finish yet.");
+                var id = $(this).attr("id");
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/FCRegularLocationDetail/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Success!");
+                        window.location.reload();
+                    },
+                    error: function () {
+
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

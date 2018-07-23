@@ -40,6 +40,9 @@
     <script>
         $(document).ready(function () {
 
+            var table;
+            var lastCartonValue = 0;
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -65,7 +68,13 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    $("#table").DataTable({
+
+                    if (table)
+                    {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
                         data: data,
                         destroy: true,
                         columns: [
@@ -165,6 +174,8 @@
                 var locator = $("#loc-" + id.toString()).val();
                 tbaCtns = button.parent().parent("tr").children('td').eq(8).children('font').html();
 
+                lastCartonValue = cartons;
+
                 if (cartons == "" || locator == "")
                 {
                     alert("Cartons and Location cannot be empty.");
@@ -197,7 +208,96 @@
                         dataType: "json",
                         success: function (data) {
                             alert("Success!");
-                            window.location.reload();
+
+                            if (table)
+                            {
+                                table.destroy();
+                            }
+
+                            table = $("#table").DataTable({
+                                data: data,
+                                destroy: true,
+                                columns: [
+                                    {
+                                        data: "id",
+                                        render: function (data) {
+                                            return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                                + data + "' />";
+                                        }
+                                    },
+                                    {
+                                        data: "container",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "purchaseOrder",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "style",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "color",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "customer",
+                                        render: function (data) {
+                                            return "<font>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "sizeBundle",
+                                        render: function (data) {
+                                            return "<font>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "pcsBundle",
+                                        render: function (data) {
+                                            return "<font>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "status",
+                                        render: function (data) {
+                                            if (data == "To Be Allocated") {
+                                                return "<font style='color:Red'>" + data + "</font>";
+                                            }
+                                            else {
+                                                return "<font style='color:Orange'>" + data + "</font>";
+                                            }
+                                        }
+                                    },
+                                    {
+                                        data: "toBeAllocatedCtns",
+                                        render: function (data) {
+                                            return "<font color='blue'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "id",
+                                        render: function (data) {
+                                            return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
+                                        }
+                                    },
+                                    {
+                                        data: "id",
+                                        render: function (data) {
+                                            return "<input style='width:100px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                        }
+                                    }
+                                ]
+                            });
                         },
                         error: function (data) {
                             alert("error!");

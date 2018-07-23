@@ -34,7 +34,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(result);
         }
 
-        // POST /api/fcregularlocationallocating/ 根据传入数据分解已收货对象
+        // POST /api/fcregularlocationallocating/ 根据传入数据分解已收货对象，obj.id为cartondetail的id，cartondetail在此处用作记录待分配箱数及件数
         [HttpPost]
         public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj)
         {
@@ -77,7 +77,13 @@ namespace ClothResorting.Controllers.Api
 
             var latestRecordDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(latestRecord);
 
-            return Created(Request.RequestUri + "/" + latestRecordDto.Id, latestRecordDto);
+            var resultDto = _context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .Where(c => c.POSummary.PreReceiveOrder.Id == obj.PreId
+                    && c.ToBeAllocatedCtns != 0)
+                .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
+
+            return Created(Request.RequestUri + "/" + latestRecordDto.Id, resultDto);
         }
     }
 }
