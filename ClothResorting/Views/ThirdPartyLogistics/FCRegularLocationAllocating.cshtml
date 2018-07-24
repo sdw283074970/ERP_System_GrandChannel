@@ -173,6 +173,7 @@
                 var cartons = $("#ctns-" + id.toString()).val();
                 var locator = $("#loc-" + id.toString()).val();
                 tbaCtns = button.parent().parent("tr").children('td').eq(9).children('font').html();
+                var container = button.parent().parent("tr").children('td').eq(1).children('text').html();
 
                 lastCartonValue = cartons;
 
@@ -191,6 +192,10 @@
                 else if (cartons <= 0)
                 {
                     alert("Cartons cannot be negative!");
+                }
+                else if (container == "null")
+                {
+                    alert("Container must be assigned first.");
                 }
                 else
                 {
@@ -307,7 +312,7 @@
                     });
                 }
             });
-            
+
             //勾选全选选项，则选择所有对象
             $("#select-all").on("click", function () {
                 if ($("#select-all").is(":checked")) {
@@ -323,16 +328,28 @@
                 var button = $(this);
                 var arr = new Array();
 
+                //如果没有集装箱号未指定，则不能分配库存
+                var isAssigned = true;
+
                 //将所有被选中的CheckBox的对象的id放到数组中
                 $("input:checkbox[name='selected']:checked").each(function (i) {
                     var val = $(this).val();
                     arr.push(val);
+                    if($(this).parent().parent("tr").children('td').eq(1).children('text').html() == "null")
+                    {
+                        isAssigned = false;
+                    }
                 });
 
                 if (button.prev().val() == "" || arr == null)
                 {
                     alert("Location cannot be empty");
                 }
+                else if (isAssigned == false)
+                {
+                    alert("Container must be assigned first.")
+                }
+                else
                 {
                     //将数组和location封装进一个对象以供POST传出
                     var obj = {

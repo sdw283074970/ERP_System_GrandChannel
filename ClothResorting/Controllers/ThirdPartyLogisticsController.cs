@@ -122,7 +122,8 @@ namespace ClothResorting.Controllers
             return View();
         }
 
-        // 以集装箱为单位，FC的收货报告
+        // 以集装箱为单位，FC的收货报告，允许客户的客户匿名访问
+        [AllowAnonymous]
         public ActionResult FCReceivingReport()
         {
             return View();
