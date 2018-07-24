@@ -14,6 +14,7 @@
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
         <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
         <input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Pick & Ship" />
+        <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -217,6 +218,22 @@
                 window.history.back(-1);
             });
 
+            //全装箱单正常收货
+            $("#btn-rcvall").on("click", function () {
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/fcreceivingreport/" + preId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Success!");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error!");
+                    }
+                });
+            });
         });
     </script>
 }

@@ -172,9 +172,12 @@
                 var id = button.attr("id");
                 var cartons = $("#ctns-" + id.toString()).val();
                 var locator = $("#loc-" + id.toString()).val();
-                tbaCtns = button.parent().parent("tr").children('td').eq(8).children('font').html();
+                tbaCtns = button.parent().parent("tr").children('td').eq(9).children('font').html();
 
                 lastCartonValue = cartons;
+
+                //alert(cartons);
+                //alert(tbaCtns);
 
                 if (cartons == "" || locator == "")
                 {
@@ -182,8 +185,7 @@
                 }
                 else if (parseInt(cartons) > parseInt(tbaCtns))
                 {
-                    //alert(cartons);
-                    //alert(tbaCtns);
+
                     alert("There is not enough cartons to be allocated!");
                 }
                 else if (cartons <= 0)

@@ -66,5 +66,30 @@ namespace ClothResorting.Controllers.Api
 
             return Created(Request.RequestUri + "/" + resultList.Count, resultList);
         }
+
+        // PUT /api/fcreceivingreport/{id}(preId) 在Purchase Order over view 页面中一键全收货，接口放在这里挤一挤
+        [HttpPut]
+        public void ReceiveAllPoWithoutProblem([FromUri]int id)
+        {
+            var cartonDetailsInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.PreReceiveOrder.Id == id);
+
+            foreach(var carton in cartonDetailsInDb)
+            {
+                carton.ActualCtns = carton.Cartons;
+                carton.ActualPcs = carton.Quantity;
+                carton.ToBeAllocatedCtns = carton.Cartons;
+                carton.ToBeAllocatedPcs = carton.Quantity;
+
+                carton.POSummary.ActualCtns = carton.POSummary.Cartons;
+                carton.POSummary.ActualPcs = carton.POSummary.Quantity;
+
+                carton.POSummary.PreReceiveOrder.ActualReceivedCtns = carton.POSummary.PreReceiveOrder.TotalCartons;
+                carton.POSummary.PreReceiveOrder.ActualReceivedPcs = carton.POSummary.PreReceiveOrder.TotalPcs;
+            }
+
+            _context.SaveChanges();
+        }
     }
 }
