@@ -77,5 +77,49 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
         }
+
+        // DELETE /api/pickinglistmanagement/{id}(pickingListId) 删除pickingRecords记录，并将对应的库存SKU状态改回In stock
+        [HttpDelete]
+        public void CancelCurrentPickingList([FromUri]int id)
+        {
+            var preId = _context.PickingLists
+                .Include(x => x.PreReceiveOrder)
+                .SingleOrDefault(x => x.Id == id)
+                .PreReceiveOrder
+                .Id;
+
+            var pickingRecordsInDb = _context.PickingRecords
+                .Include(x => x.PickingList)
+                .Where(x => x.PickingList.Id == id);
+
+            var locationDetailsInDb = _context.FCRegularLocationDetails
+                .Include(x => x.PreReceiveOrder)
+                .Where(x => x.PreReceiveOrder.Id == preId);
+
+            var recordList = pickingRecordsInDb.ToList();
+
+            foreach(var record in recordList)
+            {
+                var locationInDb = locationDetailsInDb
+                    .Where(x => x.PurchaseOrder == record.PurchaseOrder
+                        && x.Style == record.Style
+                        && x.Color == record.Color
+                        && x.CustomerCode == record.CustomerCode
+                        && x.Location == record.Location);
+
+                foreach(var location in locationInDb)
+                {
+                    if (location.Status != "In Stock")
+                    {
+                        location.Status = "In Stock";
+                        break;
+                    }
+                }
+            }
+
+            _context.PickingRecords.RemoveRange(pickingRecordsInDb);
+            _context.PickingLists.Remove(_context.PickingLists.Find(id));
+            _context.SaveChanges();
+        }
     }
 }

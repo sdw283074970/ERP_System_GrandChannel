@@ -178,7 +178,23 @@
             });
 
             $("#table").on("click", ".btn-cancel", function () {
-                alert("This feature did not finish yet.");
+                //alert("This feature did not finish yet.");
+                var button = $(this);
+                var pickingListId = button.parent().parent("tr").children('td').eq(0).children('text').html();
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/pickinglistmanagement/" + pickingListId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Selected picking list has been cancelled");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error!");
+                    }
+                });
             });
 
             $("#table").on("click", ".btn-print", function () {
