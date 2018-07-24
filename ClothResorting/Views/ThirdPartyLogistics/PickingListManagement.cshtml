@@ -110,7 +110,7 @@
                                     }
                                     else
                                     {
-                                        return "<button class='btn btn-link btn-opo'>View</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
+                                        return "<button class='btn btn-link btn-opo'>View</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-cancel'>Cancel</button>"
                                     }
                                 }
                             }
@@ -195,6 +195,10 @@
                         alert("Error!");
                     }
                 });
+            });
+
+            $("#table").on("click", ".btn-summary", function () {
+                alert("This feature did not finish yet.");
             });
 
             $("#table").on("click", ".btn-print", function () {

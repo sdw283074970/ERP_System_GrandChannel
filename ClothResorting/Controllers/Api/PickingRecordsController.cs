@@ -47,33 +47,40 @@ namespace ClothResorting.Controllers.Api
 
             var preid = pickingListInDb.PreReceiveOrder.Id;
             var opo = pickingListInDb.OrderPurchaseOrder;
+            var poString = obj.PurchaseOrderString.Split(' ');
 
             var locationDetailsInDb = _context.FCRegularLocationDetails
                 .Include(c => c.PreReceiveOrder)
-                .Where(c => c.PreReceiveOrder.Id == preid
-                    && c.PurchaseOrder == obj.PurchaseOrder);
+                .Where(c => c.PreReceiveOrder.Id == preid);
 
-            foreach(var location in locationDetailsInDb)
+            foreach(var purchaseOrder in poString)
             {
-                location.Status = "Picking";
+                var locationDetails = locationDetailsInDb.Where(c => c.PurchaseOrder == purchaseOrder
+                    && c.Status == "In Stock");
 
-                pickingRecordList.Add(new PickingRecord {
-                    Container = location.Container,
-                    PurchaseOrder = location.PurchaseOrder,
-                    Style = location.Style,
-                    Color = location.Color,
-                    SizeBundle = location.SizeBundle,
-                    PcsBundle = location.PcsBundle,
-                    CustomerCode = location.CustomerCode,
-                    Cartons = location.Cartons,
-                    Quantity = location.Quantity,
-                    PcsPerCarton = location.PcsPerCaron,
-                    Location = location.Location,
-                    PickingDate = _timeNow,
-                    PickingList = pickingListInDb,
-                    OrderPurchaseOrder = opo,
-                    FCRegularLocationDetail = location
-                });
+                foreach (var location in locationDetails)
+                {
+                    location.Status = "Picking";
+
+                    pickingRecordList.Add(new PickingRecord
+                    {
+                        Container = location.Container,
+                        PurchaseOrder = location.PurchaseOrder,
+                        Style = location.Style,
+                        Color = location.Color,
+                        SizeBundle = location.SizeBundle,
+                        PcsBundle = location.PcsBundle,
+                        CustomerCode = location.CustomerCode,
+                        Cartons = location.Cartons,
+                        Quantity = location.Quantity,
+                        PcsPerCarton = location.PcsPerCaron,
+                        Location = location.Location,
+                        PickingDate = _timeNow,
+                        PickingList = pickingListInDb,
+                        OrderPurchaseOrder = opo,
+                        FCRegularLocationDetail = location
+                    });
+                }
             }
 
             _context.PickingRecords.AddRange(pickingRecordList);

@@ -9,6 +9,6 @@ namespace ClothResorting.Models.ApiTransformModels
     {
         public int PickingListId { get; set; }
 
-        public string PurchaseOrder { get; set; }
+        public string PurchaseOrderString { get; set; }
     }
 }
