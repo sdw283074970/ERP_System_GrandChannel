@@ -53,6 +53,12 @@ namespace ClothResorting.Helpers
         #endregion
 
         //构造器
+        public ExcelExtracter()
+        {
+            _context = new ApplicationDbContext();
+            _dateTimeNow = DateTime.Now;
+        }
+
         public ExcelExtracter(string path)
         {
             _context = new ApplicationDbContext();
@@ -669,16 +675,19 @@ namespace ClothResorting.Helpers
                         });
                     }
 
-                    var sizeBundle = "";
-                    var pcsBundle = "";
+                    var sizeBundle = sizeList[0].SizeName;
+                    var pcsBundle = sizeList[0].Count.ToString();
 
                     //统计当前SKU中的size组合
-                    foreach(var size in sizeList)
+                    for(int index = 1; index < sizeList.Count; index++)
                     {
-                        sizeBundle += size.SizeName + " ";
-                        pcsBundle += size.Count.ToString() + " ";
+                        sizeBundle += " " + sizeList[index].SizeName;
+                        pcsBundle += " " + sizeList[index].Count.ToString();
                     }
-                    
+
+                    var sizeBD = CheckSizeName(sizeBundle, pcsBundle);
+                    var pcsBD = CheckPcs(sizeBundle, pcsBundle);
+
                     var poSummaryInDbs = _context.POSummaries
                         .Include(c => c.PreReceiveOrder)
                         .Include(c => c.RegularCartonDetails)
@@ -691,7 +700,7 @@ namespace ClothResorting.Helpers
                     {
                         var poSummaryInDb = poSummaryInDbs.First();
 
-                        regularCartonDetailList.Add(new RegularCartonDetail
+                        var regularCartonDetail = new RegularCartonDetail
                         {
                             CartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2.ToString(),
                             PurchaseOrder = _ws.Cells[startIndex + 3 + j, 2].Value2.ToString(),
@@ -702,8 +711,8 @@ namespace ClothResorting.Helpers
                             NetWeight = 0,
                             Color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString(),
                             Cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2,
-                            SizeBundle = sizeBundle,
-                            PcsBundle = pcsBundle,
+                            SizeBundle = sizeBD,
+                            PcsBundle = pcsBD,
                             PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
                             Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
                             ActualCtns = 0,
@@ -713,7 +722,9 @@ namespace ClothResorting.Helpers
                             ToBeAllocatedCtns = 0,
                             ToBeAllocatedPcs = 0,
                             POSummary = poSummaryInDb
-                        });
+                        };
+
+                        regularCartonDetailList.Add(regularCartonDetail);
                     }
                     else if (poSummaryInDbs.Count() > 1)
                     {
@@ -728,8 +739,8 @@ namespace ClothResorting.Helpers
                             NetWeight = 0,
                             Color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString(),
                             Cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2,
-                            SizeBundle = sizeBundle,
-                            PcsBundle = pcsBundle,
+                            SizeBundle = sizeBD,
+                            PcsBundle = pcsBD,
                             PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
                             Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
                             ActualCtns = 0,
@@ -771,7 +782,76 @@ namespace ClothResorting.Helpers
             _context.SaveChanges();
         }
 
-        // 抽取FreeCountry正常订单的库存分配信息
+        //私有辅助方法，检查一个cartonDetail中装有多少种Size，只有一种Size意味着是Solid pack，否则是Buncle pack。
+        #region
+        //如果箱子中只有一种size，只返回这种size的size名称，否则返回原有名称
+        private string CheckSizeName(string sizeBundle, string pcsBundle)
+        {
+            var sizeString = sizeBundle.Split(' ');
+            var pcsString = pcsBundle.Split(' ');
+            var pcsCount = pcsString.Count();
+            var zeroCount = 0;
+            var noneZeroIndex = 0;
+
+            for(int i = 0; i < pcsCount; i++)
+            {
+                if (pcsString[i] == "0")
+                {
+                    zeroCount += 1;
+                }
+            }
+
+            if (zeroCount == pcsCount - 1)      //只有一个pcs有数量其他全为零，说明这是solid pack
+            {
+                for(int i = 0; i < pcsCount; i++)  //找出第几个pcs是不为零的
+                {
+                    if (pcsString[i] != "0")
+                    {
+                        noneZeroIndex = i;
+                    }
+                }
+
+                return sizeString[noneZeroIndex];   //返回不为零的pcs对应的size名
+            }
+            else    //否则说明这是bundle pack
+            {
+                return sizeBundle;
+            }
+        }
+
+
+        //如果箱子中只有一种size，只返回这种size的数量，否则返回原有熟练bundle
+        private string CheckPcs(string sizeBundle, string pcsBundle)
+        {
+            var pcsString = pcsBundle.Split(' ');
+            var pcsCount = pcsString.Count();
+            var zeroCount = 0;
+            var pcs = "0";
+
+            foreach (var p in pcsString)
+            {
+                if (p == "0")
+                {
+                    zeroCount += 1;
+                }
+                else
+                {
+                    pcs = p;
+                }
+            }
+
+            if (zeroCount == pcsCount - 1)      //只有一个pcs有数量其他全为零，说明这是solid pack
+            {
+                return pcs;
+            }
+            else    //否则说明这是bundle pack
+            {
+                return pcsBundle;
+            }
+        }
+        #endregion
+
+        // 抽取FreeCountry正常订单的库存模板分配信息
         //public void ExtractFCRegularLocation(int preid)
         //{
         //    _ws = _wb.Worksheets[1];
