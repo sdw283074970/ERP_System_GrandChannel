@@ -92,6 +92,14 @@
       <HintPath>..\packages\MicrosoftOfficeCore.15.0.0\lib\net35\Office.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Spire.License, Version=1.3.6.40, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.PDF.4.7.11\lib\net40\Spire.License.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Spire.Pdf, Version=4.7.11.2040, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.PDF.4.7.11\lib\net40\Spire.Pdf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -257,6 +265,7 @@
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
     <Compile Include="Controllers\Api\SearchResultController.cs" />
+    <Compile Include="Controllers\Api\ShipOrderController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
     <Compile Include="Controllers\FreeCountryController.cs" />
@@ -280,6 +289,7 @@
     <Compile Include="Dtos\CartonDetailDto.cs" />
     <Compile Include="Dtos\PackingListDto.cs" />
     <Compile Include="Dtos\PreReceiveOrdersDto.cs" />
+    <Compile Include="Dtos\ShipOrderDto.cs" />
     <Compile Include="Dtos\SizeRatioDto.cs" />
     <Compile Include="Dtos\SpeciesInventoryDto.cs" />
     <Compile Include="Global.asax.cs">
@@ -294,6 +304,7 @@
     <Compile Include="Helpers\DbSynchronizer.cs" />
     <Compile Include="Helpers\LoadPlanExtracter.cs" />
     <Compile Include="Helpers\OutboundRecorder.cs" />
+    <Compile Include="Helpers\PdfExtracter.cs" />
     <Compile Include="Helpers\Tester.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.Designer.cs">
@@ -867,6 +878,10 @@
     <Compile Include="Migrations\201807201826063_AddedContainerPropertyInRegularCartonDetail.Designer.cs">
       <DependentUpon>201807201826063_AddedContainerPropertyInRegularCartonDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807252305091_AddedShipDateDbSet.cs" />
+    <Compile Include="Migrations\201807252305091_AddedShipDateDbSet.Designer.cs">
+      <DependentUpon>201807252305091_AddedShipDateDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -882,6 +897,7 @@
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
     <Compile Include="Models\ApiTransformModels\CartonDetailRequestJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\ShipOrderJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
     <Compile Include="Models\CartonInside.cs" />
@@ -919,6 +935,7 @@
     <Compile Include="Models\PODetail.cs" />
     <Compile Include="Models\PurchaseOrderSummary.cs" />
     <Compile Include="Models\PreReceiveOrder.cs" />
+    <Compile Include="Models\ShipOrder.cs" />
     <Compile Include="Models\SizeRatio.cs" />
     <Compile Include="Models\SpeciesInventory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1256,6 +1273,7 @@
     <Content Include="Views\ThirdPartyLogistics\FCRegularLocationDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickingListManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickingRecords.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\ShipOrder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1704,6 +1722,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807201826063_AddedContainerPropertyInRegularCartonDetail.resx">
       <DependentUpon>201807201826063_AddedContainerPropertyInRegularCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807252305091_AddedShipDateDbSet.resx">
+      <DependentUpon>201807252305091_AddedShipDateDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -10,7 +10,7 @@
 <div class="maincontainer">
     <div>
         <input id="create1" type="button" class="btn btn-group" value="Creat A New Pre-receive Order" />
-        <input id="download" type="button" class="btn btn-primary" value="Download Pre-receive Order Template" />
+        <input id="btn-shiporder" type="button" class="btn btn-primary" value="Manage ship order" />
 
         @*<a href="/ThirdPartyLogistics/search/">
             <input id="btn-search" type="button" class="btn btn-info" value="Search" />
@@ -330,6 +330,10 @@
                 {
                     alert("This feature did not finish yet.");
                 }
+            });
+
+            $("#btn-shiporder").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/shiporder');
             });
 
         });

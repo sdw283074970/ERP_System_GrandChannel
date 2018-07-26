@@ -146,5 +146,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // ShipOrder管理页面
+        public ActionResult ShipOrder()
+        {
+            return View();
+        }
     }
 }

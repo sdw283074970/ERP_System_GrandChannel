@@ -46,6 +46,7 @@ namespace ClothResorting.Models
         public DbSet<CartonInside> CartonInsides { get; set; }
         public DbSet<PickingList> PickingLists { get; set; }
         public DbSet<PickingRecord> PickingRecords { get; set; }
+        public DbSet<ShipOrder> ShipOrders { get; set; }
 
         public static ApplicationDbContext Create()
         {

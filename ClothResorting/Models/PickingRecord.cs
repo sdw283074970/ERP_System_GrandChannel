@@ -38,5 +38,7 @@ namespace ClothResorting.Models
         public PickingList PickingList { get; set; }
 
         public FCRegularLocationDetail FCRegularLocationDetail { get; set; }
+
+        public ShipOrder ShipOrder { get; set; }
     }
 }

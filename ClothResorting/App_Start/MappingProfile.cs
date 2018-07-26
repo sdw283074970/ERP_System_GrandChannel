@@ -30,6 +30,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<FCRegularLocationDetail, FCRegularLocationDetailDto>();
             Mapper.CreateMap<PickingList, PickingListDto>();
             Mapper.CreateMap<PickingRecord, PickingRecordDto>();
+            Mapper.CreateMap<ShipOrder, ShipOrderDto>();
         }
     }
 }
