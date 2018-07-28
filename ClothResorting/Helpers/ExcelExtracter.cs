@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Data.Entity;
 using System.Web.Http;
 using System.Net;
+using ClothResorting.Models.DataTransferModels;
 
 namespace ClothResorting.Helpers
 {
@@ -895,5 +896,293 @@ namespace ClothResorting.Helpers
         //    _context.FCRegularLocations.AddRange(locationList);
         //    _context.SaveChanges();
         //}
+
+        //抽取Pull sheet模板中的信息，生成ShipOrder下的拣货记录表，并从原库存中将可用箱数部分或全部转化为“拣货中”箱数
+        public void ExtractPullSheet(int pullSheetId)
+        {
+            var pullSheet = _context.PullSheets.Find(pullSheetId);
+            //首先抽取第一页的PSI信息，将PSI中指定的内容放入一个储存在内存中的“待选对象池”，池中内容不一定都会用完
+            _ws = _wb.Worksheets[1];
+
+            var psiRowCount = 0;
+            var index = 2;
+            var psiList = new List<PSIModel>();
+            var pickDetailList = new List<PickDetail>();
+
+            while(_ws.Cells[index, 1].Value2 != null)
+            {
+                psiRowCount += 1;
+                index += 1;
+            }
+
+            for (int i = 0; i < psiRowCount; i++)
+            {
+                var container = _ws.Cells[i + 2, 1].Value2.ToString();
+                var cutPo = _ws.Cells[i + 2, 2].Value2.ToString();
+                var style = _ws.Cells[i + 2, 3].Value2.ToString();
+                var isExisted = false;
+
+                foreach(var psi in psiList)
+                {
+                    if (psi.Container == container && psi.CutPurchaseOrder == cutPo && psi.Style == style)
+                    {
+                        isExisted = true;
+                    }
+                }
+
+                if (isExisted == false)
+                {
+                    psiList.Add(new PSIModel
+                    {
+                        Container = container,
+                        CutPurchaseOrder = cutPo,
+                        Style = style
+                    });
+                }
+            }
+
+            //基于PSI信息，查找整个数据库的库存对象，将这些对象放在一个“待选池”列表中
+            var cartonLocationPool = new List<FCRegularLocationDetail>();
+
+            foreach(var psi in psiList)
+            {
+                var psiResult = _context.FCRegularLocationDetails
+                    .Where(c => c.Container == psi.Container
+                        && c.PurchaseOrder == psi.CutPurchaseOrder
+                        && c.Style == psi.Style)
+                    .ToList();
+
+                cartonLocationPool.AddRange(psiResult);
+            }
+
+            //然后抽取第二页的Pull Sheet模板化的信息, 在“待选池”中扣除抽取出来的信息
+            _ws = _wb.Worksheets[2];
+            var pullSheetCount = 0;
+            index = 1;
+
+            //扫描有多少种需要拣货的SKU
+            while(_ws.Cells[index, 1].Value2 != null)
+            {
+                pullSheetCount += 1;
+                index += 3;
+            }
+
+            //每一个SKU都在“待选池”中拣货
+            var newPoolCartonLocationDetails = new List<FCRegularLocationDetail>();
+
+            for(int i = 1; i <= pullSheetCount; i++)
+            {
+                index = 3;
+                var startRow = (i - 1) * 3 + 1;
+                string style = _ws.Cells[startRow + 1, 1].Value2.ToString();
+                var color = _ws.Cells[startRow + 1, 2].Value2.ToStrgin();
+                var sizeCount = 0;
+                var sizeList = new List<SizeRatio>();
+
+                //确定拣货对象(Cut PO)的种类，，否则是Solid
+                var skuCount = _context.POSummaries
+                    .Include(x => x.RegularCartonDetails)
+                    .Where(x => x.Style == style)
+                    .First()
+                    .RegularCartonDetails
+                    .Count;
+
+                if (skuCount > 1)       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
+                {
+                    //扫描每一种SKU有多少种Size
+                    while (_ws.Cells[startRow, index].Value2.ToSstring() != null)
+                    {
+                        sizeCount += 1;
+                        index += 1;
+                    }
+
+                    //扫描每一种需求的Size名称和件数
+                    for (int j = 0; j < sizeCount; j++)
+                    {
+                        sizeList.Add(new SizeRatio
+                        {
+                            SizeName = _ws.Cells[startRow, 3 + j].Value2.ToString(),
+                            Count = _ws.Cells[startRow + 1, 3 + j].Value2.ToString()
+                        });
+                    }
+
+                    //为该SKU下的每一种Size备货
+                    foreach (var size in sizeList)
+                    {
+                        //待选池中所有符合拣货条件的对象
+                        var poolLocations = cartonLocationPool.Where(x => x.Style == style
+                                && x.Color == color
+                                && x.SizeBundle == size.SizeName);
+
+                        var targetPcs = size.Count;
+
+                        foreach (var pool in poolLocations)
+                        {
+                            //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
+                            if (pool.AvailablePcs <= targetPcs)
+                            {
+                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, pool.AvailablePcs));
+
+                                targetPcs -= pool.AvailablePcs;
+
+                                pool.PickingCtns += pool.AvailableCtns;
+                                pool.PickingPcs += pool.AvailablePcs;
+
+                                pool.AvailableCtns = 0;
+                                pool.AvailablePcs = 0;
+                            }
+                            //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
+                            else
+                            {
+                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, targetPcs));
+
+                                pool.PickingCtns += targetPcs / pool.PcsPerCaron;
+                                pool.PickingPcs += targetPcs;
+
+                                pool.AvailableCtns -= targetPcs / pool.PcsPerCaron;
+                                pool.AvailablePcs -= targetPcs;
+
+                                targetPcs = 0;
+                            }
+                        }
+
+                        //如果targetPcs还没收集齐，则缺货
+                        if (targetPcs > 0)
+                        {
+                            // ...缺货
+                        }
+
+                        //将有变化的结果放到新建的“使用过的待选池”中
+                        newPoolCartonLocationDetails.AddRange(poolLocations);
+                    }
+                }
+                else    //如果POSummary下只有一个RegularCartonDetail对象就说明是Bundle
+                {
+                    //待选池中所有符合拣货条件的对象
+                    var poolLocations = cartonLocationPool.Where(x => x.Style == style
+                            && x.Color == color);
+
+                    //扫描每一种SKU有多少种Size
+                    while (_ws.Cells[startRow, index].Value2.ToSstring() != null)
+                    {
+                        sizeCount += 1;
+                        index += 1;
+                    }
+
+                    //扫描每一种需求的Size名称和件数
+                    for (int j = 0; j < sizeCount; j++)
+                    {
+                        sizeList.Add(new SizeRatio
+                        {
+                            SizeName = _ws.Cells[startRow, 3 + j].Value2.ToString(),
+                            Count = _ws.Cells[startRow + 1, 3 + j].Value2.ToString()
+                        });
+                    }
+
+                    //计算该SKU的目标箱数， 箱数 = 总件数 / 每箱件数
+                    var targetCartons = sizeList.Sum(x => x.Count) / poolLocations.First().PcsPerCaron;
+
+                    foreach(var pool in poolLocations)
+                    {
+                        //当当前的待选对象箱数小于等于目标箱数时，全部拿走，并记录
+                        if (pool.AvailableCtns <= targetCartons)
+                        {
+                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, pool.AvailableCtns));
+
+                            pool.PickingCtns += pool.AvailableCtns;
+                            pool.PickingPcs += pool.AvailableCtns * pool.PcsPerCaron;
+
+                            targetCartons -= pool.AvailableCtns;
+
+                            pool.AvailableCtns = 0;
+                            pool.AvailablePcs = 0;
+                        }
+                        //当当前的待选对象箱数大于目标箱数时，只拿走需要的，并记录
+                        else
+                        {
+                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, targetCartons));
+
+                            pool.PickingCtns += targetCartons;
+                            pool.PickingPcs += targetCartons * pool.PcsPerCaron;
+
+                            pool.AvailableCtns -= targetCartons;
+                            pool.PickingPcs -= targetCartons * pool.PcsPerCaron;
+
+                            targetCartons = 0;
+                        }
+                    }
+
+                    //如果targetCtns还没收集齐，则缺货
+                    if (targetCartons > 0)
+                    {
+                        //...缺货
+                    }
+
+                    //将有变化的结果放到新建的“使用过的待选池”中
+                    newPoolCartonLocationDetails.AddRange(poolLocations);
+                }
+            }
+
+            //将新收集的"备选池"对象同步到其原有的数据库对象中去
+            var cartonLocationDetailsInDb = _context.FCRegularLocationDetails.Where(x => x.Id > 0);
+
+            foreach(var cartonLocation in newPoolCartonLocationDetails)
+            {
+                var cartonInDb = cartonLocationDetailsInDb.SingleOrDefault(x => x.Id == cartonLocation.Id);
+
+                cartonInDb.AvailableCtns = cartonLocation.AvailableCtns;
+                cartonInDb.AvailablePcs = cartonLocation.AvailablePcs;
+                cartonInDb.PickingCtns = cartonLocation.PickingCtns;
+                cartonInDb.PickingPcs = cartonLocation.PickingPcs;
+            }
+
+            _context.PickDetails.AddRange(pickDetailList);
+            _context.SaveChanges();
+        }
+
+        //辅助方法：根据调整后的pool以及取货数量，生成该pullsheet下的pickdetail
+        #region
+        private PickDetail ConvertToSolidPickDetail(PullSheet pullSheet, FCRegularLocationDetail pool, int targetPcs)
+        {
+            return new PickDetail
+            {
+                PurchaseOrder = pool.PurchaseOrder,
+                Style = pool.Style,
+                Color = pool.Style,
+                SizeBundle = pool.SizeBundle,
+                PcsBundle = pool.PcsBundle,
+                CustomerCode = pool.CustomerCode,
+                PickDate = _dateTimeNow.ToString("mm/DD/yyyy"),
+                Container = pool.Container,
+                Location = pool.Location,
+                PcsPerCaron = pool.PcsPerCaron,
+                PickCtns = targetPcs / pool.PcsPerCaron,
+                PickPcs = targetPcs,
+                PullSheet = pullSheet,
+                LocationDetailId = pool.Id
+            };
+        }
+
+        private PickDetail ConvertToBundlePickDetail(PullSheet pullSheet, FCRegularLocationDetail pool, int targetCtns)
+        {
+            return new PickDetail
+            {
+                PurchaseOrder = pool.PurchaseOrder,
+                Style = pool.Style,
+                Color = pool.Style,
+                SizeBundle = pool.SizeBundle,
+                PcsBundle = pool.PcsBundle,
+                CustomerCode = pool.CustomerCode,
+                PickDate = _dateTimeNow.ToString("mm/DD/yyyy"),
+                Container = pool.Container,
+                Location = pool.Location,
+                PcsPerCaron = pool.PcsPerCaron,
+                PickPcs = targetCtns * pool.PcsPerCaron,
+                PickCtns = targetCtns,
+                PullSheet = pullSheet,
+                LocationDetailId = pool.Id
+            };
+        }
+        #endregion
     }
 }

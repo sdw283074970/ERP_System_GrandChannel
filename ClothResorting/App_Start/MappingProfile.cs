@@ -31,6 +31,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<PickingList, PickingListDto>();
             Mapper.CreateMap<PickingRecord, PickingRecordDto>();
             Mapper.CreateMap<ShipOrder, ShipOrderDto>();
+            Mapper.CreateMap<PullSheet, PullSheetDto>();
         }
     }
 }

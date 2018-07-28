@@ -50,6 +50,12 @@ namespace ClothResorting.Controllers.Api
                     PcsPerCaron = regularCartonDetail.PcsPerCarton,
                     Status = "In Stock",
                     Location = obj.Location,
+                    AvailableCtns = regularCartonDetail.ToBeAllocatedCtns,
+                    PickingCtns = 0,
+                    ShippedCtns = 0,
+                    AvailablePcs = regularCartonDetail.Quantity,
+                    PickingPcs = 0,
+                    ShippedPcs = 0,
                     InboundDate = _timeNow,
                     PreReceiveOrder = regularCartonDetailsIndb.First().POSummary.PreReceiveOrder
                 });

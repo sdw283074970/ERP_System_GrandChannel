@@ -47,6 +47,8 @@ namespace ClothResorting.Models
         public DbSet<PickingList> PickingLists { get; set; }
         public DbSet<PickingRecord> PickingRecords { get; set; }
         public DbSet<ShipOrder> ShipOrders { get; set; }
+        public DbSet<PullSheet> PullSheets { get; set; }
+        public DbSet<PickDetail> PickDetails { get; set; }
 
         public static ApplicationDbContext Create()
         {

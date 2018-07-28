@@ -5,12 +5,12 @@ using System.Web;
 
 namespace ClothResorting.Models
 {
-    public class FCRegularLocationDetail
+    public class PickDetail
     {
         public int Id { get; set; }
 
         public string Container { get; set; }
-        
+
         public string PurchaseOrder { get; set; }
 
         public string Style { get; set; }
@@ -33,24 +33,14 @@ namespace ClothResorting.Models
 
         public string Location { get; set; }
 
-        public int AvailableCtns { get; set; }
+        public int PickCtns { get; set; }
 
-        public int PickingCtns { get; set; }
+        public int PickPcs { get; set; }
 
-        public int ShippedCtns { get; set; }
+        public int LocationDetailId { get; set; }
 
-        public int AvailablePcs { get; set; }
+        public string PickDate { get; set; }
 
-        public int PickingPcs { get; set; }
-
-        public int ShippedPcs { get; set; }
-
-        public DateTime InboundDate { get; set; }
-
-        public PreReceiveOrder PreReceiveOrder { get; set; }
-
-        public ICollection<CartonInside> CartonInsides { get; set; }
-
-        public ICollection<PickingRecord> PickingRecord { get; set; }
+        public PullSheet PullSheet { get; set; }
     }
 }

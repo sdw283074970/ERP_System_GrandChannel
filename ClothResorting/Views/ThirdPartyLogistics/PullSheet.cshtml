@@ -1,36 +1,29 @@
 ﻿
 @{
-    ViewBag.Title = "ShipOrder";
+    ViewBag.Title = "PullSheet";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Ship Order Page</h2>
+<h2>Pull Sheet Page</h2>
 
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="input-opo" type="text" class="input-lg" placeholder="PO"/><br>
-        <input id="input-customer" type="text" class="input-lg" placeholder="Customer" /><br>
-        <input id="input-address1" type="text" class="input-lg" placeholder="Address 1" /><br>
-        <input id="input-address2" type="text" class="input-lg" placeholder="Address 2" /><br>
-        <input id="input-range" type="text" class="input-lg" placeholder="Pick tikets range" /><br>
-        <input id="btn-create" type="button" class="btn btn-lg" value="Create ship order" />
+        <input id="input-range" type="text" class="input-lg" placeholder="Pick tikets range" />
+        <input id="btn-create" type="button" class="btn btn-lg" value="Create pull sheet" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
                     <th>Id</th>
-                    <th>PO</th>
-                    <th>Customer</th>
-                    <th>Address 1</th>
-                    <th>Address 2</th>
-                    <th>Pick tikets range</th>
-                    <th>Ship date</th>
+                    <th>Pick tickets range</th>
+                    <th>Create date</th>
                     <th>Status</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -44,7 +37,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/shiporder/",
+                url: "/api/pullsheet/",
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -59,37 +52,13 @@
                                 }
                             },
                             {
-                                data: "orderPurchaseOrder",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "customer",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "address_1",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "address_2",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
                                 data: "pickTicketsRange",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "shipDate",
+                                data: "createDate",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -110,6 +79,19 @@
                                         return "<text style='color:blue'>" + data + "</text>";
                                     }
                                 }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    if (data == "Shipped")
+                                    {
+                                        return "<button class='btn btn-link btn-cancel'>Cancel</button>";
+                                    }
+                                    else
+                                    {
+                                        return "<button id='" +  data + "'class='btn btn-link btn-pick'>Pick</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
+                                    }
+                                }
                             }
                         ]
                     });
@@ -120,32 +102,21 @@
             });
 
             $("#btn-create").on("click", function () {
-                var opo = $("#input-opo").val().toString();
-                var customer = $("#input-customer").val().toString();
-                var address_1 = $("#input-address1").val().toString();
-                var address_2 = $("#input-address2").val().toString();
                 var range = $("#input-range").val().toString();
 
-                if (opo == "" || customer == "" || address_1 == "" || address_2 == "" || range == "")
+                if (range == "")
                 {
-                    alert("All the fields are required.");
+                    alert("The fields are required.");
                 }
                 else
                 {
-                    var obj = {
-                        "orderPurchaseOrder": opo,
-                        "customer": customer,
-                        "address_1": address_1,
-                        "address_2": address_2,
-                        "pickTicketsRange": range
-                    };
-
+                    var obj = {"range": range}
                     $.ajax({
                         type: "POST",
-                        url: "/api/shiporder/",
+                        url: "/api/pullsheet/",
+                        data: JSON.stringify(obj),
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
-                        data: JSON.stringify(obj),
                         success: function () {
                             alert("Success!");
                             window.location.reload();
@@ -155,6 +126,11 @@
                         }
                     });
                 }
+            });
+
+            $("#table").on("click", ".btn-pick", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pickdetail/?pullsheetid=' + button.attr('id'));
             });
 
             $(".btn-back").on("click", function () {

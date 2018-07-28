@@ -257,6 +257,7 @@
     <Compile Include="Controllers\Api\PickingListManagementController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PickingRecordsController.cs" />
+    <Compile Include="Controllers\Api\PullSheetController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailConfirmationController.cs" />
@@ -283,6 +284,7 @@
     <Compile Include="Dtos\PickingListDto.cs" />
     <Compile Include="Dtos\PickingRecordDto.cs" />
     <Compile Include="Dtos\POSummaryDto.cs" />
+    <Compile Include="Dtos\PullSheetDto.cs" />
     <Compile Include="Dtos\PurchaseOrderInventoryDto.cs" />
     <Compile Include="Dtos\RegularCartonDetailDto.cs" />
     <Compile Include="Dtos\RetrievingRecordDto.cs" />
@@ -882,6 +884,18 @@
     <Compile Include="Migrations\201807252305091_AddedShipDateDbSet.Designer.cs">
       <DependentUpon>201807252305091_AddedShipDateDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807262127401_AddedAvailablePickingShippedPropertiesInFCRegularCartonLocationDetail.cs" />
+    <Compile Include="Migrations\201807262127401_AddedAvailablePickingShippedPropertiesInFCRegularCartonLocationDetail.Designer.cs">
+      <DependentUpon>201807262127401_AddedAvailablePickingShippedPropertiesInFCRegularCartonLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807272348474_AddedPullSheetAndPickDetailDbSet.cs" />
+    <Compile Include="Migrations\201807272348474_AddedPullSheetAndPickDetailDbSet.Designer.cs">
+      <DependentUpon>201807272348474_AddedPullSheetAndPickDetailDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807280042373_ModifiedSomeNameAndDateDataTyple.cs" />
+    <Compile Include="Migrations\201807280042373_ModifiedSomeNameAndDateDataTyple.Designer.cs">
+      <DependentUpon>201807280042373_ModifiedSomeNameAndDateDataTyple.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -894,6 +908,7 @@
     <Compile Include="Models\ApiTransformModels\IdCpoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\OpoRangePreidJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\PickTiketsRangeJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
     <Compile Include="Models\ApiTransformModels\CartonDetailRequestJsonObj.cs" />
@@ -907,6 +922,7 @@
     <Compile Include="Models\DataTransferModels\InboundHistoryRecord.cs" />
     <Compile Include="Models\DataTransferModels\OutboundHistoryRecord.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
+    <Compile Include="Models\DataTransferModels\PSIModel.cs" />
     <Compile Include="Models\DataTransferModels\PullSheetSummary.cs" />
     <Compile Include="Models\DataTransferModels\RelocationHistoryRecord.cs" />
     <Compile Include="Models\FCRegularLocationDetail.cs" />
@@ -914,9 +930,11 @@
     <Compile Include="Models\LocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
     <Compile Include="Models\PermanentLocIORecord.cs" />
+    <Compile Include="Models\PickDetail.cs" />
     <Compile Include="Models\PickingList.cs" />
     <Compile Include="Models\PickingRecord.cs" />
     <Compile Include="Models\POSummary.cs" />
+    <Compile Include="Models\PullSheet.cs" />
     <Compile Include="Models\PurchaseOrderInventory.cs" />
     <Compile Include="Models\RegularCartonDetail.cs" />
     <Compile Include="Models\RegularSpeciesInventory.cs" />
@@ -1274,6 +1292,7 @@
     <Content Include="Views\ThirdPartyLogistics\PickingListManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickingRecords.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\ShipOrder.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PullSheet.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1725,6 +1744,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807252305091_AddedShipDateDbSet.resx">
       <DependentUpon>201807252305091_AddedShipDateDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807262127401_AddedAvailablePickingShippedPropertiesInFCRegularCartonLocationDetail.resx">
+      <DependentUpon>201807262127401_AddedAvailablePickingShippedPropertiesInFCRegularCartonLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807272348474_AddedPullSheetAndPickDetailDbSet.resx">
+      <DependentUpon>201807272348474_AddedPullSheetAndPickDetailDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807280042373_ModifiedSomeNameAndDateDataTyple.resx">
+      <DependentUpon>201807280042373_ModifiedSomeNameAndDateDataTyple.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

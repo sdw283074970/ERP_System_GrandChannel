@@ -33,6 +33,18 @@ namespace ClothResorting.Dtos
 
         public string Location { get; set; }
 
+        public int AvailableCtns { get; set; }
+
+        public int PickingCtns { get; set; }
+
+        public int ShippedCtns { get; set; }
+
+        public int AvailablePcs { get; set; }
+
+        public int PickingPcs { get; set; }
+
+        public int ShippedPcs { get; set; }
+
         public DateTime InboundDate { get; set; }
     }
 }
