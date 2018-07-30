@@ -1156,6 +1156,9 @@ namespace ClothResorting.Helpers
                 cartonInDb.PickingPcs = usedCartonLocation.PickingPcs;
             }
 
+            // 最后更改PullSheet的状态
+            _context.PullSheets.Find(pullSheetId).Status = "Picking";
+
             _context.PickDetails.AddRange(pickDetailList);
             _context.SaveChanges();
         }
@@ -1172,9 +1175,10 @@ namespace ClothResorting.Helpers
                 SizeBundle = pool.SizeBundle,
                 PcsBundle = pool.PcsBundle,
                 CustomerCode = pool.CustomerCode,
-                PickDate = _dateTimeNow.ToString("mm/dd/yyyy"),
+                PickDate = _dateTimeNow.ToString("MM/dd/yyyy"),
                 Container = pool.Container,
                 Location = pool.Location,
+                Status = "Picking",
                 PcsPerCarton = pool.PcsPerCaron,
                 PickCtns = targetPcs / pool.PcsPerCaron,
                 PickPcs = targetPcs,
@@ -1189,11 +1193,12 @@ namespace ClothResorting.Helpers
             {
                 PurchaseOrder = pool.PurchaseOrder,
                 Style = pool.Style,
-                Color = pool. Color,
+                Color = pool.Color,
                 SizeBundle = pool.SizeBundle,
                 PcsBundle = pool.PcsBundle,
                 CustomerCode = pool.CustomerCode,
-                PickDate = _dateTimeNow.ToString("mm/dd/yyyy"),
+                PickDate = _dateTimeNow.ToString("MM/dd/yyyy"),
+                Status = "Picking",
                 Container = pool.Container,
                 Location = pool.Location,
                 PcsPerCarton = pool.PcsPerCaron,

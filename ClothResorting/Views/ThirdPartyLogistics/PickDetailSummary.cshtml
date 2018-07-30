@@ -1,11 +1,11 @@
 ﻿
 @{
-    ViewBag.Title = "PickDetail";
+    ViewBag.Title = "PickDetailSummary";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Pick Detail Page</h2>
+<h2>Pick Detail Summary</h2>
 
 <div class="maincontainer">
     <div>
@@ -19,17 +19,12 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Status</th>
                     <th>Cut PO</th>
                     <th>Style</th>
                     <th>Color</th>
-                    <th>Customer</th>
                     <th>Size</th>
-                    <th>Pcs</th>
-                    <th>Pack</th>
                     <th>Pick Ctns</th>
                     <th>Pick Pcs</th>
-                    <th>Location</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -74,7 +69,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/pickdetail/" + psid,
+                url: "/api/pickdetailsummary/" + psid,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -85,15 +80,6 @@
                         destroy: true,
                         data: data,
                         columns: [
-                            {
-                                data: "status",
-                                render: function (data) {
-                                    if(data == "Picking")
-                                        return "<font color='red'>" + data + "</font>";
-                                    else
-                                        return "<font color='blue'>" + data + "</font>";
-                                }
-                            },
                             {
                                 data: "purchaseOrder",
                                 render: function (data) {
@@ -113,25 +99,7 @@
                                 }
                             },
                             {
-                                data: "customerCode",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
                                 data: "sizeBundle",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pcsBundle",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pcsPerCarton",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -147,72 +115,13 @@
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
-                            },
-                            {
-                                data: "location",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
+                            }
                         ]
                     });
                 },
                 error: function (data) {
                     alert("Error!");
                 }
-            });
-
-            $("#create1").click(function () {
-                layui.use("layer", function () {
-                    var layer = layui.layer;
-
-                    index = layer.open({
-                        title: false,
-                        type: 1,
-                        shadeclose: true,
-                        area: ["40%", "40%"],
-                        content: $(".iframe")
-                    });
-                });
-            });
-
-            $("#uploadfile").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload2").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/pickdetail/" + psid,
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-
-                        layui.use('layer', function () {
-                            var layer = layui.layer;
-                            layer.msg('Extracting files...', {
-                                icon: 16,
-                                shade: 0.01,
-                                time: 99 * 1000
-                            });;
-                        });
-                    },
-                    success: function () {
-                        layer.alert("Upload successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
-                    }
-                });
-                $(".iframe").hide();
             });
 
             $(".btn-back").on("click", function () {

@@ -35,6 +35,8 @@
     <script>
         $(document).ready(function () {
 
+            var status;
+
             $.ajax({
                 type: "GET",
                 url: "/api/pullsheet/",
@@ -66,6 +68,8 @@
                             {
                                 data: "status",
                                 render: function (data) {
+                                    status = data;
+
                                     if (data == "New Create")
                                     {
                                         return "<text style='color:Green'>" + data + "</text>";
@@ -83,13 +87,17 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (data == "Shipped")
+                                    if (status == "Shipped")
                                     {
-                                        return "<button class='btn btn-link btn-cancel'>Cancel</button>";
+                                        return "<button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
+                                    }
+                                    else if (status == "Picking")
+                                    {
+                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                     }
                                     else
                                     {
-                                        return "<button id='" +  data + "'class='btn btn-link btn-pick'>Pick</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship'>Ship</button><button class='btn btn-link btn-cancel'>Cancel</button>"
+                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                     }
                                 }
                             }
@@ -131,6 +139,49 @@
             $("#table").on("click", ".btn-pick", function () {
                 var button = $(this);
                 $(window.location).attr('href', '/thirdpartylogistics/pickdetail/?pullsheetid=' + button.attr('id'));
+            });
+
+            $("#table").on("click", ".btn-summary", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pickdetailsummary/?pullsheetid=' + button.attr('value'));
+            });
+
+            $("#table").on("click", ".btn-ship", function () {
+                var button = $(this);
+                var id = button.attr('value');
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/pullsheet/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Selected pull sheet has been shipped.");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error!");
+                    }
+                });
+            });
+
+            $("#table").on("click", ".btn-cancel", function () {
+                var button = $(this);
+                var id = button.attr('value');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/pullsheet/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Selected pull sheet has been cancelled.");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error!");
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

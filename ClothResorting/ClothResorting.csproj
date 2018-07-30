@@ -255,6 +255,7 @@
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
     <Compile Include="Controllers\Api\OutboundHistoryController.cs" />
     <Compile Include="Controllers\Api\PickDetailController.cs" />
+    <Compile Include="Controllers\Api\PickDetailSummaryController.cs" />
     <Compile Include="Controllers\Api\PickingListManagementController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PickingRecordsController.cs" />
@@ -927,6 +928,7 @@
     <Compile Include="Models\DataTransferModels\FCReceivingReport.cs" />
     <Compile Include="Models\DataTransferModels\InboundHistoryRecord.cs" />
     <Compile Include="Models\DataTransferModels\OutboundHistoryRecord.cs" />
+    <Compile Include="Models\DataTransferModels\PickDetailSummary.cs" />
     <Compile Include="Models\DataTransferModels\PickRequest.cs" />
     <Compile Include="Models\DataTransferModels\PSIModel.cs" />
     <Compile Include="Models\DataTransferModels\PullSheetSummary.cs" />
@@ -1300,6 +1302,7 @@
     <Content Include="Views\ThirdPartyLogistics\ShipOrder.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PullSheet.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PickDetailSummary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
