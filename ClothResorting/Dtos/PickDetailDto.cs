@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ClothResorting.Models
+namespace ClothResorting.Dtos
 {
-    public class PickDetail
+    public class PickDetailDto
     {
         public int Id { get; set; }
 
@@ -36,7 +36,5 @@ namespace ClothResorting.Models
         public int LocationDetailId { get; set; }
 
         public string PickDate { get; set; }
-
-        public PullSheet PullSheet { get; set; }
     }
 }

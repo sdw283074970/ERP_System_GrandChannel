@@ -907,7 +907,6 @@ namespace ClothResorting.Helpers
             var psiRowCount = 0;
             var index = 2;
             var psiList = new List<PSIModel>();
-            var pickDetailList = new List<PickDetail>();
 
             while(_ws.Cells[index, 1].Value2 != null)
             {
@@ -915,6 +914,7 @@ namespace ClothResorting.Helpers
                 index += 1;
             }
 
+            //检查是否有重复的pis记录
             for (int i = 0; i < psiRowCount; i++)
             {
                 var container = _ws.Cells[i + 2, 1].Value2.ToString();
@@ -968,29 +968,30 @@ namespace ClothResorting.Helpers
             }
 
             //每一个SKU都在“待选池”中拣货
-            var newPoolCartonLocationDetails = new List<FCRegularLocationDetail>();
+            var pickDetailList = new List<PickDetail>();
+            var usedPoolCartonLocationDetails = new List<FCRegularLocationDetail>();
 
             for(int i = 1; i <= pullSheetCount; i++)
             {
-                index = 3;
+                index = 3;      //size列的起始点
                 var startRow = (i - 1) * 3 + 1;
                 string style = _ws.Cells[startRow + 1, 1].Value2.ToString();
-                var color = _ws.Cells[startRow + 1, 2].Value2.ToStrgin();
+                var color = _ws.Cells[startRow + 1, 2].Value2.ToString();
                 var sizeCount = 0;
                 var sizeList = new List<SizeRatio>();
 
-                //确定拣货对象(Cut PO)的种类，，否则是Solid
-                var skuCount = _context.POSummaries
+                //确定拣货对象(Cut PO)的种类
+                var sku = _context.POSummaries
                     .Include(x => x.RegularCartonDetails)
                     .Where(x => x.Style == style)
-                    .First()
-                    .RegularCartonDetails
-                    .Count;
+                    .FirstOrDefault();
+
+                var skuCount = sku == null ? 0 : sku.RegularCartonDetails.Count;
 
                 if (skuCount > 1)       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
                 {
                     //扫描每一种SKU有多少种Size
-                    while (_ws.Cells[startRow, index].Value2.ToSstring() != null)
+                    while (_ws.Cells[startRow, index].Value2 != null)
                     {
                         sizeCount += 1;
                         index += 1;
@@ -1002,7 +1003,7 @@ namespace ClothResorting.Helpers
                         sizeList.Add(new SizeRatio
                         {
                             SizeName = _ws.Cells[startRow, 3 + j].Value2.ToString(),
-                            Count = _ws.Cells[startRow + 1, 3 + j].Value2.ToString()
+                            Count = (int)_ws.Cells[startRow + 1, 3 + j].Value2
                         });
                     }
 
@@ -1019,7 +1020,7 @@ namespace ClothResorting.Helpers
                         foreach (var pool in poolLocations)
                         {
                             //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
-                            if (pool.AvailablePcs <= targetPcs)
+                            if (pool.AvailablePcs <= targetPcs && targetPcs!= 0)
                             {
                                 pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, pool.AvailablePcs));
 
@@ -1030,9 +1031,12 @@ namespace ClothResorting.Helpers
 
                                 pool.AvailableCtns = 0;
                                 pool.AvailablePcs = 0;
+
+                                //将有变化的结果放到新建的“使用过的待选池”中
+                                usedPoolCartonLocationDetails.Add(pool);
                             }
                             //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
-                            else
+                            else if ( pool.AvailablePcs > targetPcs && targetPcs != 0)
                             {
                                 pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, targetPcs));
 
@@ -1043,20 +1047,22 @@ namespace ClothResorting.Helpers
                                 pool.AvailablePcs -= targetPcs;
 
                                 targetPcs = 0;
+
+                                //将有变化的结果放到新建的“使用过的待选池”中
+                                usedPoolCartonLocationDetails.Add(pool);
                             }
                         }
 
                         //如果targetPcs还没收集齐，则缺货
                         if (targetPcs > 0)
                         {
-                            // ...缺货
+                            // ...生成缺货记录
                         }
 
-                        //将有变化的结果放到新建的“使用过的待选池”中
-                        newPoolCartonLocationDetails.AddRange(poolLocations);
+                        //usedPoolCartonLocationDetails.AddRange(poolLocations);
                     }
                 }
-                else    //如果POSummary下只有一个RegularCartonDetail对象就说明是Bundle
+                else if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Bundle
                 {
                     //待选池中所有符合拣货条件的对象
                     var poolLocations = cartonLocationPool.Where(x => x.Style == style
@@ -1096,6 +1102,9 @@ namespace ClothResorting.Helpers
 
                             pool.AvailableCtns = 0;
                             pool.AvailablePcs = 0;
+
+                            //将有变化的结果放到新建的“使用过的待选池”中
+                            usedPoolCartonLocationDetails.Add(pool);
                         }
                         //当当前的待选对象箱数大于目标箱数时，只拿走需要的，并记录
                         else
@@ -1109,31 +1118,42 @@ namespace ClothResorting.Helpers
                             pool.PickingPcs -= targetCartons * pool.PcsPerCaron;
 
                             targetCartons = 0;
+
+                            //将有变化的结果放到新建的“使用过的待选池”中
+                            usedPoolCartonLocationDetails.Add(pool);
                         }
                     }
 
                     //如果targetCtns还没收集齐，则缺货
                     if (targetCartons > 0)
                     {
-                        //...缺货
+                        //...生成缺货记录
                     }
-
-                    //将有变化的结果放到新建的“使用过的待选池”中
-                    newPoolCartonLocationDetails.AddRange(poolLocations);
+                    
+                    //usedPoolCartonLocationDetails.AddRange(poolLocations);
+                }
+                else    //最后是count等于0,即数据库中不存在相关sku记录的情况,把该sku打印出来,生成缺货记录
+                {
+                    //...生成缺货记录
                 }
             }
 
             //将新收集的"备选池"对象同步到其原有的数据库对象中去
             var cartonLocationDetailsInDb = _context.FCRegularLocationDetails.Where(x => x.Id > 0);
 
-            foreach(var cartonLocation in newPoolCartonLocationDetails)
+            foreach(var usedCartonLocation in usedPoolCartonLocationDetails)
             {
-                var cartonInDb = cartonLocationDetailsInDb.SingleOrDefault(x => x.Id == cartonLocation.Id);
+                var cartonInDb = cartonLocationDetailsInDb.SingleOrDefault(x => x.Id == usedCartonLocation.Id);
 
-                cartonInDb.AvailableCtns = cartonLocation.AvailableCtns;
-                cartonInDb.AvailablePcs = cartonLocation.AvailablePcs;
-                cartonInDb.PickingCtns = cartonLocation.PickingCtns;
-                cartonInDb.PickingPcs = cartonLocation.PickingPcs;
+                if (cartonInDb.Status == "In Stock")
+                {
+                    cartonInDb.Status = "Picking";
+                }
+
+                cartonInDb.AvailableCtns = usedCartonLocation.AvailableCtns;
+                cartonInDb.AvailablePcs = usedCartonLocation.AvailablePcs;
+                cartonInDb.PickingCtns = usedCartonLocation.PickingCtns;
+                cartonInDb.PickingPcs = usedCartonLocation.PickingPcs;
             }
 
             _context.PickDetails.AddRange(pickDetailList);
@@ -1148,14 +1168,14 @@ namespace ClothResorting.Helpers
             {
                 PurchaseOrder = pool.PurchaseOrder,
                 Style = pool.Style,
-                Color = pool.Style,
+                Color = pool.Color,
                 SizeBundle = pool.SizeBundle,
                 PcsBundle = pool.PcsBundle,
                 CustomerCode = pool.CustomerCode,
-                PickDate = _dateTimeNow.ToString("mm/DD/yyyy"),
+                PickDate = _dateTimeNow.ToString("mm/dd/yyyy"),
                 Container = pool.Container,
                 Location = pool.Location,
-                PcsPerCaron = pool.PcsPerCaron,
+                PcsPerCarton = pool.PcsPerCaron,
                 PickCtns = targetPcs / pool.PcsPerCaron,
                 PickPcs = targetPcs,
                 PullSheet = pullSheet,
@@ -1169,14 +1189,14 @@ namespace ClothResorting.Helpers
             {
                 PurchaseOrder = pool.PurchaseOrder,
                 Style = pool.Style,
-                Color = pool.Style,
+                Color = pool. Color,
                 SizeBundle = pool.SizeBundle,
                 PcsBundle = pool.PcsBundle,
                 CustomerCode = pool.CustomerCode,
-                PickDate = _dateTimeNow.ToString("mm/DD/yyyy"),
+                PickDate = _dateTimeNow.ToString("mm/dd/yyyy"),
                 Container = pool.Container,
                 Location = pool.Location,
-                PcsPerCaron = pool.PcsPerCaron,
+                PcsPerCarton = pool.PcsPerCaron,
                 PickPcs = targetCtns * pool.PcsPerCaron,
                 PickCtns = targetCtns,
                 PullSheet = pullSheet,

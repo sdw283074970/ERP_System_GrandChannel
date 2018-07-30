@@ -158,5 +158,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // PickDetail管理页面
+        public ActionResult PickDetail()
+        {
+            return View();
+        }
     }
 }

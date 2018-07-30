@@ -254,6 +254,7 @@
     <Compile Include="Controllers\Api\CartonDetailCartonsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailReceivingController.cs" />
     <Compile Include="Controllers\Api\OutboundHistoryController.cs" />
+    <Compile Include="Controllers\Api\PickDetailController.cs" />
     <Compile Include="Controllers\Api\PickingListManagementController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PickingRecordsController.cs" />
@@ -281,6 +282,7 @@
     <Compile Include="Dtos\MeasurementDto.cs" />
     <Compile Include="Dtos\PermanentLocationDto.cs" />
     <Compile Include="Dtos\PermanentLocIORecordDto.cs" />
+    <Compile Include="Dtos\PickDetailDto.cs" />
     <Compile Include="Dtos\PickingListDto.cs" />
     <Compile Include="Dtos\PickingRecordDto.cs" />
     <Compile Include="Dtos\POSummaryDto.cs" />
@@ -896,6 +898,10 @@
     <Compile Include="Migrations\201807280042373_ModifiedSomeNameAndDateDataTyple.Designer.cs">
       <DependentUpon>201807280042373_ModifiedSomeNameAndDateDataTyple.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807301752062_ModifiedPickDetailProperties.cs" />
+    <Compile Include="Migrations\201807301752062_ModifiedPickDetailProperties.Designer.cs">
+      <DependentUpon>201807301752062_ModifiedPickDetailProperties.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1293,6 +1299,7 @@
     <Content Include="Views\ThirdPartyLogistics\PickingRecords.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\ShipOrder.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PullSheet.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PickDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1753,6 +1760,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807280042373_ModifiedSomeNameAndDateDataTyple.resx">
       <DependentUpon>201807280042373_ModifiedSomeNameAndDateDataTyple.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807301752062_ModifiedPickDetailProperties.resx">
+      <DependentUpon>201807301752062_ModifiedPickDetailProperties.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

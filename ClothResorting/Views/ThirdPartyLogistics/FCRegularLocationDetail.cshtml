@@ -26,10 +26,16 @@
                     <th>Style</th>
                     <th>Color</th>
                     <th>CC</th>
-                    <th>Size BD</th>
-                    <th>Pcs BD</th>
-                    <th>Cartons</th>
-                    <th>Quantity</th>
+                    <th>Size</th>
+                    <th>Pcs</th>
+                    <th>Org Ctns</th>
+                    <th>Org Pcs</th>
+                    <th>Available Ctns</th>
+                    <th>Picking Ctns</th>
+                    <th>Shipped Ctns</th>
+                    <th>Available Pcs</th>
+                    <th>Picking Pcs</th>
+                    <th>Shipped Pcs</th>
                     <th>Inbound Date</th>
                     <th>Location</th>
                     <th>Operation</th>
@@ -147,6 +153,42 @@
                             },
                             {
                                 data: "quantity",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "availableCtns",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pickingCtns",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedCtns",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "availablePcs",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pickingPcs",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedPcs",
                                 render: function (data) {
                                     return "<font>" + data + "</font>";
                                 }

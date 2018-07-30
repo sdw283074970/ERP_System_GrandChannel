@@ -1,0 +1,213 @@
+﻿
+@{
+    ViewBag.Title = "PickDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Pick Detail Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="create1" type="button" class="btn btn-group" value="Upload pull sheet" />
+
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Cut PO</th>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>Customer</th>
+                    <th>Size</th>
+                    <th>Pcs</th>
+                    <th>Pack</th>
+                    <th>Pick Ctns</th>
+                    <th>Pick Pcs</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="iframe">
+    <div>
+        <input id="upload2" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload" />
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var table;
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            //从地址栏获取参数
+            var psid = getUrlParameter('pullsheetid');
+
+            $.ajax({
+                type: "GET",
+                url: "/api/pickdetail/" + psid,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    if (table) {
+                        table.destroy();
+                    }
+                    table = $("table").DataTable({
+                        destroy: true,
+                        data: data,
+                        columns: [
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "customerCode",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "sizeBundle",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pcsBundle",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pcsPerCarton",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickCtns",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickPcs",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                        ]
+                    });
+                },
+                error: function (data) {
+                    alert("Error!");
+                }
+            });
+
+            $("#create1").click(function () {
+                layui.use("layer", function () {
+                    var layer = layui.layer;
+
+                    index = layer.open({
+                        title: false,
+                        type: 1,
+                        shadeclose: true,
+                        area: ["40%", "40%"],
+                        content: $(".iframe")
+                    });
+                });
+            });
+
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/pickdetail/" + psid,
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+
+                        layui.use('layer', function () {
+                            var layer = layui.layer;
+                            layer.msg('Extracting files...', {
+                                icon: 16,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });;
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Upload successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server!");
+                    }
+                });
+                $(".iframe").hide();
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}
