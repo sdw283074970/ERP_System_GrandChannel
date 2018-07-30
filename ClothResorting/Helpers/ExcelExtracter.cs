@@ -1020,7 +1020,7 @@ namespace ClothResorting.Helpers
                         foreach (var pool in poolLocations)
                         {
                             //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
-                            if (pool.AvailablePcs <= targetPcs && targetPcs!= 0)
+                            if (pool.AvailablePcs <= targetPcs && pool.AvailablePcs != 0 && targetPcs!= 0)
                             {
                                 pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, pool.AvailablePcs));
 
@@ -1036,7 +1036,7 @@ namespace ClothResorting.Helpers
                                 usedPoolCartonLocationDetails.Add(pool);
                             }
                             //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
-                            else if ( pool.AvailablePcs > targetPcs && targetPcs != 0)
+                            else if ( pool.AvailablePcs > targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
                             {
                                 pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, targetPcs));
 
@@ -1086,19 +1086,19 @@ namespace ClothResorting.Helpers
                     }
 
                     //计算该SKU的目标箱数， 箱数 = 总件数 / 每箱件数
-                    var targetCartons = sizeList.Sum(x => x.Count) / poolLocations.First().PcsPerCaron;
+                    var targetCtns = sizeList.Sum(x => x.Count) / poolLocations.First().PcsPerCaron;
 
                     foreach(var pool in poolLocations)
                     {
                         //当当前的待选对象箱数小于等于目标箱数时，全部拿走，并记录
-                        if (pool.AvailableCtns <= targetCartons)
+                        if (pool.AvailableCtns <= targetCtns && pool.AvailableCtns != 0 && targetCtns != 0)
                         {
                             pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, pool.AvailableCtns));
 
                             pool.PickingCtns += pool.AvailableCtns;
                             pool.PickingPcs += pool.AvailableCtns * pool.PcsPerCaron;
 
-                            targetCartons -= pool.AvailableCtns;
+                            targetCtns -= pool.AvailableCtns;
 
                             pool.AvailableCtns = 0;
                             pool.AvailablePcs = 0;
@@ -1107,17 +1107,17 @@ namespace ClothResorting.Helpers
                             usedPoolCartonLocationDetails.Add(pool);
                         }
                         //当当前的待选对象箱数大于目标箱数时，只拿走需要的，并记录
-                        else
+                        else if (pool.AvailableCtns > targetCtns && pool.AvailableCtns != 0 && targetCtns != 0)
                         {
-                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, targetCartons));
+                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, targetCtns));
 
-                            pool.PickingCtns += targetCartons;
-                            pool.PickingPcs += targetCartons * pool.PcsPerCaron;
+                            pool.PickingCtns += targetCtns;
+                            pool.PickingPcs += targetCtns * pool.PcsPerCaron;
 
-                            pool.AvailableCtns -= targetCartons;
-                            pool.PickingPcs -= targetCartons * pool.PcsPerCaron;
+                            pool.AvailableCtns -= targetCtns;
+                            pool.PickingPcs -= targetCtns * pool.PcsPerCaron;
 
-                            targetCartons = 0;
+                            targetCtns = 0;
 
                             //将有变化的结果放到新建的“使用过的待选池”中
                             usedPoolCartonLocationDetails.Add(pool);
@@ -1125,7 +1125,7 @@ namespace ClothResorting.Helpers
                     }
 
                     //如果targetCtns还没收集齐，则缺货
-                    if (targetCartons > 0)
+                    if (targetCtns > 0)
                     {
                         //...生成缺货记录
                     }
