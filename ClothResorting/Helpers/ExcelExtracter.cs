@@ -973,12 +973,30 @@ namespace ClothResorting.Helpers
 
             for(int i = 1; i <= pullSheetCount; i++)
             {
-                index = 3;      //size列的起始点
+                index = 4;      //size列的起始点
                 var startRow = (i - 1) * 3 + 1;
                 string style = _ws.Cells[startRow + 1, 1].Value2.ToString();
                 var color = _ws.Cells[startRow + 1, 2].Value2.ToString();
+                string purchaseOrder = _ws.Cells[startRow + 1, 3].Value2.ToString();
                 var sizeCount = 0;
                 var sizeList = new List<SizeRatio>();
+
+                //扫描每一种SKU有多少种Size
+                while (_ws.Cells[startRow, index].Value2 != null)
+                {
+                    sizeCount += 1;
+                    index += 1;
+                }
+
+                //扫描每一种需求的Size名称和件数
+                for (int j = 0; j < sizeCount; j++)
+                {
+                    sizeList.Add(new SizeRatio
+                    {
+                        SizeName = _ws.Cells[startRow, 4 + j].Value2.ToString(),
+                        Count = (int)_ws.Cells[startRow + 1, 4 + j].Value2
+                    });
+                }
 
                 //确定拣货对象(Cut PO)的种类
                 var sku = _context.POSummaries
@@ -990,22 +1008,6 @@ namespace ClothResorting.Helpers
 
                 if (skuCount > 1)       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
                 {
-                    //扫描每一种SKU有多少种Size
-                    while (_ws.Cells[startRow, index].Value2 != null)
-                    {
-                        sizeCount += 1;
-                        index += 1;
-                    }
-
-                    //扫描每一种需求的Size名称和件数
-                    for (int j = 0; j < sizeCount; j++)
-                    {
-                        sizeList.Add(new SizeRatio
-                        {
-                            SizeName = _ws.Cells[startRow, 3 + j].Value2.ToString(),
-                            Count = (int)_ws.Cells[startRow + 1, 3 + j].Value2
-                        });
-                    }
 
                     //为该SKU下的每一种Size备货
                     foreach (var size in sizeList)
@@ -1013,7 +1015,8 @@ namespace ClothResorting.Helpers
                         //待选池中所有符合拣货条件的对象
                         var poolLocations = cartonLocationPool.Where(x => x.Style == style
                                 && x.Color == color
-                                && x.SizeBundle == size.SizeName);
+                                && x.SizeBundle == size.SizeName
+                                && x.PurchaseOrder == purchaseOrder);
 
                         var targetPcs = size.Count;
 
@@ -1066,24 +1069,8 @@ namespace ClothResorting.Helpers
                 {
                     //待选池中所有符合拣货条件的对象
                     var poolLocations = cartonLocationPool.Where(x => x.Style == style
-                            && x.Color == color);
-
-                    //扫描每一种SKU有多少种Size
-                    while (_ws.Cells[startRow, index].Value2.ToSstring() != null)
-                    {
-                        sizeCount += 1;
-                        index += 1;
-                    }
-
-                    //扫描每一种需求的Size名称和件数
-                    for (int j = 0; j < sizeCount; j++)
-                    {
-                        sizeList.Add(new SizeRatio
-                        {
-                            SizeName = _ws.Cells[startRow, 3 + j].Value2.ToString(),
-                            Count = _ws.Cells[startRow + 1, 3 + j].Value2.ToString()
-                        });
-                    }
+                            && x.Color == color
+                            && x.PurchaseOrder == purchaseOrder);
 
                     //计算该SKU的目标箱数， 箱数 = 总件数 / 每箱件数
                     var targetCtns = sizeList.Sum(x => x.Count) / poolLocations.First().PcsPerCaron;
