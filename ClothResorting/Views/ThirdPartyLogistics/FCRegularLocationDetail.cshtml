@@ -259,92 +259,128 @@
                             data: data,
                             destroy: true,
                             columns: [
-                                {
-                                    data: "container",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
+                            {
+                                data: "container",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    if (data == "Picking") {
+                                        return "<text style='color:Red'>" + data + "</text>";
                                     }
-                                },
-                                {
-                                    data: "status",
-                                    render: function (data) {
-                                        if (data == "Picking") {
-                                            return "<text style='color:Red'>" + data + "</text>";
-                                        }
-                                        else if (data == "Shipped") {
-                                            return "<text style='color:Blue'>" + data + "</text>";
-                                        }
-                                        else {
-                                            return "<text style='color:Green'>" + data + "</text>";
-                                        }
+                                    else if (data == "Shipped") {
+                                        return "<text style='color:Blue'>" + data + "</text>";
                                     }
-                                },
-                                {
-                                    data: "purchaseOrder",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "style",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "color",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "customerCode",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "sizeBundle",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "pcsBundle",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "cartons",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "quantity",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "inboundDate",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "location",
-                                    render: function (data) {
-                                        return "<font color='orange'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                    else {
+                                        return "<text style='color:Green'>" + data + "</text>";
                                     }
                                 }
+                            },
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "customerCode",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "sizeBundle",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pcsBundle",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "cartons",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "availableCtns",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pickingCtns",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedCtns",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "availablePcs",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pickingPcs",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedPcs",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                }
+                            }
                             ]
                         });
                     },
