@@ -164,16 +164,12 @@
             });
 
             $("#create1").click(function () {
-                layui.use("layer", function () {
-                    var layer = layui.layer;
-
-                    index = layer.open({
-                        title: false,
-                        type: 1,
-                        shadeclose: true,
-                        area: ["40%", "40%"],
-                        content: $(".iframe")
-                    });
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["40%", "40%"],
+                    content: $(".iframe")
                 });
             });
 
@@ -195,13 +191,10 @@
                     beforeSend: function () {
                         layer.close(index);
 
-                        layui.use('layer', function () {
-                            var layer = layui.layer;
-                            layer.msg('Extracting files...', {
-                                icon: 16,
-                                shade: 0.01,
-                                time: 99 * 1000
-                            });;
+                        layer.msg('Extracting files...', {
+                            icon: 16,
+                            shade: 0.01,
+                            time: 99 * 1000
                         });
                     },
                     success: function () {
