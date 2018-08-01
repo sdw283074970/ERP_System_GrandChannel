@@ -10,10 +10,10 @@ namespace ClothResorting
         {
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js",
-                        "~/Scripts/Layui/layui.all.js",
                         "~/Scripts/DataTables/jquery.dataTables.js",
                         "~/Scripts/DataTables/dataTables.bootstrap.js",
                         "~/Scripts/Customized/MyJavaScript.js",
+                        "~/Scripts/layui/layui.all.js",
                         "~/Scripts/bootbox.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
@@ -31,7 +31,7 @@ namespace ClothResorting
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css",
-                      "~/Content/layui.css",
+                      "~/Scripts/layui/css/layui.css",
                       "~/Content/DataTables/css/dataTables.bootstrap.css"));
         }
     }

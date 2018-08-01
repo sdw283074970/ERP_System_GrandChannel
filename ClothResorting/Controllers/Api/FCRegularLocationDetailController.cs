@@ -32,7 +32,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // DELETE /api/FCRegularLocationDetail/ 删除库存记录，将记录的箱数件数移回SKU待分配
+        // DELETE /api/FCRegularLocationDetail/{id} 删除库存记录，将记录的箱数件数移回SKU待分配
         [HttpDelete]
         public void RelocateLocation([FromUri]int id)
         {
@@ -42,18 +42,38 @@ namespace ClothResorting.Controllers.Api
 
             var preId = locationInDb.PreReceiveOrder.Id;
 
-            var cartonDetailInDb = _context.RegularCartonDetails
+            var cartonDetailsInDb = _context.RegularCartonDetails
                 .Include(x => x.POSummary.PreReceiveOrder)
-                .SingleOrDefault(x => x.POSummary.PreReceiveOrder.Id == preId
+                .Where(x => x.POSummary.PreReceiveOrder.Id == preId
                     && x.PurchaseOrder == locationInDb.PurchaseOrder
                     && x.Style == locationInDb.Style
                     && x.Color == locationInDb.Color
                     && x.Customer == locationInDb.CustomerCode);
 
-            cartonDetailInDb.ToBeAllocatedCtns += locationInDb.Cartons;
-            cartonDetailInDb.ToBeAllocatedPcs += locationInDb.Quantity;
+            var cartonDetailInDb = cartonDetailsInDb.First();
 
-            _context.FCRegularLocationDetails.Remove(locationInDb);
+            var availableCtns = locationInDb.AvailableCtns;
+            var availablePcs = locationInDb.AvailablePcs;
+            var pickingCtns = locationInDb.PickingCtns;
+            var pickingPcs = locationInDb.PickingPcs;
+            var shippedCtns = locationInDb.ShippedCtns;
+            var shippedPcs = locationInDb.ShippedPcs;
+
+            //当pickingCtns不为0时，说明有货正在拣，不能进行移库操作。此项限制在前端完成
+            //当库存剩余为0且没有货在拣，也不能进行移库操作。此项限制在前端完成
+
+            cartonDetailInDb.ToBeAllocatedCtns += availableCtns;
+            cartonDetailInDb.ToBeAllocatedPcs += availablePcs;
+
+            locationInDb.AvailableCtns = 0;
+            locationInDb.AvailablePcs = 0;
+
+            //当有库存剩余且没有已发出去的货的时候，删除库存记录(否则不删除记录)，将库存记录的库存剩余移至SKU待分配页面
+            if (availableCtns != 0 && shippedCtns == 0)
+            {
+                _context.FCRegularLocationDetails.Remove(locationInDb);
+            }
+
             _context.SaveChanges();
         }
     }

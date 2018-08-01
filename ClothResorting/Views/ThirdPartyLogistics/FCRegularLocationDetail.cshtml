@@ -51,6 +51,8 @@
         $(document).ready(function () {
 
             var table;
+            var pickingCtns;
+            var availableCtns;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -160,12 +162,14 @@
                             {
                                 data: "availableCtns",
                                 render: function (data) {
+                                    availableCtns = data;
                                     return "<font>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "pickingCtns",
                                 render: function (data) {
+                                    pickingCtns = data;
                                     return "<font>" + data + "</font>";
                                 }
                             },
@@ -208,7 +212,11 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                    //当库存剩余为0且没有在拣货，或者有在拣货的情况下，隐藏移库按钮
+                                    if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0)
+                                        return "";
+                                    else
+                                        return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
                                 }
                             }
                         ]
