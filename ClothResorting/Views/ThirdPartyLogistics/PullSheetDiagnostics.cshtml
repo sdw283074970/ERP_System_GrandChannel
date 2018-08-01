@@ -1,0 +1,107 @@
+﻿
+@{
+    ViewBag.Title = "PullSheetDiagnostics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Pull Sheet Diagnostics Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-clean" type="button" class="btn btn-danger" value="Clean All" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Diagnostic Date</th>
+                    <th>Diagnostic Description</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var id = getUrlParameter('pullsheetid');
+
+            $.ajax({
+                type: "GET",
+                url: "/api/pullsheetdiagnostics/" + id,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    $("#table").DataTable({
+                        data: data,
+                        destroy: true,
+                        columns: [
+                            {
+                                data: "type",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "diagnosticDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function () {
+                    alert("Error!");
+                }
+            });
+            
+            $("#btn-clean").on("click", function () {
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/pullsheetdiagnostics/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Delete success!");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error!");
+                    }
+                });
+            });
+
+        });
+    </script>
+}

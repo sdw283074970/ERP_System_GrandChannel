@@ -93,11 +93,11 @@
                                     }
                                     else if (status == "Picking")
                                     {
-                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
+                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-print'>Print</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                     }
                                     else
                                     {
-                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
+                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                     }
                                 }
                             }
@@ -144,6 +144,11 @@
             $("#table").on("click", ".btn-summary", function () {
                 var button = $(this);
                 $(window.location).attr('href', '/thirdpartylogistics/pickdetailsummary/?pullsheetid=' + button.attr('value'));
+            });
+
+            $("#table").on("click", ".btn-diag", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?pullsheetid=' + button.attr('value'));
             });
 
             $("#table").on("click", ".btn-ship", function () {

@@ -16,5 +16,7 @@ namespace ClothResorting.Models
         public string CreateDate { get; set; }
 
         public ICollection<PickDetail> PickDetails { get; set; }
+
+        public ICollection<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }
     }
 }

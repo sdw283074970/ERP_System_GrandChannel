@@ -260,6 +260,7 @@
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PickingRecordsController.cs" />
     <Compile Include="Controllers\Api\PullSheetController.cs" />
+    <Compile Include="Controllers\Api\PullSheetDiagnosticsController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailConfirmationController.cs" />
@@ -287,6 +288,7 @@
     <Compile Include="Dtos\PickingListDto.cs" />
     <Compile Include="Dtos\PickingRecordDto.cs" />
     <Compile Include="Dtos\POSummaryDto.cs" />
+    <Compile Include="Dtos\PullSheetDiagnosticDto.cs" />
     <Compile Include="Dtos\PullSheetDto.cs" />
     <Compile Include="Dtos\PurchaseOrderInventoryDto.cs" />
     <Compile Include="Dtos\RegularCartonDetailDto.cs" />
@@ -903,6 +905,10 @@
     <Compile Include="Migrations\201807301752062_ModifiedPickDetailProperties.Designer.cs">
       <DependentUpon>201807301752062_ModifiedPickDetailProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808010016385_AddedPullSheetDiagnosticsDbSet.cs" />
+    <Compile Include="Migrations\201808010016385_AddedPullSheetDiagnosticsDbSet.Designer.cs">
+      <DependentUpon>201808010016385_AddedPullSheetDiagnosticsDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -943,6 +949,7 @@
     <Compile Include="Models\PickingRecord.cs" />
     <Compile Include="Models\POSummary.cs" />
     <Compile Include="Models\PullSheet.cs" />
+    <Compile Include="Models\PullSheetDiagnostic.cs" />
     <Compile Include="Models\PurchaseOrderInventory.cs" />
     <Compile Include="Models\RegularCartonDetail.cs" />
     <Compile Include="Models\RegularSpeciesInventory.cs" />
@@ -1303,6 +1310,7 @@
     <Content Include="Views\ThirdPartyLogistics\PullSheet.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickDetailSummary.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PullSheetDiagnostics.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1766,6 +1774,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807301752062_ModifiedPickDetailProperties.resx">
       <DependentUpon>201807301752062_ModifiedPickDetailProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808010016385_AddedPullSheetDiagnosticsDbSet.resx">
+      <DependentUpon>201808010016385_AddedPullSheetDiagnosticsDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -901,6 +901,7 @@ namespace ClothResorting.Helpers
         public void ExtractPullSheet(int pullSheetId)
         {
             var pullSheet = _context.PullSheets.Find(pullSheetId);
+            var diagnosticList = new List<PullSheetDiagnostic>();
             //首先抽取第一页的PSI信息，将PSI中指定的内容放入一个储存在内存中的“待选对象池”，池中内容不一定都会用完
             _ws = _wb.Worksheets[1];
 
@@ -1001,7 +1002,8 @@ namespace ClothResorting.Helpers
                 //确定拣货对象(Cut PO)的种类
                 var sku = _context.POSummaries
                     .Include(x => x.RegularCartonDetails)
-                    .Where(x => x.Style == style)
+                    .Where(x => x.Style == style
+                        && x.PurchaseOrder == purchaseOrder)
                     .FirstOrDefault();
 
                 var skuCount = sku == null ? 0 : sku.RegularCartonDetails.Count;
@@ -1017,6 +1019,20 @@ namespace ClothResorting.Helpers
                                 && x.Color == color
                                 && x.SizeBundle == size.SizeName
                                 && x.PurchaseOrder == purchaseOrder);
+
+                        if (poolLocations.Count() == 0)
+                        {
+                            diagnosticList.Add(new PullSheetDiagnostic
+                            {
+                                Type = "Missing",
+                                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                                Description = "SKU style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed correct.",
+                                PullSheet = pullSheet
+                            });
+
+                            _context.PullSheetDiagnostics.AddRange(diagnosticList);
+                            _context.SaveChanges();
+                        }
 
                         var targetPcs = size.Count;
 
@@ -1060,6 +1076,12 @@ namespace ClothResorting.Helpers
                         if (targetPcs > 0)
                         {
                             // ...生成缺货记录
+                            diagnosticList.Add(new PullSheetDiagnostic {
+                                Type = "Shortage",
+                                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                                Description = "Pull sheet and PSI may be incorrect. Please check SKU detail of Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color +"</font> In pull sheet.",
+                                PullSheet = pullSheet
+                            });
                         }
 
                         //usedPoolCartonLocationDetails.AddRange(poolLocations);
@@ -1071,6 +1093,20 @@ namespace ClothResorting.Helpers
                     var poolLocations = cartonLocationPool.Where(x => x.Style == style
                             && x.Color == color
                             && x.PurchaseOrder == purchaseOrder);
+
+                    if (poolLocations.Count() == 0)
+                    {
+                        diagnosticList.Add(new PullSheetDiagnostic
+                        {
+                            Type = "Missing",
+                            DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                            Description = "SKU style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
+                            PullSheet = pullSheet
+                        });
+
+                        _context.PullSheetDiagnostics.AddRange(diagnosticList);
+                        _context.SaveChanges();
+                    }
 
                     //计算该SKU的目标箱数， 箱数 = 总件数 / 每箱件数
                     var targetCtns = sizeList.Sum(x => x.Count) / poolLocations.First().PcsPerCaron;
@@ -1115,6 +1151,13 @@ namespace ClothResorting.Helpers
                     if (targetCtns > 0)
                     {
                         //...生成缺货记录
+                        diagnosticList.Add(new PullSheetDiagnostic
+                        {
+                            Type = "Shortage",
+                            DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                            Description = "Pull sheet and PSI may be incorrect. Please check SKU detail of Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> In pull sheet.",
+                            PullSheet = pullSheet
+                        });
                     }
                     
                     //usedPoolCartonLocationDetails.AddRange(poolLocations);
@@ -1122,6 +1165,13 @@ namespace ClothResorting.Helpers
                 else    //最后是count等于0,即数据库中不存在相关sku记录的情况,把该sku打印出来,生成缺货记录
                 {
                     //...生成缺货记录
+                    diagnosticList.Add(new PullSheetDiagnostic
+                    {
+                        Type = "Missing",
+                        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                        Description = "SKU style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
+                        PullSheet = pullSheet
+                    });
                 }
             }
 
@@ -1147,6 +1197,7 @@ namespace ClothResorting.Helpers
             _context.PullSheets.Find(pullSheetId).Status = "Picking";
 
             _context.PickDetails.AddRange(pickDetailList);
+            _context.PullSheetDiagnostics.AddRange(diagnosticList);
             _context.SaveChanges();
         }
 

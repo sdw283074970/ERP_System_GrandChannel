@@ -170,5 +170,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // PullSheet诊断页面
+        public ActionResult PullSheetDiagnostics()
+        {
+            return View();
+        }
     }
 }
