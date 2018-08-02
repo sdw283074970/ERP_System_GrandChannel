@@ -48,7 +48,8 @@ namespace ClothResorting.Controllers.Api
                     && x.PurchaseOrder == locationInDb.PurchaseOrder
                     && x.Style == locationInDb.Style
                     && x.Color == locationInDb.Color
-                    && x.Customer == locationInDb.CustomerCode);
+                    && x.Customer == locationInDb.CustomerCode
+                    && x.PcsPerCarton == locationInDb.PcsPerCaron);
 
             var cartonDetailInDb = cartonDetailsInDb.First();
 

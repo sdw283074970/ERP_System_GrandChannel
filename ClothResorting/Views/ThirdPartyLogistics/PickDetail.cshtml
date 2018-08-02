@@ -20,6 +20,7 @@
             <thead>
                 <tr>
                     <th>Status</th>
+                    <th>Container</th>
                     <th>Cut PO</th>
                     <th>Style</th>
                     <th>Color</th>
@@ -93,6 +94,12 @@
                                         return "<font color='red'>" + data + "</font>";
                                     else
                                         return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "container",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
@@ -192,7 +199,7 @@
                         layer.close(index);
 
                         layer.msg('Extracting files...', {
-                            icon: 16,
+                            icon: 1,
                             shade: 0.01,
                             time: 99 * 1000
                         });
