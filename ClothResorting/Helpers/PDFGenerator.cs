@@ -32,6 +32,7 @@ namespace ClothResorting.Helpers
             var startIndex = 0;
             var totalPcs = pickDetailList.Sum(x => x.PickPcs);
             var totalCtns = pickDetailList.Sum(x => x.PickCtns);
+            var currentPage = 0;
 
             //定义字体
             var BF_light = BaseFont.CreateFont(@"C:\Windows\Fonts\simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
@@ -55,6 +56,7 @@ namespace ClothResorting.Helpers
                     //定义标题表，写入标题数据，头部包括名称，打印时间，拣货票范围，总箱数和总件数，总共两列三行，其中第一行和第二行为合并
                     #region
                     var tableTitle = new PdfPTable(2);
+                    ++currentPage;
 
                     //定义标题段落
                     var title = new Paragraph("Picking List", new Font(BF_light, 30));
@@ -140,6 +142,11 @@ namespace ClothResorting.Helpers
 
                     doc.Add(tableContent);
 
+                    //加页脚
+                    var footer = new PDFFooter();
+
+                    footer.OnEndPageNumber(pw, doc, currentPage, pageCount);
+
                     pickDetailCount -= 20;
                     startIndex += 20;
 
@@ -148,7 +155,7 @@ namespace ClothResorting.Helpers
                     {
                         doc.NewPage();
                     }
-
+                    
                 } while (pickDetailCount > 0);
 
 
@@ -158,8 +165,6 @@ namespace ClothResorting.Helpers
                 ms.Close();
 
                 //输出到客户端
-                //var bytes = ms.ToArray();
-                //result = Convert.ToBase64String(bytes);
                 var response = HttpContext.Current.Response;
 
                 response.Clear();
@@ -171,6 +176,66 @@ namespace ClothResorting.Helpers
                 response.Close();
                 response.End();
             }
+        }
+    }
+
+    //页脚类
+    public class PDFFooter : PdfPageEventHelper
+    {
+        //在pdf文件的顶上写入y页眉
+        public override void OnOpenDocument(PdfWriter pw, Document doc)
+        {
+            base.OnOpenDocument(pw, doc);
+            PdfPTable table = new PdfPTable(new float[] { 1f });
+            table.SpacingAfter = 10f;
+            table.TotalWidth = 300f;
+            var cell = new PdfPCell(new Phrase("Header"));
+            table.AddCell(cell);
+            table.WriteSelectedRows(0, -1, 150, doc.Top, pw.DirectContent);
+        }
+
+        //在pdf文件中每一页的开始处写入页眉
+        public override void OnStartPage(PdfWriter writer, Document document)
+        {
+            base.OnStartPage(writer, document);
+        }
+
+        //在pdf文件中每一页的末尾写入页脚
+        public override void OnEndPage(PdfWriter writer, Document document)
+        {
+            base.OnEndPage(writer, document);
+            var table = new PdfPTable(1);
+            table.SetWidthPercentage(new float[] { 100f }, PageSize.LETTER);
+            table.WidthPercentage = 90f;
+            table.DefaultCell.Border = 0;
+
+            var cell = new PdfPCell(new Phrase("@ " + DateTime.Now.Year + ". Grand Channel Inc. All Rights Reserved."));
+            cell.VerticalAlignment = Element.ALIGN_CENTER;
+            table.AddCell(cell);
+            table.WriteSelectedRows(0, -1, 0, document.Bottom, writer.DirectContent);
+        }
+
+        //在pdf文件中的末尾写入页脚
+        public override void OnCloseDocument(PdfWriter writer, Document document)
+        {
+            base.OnCloseDocument(writer, document);
+        }
+
+        //在PDF文件中每一页的右下角写入页码
+        public void OnEndPageNumber(PdfWriter pw, Document doc, int currentPage, int pageCount)
+        {
+            var table = new PdfPTable(1);
+            table.SetWidthPercentage(new float[] { 100f }, PageSize.LETTER);
+            table.WidthPercentage = 90f;
+
+            var footer = new Paragraph("Page " + currentPage.ToString() + "/" + pageCount.ToString());
+            footer.Alignment = Element.ALIGN_RIGHT;
+            var cell = new PdfPCell(footer);
+            cell.HorizontalAlignment = 1;
+            cell.Border = Rectangle.NO_BORDER;
+            table.AddCell(cell);
+            //doc.Add(table);
+            table.WriteSelectedRows(0, -1, doc.Right - 100f, doc.Bottom, pw.DirectContent);
         }
     }
 }
