@@ -73,18 +73,16 @@ namespace ClothResorting.Helpers
         #region
         public void CreateSILKICONPreReceiveOrder()
         {
-            _ws = _wb.Worksheets[1];
-
             //建立一个PreReceiveOrder对象
             var newOrder = new PreReceiveOrder
             {
                 ActualReceivedCtns = 0,
-                CustomerName = _ws.Cells[1, 2].Value2,
+                CustomerName = "Silk-Icon",
                 CreatDate = _dateTimeNow,
-                TotalCartons = (int)_ws.Cells[3, 2].Value2,
-                TotalGrossWeight = Math.Round(_ws.Cells[5, 2].Value2 * 2.205, 2),
-                TotalNetWeight = Math.Round(_ws.Cells[6, 2].Value2 * 2.205, 2),
-                TotalVol = Math.Round(_ws.Cells[4, 2].Value2 * 35.315, 2),
+                TotalCartons = 0,
+                TotalGrossWeight = 0,
+                TotalNetWeight = 0,
+                TotalVol = 0,
                 ContainerNumber = "UNKOWN",
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
@@ -95,6 +93,130 @@ namespace ClothResorting.Helpers
             _context.SaveChanges();
         }
         #endregion
+
+        //扫描单页模板，计算每一个POSummary并写入数据库
+        public void ExtractSIPOSummaryAndCartonDetail()
+        {
+            var poList = new List<POSummary>();
+            var cartonList = new List<RegularCartonDetail>();
+            var preReceiveOrderInDb = _context.PreReceiveOrders     //获取刚建立的PreReceiveOrder
+                .OrderByDescending(c => c.Id)
+                .First();
+
+            _ws = _wb.Worksheets[1];
+            _countOfPo = 0;
+            var index = 1;
+
+            //扫描POSummary的数量
+            do
+            {
+                if (_ws.Cells[index, 1].Value2 != null && _ws.Cells[index + 1, 1].Value2 == null)
+                {
+                    _countOfPo++;
+                }
+
+                if (_ws.Cells[index, 1].Value2 == null && _ws.Cells[index + 1, 1].Value2 == null)
+                {
+                    break;
+                }
+
+                index++;
+            } while (index > 0);
+
+            //先建立这么多数量的空POSummary
+            for(int i = 0; i < _countOfPo; i++)
+            {
+                poList.Add(new POSummary());
+            }
+
+            //先写入数据库一次
+            _context.POSummaries.AddRange(poList);
+
+            //分别扫描各个POSummary的CartonDetail
+            var startIndex = 1;
+            var poSummariesInDb = _context.POSummaries.OrderByDescending(x => x.Id).Take(poList.Count);
+            
+            foreach(var poSummary in poSummariesInDb)
+            {
+                //扫描当前POSummary对象的CartonDetail有多少行
+                index = startIndex + 1;
+                var cartonDetailList = new List<RegularCartonDetail>();
+                var countOfSKU = 0;
+                var countOfColumn = 0;
+                
+                //扫描一个POSummary有多少个SKU
+                while (_ws.Cells[index, 1].Value2 != null)
+                {
+                    countOfSKU++;
+                    index++;
+                }
+
+                //扫描一个POSummary对象包含多少列
+                index = 1;
+                while (_ws.Cells[startIndex, index].Value2 != null)
+                {
+                    countOfColumn++;
+                    index++;
+                }
+
+                for(int j = 0; j < countOfSKU; j++)
+                {
+                    //扫描每一种SKU有多少种Size及数量
+                    var sizeList = new List<SizeRatio>();
+                    var countOfSize = countOfColumn - 12;
+
+                    for (int k = 0; k < countOfSize; k++)
+                    {
+                        sizeList.Add(new SizeRatio
+                        {
+                            SizeName = _ws.Cells[startIndex, 11 + k].Value2.ToString(),
+                            Count = (int)_ws.Cells[startIndex + 1 + j, 11 + k].Value2
+                        });
+                    }
+
+                    //为每一个不为0的size都生成一个cartonDetail对象
+                    foreach(var size in sizeList)
+                    {
+                        if (size.Count != 0)
+                        {
+                            cartonDetailList.Add(new RegularCartonDetail {
+                                CartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString(),
+                                PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2.Tostring(),
+                                Style = _ws.Cells[startIndex + 1 + j, 3].Value2.Tostring(),
+                                Customer = _ws.Cells[startIndex + 1 + j, 4].Value2.Tostring() == null ? "" : _ws.Cells[startIndex + 1 + j, 4].Value2.Tostring(),
+                                Dimension = _ws.Cells[startIndex + 1 + j, 5].Value2.Tostring() == null ? "" : _ws.Cells[startIndex + 1 + j, 5].Value2.Tostring(),
+                                GrossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2.Tostring() == null ? 0 : _ws.Cells[startIndex + 1 + j, 6].Value2.Tostring(),
+                                NetWeight = _ws.Cells[startIndex + 1 + j, 7].Value2.Tostring() == null ? 0 : _ws.Cells[startIndex + 1 + j, 7].Value2.Tostring(),
+                                Color = _ws.Cells[startIndex + 1 + j, 9].Value2.Tostring(),
+                                Cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
+                                PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2,
+                                Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn].Value2,
+                                SizeBundle = size.SizeName,
+                                PcsBundle = size.Count.ToString(),
+                                Status = "Created",
+                                POSummary = poSummary
+                            });
+                        }
+                    }
+
+                    //经过计算cartonDetailList的信息，重新补充POSummary的信息
+                    poSummary.Container = "UnKnown";
+                    poSummary.PurchaseOrder = cartonDetailList[0].PurchaseOrder;
+                    poSummary.Style = cartonDetailList[0].Style;
+                    poSummary.Customer = "Silk-Icon";
+                    poSummary.Quantity = cartonDetailList.Sum(x => x.Quantity);
+                    poSummary.Cartons = cartonDetailList.Sum(x => x.Cartons);
+                }
+
+                //扫描Size的名称、数量
+
+                startIndex += countOfSKU + 2;
+
+                cartonList.AddRange(cartonDetailList);
+                _context.RegularCartonDetails.AddRange(cartonList);
+                _context.SaveChanges();
+            }
+        }
 
         //扫描并抽取每一页的Carton信息概览
         #region
@@ -555,7 +677,7 @@ namespace ClothResorting.Helpers
             {
                 CustomerName = "Free Country",
                 CreatDate = _dateTimeNow,
-                ContainerNumber = "UNKONOWN",
+                ContainerNumber = "UNKNOWN",
                 TotalCartons = 0,
                 ActualReceivedCtns = 0,
                 TotalPcs = 0,
