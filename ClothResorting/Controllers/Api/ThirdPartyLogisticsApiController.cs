@@ -51,9 +51,11 @@ namespace ClothResorting.Controllers.Api
 
             excel.CreateSILKICONPreReceiveOrder();
 
-            excel.ExtractSIPurchaseOrderSummary();
+            excel.ExtractSIPOSummaryAndCartonDetail();
 
-            excel.ExtractCartonDetails();
+            //excel.ExtractSIPurchaseOrderSummary();
+
+            //excel.ExtractCartonDetails();
 
             //因为源文件没有每一单po的总pcs数量，所以需要写算法计算
             //算法如下

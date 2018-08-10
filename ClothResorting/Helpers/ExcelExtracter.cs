@@ -31,8 +31,8 @@ namespace ClothResorting.Helpers
         private string _styleNumber;
         private int _countOfPo;
         private double _packedCartons;
-        private double _netWeight;
-        private double _grossWeight;
+        private double? _netWeight;
+        private double? _grossWeight;
         private double? _numberOfDemension;
         private double? _numberOfSizeRatio;
         #endregion
@@ -54,6 +54,7 @@ namespace ClothResorting.Helpers
         #endregion
 
         //构造器
+        #region
         public ExcelExtracter()
         {
             _context = new ApplicationDbContext();
@@ -68,7 +69,9 @@ namespace ClothResorting.Helpers
             _excel = new Application();
             _wb = _excel.Workbooks.Open(_path);
         }
+        #endregion
 
+        //-----👇👇👇👇👇👇-----以下为抽取SILKICON装箱单的新方法-----👇👇👇👇👇👇-----
         //建立一个Pre-Recieve Order对象并添加进数据库
         #region
         public void CreateSILKICONPreReceiveOrder()
@@ -95,6 +98,7 @@ namespace ClothResorting.Helpers
         #endregion
 
         //扫描单页模板，计算每一个POSummary并写入数据库
+        #region
         public void ExtractSIPOSummaryAndCartonDetail()
         {
             var poList = new List<POSummary>();
@@ -126,11 +130,14 @@ namespace ClothResorting.Helpers
             //先建立这么多数量的空POSummary
             for(int i = 0; i < _countOfPo; i++)
             {
-                poList.Add(new POSummary());
+                poList.Add(new POSummary {
+                    PreReceiveOrder = preReceiveOrderInDb
+                });
             }
 
             //先写入数据库一次
             _context.POSummaries.AddRange(poList);
+            _context.SaveChanges();
 
             //分别扫描各个POSummary的CartonDetail
             var startIndex = 1;
@@ -170,7 +177,7 @@ namespace ClothResorting.Helpers
                         sizeList.Add(new SizeRatio
                         {
                             SizeName = _ws.Cells[startIndex, 11 + k].Value2.ToString(),
-                            Count = (int)_ws.Cells[startIndex + 1 + j, 11 + k].Value2
+                            Count = _ws.Cells[startIndex + 1 + j, 11 + k].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 11 + k].Value2
                         });
                     }
 
@@ -179,15 +186,20 @@ namespace ClothResorting.Helpers
                     {
                         if (size.Count != 0)
                         {
+                            _netWeight = _ws.Cells[startIndex + 1 + j, 7].Value2;
+                            _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
+                            _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
+                            _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
+
                             cartonDetailList.Add(new RegularCartonDetail {
                                 CartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString(),
-                                PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2.Tostring(),
-                                Style = _ws.Cells[startIndex + 1 + j, 3].Value2.Tostring(),
-                                Customer = _ws.Cells[startIndex + 1 + j, 4].Value2.Tostring() == null ? "" : _ws.Cells[startIndex + 1 + j, 4].Value2.Tostring(),
-                                Dimension = _ws.Cells[startIndex + 1 + j, 5].Value2.Tostring() == null ? "" : _ws.Cells[startIndex + 1 + j, 5].Value2.Tostring(),
-                                GrossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2.Tostring() == null ? 0 : _ws.Cells[startIndex + 1 + j, 6].Value2.Tostring(),
-                                NetWeight = _ws.Cells[startIndex + 1 + j, 7].Value2.Tostring() == null ? 0 : _ws.Cells[startIndex + 1 + j, 7].Value2.Tostring(),
-                                Color = _ws.Cells[startIndex + 1 + j, 9].Value2.Tostring(),
+                                PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
+                                Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
+                                Customer = _runCode == null ? "" : _runCode.ToString(),
+                                Dimension = _dimension == null ? "" : _dimension.ToString(),
+                                GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
+                                NetWeight = _netWeight == null ? 0 : (double)_netWeight,
+                                Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
                                 Cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
                                 PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2,
                                 Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn].Value2,
@@ -207,17 +219,24 @@ namespace ClothResorting.Helpers
                     poSummary.Quantity = cartonDetailList.Sum(x => x.Quantity);
                     poSummary.Cartons = cartonDetailList.Sum(x => x.Cartons);
                 }
-
-                //扫描Size的名称、数量
-
                 startIndex += countOfSKU + 2;
 
                 cartonList.AddRange(cartonDetailList);
-                _context.RegularCartonDetails.AddRange(cartonList);
-                _context.SaveChanges();
             }
-        }
 
+            //重新统计新建的preReceiveOrder对象的数据
+            preReceiveOrderInDb.TotalCartons = poSummariesInDb.Sum(x => x.Cartons);
+            preReceiveOrderInDb.TotalPcs = poSummariesInDb.Sum(x => x.Quantity);
+
+            _context.RegularCartonDetails.AddRange(cartonList);
+            _context.SaveChanges();
+        }
+        #endregion
+        //-----👆👆👆👆👆👆-----以上为抽取SILKICON装箱单的新方法-----👆👆👆👆👆👆-----
+
+
+
+        //-----👇👇👇👇👇👇-----以下为抽取SILKICON装箱单的旧方法-----👇👇👇👇👇👇-----
         //扫描并抽取每一页的Carton信息概览
         #region
         public void ExtractSIPurchaseOrderSummary()
@@ -267,8 +286,8 @@ namespace ClothResorting.Helpers
                     ActualReceived = 0,
                     PurchaseOrder = _purchaseOrder.ToString(),
                     Style = _styleNumber,
-                    NetWeight = Math.Round(_netWeight * 2.205, 2),
-                    GrossWeight = Math.Round(_grossWeight * 2.205, 2),
+                    NetWeight = _netWeight,
+                    GrossWeight = _grossWeight,
                     CFT = Math.Round(_cFT * 35.315, 2),
                     ReceivedDate = null,
                     NumberOfSizeRatio = (int)_numberOfSizeRatio,
@@ -418,8 +437,10 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
+        //私有方法，获取箱号范围的前后段
+        #region
         //从类似"12-25"字符串中获取箱号范围的前段
-        public int GetFrom(string cn)
+        private int GetFrom(string cn)
         {
             string[] arr;
             if(cn.Contains('-'))
@@ -434,7 +455,7 @@ namespace ClothResorting.Helpers
         }
 
         //获取后段
-        public int GetTo(string cn)
+        private int GetTo(string cn)
         {
             string[] arr;
             if (cn.Contains('-'))
@@ -447,122 +468,118 @@ namespace ClothResorting.Helpers
                 return int.Parse(cn);
             }
         }
+        #endregion
 
-        public void Dispose()
-        {
-            var excelProcs = Process.GetProcessesByName("EXCEL");
+        //-----👆👆👆👆👆👆-----以上为抽取SILKICON装箱单的旧方法-----👆👆👆👆👆👆-----
 
-            foreach (var procs in excelProcs)
-            {
-                procs.Kill();
-            }
-        }
 
-        //以CartonDetail为单位，抽取批量散货的excel信息(与packinglist无关，仅散货)
+
+        //-----👇👇👇👇👇👇-----以下为抽取FC装箱单的方法-----👇👇👇👇👇👇-----
+        ////以CartonDetail为单位，抽取批量散货的excel信息(与packinglist无关，仅散货)
         #region
-        public void ExtractBulkloadRecord()
-        {
-            var numberOfWorkSheet = _wb.Worksheets.Count;
+        //public void ExtractBulkloadRecord()
+        //{
+        //    var numberOfWorkSheet = _wb.Worksheets.Count;
 
-            //遍历每一张ws
-            for(int i = 1; i <= numberOfWorkSheet; i++)
-            {
-                var n = 3;
-                var cartonBreakDownList = new List<CartonBreakDown>();
-                var list = new List<CartonDetail>();
-                var cartonClassCount = 0;
+        //    //遍历每一张ws
+        //    for(int i = 1; i <= numberOfWorkSheet; i++)
+        //    {
+        //        var n = 3;
+        //        var cartonBreakDownList = new List<CartonBreakDown>();
+        //        var list = new List<CartonDetail>();
+        //        var cartonClassCount = 0;
 
-                _ws = _wb.Worksheets[i];
-                _purchaseOrder = _ws.Cells[1, 2].Value2 == null ? "" : _ws.Cells[1, 2].Value2.ToString();
-                _numberOfSizeRatio = _ws.Cells[1, 4].Value2;
+        //        _ws = _wb.Worksheets[i];
+        //        _purchaseOrder = _ws.Cells[1, 2].Value2 == null ? "" : _ws.Cells[1, 2].Value2.ToString();
+        //        _numberOfSizeRatio = _ws.Cells[1, 4].Value2;
 
-                //数有多少carton储存对象(cartonDetail)
-                while (_ws.Cells[n, 3].Value2 != null)
-                {
-                    cartonClassCount += 1;
-                    n += 1;
-                }
+        //        //数有多少carton储存对象(cartonDetail)
+        //        while (_ws.Cells[n, 3].Value2 != null)
+        //        {
+        //            cartonClassCount += 1;
+        //            n += 1;
+        //        }
 
-                //将ws中的每一个cartonDetail对象添加到代添加到数据库的列表中
-                for (int k = 0; k < cartonClassCount; k++)
-                {
-                    //获取SizeRaio表
-                    var sizeList = new List<SizeRatio>();
+        //        //将ws中的每一个cartonDetail对象添加到代添加到数据库的列表中
+        //        for (int k = 0; k < cartonClassCount; k++)
+        //        {
+        //            //获取SizeRaio表
+        //            var sizeList = new List<SizeRatio>();
 
-                    //扫描当前cartonDetail包含的sizeRatio
-                    for (int p = 0; p < _numberOfSizeRatio; p++)
-                    {
-                        if (_ws.Cells[k + 3, 5 + p].Value2 != null && _ws.Cells[k + 3, 5 + p].Value2 != 0)
-                        {
-                            sizeList.Add(new SizeRatio
-                            {
-                                Count = (int)_ws.Cells[k + 3, 5 + p].Value2,
-                                SizeName = _ws.Cells[2, 5 + p].Value2
-                            });
-                        }
-                    }
+        //            //扫描当前cartonDetail包含的sizeRatio
+        //            for (int p = 0; p < _numberOfSizeRatio; p++)
+        //            {
+        //                if (_ws.Cells[k + 3, 5 + p].Value2 != null && _ws.Cells[k + 3, 5 + p].Value2 != 0)
+        //                {
+        //                    sizeList.Add(new SizeRatio
+        //                    {
+        //                        Count = (int)_ws.Cells[k + 3, 5 + p].Value2,
+        //                        SizeName = _ws.Cells[2, 5 + p].Value2
+        //                    });
+        //                }
+        //            }
 
-                    //将ws中的关键变量储存至内存中
-                    _style = _ws.Cells[k + 3, 1].Value2.ToString();
-                    _color = _ws.Cells[k + 3, 2].Value2.ToString();
-                    int numberOfCartons = (int)_ws.Cells[k + 3, 3].Value2;
-                    var location = _ws.Cells[k + 3, 4].Value2 == null ? "N/A" : _ws.Cells[k + 3, 4].Value2.ToString();
+        //            //将ws中的关键变量储存至内存中
+        //            _style = _ws.Cells[k + 3, 1].Value2.ToString();
+        //            _color = _ws.Cells[k + 3, 2].Value2.ToString();
+        //            int numberOfCartons = (int)_ws.Cells[k + 3, 3].Value2;
+        //            var location = _ws.Cells[k + 3, 4].Value2 == null ? "N/A" : _ws.Cells[k + 3, 4].Value2.ToString();
 
-                    //新建CartonDetail对象，将其添加到list中
-                    var carton = new CartonDetail
-                    {
-                        PurchaseOrder = _purchaseOrder,
-                        Style = _style,
-                        Color = _color,
-                        SumOfCarton = 0,
-                        ActualReceived = numberOfCartons,
-                        Available = numberOfCartons,
-                        Location = location,
-                        ActualReceivedPcs = 0,
-                        AvailablePcs = 0,
-                        SizeRatios = sizeList,
-                        ReceivedDate = _dateTimeNow
-                    };
+        //            //新建CartonDetail对象，将其添加到list中
+        //            var carton = new CartonDetail
+        //            {
+        //                PurchaseOrder = _purchaseOrder,
+        //                Style = _style,
+        //                Color = _color,
+        //                SumOfCarton = 0,
+        //                ActualReceived = numberOfCartons,
+        //                Available = numberOfCartons,
+        //                Location = location,
+        //                ActualReceivedPcs = 0,
+        //                AvailablePcs = 0,
+        //                SizeRatios = sizeList,
+        //                ReceivedDate = _dateTimeNow
+        //            };
 
-                    //遍历sizeRatios，生成数个cartonBreakdown
-                    for (int s = 0; s < sizeList.Count; s++)
-                    {
-                        var cartonBreakDown = new CartonBreakDown
-                        {
-                            PurchaseOrder = _purchaseOrder.ToString(),
-                            Style = _style,
-                            Color = _color,
-                            CartonNumberRangeFrom = 0,
-                            CartonNumberRangeTo = 0,
-                            RunCode = "",
-                            Size = sizeList[s].SizeName,
-                            ForecastPcs = 0,
-                            PcsPerCartons = sizeList[s].Count,
-                            ActualPcs = sizeList[s].Count,
-                            AvailablePcs = 0,
-                            Location = location,
-                            CartonDetail = carton,
-                            ReceivedDate = _dateTimeNow
-                        };
+        //            //遍历sizeRatios，生成数个cartonBreakdown
+        //            for (int s = 0; s < sizeList.Count; s++)
+        //            {
+        //                var cartonBreakDown = new CartonBreakDown
+        //                {
+        //                    PurchaseOrder = _purchaseOrder.ToString(),
+        //                    Style = _style,
+        //                    Color = _color,
+        //                    CartonNumberRangeFrom = 0,
+        //                    CartonNumberRangeTo = 0,
+        //                    RunCode = "",
+        //                    Size = sizeList[s].SizeName,
+        //                    ForecastPcs = 0,
+        //                    PcsPerCartons = sizeList[s].Count,
+        //                    ActualPcs = sizeList[s].Count,
+        //                    AvailablePcs = 0,
+        //                    Location = location,
+        //                    CartonDetail = carton,
+        //                    ReceivedDate = _dateTimeNow
+        //                };
 
-                        carton.ActualReceivedPcs = sizeList[s].Count;
-                        carton.AvailablePcs = sizeList[s].Count;
-                        cartonBreakDownList.Add(cartonBreakDown);
-                    }
+        //                carton.ActualReceivedPcs = sizeList[s].Count;
+        //                carton.AvailablePcs = sizeList[s].Count;
+        //                cartonBreakDownList.Add(cartonBreakDown);
+        //            }
 
-                    list.Add(carton);
-                    i += 1;
-                }
+        //            list.Add(carton);
+        //            i += 1;
+        //        }
 
-                //写进数据库
-                _context.CartonBreakDowns.AddRange(cartonBreakDownList);
-                _context.CartonDetails.AddRange(list);
-                _context.SaveChanges();
+        //        //写进数据库
+        //        _context.CartonBreakDowns.AddRange(cartonBreakDownList);
+        //        _context.CartonDetails.AddRange(list);
+        //        _context.SaveChanges();
 
-                //释放EXCEL资源
-                Dispose();
-            }
-        }
+        //        //释放EXCEL资源
+        //        Dispose();
+        //    }
+        //}
         #endregion
 
         //以LocationDetail为单位，从入库报告中抽取信息(与PackingList无关联，与整个库存的PO对象有关联)
@@ -671,6 +688,7 @@ namespace ClothResorting.Helpers
         #endregion
 
         //新建FreeCountry的预收货订单
+        #region
         public void CreateFCPreReceiveOrder()
         {
             _context.PreReceiveOrders.Add(new PreReceiveOrder
@@ -690,8 +708,10 @@ namespace ClothResorting.Helpers
 
             _context.SaveChanges();
         }
+        #endregion
 
         //抽取excel文件中的PO信息，并与之前新建的FC预收订单关联
+        #region
         public void ExtractFCPurchaseOrderSummary()
         {
             _ws = _wb.Worksheets[1];
@@ -746,8 +766,10 @@ namespace ClothResorting.Helpers
             _context.POSummaries.AddRange(packingList);
             _context.SaveChanges();
         }
+        #endregion
 
         //抽取Detail中的各个PO详细信息
+        #region
         public void ExtractFCPurchaseOrderDetail()
         {
             _ws = _wb.Worksheets[2];
@@ -904,6 +926,7 @@ namespace ClothResorting.Helpers
             _context.RegularCartonDetails.AddRange(regularCartonDetailList);
             _context.SaveChanges();
         }
+        #endregion
 
         //私有辅助方法，检查一个cartonDetail中装有多少种Size，只有一种Size意味着是Solid pack，否则是Buncle pack。
         #region
@@ -973,8 +996,12 @@ namespace ClothResorting.Helpers
             }
         }
         #endregion
+        //-----👆👆👆👆👆👆-----以上为抽取FC装箱单的方法-----👆👆👆👆👆👆-----
 
-        // 抽取FreeCountry正常订单的库存模板分配信息
+
+
+        //// 抽取FreeCountry正常订单的库存模板分配信息
+        #region
         //public void ExtractFCRegularLocation(int preid)
         //{
         //    _ws = _wb.Worksheets[1];
@@ -1018,8 +1045,12 @@ namespace ClothResorting.Helpers
         //    _context.FCRegularLocations.AddRange(locationList);
         //    _context.SaveChanges();
         //}
+        #endregion
 
+
+        //-----👇👇👇👇👇👇-----以下为抽取FC出货单的方法-----👇👇👇👇👇👇-----
         //抽取Pull sheet模板中的信息，生成ShipOrder下的拣货记录表，并从原库存中将可用箱数部分或全部转化为“拣货中”箱数
+        #region
         public void ExtractPullSheet(int pullSheetId)
         {
             var pullSheet = _context.PullSheets.Find(pullSheetId);
@@ -1322,6 +1353,7 @@ namespace ClothResorting.Helpers
             _context.PullSheetDiagnostics.AddRange(diagnosticList);
             _context.SaveChanges();
         }
+        #endregion
 
         //辅助方法：根据调整后的pool以及取货数量，生成该pullsheet下的pickdetail
         #region
@@ -1367,6 +1399,22 @@ namespace ClothResorting.Helpers
                 PullSheet = pullSheet,
                 LocationDetailId = pool.Id
             };
+        }
+        #endregion
+        //-----👆👆👆👆👆👆-----以上为抽取FC出货单的方法-----👆👆👆👆👆👆-----
+
+
+
+        //强行中止EXCEL进程的方法
+        #region
+        public void Dispose()
+        {
+            var excelProcs = Process.GetProcessesByName("EXCEL");
+
+            foreach (var procs in excelProcs)
+            {
+                procs.Kill();
+            }
         }
         #endregion
     }
