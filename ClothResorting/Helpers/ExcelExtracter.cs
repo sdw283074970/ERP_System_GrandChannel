@@ -225,8 +225,8 @@ namespace ClothResorting.Helpers
             }
 
             //重新统计新建的preReceiveOrder对象的数据
-            preReceiveOrderInDb.TotalCartons = poSummariesInDb.Sum(x => x.Cartons);
-            preReceiveOrderInDb.TotalPcs = poSummariesInDb.Sum(x => x.Quantity);
+            preReceiveOrderInDb.TotalCartons = cartonList.Sum(x => x.Cartons);
+            preReceiveOrderInDb.TotalPcs = cartonList.Sum(x => x.Quantity);
 
             _context.RegularCartonDetails.AddRange(cartonList);
             _context.SaveChanges();

@@ -57,40 +57,40 @@ namespace ClothResorting.Controllers.Api
 
             //excel.ExtractCartonDetails();
 
-            //因为源文件没有每一单po的总pcs数量，所以需要写算法计算
-            //算法如下
-            var preReceiveOrder = _context.PreReceiveOrders
-                .Include(s => s.PurchaseOrderSummaries)
-                .OrderByDescending(s => s.Id)
-                .First();
+            ////因为源文件没有每一单po的总pcs数量，所以需要写算法计算
+            ////算法如下
+            //var preReceiveOrder = _context.PreReceiveOrders
+            //    .Include(s => s.PurchaseOrderSummaries)
+            //    .OrderByDescending(s => s.Id)
+            //    .First();
 
-            //根据每一个packinglist中的cartondetail中的每一类Pcs数量计算每一单po应收取的Pcs总数
-            foreach(var pl in preReceiveOrder.PurchaseOrderSummaries)
-            {
-                pl.TotalPcs = _context.CartonDetails
-                    .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
-                    .Where(c => c.PurchaseOrderSummary.PurchaseOrder == pl.PurchaseOrder
-                        && c.PurchaseOrderSummary.PreReceiveOrder.Id == preReceiveOrder.Id)
-                    .Sum(c => c.TotalPcs);
-            }
+            ////根据每一个packinglist中的cartondetail中的每一类Pcs数量计算每一单po应收取的Pcs总数
+            //foreach(var pl in preReceiveOrder.PurchaseOrderSummaries)
+            //{
+            //    pl.TotalPcs = _context.CartonDetails
+            //        .Include(c => c.PurchaseOrderSummary.PreReceiveOrder)
+            //        .Where(c => c.PurchaseOrderSummary.PurchaseOrder == pl.PurchaseOrder
+            //            && c.PurchaseOrderSummary.PreReceiveOrder.Id == preReceiveOrder.Id)
+            //        .Sum(c => c.TotalPcs);
+            //}
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
-            //根据每一个packinglist中po的Pcs数量计算整个pre-receive order应收取的pcs总数
+            ////根据每一个packinglist中po的Pcs数量计算整个pre-receive order应收取的pcs总数
 
-            preReceiveOrder.TotalPcs = _context.PurchaseOrderSummaries
-                .Include(s => s.PreReceiveOrder)
-                .Where(s => s.PreReceiveOrder.Id == preReceiveOrder.Id)
-                .Sum(s => s.TotalPcs);
+            //preReceiveOrder.TotalPcs = _context.PurchaseOrderSummaries
+            //    .Include(s => s.PreReceiveOrder)
+            //    .Where(s => s.PreReceiveOrder.Id == preReceiveOrder.Id)
+            //    .Sum(s => s.TotalPcs);
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
-            //在CartonDetail中消除在【同一箱】的不同货物造成的重复计箱问题
-            var checker = new CartonChecker();
-            checker.ReplaceRepeatedEntry();
-            checker.CheckRunCode();
+            ////在CartonDetail中消除在【同一箱】的不同货物造成的重复计箱问题
+            //var checker = new CartonChecker();
+            //checker.ReplaceRepeatedEntry();
+            //checker.CheckRunCode();
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
             //强行关闭进程
             var killer = new ExcelKiller();
