@@ -915,6 +915,10 @@
     <Compile Include="Migrations\201808010016385_AddedPullSheetDiagnosticsDbSet.Designer.cs">
       <DependentUpon>201808010016385_AddedPullSheetDiagnosticsDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808131750137_AddedOrderTypeInRegualrCartonDetail.cs" />
+    <Compile Include="Migrations\201808131750137_AddedOrderTypeInRegualrCartonDetail.Designer.cs">
+      <DependentUpon>201808131750137_AddedOrderTypeInRegualrCartonDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1786,6 +1790,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808010016385_AddedPullSheetDiagnosticsDbSet.resx">
       <DependentUpon>201808010016385_AddedPullSheetDiagnosticsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808131750137_AddedOrderTypeInRegualrCartonDetail.resx">
+      <DependentUpon>201808131750137_AddedOrderTypeInRegualrCartonDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

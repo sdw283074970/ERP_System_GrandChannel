@@ -48,10 +48,12 @@ namespace ClothResorting.Controllers.Api
             //目前暂时无法处理同名文件，有空回来改
 
             var excel = new ExcelExtracter(fileSavePath);
-
+            
             excel.CreateSILKICONPreReceiveOrder();
 
-            excel.ExtractSIPOSummaryAndCartonDetail();
+            var preId = excel.GetLatestPreReceiveOrderId();
+
+            excel.ExtractSIPOSummaryAndCartonDetail(preId, "Replenishment");
 
             //excel.ExtractSIPurchaseOrderSummary();
 
