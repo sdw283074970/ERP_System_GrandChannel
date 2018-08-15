@@ -34,5 +34,7 @@ namespace ClothResorting.Dtos
         public double NNetWeight { get; set; }
 
         public string Container { get; set; }
+
+        public string OrderType { get; set; }
     }
 }

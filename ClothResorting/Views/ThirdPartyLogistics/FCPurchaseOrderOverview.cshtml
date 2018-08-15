@@ -5,10 +5,11 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Free Country Purchase Order Overview</h2>
+<h2>Purchase Order Overview</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
+        <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
     </div>
     <div>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
@@ -41,10 +42,26 @@
         <input id="container" class="input-lg" placeholder="Assign Contrainer number" /> <button id="btn-confirm" class="btn btn-info">Comfirm</button>
     </div>
 </div>
+<div class="iframe">
+    <div>
+        <input id="upload2" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" />
+    </div>
+    <div>
+        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk-Icon Regular PL" />
+    </div>
+    <div>
+        <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country PL" />
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
+
+            $(".iframe").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -66,6 +83,8 @@
             var preId = getUrlParameter('preid');
 
             var urlstring = "/api/fcpurchaseorderoverview/" + preId;
+
+            $(".btn-upload")
 
             $("#table").DataTable({
                 ajax: {
@@ -99,9 +118,9 @@
                         }
                     },
                     {
-                        data: "id",
+                        data: "orderTyple",
                         render: function (data) {
-                            return "<text>Regular</text>";
+                            return "<text>" + data + "</text>";
                         }
                     },
                     {
@@ -233,6 +252,125 @@
                         alert("Error!");
                     }
                 });
+            });
+
+            //打开上传装箱单类型弹窗
+            $(".btn-upload").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "20%"],
+                    content: $(".iframe")
+                });
+            });
+
+            //执行上传SILK-ICON的补货订单装箱单
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/ThirdPartyLogisticsApi/" + preId,
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Extracting files...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server!");
+                    }
+                });
+                $(".iframe").hide();
+            });
+
+            //执行上传SILK-ICON的Regular订单装箱单
+            $("#uploadregularfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/SIRegularPL/" + preId,
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Extracting files...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server!");
+                    }
+                });
+                $(".iframe").hide();
+            });
+
+            //执行上传FC订单的装箱单
+            $("#uploadfc").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/fcpurchaseorderoverview/" + preId,
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Extracting files...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured! Please check the file you uploaded matched the unified format.");
+                    }
+                });
+                $(".iframe").hide();
             });
         });
     </script>

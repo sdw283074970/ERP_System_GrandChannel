@@ -22,9 +22,9 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/thirdpartylogisticsapi
+        // POST /api/thirdpartylogisticsapi/{id}
         [HttpPost]
-        public void SaveUploadedFileAndExtractExcel()
+        public void SaveUploadedFileAndExtractExcel([FromUri]int id)
         {
             var fileSavePath = "";
 
@@ -48,12 +48,8 @@ namespace ClothResorting.Controllers.Api
             //目前暂时无法处理同名文件，有空回来改
 
             var excel = new ExcelExtracter(fileSavePath);
-            
-            excel.CreateSILKICONPreReceiveOrder();
 
-            var preId = excel.GetLatestPreReceiveOrderId();
-
-            excel.ExtractSIPOSummaryAndCartonDetail(preId, "Replenishment");
+            excel.ExtractSIPOSummaryAndCartonDetail(id, "Replenishment");
 
             //excel.ExtractSIPurchaseOrderSummary();
 

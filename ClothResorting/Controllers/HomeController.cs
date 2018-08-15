@@ -58,12 +58,6 @@ namespace ClothResorting.Controllers
 
             var excel = new ExcelExtracter(@"c:\users\downw\desktop\FC\SU85P0035FT-18 PL.xlsx");
 
-            excel.CreateFCPreReceiveOrder();
-
-            excel.ExtractFCPurchaseOrderSummary();
-
-            excel.ExtractFCPurchaseOrderDetail();
-
             ViewBag.Message = "Your application description page.";
 
             return View();

@@ -37,9 +37,9 @@ namespace ClothResorting.Controllers.Api
             return Ok(purchaseOrderDetails);
         }
 
-        // POST /api/fcpurchaseorderoverview
+        // POST /api/fcpurchaseorderoverview/{id}
         [HttpPost]
-        public void UploadAndExtractFreeCountryExcel()
+        public void UploadAndExtractFreeCountryExcel([FromUri]int id)
         {
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
@@ -53,11 +53,9 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.CreateFCPreReceiveOrder();
+            excel.ExtractFCPurchaseOrderSummary(id);
 
-            excel.ExtractFCPurchaseOrderSummary();
-
-            excel.ExtractFCPurchaseOrderDetail();
+            excel.ExtractFCPurchaseOrderDetail(id);
 
             //强行关闭进程
             var killer = new ExcelKiller();

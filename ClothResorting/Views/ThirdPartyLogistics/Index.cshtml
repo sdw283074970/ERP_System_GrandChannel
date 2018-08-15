@@ -135,12 +135,18 @@
             });
 
             $("#create1").click(function () {
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["40%", "40%"],
-                    content: $(".iframe")
+                $.ajax({
+                    type: "POST",
+                    url: "/api/Index",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("New Pre-receive Order created success!");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error!");
+                    }
                 });
             })
 
@@ -192,7 +198,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/fcpurchaseorderoverview",
+                    url: "/api/fcpurchaseorderoverview/",
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);

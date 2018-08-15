@@ -74,19 +74,19 @@ namespace ClothResorting.Helpers
         //-----👇👇👇👇👇👇-----以下为抽取SILKICON装箱单的新方法-----👇👇👇👇👇👇-----
         //建立一个Pre-Recieve Order对象并添加进数据库
         #region
-        public void CreateSILKICONPreReceiveOrder()
+        public void CreatePreReceiveOrder()
         {
             //建立一个PreReceiveOrder对象
             var newOrder = new PreReceiveOrder
             {
                 ActualReceivedCtns = 0,
-                CustomerName = "Silk-Icon",
+                CustomerName = "Unknown",
                 CreatDate = _dateTimeNow,
                 TotalCartons = 0,
                 TotalGrossWeight = 0,
                 TotalNetWeight = 0,
                 TotalVol = 0,
-                ContainerNumber = "UNKOWN",
+                ContainerNumber = "Unknown",
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
                 Status = "New Created"
@@ -229,10 +229,11 @@ namespace ClothResorting.Helpers
                         _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
                         _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
                         _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
+                        var cartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString();
 
                         cartonDetailList.Add(new RegularCartonDetail
                         {
-                            CartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString(),
+                            CartonRange = cartonRange,
                             PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
                             Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
                             Customer = _runCode == null ? "" : _runCode.ToString(),
@@ -240,7 +241,7 @@ namespace ClothResorting.Helpers
                             GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
                             NetWeight = _netWeight == null ? 0 : (double)_netWeight,
                             Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
-                            Cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
+                            Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
                             PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2,
                             Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn].Value2,
                             SizeBundle = sizeBundle,
@@ -258,6 +259,7 @@ namespace ClothResorting.Helpers
                     poSummary.Customer = "Silk-Icon";
                     poSummary.Quantity = cartonDetailList.Sum(x => x.Quantity);
                     poSummary.Cartons = cartonDetailList.Sum(x => x.Cartons);
+                    poSummary.OrderType = orderType;
                 }
                 startIndex += countOfSKU + 2;
 
@@ -267,6 +269,7 @@ namespace ClothResorting.Helpers
             //重新统计新建的preReceiveOrder对象的数据
             preReceiveOrderInDb.TotalCartons = cartonList.Sum(x => x.Cartons);
             preReceiveOrderInDb.TotalPcs = cartonList.Sum(x => x.Quantity);
+            preReceiveOrderInDb.CustomerName = "Silk-Icon";
 
             _context.RegularCartonDetails.AddRange(cartonList);
             _context.SaveChanges();
@@ -514,7 +517,6 @@ namespace ClothResorting.Helpers
 
 
 
-        //-----👇👇👇👇👇👇-----以下为抽取FC装箱单的方法-----👇👇👇👇👇👇-----
         ////以CartonDetail为单位，抽取批量散货的excel信息(与packinglist无关，仅散货)
         #region
         //public void ExtractBulkloadRecord()
@@ -727,6 +729,9 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
+
+
+        //-----👇👇👇👇👇👇-----以下为抽取FC装箱单的方法-----👇👇👇👇👇👇-----
         //新建FreeCountry的预收货订单
         #region
         public void CreateFCPreReceiveOrder()
@@ -752,12 +757,12 @@ namespace ClothResorting.Helpers
 
         //抽取excel文件中的PO信息，并与之前新建的FC预收订单关联
         #region
-        public void ExtractFCPurchaseOrderSummary()
+        public void ExtractFCPurchaseOrderSummary(int id)
         {
             _ws = _wb.Worksheets[1];
             var packingList = new List<POSummary>();
             var index = 2;
-            var latestPreReceiveOrder = _context.PreReceiveOrders.OrderByDescending(c => c.Id).FirstOrDefault();
+            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(id);
             _countOfPo = 0;
 
             while (index > 0)
@@ -793,15 +798,16 @@ namespace ClothResorting.Helpers
                     ActualCtns = 0,
                     ActualPcs = 0,
                     Container = "Unkown",
-                    PreReceiveOrder = latestPreReceiveOrder
+                    PreReceiveOrder = preReceiveOrderInDb
                 });
 
                 index += 2;
             }
 
             //可以在本页面获取packingList的总量
-            latestPreReceiveOrder.TotalCartons = (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
-            latestPreReceiveOrder.TotalPcs = (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
+            preReceiveOrderInDb.TotalCartons = (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
+            preReceiveOrderInDb.TotalPcs = (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
+            preReceiveOrderInDb.CustomerName = "Free Country";
 
             _context.POSummaries.AddRange(packingList);
             _context.SaveChanges();
@@ -810,11 +816,11 @@ namespace ClothResorting.Helpers
 
         //抽取Detail中的各个PO详细信息
         #region
-        public void ExtractFCPurchaseOrderDetail()
+        public void ExtractFCPurchaseOrderDetail(int id)
         {
             _ws = _wb.Worksheets[2];
             var rowIndex = 1;
-            var preReceiveOrderId = _context.PreReceiveOrders.OrderByDescending(c => c.Id).First().Id;
+            id = _context.PreReceiveOrders.OrderByDescending(c => c.Id).First().Id;
             var regularCartonDetailList = new List<RegularCartonDetail>();
 
             //扫描Detail页面中有多少个RegularCartonDetal对象
@@ -877,7 +883,7 @@ namespace ClothResorting.Helpers
                         .Include(c => c.PreReceiveOrder)
                         .Include(c => c.RegularCartonDetails)
                         .Where(c => c.PurchaseOrder == purchaseOrder
-                            && c.PreReceiveOrder.Id == preReceiveOrderId
+                            && c.PreReceiveOrder.Id == id
                             && c.PoLine == poLine);
 
                     //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系

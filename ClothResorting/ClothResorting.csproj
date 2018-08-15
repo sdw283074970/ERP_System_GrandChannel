@@ -248,6 +248,7 @@
     <Compile Include="Controllers\Api\FCRegularLocationDetailShippedController.cs" />
     <Compile Include="Controllers\Api\FCRegularLocationDetailStockController.cs" />
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
+    <Compile Include="Controllers\Api\IndexController.cs" />
     <Compile Include="Controllers\Api\LocationDetailController.cs" />
     <Compile Include="Controllers\Api\LocationDetailSingleInboundController.cs" />
     <Compile Include="Controllers\Api\LocationUpdateController.cs" />
@@ -275,6 +276,7 @@
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
     <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\ShipOrderController.cs" />
+    <Compile Include="Controllers\Api\SIRegularPLController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
     <Compile Include="Controllers\FreeCountryController.cs" />
@@ -918,6 +920,10 @@
     <Compile Include="Migrations\201808131750137_AddedOrderTypeInRegualrCartonDetail.cs" />
     <Compile Include="Migrations\201808131750137_AddedOrderTypeInRegualrCartonDetail.Designer.cs">
       <DependentUpon>201808131750137_AddedOrderTypeInRegualrCartonDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201808142356027_AddOrderTyperInPOsummary.cs" />
+    <Compile Include="Migrations\201808142356027_AddOrderTyperInPOsummary.Designer.cs">
+      <DependentUpon>201808142356027_AddOrderTyperInPOsummary.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -1793,6 +1799,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808131750137_AddedOrderTypeInRegualrCartonDetail.resx">
       <DependentUpon>201808131750137_AddedOrderTypeInRegualrCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808142356027_AddOrderTyperInPOsummary.resx">
+      <DependentUpon>201808142356027_AddOrderTyperInPOsummary.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

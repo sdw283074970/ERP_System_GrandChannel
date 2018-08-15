@@ -14,6 +14,7 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Range</th>
                     <th>Customer</th>
                     <th>PO</th>
@@ -66,6 +67,7 @@
             //var po = getUrlParameter('po').toString();
             //var data = { "preid": preid, "po": po };
             var id = window.location.search.substr(1);
+            var cartons;
 
             $.ajax({
                 type: "GET",
@@ -76,6 +78,12 @@
                     $("#table").DataTable({
                         data: data,
                         columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
                             {
                                 data: "cartonRange",
                                 render: function (data) {
@@ -133,6 +141,7 @@
                             {
                                 data: "cartons",
                                 render: function (data) {
+                                    cartons = data;
                                     return "<font color='green'>" + data + "</font>";
                                 }
                             },
@@ -145,14 +154,28 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                        + data + "' /> No problem";
+                                    if (cartons != 0)
+                                    {
+                                        return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                            + data + "' /> No problem";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><button style='width:50px' class='btn btn-link btn-manual' value='" + data + "'>OK</button>";
+                                    if (cartons != 0)
+                                    {
+                                        return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><button style='width:50px' class='btn btn-link btn-manual' value='" + data + "'>OK</button>";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             }
                         ]
