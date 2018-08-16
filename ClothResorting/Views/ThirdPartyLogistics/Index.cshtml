@@ -255,7 +255,7 @@
                 var customer = button.parent().parent("tr").children('td').eq(1).children('text').html();
                 var url;
 
-                if (customer == "Free Country")
+                if (customer != "SILK-ICON")
                 {
                     url = "/api/fcpurchaseOrderOverview/" + id;
 

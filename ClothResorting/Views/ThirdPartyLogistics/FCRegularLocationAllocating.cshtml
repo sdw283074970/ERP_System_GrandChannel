@@ -42,6 +42,7 @@
 
             var table;
             var lastCartonValue = 0;
+            var cartons;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -143,19 +144,41 @@
                             {
                                 data: "toBeAllocatedCtns",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    cartons = data;
+                                    if (cartons != 0)
+                                    {
+                                        return "<font color='blue'>" + data + "</font>";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                    if (cartons != 0)
+                                    {
+                                        return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input style='width:100px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                    if (cartons != 0)
+                                    {
+                                        return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             }
                         ]

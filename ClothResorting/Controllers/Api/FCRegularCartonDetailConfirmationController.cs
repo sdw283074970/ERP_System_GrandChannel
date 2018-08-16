@@ -33,29 +33,53 @@ namespace ClothResorting.Controllers.Api
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.Id >= firstId && c.Id <= lastId);
 
-            foreach(var id in arr)
+            var poSummaryId = _context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .SingleOrDefault(c => c.Id == firstId)
+                .POSummary
+                .Id;
+
+            foreach (var id in arr)
             {
-                var regularCaronDetailInDb = regularCartonDetailInDbs
+                var cartonRange = _context.RegularCartonDetails
                     .Include(c => c.POSummary.PreReceiveOrder)
-                    .SingleOrDefault(c => c.Id == id);
+                    .SingleOrDefault(c => c.Id == id)
+                    .CartonRange;
 
-                //更新自身的可分配件数箱数
-                regularCaronDetailInDb.ToBeAllocatedCtns = regularCaronDetailInDb.Cartons;
-                regularCaronDetailInDb.ToBeAllocatedPcs = regularCaronDetailInDb.Quantity;
-                regularCaronDetailInDb.Status = "To Be Allocated";
+                var inOneBoxSKUs = _context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .Where(x => x.CartonRange == cartonRange
+                    && x.POSummary.Id == poSummaryId);
 
-                //更新自身的实际收货件数箱数
-                regularCaronDetailInDb.ActualPcs = regularCaronDetailInDb.Quantity;
-                regularCaronDetailInDb.ActualCtns = regularCaronDetailInDb.Cartons;
-                regularCaronDetailInDb.InboundDate = _timeNow;
+                var index = 1;
 
-                // 同步POSummary
-                regularCaronDetailInDb.POSummary.ActualPcs += regularCaronDetailInDb.Quantity;
-                regularCaronDetailInDb.POSummary.ActualCtns += regularCaronDetailInDb.Cartons;
+                foreach(var regularCaronDetailInDb in inOneBoxSKUs)
+                {
+                    //更新自身的可分配件数箱数
+                    regularCaronDetailInDb.ToBeAllocatedPcs = regularCaronDetailInDb.Quantity;
+                    regularCaronDetailInDb.Status = "To Be Allocated";
 
-                // 同步PreReceiveOrder
-                regularCaronDetailInDb.POSummary.PreReceiveOrder.ActualReceivedPcs += regularCaronDetailInDb.Quantity;
-                regularCaronDetailInDb.POSummary.PreReceiveOrder.ActualReceivedCtns += regularCaronDetailInDb.Cartons;
+                    //只为第一个SKU同步箱数
+                    if (index == 1)
+                    {
+                        regularCaronDetailInDb.ToBeAllocatedCtns = regularCaronDetailInDb.Cartons;
+                        regularCaronDetailInDb.ActualCtns = regularCaronDetailInDb.Cartons;
+                        regularCaronDetailInDb.POSummary.ActualCtns += regularCaronDetailInDb.Cartons;
+                        regularCaronDetailInDb.POSummary.PreReceiveOrder.ActualReceivedCtns += regularCaronDetailInDb.Cartons;
+                    }
+
+                    //更新自身的实际收货件数箱数
+                    regularCaronDetailInDb.ActualPcs = regularCaronDetailInDb.Quantity;
+                    regularCaronDetailInDb.InboundDate = _timeNow;
+
+                    // 同步POSummary
+                    regularCaronDetailInDb.POSummary.ActualPcs += regularCaronDetailInDb.Quantity;
+
+                    // 同步PreReceiveOrder
+                    regularCaronDetailInDb.POSummary.PreReceiveOrder.ActualReceivedPcs += regularCaronDetailInDb.Quantity;
+
+                    index++;
+                }
             }
 
             _context.SaveChanges();
