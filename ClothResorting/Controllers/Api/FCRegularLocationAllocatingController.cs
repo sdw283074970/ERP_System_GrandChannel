@@ -38,39 +38,88 @@ namespace ClothResorting.Controllers.Api
         [HttpPost]
         public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj)
         {
-            var cartonDetailInDb = _context.RegularCartonDetails
+            var cartonRange = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
-                .SingleOrDefault(c => c.Id == obj.Id);
+                .SingleOrDefault(c => c.Id == obj.Id)
+                .CartonRange;
+
+            var poSummaryId = _context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .SingleOrDefault(c => c.Id == obj.Id)
+                .POSummary
+                .Id;
+
+            var inOneBoxSKUs = _context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .Where(c => c.CartonRange == cartonRange && c.POSummary.Id == poSummaryId);
 
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(obj.PreId);
 
-            cartonDetailInDb.Status = "Allocating";
+            var index = 1;
 
-            cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
-            cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
+            foreach (var cartonDetailInDb in inOneBoxSKUs)
+            {
+                cartonDetailInDb.Status = "Allocating";
 
-            _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail {
-                Container = cartonDetailInDb.POSummary.Container,
-                PurchaseOrder = cartonDetailInDb.PurchaseOrder,
-                Style = cartonDetailInDb.Style,
-                Color = cartonDetailInDb.Color,
-                CustomerCode = cartonDetailInDb.Customer,
-                SizeBundle = cartonDetailInDb.SizeBundle,
-                PcsBundle = cartonDetailInDb.PcsBundle,
-                Cartons = obj.Cartons,
-                Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
-                Location = obj.Location,
-                PcsPerCaron = cartonDetailInDb.PcsPerCarton,
-                Status = "In Stock",
-                AvailableCtns = obj.Cartons,
-                PickingCtns = 0,
-                ShippedCtns = 0,
-                AvailablePcs = obj.Cartons * cartonDetailInDb.PcsPerCarton,
-                PickingPcs = 0,
-                ShippedPcs = 0,
-                InboundDate = DateTime.Now,
-                PreReceiveOrder = preReceiveOrderInDb
-            });
+                if (index == 1)
+                {
+                    cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
+                    cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
+
+                    _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    {
+                        Container = cartonDetailInDb.POSummary.Container,
+                        PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                        Style = cartonDetailInDb.Style,
+                        Color = cartonDetailInDb.Color,
+                        CustomerCode = cartonDetailInDb.Customer,
+                        SizeBundle = cartonDetailInDb.SizeBundle,
+                        PcsBundle = cartonDetailInDb.PcsBundle,
+                        Cartons = obj.Cartons,
+                        Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                        Location = obj.Location,
+                        PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                        Status = "In Stock",
+                        AvailableCtns = obj.Cartons,
+                        PickingCtns = 0,
+                        ShippedCtns = 0,
+                        AvailablePcs = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                        PickingPcs = 0,
+                        ShippedPcs = 0,
+                        InboundDate = DateTime.Now,
+                        PreReceiveOrder = preReceiveOrderInDb
+                    });
+                }
+                else
+                {
+                    cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
+
+                    _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    {
+                        Container = cartonDetailInDb.POSummary.Container,
+                        PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                        Style = cartonDetailInDb.Style,
+                        Color = cartonDetailInDb.Color,
+                        CustomerCode = cartonDetailInDb.Customer,
+                        SizeBundle = cartonDetailInDb.SizeBundle,
+                        PcsBundle = cartonDetailInDb.PcsBundle,
+                        Cartons = 0,
+                        Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                        Location = obj.Location,
+                        PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                        Status = "In Stock",
+                        AvailableCtns = 0,
+                        PickingCtns = 0,
+                        ShippedCtns = 0,
+                        AvailablePcs = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                        PickingPcs = 0,
+                        ShippedPcs = 0,
+                        InboundDate = DateTime.Now,
+                        PreReceiveOrder = preReceiveOrderInDb
+                    });
+                }
+
+            }
 
             _context.SaveChanges();
 
