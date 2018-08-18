@@ -28,7 +28,7 @@ namespace ClothResorting.Controllers.Api
             var result = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.POSummary.PreReceiveOrder.Id == id
-                    && c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0)
+                    && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0))
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
 
             return Ok(result);
