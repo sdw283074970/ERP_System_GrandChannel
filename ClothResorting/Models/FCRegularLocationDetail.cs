@@ -49,6 +49,8 @@ namespace ClothResorting.Models
 
         public PreReceiveOrder PreReceiveOrder { get; set; }
 
+        public RegularCartonDetail RegularCaronDetail { get; set; }
+
         public ICollection<CartonInside> CartonInsides { get; set; }
 
         public ICollection<PickingRecord> PickingRecord { get; set; }

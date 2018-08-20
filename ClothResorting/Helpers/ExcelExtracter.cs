@@ -909,7 +909,7 @@ namespace ClothResorting.Helpers
                             ActualCtns = 0,
                             ActualPcs = 0,
                             InboundDate = null,
-                            Status = "Created",
+                            Status = "New Created",
                             ToBeAllocatedCtns = 0,
                             ToBeAllocatedPcs = 0,
                             POSummary = poSummaryInDb
@@ -937,7 +937,7 @@ namespace ClothResorting.Helpers
                             ActualCtns = 0,
                             ActualPcs = 0,
                             InboundDate = null,
-                            Status = "Created",
+                            Status = "New Created",
                             ToBeAllocatedCtns = 0,
                             ToBeAllocatedPcs = 0
                         };

@@ -57,7 +57,8 @@ namespace ClothResorting.Controllers.Api
                     PickingPcs = 0,
                     ShippedPcs = 0,
                     InboundDate = _timeNow,
-                    PreReceiveOrder = regularCartonDetailsIndb.First().POSummary.PreReceiveOrder
+                    PreReceiveOrder = regularCartonDetailsIndb.First().POSummary.PreReceiveOrder,
+                    RegularCaronDetail = regularCartonDetail
                 });
 
                 regularCartonDetailsIndb.SingleOrDefault(c => c.Id == id).ToBeAllocatedCtns = 0;

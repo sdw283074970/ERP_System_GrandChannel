@@ -55,7 +55,7 @@ namespace ClothResorting.Controllers.Api
 
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(obj.PreId);
 
-            var index = 1;
+            var index = 1;      //用来甄别多种SKU在同一箱的情况
 
             foreach (var cartonDetailInDb in inOneBoxSKUs)
             {
@@ -87,7 +87,8 @@ namespace ClothResorting.Controllers.Api
                         PickingPcs = 0,
                         ShippedPcs = 0,
                         InboundDate = DateTime.Now,
-                        PreReceiveOrder = preReceiveOrderInDb
+                        PreReceiveOrder = preReceiveOrderInDb,
+                        RegularCaronDetail = cartonDetailInDb
                     });
                 }
                 else
@@ -115,8 +116,14 @@ namespace ClothResorting.Controllers.Api
                         PickingPcs = 0,
                         ShippedPcs = 0,
                         InboundDate = DateTime.Now,
-                        PreReceiveOrder = preReceiveOrderInDb
+                        PreReceiveOrder = preReceiveOrderInDb,
+                        RegularCaronDetail = cartonDetailInDb
                     });
+                }
+
+                if(cartonDetailInDb.ToBeAllocatedCtns == 0)
+                {
+                    cartonDetailInDb.Status = "Allocated";
                 }
 
             }

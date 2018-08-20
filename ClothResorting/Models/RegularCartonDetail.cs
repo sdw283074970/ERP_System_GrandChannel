@@ -52,5 +52,7 @@ namespace ClothResorting.Models
         public DateTime? InboundDate { get; set; }
 
         public POSummary POSummary { get; set; }
+
+        public ICollection<FCRegularLocationDetail> FCRegularLocationDetail { get; set; }
     }
 }

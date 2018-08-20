@@ -925,6 +925,10 @@
     <Compile Include="Migrations\201808142356027_AddOrderTyperInPOsummary.Designer.cs">
       <DependentUpon>201808142356027_AddOrderTyperInPOsummary.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.cs" />
+    <Compile Include="Migrations\201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.Designer.cs">
+      <DependentUpon>201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1802,6 +1806,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808142356027_AddOrderTyperInPOsummary.resx">
       <DependentUpon>201808142356027_AddOrderTyperInPOsummary.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.resx">
+      <DependentUpon>201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -77,6 +77,8 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var carton in cartonDetailsInDb)
             {
+                carton.Status = "To Be Allocated";
+
                 carton.ActualCtns = carton.Cartons;
                 carton.ActualPcs = carton.Quantity;
                 carton.ToBeAllocatedCtns = carton.Cartons;
