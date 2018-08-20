@@ -1229,6 +1229,7 @@ namespace ClothResorting.Helpers
                                 PullSheet = pullSheet
                             });
 
+                            _context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
                             _context.PullSheetDiagnostics.AddRange(diagnosticList);
                             _context.SaveChanges();
                         }
@@ -1303,6 +1304,7 @@ namespace ClothResorting.Helpers
                             PullSheet = pullSheet
                         });
 
+                        _context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
                         _context.PullSheetDiagnostics.AddRange(diagnosticList);
                         _context.SaveChanges();
                     }

@@ -118,7 +118,12 @@ namespace ClothResorting.Controllers.Api
 
             var pullSheetInDb = _context.PullSheets.Find(id);
 
+            var diagnosticsInDb = _context.PullSheetDiagnostics
+                .Include(x => x.PullSheet)
+                .Where(x => x.PullSheet.Id == id);
+
             _context.PickDetails.RemoveRange(pickDetailsInDb);
+            _context.PullSheetDiagnostics.RemoveRange(diagnosticsInDb);
             _context.SaveChanges();
 
             _context.PullSheets.Remove(pullSheetInDb);
