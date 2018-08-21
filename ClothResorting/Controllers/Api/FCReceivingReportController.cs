@@ -29,12 +29,16 @@ namespace ClothResorting.Controllers.Api
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.POSummary.PreReceiveOrder.Id == preid
                     && c.POSummary.Container == container)
+                .OrderBy(x => x.PurchaseOrder)
                 .ToList();
+
+            var index = 1;
 
             foreach(var cartonDetail in fcRegualrCartonDetailsInDb)
             {
                 var report = new FCReceivingReport
                 {
+                    Index = index,
                     CartonRange = cartonDetail.CartonRange,
                     PurchaseOrder = cartonDetail.PurchaseOrder,
                     Style = cartonDetail.Style,
@@ -46,8 +50,11 @@ namespace ClothResorting.Controllers.Api
                     ReceivedQty = cartonDetail.ActualPcs,
                     ReceivableCtns = cartonDetail.Cartons,
                     ReceivedCtns = cartonDetail.ActualCtns,
-                    Memo = ""
+                    Memo = "",
+                    Comment = cartonDetail.Comment
                 };
+
+                index++;
 
                 if (report.ReceivedCtns - report.ReceivableCtns < 0)
                 {

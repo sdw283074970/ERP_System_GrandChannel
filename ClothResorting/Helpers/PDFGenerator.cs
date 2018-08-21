@@ -111,7 +111,7 @@ namespace ClothResorting.Helpers
                     //定义正式内容表
                     var tableContent = new PdfPTable(11);
                     //tableContent.LockedWidth = true;
-                    float[] columnWidth = {11f, 9f, 15f, 8f, 8f, 9f, 9f, 5f, 9f, 9f, 8f};
+                    float[] columnWidth = {11f, 9f, 12f, 8f, 8f, 8f, 8f, 5f, 9f, 9f, 13f};
                     tableContent.SetWidthPercentage(columnWidth, PageSize.LETTER);
                     tableContent.WidthPercentage = 90f;
 

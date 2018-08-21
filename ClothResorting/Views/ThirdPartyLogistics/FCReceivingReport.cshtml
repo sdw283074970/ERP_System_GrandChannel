@@ -19,10 +19,10 @@
                 <table id="table" class="table table-condensed table-hover table-striped">
                     <thead>
                         <tr>
+                            <th style="width:30px">Sequence</th>
                             <th style="width:80px">Range</th>
                             <th style="width:100px">PO</th>
                             <th style="width:120px">Style</th>
-                            <th style="width:50px">Line</th>
                             <th style="width:50px">Customer</th>
                             <th style="width:100px">Size</th>
                             <th style="width:80px">Pcs</th>
@@ -30,7 +30,8 @@
                             <th style="width:100px">Inbound Qty</th>
                             <th style="width:80px">Fcs Ctns</th>
                             <th style="width:100px">Inbound Ctns</th>
-                            <th>Memo</th>
+                            <th style="width:100px">Memo</th>
+                            <th>Comment</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -78,6 +79,12 @@
                     data: data,
                     columns: [
                         {
+                            data: "index",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
                             data: "cartonRange",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
@@ -91,12 +98,6 @@
                         },
                         {
                             data: "style",
-                            render: function (data) {
-                                return "<text>" + data + "</text>";
-                            }
-                        },
-                        {
-                            data: "line",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
                             }
@@ -147,6 +148,12 @@
                             data: "memo",
                             render: function (data) {
                                 return "<font color='orange'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "comment",
+                            render: function (data) {
+                                return "<font color='red'>" + data + "</font>";
                             }
                         }
                     ]

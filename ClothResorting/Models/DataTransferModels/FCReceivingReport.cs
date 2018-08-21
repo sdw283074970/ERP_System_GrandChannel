@@ -7,6 +7,8 @@ namespace ClothResorting.Models.DataTransferModels
 {
     public class FCReceivingReport
     {
+        public int Index { get; set; }
+
         public string PurchaseOrder { get; set; }
 
         public string Style { get; set; }
@@ -30,5 +32,7 @@ namespace ClothResorting.Models.DataTransferModels
         public int ReceivedCtns { get; set; }
 
         public string Memo { get; set; }
+
+        public string Comment { get; set; }
     }
 }

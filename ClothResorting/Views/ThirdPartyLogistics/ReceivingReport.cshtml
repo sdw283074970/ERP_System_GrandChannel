@@ -1,0 +1,204 @@
+﻿
+@{
+    ViewBag.Title = "ReceivingReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Receiving Report</h1>
+<h2>Container: <text id="container">SU85P0035FT</text></h2>
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <button id="btn-generate" class="btn btn-primary">Generate Receiving Report for Customer</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th style="width:100px">Cut PO</th>
+                    <th style="width:120px">Style</th>
+                    <th style="width:80px">Color</th>
+                    <th style="width:80px">Customer</th>
+                    <th style="width:100px">Size</th>
+                    <th style="width:80px">Pcs</th>
+                    <th style="width:80px">Fcs Qty</th>
+                    <th style="width:80px">Ttl Qty</th>
+                    <th style="width:80px">Fcs Ctns</th>
+                    <th style="width:80px">Ttl Ctns</th>
+                    <th>Comment</th>
+                    <th style="width:80px">Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var preId = getUrlParameter('preid');
+            var container = getUrlParameter('container');
+
+            $("#container").html(container);
+
+            var urlstring = "/api/receivingreport/?preid=" + preId + "&container=" + container;
+
+            $.ajax({
+                type: "GET",
+                url: urlstring,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data, status, xhr) {
+                    $("#table").DataTable({
+                        data: data,
+                        columns: [
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "customer",
+                                render: function (data) {
+                                    return "<font'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "sizeBundle",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pcsBundle",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualPcs",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "cartons",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualCtns",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button id='" + data + "' class='btn btn-link btn-edit'>Edit</button>";
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            //点击Edit，将对应Comment列中的<text>元素替换成<input>元素，并用一个Ok按钮替换Edit按钮, 
+            $("#table").on("click", ".btn-edit", function () {
+                var button = $(this);
+                var cartonDetailId = button.attr('id');
+
+                var commentObj = button.parent().parent("tr").children('td').eq(10).children('font');
+                var content = button.parent().parent("tr").children('td').eq(10).children('font').html();
+
+                commentObj.replaceWith("<input class='input-lg' value='" + content + "' />");
+                button.replaceWith("<button id='" + cartonDetailId + "' class='btn btn-link btn-confirm'>Ok</button>");
+            });
+
+            //点击Ok，将对应的Comment列中的<input>元素替换成<font>元素，然后将内容同步到数据库，并用一个Edit按钮替换Ok按钮, 
+            $("#table").on("click", ".btn-confirm", function () {
+                var button = $(this);
+                var cartonDetailId = button.attr('id');
+
+                var commentObj = button.parent().parent("tr").children('td').eq(10).children("input");
+                var content = commentObj.val();
+
+                var obj = {
+                    "id": cartonDetailId,
+                    "comment": content
+                };
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/receivingreport/" + preId,
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    success: function () {
+
+                    },
+                    error: function () {
+                        alert("Update comment failed.");
+                    }
+                });
+
+                commentObj.replaceWith("<font>" + content + "</font>");
+                button.replaceWith("<button id='" + cartonDetailId + "' class='btn btn-link btn-edit'>Edit</button>");
+            });
+
+            $("#btn-generate").on("click", function () {
+                $(window.location).attr('href', "/ThirdPartyLogistics/FCReceivingReport/?preid=" + preId + "&container=" + container);
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

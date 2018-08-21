@@ -48,5 +48,7 @@ namespace ClothResorting.Dtos
         public string Status { get; set; }
 
         public DateTime InboundDate { get; set; }
+
+        public string Comment { get; set; }
     }
 }

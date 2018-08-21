@@ -176,5 +176,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // 可编辑注释的Receiving Report页面
+        public ActionResult ReceivingReport()
+        {
+            return View();
+        }
     }
 }

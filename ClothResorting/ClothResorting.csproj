@@ -270,6 +270,7 @@
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailConfirmationController.cs" />
+    <Compile Include="Controllers\Api\ReceivingReportController.cs" />
     <Compile Include="Controllers\Api\RelocationHistoryController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
@@ -929,6 +930,10 @@
     <Compile Include="Migrations\201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.Designer.cs">
       <DependentUpon>201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808202303443_AddedCommentAreaInFCRegularCartondETAIL.cs" />
+    <Compile Include="Migrations\201808202303443_AddedCommentAreaInFCRegularCartondETAIL.Designer.cs">
+      <DependentUpon>201808202303443_AddedCommentAreaInFCRegularCartondETAIL.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -943,6 +948,7 @@
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PickTiketsRangeJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\PreIdCommentJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
     <Compile Include="Models\ApiTransformModels\CartonDetailRequestJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ShipOrderJsonObj.cs" />
@@ -1338,6 +1344,7 @@
     <Content Include="Views\ThirdPartyLogistics\PickDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickDetailSummary.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PullSheetDiagnostics.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\ReceivingReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1809,6 +1816,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.resx">
       <DependentUpon>201808201738333_ConnectedFCRegularLocationDetailSetToRegularCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808202303443_AddedCommentAreaInFCRegularCartondETAIL.resx">
+      <DependentUpon>201808202303443_AddedCommentAreaInFCRegularCartondETAIL.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

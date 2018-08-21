@@ -208,7 +208,8 @@ namespace ClothResorting.Helpers
                                     PcsBundle = size.Count.ToString(),
                                     Status = "Created",
                                     OrderType = orderType,
-                                    POSummary = poSummary
+                                    POSummary = poSummary,
+                                    Comment = ""
                                 });
                             }
                         }
@@ -248,7 +249,8 @@ namespace ClothResorting.Helpers
                             PcsBundle = pcsBundle,
                             Status = "Created",
                             OrderType = orderType,
-                            POSummary = poSummary
+                            POSummary = poSummary,
+                            Comment = ""
                         });
                     }
 
@@ -912,7 +914,8 @@ namespace ClothResorting.Helpers
                             Status = "New Created",
                             ToBeAllocatedCtns = 0,
                             ToBeAllocatedPcs = 0,
-                            POSummary = poSummaryInDb
+                            POSummary = poSummaryInDb,
+                            Comment = ""
                         };
 
                         regularCartonDetailList.Add(regularCartonDetail);
@@ -939,7 +942,8 @@ namespace ClothResorting.Helpers
                             InboundDate = null,
                             Status = "New Created",
                             ToBeAllocatedCtns = 0,
-                            ToBeAllocatedPcs = 0
+                            ToBeAllocatedPcs = 0,
+                            Comment = ""
                         };
 
                         foreach (var poSummaryIndb in poSummaryInDbs)

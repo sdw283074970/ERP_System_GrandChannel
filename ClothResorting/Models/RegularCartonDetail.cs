@@ -49,6 +49,8 @@ namespace ClothResorting.Models
 
         public string OrderType { get; set; }
 
+        public string Comment { get; set; }
+
         public DateTime? InboundDate { get; set; }
 
         public POSummary POSummary { get; set; }
