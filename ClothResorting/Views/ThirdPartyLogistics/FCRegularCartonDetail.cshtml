@@ -291,30 +291,32 @@
                 {
                     alert("All fields are required.");
                 }
+                else
+                {
+                    var obj = {
+                        "id": id,
+                        "color": color.toString(),
+                        "size": size.toString(),
+                        "pcs": units.toString(),
+                        "pack": pcsPerCarton
+                    };
 
-                var obj = {
-                    "id": id,
-                    "color": color.toString(),
-                    "size": size.toString(),
-                    "pcs": units.toString(),
-                    "pack": pcsPerCarton
-                };
-
-                $.ajax({
-                    type: "POST",
-                    url: "/api/FCRegularCartonDetails/",
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(obj),
-                    dataType: "json",
-                    success: function () {
-                        alert("Add success!");
-                        $(this).parent().replaceWith("<button class='btn btn-primary btn-bulk'>Receive Bulk Cartons</button><button id='undo' class='btn btn-danger'>Undo</button>");
-                        window.location.reload();
-                    },
-                    error: function () {
-                        alert("Add failed.");
-                    }
-                });
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/FCRegularCartonDetails/",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        success: function () {
+                            alert("Add success!");
+                            $(this).parent().replaceWith("<button class='btn btn-primary btn-bulk'>Receive Bulk Cartons</button><button id='undo' class='btn btn-danger'>Undo</button>");
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert("Add failed.");
+                        }
+                    });
+                }
             });
 
             $(".btn-back").on("click", function () {
