@@ -269,8 +269,8 @@ namespace ClothResorting.Helpers
             }
 
             //重新统计新建的preReceiveOrder对象的数据
-            preReceiveOrderInDb.TotalCartons = cartonList.Sum(x => x.Cartons);
-            preReceiveOrderInDb.TotalPcs = cartonList.Sum(x => x.Quantity);
+            preReceiveOrderInDb.TotalCartons += cartonList.Sum(x => x.Cartons);
+            preReceiveOrderInDb.TotalPcs += cartonList.Sum(x => x.Quantity);
             preReceiveOrderInDb.CustomerName = "Silk-Icon";
 
             _context.RegularCartonDetails.AddRange(cartonList);
@@ -757,7 +757,7 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
-        //抽取excel文件中的PO信息，并与之前新建的FC预收订单关联
+        //抽取excel文件中的PO信息，并与指定的FC预收订单关联
         #region
         public void ExtractFCPurchaseOrderSummary(int id)
         {
@@ -807,8 +807,8 @@ namespace ClothResorting.Helpers
             }
 
             //可以在本页面获取packingList的总量
-            preReceiveOrderInDb.TotalCartons = (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
-            preReceiveOrderInDb.TotalPcs = (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
+            preReceiveOrderInDb.TotalCartons += (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
+            preReceiveOrderInDb.TotalPcs += (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
             preReceiveOrderInDb.CustomerName = "Free Country";
 
             _context.POSummaries.AddRange(packingList);
@@ -822,7 +822,7 @@ namespace ClothResorting.Helpers
         {
             _ws = _wb.Worksheets[2];
             var rowIndex = 1;
-            id = _context.PreReceiveOrders.OrderByDescending(c => c.Id).First().Id;
+            //id = _context.PreReceiveOrders.OrderByDescending(c => c.Id).First().Id;
             var regularCartonDetailList = new List<RegularCartonDetail>();
 
             //扫描Detail页面中有多少个RegularCartonDetal对象
@@ -888,8 +888,10 @@ namespace ClothResorting.Helpers
                             && c.PreReceiveOrder.Id == id
                             && c.PoLine == poLine);
 
+                    var poSummaryList = poSummaryInDbs.ToList();
+
                     //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
-                    if (poSummaryInDbs.Count() == 1)
+                    if (poSummaryList.Count() == 1)
                     {
                         var poSummaryInDb = poSummaryInDbs.First();
 
@@ -920,7 +922,7 @@ namespace ClothResorting.Helpers
 
                         regularCartonDetailList.Add(regularCartonDetail);
                     }
-                    else if (poSummaryInDbs.Count() > 1)
+                    else if (poSummaryList.Count() > 1)
                     {
                         var regularCartonDetail = new RegularCartonDetail
                         {

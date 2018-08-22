@@ -100,5 +100,24 @@ namespace ClothResorting.Controllers.Api
 
             _context.SaveChanges();
         }
+
+        // DELETE /api/fcreceivingreport/{id}(poId) 删除散货PO的接口，没其他位置了放这里挤一挤
+        [HttpDelete]
+        public void DeleteBulkPo([FromUri]int id)
+        {
+            var cartonDetails = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.Id == id);
+
+            foreach(var cartonDetail in cartonDetails)
+            {
+                cartonDetail.POSummary.PreReceiveOrder.ActualReceivedCtns -= cartonDetail.ActualCtns;
+                cartonDetail.POSummary.PreReceiveOrder.ActualReceivedPcs -= cartonDetail.ActualPcs;
+            }
+
+            _context.RegularCartonDetails.RemoveRange(cartonDetails);
+            _context.POSummaries.Remove(_context.POSummaries.Find(id));
+            _context.SaveChanges();
+        }
     }
 }

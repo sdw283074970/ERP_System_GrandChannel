@@ -162,7 +162,7 @@
                     {
                         data: "id",
                         render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><br>"
+                            return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>"
                         }
                     }
                 ]
@@ -372,6 +372,35 @@
                 });
                 $(".iframe").hide();
             });
+
+            //删除新加的散货PO
+            $("#table").on("click", ".btn-delete", function () {
+                var button = $(this);
+                var fcsPcs = button.parent().parent("tr").children('td').eq(7).children('font').html();
+                var isBulkPo = fcsPcs == 0 ? true : false;
+
+                if (isBulkPo)
+                {
+                    $.ajax({
+                        type: "DELETE",
+                        url: "/api/fcreceivingreport/" + button.attr('id'),
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            alert("Delete success!");
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert("Cannot delete the po that existed in inventory. Please relocate them to Allocate Location page before deleting.");
+                        }
+                    });
+                }
+                else
+                {
+                    alert("Cannot delete PO of the original packing list.");
+                }
+            });
+
         });
     </script>
 }
