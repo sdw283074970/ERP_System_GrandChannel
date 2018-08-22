@@ -8,6 +8,7 @@ using System.Web.Http;
 using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Models.ApiTransformModels;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -36,6 +37,42 @@ namespace ClothResorting.Controllers.Api
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
 
             return Ok(resultDto);
+        }
+
+        // POST /api/fcregularcartondetails/
+        [HttpPost]
+        public IHttpActionResult CreateBulk([FromBody]RegualrCartonBulkJsonObj obj)
+        {
+            var poSummaryInDb = _context.POSummaries.Find(obj.Id);
+
+            var newCartonDetail = new RegularCartonDetail
+            {
+                PurchaseOrder = poSummaryInDb.PurchaseOrder,
+                Style = poSummaryInDb.Style,
+                Color = obj.Color,
+                Customer = poSummaryInDb.Customer,
+                Container = poSummaryInDb.Container,
+                CartonRange = "0-0",
+                SizeBundle = obj.Size,
+                PcsBundle = obj.Pcs,
+                PcsPerCarton = obj.Pack,
+                Quantity = 0,
+                Cartons = 0,
+                ActualCtns = 0,
+                ActualPcs = 0,
+                ToBeAllocatedCtns = 0,
+                ToBeAllocatedPcs = 0,
+                Status = "To Be Allocated",
+                Comment = "This is a bulk sku",
+                POSummary = poSummaryInDb
+            };
+
+            _context.RegularCartonDetails.Add(newCartonDetail);
+            _context.SaveChanges();
+
+            var sample = _context.RegularCartonDetails.OrderByDescending(x => x.Id).First();
+
+            return Created(Request.RequestUri + "/" + sample.Id, Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>(sample));
         }
 
         // PUT /api/fcregularcartondetails 收货算法
