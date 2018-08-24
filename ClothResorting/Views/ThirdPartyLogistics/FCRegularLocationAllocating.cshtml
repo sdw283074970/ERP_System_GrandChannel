@@ -14,8 +14,8 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th><input id="select-all" type="checkbox" value="12345" /></th>.
                     <th>Container</th>
+                    <th>Ctn Range</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Color</th>
@@ -24,6 +24,7 @@
                     <th>Pcs Bundle</th>
                     <th>Status</th>
                     <th>TBA Ctns</th>
+                    <th><input id="select-all" type="checkbox" value="12345" /></th>
                     <th>Cartons</th>
                     <th>Location</th>
                 </tr>
@@ -45,6 +46,8 @@
             var lastLocation = "";
             var cartons;
             var lastSearchBar;
+            var lastCartonRange = "last";
+            var currentCartonRange = "current";
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -82,15 +85,22 @@
                         destroy: true,
                         columns: [
                             {
-                                data: "id",
+                                data: "container",
                                 render: function (data) {
-                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                        + data + "' />";
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "container",
+                                data: "cartonRange",
                                 render: function (data) {
+                                    if (data != lastCartonRange)
+                                    {
+                                        lastCartonRange = data;
+                                    }
+                                    else
+                                    {
+                                        currentCartonRange = data;
+                                    }
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -154,6 +164,20 @@
                                     else
                                     {
                                         return "";
+                                    }
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    if (currentCartonRange == lastCartonRange)
+                                    {
+                                        return "";
+                                    }
+                                    else
+                                    {
+                                        return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                            + data + "' />";
                                     }
                                 }
                             },
@@ -341,8 +365,10 @@
                             searchBar.val(lastSearchBar);
 
                         },
-                        error: function (data) {
-                            alert("error!");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert("All cartons have been allocated.", function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }
@@ -416,15 +442,20 @@
                                 destroy: true,
                                 columns: [
                                     {
-                                        data: "id",
+                                        data: "container",
                                         render: function (data) {
-                                            return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                                + data + "' />";
+                                            return "<text>" + data + "</text>";
                                         }
                                     },
                                     {
-                                        data: "container",
+                                        data: "cartonRange",
                                         render: function (data) {
+                                            if (data != lastCartonRange) {
+                                                lastCartonRange = data;
+                                            }
+                                            else {
+                                                currentCartonRange = data;
+                                            }
                                             return "<text>" + data + "</text>";
                                         }
                                     },
@@ -478,19 +509,47 @@
                                     {
                                         data: "toBeAllocatedCtns",
                                         render: function (data) {
-                                            return "<font color='blue'>" + data + "</font>";
+                                            cartons = data;
+                                            if (cartons != 0) {
+                                                return "<font color='blue'>" + data + "</font>";
+                                            }
+                                            else {
+                                                return "";
+                                            }
                                         }
                                     },
                                     {
                                         data: "id",
                                         render: function (data) {
-                                            return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                            if (currentCartonRange == lastCartonRange) {
+                                                return "";
+                                            }
+                                            else {
+                                                return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                                    + data + "' />";
+                                            }
                                         }
                                     },
                                     {
                                         data: "id",
                                         render: function (data) {
-                                            return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                            if (cartons != 0) {
+                                                return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                            }
+                                            else {
+                                                return "";
+                                            }
+                                        }
+                                    },
+                                    {
+                                        data: "id",
+                                        render: function (data) {
+                                            if (cartons != 0) {
+                                                return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                            }
+                                            else {
+                                                return "";
+                                            }
                                         }
                                     }
                                 ]
@@ -501,8 +560,10 @@
                             searchBar.val(lastSearchBar);
 
                         },
-                        error: function (data) {
-                            alert("error!");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }

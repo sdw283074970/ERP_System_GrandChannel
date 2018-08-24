@@ -934,6 +934,10 @@
     <Compile Include="Migrations\201808202303443_AddedCommentAreaInFCRegularCartondETAIL.Designer.cs">
       <DependentUpon>201808202303443_AddedCommentAreaInFCRegularCartondETAIL.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808232216553_AddedCartonRangeInRegularCartonDetail.cs" />
+    <Compile Include="Migrations\201808232216553_AddedCartonRangeInRegularCartonDetail.Designer.cs">
+      <DependentUpon>201808232216553_AddedCartonRangeInRegularCartonDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1820,6 +1824,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808202303443_AddedCommentAreaInFCRegularCartondETAIL.resx">
       <DependentUpon>201808202303443_AddedCommentAreaInFCRegularCartondETAIL.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808232216553_AddedCartonRangeInRegularCartonDetail.resx">
+      <DependentUpon>201808232216553_AddedCartonRangeInRegularCartonDetail.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

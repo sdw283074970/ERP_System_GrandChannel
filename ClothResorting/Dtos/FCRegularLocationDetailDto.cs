@@ -46,5 +46,7 @@ namespace ClothResorting.Dtos
         public int ShippedPcs { get; set; }
 
         public DateTime InboundDate { get; set; }
+
+        public string CartonRange { get; set; }
     }
 }

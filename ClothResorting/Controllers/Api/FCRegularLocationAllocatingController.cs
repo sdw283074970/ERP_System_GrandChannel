@@ -88,8 +88,11 @@ namespace ClothResorting.Controllers.Api
                         ShippedPcs = 0,
                         InboundDate = DateTime.Now,
                         PreReceiveOrder = preReceiveOrderInDb,
-                        RegularCaronDetail = cartonDetailInDb
+                        RegularCaronDetail = cartonDetailInDb,
+                        CartonRange = cartonRange
                     });
+
+                    index++;
                 }
                 else
                 {
@@ -117,7 +120,8 @@ namespace ClothResorting.Controllers.Api
                         ShippedPcs = 0,
                         InboundDate = DateTime.Now,
                         PreReceiveOrder = preReceiveOrderInDb,
-                        RegularCaronDetail = cartonDetailInDb
+                        RegularCaronDetail = cartonDetailInDb,
+                        CartonRange = cartonRange
                     });
                 }
 
