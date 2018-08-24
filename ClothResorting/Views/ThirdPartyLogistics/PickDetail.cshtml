@@ -20,6 +20,7 @@
             <thead>
                 <tr>
                     <th>Status</th>
+                    <th>Carton Range</th>
                     <th>Container</th>
                     <th>Cut PO</th>
                     <th>Style</th>
@@ -94,6 +95,12 @@
                                         return "<font color='red'>" + data + "</font>";
                                     else
                                         return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "cartonRange",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
@@ -209,8 +216,8 @@
                             location.reload();
                         });
                     },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
                     }
                 });
                 $(".iframe").hide();

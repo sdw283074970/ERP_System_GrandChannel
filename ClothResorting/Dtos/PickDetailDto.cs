@@ -36,5 +36,9 @@ namespace ClothResorting.Dtos
         public int LocationDetailId { get; set; }
 
         public string PickDate { get; set; }
+
+        public string CartonRange { get; set; }
+
+        public string Memo { get; set; }
     }
 }

@@ -1319,7 +1319,7 @@ namespace ClothResorting.Helpers
                         //待选池中所有符合拣货条件的对象
                         var poolLocations = cartonLocationPool.Where(x => x.Style == style
                                 && x.Color == color
-                                && x.SizeBundle.Split(' ').Contains(size.SizeName)
+                                && x.SizeBundle == size.SizeName
                                 && x.PurchaseOrder == purchaseOrder);
 
                         if (poolLocations.Count() == 0)
@@ -1328,13 +1328,15 @@ namespace ClothResorting.Helpers
                             {
                                 Type = "Missing",
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                Description = "SKU style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed correct.",
+                                Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.",
                                 PullSheet = pullSheet
                             });
 
                             _context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
                             _context.PullSheetDiagnostics.AddRange(diagnosticList);
                             _context.SaveChanges();
+
+                            throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.");
                         }
 
                         var targetPcs = size.Count;
@@ -1378,16 +1380,16 @@ namespace ClothResorting.Helpers
                                 //将有变化的结果放到新建的“使用过的待选池”中
                                 usedPoolCartonLocationDetails.Add(pool);
 
-                                //如果剩余的待选对象箱数为0或者1，则剩下的件数都是Concealed Overage件数，生成对应的剩余记录
-                                if (pool.AvailableCtns == 0 || pool.AvailableCtns == 1 && pool.AvailablePcs != 0)
-                                {
-                                    diagnosticList.Add(new PullSheetDiagnostic {
-                                        Type = "Concealed Overage",
-                                        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                        Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units concealed overage in Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>.<font color='red'>" + originalTargetPcs.ToString() + "</font> units has been collected.",
-                                        PullSheet = pullSheet
-                                    });
-                                }
+                                ////如果剩余的待选对象箱数为0或者1，则剩下的件数都是Concealed Overage件数，生成对应的剩余记录
+                                //if (pool.AvailableCtns == 0 || pool.AvailableCtns == 1 && pool.AvailablePcs != 0)
+                                //{
+                                //    diagnosticList.Add(new PullSheetDiagnostic {
+                                //        Type = "Concealed Overage",
+                                //        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                                //        Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units concealed overage in Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>.<font color='red'>" + originalTargetPcs.ToString() + "</font> units has been collected.",
+                                //        PullSheet = pullSheet
+                                //    });
+                                //}
                             }
                         }
 
@@ -1403,7 +1405,40 @@ namespace ClothResorting.Helpers
                             });
                         }
 
-                        //usedPoolCartonLocationDetails.AddRange(poolLocations);
+                        //检查待选池中的对象，是否有多种SKU在同一箱(寄生SKU)但只拿出部分件数的情况，生成"隐藏多货"Concealed Overage诊断记录，并将这些多的货也添加到拣货表里
+                        var partailCartons = cartonLocationPool.Where(x => x.Cartons == 0 && x.Quantity != 0);
+
+                        foreach(var partailCarton in partailCartons)
+                        {
+                            //找到宿主SKU
+                            var baseCarton = cartonLocationPool.SingleOrDefault(x => x.CartonRange == partailCarton.CartonRange && x.Cartons != 0);
+
+                            if (baseCarton != null)    //如果没有找到，则说明本身就是宿主，直接跳过检验
+                            {
+                                //寄生SKU的剩余件数除以单位件与宿主SKU的剩余箱数的差，再乘以该SKU的单位件数，即是隐藏多货的件数
+                                var partailCartonDiff = partailCarton.AvailablePcs / partailCarton.PcsPerCaron - baseCarton.AvailableCtns;
+
+                                if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
+                                {
+                                    //一起添加到拣货单，并注明这是Concealed Overage
+                                    var concealedOverate = ConvertToSolidPickDetail(pullSheet, partailCarton, partailCartonDiff * partailCarton.PcsPerCaron);
+                                    concealedOverate.Memo = "Overage";
+                                    concealedOverate.PickCtns = 0;
+                                    pickDetailList.Add(concealedOverate);
+
+                                    partailCarton.PickingPcs = partailCartonDiff * partailCarton.PcsPerCaron;
+                                    partailCarton.AvailablePcs -= partailCartonDiff * partailCarton.PcsPerCaron;
+
+                                    diagnosticList.Add(new PullSheetDiagnostic
+                                    {
+                                        Type = "Concealed Overage",
+                                        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                                        Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
+                                        PullSheet = pullSheet
+                                    });
+                                }
+                            }
+                        }
                     }
                 }
                 else if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Bundle
@@ -1419,13 +1454,15 @@ namespace ClothResorting.Helpers
                         {
                             Type = "Missing",
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                            Description = "SKU style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
+                            Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.",
                             PullSheet = pullSheet
                         });
 
                         _context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
                         _context.PullSheetDiagnostics.AddRange(diagnosticList);
                         _context.SaveChanges();
+
+                        throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.");
                     }
 
                     //计算该SKU的目标箱数， 箱数 = 总件数 / 每箱件数
@@ -1542,7 +1579,8 @@ namespace ClothResorting.Helpers
                 PickCtns = targetPcs / pool.PcsPerCaron,
                 PickPcs = targetPcs,
                 PullSheet = pullSheet,
-                LocationDetailId = pool.Id
+                LocationDetailId = pool.Id,
+                CartonRange = pool.CartonRange
             };
         }
 

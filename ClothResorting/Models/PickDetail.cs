@@ -38,5 +38,9 @@ namespace ClothResorting.Models
         public string PickDate { get; set; }
 
         public PullSheet PullSheet { get; set; }
+
+        public string Memo { get; set; }
+
+        public string CartonRange { get; set; }
     }
 }

@@ -938,6 +938,10 @@
     <Compile Include="Migrations\201808232216553_AddedCartonRangeInRegularCartonDetail.Designer.cs">
       <DependentUpon>201808232216553_AddedCartonRangeInRegularCartonDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808242103370_AddedCaertonRangeAndMenmoInPickingDetailDbSet.cs" />
+    <Compile Include="Migrations\201808242103370_AddedCaertonRangeAndMenmoInPickingDetailDbSet.Designer.cs">
+      <DependentUpon>201808242103370_AddedCaertonRangeAndMenmoInPickingDetailDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1827,6 +1831,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808232216553_AddedCartonRangeInRegularCartonDetail.resx">
       <DependentUpon>201808232216553_AddedCartonRangeInRegularCartonDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808242103370_AddedCaertonRangeAndMenmoInPickingDetailDbSet.resx">
+      <DependentUpon>201808242103370_AddedCaertonRangeAndMenmoInPickingDetailDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
