@@ -68,10 +68,11 @@ namespace ClothResorting.Controllers.Api
 
                 cartonDetailInDb.ToBeAllocatedCtns += availableCtns;
                 cartonDetailInDb.ToBeAllocatedPcs += availablePcs;
+                cartonDetailInDb.Status = "Realllocating";
 
-                locationInDb.AvailableCtns = 0;
-                locationInDb.AvailablePcs = 0;
-                locationInDb.Status = "Reallocating";
+                location.AvailableCtns = 0;
+                location.AvailablePcs = 0;
+                location.Status = "Reallocated";
 
                 //当正在拣货数量不为零时，不能移库（在前端实现）
                 //当有库存没有已发出去的货时，删除库存记录(否则不删除记录)，将库存记录的剩余库存移至SKU待分配页面
