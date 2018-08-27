@@ -11,40 +11,51 @@
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
     </head>
-    <body>
-        <h1>Free Country Receiving Report</h1>
-        <h2>Container: <text id="container">SU85P0035FT</text></h2>
-        <div class="maincontainer">
-            <div>
-                <table id="table" class="table table-condensed table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th style="width:30px">Sequence</th>
-                            <th style="width:80px">Range</th>
-                            <th style="width:100px">PO</th>
-                            <th style="width:120px">Style</th>
-                            <th style="width:50px">Customer</th>
-                            <th style="width:100px">Size</th>
-                            <th style="width:80px">Pcs</th>
-                            <th style="width:80px">Fcs Qty</th>
-                            <th style="width:100px">Inbound Qty</th>
-                            <th style="width:80px">Fcs Ctns</th>
-                            <th style="width:100px">Inbound Ctns</th>
-                            <th style="width:100px">Memo</th>
-                            <th>Comment</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+<body>
+    <h1>Free Country Receiving Report</h1>
+    <h2>Container: <text id="container">SU85P0035FT</text></h2>
+    <div class="maincontainer">
+        <div>
+            <font id="totalFcsPcs" color="green">Total Receivable Units:</font><br />
+            <font id="totalFcsCtns" color="green">Total Receivable Cartons:</font><br />
+            <font id="totalActualPcs" color="red">Actual Quantity Received:</font><br />
+            <font id="totalActualCtns" color="red">Actual Cartons Received:</font>
         </div>
+        <div>
+            <table id="table" class="table table-condensed table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th style="width:30px">Sequence</th>
+                        <th style="width:80px">Range</th>
+                        <th style="width:100px">PO</th>
+                        <th style="width:120px">Style</th>
+                        <th style="width:50px">Customer</th>
+                        <th style="width:100px">Size</th>
+                        <th style="width:80px">Pcs</th>
+                        <th style="width:80px">Fcs Qty</th>
+                        <th style="width:100px">Inbound Qty</th>
+                        <th style="width:80px">Fcs Ctns</th>
+                        <th style="width:100px">Inbound Ctns</th>
+                        <th style="width:100px">Memo</th>
+                        <th>Comment</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
-        @Scripts.Render("~/bundles/jquery")
-        @Scripts.Render("~/bundles/bootstrap")
-    </body>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+</body>
 </html>
 <script>
     $(document).ready(function () {
+
+        var totalFcsPcs = 0;
+        var totalActualPcs = 0;
+        var totalFcsCtns = 0;
+        var totalActualCtns = 0;
 
         //解析url中的参数函数
         function getUrlParameter(sParam) {
@@ -77,6 +88,7 @@
             success: function (data, status, xhr) {
                 $("#table").DataTable({
                     data: data,
+                    bInfo: true,
                     columns: [
                         {
                             data: "index",
@@ -123,24 +135,28 @@
                         {
                             data: "receivableQty",
                             render: function (data) {
+                                totalFcsPcs += data;
                                 return "<font color='green'>" + data + "</font>";
                             }
                         },
                         {
                             data: "receivedQty",
                             render: function (data) {
+                                totalActualPcs += data;
                                 return "<font color='red'>" + data + "</font>";
                             }
                         },
                         {
                             data: "receivableCtns",
                             render: function (data) {
+                                totalFcsCtns += data;
                                 return "<font color='green'>" + data + "</font>";
                             }
                         },
                         {
                             data: "receivedCtns",
                             render: function (data) {
+                                totalActualCtns += data;
                                 return "<font color='red'>" + data + "</font>";
                             }
                         },
@@ -158,6 +174,12 @@
                         }
                     ]
                 });
+
+                $("#totalFcsPcs").html("Total Receivable Units: " + totalFcsPcs + " ");
+                $("#totalActualPcs").html("Actual Units Received: " + totalActualPcs + " ");
+                $("#totalFcsCtns").html("Total Receivable Cartons: " + totalFcsCtns + " ");
+                $("#totalActualCtns").html("Actual Cartons Received: " + totalActualCtns + " ");
+
             }
         });
     });

@@ -43,14 +43,29 @@ namespace ClothResorting.Controllers.Api
 
             var preId = locationInDb.PreReceiveOrder.Id;
 
-            //找到所有与选择移库对象有相同cartonrange的对象，即找到在同一箱的其他size库存
+            //首先将宿主箱返回到待分配状态
+            locationInDb.RegularCaronDetail.ToBeAllocatedCtns += locationInDb.AvailableCtns;
+            locationInDb.RegularCaronDetail.ToBeAllocatedPcs += locationInDb.AvailablePcs;
+            locationInDb.RegularCaronDetail.Status = "Reallocating";
+
+            locationInDb.AvailablePcs = 0;
+            locationInDb.AvailableCtns = 0;
+            locationInDb.Status = "Reallocated";
+
+            if (locationInDb.ShippedPcs == 0)
+            {
+                _context.FCRegularLocationDetails.Remove(locationInDb);
+            }
+
+            //然后找到所有寄生箱对象，即找到在同一箱的其他size库存(range相同且可用箱数为0的对象)
             var locationsInDb = _context.FCRegularLocationDetails
                 .Include(x => x.RegularCaronDetail.POSummary.PreReceiveOrder)
                 .Where(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.Id == preId
                     && x.PurchaseOrder == locationInDb.PurchaseOrder
                     && x.Style == locationInDb.Style
                     && x.Color == locationInDb.Color
-                    && x.CartonRange == locationInDb.CartonRange);
+                    && x.CartonRange == locationInDb.CartonRange
+                    && x.AvailableCtns == 0);
 
             foreach(var location in locationsInDb)
             {
@@ -60,8 +75,8 @@ namespace ClothResorting.Controllers.Api
                 var availablePcs = location.AvailablePcs;
                 //var pickingCtns = location.PickingCtns;
                 //var pickingPcs = location.PickingPcs;
-                var shippedCtns = location.ShippedCtns;
-                //var shippedPcs = location.ShippedPcs;
+                //var shippedCtns = location.ShippedCtns;
+                var shippedPcs = location.ShippedPcs;
 
                 //当pickingCtns不为0时，说明有货正在拣，不能进行移库操作。此项限制在前端完成
                 //当库存剩余为0且没有货在拣，也不能进行移库操作。此项限制在前端完成
@@ -76,7 +91,7 @@ namespace ClothResorting.Controllers.Api
 
                 //当正在拣货数量不为零时，不能移库（在前端实现）
                 //当有库存没有已发出去的货时，删除库存记录(否则不删除记录)，将库存记录的剩余库存移至SKU待分配页面
-                if (shippedCtns == 0)
+                if (shippedPcs == 0)
                 {
                     _context.FCRegularLocationDetails.Remove(location);
                 }

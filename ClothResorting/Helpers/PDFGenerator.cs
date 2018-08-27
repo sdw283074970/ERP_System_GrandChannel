@@ -109,13 +109,13 @@ namespace ClothResorting.Helpers
                     #endregion
 
                     //定义正式内容表
-                    var tableContent = new PdfPTable(11);
+                    var tableContent = new PdfPTable(13);
                     //tableContent.LockedWidth = true;
-                    float[] columnWidth = {11f, 9f, 12f, 8f, 8f, 8f, 8f, 5f, 9f, 9f, 13f};
+                    float[] columnWidth = {10f, 8f, 6f, 11f, 5f, 8f, 8f, 5f, 5f, 9f, 9f, 9f, 7f};
                     tableContent.SetWidthPercentage(columnWidth, PageSize.LETTER);
                     tableContent.WidthPercentage = 90f;
 
-                    var headString = "Container,Cut PO,Style,Color,Customer,Size,Pcs,Pack,Pick Ctns,Pick Pcs,Location";
+                    var headString = "Container,Cut PO,Range,Style,Color,Customer,Size,Pcs,Pack,Pick Ctns,Pick Pcs,Location,Memo";
 
                     foreach(var head in headString.Split(','))
                     {
@@ -129,6 +129,7 @@ namespace ClothResorting.Helpers
 
                         tableContent.AddCell(firstCell);
                         tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].PurchaseOrder, new Font(BF_light, 9))));
+                        tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].CartonRange, new Font(BF_light, 9))));
                         tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].Style, new Font(BF_light, 9))));
                         tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].Color, new Font(BF_light, 9))));
                         tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].CustomerCode, new Font(BF_light, 9))));
@@ -138,6 +139,7 @@ namespace ClothResorting.Helpers
                         tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].PickCtns.ToString(), new Font(BF_light, 9))));
                         tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].PickPcs.ToString(), new Font(BF_light, 9))));
                         tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].Location, new Font(BF_light, 9))));
+                        tableContent.AddCell(new PdfPCell(new Paragraph(pickDetailList[i].Memo, new Font(BF_light, 9))));
                     }
 
                     doc.Add(tableContent);

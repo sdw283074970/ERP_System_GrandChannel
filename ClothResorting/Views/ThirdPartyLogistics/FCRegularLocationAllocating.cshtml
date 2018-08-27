@@ -211,7 +211,7 @@
                                 render: function (data) {
                                     if (cartons != 0)
                                     {
-                                        return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                        return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
                                     }
                                     else
                                     {
@@ -224,7 +224,7 @@
                                 render: function (data) {
                                     if (cartons != 0)
                                     {
-                                        return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                        return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
                                     }
                                     else
                                     {
@@ -416,7 +416,7 @@
                                         data: "id",
                                         render: function (data) {
                                             if (cartons != 0) {
-                                                return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                                return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
                                             }
                                             else {
                                                 return "";
@@ -427,7 +427,7 @@
                                         data: "id",
                                         render: function (data) {
                                             if (cartons != 0) {
-                                                return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                                return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
                                             }
                                             else {
                                                 return "";
@@ -441,6 +441,7 @@
                             var searchBar = $("#table_filter").children('label').children('input');
                             searchBar.val(lastSearchBar);
 
+                            table.search(lastSearchBar).draw();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             alert("All cartons have been allocated.", function () {
@@ -629,7 +630,7 @@
                                         data: "id",
                                         render: function (data) {
                                             if (cartons != 0) {
-                                                return "<input style='width:50px' id='ctns-" + data + "' type='number' />";
+                                                return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
                                             }
                                             else {
                                                 return "";
@@ -640,7 +641,7 @@
                                         data: "id",
                                         render: function (data) {
                                             if (cartons != 0) {
-                                                return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                                return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
                                             }
                                             else {
                                                 return "";
@@ -654,6 +655,7 @@
                             var searchBar = $("#table_filter").children('label').children('input');
                             searchBar.val(lastSearchBar);
 
+                            table.search(lastSearchBar).draw();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

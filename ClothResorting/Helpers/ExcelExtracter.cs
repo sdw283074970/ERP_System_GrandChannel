@@ -892,7 +892,7 @@ namespace ClothResorting.Helpers
 
                     var cartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2.ToString();
                     var style = _ws.Cells[startIndex + 3 + j, 3].Value2.ToString();
-                    var customer = _ws.Cells[startIndex + 3 + j, 4].Value2.ToString();
+                    var customer = _ws.Cells[startIndex + 3 + j, 4].Value2 == null ? "" : _ws.Cells[startIndex + 3 + j, 4].Value2.ToString();
                     var dimension = _ws.Cells[startIndex + 3 + j, 5].Value2.ToString();
                     var color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString();
                     var cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2;
@@ -1400,7 +1400,7 @@ namespace ClothResorting.Helpers
                             diagnosticList.Add(new PullSheetDiagnostic {
                                 Type = "Shortage",
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + originalTargetPcs.ToString() + "</font> units has been collected.",
+                                Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + originalTargetPcs.ToString() + "</font> units have been collected.",
                                 PullSheet = pullSheet
                             });
                         }
@@ -1454,7 +1454,7 @@ namespace ClothResorting.Helpers
                         {
                             Type = "Missing",
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                            Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.",
+                            Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.",
                             PullSheet = pullSheet
                         });
 
@@ -1462,11 +1462,12 @@ namespace ClothResorting.Helpers
                         _context.PullSheetDiagnostics.AddRange(diagnosticList);
                         _context.SaveChanges();
 
-                        throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.");
+                        throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.");
                     }
 
                     //计算该SKU的目标箱数， 箱数 = 总件数 / 每箱件数
                     var targetCtns = sizeList.Sum(x => x.Count) / poolLocations.First().PcsPerCaron;
+                    var originalCtns = targetCtns;
 
                     foreach(var pool in poolLocations)
                     {
@@ -1512,7 +1513,7 @@ namespace ClothResorting.Helpers
                         {
                             Type = "Shortage",
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                            Description = "Pull sheet and PSI may be incorrect. Please check SKU detail of Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> In pull sheet.",
+                            Description = "<font color='red'>" + targetCtns.ToString() + "</font> cartons shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size Bundle:<font color='red'>" + poolLocations.First().SizeBundle + "</font>. <font color='red'>" + originalCtns.ToString() + "</font> cartons have been collected.",
                             PullSheet = pullSheet
                         });
                     }
@@ -1526,7 +1527,7 @@ namespace ClothResorting.Helpers
                     {
                         Type = "Missing",
                         DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                        Description = "SKU style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
+                        Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
                         PullSheet = pullSheet
                     });
                 }

@@ -213,18 +213,21 @@
                     },
                     success: function () {
                         layer.alert("Upload successed!", function () {
-                            location.reload();
+                            window.location.reload();
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            location.reload();
+                        });
                     }
                 });
                 $(".iframe").hide();
             });
 
             $(".btn-back").on("click", function () {
-                window.history.back(-1);
+                //window.history.back(-1);
+                window.location.replace("/ThirdPartyLogistics/pullsheet");
             });
         });
     </script>
