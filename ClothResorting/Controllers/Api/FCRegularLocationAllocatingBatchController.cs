@@ -141,6 +141,7 @@ namespace ClothResorting.Controllers.Api
             }
             catch(Exception e)
             {
+                //return Ok();
                 throw new Exception("All cartons have been allocated.");
             }
         }

@@ -52,10 +52,21 @@
 <script>
     $(document).ready(function () {
 
-        var totalFcsPcs = 0;
-        var totalActualPcs = 0;
-        var totalFcsCtns = 0;
-        var totalActualCtns = 0;
+        var table;
+
+        //为DataTable插件服务的函数，用于计算某指定列的和
+        jQuery.fn.dataTable.Api.register('sum()', function () {
+            return this.flatten().reduce(function (a, b) {
+                if (typeof a === 'string') {
+                    a = a.replace(/[^\d.-]/g, '') * 1;
+                }
+                if (typeof b === 'string') {
+                    b = b.replace(/[^\d.-]/g, '') * 1;
+                }
+
+                return a + b;
+            }, 0);
+        });
 
         //解析url中的参数函数
         function getUrlParameter(sParam) {
@@ -86,9 +97,8 @@
             contentType: 'application/json; charset=utf-8',
             dataType: "json",
             success: function (data, status, xhr) {
-                $("#table").DataTable({
+                table = $("#table").DataTable({
                     data: data,
-                    bInfo: true,
                     columns: [
                         {
                             data: "index",
@@ -135,28 +145,24 @@
                         {
                             data: "receivableQty",
                             render: function (data) {
-                                totalFcsPcs += data;
                                 return "<font color='green'>" + data + "</font>";
                             }
                         },
                         {
                             data: "receivedQty",
                             render: function (data) {
-                                totalActualPcs += data;
                                 return "<font color='red'>" + data + "</font>";
                             }
                         },
                         {
                             data: "receivableCtns",
                             render: function (data) {
-                                totalFcsCtns += data;
                                 return "<font color='green'>" + data + "</font>";
                             }
                         },
                         {
                             data: "receivedCtns",
                             render: function (data) {
-                                totalActualCtns += data;
                                 return "<font color='red'>" + data + "</font>";
                             }
                         },
@@ -175,10 +181,10 @@
                     ]
                 });
 
-                $("#totalFcsPcs").html("Total Receivable Units: " + totalFcsPcs + " ");
-                $("#totalActualPcs").html("Actual Units Received: " + totalActualPcs + " ");
-                $("#totalFcsCtns").html("Total Receivable Cartons: " + totalFcsCtns + " ");
-                $("#totalActualCtns").html("Actual Cartons Received: " + totalActualCtns + " ");
+                $("#totalFcsPcs").html("Total Receivable Units: " + table.column(7).data().sum());
+                $("#totalActualPcs").html("Actual Units Received: " + table.column(8).data().sum());
+                $("#totalFcsCtns").html("Total Receivable Cartons: " + table.column(9).data().sum());
+                $("#totalActualCtns").html("Actual Cartons Received: " + table.column(10).data().sum());
 
             }
         });

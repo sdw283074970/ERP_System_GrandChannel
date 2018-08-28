@@ -52,7 +52,7 @@ namespace ClothResorting.Controllers.Api
                 Color = obj.Color,
                 Customer = poSummaryInDb.Customer,
                 Container = poSummaryInDb.Container,
-                CartonRange = "0-0",
+                CartonRange = obj.CartonRange,
                 SizeBundle = obj.Size,
                 PcsBundle = obj.Pcs,
                 PcsPerCarton = obj.Pack,
@@ -66,6 +66,15 @@ namespace ClothResorting.Controllers.Api
                 Comment = "This is a bulk sku",
                 POSummary = poSummaryInDb
             };
+
+            if (newCartonDetail.SizeBundle.Split(' ').Count() > 1)
+            {
+                newCartonDetail.OrderType = "In&Out";
+            }
+            else
+            {
+                newCartonDetail.OrderType = "Solid";
+            }
 
             _context.RegularCartonDetails.Add(newCartonDetail);
             _context.SaveChanges();

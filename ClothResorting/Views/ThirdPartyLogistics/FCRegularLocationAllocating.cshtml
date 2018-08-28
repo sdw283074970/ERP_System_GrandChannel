@@ -444,9 +444,11 @@
                             table.search(lastSearchBar).draw();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            alert("All cartons have been allocated.", function () {
-                                window.location.reload();
-                            });
+                            //alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            //    window.location.reload();
+                            //});
+                            alert("Success!" + XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
                         }
                     });
                 }
@@ -658,9 +660,11 @@
                             table.search(lastSearchBar).draw();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
-                            });
+                            //alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            //    window.location.reload();
+                            //});
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
                         }
                     });
                 }

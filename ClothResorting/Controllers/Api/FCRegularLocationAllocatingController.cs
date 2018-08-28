@@ -143,13 +143,22 @@ namespace ClothResorting.Controllers.Api
 
             var latestRecordDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(latestRecord);
 
+            //返回剩下仍然未分配的结果
             var resultDto = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.POSummary.PreReceiveOrder.Id == obj.PreId
-                    && c.ToBeAllocatedCtns != 0)
+                    && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0))
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
 
-            return Created(Request.RequestUri + "/" + latestRecordDto.Id, resultDto);
+            try
+            {
+                return Created(Request.RequestUri + "/" + latestRecordDto.Id, resultDto);
+            }
+            catch (Exception e)
+            {
+                return Ok();
+                throw new Exception("All cartons have been allocated.");
+            }
         }
     }
 }

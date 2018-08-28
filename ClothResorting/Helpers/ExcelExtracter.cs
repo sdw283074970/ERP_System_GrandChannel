@@ -799,7 +799,7 @@ namespace ClothResorting.Helpers
                     CBM = 0,
                     ActualCtns = 0,
                     ActualPcs = 0,
-                    Container = "Unkown",
+                    Container = "Unknown",
                     PreReceiveOrder = preReceiveOrderInDb
                 });
 
@@ -886,7 +886,8 @@ namespace ClothResorting.Helpers
                     .Include(c => c.RegularCartonDetails)
                     .Where(c => c.PurchaseOrder == purchaseOrder
                         && c.PreReceiveOrder.Id == id
-                        && c.PoLine == poLine);
+                        && c.PoLine == poLine
+                        && c.Container == "Unknown");
 
                     var poSummaryList = poSummaryInDbs.ToList();
 
@@ -935,7 +936,8 @@ namespace ClothResorting.Helpers
                                     ToBeAllocatedCtns = 0,
                                     ToBeAllocatedPcs = 0,
                                     POSummary = poSummaryInDb,
-                                    Comment = ""
+                                    Comment = "",
+                                    OrderType = "Solid"
                                 };
 
                                 regularCartonDetailList.Add(regularCartonDetail);
@@ -963,7 +965,8 @@ namespace ClothResorting.Helpers
                                     Status = "New Created",
                                     ToBeAllocatedCtns = 0,
                                     ToBeAllocatedPcs = 0,
-                                    Comment = ""
+                                    Comment = "",
+                                    OrderType = "Solid"
                                 };
 
                                 foreach (var poSummaryIndb in poSummaryInDbs)
@@ -1014,7 +1017,8 @@ namespace ClothResorting.Helpers
                                 ToBeAllocatedCtns = 0,
                                 ToBeAllocatedPcs = 0,
                                 POSummary = poSummaryInDb,
-                                Comment = ""
+                                Comment = "",
+                                OrderType = "In&Out"
                             };
 
                             regularCartonDetailList.Add(regularCartonDetail);
@@ -1042,7 +1046,8 @@ namespace ClothResorting.Helpers
                                 Status = "New Created",
                                 ToBeAllocatedCtns = 0,
                                 ToBeAllocatedPcs = 0,
-                                Comment = ""
+                                Comment = "",
+                                OrderType = "In&Out"
                             };
 
                             foreach (var poSummaryIndb in poSummaryInDbs)

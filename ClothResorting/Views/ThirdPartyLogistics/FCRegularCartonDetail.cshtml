@@ -72,7 +72,10 @@
             //var data = { "preid": preid, "po": po };
             var id = window.location.search.substr(1);
             var cartons;
+            var quantity;
             var cartonRange;
+            var lastCartonRange;
+            var currentCartonRange;
 
             $.ajax({
                 type: "GET",
@@ -92,7 +95,7 @@
                             {
                                 data: "cartonRange",
                                 render: function (data) {
-                                    cartonRange = data;
+                                    currentCartonRange = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -141,6 +144,7 @@
                             {
                                 data: "quantity",
                                 render: function (data) {
+                                    quantity = data;
                                     return "<font color='blue'>" + data + "</font>";
                                 }
                             },
@@ -154,10 +158,11 @@
                                 data: "cartons",
                                 render: function (data) {
                                     cartons = data;
-                                    if (cartons != 0 || cartonRange == "0-0") {
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange)) {
                                         return "<font color='red'>" + data + "</font>";
                                     }
-                                    else {
+                                    else
+                                    {
                                         return "";
                                     }
                                 }
@@ -165,7 +170,7 @@
                             {
                                 data: "actualCtns",
                                 render: function (data) {
-                                    if (cartons != 0 || cartonRange == "0-0")
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
                                     {
                                         return "<font color='red'>" + data + "</font>";
                                     }
@@ -178,7 +183,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (cartons != 0 || cartonRange == "0-0")
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
                                     {
                                         return "<input name='selected' type='checkbox' class='cb-selected' value='"
                                             + data + "' /> No problem";
@@ -192,12 +197,14 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (cartons != 0 || cartonRange == "0-0")
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
                                     {
+                                        lastCartonRange = currentCartonRange;
                                         return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><button style='width:50px' class='btn btn-link btn-manual' value='" + data + "'>OK</button>";
                                     }
                                     else
                                     {
+                                        lastCartonRange = currentCartonRange;
                                         return "";
                                     }
                                 }
@@ -277,7 +284,7 @@
             $("#div-bulk").on("click", ".btn-bulk", function () {
                 var button = $(this);
                 button.next().remove();
-                button.replaceWith("<div><input id='input-color' style='width:170px' class='input-sm' placeholder='Color' /><input id='input-size' style='width:170px' class='input-sm' placeholder='Size combination in carton' /><input id='input-units' style='width:170px' class='input-sm' placeholder='Units combination in carton' /><input id='input-pack' style='width:170px' class='input-sm' placeholder='Units per Carton' /><button class='btn btn-primary btn-update'>Add</button><div>");
+                button.replaceWith("<div><input id='input-range' style='width:170px' class='input-sm' placeholder='Carton range' /><input id='input-color' style='width:170px' class='input-sm' placeholder='Color code' /><input id='input-size' style='width:170px' class='input-sm' placeholder='Size or size combination' /><input id='input-units' style='width:170px' class='input-sm' placeholder='Units or units combination' /><input id='input-pack' style='width:170px' class='input-sm' placeholder='Units per Carton' /><button class='btn btn-primary btn-update'>Add</button><div>");
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
@@ -286,6 +293,7 @@
                 var size = $("#input-size").val();
                 var units = $("#input-units").val();
                 var pcsPerCarton = $("#input-pack").val();
+                var cartonRange = $("#input-range").val();
 
                 if (color == "" || size == "" || units == "" || pcsPerCarton == "")
                 {
@@ -295,6 +303,7 @@
                 {
                     var obj = {
                         "id": id,
+                        "cartonRange": cartonRange.toString(),
                         "color": color.toString(),
                         "size": size.toString(),
                         "pcs": units.toString(),

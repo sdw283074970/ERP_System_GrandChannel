@@ -65,14 +65,19 @@
             var pickingCtns;
             var availableCtns;
 
-            var orgCartons = 0;
-            var orgPieces = 0;
-            var availableCartons = 0;
-            var availablePieces = 0;
-            var pickingCartons = 0;
-            var pickingPieces = 0;
-            var shippedCartons = 0;
-            var shippedPieces = 0;
+            //为DataTable插件服务的函数，用于计算某指定列的和
+            jQuery.fn.dataTable.Api.register('sum()', function () {
+                return this.flatten().reduce(function (a, b) {
+                    if (typeof a === 'string') {
+                        a = a.replace(/[^\d.-]/g, '') * 1;
+                    }
+                    if (typeof b === 'string') {
+                        b = b.replace(/[^\d.-]/g, '') * 1;
+                    }
+
+                    return a + b;
+                }, 0);
+            });
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -173,14 +178,12 @@
                             {
                                 data: "cartons",
                                 render: function (data) {
-                                    orgCartons += data;
                                     return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "quantity",
                                 render: function (data) {
-                                    orgPieces += data;
                                     return "<font color='orange'>" + data + "</font>";
                                 }
                             },
@@ -188,7 +191,6 @@
                                 data: "availableCtns",
                                 render: function (data) {
                                     availableCtns = data;
-                                    availableCartons += data;
                                     if (data == 0)
                                         return "<font>" + data + "</font>";
                                     else
@@ -199,7 +201,6 @@
                                 data: "pickingCtns",
                                 render: function (data) {
                                     pickingCtns = data;
-                                    pickingCartons += data;
                                     if (data == 0)
                                         return "<font>" + data + "</font>";
                                     else
@@ -209,7 +210,6 @@
                             {
                                 data: "shippedCtns",
                                 render: function (data) {
-                                    shippedCartons += data;
                                     if (data == 0)
                                         return "<font>" + data + "</font>";
                                     else
@@ -219,7 +219,6 @@
                             {
                                 data: "availablePcs",
                                 render: function (data) {
-                                    availablePieces += data;
                                     if (data == 0)
                                         return "<font>" + data + "</font>";
                                     else
@@ -229,7 +228,6 @@
                             {
                                 data: "pickingPcs",
                                 render: function (data) {
-                                    pickingPieces += data;
                                     if (data == 0)
                                         return "<font>" + data + "</font>";
                                     else
@@ -239,7 +237,6 @@
                             {
                                 data: "shippedPcs",
                                 render: function (data) {
-                                    shippedPieces += data;
                                     if (data == 0)
                                         return "<font>" + data + "</font>";
                                     else
@@ -271,14 +268,14 @@
                         ]
                     });
 
-                    $("#orgCtns").html("Inbound Cartons: " + orgCartons + "    ");
-                    $("#orgPcs").html("Inbound Units: " + orgPieces + "    ");
-                    $("#availableCtns").html("Available Cartons: " + availableCartons + "    ");
-                    $("#availablePcs").html("Available Units: " + availablePieces + "    ");
-                    $("#pickingCtns").html("Picking Cartons: " + pickingCartons + "    ");
-                    $("#pickingPcs").html("Picking Units: " + pickingPieces + "    ");
-                    $("#shippedCtns").html("Shipped Cartons:" + shippedCartons + "    ");
-                    $("#shippedPcs").html("Shipped Units:" + shippedPieces + "    ");
+                    $("#orgCtns").html("Inbound Cartons: " + table.column(9).data().sum());
+                    $("#orgPcs").html("Inbound Units: " + table.column(10).data().sum());
+                    $("#availableCtns").html("Available Cartons: " + table.column(11).data().sum());
+                    $("#availablePcs").html("Available Units: " + table.column(14).data().sum());
+                    $("#pickingCtns").html("Picking Cartons: " + table.column(12).data().sum());
+                    $("#pickingPcs").html("Picking Units: " + table.column(15).data().sum());
+                    $("#shippedCtns").html("Shipped Cartons:" + table.column(13).data().sum());
+                    $("#shippedPcs").html("Shipped Units:" + table.column(16).data().sum());
 
                 },
                 error: function () {
@@ -386,14 +383,12 @@
                                 {
                                     data: "cartons",
                                     render: function (data) {
-                                        orgCartons += data;
                                         return "<font color='orange'>" + data + "</font>";
                                     }
                                 },
                                 {
                                     data: "quantity",
                                     render: function (data) {
-                                        orgPieces += data;
                                         return "<font color='orange'>" + data + "</font>";
                                     }
                                 },
@@ -401,7 +396,6 @@
                                     data: "availableCtns",
                                     render: function (data) {
                                         availableCtns = data;
-                                        availableCartons += data;
                                         if (data == 0)
                                             return "<font>" + data + "</font>";
                                         else
@@ -412,7 +406,6 @@
                                     data: "pickingCtns",
                                     render: function (data) {
                                         pickingCtns = data;
-                                        pickingCartons += data;
                                         if (data == 0)
                                             return "<font>" + data + "</font>";
                                         else
@@ -422,7 +415,6 @@
                                 {
                                     data: "shippedCtns",
                                     render: function (data) {
-                                        shippedCartons += data;
                                         if (data == 0)
                                             return "<font>" + data + "</font>";
                                         else
@@ -432,7 +424,6 @@
                                 {
                                     data: "availablePcs",
                                     render: function (data) {
-                                        availablePieces += data;
                                         if (data == 0)
                                             return "<font>" + data + "</font>";
                                         else
@@ -442,7 +433,6 @@
                                 {
                                     data: "pickingPcs",
                                     render: function (data) {
-                                        pickingPieces += data;
                                         if (data == 0)
                                             return "<font>" + data + "</font>";
                                         else
@@ -452,7 +442,6 @@
                                 {
                                     data: "shippedPcs",
                                     render: function (data) {
-                                        shippedPieces += data;
                                         if (data == 0)
                                             return "<font>" + data + "</font>";
                                         else
