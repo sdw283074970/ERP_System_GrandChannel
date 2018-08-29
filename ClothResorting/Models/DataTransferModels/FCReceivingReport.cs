@@ -15,6 +15,8 @@ namespace ClothResorting.Models.DataTransferModels
 
         public int Line { get; set; }
 
+        public string Color { get; set; }
+
         public string Customer { get; set; }
 
         public string CartonRange { get; set; }

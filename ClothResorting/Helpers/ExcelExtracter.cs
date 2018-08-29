@@ -910,6 +910,7 @@ namespace ClothResorting.Helpers
                             var pcs = pcsArr[s];
 
                             var poSummaryInDb = poSummaryInDbs.First();
+                            poSummaryInDb.OrderType = "Solid";
 
                             //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
                             if (poSummaryList.Count() == 1)
@@ -994,6 +995,7 @@ namespace ClothResorting.Helpers
                         if (poSummaryList.Count() == 1)
                         {
                             var poSummaryInDb = poSummaryInDbs.First();
+                            poSummaryInDb.OrderType = "In&Out";
 
                             var regularCartonDetail = new RegularCartonDetail
                             {
@@ -1337,11 +1339,13 @@ namespace ClothResorting.Helpers
                                 PullSheet = pullSheet
                             });
 
-                            _context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
-                            _context.PullSheetDiagnostics.AddRange(diagnosticList);
-                            _context.SaveChanges();
+                            //_context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
+                            //_context.PullSheetDiagnostics.AddRange(diagnosticList);
+                            //_context.SaveChanges();
 
-                            throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.");
+                            //throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.");
+
+                            continue;
                         }
 
                         var targetPcs = size.Count;
@@ -1405,7 +1409,7 @@ namespace ClothResorting.Helpers
                             diagnosticList.Add(new PullSheetDiagnostic {
                                 Type = "Shortage",
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + originalTargetPcs.ToString() + "</font> units have been collected.",
+                                Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + (originalTargetPcs - targetPcs).ToString() + "</font> units have been collected.",
                                 PullSheet = pullSheet
                             });
                         }
@@ -1463,11 +1467,13 @@ namespace ClothResorting.Helpers
                             PullSheet = pullSheet
                         });
 
-                        _context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
-                        _context.PullSheetDiagnostics.AddRange(diagnosticList);
-                        _context.SaveChanges();
+                        //_context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
+                        //_context.PullSheetDiagnostics.AddRange(diagnosticList);
+                        //_context.SaveChanges();
 
-                        throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.");
+                        //throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.");
+
+                        continue;
                     }
 
                     //计算该SKU的目标箱数， 箱数 = 总件数 / 每箱件数
@@ -1518,7 +1524,7 @@ namespace ClothResorting.Helpers
                         {
                             Type = "Shortage",
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                            Description = "<font color='red'>" + targetCtns.ToString() + "</font> cartons shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size Bundle:<font color='red'>" + poolLocations.First().SizeBundle + "</font>. <font color='red'>" + originalCtns.ToString() + "</font> cartons have been collected.",
+                            Description = "<font color='red'>" + targetCtns.ToString() + "</font> cartons shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size Bundle:<font color='red'>" + poolLocations.First().SizeBundle + "</font>. <font color='red'>" + (originalCtns - targetCtns).ToString() + "</font> cartons have been collected.",
                             PullSheet = pullSheet
                         });
                     }

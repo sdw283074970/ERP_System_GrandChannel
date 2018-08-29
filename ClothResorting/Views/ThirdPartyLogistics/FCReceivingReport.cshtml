@@ -30,6 +30,7 @@
                         <th style="width:100px">PO</th>
                         <th style="width:120px">Style</th>
                         <th style="width:50px">Customer</th>
+                        <th style="width:50px">Color</th>
                         <th style="width:100px">Size</th>
                         <th style="width:80px">Pcs</th>
                         <th style="width:80px">Fcs Qty</th>
@@ -126,6 +127,12 @@
                         },
                         {
                             data: "customer",
+                            render: function (data) {
+                                return "<font'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "color",
                             render: function (data) {
                                 return "<font'>" + data + "</font>";
                             }
