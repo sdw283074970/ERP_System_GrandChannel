@@ -11,19 +11,25 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
-        <input id="input-range" type="text" class="input-lg" placeholder="Pick tikets range" />
-        <input id="btn-create" type="button" class="btn btn-lg" value="Create pull sheet" />
+    <div id="div-create">
+        <button class="btn btn-primary btn-create">Created a new ship order</button>
     </div>
+    @*<div>
+        <input id="input-range" type="text" class="input-sm" placeholder="Pick tikets range" />
+        <input id="btn-create" type="button" class="btn btn-primary" value="Create pull sheet" />
+    </div>*@
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Pick tickets range</th>
-                    <th>Create date</th>
-                    <th>Status</th>
-                    <th>Operation</th>
+                    <th style="width:23px">Id</th>
+                    <th style="width:49px">PO</th>
+                    <th style="width:79px">Customer</th>
+                    <th style="width:254px">Address</th>
+                    <th style="width:141px">Pick tickets range</th>
+                    <th style="width:92px">Create date</th>
+                    <th style="width:73px">Status</th>
+                    <th style="width:234px">Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -45,10 +51,29 @@
                 success: function (data) {
                     $("#table").DataTable({
                         data: data,
+                        order: [[0, "desc"]],
                         destroy: true,
                         columns: [
                             {
                                 data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orderPurchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "customer",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "address",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -93,7 +118,7 @@
                                     }
                                     else if (status == "Picking")
                                     {
-                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-download' value='"  + data + "' >Download</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
+                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
                                     }
                                     else
                                     {
@@ -109,16 +134,24 @@
                 }
             });
 
-            $("#btn-create").on("click", function () {
-                var range = $("#input-range").val().toString();
+            $("#div-create").on("click", ".btn-add",function () {
+                var range = $("#input-range").val();
+                var po = $("#input-po").val();
+                var customer = $("#input-customer").val();
+                var address = $("#input-address").val();
 
-                if (range == "")
+                if (range == "" || po == "" || customer == "" || address == "")
                 {
-                    alert("The fields are required.");
+                    alert("All fields are required.");
                 }
                 else
                 {
-                    var obj = {"range": range}
+                    var obj = {
+                        "orderPurchaseOrder": po.toString(),
+                        "customer": customer.toString(),
+                        "address": address.toString(),
+                        "pickTicketsRange": range.toString()
+                    }
                     $.ajax({
                         type: "POST",
                         url: "/api/pullsheet/",
@@ -196,8 +229,16 @@
                 $(window.location).attr('href', '/api/pullsheetpdf/' + id);
             });
 
+            //点击新建发货单按钮，出现一系列表单
+            $("#div-create").on("click", ".btn-create", function () {
+                var button = $(this);
+                button.next().remove();
+                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
+            });
+
             $(".btn-back").on("click", function () {
-                window.history.back(-1);
+                //window.history.back(-1);
+                window.location.replace("/ThirdPartyLogistics/index");
             });
         });
     </script>

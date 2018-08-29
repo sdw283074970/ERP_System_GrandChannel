@@ -21,7 +21,7 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/pullsheet/
+        // GET /api/pullsheet/ 查询
         public IHttpActionResult GetAllPullSheet()
         {
             var resultDto = _context.PullSheets.OrderByDescending(x => x.Id)
@@ -30,12 +30,15 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // POST /api/pullsheet/
+        // POST /api/pullsheet/ 新建
         [HttpPost]
         public IHttpActionResult CreateNewPullSheet([FromBody]PickTiketsRangeJsonObj obj)
         {
             _context.PullSheets.Add(new PullSheet {
-                PickTicketsRange = obj.Range,
+                OrderPurchaseOrder = obj.OrderPurchaseOrder,
+                Customer = obj.Customer,
+                Address = obj.Address,
+                PickTicketsRange = obj.PickTicketsRange,
                 CreateDate = DateTime.Now.ToString("MM/dd/yyyy"),
                 Status = "New Create"
             });
@@ -48,7 +51,7 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + result.Id, resultDto);
         }
 
-        // PUT /api/pullsheet/{id}(pullSheetId)
+        // PUT /api/pullsheet/{id}(pullSheetId) 发货
         [HttpPut]
         public void ShipPullSheet([FromUri]int id)
         {
@@ -87,7 +90,7 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
-        // DELETE /api/pullsheet/{id}(pullSheetId)
+        // DELETE /api/pullsheet/{id}(pullSheetId) 移除
         [HttpDelete]
         public void CancelPullSheet([FromUri]int id)
         {

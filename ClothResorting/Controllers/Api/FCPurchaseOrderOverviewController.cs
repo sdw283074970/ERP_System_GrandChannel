@@ -73,7 +73,7 @@ namespace ClothResorting.Controllers.Api
 
             var poSummariesInDb = _context.POSummaries
                 .Include(c => c.PreReceiveOrder)
-                .Include(c => c.RegularCartonDetails)
+                .Include(c => c.RegularCartonDetails.Select(x => x.FCRegularLocationDetail))
                 .Where(c => c.PreReceiveOrder.Id == preId);
 
             foreach(var id in arr)
@@ -83,6 +83,11 @@ namespace ClothResorting.Controllers.Api
                 foreach(var carton in poSummariesInDb.SingleOrDefault(c => c.Id == id).RegularCartonDetails)
                 {
                     carton.Container = container;
+
+                    foreach(var location in carton.FCRegularLocationDetail)
+                    {
+                        location.Container = container;
+                    }
                 }
             }
             _context.SaveChanges();
