@@ -16,8 +16,8 @@
     <h2>Container: <text id="container">SU85P0035FT</text></h2>
     <div class="maincontainer">
         <div>
-            <font id="totalFcsPcs" color="green">Total Receivable Units:</font><br />
-            <font id="totalFcsCtns" color="green">Total Receivable Cartons:</font><br />
+            @*<font id="totalFcsPcs" color="green">Total Receivable Units:</font><br />
+            <font id="totalFcsCtns" color="green">Total Receivable Cartons:</font><br />*@
             <font id="totalActualPcs" color="red">Actual Quantity Received:</font><br />
             <font id="totalActualCtns" color="red">Actual Cartons Received:</font>
         </div>
@@ -42,6 +42,17 @@
                     </tr>
                 </thead>
                 <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="8" style="text-align:right">Total:</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -158,6 +169,7 @@
                         {
                             data: "receivedQty",
                             render: function (data) {
+                                //receivedPcs += data;
                                 return "<font color='red'>" + data + "</font>";
                             }
                         },
@@ -170,6 +182,7 @@
                         {
                             data: "receivedCtns",
                             render: function (data) {
+                                //receivedCtns += data;
                                 return "<font color='red'>" + data + "</font>";
                             }
                         },
@@ -185,13 +198,57 @@
                                 return "<font color='red'>" + data + "</font>";
                             }
                         }
-                    ]
+                    ],
+                    footerCallback: function (row, data, start, end, display) {
+
+                        var api = this.api(), data;
+
+                        var intVal = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '') * 1 :
+                                typeof i === 'number' ?
+                                i : 0;
+                        };
+
+                        var totalFcsQty = api
+                            .column(8)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                        var totalActualQty = api
+                            .column(9)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                        var totalFcsCtns = api
+                            .column(10)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                        var totalAcutalCtns = api
+                            .column(11)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                        $(api.column(8).footer()).html("<font color='green'>" + totalFcsQty + "</font>");
+                        $(api.column(9).footer()).html("<font color='red'>" + totalActualQty+ "</font>");
+                        $(api.column(10).footer()).html("<font color='green'>" + totalFcsCtns + "</font>");
+                        $(api.column(11).footer()).html("<font color='red'>" + totalAcutalCtns + "</font>");
+                        $("#totalActualPcs").html("<font color='red'>Actual Quantity Received:" + totalActualQty + "</font>");
+                        $("#totalActualCtns").html("<font color='red'>Actual Cartons Received:" + totalAcutalCtns + "</font>");
+                    }
                 });
 
-                $("#totalFcsPcs").html("Total Receivable Units: " + table.column(7).data().sum());
-                $("#totalActualPcs").html("Actual Units Received: " + table.column(8).data().sum());
-                $("#totalFcsCtns").html("Total Receivable Cartons: " + table.column(9).data().sum());
-                $("#totalActualCtns").html("Actual Cartons Received: " + table.column(10).data().sum());
+                //$("#totalFcsPcs").html("Total Receivable Units: " + table.column(7).data().sum());
+                //$("#totalFcsCtns").html("Total Receivable Cartons: " + receivedCtns);
 
             }
         });

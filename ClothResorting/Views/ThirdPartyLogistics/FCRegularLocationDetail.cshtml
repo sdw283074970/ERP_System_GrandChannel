@@ -53,6 +53,22 @@
                 </tr>
             </thead>
             <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="9" style="text-align:right">Total:</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
         </table>
     </div>
 </div>
@@ -265,18 +281,93 @@
                                         return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
                                 }
                             }
-                        ]
+                        ],
+                        footerCallback: function (row, data, start, end, display) {
+
+                            var api = this.api(), data;
+
+                            var intVal = function (i) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '') * 1 :
+                                    typeof i === 'number' ?
+                                    i : 0;
+                            };
+
+                            var totalOrgCtns = api
+                                .column(9)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalOrgPcs = api
+                                .column(10)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalAvaCtns = api
+                                .column(11)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalPickingCtns = api
+                                .column(12)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalShippedCtns = api
+                                .column(13)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+                            var totalAvaPcs = api
+                                .column(14)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalPickingPcs = api
+                                .column(15)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalShippedPcs = api
+                                .column(16)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            $(api.column(9).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
+                            $(api.column(10).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
+                            $(api.column(11).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
+                            $(api.column(12).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
+                            $(api.column(13).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
+                            $(api.column(14).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
+                            $(api.column(15).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
+                            $(api.column(16).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
+
+                            $("#orgCtns").html("Inbound Cartons: " + totalOrgCtns);
+                            $("#orgPcs").html("Inbound Units: " + totalOrgPcs);
+                            $("#availableCtns").html("Available Cartons: " + totalAvaCtns);
+                            $("#availablePcs").html("Available Units: " + totalAvaPcs);
+                            $("#pickingCtns").html("Picking Cartons: " + totalPickingCtns);
+                            $("#pickingPcs").html("Picking Units: " + totalPickingPcs);
+                            $("#shippedCtns").html("Shipped Cartons:" + totalShippedCtns);
+                            $("#shippedPcs").html("Shipped Units:" + totalShippedPcs);
+
+                        }
                     });
-
-                    $("#orgCtns").html("Inbound Cartons: " + table.column(9).data().sum());
-                    $("#orgPcs").html("Inbound Units: " + table.column(10).data().sum());
-                    $("#availableCtns").html("Available Cartons: " + table.column(11).data().sum());
-                    $("#availablePcs").html("Available Units: " + table.column(14).data().sum());
-                    $("#pickingCtns").html("Picking Cartons: " + table.column(12).data().sum());
-                    $("#pickingPcs").html("Picking Units: " + table.column(15).data().sum());
-                    $("#shippedCtns").html("Shipped Cartons:" + table.column(13).data().sum());
-                    $("#shippedPcs").html("Shipped Units:" + table.column(16).data().sum());
-
                 },
                 error: function () {
                     alert("error!");
