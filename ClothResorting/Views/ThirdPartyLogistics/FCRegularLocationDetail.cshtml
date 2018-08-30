@@ -126,6 +126,9 @@
                     }
 
                     table = $("#table").DataTable({
+                        scrollY: "350px",
+                        scrollX: true,
+                        scrollCollapse: true,
                         data: data,
                         destroy: true,
                         columns: [

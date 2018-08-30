@@ -32,7 +32,7 @@
                     <th>Id</th>
                     <th>Customer Name</th>
                     <th>Created Date</th>
-                    <th>Container#</th>
+                    <th style="width:95px">Container#</th>
                     <th>Fcs Ctns</th>
                     <th>Rcp Ctns</th>
                     <th>Fcs Pcs</th>
@@ -72,6 +72,9 @@
                     url: "/api/Inventory",
                     dataSrc: ""
                 },
+                scrollY: "400px",
+                scrollX: true,
+                scrollCollapse: true,
                 columns: [
                     {
                         data: "id",
