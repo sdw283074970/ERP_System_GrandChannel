@@ -14,7 +14,7 @@
     <div>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
         <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
-        <input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Pick & Ship" />
+        @*<input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Pick & Ship" />*@
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
     </div>
     <div>
@@ -91,9 +91,8 @@
                     url: urlstring,
                     dataSrc: ""
                 },
-                scrollY: "350px",
-                scrollX: true,
-                scrollCollapse: true,
+                scrollY: "600px",
+                iDisplayLength: 100,
                 columns: [
                     {
                         data: "id",

@@ -111,6 +111,8 @@
             success: function (data, status, xhr) {
                 table = $("#table").DataTable({
                     data: data,
+                    scrollY: "600px",
+                    iDisplayLength: 100,
                     columns: [
                         {
                             data: "index",
@@ -245,6 +247,8 @@
                         $("#totalActualPcs").html("<font color='red'>Actual Quantity Received:" + totalActualQty + "</font>");
                         $("#totalActualCtns").html("<font color='red'>Actual Cartons Received:" + totalAcutalCtns + "</font>");
                     }
+                    //scrollX: true
+                    //scrollCollapse: true
                 });
 
                 //$("#totalFcsPcs").html("Total Receivable Units: " + table.column(7).data().sum());

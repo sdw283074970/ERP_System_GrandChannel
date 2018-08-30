@@ -59,6 +59,10 @@
                     $("#table").DataTable({
                         data: data,
                         destroy: true,
+                        //scrollX: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "type",

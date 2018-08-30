@@ -126,9 +126,10 @@
                     }
 
                     table = $("#table").DataTable({
-                        scrollY: "350px",
                         scrollX: true,
                         scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
                         data: data,
                         destroy: true,
                         columns: [
@@ -411,6 +412,10 @@
                         table = $("#table").DataTable({
                             data: data,
                             destroy: true,
+                            scrollX: true,
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
                             columns: [
                                 {
                                     data: "container",

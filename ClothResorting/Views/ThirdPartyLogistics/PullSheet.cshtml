@@ -29,7 +29,7 @@
                     <th style="width:141px">Pick tickets range</th>
                     <th style="width:92px">Create date</th>
                     <th style="width:73px">Status</th>
-                    <th style="width:234px">Operation</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -53,9 +53,10 @@
                         data: data,
                         order: [[0, "desc"]],
                         destroy: true,
-                        scrollY: "350px",
                         scrollX: true,
                         scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "id",

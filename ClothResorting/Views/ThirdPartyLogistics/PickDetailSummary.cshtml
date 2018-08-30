@@ -83,6 +83,10 @@
                     table = $("table").DataTable({
                         destroy: true,
                         data: data,
+                        //scrollX: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "purchaseOrder",

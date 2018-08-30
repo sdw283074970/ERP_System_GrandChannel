@@ -71,6 +71,8 @@
                 success: function (data, status, xhr) {
                     $("#table").DataTable({
                         data: data,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "purchaseOrder",
