@@ -903,11 +903,18 @@ namespace ClothResorting.Helpers
                     {
                         var sizeArr = sizeBD.Split(' ');
                         var pcsArr = pcsBD.Split(' ');
+                        var firstValidIndex = FindFirstUnZeroIndex(pcsArr);        //找到第一个pcs数量不为0的size
 
                         for (int s = 0; s < sizeArr.Length; s++)
                         {
                             var size = sizeArr[s];
                             var pcs = pcsArr[s];
+
+                            //如4 0 0 0 12的pcs bundle，中间的三个0情况不做记录，跳过
+                            if(int.Parse(pcs) == 0)
+                            {
+                                continue;
+                            }
 
                             var poSummaryInDb = poSummaryInDbs.First();
                             poSummaryInDb.OrderType = "Solid";
@@ -925,7 +932,7 @@ namespace ClothResorting.Helpers
                                     GrossWeight = 0,
                                     NetWeight = 0,
                                     Color = color,
-                                    Cartons = s == 0 ? cartons : 0,
+                                    Cartons = s == firstValidIndex ? cartons : 0,
                                     SizeBundle = size,
                                     PcsBundle = pcs,
                                     PcsPerCarton = int.Parse(pcs),
@@ -955,7 +962,7 @@ namespace ClothResorting.Helpers
                                     GrossWeight = 0,
                                     NetWeight = 0,
                                     Color = color,
-                                    Cartons = s == 0 ? cartons : 0,
+                                    Cartons = s == firstValidIndex ? cartons : 0,
                                     SizeBundle = size,
                                     PcsBundle = pcs,
                                     PcsPerCarton = int.Parse(pcs),
@@ -1079,14 +1086,64 @@ namespace ClothResorting.Helpers
                     rowIndex += 1;
                 }
             }
+
             _context.RegularCartonDetails.AddRange(regularCartonDetailList);
             _context.SaveChanges();
+
+            //最后以cartonDetail的信息为准，重新统计一次各POSummary和PreReceiveOrder的应收件数的箱数
+            SyncFcsQtyAndCtns(id);
         }
         #endregion
 
-        //私有辅助方法，检查一个cartonDetail中装有多少种Size，只有一种Size意味着是Solid pack，否则是Buncle pack。
+        //私有辅助方
         #region
-        //如果箱子中只有一种size，只返回这种size的size名称，否则返回原有名称
+        //以cartonDetail的信息为准，同步一次在一个prereceiveOrder下的各POSummary和PreReceiveOrder的应收件数的箱数
+        public void SyncFcsQtyAndCtns(int id)
+        {
+            var poSummarysInDb = _context.POSummaries
+                .Include(x => x.RegularCartonDetails)
+                .Include(x => x.PreReceiveOrder)
+                .Where(x => x.PreReceiveOrder.Id == id);
+
+            foreach(var poSummaryInDb in poSummarysInDb)
+            {
+                poSummaryInDb.Quantity = poSummaryInDb.RegularCartonDetails.Sum(x => x.Quantity);
+                poSummaryInDb.Cartons = poSummaryInDb.RegularCartonDetails.Sum(s => s.Cartons);
+            }
+
+            var preReceiveOrderInDb = _context.PreReceiveOrders
+                .Include(x => x.POSummaries)
+                .SingleOrDefault(x => x.Id == id);
+
+            preReceiveOrderInDb.TotalPcs = preReceiveOrderInDb.POSummaries.Sum(x => x.Quantity);
+            preReceiveOrderInDb.TotalCartons = preReceiveOrderInDb.POSummaries.Sum(x => x.Cartons);
+
+            _context.SaveChanges();
+        }
+
+        //找到第一个pcs数量不为0的size，如输入"{'0', '0', '2', '2'}"，返回2
+        private int FindFirstUnZeroIndex(string[] pcsArr)
+        {
+            var index = 0;
+
+            for (int i = 0; i < pcsArr.Count(); i++)
+            {
+
+                if (int.Parse(pcsArr[i]) == 0)
+                {
+                    index++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return index;
+        }
+
+        //检查一个cartonDetail中装有多少种Size，只有一种Size意味着是Solid pack，否则是Buncle pack。
+        //如果箱子中只有一种size，只返回这种size的size名称，否则返回原有名称。
         private string CheckSizeName(string sizeBundle, string pcsBundle)
         {
             var sizeString = sizeBundle.Split(' ');
@@ -1413,41 +1470,6 @@ namespace ClothResorting.Helpers
                                 PullSheet = pullSheet
                             });
                         }
-
-                        //检查待选池中的对象，是否有多种SKU在同一箱(寄生SKU)但只拿出部分件数的情况，生成"隐藏多货"Concealed Overage诊断记录，并将这些多的货也添加到拣货表里
-                        var partailCartons = cartonLocationPool.Where(x => x.Cartons == 0 && x.Quantity != 0);
-
-                        foreach(var partailCarton in partailCartons)
-                        {
-                            //找到宿主SKU
-                            var baseCarton = cartonLocationPool.SingleOrDefault(x => x.CartonRange == partailCarton.CartonRange && x.Cartons != 0);
-
-                            if (baseCarton != null)    //如果没有找到，则说明本身就是宿主，直接跳过检验
-                            {
-                                //寄生SKU的剩余件数除以单位件与宿主SKU的剩余箱数的差，再乘以该SKU的单位件数，即是隐藏多货的件数
-                                var partailCartonDiff = partailCarton.AvailablePcs / partailCarton.PcsPerCaron - baseCarton.AvailableCtns;
-
-                                if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
-                                {
-                                    //一起添加到拣货单，并注明这是Concealed Overage
-                                    var concealedOverate = ConvertToSolidPickDetail(pullSheet, partailCarton, partailCartonDiff * partailCarton.PcsPerCaron);
-                                    concealedOverate.Memo = "Overage";
-                                    concealedOverate.PickCtns = 0;
-                                    pickDetailList.Add(concealedOverate);
-
-                                    partailCarton.PickingPcs = partailCartonDiff * partailCarton.PcsPerCaron;
-                                    partailCarton.AvailablePcs -= partailCartonDiff * partailCarton.PcsPerCaron;
-
-                                    diagnosticList.Add(new PullSheetDiagnostic
-                                    {
-                                        Type = "Concealed Overage",
-                                        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                        Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
-                                        PullSheet = pullSheet
-                                    });
-                                }
-                            }
-                        }
                     }
                 }
                 else if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Bundle
@@ -1541,6 +1563,42 @@ namespace ClothResorting.Helpers
                         Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
                         PullSheet = pullSheet
                     });
+                }
+            }
+
+            //这里进行Concealed Overage检查
+            //检查待选池中的对象，是否有多种SKU在同一箱(寄生SKU)但只拿出部分件数的情况，生成"隐藏多货"Concealed Overage诊断记录，并将这些多的货也添加到拣货表里
+            var partailCartons = cartonLocationPool.Where(x => x.Cartons == 0 && x.Quantity != 0);
+
+            foreach (var partailCarton in partailCartons)
+            {
+                //找到宿主SKU
+                var baseCarton = cartonLocationPool.SingleOrDefault(x => x.CartonRange == partailCarton.CartonRange && x.Cartons != 0);
+
+                if (baseCarton != null)    //如果没有找到，则说明本身就是宿主，直接跳过检验
+                {
+                    //寄生SKU的剩余件数除以单位件与宿主SKU的剩余箱数的差，再乘以该SKU的单位件数，即是隐藏多货的件数
+                    var partailCartonDiff = partailCarton.AvailablePcs / partailCarton.PcsPerCaron - baseCarton.AvailableCtns;
+
+                    if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
+                    {
+                        //一起添加到拣货单，并注明这是Concealed Overage
+                        var concealedOverate = ConvertToSolidPickDetail(pullSheet, partailCarton, partailCartonDiff * partailCarton.PcsPerCaron);
+                        concealedOverate.Memo = "Overage";
+                        concealedOverate.PickCtns = 0;
+                        pickDetailList.Add(concealedOverate);
+
+                        partailCarton.PickingPcs = partailCartonDiff * partailCarton.PcsPerCaron;
+                        partailCarton.AvailablePcs -= partailCartonDiff * partailCarton.PcsPerCaron;
+
+                        diagnosticList.Add(new PullSheetDiagnostic
+                        {
+                            Type = "Concealed Overage",
+                            DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                            Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
+                            PullSheet = pullSheet
+                        });
+                    }
                 }
             }
 

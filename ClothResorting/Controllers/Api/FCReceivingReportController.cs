@@ -83,6 +83,9 @@ namespace ClothResorting.Controllers.Api
                 .Include(x => x.POSummary.PreReceiveOrder)
                 .Where(x => x.POSummary.PreReceiveOrder.Id == id);
 
+            int? actualCtns = 0;
+            int? actualPcs = 0;
+
             foreach(var carton in cartonDetailsInDb)
             {
                 carton.Status = "To Be Allocated";
@@ -92,12 +95,20 @@ namespace ClothResorting.Controllers.Api
                 carton.ToBeAllocatedCtns = carton.Cartons;
                 carton.ToBeAllocatedPcs = carton.Quantity;
 
-                carton.POSummary.ActualCtns = carton.POSummary.Cartons;
-                carton.POSummary.ActualPcs = carton.POSummary.Quantity;
+                carton.POSummary.ActualCtns += carton.Cartons;
+                carton.POSummary.ActualPcs += carton.Quantity;
 
-                carton.POSummary.PreReceiveOrder.ActualReceivedCtns = carton.POSummary.PreReceiveOrder.TotalCartons;
-                carton.POSummary.PreReceiveOrder.ActualReceivedPcs = carton.POSummary.PreReceiveOrder.TotalPcs;
+                actualCtns += carton.Cartons;
+                actualPcs += carton.Quantity;
+
+                //carton.POSummary.PreReceiveOrder.ActualReceivedCtns = carton.POSummary.PreReceiveOrder.TotalCartons;
+                //carton.POSummary.PreReceiveOrder.ActualReceivedPcs = carton.POSummary.PreReceiveOrder.TotalPcs;
             }
+
+            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(id);
+
+            preReceiveOrderInDb.ActualReceivedCtns = actualCtns;
+            preReceiveOrderInDb.ActualReceivedPcs = actualPcs;
 
             _context.SaveChanges();
         }

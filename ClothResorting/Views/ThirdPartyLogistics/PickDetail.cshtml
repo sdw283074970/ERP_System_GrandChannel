@@ -11,9 +11,8 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
-        <input id="create1" type="button" class="btn btn-group" value="Upload pull sheet" />
-
+    <div id="div-putback">
+        <input type="button" class="btn btn-group btn-create1" value="Upload pull sheet" /><button class="btn btn-primary btn-putback">Put back items</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -181,7 +180,7 @@
                 }
             });
 
-            $("#create1").click(function () {
+            $("#div-putback").on("click", ".btn-create1", function () {
                 index = layer.open({
                     title: false,
                     type: 1,
@@ -227,6 +226,66 @@
                     }
                 });
                 $(".iframe").hide();
+            });
+
+            //点击放回物品按钮，出现一系列表单
+            $("#div-putback").on("click", ".btn-putback", function () {
+                var button = $(this);
+                button.prev().remove();
+                button.next().remove();
+                button.replaceWith("<div><input type='button' class='btn btn-group btn-create1' value='Upload pull sheet' /><br /><input id='input-container' style='width:170px' class='input-sm' placeholder='Container' /><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Carton range' /><input id='input-color' style='width:170px' class='input-sm' placeholder='Color' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-size' style='width:170px' class='input-sm' placeholder='Size or szie bundle' /><input id='input-pcs' style='width:170px' class='input-sm' placeholder='Pcs or pcs bundle' /><input id='input-pack' style='width:170px' class='input-sm' placeholder='Pcs per carton' /><input id='input-pbctns' style='width:170px' class='input-sm' placeholder='Cartons put back' /><input id='input-pbpcs' style='width:170px' class='input-sm' placeholder='Pcs put back' /><input id='input-location' style='width:170px' class='input-sm' placeholder='Location' /><button class='btn btn-primary btn-add'>Put back</button><div>");
+            });
+
+            //点击放回按钮，将表单中的数据通过api生成对象添加到对应库存中
+            $("#div-create").on("click", ".btn-add", function () {
+                var pullSheetId = psid;
+                var container = $("#input-container").val();
+                var po = $("#input-po").val();
+                var range = $("#input-range").val();
+                var color = $("#input-color").val();
+                var customer = $("#input-customer").val();
+                var sizeBundle = $("#input-size").val();
+                var pcsBundle = $("#input-pcs").val();
+                var pack = $("#input-pack").val();
+                var cartons = $("#input-pbctns").val();
+                var pcs = $("#input-pbpcs").val();
+                var pbLocation = $("#input-location").val();
+
+                if (container == "" || po == ""  || range == ""  || color == ""  || customer == ""  || sizeBundle == ""  || pcsBundle == ""  || pack == ""  || cartons == ""  || pcs == ""  || pbLocation == "")
+                {
+                    alert("All feilds are required.");
+                }
+                else
+                {
+                    var obj = {
+                        "pullSheetId": pullSheetId,
+                        "container": container.toString(),
+                        "purchaseOrder": po.toString(),
+                        "cartonRange": range.toString(),
+                        "customer": customer.toString(),
+                        "color": color.toString(),
+                        "sizeBundle": sizeBundle.toString(),
+                        "pcsBundle": pcsBundle.toString(),
+                        "pcsPerCarton": pack.toString(),
+                        "cartons": cartons.toString(),
+                        "quantity": pcs.toString(),
+                        "location": pbLocation.toString()
+                    };
+                }
+
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify(obj),
+                    url: "/api/pickdetailputback/",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Items have been put back.");
+                    },
+                    error: function(){
+                        alert("An error occurred.");
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {
