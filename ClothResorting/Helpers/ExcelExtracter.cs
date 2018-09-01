@@ -1529,7 +1529,7 @@ namespace ClothResorting.Helpers
                             pool.PickingPcs += targetCtns * pool.PcsPerCaron;
 
                             pool.AvailableCtns -= targetCtns;
-                            pool.PickingPcs -= targetCtns * pool.PcsPerCaron;
+                            pool.AvailablePcs -= targetCtns * pool.PcsPerCaron;
 
                             targetCtns = 0;
 
@@ -1583,10 +1583,10 @@ namespace ClothResorting.Helpers
                     if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
                     {
                         //一起添加到拣货单，并注明这是Concealed Overage
-                        var concealedOverate = ConvertToSolidPickDetail(pullSheet, partailCarton, partailCartonDiff * partailCarton.PcsPerCaron);
-                        concealedOverate.Memo = "Overage";
-                        concealedOverate.PickCtns = 0;
-                        pickDetailList.Add(concealedOverate);
+                        var concealedOverage = ConvertToSolidPickDetail(pullSheet, partailCarton, partailCartonDiff * partailCarton.PcsPerCaron);
+                        concealedOverage.Memo = "Overage";
+                        concealedOverage.PickCtns = 0;
+                        pickDetailList.Add(concealedOverage);
 
                         partailCarton.PickingPcs = partailCartonDiff * partailCarton.PcsPerCaron;
                         partailCarton.AvailablePcs -= partailCartonDiff * partailCarton.PcsPerCaron;
@@ -1646,7 +1646,7 @@ namespace ClothResorting.Helpers
                 Location = pool.Location,
                 Status = "Picking",
                 PcsPerCarton = pool.PcsPerCaron,
-                PickCtns = targetPcs / pool.PcsPerCaron,
+                PickCtns = pool.AvailableCtns == 0 ? 0 : targetPcs / pool.PcsPerCaron,
                 PickPcs = targetPcs,
                 PullSheet = pullSheet,
                 LocationDetailId = pool.Id,

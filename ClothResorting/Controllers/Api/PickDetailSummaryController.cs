@@ -33,7 +33,8 @@ namespace ClothResorting.Controllers.Api
             {
                 var pickDetailInSummary = summaryList.SingleOrDefault(x => x.Style == pickDetail.Style 
                     && x.Color == pickDetail.Color 
-                    && x.SizeBundle == pickDetail.SizeBundle);
+                    && x.SizeBundle == pickDetail.SizeBundle
+                    && x.PurchaseOrder == pickDetail.PurchaseOrder);
 
                 if (pickDetailInSummary == null)
                 {
