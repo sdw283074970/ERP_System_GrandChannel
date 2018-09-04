@@ -833,6 +833,16 @@ namespace ClothResorting.Helpers
                 var countOfColumn = 4;      //FC的装箱单第4列不知为何未空，必须从第五列开始计数
                 var startIndex = rowIndex;      //rowIndex会变化，startIndex是不变的
                 var columnIndex = 5;
+
+                try
+                {
+                    var poLineCheck = (int)_ws.Cells[startIndex + 1, 3].Value2;
+                }
+                catch(Exception e)
+                {
+                    throw new Exception("Upload failed. A header of a PO object is missing. Please check PO Line cell [" + (startIndex + 1 ).ToString() + ",3] and make sure if the value or the header(Order, Style#, Line#) existed.");
+                }
+
                 var poLine = (int)_ws.Cells[startIndex + 1, 3].Value2;
                 string purchaseOrder = _ws.Cells[startIndex + 1, 1].Value2.ToString();
 
@@ -891,11 +901,20 @@ namespace ClothResorting.Helpers
 
                     var poSummaryList = poSummaryInDbs.ToList();
 
-                    var cartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2.ToString();
-                    var style = _ws.Cells[startIndex + 3 + j, 3].Value2.ToString();
+                    var cartonRange = _ws.Cells[startIndex + 3 + j, 1].Value2 == null ? "" : _ws.Cells[startIndex + 3 + j, 1].Value2.ToString();
+                    var style = _ws.Cells[startIndex + 3 + j, 3].Value2 == null ? "" : _ws.Cells[startIndex + 3 + j, 3].Value2.ToString();
                     var customer = _ws.Cells[startIndex + 3 + j, 4].Value2 == null ? "" : _ws.Cells[startIndex + 3 + j, 4].Value2.ToString();
-                    var dimension = _ws.Cells[startIndex + 3 + j, 5].Value2.ToString();
-                    var color = _ws.Cells[startIndex + 3 + j, 10].Value2.ToString();
+                    var dimension = _ws.Cells[startIndex + 3 + j, 5].Value2 == null ? "" : _ws.Cells[startIndex + 3 + j, 5].Value2.ToString();
+                    var color = _ws.Cells[startIndex + 3 + j, 10].Value2 == null ? "" : _ws.Cells[startIndex + 3 + j, 10].Value2.ToString();
+                    try
+                    {
+                        var cartonsCheck = (int)_ws.Cells[startIndex + 3 + j, 11].Value2;
+                    }
+                    catch(Exception e)
+                    {
+                        throw new Exception("Upload failed. Please check cartons cell [" + (startIndex + 3).ToString() + ",10] and make sure if the value existed.");
+                    }
+
                     var cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2;
 
                     //Solid pack中也可能出现多种Size混一箱，不能当作regular订单处理

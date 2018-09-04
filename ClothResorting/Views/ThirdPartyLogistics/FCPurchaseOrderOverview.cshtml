@@ -236,10 +236,6 @@
                 $(window.location).attr('href', '/ThirdPartyLogistics/PickingListManagement/?preid=' + preId.toString());
             });
 
-            $(".btn-back").on("click", function () {
-                window.history.back(-1);
-            });
-
             //全装箱单正常收货
             $("#btn-rcvall").on("click", function () {
                 $.ajax({
@@ -369,8 +365,33 @@
                             location.reload();
                         });
                     },
-                    error: function () {
-                        layer.alert("An error occured! Please check the file you uploaded matched the unified format.");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage + " This current fragmentary packing list will be deleted automatically.", function () {
+                            $.ajax({
+                                contentType: false,
+                                cache: false,
+                                processData: false,
+                                type: "DELETE",
+                                url: "/api/fcpurchaseOrderOverview/" + preId,
+                                beforeSend: function () {
+                                    layer.msg('Deleting...', {
+                                        icon: 1,
+                                        shade: 0.01,
+                                        time: 99 * 1000
+                                    });
+                                },
+                                success: function () {
+                                    layer.alert("The current packing list has been deleted. Browser will go back to home page of 3rd Party Logistics.", function () {
+                                        window.history.back(-1);
+                                    });
+                                },
+                                error: function () {
+                                    layer.alert("Delete failed. Please go back to index and delete this packing list manually. Browser will go back to home page of 3rd Party Logistics.", function () {
+                                        window.history.back(-1);
+                                    });
+                                }
+                            });
+                        });
                     }
                 });
                 $(".iframe").hide();
@@ -404,6 +425,9 @@
                 }
             });
 
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
         });
     </script>
 }
