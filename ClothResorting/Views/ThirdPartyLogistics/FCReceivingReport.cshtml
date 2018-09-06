@@ -12,12 +12,18 @@
         @Scripts.Render("~/bundles/modernizr")
     </head>
 <body>
-    <h1>Free Country Receiving Report</h1>
-    <h2>Container: <text id="container">SU85P0035FT</text></h2>
+    <h1>Third-party Logistics Distribution System</h1>
+    <h2>Receiving Report</h2>
     <div class="maincontainer">
         <div>
             @*<font id="totalFcsPcs" color="green">Total Receivable Units:</font><br />
             <font id="totalFcsCtns" color="green">Total Receivable Cartons:</font><br />*@
+            <h2>Container: <text id="container">SU85P0035FT</text></h2>
+            <font id="receiveddate">Received Date:</font><br />
+            <font id="vendor">Vender:</font><br />
+            <font id="reference">Reference:</font><br />
+            <font id="receiptnumber">Recept #:</font><br />
+            <font id="remark">Remark:</font><br />
             <font id="totalActualPcs" color="red">Actual Quantity Received:</font><br />
             <font id="totalActualCtns" color="red">Actual Cartons Received:</font>
         </div>
@@ -100,6 +106,24 @@
         var container = getUrlParameter('container');
 
         $("#container").html(container);
+
+        //获取Container信息
+        $.ajax({
+            type: "GET",
+            url: "/api/container/?container=" + container,
+            contentType: 'application/json; charset=utf-8',
+            dataType: "json",
+            success: function (data) {
+                $("#vendor").html("Vendor: " + data.vendor);
+                $("#receiveddate").html("Received Date: " + data.receivedDate);
+                $("#reference").html("Reference: " + data.reference);
+                $("#receiptnumber").html("Receipt #: " + data.receiptNumber);
+                $("#remark").html("Remark: " + data.remark);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(XMLHttpRequest.responseJSON.exceptionMessage);
+            }
+        });
 
         var urlstring = "/api/fcreceivingreport/?preid=" + preId + "&container=" + container;
 

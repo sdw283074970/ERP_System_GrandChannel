@@ -238,6 +238,7 @@
     <Compile Include="Controllers\Api\AdjustmentDetailController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
+    <Compile Include="Controllers\Api\ContainerController.cs" />
     <Compile Include="Controllers\Api\FCPurchaseOrderOverviewController.cs" />
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
@@ -287,6 +288,7 @@
     <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
     <Compile Include="Dtos\AdjustmentRecordDto.cs" />
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
+    <Compile Include="Dtos\ContainerDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDto.cs" />
     <Compile Include="Dtos\LocationDetailDto.cs" />
@@ -946,12 +948,17 @@
     <Compile Include="Migrations\201808291802495_UpdatedPullSheetModel.Designer.cs">
       <DependentUpon>201808291802495_UpdatedPullSheetModel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809062021558_AddedContainerDbSet.cs" />
+    <Compile Include="Migrations\201809062021558_AddedContainerDbSet.Designer.cs">
+      <DependentUpon>201809062021558_AddedContainerDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
     <Compile Include="Models\ApiTransformModels\AdjustmentJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\BasicFourAttrsJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\ContainerInfoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\FCRegularLocationAllocatingJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ArrPreIdLocationJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ArrPreIdContainerJsonObj.cs" />
@@ -969,6 +976,7 @@
     <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
     <Compile Include="Models\CartonInside.cs" />
+    <Compile Include="Models\Container.cs" />
     <Compile Include="Models\DataTransferModels\AdjustedRecord.cs" />
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
     <Compile Include="Models\DataTransferModels\FCReceivingReport.cs" />
@@ -1842,6 +1850,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808291802495_UpdatedPullSheetModel.resx">
       <DependentUpon>201808291802495_UpdatedPullSheetModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809062021558_AddedContainerDbSet.resx">
+      <DependentUpon>201809062021558_AddedContainerDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -90,6 +90,22 @@ namespace ClothResorting.Controllers.Api
                     }
                 }
             }
+
+            //在数据库中建立Container对象(非关系型表)
+            //检验当前输入的Container号是否已经存在数据库中，如不存在则新建立，否则跳过
+            var isExisted = _context.Containers.SingleOrDefault(x => x.ContainerNumber == obj.Container) == null ? false : true;
+            if (!isExisted)
+            {
+                _context.Containers.Add(new Container {
+                    Vendor = poSummariesInDb.First().PreReceiveOrder.CustomerName,
+                    ContainerNumber = obj.Container,
+                    ReceiptNumber = "",
+                    Reference = "",
+                    ReceivedDate = DateTime.Now.ToString("MM/dd/yy"),
+                    Remark = ""
+                });
+            }
+
             _context.SaveChanges();
 
             //统计该PackingList下Container号码的数量，并将结果同步至prereceiveOrder中

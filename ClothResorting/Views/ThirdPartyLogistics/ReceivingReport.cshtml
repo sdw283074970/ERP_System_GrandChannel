@@ -4,11 +4,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Receiving Report</h1>
-<h2>Container: <text id="container">SU85P0035FT</text></h2>
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Receiving Report</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <font>Container: <font id="container" class="input-sm"></font></font><br />
+        <input id="vendor" class="input-sm" placeholder="Vendor" /><br />
+        <input id="receiveddate" class="input-sm" placeholder="RCVD DATE(MM/dd/yy)" /><br />
+        <input id="reference" class="input-sm" placeholder="REFERENCE" /><br />
+        <input id="receiptnumber" class="input-sm" placeholder="RECEIPT #" /><br />
+        <input id="remark" class="input-sm" placeholder="REMARK" />
     </div>
     <div>
         <button id="btn-generate" class="btn btn-primary">Generate Receiving Report for Customer</button>
@@ -58,11 +66,29 @@
 
             var preId = getUrlParameter('preid');
             var container = getUrlParameter('container');
-
             $("#container").html(container);
+
+            //获取Container的信息
+            $.ajax({
+                type: "GET",
+                url: "/api/container/?container=" + container,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    $("#vendor").val(data.vendor);
+                    $("#receiveddate").val(data.receivedDate);
+                    $("#reference").val(data.reference);
+                    $("#receiptnumber").val(data.receiptNumber);
+                    $("#remark").val(data.remark);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                }
+            });
 
             var urlstring = "/api/receivingreport/?preid=" + preId + "&container=" + container;
 
+            //获取其他收货信息
             $.ajax({
                 type: "GET",
                 url: urlstring,
@@ -194,8 +220,41 @@
                 button.replaceWith("<button id='" + cartonDetailId + "' class='btn btn-link btn-edit'>Edit</button>");
             });
 
+            //点击生成客制版收货报告
             $("#btn-generate").on("click", function () {
-                $(window.location).attr('href', "/ThirdPartyLogistics/FCReceivingReport/?preid=" + preId + "&container=" + container);
+                //更新编辑后的Container信息
+                if ($("#vendor").val() == "" || $("#receiveddate").val() == null)
+                {
+                    alert("Vendor and Received Date cannot be empty.");
+                }
+                else
+                {
+                    var obj = {
+                        "containerNumber": $("#container").html(),
+                        "vendor": $("#vendor").val().toString(),
+                        "receivedDate": $("#receiveddate").val().toString(),
+                        "reference": $("#reference").val() == null ? " " : $("#reference").val().toString(),
+                        "receiptNumber": $("#receiptnumber").val() == null ? " " : $("#receiptnumber").val().toString(),
+                        "remark": $("#remark").val() == null ? " " : $("#remark").val().toString()
+                    };
+
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/container/?container=" + container,
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        success: function () {
+                            alert("Success!");
+                            $(window.location).attr('href', "/ThirdPartyLogistics/FCReceivingReport/?preid=" + preId + "&container=" + container);
+                        },
+                        error: function () {
+                            alert("Update container info failed.");
+                        }
+                    });
+
+                }
+
             });
 
             $(".btn-back").on("click", function () {

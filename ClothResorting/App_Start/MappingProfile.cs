@@ -34,6 +34,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<PullSheet, PullSheetDto>();
             Mapper.CreateMap<PickDetail, PickDetailDto>();
             Mapper.CreateMap<PullSheetDiagnostic, PullSheetDiagnosticDto>();
+            Mapper.CreateMap<Container, ContainerDto>();
         }
     }
 }
