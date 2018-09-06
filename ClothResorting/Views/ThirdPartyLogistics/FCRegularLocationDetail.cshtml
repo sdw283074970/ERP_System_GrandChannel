@@ -80,6 +80,8 @@
             var table;
             var pickingCtns;
             var availableCtns;
+            var orgPcs;
+            var isPutBack = false;
 
             //为DataTable插件服务的函数，用于计算某指定列的和
             jQuery.fn.dataTable.Api.register('sum()', function () {
@@ -148,6 +150,10 @@
                                     else if (data == "Shipped") {
                                         return "<text style='color:Blue'>" + data + "</text>";
                                     }
+                                    else if (data == "Put Back")
+                                    {
+                                        return "<text style='color:orange'>" + data + "</text>";
+                                    }
                                     else {
                                         return "<text style='color:Green'>" + data + "</text>";
                                     }
@@ -156,6 +162,10 @@
                             {
                                 data: "cartonRange",
                                 render: function (data) {
+                                    if (data == "Put Back")
+                                        isPutBack = true;
+                                    else
+                                        isPutBack = false;
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -204,6 +214,7 @@
                             {
                                 data: "quantity",
                                 render: function (data) {
+                                    orgPcs = data;
                                     return "<font color='orange'>" + data + "</font>";
                                 }
                             },
@@ -278,9 +289,11 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    //当库存剩余为0且没有在拣货，或者有在拣货的情况下，隐藏移库按钮
+                                    //当库存剩余为0且没有在拣货，或有在拣货的情况下，隐藏移库按钮
                                     if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0)
                                         return "";
+                                    else if (isPutBack)
+                                        return "<button style='width:40px' locationid='" + data + "'class='btn btn-link btn-edit'>Edit</button><button style='width:30px' locationid='" + data + "'class='btn btn-link btn-delete'>X</button>";
                                     else
                                         return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
                                 }
@@ -410,12 +423,12 @@
                         }
 
                         table = $("#table").DataTable({
-                            data: data,
-                            destroy: true,
                             scrollX: true,
                             scrollCollapse: true,
                             scrollY: "600px",
                             iDisplayLength: 100,
+                            data: data,
+                            destroy: true,
                             columns: [
                                 {
                                     data: "container",
@@ -432,6 +445,10 @@
                                         else if (data == "Shipped") {
                                             return "<text style='color:Blue'>" + data + "</text>";
                                         }
+                                        else if (data == "Put Back")
+                                        {
+                                            return "<text style='color:orange'>" + data + "</text>";
+                                        }
                                         else {
                                             return "<text style='color:Green'>" + data + "</text>";
                                         }
@@ -440,6 +457,10 @@
                                 {
                                     data: "cartonRange",
                                     render: function (data) {
+                                        if (data == "Put Back")
+                                            isPutBack = true;
+                                        else
+                                            isPutBack = false;
                                         return "<text>" + data + "</text>";
                                     }
                                 },
@@ -488,6 +509,7 @@
                                 {
                                     data: "quantity",
                                     render: function (data) {
+                                        orgPcs = data;
                                         return "<font color='orange'>" + data + "</font>";
                                     }
                                 },
@@ -562,9 +584,11 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        //当库存剩余为0且没有在拣货，或者有在拣货的情况下，隐藏移库按钮
+                                        //当库存剩余为0且没有在拣货，或有在拣货的情况下，隐藏移库按钮
                                         if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0)
                                             return "";
+                                        else if (isPutBack)
+                                            return "<button style='width:40px' locationid='" + data + "'class='btn btn-link btn-edit'>Edit</button><button style='width:30px' locationid='" + data + "'class='btn btn-link btn-delete'>X</button>";
                                         else
                                             return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
                                     }
@@ -591,7 +615,60 @@
                         window.location.reload();
                     },
                     error: function () {
+                        alert("Error");
+                    }
+                });
+            });
 
+            //点击Edit，将当对应的<font>元素(地址)替换成一个<input>元素(输入)，原编辑按钮替换成<button>元素(确认)，并移除X按钮(移除)
+            $("#table").on("click", ".btn-edit", function () {
+                var locationId = $(this).attr('locationid');
+                var locationObj = $(this).parent().parent("tr").children('td').eq(18).children('font');
+                var content = $(this).parent().parent("tr").children('td').eq(18).children('font').html();
+
+                $(this).next().remove();
+                locationObj.replaceWith("<input style='width:80px' locationid='" + locationId + "' class='input-sm' value='" + content + "' />");
+                $(this).replaceWith("<button locationid='" + locationId + "' class='btn btn-link btn-confirm'>Ok</button>");
+            });
+
+            //点击确定，将对应的<input>元素中的信息同步至数据库，并复原之前的按钮
+            $("#table").on("click", ".btn-confirm", function () {
+                var locationId = $(this).attr('locationid');
+                var inputObj = $(this).parent().parent("tr").children('td').eq(18).children('input');
+                var content = inputObj.val();
+
+                inputObj.replaceWith("<font color='orange'>" + content + "(Put Back)</font>");
+                $(this).replaceWith("<button style='width:40px' locationid='" + locationId + "'class='btn btn-link btn-edit' value='" + content + "'>Edit</button><button style='width:30px' locationid='" + locationId + "'class='btn btn-link btn-delete'>X</button>");
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/pickdetailputback/?id=" + locationId + "&location=" + content,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Success!");
+                    },
+                    error: function () {
+                        alert("Error");
+                    }
+                });
+            });
+
+            //点击X按钮，将当前的Put Back库存对象从数据库移除
+            $("#table").on("click", ".btn-delete", function () {
+                var locationId = $(this).attr('locationid');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/pickdetailputback/?id=" + locationId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Delete success!");
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error");
                     }
                 });
             });

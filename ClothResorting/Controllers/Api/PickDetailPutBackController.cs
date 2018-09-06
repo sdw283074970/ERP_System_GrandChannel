@@ -7,6 +7,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using AutoMapper;
+using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -39,7 +41,7 @@ namespace ClothResorting.Controllers.Api
             var putBackCartonLocation = new FCRegularLocationDetail {
                 Container = obj.Container,
                 Status = "Put Back",
-                CartonRange = obj.CartonRange,
+                CartonRange = "Put Back",
                 PurchaseOrder = obj.PurchaseOrder,
                 Style = obj.Style,
                 Color = obj.Color,
@@ -60,7 +62,34 @@ namespace ClothResorting.Controllers.Api
                 PreReceiveOrder = prereceivedOrderInDb
             };
 
-            return Ok();
+            _context.FCRegularLocationDetails.Add(putBackCartonLocation);
+            _context.SaveChanges();
+
+            var sample = _context.FCRegularLocationDetails.OrderByDescending(x => x.Id).First();
+            var sampleDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(sample);
+
+            return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+        }
+
+        // PUT /pickdetailputback/?id={id}&location={location}/
+        [HttpPut]
+        public void EditPutBackLocation([FromUri]int id, [FromUri]string location)
+        {
+            var locationInDb = _context.FCRegularLocationDetails.Find(id);
+
+            locationInDb.Location = location + "(Put Back)";
+
+            _context.SaveChanges();
+        }
+
+        // DELETE /pickdetailputback/{id}/
+        [HttpDelete]
+        public void RemovePutBackLocationRecord([FromUri]int id)
+        {
+            var locationInDb = _context.FCRegularLocationDetails.Find(id);
+
+            _context.FCRegularLocationDetails.Remove(locationInDb);
+            _context.SaveChanges();
         }
     }
 }
