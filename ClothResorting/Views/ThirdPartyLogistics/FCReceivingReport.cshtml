@@ -16,6 +16,9 @@
     <h2>Receiving Report</h2>
     <div class="maincontainer">
         <div>
+            <button id="download" class="btn btn-primary">Download Excel Receiving Report</button>
+        </div>
+        <div>
             @*<font id="totalFcsPcs" color="green">Total Receivable Units:</font><br />
             <font id="totalFcsCtns" color="green">Total Receivable Cartons:</font><br />*@
             <h2>Container: <text id="container">SU85P0035FT</text></h2>
@@ -278,6 +281,9 @@
                 //$("#totalFcsPcs").html("Total Receivable Units: " + table.column(7).data().sum());
                 //$("#totalFcsCtns").html("Total Receivable Cartons: " + receivedCtns);
 
+                $("#download").on("click", function () {
+                    $(window.location).attr('href', '/api/receivingreportexcel/?preid=' + preId + '&container=' + container);
+                });
             }
         });
     });

@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -23,57 +24,19 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GenerateReceivingReport([FromUri]int preid, [FromUri]string container)
         {
-            var resultList = new List<FCReceivingReport>();
-
-            var fcRegualrCartonDetailsInDb = _context.RegularCartonDetails
-                .Include(c => c.POSummary.PreReceiveOrder)
-                .Where(c => c.POSummary.PreReceiveOrder.Id == preid
-                    && c.POSummary.Container == container)
-                .OrderBy(x => x.PurchaseOrder)
-                .ToList();
-
-            var index = 1;
-
-            foreach(var cartonDetail in fcRegualrCartonDetailsInDb)
-            {
-                var report = new FCReceivingReport
-                {
-                    Index = index,
-                    CartonRange = cartonDetail.CartonRange,
-                    PurchaseOrder = cartonDetail.PurchaseOrder,
-                    Style = cartonDetail.Style,
-                    Line = cartonDetail.POSummary.PoLine,
-                    Customer = cartonDetail.Customer,
-                    SizeBundle = cartonDetail.SizeBundle,
-                    PcsBundle = cartonDetail.PcsBundle,
-                    ReceivableQty = cartonDetail.Quantity,
-                    ReceivedQty = cartonDetail.ActualPcs,
-                    ReceivableCtns = cartonDetail.Cartons,
-                    ReceivedCtns = cartonDetail.ActualCtns,
-                    Color = cartonDetail.Color,
-                    Memo = "",
-                    Comment = cartonDetail.Comment
-                };
-
-                index++;
-
-                if (report.ReceivedCtns - report.ReceivableCtns < 0)
-                {
-                    var diff = report.ReceivableCtns - report.ReceivedCtns;
-                    report.Memo = "Shortage: " + diff.ToString() + "ctns";
-                }
-
-                if (report.ReceivedCtns - report.ReceivableCtns > 0)
-                {
-                    var diff = report.ReceivedCtns - report.ReceivableCtns;
-                    report.Memo = "Overage: " + diff.ToString() + "ctns";
-                }
-
-                resultList.Add(report);
-            }
-
-            return Created(Request.RequestUri + "/" + resultList.Count, resultList);
+            return Ok(GetFCReceivingReportList(preid, container));
         }
+
+        //// POST /api/fcreveivingreport/?preid={preId}&container={container}
+        //[HttpPost]
+        //public void GenerateExcelReceivingReport([FromUri]int preid, [FromUri]string container)
+        //{
+        //    var reportList = GetFCReceivingReportList(preid, container);
+        //    var containerInDb = _context.Containers.SingleOrDefault(x => x.ContainerNumber == container);
+
+        //    var generator = new ExcelGenerator();
+        //    generator.GenerateRecevingReportExcel(containerInDb, reportList);
+        //}
 
         // PUT /api/fcreceivingreport/{id}(preId) 在Purchase Order over view 页面中一键全收货，接口放在这里挤一挤
         [HttpPut]
@@ -130,6 +93,61 @@ namespace ClothResorting.Controllers.Api
             _context.RegularCartonDetails.RemoveRange(cartonDetails);
             _context.POSummaries.Remove(_context.POSummaries.Find(id));
             _context.SaveChanges();
+        }
+
+        //私有方法
+        private IList<FCReceivingReport> GetFCReceivingReportList(int preid, string container)
+        {
+            var resultList = new List<FCReceivingReport>();
+
+            var fcRegualrCartonDetailsInDb = _context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .Where(c => c.POSummary.PreReceiveOrder.Id == preid
+                    && c.POSummary.Container == container)
+                .OrderBy(x => x.PurchaseOrder)
+                .ToList();
+
+            var index = 1;
+
+            foreach (var cartonDetail in fcRegualrCartonDetailsInDb)
+            {
+                var report = new FCReceivingReport
+                {
+                    Index = index,
+                    CartonRange = cartonDetail.CartonRange,
+                    PurchaseOrder = cartonDetail.PurchaseOrder,
+                    Style = cartonDetail.Style,
+                    Line = cartonDetail.POSummary.PoLine,
+                    Customer = cartonDetail.Customer,
+                    SizeBundle = cartonDetail.SizeBundle,
+                    PcsBundle = cartonDetail.PcsBundle,
+                    ReceivableQty = cartonDetail.Quantity,
+                    ReceivedQty = cartonDetail.ActualPcs,
+                    ReceivableCtns = cartonDetail.Cartons,
+                    ReceivedCtns = cartonDetail.ActualCtns,
+                    Color = cartonDetail.Color,
+                    Memo = "",
+                    Comment = cartonDetail.Comment
+                };
+
+                index++;
+
+                if (report.ReceivedCtns - report.ReceivableCtns < 0)
+                {
+                    var diff = report.ReceivableCtns - report.ReceivedCtns;
+                    report.Memo = "Shortage: " + diff.ToString() + "ctns";
+                }
+
+                if (report.ReceivedCtns - report.ReceivableCtns > 0)
+                {
+                    var diff = report.ReceivedCtns - report.ReceivableCtns;
+                    report.Memo = "Overage: " + diff.ToString() + "ctns";
+                }
+
+                resultList.Add(report);
+            }
+
+            return resultList;
         }
     }
 }

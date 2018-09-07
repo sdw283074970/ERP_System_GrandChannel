@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -31,6 +32,20 @@ namespace ClothResorting.Controllers.Api
             var sampleDto = Mapper.Map<PreReceiveOrder, PreReceiveOrdersDto>(sample);
 
             return Created(Request.RequestUri + "/" + sample.Id, sampleDto);
+        }
+
+        // POST /api/index/{preid} 删除当前preid下的所有空的POSummary对象
+        [HttpDelete]
+        public void DeleteCurrentPackingList([FromUri]int id)
+        {
+            var poSummariesInDb = _context.POSummaries
+                .Include(x => x.PreReceiveOrder)
+                .Include(x => x.RegularCartonDetails)
+                .Where(x => x.PreReceiveOrder.Id == id
+                    && x.RegularCartonDetails.Count == 0);
+
+            _context.POSummaries.RemoveRange(poSummariesInDb);
+            _context.SaveChanges();
         }
     }
 }

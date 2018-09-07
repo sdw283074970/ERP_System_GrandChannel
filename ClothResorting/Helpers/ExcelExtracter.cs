@@ -807,8 +807,8 @@ namespace ClothResorting.Helpers
             }
 
             //可以在本页面获取packingList的总量
-            preReceiveOrderInDb.TotalCartons += (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
-            preReceiveOrderInDb.TotalPcs += (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
+            //preReceiveOrderInDb.TotalCartons += (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
+            //preReceiveOrderInDb.TotalPcs += (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
             preReceiveOrderInDb.CustomerName = "Free Country";
 
             _context.POSummaries.AddRange(packingList);

@@ -366,13 +366,13 @@
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage + " This current fragmentary packing list will be deleted automatically.", function () {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage + " This current uploaded fragmentary packing list will be deleted automatically.", function () {
                             $.ajax({
                                 contentType: false,
                                 cache: false,
                                 processData: false,
                                 type: "DELETE",
-                                url: "/api/fcpurchaseOrderOverview/" + preId,
+                                url: "/api/index/" + preId,
                                 beforeSend: function () {
                                     layer.msg('Deleting...', {
                                         icon: 1,
@@ -381,8 +381,8 @@
                                     });
                                 },
                                 success: function () {
-                                    layer.alert("The current packing list has been deleted. Browser will go back to home page of 3rd Party Logistics.", function () {
-                                        window.history.back(-1);
+                                    layer.alert("The current uploaded packing list has been deleted. Browser will go back to home page of 3rd Party Logistics.", function () {
+                                        window.location.reload();
                                     });
                                 },
                                 error: function () {

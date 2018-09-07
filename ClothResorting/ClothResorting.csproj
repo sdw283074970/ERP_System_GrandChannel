@@ -87,6 +87,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MyXls.SL2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MyXls.SL2.1.0.0\lib\MyXls.SL2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
@@ -273,6 +277,7 @@
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailConfirmationController.cs" />
     <Compile Include="Controllers\Api\ReceivingReportController.cs" />
+    <Compile Include="Controllers\Api\ReceivingReportExcelController.cs" />
     <Compile Include="Controllers\Api\RelocationHistoryController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
@@ -316,6 +321,7 @@
     <Compile Include="Helpers\CartonBreakdownGetter.cs" />
     <Compile Include="Helpers\CartonBreaker.cs" />
     <Compile Include="Helpers\ExcelExtracter.cs" />
+    <Compile Include="Helpers\ExcelGenerator.cs" />
     <Compile Include="Helpers\ExcelKiller.cs" />
     <Compile Include="Helpers\FilesGetter.cs" />
     <Compile Include="Helpers\CartonChecker.cs" />
@@ -1370,6 +1376,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="ReceivingReport\" />
     <Folder Include="UploadedFiles\" />
   </ItemGroup>
   <ItemGroup>
