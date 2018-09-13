@@ -76,7 +76,7 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
-        // DELETE /api/fcreceivingreport/{id}(poId) 删除散货PO的接口，没其他位置了放这里挤一挤
+        // DELETE /api/fcreceivingreport/{id}(poId) 删除PO的接口，没其他位置了放这里挤一挤
         [HttpDelete]
         public void DeleteBulkPo([FromUri]int id)
         {
@@ -90,9 +90,16 @@ namespace ClothResorting.Controllers.Api
                 cartonDetail.POSummary.PreReceiveOrder.ActualReceivedPcs -= cartonDetail.ActualPcs;
             }
 
-            _context.RegularCartonDetails.RemoveRange(cartonDetails);
-            _context.POSummaries.Remove(_context.POSummaries.Find(id));
-            _context.SaveChanges();
+            try
+            {
+                _context.RegularCartonDetails.RemoveRange(cartonDetails);
+                _context.POSummaries.Remove(_context.POSummaries.Find(id));
+                _context.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Cannot delete this PO Summary, because other Location may rely on it.");
+            }
         }
 
         //私有方法

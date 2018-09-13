@@ -143,5 +143,31 @@ namespace ClothResorting.Controllers.Api
             
             _context.SaveChanges();
         }
+
+        // DELETE /api/fcregularcartondetails/{id}
+        [HttpDelete]
+        public void DeleteCartonDetail([FromUri]int id)
+        {
+            var regularCartonDetailInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .SingleOrDefault(x => x.Id == id);
+
+            regularCartonDetailInDb.POSummary.ActualCtns -= regularCartonDetailInDb.ActualCtns;
+            regularCartonDetailInDb.POSummary.PreReceiveOrder.ActualReceivedCtns -= regularCartonDetailInDb.ActualCtns;
+
+            regularCartonDetailInDb.POSummary.ActualPcs -= regularCartonDetailInDb.ActualPcs;
+            regularCartonDetailInDb.POSummary.PreReceiveOrder.ActualReceivedPcs -= regularCartonDetailInDb.ActualPcs;
+
+            try
+            {
+                _context.RegularCartonDetails.Remove(regularCartonDetailInDb);
+                _context.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Cannot delete this carton detail. Because other Location may rely on it.");
+            }
+
+        }
     }
 }

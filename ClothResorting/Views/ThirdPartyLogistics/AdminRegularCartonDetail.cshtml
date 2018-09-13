@@ -1,0 +1,330 @@
+﻿
+@{
+    ViewBag.Title = "AdminRegularCartonDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Free Country Regular Carton Detail</h2>
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div id="div-bulk">
+        <button class="btn btn-primary btn-bulk">Receive Bulk Cartons</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Range</th>
+                    <th>Customer</th>
+                    <th>PO</th>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>Size Code</th>
+                    <th>Pcs Code</th>
+                    <th>Pack</th>
+                    <th>Qty</th>
+                    <th>Received Pcs</th>
+                    <th>Ctns</th>
+                    <th>Received Ctns</th>
+                    <th width="100"><input id="select-all" type="checkbox" value="12345" />Select</th>
+                    <th>Manual Input</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div>
+        <font style="font-weight:bold;font-style:italic;" color="red">
+            <button id="btn-confirm" class="btn btn-info">
+                Confirm
+            </button>
+        </font>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            //从地址栏获取参数
+            //var preid = getUrlParameter('preid');
+            //var po = getUrlParameter('po').toString();
+            //var data = { "preid": preid, "po": po };
+            var id = window.location.search.substr(1);
+            var cartons;
+            var quantity;
+            var cartonRange;
+            var lastCartonRange;
+            var currentCartonRange;
+
+            $.ajax({
+                type: "GET",
+                url: "/api/fcRegularCartonDetails/" + id,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data, status, xhr) {
+                    $("#table").DataTable({
+                        data: data,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "cartonRange",
+                                render: function (data) {
+                                    currentCartonRange = data;
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "customer",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "sizeBundle",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pcsBundle",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pcsPerCarton",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    quantity = data;
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "cartons",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualCtns",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                        + data + "' /> No problem";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><br /><button style='width:30px' class='btn btn-link btn-manual' value='" + data + "'>OK</button><button style='width:40px' deleteid='" + data + "' class='btn btn-link btn-delete'>X</button>";
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            //点击Manul Edit，跳转到相应的breakdown页面
+            $("#table").on("click", ".btn-edit", function () {
+                var id = $(this).val();
+                window.location.href = "/ThirdPartyLogistics/CartonBreakdown/?" + id;
+            });
+
+            //勾选全选选项，则选择所有对象
+            $("#select-all").on("click", function () {
+                if ($("#select-all").is(":checked")) {
+                    $(".cb-selected").prop("checked", true);
+                }
+                else {
+                    $(".cb-selected").prop("checked", false);
+                }
+            });
+
+            //点击OK按钮，手动输入单个上传收入箱数
+            $("#table").on("click", ".btn-manual", function () {
+                var button = $(this);
+                var value = button.prev().val();
+                var id = button.prev().attr("id");
+
+                var arr = new Array(id, value);
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/fcRegularCartonDetails/",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(arr),
+                    dataType: "json",
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
+
+            });
+
+            //批量确认收货按钮
+            $("#btn-confirm").on("click", function () {
+                var button = $(this);
+                var arr = new Array();
+
+                //将所有被选中的CheckBox的对象的id放到数组中
+                $("input:checkbox[name='selected']:checked").each(function (i) {
+                    var val = $(this).val();
+                    arr.push(val);
+                });
+
+                //将所有被选中的对象视为正常正确收货，即实际收货数量及库存数量直接等于应收货数量
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/FCRegularCartonDetailConfirmation/",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(arr),
+                    dataType: "json",
+                    success: function (data) {
+                        alert("Update success!");
+                        window.history.back(-1);
+                    },
+                    error: function () {
+                        alert("An error occured!");
+                        alert(JSON.stringify(arr));
+                    }
+                });
+            });
+
+            //点击添加散货按钮，出现一系列表单
+            $("#div-bulk").on("click", ".btn-bulk", function () {
+                var button = $(this);
+                button.next().remove();
+                button.replaceWith("<div><input id='input-range' style='width:170px' class='input-sm' placeholder='Carton range' /><input id='input-color' style='width:170px' class='input-sm' placeholder='Color code' /><input id='input-size' style='width:170px' class='input-sm' placeholder='Size or size combination' /><input id='input-units' style='width:170px' class='input-sm' placeholder='Units or units combination' /><input id='input-pack' style='width:170px' class='input-sm' placeholder='Units per Carton' /><button class='btn btn-primary btn-update'>Add</button><div>");
+            });
+
+            //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
+            $("#div-bulk").on("click", ".btn-update", function () {
+                var color = $("#input-color").val();
+                var size = $("#input-size").val();
+                var units = $("#input-units").val();
+                var pcsPerCarton = $("#input-pack").val();
+                var cartonRange = $("#input-range").val();
+
+                if (color == "" || size == "" || units == "" || pcsPerCarton == "")
+                {
+                    alert("All fields are required.");
+                }
+                else
+                {
+                    var obj = {
+                        "id": id,
+                        "cartonRange": cartonRange.toString(),
+                        "color": color.toString(),
+                        "size": size.toString(),
+                        "pcs": units.toString(),
+                        "pack": pcsPerCarton
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/FCRegularCartonDetails/",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        success: function () {
+                            alert("Add success!");
+                            $(this).parent().replaceWith("<button class='btn btn-primary btn-bulk'>Receive Bulk Cartons</button><button id='undo' class='btn btn-danger'>Undo</button>");
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert("Add failed.");
+                        }
+                    });
+                }
+            });
+
+            //删除CartonDetail
+            $("#table").on("click", ".btn-delete", function () {
+                var deleteId = $(this).attr('deleteid');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/FCRegularCartonDetails/" + deleteId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Delete success!");
+                        window.location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}
+
+
+
+

@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "FCPurchaseOrderOverview";
+    ViewBag.Title = "AdminPurchaseOrderOverview";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -75,7 +75,6 @@
 
             $(".iframe").hide();
             $(".iframe-download").hide();
-            var quantity;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -153,7 +152,6 @@
                     {
                         data: "quantity",
                         render: function (data) {
-                            quantity = data;
                             return "<font color='red'>" + data + "</font>";
                         }
                     },
@@ -178,14 +176,7 @@
                     {
                         data: "id",
                         render: function (data) {
-                            if (quantity == 0)
-                            {
-                                return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>";
-                            }
-                            else
-                            {
-                                return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a>";
-                            }
+                            return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>"
                         }
                     }
                 ]
@@ -437,6 +428,7 @@
                         window.location.reload();
                     }
                 });
+                
             });
 
             //点击添加散货PO Summary，出现一系列表单

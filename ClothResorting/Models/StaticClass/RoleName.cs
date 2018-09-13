@@ -8,6 +8,7 @@ namespace ClothResorting.Models.StaticClass
     public static class RoleName
     {
         public const string CanDeleteRecords = "CanDeleteRecords";
-        // ...
+
+        public const string CanDeleteEverything = "CanDeleteEverything";
     }
 }

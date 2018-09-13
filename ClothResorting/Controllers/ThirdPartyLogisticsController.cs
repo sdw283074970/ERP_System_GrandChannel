@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClothResorting.Models.StaticClass;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -113,12 +114,21 @@ namespace ClothResorting.Controllers
         // FC的预收货细节页面/PO统计页面
         public ActionResult FCPurchaseOrderOverview()
         {
+
+            if (User.IsInRole(RoleName.CanDeleteEverything))
+            {
+                return View("AdminPurchaseOrderOverview");
+            }
+
             return View();
         }
 
         // FC的Regular订单详情页面
         public ActionResult FCRegularCartonDetail()
         {
+            if (User.IsInRole(RoleName.CanDeleteEverything))
+                return View("AdminRegularCartonDetail");
+
             return View();
         }
 
