@@ -11,6 +11,9 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
     </div>
+    <div id="div-bulk">
+        <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
+    </div>
     <div>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
         <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
@@ -422,6 +425,51 @@
                 else
                 {
                     alert("Cannot delete PO of the original packing list.");
+                }
+            });
+
+            //点击添加散货PO Summary，出现一系列表单
+            $("#div-bulk").on("click", ".btn-bulk", function () {
+                var button = $(this);
+                button.next().remove();
+                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
+            });
+
+            //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
+            $("#div-bulk").on("click", ".btn-update", function () {
+                var purchaseOrder = $("#input-po").val();
+                var style = $("#input-style").val();
+                var orderType = $("#input-ordertype").val();
+                var poLine = $("#input-poline").val();
+                var customer = $("#input-customer").val();
+
+                if (purchaseOrder == "" || style == "" || orderType == "" || poLine == "" || customer == "") {
+                    alert("All fields are required.");
+                }
+                else {
+                    var obj = {
+                        "preId": preId,
+                        "purchaseOrder": purchaseOrder.toString(),
+                        "style": style.toString(),
+                        "orderType": orderType.toString(),
+                        "pOLine": poLine,
+                        "customer": customer.toString()
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/bulkposummary/",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        success: function () {
+                            alert("Add success!");
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert("Add failed.");
+                        }
+                    });
                 }
             });
 
