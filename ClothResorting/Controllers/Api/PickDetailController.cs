@@ -30,6 +30,15 @@ namespace ClothResorting.Controllers.Api
                 .Select(Mapper.Map<PickDetail, PickDetailDto>));
         }
 
+        // GET /api/pickdetail/
+        [HttpGet]
+        public IHttpActionResult DownloadPullSheetTemplate()
+        {
+            var downloader = new Downloader();
+            downloader.DownloadFromServer("PullSheet-Template.xlsx", @"D:\Template\");
+            return Ok();
+        }
+
         // POST /api/pickdetail/{id}(pullsheetid)
         public void ExtractPullSheetExcel([FromUri]int id)
         {

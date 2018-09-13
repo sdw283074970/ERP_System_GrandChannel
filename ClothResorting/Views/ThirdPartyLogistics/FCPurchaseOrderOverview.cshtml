@@ -10,6 +10,7 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
+        <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
     </div>
     <div id="div-bulk">
         <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
@@ -59,12 +60,21 @@
         <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country PL" />
     </div>
 </div>
+<div class="iframe-download">
+    <div>
+        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" />
+    </div>
+    <div>
+        <input id="download-freecountry" type="button" class="btn btn-default" value="Download FC Packing List Template" />
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
             $(".iframe").hide();
+            $(".iframe-download").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -86,8 +96,6 @@
             var preId = getUrlParameter('preid');
 
             var urlstring = "/api/fcpurchaseorderoverview/" + preId;
-
-            $(".btn-upload")
 
             $("#table").DataTable({
                 ajax: {
@@ -471,6 +479,23 @@
                         }
                     });
                 }
+            });
+
+            //打开下载装箱单模板弹窗
+            $(".btn-download").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "20%"],
+                    content: $(".iframe-download")
+                });
+            });
+
+            //下载FC的PL模板
+            $("#download-freecountry").on("click", function () {
+                $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=' + "FreeCountry");
+                $(".iframe-template").hide();
             });
 
             $(".btn-back").on("click", function () {

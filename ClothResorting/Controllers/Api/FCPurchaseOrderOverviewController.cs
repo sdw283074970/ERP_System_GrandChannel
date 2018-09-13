@@ -37,6 +37,20 @@ namespace ClothResorting.Controllers.Api
             return Ok(purchaseOrderDetails);
         }
 
+        // GET /api/fcpurchaseorderoverview/?customer={customerName}
+        [HttpGet]
+        public IHttpActionResult DownloadPackingListTemplate([FromUri]string customer)
+        {
+            var downloader = new Downloader();
+
+            if (customer == "FreeCountry")
+            {
+                downloader.DownloadFromServer("FreeCountryPackingList-Template.XLSX", @"D:\Template\");
+            }
+
+            return Ok();
+        }
+
         // POST /api/fcpurchaseorderoverview/{id}
         [HttpPost]
         public void UploadAndExtractFreeCountryExcel([FromUri]int id)

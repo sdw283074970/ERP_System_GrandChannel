@@ -12,7 +12,7 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div id="div-putback">
-        <input type="button" class="btn btn-group btn-create1" value="Upload pull sheet" /><button class="btn btn-primary btn-putback">Put back items</button>
+        <input type="button" class="btn btn-group btn-create1" value="Upload pull sheet" /><button class="btn btn-info btn-template">Download Template</button><button class="btn btn-primary btn-putback">Put back items</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -290,6 +290,11 @@
                     });
                 }
 
+            });
+
+            //点击下载模板按钮下载pullsheet模板
+            $("#div-putback").on("click", ".btn-template", function () {
+                $(window.location).attr('href', '/api/pickdetail');
             });
 
             $(".btn-back").on("click", function () {
