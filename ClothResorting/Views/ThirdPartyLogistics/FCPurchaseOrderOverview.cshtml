@@ -423,18 +423,23 @@
                 //var fcsPcs = button.parent().parent("tr").children('td').eq(7).children('font').html();
                 //var isBulkPo = fcsPcs == 0 ? true : false;
 
-                $.ajax({
-                    type: "DELETE",
-                    url: "/api/fcreceivingreport/" + button.attr('id'),
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function () {
-                        alert("Delete success!");
-                        window.location.reload();
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                        window.location.reload();
+                bootbox.confirm("Are you sure you want to delete this PO Summary?", function (result) {
+                    if (result)
+                    {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/api/fcreceivingreport/" + button.attr('id'),
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function () {
+                                alert("Delete success!");
+                                window.location.reload();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                                window.location.reload();
+                            }
+                        });
                     }
                 });
             });

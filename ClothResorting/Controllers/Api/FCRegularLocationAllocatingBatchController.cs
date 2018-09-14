@@ -39,6 +39,11 @@ namespace ClothResorting.Controllers.Api
             {
                 var regularCartonDetail = regularCartonDetailsIndb.SingleOrDefault(c => c.Id == id);
 
+                if (regularCartonDetail.Container == null || regularCartonDetail.Container == "Unknown")
+                {
+                    throw new Exception("Invalid contaier number. Container must be assigned first.");
+                }
+
                 var purchaseOrder = regularCartonDetail.PurchaseOrder;
                 var color = regularCartonDetail.Color;
                 var style = regularCartonDetail.Style;
@@ -142,7 +147,7 @@ namespace ClothResorting.Controllers.Api
             catch(Exception e)
             {
                 //return Ok();
-                throw new Exception("All cartons have been allocated.");
+                throw new Exception("Success! All cartons have been allocated.");
             }
         }
     }

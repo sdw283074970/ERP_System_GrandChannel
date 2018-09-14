@@ -302,18 +302,23 @@
             $("#table").on("click", ".btn-delete", function () {
                 var deleteId = $(this).attr('deleteid');
 
-                $.ajax({
-                    type: "DELETE",
-                    url: "/api/FCRegularCartonDetails/" + deleteId,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function () {
-                        alert("Delete success!");
-                        window.location.reload();
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                        window.location.reload();
+                bootbox.confirm("Are you sure you want to delete this entry?", function (result) {
+                    if (result)
+                    {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/api/FCRegularCartonDetails/" + deleteId,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function () {
+                                alert("Delete success!");
+                                window.location.reload();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                                window.location.reload();
+                            }
+                        });
                     }
                 });
             });

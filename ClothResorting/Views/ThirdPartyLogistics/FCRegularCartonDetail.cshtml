@@ -197,7 +197,11 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
+                                    if (quantity == 0 && lastCartonRange != currentCartonRange)
+                                    {
+                                        return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><br /><button style='width:30px' class='btn btn-link btn-manual' value='" + data + "'>OK</button><button style='width:40px' deleteid='" + data + "' class='btn btn-link btn-delete'>X</button>";
+                                    }
+                                    else if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
                                     {
                                         lastCartonRange = currentCartonRange;
                                         return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><button style='width:50px' class='btn btn-link btn-manual' value='" + data + "'>OK</button>";
@@ -326,6 +330,30 @@
                         }
                     });
                 }
+            });
+
+            //删除CartonDetail
+            $("#table").on("click", ".btn-delete", function () {
+                var deleteId = $(this).attr('deleteid');
+
+                bootbox.confirm("Are you sure you want to delete this entry?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/api/FCRegularCartonDetails/" + deleteId,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function () {
+                                alert("Delete success!");
+                                window.location.reload();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

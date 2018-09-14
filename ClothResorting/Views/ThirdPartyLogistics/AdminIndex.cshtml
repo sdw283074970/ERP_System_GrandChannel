@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "AdminIndex";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -64,8 +64,6 @@
             var preId = JSON.stringify(window.location.search.substr(1));
             var index;
             var customer;
-            var quantity;
-
             $(".iframe").hide();
 
             $("#table").DataTable({
@@ -119,7 +117,6 @@
                     {
                         data: "totalPcs",
                         render: function (data) {
-                            quantity = data;
                             return "<font color='green'>" + data + "</font>";
                         }
                     },
@@ -134,14 +131,8 @@
                         render: function (data) {
                             if (customer == "SILK-ICON")
                                 return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            else if (quantity == 0)
-                            {
-                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            }
                             else
-                            {
-                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a>";
-                            }
+                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                         }
                     }
                 ]

@@ -9,9 +9,12 @@ namespace ClothResorting.Controllers
 {
     public class ThirdPartyLogisticsController : Controller
     {
-        // 主页/预收货页面
+        // 主页/预收货页面/工作订单页面
         public ActionResult Index()
         {
+            if (User.IsInRole(RoleName.CanDeleteEverything))
+                return View("AdminIndex");
+
             return View();
         }
 

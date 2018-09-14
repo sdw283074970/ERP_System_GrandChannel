@@ -61,6 +61,11 @@ namespace ClothResorting.Controllers.Api
             {
                 cartonDetailInDb.Status = "Allocating";
 
+                if (cartonDetailInDb.Container == null || cartonDetailInDb.Container == "Unknown")
+                {
+                    throw new Exception("Invalid contaier number. Container must be assigned first.");
+                }
+
                 if (index == 1)
                 {
                     cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
@@ -157,7 +162,7 @@ namespace ClothResorting.Controllers.Api
             catch (Exception e)
             {
                 return Ok();
-                throw new Exception("All cartons have been allocated.");
+                throw new Exception("Success! All cartons have been allocated.");
             }
         }
     }
