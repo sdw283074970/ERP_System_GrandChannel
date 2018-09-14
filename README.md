@@ -54,4 +54,4 @@ Currently, the system is unable to:
 ### License
 This is not an open source project. Any usage and Fork are forbidden.
 
-Copyright (c) 2018, DONGWEI SHI All rights reserved.
+Copyright (c) 2018, Grand Channel Inc. All rights reserved.
