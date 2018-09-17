@@ -195,5 +195,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //库存搜索页面
+        public ActionResult InventorySearch()
+        {
+            return View();
+        }
     }
 }

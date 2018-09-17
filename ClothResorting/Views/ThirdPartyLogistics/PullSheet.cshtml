@@ -23,9 +23,9 @@
             <thead>
                 <tr>
                     <th style="width:23px">Id</th>
-                    <th style="width:49px">PO</th>
+                    <th @*style="width:49px"*@>PO</th>
                     <th style="width:79px">Customer</th>
-                    <th style="width:254px">Address</th>
+                    <th @*style="width:254px"*@>Address</th>
                     <th style="width:141px">Pick tickets range</th>
                     <th style="width:92px">Create date</th>
                     <th style="width:63px">Status</th>
@@ -53,7 +53,7 @@
                         data: data,
                         order: [[0, "desc"]],
                         destroy: true,
-                        scrollX: true,
+                        //scrollX: true,
                         scrollCollapse: true,
                         scrollY: "600px",
                         iDisplayLength: 100,

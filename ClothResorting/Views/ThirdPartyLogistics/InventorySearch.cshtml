@@ -1,0 +1,171 @@
+﻿
+@*@{
+    ViewBag.Title = "InventorySearch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}*@
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div>
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Grand Channel", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div>
+        <h1>Third-party Logistics Distribution System</h1>
+        <h2>Inventory Search</h2>
+
+        <div class="maincontainer">
+            <div>
+                <input type="button" class="btn btn-default btn-back" value="<< Back" />
+            </div>
+            <div>
+                <font id="orgCtns" color="orange"></font>
+                <font id="availableCtns" color="green"></font>
+                <font id="pickingCtns" color="red"></font>
+                <font id="shippedCtns" color="blue"></font><br />
+                <font id="orgPcs" color="orange"></font>
+                <font id="availablePcs" color="green"></font>
+                <font id="pickingPcs" color="red"></font>
+                <font id="shippedPcs" color="blue"></font><br />
+            </div>
+            <div>
+                <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
+                <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
+                <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
+                <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
+                <input style="width:140px" id="input-customer" class="input-sm" placeholder="Customer" />
+                <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
+                <input style="width:140px" id="input-location" class="input-sm" placeholder="Location" />
+                <input type="checkbox" id="check-isshipped" class="cb-selected" /> Display Shipped Items
+                <button id="btn-search" class="btn btn-info">Search</button><br />
+            </div>
+            <div>
+                <table id="table" class="table table-condensed table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Container</th>
+                            <th>Status</th>
+                            <th>Range</th>
+                            <th>PO</th>
+                            <th>Style</th>
+                            <th>Color</th>
+                            <th>CC</th>
+                            <th>Size</th>
+                            <th>Pcs</th>
+                            <th>Org Ctns</th>
+                            <th>Org Pcs</th>
+                            <th>Available Ctns</th>
+                            <th>Picking Ctns</th>
+                            <th>Shipped Ctns</th>
+                            <th>Available Pcs</th>
+                            <th>Picking Pcs</th>
+                            <th>Shipped Pcs</th>
+                            <th>Inbound Date</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="9" style="text-align:right">Total:</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <hr />
+        <footer>
+            <p>&copy; Copyright © @DateTime.Now.Year Grand Channel Inc. All rights reserved. Version Beta V0.1.3</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+</body>
+</html>
+<style>
+    body {
+        padding-top: 70px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+
+        $("#btn-search").on("click", function () {
+            var container = $("#input-container").val() == '' ? "NULL" : $("#input-container").val().toString();
+            var po = $("#input-po").val() == '' ? "NULL" : $("#input-po").val().toString();
+            var style = $("#input-style").val() == '' ? "NULL" : $("#input-style").val().toString();
+            var color = $("#input-color").val() == '' ? "NULL" : $("#input-color").val().toString();
+            var customer = $("#input-customer").val() == '' ? "NULL" : $("#input-customer").val().toString();
+            var size = $("#input-size").val() == '' ? "NULL" : $("#input-size").val().toString();
+            var location = $("#input-location").val() == '' ? "NULL" : $("#input-location").val().toString();
+            var isShipped = $("#check-isshipped").is(":checked");
+
+            //var obj = {
+            //    "container": container,
+            //    "purchaseOrder": po,
+            //    "style": style,
+            //    "color": color,
+            //    "customer": customer,
+            //    "location": location
+            //};
+
+            var url = "/api/inventorysearch/?container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped;
+
+            alert(url);
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function () {
+
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                    window.location.reload();
+                }
+            });
+        });
+
+    });
+</script>

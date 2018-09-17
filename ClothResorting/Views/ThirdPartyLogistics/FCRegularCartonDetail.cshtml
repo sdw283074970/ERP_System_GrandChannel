@@ -74,7 +74,7 @@
             var cartons;
             var quantity;
             var cartonRange;
-            var lastCartonRange;
+            var lastCartonRange = "null";
             var currentCartonRange;
 
             $.ajax({
@@ -197,14 +197,20 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (quantity == 0 && lastCartonRange != currentCartonRange)
+
+                                    if (lastCartonRange == currentCartonRange) {
+                                        lastCartonRange = currentCartonRange;
+                                        return "";
+                                    }
+                                    else if (quantity == 0 && lastCartonRange != currentCartonRange)
                                     {
+                                        lastCartonRange = currentCartonRange;
                                         return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><br /><button style='width:30px' class='btn btn-link btn-manual' value='" + data + "'>OK</button><button style='width:40px' deleteid='" + data + "' class='btn btn-link btn-delete'>X</button>";
                                     }
                                     else if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
                                     {
                                         lastCartonRange = currentCartonRange;
-                                        return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><button style='width:50px' class='btn btn-link btn-manual' value='" + data + "'>OK</button>";
+                                        return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><br /><button style='width:50px' class='btn btn-link btn-manual' value='" + data + "'>OK</button>";
                                     }
                                     else
                                     {
@@ -237,8 +243,9 @@
             //点击OK按钮，手动输入单个上传收入箱数
             $("#table").on("click", ".btn-manual", function () {
                 var button = $(this);
-                var value = button.prev().val();
-                var id = button.prev().attr("id");
+                //TO DO LIST:以下要改
+                var value = button.prev().prev().val();
+                var id = button.prev().prev().attr("id");
 
                 var arr = new Array(id, value);
 

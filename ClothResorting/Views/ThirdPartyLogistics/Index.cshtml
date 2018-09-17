@@ -10,19 +10,8 @@
 <div class="maincontainer">
     <div>
         <input id="create1" type="button" class="btn btn-group" value="Creat An Empty Work Order" />
-        <input id="btn-pullsheet" type="button" class="btn btn-primary" value="Manage pull sheet" />
-
-        @*<input id="btn-delete" type="button" class="btn btn-danger" value="Delete All" />*@
-
-        <a href="/ThirdPartyLogistics/GrabReplenishmentOrder/">
-            <input id="btn-replenishmentorder" type="button" class="btn btn-info" value="Grab Replenishment Order" />
-        </a>
-        <a href="/ThirdPartyLogistics/PermanentLocManagement/">
-            <input id="btn-location" type="button" class="btn btn-info" value="Manage Permanent Location" />
-        </a>
-        <a href="/ThirdPartyLogistics/PurchaseOrderManagement">
-            <input id="btn-po" type="button" class="btn btn-info" value="Manage Purchase Order" />
-        </a>
+        <input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" /> 
+        <input id="silkiconmenu" type="button" class="btn btn-info" value="Silk Icon Manu" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -55,7 +44,25 @@
         <input id="uploadfc" type="button" class="btn btn-default" value="Upload FC" />
     </div>
 </div>
-
+<div class="iframe-freecountry">
+    <div style="margin-top:10px;text-align:center">
+        <input id="btn-pullsheet" type="button" class="btn btn-primary" value="Manage pull sheet" /><br />
+        <input id="btn-search" type="button" class="btn btn-primary" value="Search Free Country Inventory" style="margin-top:5px" />
+    </div>
+</div>
+<div class="iframe-silkicon">
+    <div style="margin-top:15px;text-align:center">
+        <a href="/ThirdPartyLogistics/GrabReplenishmentOrder/">
+            <input id="btn-replenishmentorder" type="button" class="btn btn-info" value="Grab Replenishment Order" />
+        </a>
+        <a href="/ThirdPartyLogistics/PermanentLocManagement/">
+            <input style="margin-top:5px" id="btn-location" type="button" class="btn btn-info" value="Manage Permanent Location" />
+        </a>
+        <a href="/ThirdPartyLogistics/PurchaseOrderManagement">
+            <input style="margin-top:5px" id="btn-po" type="button" class="btn btn-info" value="Manage Purchase Order" />
+        </a>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -67,6 +74,8 @@
             var quantity;
 
             $(".iframe").hide();
+            $(".iframe-freecountry").hide();
+            $(".iframe-silkicon").hide();
 
             $("#table").DataTable({
                 ajax: {
@@ -305,12 +314,34 @@
                 }
             });
 
-            $("#btn-shiporder").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/shiporder');
+            //打开FreeCountry菜单弹窗
+            $("#freecountrymenu").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "10%"],
+                    content: $(".iframe-freecountry")
+                });
+            });
+
+            //打开SilkIcon菜单弹窗
+            $("#silkiconmenu").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "15%"],
+                    content: $(".iframe-silkicon")
+                });
+            });
+
+            $("#btn-search").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/InventorySearch/');
             });
 
             $("#btn-pullsheet").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/pullsheet');
+                $(window.location).attr('href', '/ThirdPartyLogistics/pullsheet/');
             });
 
         });
