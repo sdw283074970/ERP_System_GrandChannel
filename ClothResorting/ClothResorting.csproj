@@ -961,6 +961,10 @@
     <Compile Include="Migrations\201809062021558_AddedContainerDbSet.Designer.cs">
       <DependentUpon>201809062021558_AddedContainerDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809172208570_AddedPickingInfoInPullSheetDbSet.cs" />
+    <Compile Include="Migrations\201809172208570_AddedPickingInfoInPullSheetDbSet.Designer.cs">
+      <DependentUpon>201809172208570_AddedPickingInfoInPullSheetDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
@@ -1869,6 +1873,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809062021558_AddedContainerDbSet.resx">
       <DependentUpon>201809062021558_AddedContainerDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809172208570_AddedPickingInfoInPullSheetDbSet.resx">
+      <DependentUpon>201809172208570_AddedPickingInfoInPullSheetDbSet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

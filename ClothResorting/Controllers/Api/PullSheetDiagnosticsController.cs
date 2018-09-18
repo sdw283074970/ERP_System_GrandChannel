@@ -21,6 +21,7 @@ namespace ClothResorting.Controllers.Api
         }
 
         // GET /api/pullsheetdiagnostics/{id}(pullSheetId)
+        [HttpGet]
         public IHttpActionResult GetRecords([FromUri]int id)
         {
             var result = _context.PullSheetDiagnostics

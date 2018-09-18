@@ -40,6 +40,8 @@ namespace ClothResorting.Controllers.Api
                 Address = obj.Address,
                 PickTicketsRange = obj.PickTicketsRange,
                 CreateDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                PickDate = "Unassigned",
+                PickingMan = "Unassigned",
                 Status = "New Create"
             });
 
@@ -87,6 +89,22 @@ namespace ClothResorting.Controllers.Api
 
             pullSheetInDb.Status = "Shipped";
 
+            _context.SaveChanges();
+        }
+        
+        // PUT /api/pullsheet/?pullSheetId={id}
+        [HttpPut]
+        public void ChangeStatus([FromUri]int pullSheetId)
+        {
+            var pullSheetInDb = _context.PullSheets.Find(pullSheetId);
+            if (pullSheetInDb.Status == "Picking")
+            {
+                pullSheetInDb.Status = "Ready";
+            }
+            else if (pullSheetInDb.Status == "Ready")
+            {
+                pullSheetInDb.Status = "Picking";
+            }
             _context.SaveChanges();
         }
 

@@ -22,6 +22,7 @@ namespace ClothResorting.Controllers.Api
         }
 
         // GET /api/pickdetail/{id}(pullsheetid)
+        [HttpGet]
         public IHttpActionResult GetAllPickDetail([FromUri]int id)
         {
             return Ok(_context.PickDetails
@@ -40,6 +41,7 @@ namespace ClothResorting.Controllers.Api
         }
 
         // POST /api/pickdetail/{id}(pullsheetid)
+        [HttpPost]
         public void ExtractPullSheetExcel([FromUri]int id)
         {
             var fileSavePath = "";
@@ -59,5 +61,19 @@ namespace ClothResorting.Controllers.Api
 
             excel.ExtractPullSheet(id);
         }
+
+        // PUT /api/pickdetail/?pullSheetId={pullSheetId}&pickingMan={pickingMan}&pickDate={pickDate}
+        [HttpPut]
+        public void UpdatePickingInfo([FromUri]int pullSheetId, [FromUri]string pickingMan, [FromUri]string pickDate)
+        {
+            var pullSheetInDb = _context.PullSheets.Find(pullSheetId);
+
+            pullSheetInDb.PickingMan = pickingMan;
+            pullSheetInDb.PickDate = pickDate;
+
+            _context.SaveChanges();
+        }
+
+
     }
 }

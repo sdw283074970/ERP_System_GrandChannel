@@ -12,7 +12,7 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div id="div-putback">
-        <input type="button" class="btn btn-group btn-create1" value="Upload pull sheet" /><button class="btn btn-info btn-template">Download Template</button><button class="btn btn-primary btn-putback">Put back items</button>
+        <input type="button" class="btn btn-group btn-create1" value="Upload pull sheet" /><button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button><input type="button" class="btn btn-info btn-update" value="Update picking info" /><button class="btn btn-primary btn-putback">Put back items</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -295,6 +295,37 @@
             //点击下载模板按钮下载pullsheet模板
             $("#div-putback").on("click", ".btn-template", function () {
                 $(window.location).attr('href', '/api/pickdetail');
+            });
+
+            //点击更新拣货信息按钮，出现一系列表单
+            $("#div-putback").on("click", ".btn-update", function () {
+                var button = $(this);
+                button.next().remove();
+                button.replaceWith("<div><input id='input-pickingman' style='width:170px' class='input-sm' placeholder='Pick man' /><input id='input-pickdate' style='width:170px' class='input-sm' placeholder='Pick date(dd/MM/yyyy)' /><button class='btn btn-info btn-updatepickinginfo'>Update</button><div>");
+            });
+
+            //点击更新按钮，调用ajax更新
+            $("#div-putback").on("click", ".btn-updatepickinginfo", function () {
+                var pullSheetId = psid;
+                var pickingMan = $("#input-pickingman").val() == "" ? "Unassigned" : $("#input-pickingman").val().toString();
+                var pickDate = $("#input-pickdate").val() == "" ? "Unassigned" : $("#input-pickdate").val().toString();
+
+                var url = "/api/pickdetail/?pullSheetId=" + pullSheetId + "&pickingMan=" + pickingMan + "&pickDate=" + pickDate;
+
+                $.ajax({
+                    type: "PUT",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        bootbox.alert("Update success!");
+                        window.location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

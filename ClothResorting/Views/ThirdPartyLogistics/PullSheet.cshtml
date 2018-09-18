@@ -28,6 +28,8 @@
                     <th @*style="width:254px"*@>Address</th>
                     <th style="width:141px">Pick tickets range</th>
                     <th style="width:92px">Create date</th>
+                    <th style="width:92px">Pick date</th style="width:92px">
+                    <th style="width:92px">Pick man</th>
                     <th style="width:63px">Status</th>
                     <th>Operation</th>
                 </tr>
@@ -95,17 +97,33 @@
                                 }
                             },
                             {
+                                data: "pickDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickingMan",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "status",
                                 render: function (data) {
                                     status = data;
 
                                     if (data == "New Create")
                                     {
-                                        return "<text style='color:Green'>" + data + "</text>";
+                                        return "<text style='color:Orange'>" + data + "</text>";
                                     }
                                     else if (data == "Picking")
                                     {
                                         return "<text style='color:Red'>" + data + "</text>";
+                                    }
+                                    else if (data == "Ready")
+                                    {
+                                        return "<text style='color:Green'>" + data + "</text>";
                                     }
                                     else
                                     {
@@ -120,9 +138,9 @@
                                     {
                                         return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
                                     }
-                                    else if (status == "Picking")
+                                    else if (status == "Picking" || status == "Ready")
                                     {
-                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
+                                        return "<button id='" + data + "'class='btn btn-link btn-pick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
                                     }
                                     else
                                     {
@@ -188,6 +206,28 @@
                 $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?pullsheetid=' + button.attr('value'));
             });
 
+            //点击准备按钮改变状态
+            $("#table").on("click", ".btn-ready", function () {
+                var button = $(this);
+                var pullSheetId = button.attr('value');
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/pullsheet/?pullSheetId=" + pullSheetId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        bootbox.alert("Status has been changed.", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+
             $("#table").on("click", ".btn-ship", function () {
                 var button = $(this);
                 var id = button.attr('value');
@@ -201,8 +241,9 @@
                         alert("Selected pull sheet has been shipped.");
                         window.location.reload();
                     },
-                    error: function () {
-                        alert("Error!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
                     }
                 });
             });
@@ -217,11 +258,13 @@
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
-                        alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.");
-                        window.location.reload();
+                        alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
+                            window.location.reload();
+                        });
                     },
-                    error: function () {
-                        alert("Error!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
                     }
                 });
             });

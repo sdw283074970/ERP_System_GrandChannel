@@ -20,5 +20,9 @@ namespace ClothResorting.Dtos
         public string Status { get; set; }
 
         public string CreateDate { get; set; }
+
+        public string PickDate { get; set; }
+
+        public string PickingMan { get; set; }
     }
 }
