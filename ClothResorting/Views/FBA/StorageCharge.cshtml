@@ -30,10 +30,42 @@
         </table>
     </div>
 </div>
+<div class="iframe">
+    <div>
+        <text>Last Billing Date:</text>    <input id='input-lastbillingdate' type="date" style='width:170px' class='input-sm' />
+        <text>Current Billing Date:</text>    <input id='input-currentbillingdate' type="date" style='width:170px' class='input-sm' />
+    </div>
+    <div>
+        <input id="upload" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile" type="button" class="btn btn-primary" value="Upload & Download Excel File" />
+    </div>
+    <div>
+        <text>Charge method details are shown as below:</text>
+    </div>
+    <div>
+        <table id="table-iframe" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration</th>
+                    <th id="feepertimeunit">Fee per time unit</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
+
+            $(".iframe").hide();
+            var index;
+            var templateId;
 
             //打开页面出现的默认表格，显示已有模板
             $.ajax({
@@ -42,7 +74,7 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    $("table").DataTable({
+                    $("#table").DataTable({
                         destroy: true,
                         data: data,
                         scrollCollapse: true,
@@ -82,7 +114,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button editid='" + data + "' class='btn btn-link btn-edit' >Edit</button><button deleteid='" + data +"' class='btn btn-link btn-delete'>Delete</button>";
+                                    return "<button useid='" + data + "' class='btn btn-link btn-use' >Use</button><button editid='" + data + "' class='btn btn-link btn-edit' >Edit</button><button deleteid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
                                 }
                             }
                         ]
@@ -103,10 +135,10 @@
             $("#div-button").on("click", ".btn-new", function () {
                 var templateName = $("#input-templatename").val() == "" ? "Default Template" : $("#input-templatename").val().toString();
                 var customer = $("#input-customer").val() == "" ? "Default Customer" : $("#input-customer").val().toString();
-                var timeUnite = $("#input-timeunit").val() == "" ? "Day" : $("#input-timeunit").val().toString();
+                var timeUnit = $("#input-timeunit").val() == "" ? "Day" : $("#input-timeunit").val().toString();
                 var currency = $("#input-currency").val() == "" ? "USD" : $("#input-currency").val().toString();
 
-                var url = "/api/fba/chargetemplate/?templateName=" + templateName + "&customer=" + customer + "&timeunit=" + timeUnite + "&currency=" + currency;
+                var url = "/api/fba/chargetemplate/?templateName=" + templateName + "&customer=" + customer + "&timeunit=" + timeUnit + "&currency=" + currency;
 
                 $.ajax({
                     type: "POST",
@@ -126,7 +158,7 @@
 
             //点击各行的删除按钮，删除对应的记录
             $("#table").on("click", ".btn-delete", function () {
-                var templateId = $(this).attr('deleteid');
+                templateId = $(this).attr('deleteid');
 
                 $.ajax({
                     type: "DELETE",
@@ -145,12 +177,164 @@
 
             //点击编辑按钮，跳转到编辑页面
             $("#table").on("click", ".btn-edit", function () {
-                var templateId = $(this).attr('editid');
+                templateId = $(this).attr('editid');
                 var timeUnit = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
                 var currency = $(this).parent().parent("tr").children('td').eq(4).children('text').html();
 
                 var url = "/fba/chargemethods/?templateId=" + templateId + "&timeUnit=" + timeUnit + "&currency=" + currency;
                 $(window.location).attr('href', url);
+            });
+
+            //点击使用按钮，弹出上传文件窗口
+            $("#table").on("click", ".btn-use", function () {
+                templateId = $(this).attr('useid');
+                var timeUnit = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
+                var currency = $(this).parent().parent("tr").children('td').eq(4).children('text').html();
+                $("#feepertimeunit").html("Fee/" + timeUnit);
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["50%", "30%"],
+                    content: $(".iframe")
+                });
+
+                $.ajax({
+                    type: "GET",
+                    url: "/api/fba/chargemethod/?templateId=" + templateId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        $("#table-iframe").DataTable({
+                            destroy: true,
+                            paging: false,
+                            info: false,
+                            searching: false,
+                            data: data,
+                            order: 1,
+                            scrollCollapse: true,
+                            scrollY: "200px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "from",
+                                    render: function (data) {
+                                        if (data == 1) {
+                                            return "<text>1st " + timeUnit + "</text>";
+                                        }
+                                        else if (data == 2) {
+                                            return "<text>2nd " + timeUnit + "</text>";
+
+                                        }
+                                        else if (data == 3) {
+                                            return "<text>3rd " + timeUnit + "</text>";
+                                        }
+                                        else {
+                                            return "<text>" + data + "th " + timeUnit + "</text>";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "to",
+                                    render: function (data) {
+                                        if (data == 1) {
+                                            return "<text>1st " + timeUnit + "</text>";
+                                        }
+                                        else if (data == 2) {
+                                            return "<text>2nd " + timeUnit + "</text>";
+
+                                        }
+                                        else if (data == 3) {
+                                            return "<text>3rd " + timeUnit + "</text>";
+                                        }
+                                        else {
+                                            return "<text>" + data + "th " + timeUnit + "</text>";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "duration",
+                                    render: function (data) {
+                                        if (data == 1) {
+                                            return "<text>1 " + timeUnit + "</text>";
+                                        }
+                                        else {
+                                            return "<text>" + data + " " + timeUnit + "s</text>";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "fee",
+                                    render: function (data) {
+                                        if (data == 0) {
+                                            return "<text>Free</text>"
+                                        }
+                                        else {
+                                            return "<text>" + data + " " + currency + "</text>";
+                                        }
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                    }
+                })
+            });
+
+            //点击上传&下载按钮上传文件
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload").get(0).files;
+                
+                var lastBillingDate = $("#input-lastbillingdate").val();
+                var currentBillingDate = $("#input-currentbillingdate").val();
+
+                alert(lastBillingDate);
+
+                if (lastBillingDate == "" || currentBillingDate == "")
+                {
+                    alert("All the dates are required.");
+                }
+                else
+                {
+                    if (files.length > 0) {
+                        formData.append("fileName", files[0]);
+
+                        $.ajax({
+                            contentType: false,
+                            cache: false,
+                            processData: false,
+                            type: "POST",
+                            url: "/api/fba/chargetemplate/?templateId=" + templateId + "&lastBillingDate=" + lastBillingDate.toString() + "&currentBillingDate=" + currentBillingDate.toString(),
+                            data: formData,
+                            beforeSend: function () {
+                                layer.close(index);
+
+                                layer.msg('Extracting files...', {
+                                    icon: 1,
+                                    shade: 0.01,
+                                    time: 99 * 1000
+                                });
+                            },
+                            success: function () {
+                                layer.alert("Upload successed! The file will download automatically.");
+                                $(window.location).attr('href', '/api/fba/downloadfile/');
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    location.reload();
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        alert("Please upload file first.");
+                    }
+                }
+
             });
 
             $(".btn-back").on("click", function () {

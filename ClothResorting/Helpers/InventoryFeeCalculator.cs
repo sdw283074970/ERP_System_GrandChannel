@@ -33,13 +33,13 @@ namespace ClothResorting.Helpers
         }
 
         //调整Excel的主方法
-        public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string lastBillingDate, string currentBillingDate)
+        public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string timeUnit, string lastBillingDate, string currentBillingDate)
         {
             //首先将ChargeMehods表按照时间顺序排序
             chargeMethods = chargeMethods.OrderBy(x => x.From);
 
             _ws = _wb.Worksheets[1];
-            var countOfEntries = -1;
+            var countOfEntries = -7;
             var index = 1;
             while(index > 0)
             {
@@ -57,10 +57,10 @@ namespace ClothResorting.Helpers
 
             for(int i = 0; i < countOfEntries; i++)
             {
-                var inboundDate = _ws.Cells[i + 2, 7].Value2.ToString();
-                string outboundDate = _ws.Cells[i + 2, 8].Value2 == null ? null : _ws.Cells[i + 2, 8].Value2.ToString();
-                var totalPlts = _ws.Cells[i + 2, 6].Value2 == 0 || _ws.Cells[i + 2, 6].Value2 == null ? 1 : (int)_ws.Cells[i + 2, 6].Value2;
-                var storedDuration = CalculateDuration(inboundDate, outboundDate, lastBillingDate, currentBillingDate);
+                var inboundDate = _ws.Cells[i + 7, 7].Value.ToString("MM/dd/yyyy");
+                string outboundDate = _ws.Cells[i + 7, 8].Value2 == null ? null : _ws.Cells[i + 7, 8].Value.ToString("MM/dd/yyyy");
+                var totalPlts = _ws.Cells[i + 7, 6].Value2 == 0 || _ws.Cells[i + 7, 6].Value2 == null ? 1 : (int)_ws.Cells[i + 7, 6].Value2;
+                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate);
                 double storageCharge = 0;
                 double lastFee = 0;
 
@@ -84,14 +84,22 @@ namespace ClothResorting.Helpers
                     storageCharge += storedDuration * lastFee * totalPlts;
                 }
 
-                _ws.Cells[i] = storageCharge;
+                _ws.Cells[i + 7, 9] = storageCharge;
             }
 
+            //打上账单日
+            _ws.Cells[countOfEntries + 7, 2] = "Last Billing Date:";
+            _ws.Cells[countOfEntries + 7, 3] = lastBillingDate;
+
+            _ws.Cells[countOfEntries + 7, 5] = "Current Billing Date:";
+            _ws.Cells[countOfEntries + 7, 6] = currentBillingDate;
+
             _wb.Save();
+            _excel.Quit();
         }
 
         //输入两个日期字符串以及账单日范围，算出有多少周
-        public int CalculateDuration(string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate)
+        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate)
         {
             DateTime startDt;
             DateTime endDt;
@@ -105,13 +113,13 @@ namespace ClothResorting.Helpers
             //当outbound为空时，将今天当作outbound
             if (outboundDate == null)
             {
-                outboundDate = DateTime.Now.ToString("M/d/yyyy");
+                outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
             }
 
-            DateTime.TryParseExact(inboundDate, "M/d/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out inboundDt);
-            DateTime.TryParseExact(outboundDate, "M/d/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out outboundDt);
-            DateTime.TryParseExact(lastBillingDate, "MMddyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out lastBillingDt);
-            DateTime.TryParseExact(currentBillingDate, "MMddyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out currentBillingDt);
+            DateTime.TryParseExact(inboundDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out inboundDt);
+            DateTime.TryParseExact(outboundDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out outboundDt);
+            DateTime.TryParseExact(lastBillingDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out lastBillingDt);
+            DateTime.TryParseExact(currentBillingDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out currentBillingDt);
 
             //通过对比，得出有效的开始截至日期范围
             if (DateTime.Compare(inboundDt, lastBillingDt) > 0)
@@ -133,7 +141,16 @@ namespace ClothResorting.Helpers
             }
 
             var timeSpan = endDt.Subtract(startDt);
-            var duration = Math.Ceiling((double)timeSpan.Days / 7);
+            double duration = 0;
+
+            if (timeUnit == "Week")
+            {
+                duration = Math.Ceiling((double)timeSpan.Days / 7);
+            }
+            else
+            {
+                duration = Math.Ceiling((double)timeSpan.Days / 7);
+            }
 
             return (int)duration;
         }

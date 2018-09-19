@@ -9,6 +9,10 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Helpers;
+using System.Web;
+using System.IO;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -52,6 +56,38 @@ namespace ClothResorting.Controllers.Api.Fba
 
             return Created(Request.RequestUri + "/" + sample.Id, Mapper.Map<ChargeTemplate, ChargeTemplateDto>(sample));
         }
+
+        // POST /api/fba/chargetemplate/?templateId={templateId}&lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}
+        [HttpPost]
+        public void UploadAndDownloadFile([FromUri]int templateId, [FromUri]string lastBillingDate, [FromUri]string currentBillingDate)
+        {
+            var chargeMethodsList = _context.ChargeMethods
+                .Include(x => x.ChargeTemplate)
+                .Where(x => x.ChargeTemplate.Id == templateId)
+                .OrderBy(x => x.From)
+                .ToList();
+
+            var fileGetter = new FilesGetter();
+            var path = fileGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+
+            if (path == "")
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            var calculator = new InventoryFeeCalculator(path);
+
+            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate, currentBillingDate);
+
+            //强行关闭Excel进程
+            var killer = new ExcelKiller();
+            killer.Dispose();
+
+            //在静态变量中记录下载信息
+            DownloadRecord.FileName = fileGetter.FileName;
+            DownloadRecord.FilePath = path;
+        }
+
 
         // DELETE /api/fba/chargetemplate/?templateId={templateId}
         [HttpDelete]

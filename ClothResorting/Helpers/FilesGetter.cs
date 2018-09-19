@@ -9,6 +9,8 @@ namespace ClothResorting.Helpers
     {
         private string _filePath = "";
 
+        public string FileName;
+
         //从httpRequest中获取文件并写入磁盘系统
         public string GetAndSaveFileFromHttpRequest(string targetRootPath)
         {
@@ -26,6 +28,8 @@ namespace ClothResorting.Helpers
                         + DateTime.Now.Millisecond.ToString();
 
                     string fileNameOnly = httpPostedFile.FileName.Split('\\').Last();
+
+                    FileName = fileNameOnly;
 
                     _filePath = targetRootPath + timeStamp  + " - " + fileNameOnly;
 

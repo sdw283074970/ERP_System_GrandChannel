@@ -66,7 +66,7 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    $("table").DataTable({
+                    $("#table").DataTable({
                         destroy: true,
                         data: data,
                         order: 1,
@@ -83,21 +83,17 @@
                             {
                                 data: "from",
                                 render: function (data) {
-                                    if (data == 1)
-                                    {
+                                    if (data == 1) {
                                         return "<text>1st " + timeUnit + "</text>";
                                     }
-                                    else if (data == 2)
-                                    {
+                                    else if (data == 2) {
                                         return "<text>2nd " + timeUnit + "</text>";
 
                                     }
-                                    else if (data == 3)
-                                    {
+                                    else if (data == 3) {
                                         return "<text>3rd " + timeUnit + "</text>";
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "<text>" + data + "th " + timeUnit + "</text>";
                                     }
                                 }
@@ -115,8 +111,7 @@
                                     else if (data == 3) {
                                         return "<text>3rd " + timeUnit + "</text>";
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "<text>" + data + "th " + timeUnit + "</text>";
                                     }
                                 }
@@ -127,8 +122,7 @@
                                     if (data == 1) {
                                         return "<text>1 " + timeUnit + "</text>";
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "<text>" + data + " " + timeUnit + "s</text>";
                                     }
                                 }
@@ -136,12 +130,10 @@
                             {
                                 data: "fee",
                                 render: function (data) {
-                                    if (data == 0)
-                                    {
+                                    if (data == 0) {
                                         return "<text>Free</text>"
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "<text>" + data + " " + currency + "</text>";
                                     }
                                 }

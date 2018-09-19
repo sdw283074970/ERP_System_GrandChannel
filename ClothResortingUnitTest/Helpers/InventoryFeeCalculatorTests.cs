@@ -12,15 +12,15 @@ namespace ClothResortingUnitTest.Helpers
     class InventoryFeeCalculatorTests
     {
         [Test]
-        [TestCase("2/3/2018", "2/8/2018", "02032018", "02082018", 1)]
-        [TestCase("2/3/2018", "2/4/2018", "01032018", "02082018", 1)]
-        [TestCase("2/3/2018", "2/12/2018", "02032018", "02122018", 2)]
-        [TestCase("9/15/2018", null, "02032018", "02122019", 1)]
-        public void CalculateNunmberOfWeek_WhenBillingDateIsTheSameAsInAndOutboundDate_ReturnWeeks(string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, int expect)
+        [TestCase("Week", "02/03/2018", "02/8/2018", "2018-01-02", "2018-09-18", 1)]
+        [TestCase("Day", "02/03/2018", "02/4/2018", "2018-01-02", "2018-09-18", 1)]
+        [TestCase("Day", "02/03/2018", "02/12/2018", "2018-01-02", "2018-09-18", 2)]
+        [TestCase("Day", "09/15/2018", null, "2018-01-02", "2018-09-18", 1)]
+        public void CalculateNunmberOfWeek_WhenBillingDateIsTheSameAsInAndOutboundDate_ReturnWeeks(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, int expect)
         {
             var calculator = new InventoryFeeCalculator();
 
-            var result = calculator.CalculateDuration(inboundDate, outboundDate, lastBillingDate, currentBillingDate);
+            var result = calculator.CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate);
 
             Assert.That(result, Is.EqualTo(expect));
         }
