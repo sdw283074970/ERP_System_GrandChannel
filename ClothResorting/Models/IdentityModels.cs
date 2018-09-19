@@ -5,6 +5,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.ComponentModel.DataAnnotations.Schema;
 using ClothResorting.Models.Interface;
+using ClothResorting.Models.FBAModels;
 
 namespace ClothResorting.Models
 {
@@ -64,6 +65,27 @@ namespace ClothResorting.Models
             //    .HasOptional(c => c.PickingRecord)
             //    .WithRequired(c => c.FCRegularLocationDetail);
 
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+
+    public class FBADbContext : IdentityDbContext<ApplicationUser>
+    {
+        public FBADbContext()
+            : base("FBAConnection", throwIfV1Schema: false)
+        {
+        }
+
+        public DbSet<ChargeTemplate> ChargeTemplates{ get; set; }
+        public DbSet<ChargeMethod> ChargeMethods { get; set; }
+
+        public static FBADbContext Create()
+        {
+            return new FBADbContext();
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
             base.OnModelCreating(modelBuilder);
         }
     }

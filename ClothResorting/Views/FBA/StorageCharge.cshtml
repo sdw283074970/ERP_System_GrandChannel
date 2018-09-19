@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewBag.Title = "StorageCharge";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>New FBA System</h1>
+<h2>Charge Template</h2>
+
+<div class="maincontainer">
+    <div id="div-button">
+        <input type="button" class="btn btn-primary btn-create" value="Create New Charge Template" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Template Name</th>
+                    <th>Customer</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //点击添加收费模板按钮，出现一系列表单
+            $("#div-button").on("click", ".btn-create", function () {
+                var button = $(this);
+                button.replaceWith("<input id='input-templatename' style='width:170px' class='input-sm' placeholder='Template Name' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer Name' /><button class='btn btn-primary btn-new'>Create</button>");
+            });
+
+            //点击Create按钮，添加数据到数据库
+            $("#div-button").on("click", ".btn-new", function () {
+                var templateName = $("#input-templatename").val() == "" ? alert("Template Name cannot be empty.") : $("#input-templatename").val().toString();
+                var customer = $("#input-customer").val() == "" ? alert("Customer Name cannot be empty.") : $("#input-customer").val().toString();
+
+                var url = "/api/fba/chargetemplate/?templateName=" + templateName + "&customer=" + customer;
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Add success!");
+                        window.location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+}
+

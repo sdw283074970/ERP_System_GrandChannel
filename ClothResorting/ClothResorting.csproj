@@ -244,6 +244,8 @@
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
     <Compile Include="Controllers\Api\ContainerController.cs" />
+    <Compile Include="Controllers\Api\Fba\ChargeMethodController.cs" />
+    <Compile Include="Controllers\Api\Fba\ChargeTemplateController.cs" />
     <Compile Include="Controllers\Api\FCPurchaseOrderOverviewController.cs" />
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
@@ -289,13 +291,15 @@
     <Compile Include="Controllers\Api\SIRegularPLController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
-    <Compile Include="Controllers\FreeCountryController.cs" />
+    <Compile Include="Controllers\FBAController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
     <Compile Include="Dtos\AdjustmentRecordDto.cs" />
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
     <Compile Include="Dtos\ContainerDto.cs" />
+    <Compile Include="Dtos\Fba\ChargeMethodDto.cs" />
+    <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDto.cs" />
     <Compile Include="Dtos\LocationDetailDto.cs" />
@@ -329,6 +333,7 @@
     <Compile Include="Helpers\FilesGetter.cs" />
     <Compile Include="Helpers\CartonChecker.cs" />
     <Compile Include="Helpers\DbSynchronizer.cs" />
+    <Compile Include="Helpers\InventoryFeeCalculator.cs" />
     <Compile Include="Helpers\LoadPlanExtracter.cs" />
     <Compile Include="Helpers\OutboundRecorder.cs" />
     <Compile Include="Helpers\PDFGenerator.cs" />
@@ -1001,6 +1006,8 @@
     <Compile Include="Models\DataTransferModels\PSIModel.cs" />
     <Compile Include="Models\DataTransferModels\PullSheetSummary.cs" />
     <Compile Include="Models\DataTransferModels\RelocationHistoryRecord.cs" />
+    <Compile Include="Models\FBAModels\ChargeMethod.cs" />
+    <Compile Include="Models\FBAModels\ChargeTemplate.cs" />
     <Compile Include="Models\FCRegularLocationDetail.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
     <Compile Include="Models\LocationDetail.cs" />
@@ -1369,7 +1376,6 @@
     <Content Include="Views\ThirdPartyLogistics\PurchaseOrderStatistics.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\AdjustmentDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\IOHistory.cshtml" />
-    <Content Include="Views\FreeCountry\Index.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCPurchaseOrderOverview.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCRegularCartonDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCReceivingReport.cshtml" />
@@ -1386,6 +1392,7 @@
     <Content Include="Views\ThirdPartyLogistics\AdminRegularCartonDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\AdminIndex.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\InventorySearch.cshtml" />
+    <Content Include="Views\FBA\StorageCharge.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

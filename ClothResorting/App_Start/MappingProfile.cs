@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Dtos.Fba;
 using ClothResorting.Models;
+using ClothResorting.Models.FBAModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,7 @@ namespace ClothResorting.App_Start
     {
         public MappingProfile()
         {
+            //DefaultConnection
             Mapper.CreateMap<PreReceiveOrder, PreReceiveOrdersDto>();
             Mapper.CreateMap<PurchaseOrderSummary, PurchaseOrderSummaryDto>();
             Mapper.CreateMap<Measurement, MeasurementDto>();
@@ -35,6 +38,10 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<PickDetail, PickDetailDto>();
             Mapper.CreateMap<PullSheetDiagnostic, PullSheetDiagnosticDto>();
             Mapper.CreateMap<Container, ContainerDto>();
+
+            //FBAConnection
+            Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();
+            Mapper.CreateMap<ChargeMethod, ChargeMethodDto>();
         }
     }
 }

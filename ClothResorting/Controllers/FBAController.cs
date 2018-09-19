@@ -6,10 +6,15 @@ using System.Web.Mvc;
 
 namespace ClothResorting.Controllers
 {
-    public class FreeCountryController : Controller
+    public class FBAController : Controller
     {
-        // GET: FreeCountry
+        // GET: FBA
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult StorageCharge()
         {
             return View();
         }
