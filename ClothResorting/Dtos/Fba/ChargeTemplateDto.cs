@@ -14,6 +14,9 @@ namespace ClothResorting.Dtos.Fba
 
         public string Customer { get; set; }
 
-        public ICollection<ChargeMethod> ChargeMethods { get; set; }
+        public string TimeUnit { get; set; }
+
+        public string Currency { get; set; }
+
     }
 }

@@ -14,7 +14,14 @@ namespace ClothResorting.Controllers
             return View();
         }
 
+        //收费模板页面
         public ActionResult StorageCharge()
+        {
+            return View();
+        }
+
+        //收费细则页面
+        public ActionResult ChargeMethods()
         {
             return View();
         }

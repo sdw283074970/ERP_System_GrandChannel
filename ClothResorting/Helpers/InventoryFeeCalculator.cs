@@ -35,6 +35,9 @@ namespace ClothResorting.Helpers
         //调整Excel的主方法
         public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string lastBillingDate, string currentBillingDate)
         {
+            //首先将ChargeMehods表按照时间顺序排序
+            chargeMethods = chargeMethods.OrderBy(x => x.From);
+
             _ws = _wb.Worksheets[1];
             var countOfEntries = -1;
             var index = 1;
@@ -57,21 +60,28 @@ namespace ClothResorting.Helpers
                 var inboundDate = _ws.Cells[i + 2, 7].Value2.ToString();
                 string outboundDate = _ws.Cells[i + 2, 8].Value2 == null ? null : _ws.Cells[i + 2, 8].Value2.ToString();
                 var totalPlts = _ws.Cells[i + 2, 6].Value2 == 0 || _ws.Cells[i + 2, 6].Value2 == null ? 1 : (int)_ws.Cells[i + 2, 6].Value2;
-                var storedWeek = CalculateNunmberOfWeek(inboundDate, outboundDate, lastBillingDate, currentBillingDate);
+                var storedDuration = CalculateDuration(inboundDate, outboundDate, lastBillingDate, currentBillingDate);
                 double storageCharge = 0;
+                double lastFee = 0;
 
                 foreach(var method in chargeMethods)
                 {
-                    if (storedWeek >= method.WeekNumber)
+                    if (storedDuration >= method.Duration)
                     {
-                        storageCharge += method.WeekNumber * method.Fee * totalPlts;
-                        storedWeek -= method.WeekNumber;
+                        storageCharge += method.Duration * method.Fee * totalPlts;
+                        storedDuration -= method.Duration;
+                        lastFee = method.Fee;
                     }
-                    else if (storedWeek < method.WeekNumber)
+                    else if (storedDuration < method.Duration)
                     {
-                        storageCharge += storedWeek * method.Fee * totalPlts;
+                        storageCharge += storedDuration * method.Fee * totalPlts;
                         break;
                     }
+                }
+
+                if (storedDuration != 0)
+                {
+                    storageCharge += storedDuration * lastFee * totalPlts;
                 }
 
                 _ws.Cells[i] = storageCharge;
@@ -81,7 +91,7 @@ namespace ClothResorting.Helpers
         }
 
         //输入两个日期字符串以及账单日范围，算出有多少周
-        public int CalculateNunmberOfWeek(string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate)
+        public int CalculateDuration(string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate)
         {
             DateTime startDt;
             DateTime endDt;
@@ -123,9 +133,9 @@ namespace ClothResorting.Helpers
             }
 
             var timeSpan = endDt.Subtract(startDt);
-            var weeks = Math.Ceiling((double)timeSpan.Days / 7);
+            var duration = Math.Ceiling((double)timeSpan.Days / 7);
 
-            return (int)weeks;
+            return (int)duration;
         }
     }
 }

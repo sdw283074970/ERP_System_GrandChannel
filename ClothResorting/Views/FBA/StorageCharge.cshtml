@@ -8,6 +8,9 @@
 <h2>Charge Template</h2>
 
 <div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
     <div id="div-button">
         <input type="button" class="btn btn-primary btn-create" value="Create New Charge Template" />
     </div>
@@ -18,6 +21,8 @@
                     <th>Id</th>
                     <th>Template Name</th>
                     <th>Customer</th>
+                    <th>Time Unit</th>
+                    <th>Currency</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -30,18 +35,78 @@
     <script>
         $(document).ready(function () {
 
+            //打开页面出现的默认表格，显示已有模板
+            $.ajax({
+                type: "GET",
+                url: "/api/fba/chargetemplate/",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    $("table").DataTable({
+                        destroy: true,
+                        data: data,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "templateName",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "customer",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "timeUnit",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "currency",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button editid='" + data + "' class='btn btn-link btn-edit' >Edit</button><button deleteid='" + data +"' class='btn btn-link btn-delete'>Delete</button>";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                }
+            });
+
             //点击添加收费模板按钮，出现一系列表单
             $("#div-button").on("click", ".btn-create", function () {
                 var button = $(this);
-                button.replaceWith("<input id='input-templatename' style='width:170px' class='input-sm' placeholder='Template Name' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer Name' /><button class='btn btn-primary btn-new'>Create</button>");
+                button.replaceWith("<input id='input-templatename' style='width:170px' class='input-sm' placeholder='Template Name' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer Name' /><input id='input-timeunit' style='width:170px' class='input-sm' placeholder='Time Unit' /><input id='input-currency' style='width:170px' class='input-sm' placeholder='Currency' /><button class='btn btn-primary btn-new'>Create</button>");
             });
 
             //点击Create按钮，添加数据到数据库
             $("#div-button").on("click", ".btn-new", function () {
-                var templateName = $("#input-templatename").val() == "" ? alert("Template Name cannot be empty.") : $("#input-templatename").val().toString();
-                var customer = $("#input-customer").val() == "" ? alert("Customer Name cannot be empty.") : $("#input-customer").val().toString();
+                var templateName = $("#input-templatename").val() == "" ? "Default Template" : $("#input-templatename").val().toString();
+                var customer = $("#input-customer").val() == "" ? "Default Customer" : $("#input-customer").val().toString();
+                var timeUnite = $("#input-timeunit").val() == "" ? "Day" : $("#input-timeunit").val().toString();
+                var currency = $("#input-currency").val() == "" ? "USD" : $("#input-currency").val().toString();
 
-                var url = "/api/fba/chargetemplate/?templateName=" + templateName + "&customer=" + customer;
+                var url = "/api/fba/chargetemplate/?templateName=" + templateName + "&customer=" + customer + "&timeunit=" + timeUnite + "&currency=" + currency;
 
                 $.ajax({
                     type: "POST",
@@ -57,6 +122,39 @@
                         window.location.reload();
                     }
                 });
+            });
+
+            //点击各行的删除按钮，删除对应的记录
+            $("#table").on("click", ".btn-delete", function () {
+                var templateId = $(this).attr('deleteid');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/fba/chargetemplate/?templateId=" + templateId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Delete success!");
+                        window.location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                    }
+                });
+            });
+
+            //点击编辑按钮，跳转到编辑页面
+            $("#table").on("click", ".btn-edit", function () {
+                var templateId = $(this).attr('editid');
+                var timeUnit = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
+                var currency = $(this).parent().parent("tr").children('td').eq(4).children('text').html();
+
+                var url = "/fba/chargemethods/?templateId=" + templateId + "&timeUnit=" + timeUnit + "&currency=" + currency;
+                $(window.location).attr('href', url);
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
             });
         });
     </script>

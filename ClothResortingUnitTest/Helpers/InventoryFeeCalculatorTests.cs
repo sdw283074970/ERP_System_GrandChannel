@@ -20,7 +20,7 @@ namespace ClothResortingUnitTest.Helpers
         {
             var calculator = new InventoryFeeCalculator();
 
-            var result = calculator.CalculateNunmberOfWeek(inboundDate, outboundDate, lastBillingDate, currentBillingDate);
+            var result = calculator.CalculateDuration(inboundDate, outboundDate, lastBillingDate, currentBillingDate);
 
             Assert.That(result, Is.EqualTo(expect));
         }

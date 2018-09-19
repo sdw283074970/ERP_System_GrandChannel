@@ -13,6 +13,10 @@ namespace ClothResorting.Models.FBAModels
 
         public string Customer { get; set; }
 
+        public string TimeUnit { get; set; }
+
+        public string Currency { get; set; }
+
         public ICollection<ChargeMethod> ChargeMethods { get; set; }
     }
 }

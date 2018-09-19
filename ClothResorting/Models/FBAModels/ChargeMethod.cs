@@ -9,11 +9,17 @@ namespace ClothResorting.Models.FBAModels
     {
         public int Id { get; set; }
 
-        public string Period { get; set; }
+        public int From { get; set; }
 
-        public int WeekNumber { get; set; }
+        public int To { get; set; }
+
+        public int Duration { get; set; }
 
         public double Fee { get; set; }
+
+        public string TimeUnit { get; set; }
+
+        public string Currency { get; set; }
 
         public ChargeTemplate ChargeTemplate { get; set; }
     }

@@ -1,0 +1,236 @@
+﻿
+@{
+    ViewBag.Title = "ChargeMethods";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>New FBA System</h1>
+<h2>Charge Methods</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div id="div-button">
+        <input type="button" class="btn btn-primary btn-expand" value="Add A New Charge Method" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    @*<th>Id</th>*@
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration</th>
+                    <th id="feepertimeunit">Fee per time unit</th>
+                    <th>Time Unit</th>
+                    <th>Currency</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+            
+            var templateId = getUrlParameter('templateId');
+            var timeUnit = getUrlParameter('timeUnit');
+            var currency = getUrlParameter('currency');
+
+            $("#feepertimeunit").html("Fee/" + timeUnit);
+
+            //打开页面，显示改模板下的具体算法
+            $.ajax({
+                type: "GET",
+                url: "/api/fba/chargemethod/?templateId=" + templateId,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    $("table").DataTable({
+                        destroy: true,
+                        data: data,
+                        order: 1,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            //{
+                            //    data: "id",
+                            //    render: function (data) {
+                            //        return "<font>" + data + "</font>";
+                            //    }
+                            //},
+                            {
+                                data: "from",
+                                render: function (data) {
+                                    if (data == 1)
+                                    {
+                                        return "<text>1st " + timeUnit + "</text>";
+                                    }
+                                    else if (data == 2)
+                                    {
+                                        return "<text>2nd " + timeUnit + "</text>";
+
+                                    }
+                                    else if (data == 3)
+                                    {
+                                        return "<text>3rd " + timeUnit + "</text>";
+                                    }
+                                    else
+                                    {
+                                        return "<text>" + data + "th " + timeUnit + "</text>";
+                                    }
+                                }
+                            },
+                            {
+                                data: "to",
+                                render: function (data) {
+                                    if (data == 1) {
+                                        return "<text>1st " + timeUnit + "</text>";
+                                    }
+                                    else if (data == 2) {
+                                        return "<text>2nd " + timeUnit + "</text>";
+
+                                    }
+                                    else if (data == 3) {
+                                        return "<text>3rd " + timeUnit + "</text>";
+                                    }
+                                    else
+                                    {
+                                        return "<text>" + data + "th " + timeUnit + "</text>";
+                                    }
+                                }
+                            },
+                            {
+                                data: "duration",
+                                render: function (data) {
+                                    if (data == 1) {
+                                        return "<text>1 " + timeUnit + "</text>";
+                                    }
+                                    else
+                                    {
+                                        return "<text>" + data + " " + timeUnit + "s</text>";
+                                    }
+                                }
+                            },
+                            {
+                                data: "fee",
+                                render: function (data) {
+                                    if (data == 0)
+                                    {
+                                        return "<text>Free</text>"
+                                    }
+                                    else
+                                    {
+                                        return "<text>" + data + " " + currency + "</text>";
+                                    }
+                                }
+                            },
+                            {
+                                data: "timeUnit",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "currency",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button editid='" + data + "' class='btn btn-link btn-edit' >Edit</button><button deleteid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                }
+            });
+
+            //点击添加收费算法按钮，出现一系列表单
+            $("#div-button").on("click", ".btn-expand", function () {
+                var button = $(this);
+                button.replaceWith("<input id='input-from' type='number' style='width:170px' class='input-sm' placeholder='From(" + timeUnit + ")' /><input id='input-to' type='number' style='width:170px' class='input-sm' placeholder='To(" + timeUnit + ")' /><input id='input-fee' type='number' style='width:170px' class='input-sm' placeholder='Fee(" + currency + ")/" + timeUnit + "' /><button class='btn btn-primary btn-create'>Create</button>");
+            });
+
+            //点击Create按钮，添加数据到数据库
+            $("#div-button").on("click", ".btn-create", function () {
+                var from = $("#input-from").val();
+                var to = $("#input-to").val();
+                var fee = $("#input-fee").val();
+
+                if (from == "" || to == "" || fee == "")
+                {
+                    alert("All the feils are required.");
+                }
+                else
+                {
+                    var url = "/api/fba/chargemethod/?templateId=" + templateId + "&from=" + from + "&to=" + to + "&fee=" + fee;
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            alert("Add success!");
+                            window.location.reload();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
+                        }
+                    });
+                }
+            });
+
+            //点击各行的删除按钮，删除对应的记录
+            $("#table").on("click", ".btn-delete", function () {
+                var methodId = $(this).attr('deleteid');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/fba/chargemethod/?methodId=" + methodId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Delete success!");
+                        window.location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                    }
+                });
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

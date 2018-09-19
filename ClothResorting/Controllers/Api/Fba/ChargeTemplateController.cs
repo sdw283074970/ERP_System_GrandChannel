@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -31,13 +32,15 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(templatesDto);
         }
 
-        // POST /api/fba/chargetemplate/?templateName={templateName}&customer={customer}
+        // POST /api/fba/chargetemplate/?templateName={templateName}&customer={customer}&timeUnit={timeUnit}&currency={currency}
         [HttpPost]
-        public IHttpActionResult CreateNewTemplate([FromUri]string templateName, [FromUri]string customer)
+        public IHttpActionResult CreateNewTemplate([FromUri]string templateName, [FromUri]string customer, [FromUri]string timeUnit, [FromUri]string currency)
         {
             var newTemplate = new ChargeTemplate {
                 TemplateName = templateName,
-                Customer = customer
+                Customer = customer,
+                TimeUnit = timeUnit,
+                Currency = currency
             };
 
             _context.ChargeTemplates.Add(newTemplate);
@@ -48,6 +51,19 @@ namespace ClothResorting.Controllers.Api.Fba
                 .First();
 
             return Created(Request.RequestUri + "/" + sample.Id, Mapper.Map<ChargeTemplate, ChargeTemplateDto>(sample));
+        }
+
+        // DELETE /api/fba/chargetemplate/?templateId={templateId}
+        [HttpDelete]
+        public void DeleteTemplate([FromUri]int templateId)
+        {
+            var methodsInDb = _context.ChargeMethods
+                .Include(x => x.ChargeTemplate)
+                .Where(x => x.ChargeTemplate.Id == templateId);
+
+            _context.ChargeMethods.RemoveRange(methodsInDb);
+            _context.ChargeTemplates.Remove(_context.ChargeTemplates.Find(templateId));
+            _context.SaveChanges();
         }
     }
 }

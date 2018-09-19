@@ -22,49 +22,52 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new FBADbContext();
         }
 
-        // GET /api/fba/chargemethod/{templateId}
+        // GET /api/fba/chargemethod/?templateId={templateId}
         [HttpGet]
         public IHttpActionResult GetAllChargeMethod([FromUri]int templateId)
         {
             var methodsDto = _context.ChargeMethods
                 .Include(x => x.ChargeTemplate)
                 .Where(x => x.ChargeTemplate.Id == templateId)
-                .OrderBy(x => x.Period)
+                .OrderBy(x => x.From)
                 .Select(Mapper.Map<ChargeMethod, ChargeMethodDto>);
 
             return Ok(methodsDto);
         }
 
-        // POST /api/fba/chargemethod/?templateId={templateId}&period={period}&fee={fee}
+        // POST /api/fba/chargemethod/?templateId={templateId}&from={from}&to={to}&fee={fee}
         [HttpPost]
-        public IHttpActionResult CreateNewChargeMethod([FromUri]int templateId, [FromUri]string period, [FromUri]int fee)
+        public IHttpActionResult CreateNewChargeMethod([FromUri]int templateId, [FromUri]int from, [FromUri]int to, [FromUri]double fee)
         {
-            int weeks;
+            int duration = to - from + 1;
             var chargeTemplateInDb = _context.ChargeTemplates.Find(templateId);
 
-            try
-            {
-                if (period.Split('-').Count() > 1)
-                {
-                    weeks = int.Parse(period.Split('-')[1]) - int.Parse(period.Split('-')[0]);
+            //try
+            //{
+            //    if (period.Split('-').Count() > 1)
+            //    {
+            //        weeks = int.Parse(period.Split('-')[1]) - int.Parse(period.Split('-')[0]);
 
-                }
-                else
-                {
-                    weeks = int.Parse(period);
-                }
-            }
-            catch(Exception e)
-            {
-                throw new Exception("Period is invalid.");
-            }
+            //    }
+            //    else
+            //    {
+            //        weeks = int.Parse(period);
+            //    }
+            //}
+            //catch(Exception e)
+            //{
+            //    throw new Exception("Period is invalid.");
+            //}
 
             var newMethod = new ChargeMethod
             {
                 Fee = fee,
-                Period = period,
-                WeekNumber = weeks,
-                ChargeTemplate = chargeTemplateInDb
+                From = from,
+                To = to,
+                Duration = duration,
+                ChargeTemplate = chargeTemplateInDb,
+                TimeUnit = chargeTemplateInDb.TimeUnit,
+                Currency = chargeTemplateInDb.Currency
             };
 
             _context.ChargeMethods.Add(newMethod);
@@ -73,6 +76,14 @@ namespace ClothResorting.Controllers.Api.Fba
             var sample = _context.ChargeMethods.OrderByDescending(x => x.Id).First();
 
             return Created(Request.RequestUri + "/" + sample.Id, Mapper.Map<ChargeMethod, ChargeMethodDto>(sample));
+        }
+
+        // DELETE /api/fba/chargemethod/?methodId={methodId}
+        [HttpDelete]
+        public void DeleteMethod([FromUri]int methodId)
+        {
+            _context.ChargeMethods.Remove(_context.ChargeMethods.Find(methodId));
+            _context.SaveChanges();
         }
     }
 }
