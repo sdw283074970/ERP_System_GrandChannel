@@ -69,10 +69,10 @@ namespace ClothResorting.Models
         }
     }
 
-    public class FBADbContext : IdentityDbContext<ApplicationUser>
+    public class FBADbContext : DbContext
     {
         public FBADbContext()
-            : base("FBAConnection", throwIfV1Schema: false)
+            : base("FBAConnection")
         {
         }
 

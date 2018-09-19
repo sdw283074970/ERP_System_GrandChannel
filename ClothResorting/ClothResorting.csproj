@@ -971,6 +971,11 @@
       <DependentUpon>201809172208570_AddedPickingInfoInPullSheetDbSet.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
+    <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
+      <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\FBA\FBAConfiguration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdjustmentRecord.cs" />
     <Compile Include="Models\ApiTransformModels\AdjustmentJsonObj.cs" />
@@ -1883,6 +1888,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809172208570_AddedPickingInfoInPullSheetDbSet.resx">
       <DependentUpon>201809172208570_AddedPickingInfoInPullSheetDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
+      <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
