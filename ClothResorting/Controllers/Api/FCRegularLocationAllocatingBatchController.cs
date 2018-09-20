@@ -10,6 +10,7 @@ using System.Data.Entity;
 using ClothResorting.Helpers;
 using AutoMapper;
 using ClothResorting.Dtos;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -17,11 +18,13 @@ namespace ClothResorting.Controllers.Api
     {
         private ApplicationDbContext _context;
         private DateTime _timeNow;
+        private string _userName;
 
         public FCRegularLocationAllocatingBatchController()
         {
             _context = new ApplicationDbContext();
             _timeNow = DateTime.Now;
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // POST /api/FCRegularLocationAllocatingBatch
@@ -79,7 +82,8 @@ namespace ClothResorting.Controllers.Api
                         InboundDate = _timeNow,
                         PreReceiveOrder = prereceiveOrder,
                         RegularCaronDetail = sku,
-                        CartonRange = cartonRange
+                        CartonRange = cartonRange,
+                        Allocator = _userName
                     });
 
                     sku.ToBeAllocatedCtns = 0;

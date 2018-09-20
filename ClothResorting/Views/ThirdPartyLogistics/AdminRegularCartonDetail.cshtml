@@ -18,6 +18,8 @@
             <thead>
                 <tr>
                     <th>Id</th>
+                    <th>Created By</th>
+                    <th>Received By</th>
                     <th>Range</th>
                     <th>Customer</th>
                     <th>PO</th>
@@ -74,7 +76,7 @@
             var cartons;
             var quantity;
             var cartonRange;
-            var lastCartonRange;
+            var lastCartonRange = "null";
             var currentCartonRange;
 
             $.ajax({
@@ -90,6 +92,18 @@
                                 data: "id",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "receiver",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {
@@ -157,20 +171,41 @@
                             {
                                 data: "cartons",
                                 render: function (data) {
-                                    return "<font color='red'>" + data + "</font>";
+                                    cartons = data;
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange)) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             },
                             {
                                 data: "actualCtns",
                                 render: function (data) {
-                                    return "<font color='red'>" + data + "</font>";
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
+                                    {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                        + data + "' /> No problem";
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
+                                    {
+                                        return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                            + data + "' /> No problem";
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
                                 }
                             },
                             {
@@ -203,8 +238,9 @@
             //点击OK按钮，手动输入单个上传收入箱数
             $("#table").on("click", ".btn-manual", function () {
                 var button = $(this);
-                var value = button.prev().val();
-                var id = button.prev().attr("id");
+                //TO DO LIST:以下要改
+                var value = button.prev().prev().val();
+                var id = button.prev().prev().attr("id");
 
                 var arr = new Array(id, value);
 
@@ -303,8 +339,7 @@
                 var deleteId = $(this).attr('deleteid');
 
                 bootbox.confirm("Are you sure you want to delete this entry?", function (result) {
-                    if (result)
-                    {
+                    if (result) {
                         $.ajax({
                             type: "DELETE",
                             url: "/api/FCRegularCartonDetails/" + deleteId,
@@ -329,7 +364,3 @@
         });
     </script>
 }
-
-
-
-

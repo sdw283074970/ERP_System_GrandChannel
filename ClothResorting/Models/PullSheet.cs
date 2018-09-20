@@ -25,6 +25,10 @@ namespace ClothResorting.Models
 
         public string PickingMan { get; set; }
 
+        public string Operator { get; set; }
+
+        public string ShippingMan { get; set; }
+
         public ICollection<PickDetail> PickDetails { get; set; }
 
         public ICollection<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }

@@ -10,16 +10,19 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
 using ClothResorting.Helpers;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
     public class FCRegularLocationAllocatingController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public FCRegularLocationAllocatingController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/fcregularlocationallocating/{preid} 获取还没有被分配的SKU
@@ -94,7 +97,8 @@ namespace ClothResorting.Controllers.Api
                         InboundDate = DateTime.Now,
                         PreReceiveOrder = preReceiveOrderInDb,
                         RegularCaronDetail = cartonDetailInDb,
-                        CartonRange = cartonRange
+                        CartonRange = cartonRange,
+                        Allocator = _userName
                     });
 
                     index++;
@@ -126,7 +130,8 @@ namespace ClothResorting.Controllers.Api
                         InboundDate = DateTime.Now,
                         PreReceiveOrder = preReceiveOrderInDb,
                         RegularCaronDetail = cartonDetailInDb,
-                        CartonRange = cartonRange
+                        CartonRange = cartonRange,
+                        Allocator = _userName
                     });
                 }
 

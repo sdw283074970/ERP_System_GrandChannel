@@ -51,6 +51,12 @@ namespace ClothResorting.Models
 
         public string Comment { get; set; }
 
+        public string Receiver { get; set; }
+
+        public string Adjustor { get; set; }
+
+        public string Operator { get; set; }
+
         public DateTime? InboundDate { get; set; }
 
         public POSummary POSummary { get; set; }

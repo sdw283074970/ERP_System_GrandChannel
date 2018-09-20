@@ -50,5 +50,12 @@ namespace ClothResorting.Dtos
         public DateTime InboundDate { get; set; }
 
         public string Comment { get; set; }
+
+        public string Adjustor { get; set; }
+
+        public string Operator { get; set; }
+
+        public string Receiver { get; set; }
+
     }
 }

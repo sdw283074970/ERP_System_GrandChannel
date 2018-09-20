@@ -18,6 +18,8 @@
             <thead>
                 <tr>
                     <th>Id</th>
+                    <th>Created By</th>
+                    <th>Received By</th>
                     <th>Range</th>
                     <th>Customer</th>
                     <th>PO</th>
@@ -90,6 +92,18 @@
                                 data: "id",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "receiver",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
                                 }
                             },
                             {

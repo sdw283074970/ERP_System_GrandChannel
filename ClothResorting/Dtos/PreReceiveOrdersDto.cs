@@ -30,5 +30,7 @@ namespace ClothResorting.Dtos
         public int? ActualReceivedPcs { get; set; }
 
         public string Status { get; set; }
+
+        public string Operator { get; set; }
     }
 }

@@ -48,5 +48,8 @@ namespace ClothResorting.Dtos
         public DateTime InboundDate { get; set; }
 
         public string CartonRange { get; set; }
+
+        public string Allocator { get; set; }
+
     }
 }

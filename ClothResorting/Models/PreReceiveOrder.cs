@@ -31,6 +31,8 @@ namespace ClothResorting.Models
 
         public string Status { get; set; }
 
+        public string Operator { get; set; }
+
         public ICollection<PurchaseOrderSummary> PurchaseOrderSummaries { get; set; }
 
         public ICollection<POSummary> POSummaries { get; set; }

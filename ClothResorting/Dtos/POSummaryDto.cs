@@ -36,5 +36,8 @@ namespace ClothResorting.Dtos
         public string Container { get; set; }
 
         public string OrderType { get; set; }
+
+        public string Operator { get; set; }
+
     }
 }

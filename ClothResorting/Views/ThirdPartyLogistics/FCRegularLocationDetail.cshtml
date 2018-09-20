@@ -48,6 +48,7 @@
                     <th>Picking Pcs</th>
                     <th>Shipped Pcs</th>
                     <th>Inbound Date</th>
+                    <th>Allocated By</th>
                     <th>Location</th>
                     <th>Operation</th>
                 </tr>
@@ -56,6 +57,7 @@
             <tfoot>
                 <tr>
                     <th colspan="9" style="text-align:right">Total:</th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -128,7 +130,7 @@
                     }
 
                     table = $("#table").DataTable({
-                        scrollX: true,
+                        //scrollX: true,
                         scrollCollapse: true,
                         scrollY: "600px",
                         iDisplayLength: 100,
@@ -276,6 +278,12 @@
                             },
                             {
                                 data: "inboundDate",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "allocator",
                                 render: function (data) {
                                     return "<font>" + data + "</font>";
                                 }

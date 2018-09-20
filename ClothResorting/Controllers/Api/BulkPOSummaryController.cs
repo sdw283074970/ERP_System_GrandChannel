@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 namespace ClothResorting.Controllers.Api
@@ -14,10 +15,12 @@ namespace ClothResorting.Controllers.Api
     public class BulkPOSummaryController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public BulkPOSummaryController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // POST /api/bulkposummary/
@@ -37,6 +40,7 @@ namespace ClothResorting.Controllers.Api
                 ActualPcs = 0,
                 Cartons = 0,
                 ActualCtns = 0,
+                Operator = _userName,
                 PreReceiveOrder = preReceiveOrderInDb
             };
 

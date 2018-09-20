@@ -36,6 +36,8 @@
                     <th style="width:80px">Fcs Ctns</th>
                     <th style="width:80px">Ttl Ctns</th>
                     <th>Comment</th>
+                    <th style="width:80px">Received By</th>
+                    <th style="width:80px">Adjusted By</th>
                     <th style="width:80px">Operation</th>
                 </tr>
             </thead>
@@ -167,9 +169,21 @@
                                 }
                             },
                             {
+                                data: "receiver",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "adjustor",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button id='" + data + "' class='btn btn-link btn-edit'>Edit</button>";
+                                    return "<button id='" + data + "' class='btn btn-link btn-edit'>Edit Comment</button>";
                                 }
                             }
                         ]

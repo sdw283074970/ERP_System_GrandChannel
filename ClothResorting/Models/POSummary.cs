@@ -37,6 +37,8 @@ namespace ClothResorting.Models
 
         public string OrderType { get; set; }
 
+        public string Operator { get; set; }
+
         public PreReceiveOrder PreReceiveOrder { get; set; }
 
         public ICollection<RegularCartonDetail> RegularCartonDetails { get; set; }

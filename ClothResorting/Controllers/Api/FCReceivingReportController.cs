@@ -8,16 +8,19 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
 using ClothResorting.Helpers;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
     public class FCReceivingReportController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public FCReceivingReportController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/fcreceivingreport/?preid={preId}&container={container}
@@ -51,6 +54,9 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var carton in cartonDetailsInDb)
             {
+                //更新收货人
+                carton.Receiver = _userName;
+
                 carton.Status = "To Be Allocated";
 
                 carton.ActualCtns = carton.Cartons;

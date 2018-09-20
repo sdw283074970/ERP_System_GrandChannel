@@ -9,16 +9,19 @@ using System.Net;
 using System.Net.Http;
 using System.Data.Entity;
 using System.Web.Http;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
     public class PullSheetController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public PullSheetController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/pullsheet/ 查询
@@ -42,7 +45,9 @@ namespace ClothResorting.Controllers.Api
                 CreateDate = DateTime.Now.ToString("MM/dd/yyyy"),
                 PickDate = "Unassigned",
                 PickingMan = "Unassigned",
-                Status = "New Create"
+                Status = "New Create",
+                Operator = _userName,
+                ShippingMan = ""
             });
 
             _context.SaveChanges();
@@ -88,6 +93,7 @@ namespace ClothResorting.Controllers.Api
             }
 
             pullSheetInDb.Status = "Shipped";
+            pullSheetInDb.ShippingMan = _userName;
 
             _context.SaveChanges();
         }

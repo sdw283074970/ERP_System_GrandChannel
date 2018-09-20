@@ -24,5 +24,9 @@ namespace ClothResorting.Dtos
         public string PickDate { get; set; }
 
         public string PickingMan { get; set; }
+
+        public string Operator { get; set; }
+
+        public string ShippingMan { get; set; }
     }
 }

@@ -27,10 +27,12 @@
                     <th style="width:79px">Customer</th>
                     <th @*style="width:254px"*@>Address</th>
                     <th style="width:141px">Pick tickets range</th>
-                    <th style="width:92px">Create date</th>
-                    <th style="width:92px">Pick date</th style="width:92px">
-                    <th style="width:92px">Pick man</th>
+                    <th style="width:83px">Create date</th>
+                    <th style="width:73px">Create By</th>
+                    <th style="width:63px">Pick date</th style="width:92px">
+                    <th style="width:63px">Pick man</th>
                     <th style="width:63px">Status</th>
+                    <th style="width:83px">Shipped By</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -97,6 +99,12 @@
                                 }
                             },
                             {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "pickDate",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
@@ -129,6 +137,12 @@
                                     {
                                         return "<text style='color:blue'>" + data + "</text>";
                                     }
+                                }
+                            },
+                            {
+                                data: "shippingMan",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {

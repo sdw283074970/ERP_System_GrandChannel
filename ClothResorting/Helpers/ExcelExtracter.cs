@@ -10,6 +10,8 @@ using System.Data.Entity;
 using System.Web.Http;
 using System.Net;
 using ClothResorting.Models.DataTransferModels;
+using Microsoft.AspNet.Identity;
+using System.Web.Security;
 
 namespace ClothResorting.Helpers
 {
@@ -23,6 +25,7 @@ namespace ClothResorting.Helpers
         private Workbook _wb;
         private Worksheet _ws;
         private DateTime _dateTimeNow;
+        private string _userName;
         #endregion
 
         //PackingList全局变量
@@ -59,6 +62,7 @@ namespace ClothResorting.Helpers
         {
             _context = new ApplicationDbContext();
             _dateTimeNow = DateTime.Now;
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         public ExcelExtracter(string path)
@@ -68,6 +72,7 @@ namespace ClothResorting.Helpers
             _dateTimeNow = DateTime.Now;
             _excel = new Application();
             _wb = _excel.Workbooks.Open(_path);
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
         #endregion
 
@@ -89,7 +94,8 @@ namespace ClothResorting.Helpers
                 ContainerNumber = "Unknown",
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
-                Status = "New Created"
+                Status = "New Created",
+                Operator = _userName
             };
 
             _context.PreReceiveOrders.Add(newOrder);
@@ -129,7 +135,8 @@ namespace ClothResorting.Helpers
             for(int i = 0; i < _countOfPo; i++)
             {
                 poList.Add(new POSummary {
-                    PreReceiveOrder = preReceiveOrderInDb
+                    PreReceiveOrder = preReceiveOrderInDb,
+                    Operator = _userName
                 });
             }
 
@@ -209,7 +216,10 @@ namespace ClothResorting.Helpers
                                     Status = "Created",
                                     OrderType = orderType,
                                     POSummary = poSummary,
-                                    Comment = ""
+                                    Comment = "",
+                                    Operator = _userName,
+                                    Receiver = "",
+                                    Adjustor = ""
                                 });
                             }
                         }
@@ -250,7 +260,10 @@ namespace ClothResorting.Helpers
                             Status = "Created",
                             OrderType = orderType,
                             POSummary = poSummary,
-                            Comment = ""
+                            Comment = "",
+                            Operator = _userName,
+                            Receiver = "",
+                            Adjustor = ""
                         });
                     }
 
@@ -751,6 +764,7 @@ namespace ClothResorting.Helpers
                 TotalGrossWeight = 0,
                 TotalNetWeight = 0,
                 TotalVol = 0,
+                Operator = _userName
             });
 
             _context.SaveChanges();
@@ -800,7 +814,8 @@ namespace ClothResorting.Helpers
                     ActualCtns = 0,
                     ActualPcs = 0,
                     Container = "Unknown",
-                    PreReceiveOrder = preReceiveOrderInDb
+                    PreReceiveOrder = preReceiveOrderInDb,
+                    Operator = _userName
                 });
 
                 index += 2;
@@ -964,7 +979,10 @@ namespace ClothResorting.Helpers
                                     ToBeAllocatedPcs = 0,
                                     POSummary = poSummaryInDb,
                                     Comment = "",
-                                    OrderType = "Solid"
+                                    OrderType = "Solid",
+                                    Operator  = _userName,
+                                    Adjustor = "",
+                                    Receiver = ""
                                 };
 
                                 regularCartonDetailList.Add(regularCartonDetail);
@@ -993,7 +1011,10 @@ namespace ClothResorting.Helpers
                                     ToBeAllocatedCtns = 0,
                                     ToBeAllocatedPcs = 0,
                                     Comment = "",
-                                    OrderType = "Solid"
+                                    OrderType = "Solid",
+                                    Operator = _userName,
+                                    Adjustor = "",
+                                    Receiver = ""
                                 };
 
                                 foreach (var poSummaryIndb in poSummaryInDbs)
@@ -1021,7 +1042,7 @@ namespace ClothResorting.Helpers
                         if (poSummaryList.Count() == 1)
                         {
                             var poSummaryInDb = poSummaryInDbs.First();
-                            poSummaryInDb.OrderType = "In&Out";
+                            poSummaryInDb.OrderType = "Pre-pack";
 
                             var regularCartonDetail = new RegularCartonDetail
                             {
@@ -1046,7 +1067,10 @@ namespace ClothResorting.Helpers
                                 ToBeAllocatedPcs = 0,
                                 POSummary = poSummaryInDb,
                                 Comment = "",
-                                OrderType = "In&Out"
+                                OrderType = "Pre-pack",
+                                Operator = _userName,
+                                Adjustor = "",
+                                Receiver = ""
                             };
 
                             regularCartonDetailList.Add(regularCartonDetail);
@@ -1075,7 +1099,10 @@ namespace ClothResorting.Helpers
                                 ToBeAllocatedCtns = 0,
                                 ToBeAllocatedPcs = 0,
                                 Comment = "",
-                                OrderType = "In&Out"
+                                OrderType = "Pre-pack",
+                                Operator = _userName,
+                                Adjustor = "",
+                                Receiver = ""
                             };
 
                             foreach (var poSummaryIndb in poSummaryInDbs)

@@ -9,6 +9,7 @@ using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -16,11 +17,13 @@ namespace ClothResorting.Controllers.Api
     {
         private ApplicationDbContext _context;
         private DateTime _timeNow;
+        private string _userName;
 
         public FCRegularCartonDetailsController()
         {
             _context = new ApplicationDbContext();
             _timeNow = DateTime.Now;
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/fcregularcartondetails/{id}
@@ -64,12 +67,15 @@ namespace ClothResorting.Controllers.Api
                 ToBeAllocatedPcs = 0,
                 Status = "To Be Allocated",
                 Comment = "This is a bulk sku",
+                Operator = _userName,
+                Receiver = "",
+                Adjustor = "",
                 POSummary = poSummaryInDb
             };
 
             if (newCartonDetail.SizeBundle.Split(' ').Count() > 1)
             {
-                newCartonDetail.OrderType = "In&Out";
+                newCartonDetail.OrderType = "Pre-pack";
             }
             else
             {
@@ -112,6 +118,12 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var regularCartonDetailInDb in inOneBoxSKUs)
             {
+                //更新收货人
+                regularCartonDetailInDb.Receiver = _userName;
+
+                //更新调整人
+                regularCartonDetailInDb.Adjustor = _userName;
+
                 //将状态改为待分配
                 regularCartonDetailInDb.Status = "To Be Allocated";
 

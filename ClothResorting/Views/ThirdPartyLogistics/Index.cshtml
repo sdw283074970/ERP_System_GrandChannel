@@ -20,6 +20,7 @@
                     <th>Id</th>
                     <th>Customer Name</th>
                     <th>Created Date</th>
+                    <th>Created By</th>
                     <th style="width:95px">Container#</th>
                     <th>Fcs Ctns</th>
                     <th>Rcp Ctns</th>
@@ -103,6 +104,12 @@
                     },
                     {
                         data: "creatDate",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "operator",
                         render: function (data) {
                             return "<text>" + data + "</text>";
                         }

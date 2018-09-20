@@ -9,16 +9,19 @@ using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
     public class ReceivingReportController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public ReceivingReportController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /receivingreport/?preid={preId}&container={container}
@@ -42,6 +45,7 @@ namespace ClothResorting.Controllers.Api
             var cartonDetailInDb = _context.RegularCartonDetails.Find(obj.Id);
 
             cartonDetailInDb.Comment = obj.Comment;
+            cartonDetailInDb.Adjustor = _userName;
 
             _context.SaveChanges();
         }

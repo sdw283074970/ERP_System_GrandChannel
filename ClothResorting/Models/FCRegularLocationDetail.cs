@@ -47,6 +47,8 @@ namespace ClothResorting.Models
 
         public string CartonRange { get; set; }
 
+        public string Allocator { get; set; }
+
         public DateTime InboundDate { get; set; }
 
         public PreReceiveOrder PreReceiveOrder { get; set; }

@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -13,11 +14,13 @@ namespace ClothResorting.Controllers.Api
     {
         private ApplicationDbContext _context;
         private DateTime _timeNow;
+        private string _userName;
 
         public FCRegularCartonDetailConfirmationController()
         {
             _context = new ApplicationDbContext();
             _timeNow = DateTime.Now;
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // PUT /api/RegularCartonDetailConfirmation
@@ -55,6 +58,9 @@ namespace ClothResorting.Controllers.Api
 
                 foreach(var regularCaronDetailInDb in inOneBoxSKUs)
                 {
+                    //更新收货人
+                    regularCaronDetailInDb.Receiver = _userName;
+
                     //更新自身的可分配件数箱数
                     regularCaronDetailInDb.ToBeAllocatedPcs = regularCaronDetailInDb.Quantity;
                     regularCaronDetailInDb.Status = "To Be Allocated";
