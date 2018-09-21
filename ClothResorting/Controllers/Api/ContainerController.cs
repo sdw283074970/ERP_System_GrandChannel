@@ -39,6 +39,10 @@ namespace ClothResorting.Controllers.Api
         public void UpdateContainerInfo(ContainerInfoJsonObj obj)
         {
             var containerInDb = _context.Containers.SingleOrDefault(x => x.ContainerNumber == obj.ContainerNumber);
+            var preId = obj.PreId;
+            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preId);
+
+            preReceiveOrderInDb.CustomerName = obj.Vendor;
 
             containerInDb.Vendor = obj.Vendor;
             containerInDb.ReceivedDate = obj.ReceivedDate;

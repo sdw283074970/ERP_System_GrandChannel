@@ -7,6 +7,8 @@ namespace ClothResorting.Models.ApiTransformModels
 {
     public class ContainerInfoJsonObj
     {
+        public int PreId { get; set; }
+
         public string Vendor { get; set; }
 
         public string ReceivedDate { get; set; }
