@@ -39,17 +39,21 @@ namespace ClothResorting.Controllers.Api
 
             var speciesInDbs = _context.SpeciesInventories.Where(c => c.Id > 0);
 
-            var record = new LocationDetail {
+            var record = new ReplenishmentLocationDetail {
                 PurchaseOrder = obj.PurchaseOrder,
                 Style = obj.Style,
                 Color = obj.Color,
                 Size = obj.Size,
                 InboundDate = _timeNow,
-                OrgNumberOfCartons = obj.Ctns,
-                InvNumberOfCartons = obj.Ctns,
-                OrgPcs = obj.Quantity,
-                InvPcs = obj.Quantity,
+                Cartons = obj.Ctns,
+                AvailableCtns = obj.Ctns,
+                Quantity = obj.Quantity,
+                AvailablePcs = obj.Quantity,
                 Location = obj.Location,
+                PickingCtns = 0,
+                PickingPcs = 0,
+                ShippedCtns = 0,
+                ShippedPcs = 0,
                 PurchaseOrderInventory = purchaseOrderInventoryInDb
             };
 
@@ -70,11 +74,11 @@ namespace ClothResorting.Controllers.Api
                     Size = obj.Size,
                     AdjPcs = obj.Quantity,
                     OrgPcs = obj.Quantity,
-                    InvPcs = obj.Quantity,
+                    AvailablePcs = obj.Quantity,
                     PurchaseOrderInventory = purchaseOrderInventoryInDb
                 });
 
-                purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
+                purchaseOrderInventoryInDb.AvailablePcs += obj.Quantity;
                 _context.LocationDetails.Add(record);
                 _context.SaveChanges();
             }
@@ -84,12 +88,12 @@ namespace ClothResorting.Controllers.Api
                 //_sync.SyncSpeciesInvenory(speciesInDb.Id);
                 //_sync.SyncPurchaseOrderInventory(purchaseOrderInventoryInDb.Id);
 
-                purchaseOrderInventoryInDb.InvPcs += obj.Quantity;
-                purchaseOrderInventoryInDb.InvCtns += obj.Ctns;
+                purchaseOrderInventoryInDb.AvailablePcs += obj.Quantity;
+                purchaseOrderInventoryInDb.AvailableCtns += obj.Ctns;
 
                 speciesInDb.OrgPcs += obj.Quantity;
                 speciesInDb.AdjPcs += obj.Quantity;
-                speciesInDb.InvPcs += obj.Quantity;
+                speciesInDb.AvailablePcs += obj.Quantity;
 
                 _context.LocationDetails.Add(record);
                 _context.SaveChanges();
@@ -102,7 +106,7 @@ namespace ClothResorting.Controllers.Api
                 .First();
 
             //每添加一次单条inbound记录，返回所有结果，实现局部刷新表格
-            var result = new List<LocationDetail>();
+            var result = new List<ReplenishmentLocationDetail>();
 
             var query = _context.LocationDetails
                 .Include(c => c.PurchaseOrderInventory)
@@ -112,7 +116,7 @@ namespace ClothResorting.Controllers.Api
 
             result.AddRange(query);
 
-            var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
+            var resultDto = Mapper.Map<List<ReplenishmentLocationDetail>, List<ReplenishmentLocationDetailDto>>(result);
 
             return Created(Request.RequestUri + "/" + sample.Id, resultDto);
         }

@@ -639,13 +639,13 @@ namespace ClothResorting.Helpers
         //}
         #endregion
 
-        //以LocationDetail为单位，从入库报告中抽取信息(与PackingList无关联，与整个库存的PO对象有关联)
+        //以LocationDetail为单位，从入库报告中抽取信息，生成Inventory入库记录(与PackingList无关联，与整个库存的PO对象有关联)
         #region
         public void ExtractReplenishimentLocationDetail(string po)
         {
             int n = 3;
             int countOfObj = 0;
-            var locationDetailList = new List<LocationDetail>();
+            var locationDetailList = new List<ReplenishmentLocationDetail>();
 
             _ws = _wb.Worksheets[1];
             _purchaseOrder = _ws.Cells[1, 2] == null? "" : _ws.Cells[1, 2].Value2.ToString();
@@ -673,18 +673,22 @@ namespace ClothResorting.Helpers
 
             for(int i = 0; i < countOfObj; i++)
             {
-                var locationDetail = new LocationDetail
+                var locationDetail = new ReplenishmentLocationDetail
                 {
                     PurchaseOrderInventory = purchaseOrderInventoryInDb,
                     PurchaseOrder = _purchaseOrder,
                     Style = _ws.Cells[3 + i, 1].Value2.ToString(),
                     Color = _ws.Cells[3 + i, 2].Value2.ToString(),
                     Size = _ws.Cells[3 + i, 3].Value2.ToString(),
-                    OrgNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
-                    InvNumberOfCartons = (int)_ws.Cells[3 + i, 4].Value2(),
-                    OrgPcs = (int)_ws.Cells[3 + i, 5].Value2(),
-                    InvPcs = (int)_ws.Cells[3 + i, 5].Value2(),
+                    Cartons = (int)_ws.Cells[3 + i, 4].Value2(),
+                    AvailableCtns = (int)_ws.Cells[3 + i, 4].Value2(),
+                    Quantity = (int)_ws.Cells[3 + i, 5].Value2(),
+                    AvailablePcs = (int)_ws.Cells[3 + i, 5].Value2(),
                     Location = _ws.Cells[3 + i, 6].Value2(),
+                    PickingCtns = 0,
+                    PickingPcs = 0,
+                    ShippedCtns = 0,
+                    ShippedPcs = 0,
                     InboundDate = _dateTimeNow
                 };
 
@@ -706,7 +710,7 @@ namespace ClothResorting.Helpers
                         Size = locationDetail.Size,
                         OrgPcs = 0,
                         AdjPcs = 0,
-                        InvPcs = 0,
+                        AvailablePcs = 0,
                         PurchaseOrderInventory = purchaseOrderInventoryInDb
                     });
                 }
@@ -725,19 +729,19 @@ namespace ClothResorting.Helpers
                     && c.Style == locationDetail.Style
                     && c.Color == locationDetail.Color
                     && c.Size == locationDetail.Size)
-                    .OrgPcs += locationDetail.OrgPcs;
+                    .OrgPcs += locationDetail.Quantity;
 
                 speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
                     && c.Style == locationDetail.Style
                     && c.Color == locationDetail.Color
                     && c.Size == locationDetail.Size)
-                    .AdjPcs += locationDetail.OrgPcs;
+                    .AdjPcs += locationDetail.Quantity;
 
                 speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
                     && c.Style == locationDetail.Style
                     && c.Color == locationDetail.Color
                     && c.Size == locationDetail.Size)
-                    .InvPcs += locationDetail.OrgPcs;
+                    .AvailablePcs += locationDetail.Quantity;
             }
 
             _context.SaveChanges();

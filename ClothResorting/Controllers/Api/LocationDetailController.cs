@@ -29,7 +29,7 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetRegularLocationDetail([FromUri]PreIdPoJsonObj obj)
         {
-            var result = new List<LocationDetail>();
+            var result = new List<ReplenishmentLocationDetail>();
 
             var query = _context.LocationDetails
                 .Include(c => c.PurchaseOrderInventory)
@@ -39,7 +39,7 @@ namespace ClothResorting.Controllers.Api
 
             result.AddRange(query);
 
-            var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
+            var resultDto = Mapper.Map<List<ReplenishmentLocationDetail>, List<ReplenishmentLocationDetailDto>>(result);
 
             return Ok(resultDto);
         }
@@ -78,7 +78,7 @@ namespace ClothResorting.Controllers.Api
                 .Take(count)
                 .ToList();
 
-            var resultDto = Mapper.Map<List<LocationDetail>, List<LocationDetailDto>>(result);
+            var resultDto = Mapper.Map<List<ReplenishmentLocationDetail>, List<ReplenishmentLocationDetailDto>>(result);
 
             //同步刷新批量导入的LocationDetail所对应purchaseOrderInventory中的pcs件数
             var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories

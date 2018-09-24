@@ -35,7 +35,7 @@ namespace ClothResorting.Models
         public DbSet<Measurement> Measurements { get; set; }
         public DbSet<CartonBreakDown> CartonBreakDowns { get; set; }
         public DbSet<CartonBreakdownOutbound> CartonBreakdownOutbounds { get; set; }
-        public DbSet<LocationDetail> LocationDetails { get; set; }
+        public DbSet<ReplenishmentLocationDetail> LocationDetails { get; set; }
         public DbSet<PermanentLocation> PermanentLocations { get; set; }
         public DbSet<PermanentLocIORecord> PermanentLocIORecord { get; set; }
         public DbSet<PurchaseOrderInventory> PurchaseOrderInventories { get; set; }

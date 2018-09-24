@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "LocationDetail";
+    ViewBag.Title = "ReplenishmentLocationDetail";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <h1>Third-party Logistics Distribution System</h1>
@@ -55,10 +55,10 @@
                     <th>Style</th>
                     <th>Color</th>
                     <th>Size</th>
-                    <th>Org Ctn</th>
-                    <th>Inv Ctn</th>
                     <th>Org Pcs</th>
-                    <th>Inv Pcs</th>
+                    <th>Available Pcs</th>
+                    <th>Picking Pcs</th>
+                    <th>Shipped Pcs</th>
                     <th>Location</th>
                 </tr>
             </thead>
@@ -119,6 +119,10 @@
                     table = $("#table").DataTable({
                         destroy: true,
                         data: data,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        order: [[0, "desc"]],
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "inboundDate",
@@ -145,27 +149,27 @@
                                 }
                             },
                             {
-                                data: "orgNumberOfCartons",
-                                render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "invNumberOfCartons",
+                                data: "quantity",
                                 render: function (data) {
                                     return "<font color='orange'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "orgPcs",
+                                data: "availablePcs",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<font color='green'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "invPcs",
+                                data: "pickingPcs",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
                                 }
                             },
                             {
@@ -184,16 +188,13 @@
             });
 
             $("#btn-upload").on("click", function () {
-                layui.use("layer", function () {
-                    var layer = layui.layer;
 
-                    index = layer.open({
-                        title: false,
-                        type: 1,
-                        shadeclose: true,
-                        area: ["40%", "40%"],
-                        content: $(".iframe")
-                    });
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["40%", "40%"],
+                    content: $(".iframe")
                 });
             });
 
@@ -214,15 +215,11 @@
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);
-
-                        layui.use('layer', function () {
-                            var layer = layui.layer;
-                            layer.msg('Extracting files...', {
-                                icon: 16,
-                                shade: 0.01,
-                                time: 99 * 1000
-                            });;
-                        });
+                        layer.msg('Extracting files...', {
+                            icon: 16,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });;
                     },
                     success: function () {
                         layer.alert("Extract successed!", function () {
@@ -268,9 +265,14 @@
                         data: JSON.stringify(obj),
                         dataType: "json",
                         success: function (data) {
-                            $("#table").DataTable({
+
+                            table = $("#table").DataTable({
                                 destroy: true,
                                 data: data,
+                                scrollCollapse: true,
+                                order: [[0, "desc"]],
+                                scrollY: "600px",
+                                iDisplayLength: 100,
                                 columns: [
                                     {
                                         data: "inboundDate",
@@ -297,27 +299,27 @@
                                         }
                                     },
                                     {
-                                        data: "orgNumberOfCartons",
-                                        render: function (data) {
-                                            return "<font color='blue'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "invNumberOfCartons",
+                                        data: "quantity",
                                         render: function (data) {
                                             return "<font color='orange'>" + data + "</font>";
                                         }
                                     },
                                     {
-                                        data: "orgPcs",
+                                        data: "availablePcs",
                                         render: function (data) {
-                                            return "<font color='blue'>" + data + "</font>";
+                                            return "<font color='green'>" + data + "</font>";
                                         }
                                     },
                                     {
-                                        data: "invPcs",
+                                        data: "pickingPcs",
                                         render: function (data) {
-                                            return "<font color='orange'>" + data + "</font>";
+                                            return "<font color='red'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "shippedPcs",
+                                        render: function (data) {
+                                            return "<font color='blue'>" + data + "</font>";
                                         }
                                     },
                                     {

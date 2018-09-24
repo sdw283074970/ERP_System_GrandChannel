@@ -17,14 +17,14 @@
                 Purchase Order:
                 <input id="po" style="width:100px" />
             </font>
-            <font>
+            @*<font>
                 Order Type:
                 <input id="type" style="width:100px" />
-            </font>
-            <font>
+            </font>*@
+            @*<font>
                 Vender:
                 <input id="vender" style="width:100px" />
-            </font>
+            </font>*@
             <input id="btn-addpo" type="button" class="btn btn-info" value="Add new Po" />
         </div>
     </div>
@@ -33,10 +33,11 @@
             <thead>
                 <tr>
                     <th>Purchase Order</th>
+                    <th>Vendor</th>
                     <th>Order Type</th>
-                    <th>Vender</th>
-                    <th>Inv Ctns</th>
-                    <th>Inv Pcs</th>
+                    <th>Available Pcs</th>
+                    <th>Picking Pcs</th>
+                    <th>Shipped Pcs</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -55,15 +56,20 @@
                 contentType: 'application/json; charset=utf-8',
                 type: "GET",
                 dataType: "json",
-                url: "/api/PurchaseOrderManagement",
+                url: "/api/PurchaseOrderManagement/",
                 success: function (data) {
+
                     if (table) {
                         table.destroy();
                     }
+
                     table = $("#table").DataTable({
-                        "ordering": false,
+                        ordering: false,
                         destroy: true,
                         data: data,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "purchaseOrder",
@@ -84,22 +90,28 @@
                                 }
                             },
                             {
-                                data: "invCtns",
+                                data: "availablePcs",
                                 render: function (data) {
-                                    return "<font color='blue'>" + data + "</font>";
+                                    return "<font color='green'>" + data + "</font>";
                                 }
                             },
                             {
-                                data: "invPcs",
+                                data: "pickingPcs",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "purchaseOrder",
                                 render: function (data) {
                                     return "<a href='/ThirdPartyLogistics/PurchaseOrderStatistics/?po=" + data + "'><button class='btn btn-link'>Inventory Statistics</button></a><br>"
-                                        + "<a href='/ThirdPartyLogistics/LocationDetail/?po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
+                                        + "<a href='/ThirdPartyLogistics/replenishmentLocationDetail/?po=" + data + "'><button class='btn btn-link'>Location Distribution</button></a>";
                                 }
                             }
                         ]
@@ -110,27 +122,18 @@
             $("#btn-addpo").on("click", function () {
 
                 var po = $("#po").val().toString();
-                var type = $("#type").val().toString();
-                var vender = $("#vender").val().toString();
 
-                if (po == "" || type == "" || vender == "")
+                if (po == "")
                 {
                     alert("All fields are required!");
                 }
                 else
                 {
-                    var obj = {
-                        "purchaseOrder": po,
-                        "orderType": type,
-                        "vender": vender
-                    };
-
                     $.ajax({
                         contentType: 'application/json; charset=utf-8',
                         type: "POST",
                         dataType: "json",
-                        url: "/api/PurchaseOrderManagement",
-                        data: JSON.stringify(obj),
+                        url: "/api/PurchaseOrderManagement/?newPurchaseOrder=" + po,
                         success: function (data) {
                             alert("Success!");
 

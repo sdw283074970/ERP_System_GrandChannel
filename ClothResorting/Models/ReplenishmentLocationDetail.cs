@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ClothResorting.Models
 {
-    public class LocationDetail
+    public class ReplenishmentLocationDetail
     {
         public int Id { get; set; }
 
@@ -17,13 +17,21 @@ namespace ClothResorting.Models
 
         public string Size { get; set; }
 
-        public int OrgNumberOfCartons { get; set; }
+        public int Cartons { get; set; }
 
-        public int InvNumberOfCartons { get; set; }
+        public int AvailableCtns { get; set; }
 
-        public int OrgPcs { get; set; }
+        public int PickingCtns { get; set; }
 
-        public int InvPcs { get; set; }
+        public int ShippedCtns { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int AvailablePcs { get; set; }
+
+        public int PickingPcs { get; set; }
+
+        public int ShippedPcs { get; set; }
 
         public string Location { get; set; }
 

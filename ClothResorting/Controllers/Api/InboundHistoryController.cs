@@ -37,8 +37,8 @@ namespace ClothResorting.Controllers.Api
                 inboundHistoryList.Add(new InboundHistoryRecord {
                     InboundDate = record.InboundDate,
                     Location = record.Location,
-                    InboundPcs = "+" + record.OrgPcs.ToString(),
-                    ResidualPcs = record.InvPcs
+                    InboundPcs = "+" + record.Quantity.ToString(),
+                    ResidualPcs = record.AvailablePcs
                 });
             }
 

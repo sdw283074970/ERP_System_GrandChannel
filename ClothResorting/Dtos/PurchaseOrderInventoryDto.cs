@@ -15,8 +15,12 @@ namespace ClothResorting.Dtos
 
         public string Vender { get; set; }
 
-        public int InvPcs { get; set; }
+        public int AvailablePcs { get; set; }
 
-        public int InvCtns { get; set; }
+        public int AvailableCtns { get; set; }
+
+        public int PickingPcs { get; set; }
+
+        public int ShippedPcs { get; set; }
     }
 }

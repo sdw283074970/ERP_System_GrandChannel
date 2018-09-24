@@ -300,7 +300,7 @@
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDto.cs" />
-    <Compile Include="Dtos\LocationDetailDto.cs" />
+    <Compile Include="Dtos\ReplenishmentLocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
     <Compile Include="Dtos\PermanentLocationDto.cs" />
     <Compile Include="Dtos\PermanentLocIORecordDto.cs" />
@@ -973,6 +973,18 @@
     <Compile Include="Migrations\201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.Designer.cs">
       <DependentUpon>201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809242237529_ModifiedLocationDetailToReplenishmentLocationDetail.cs" />
+    <Compile Include="Migrations\201809242237529_ModifiedLocationDetailToReplenishmentLocationDetail.Designer.cs">
+      <DependentUpon>201809242237529_ModifiedLocationDetailToReplenishmentLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809242241102_ModifiedPurchaseOrderInventoryDbSet.cs" />
+    <Compile Include="Migrations\201809242241102_ModifiedPurchaseOrderInventoryDbSet.Designer.cs">
+      <DependentUpon>201809242241102_ModifiedPurchaseOrderInventoryDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809242329143_AddedTwoPropertiesInSpeciesInventory.cs" />
+    <Compile Include="Migrations\201809242329143_AddedTwoPropertiesInSpeciesInventory.Designer.cs">
+      <DependentUpon>201809242329143_AddedTwoPropertiesInSpeciesInventory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1005,7 +1017,6 @@
     <Compile Include="Models\ApiTransformModels\OpoRangePreidJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PickTiketsRangeJsonObj.cs" />
-    <Compile Include="Models\ApiTransformModels\POInvJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PreIdCommentJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PutBackJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\RecentBulkload.cs" />
@@ -1030,7 +1041,7 @@
     <Compile Include="Models\FBAModels\ChargeTemplate.cs" />
     <Compile Include="Models\FCRegularLocationDetail.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
-    <Compile Include="Models\LocationDetail.cs" />
+    <Compile Include="Models\ReplenishmentLocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
     <Compile Include="Models\PermanentLocIORecord.cs" />
     <Compile Include="Models\PickDetail.cs" />
@@ -1058,7 +1069,9 @@
     <Compile Include="Models\SizeRatio.cs" />
     <Compile Include="Models\SpeciesInventory.cs" />
     <Compile Include="Models\StaticClass\DownloadRecord.cs" />
+    <Compile Include="Models\StaticClass\OrderType.cs" />
     <Compile Include="Models\StaticClass\RoleName.cs" />
+    <Compile Include="Models\StaticClass\Vendor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -1386,7 +1399,7 @@
     <Content Include="Views\ThirdPartyLogistics\Location.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\Search.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdownOutbound.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\LocationDetail.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\ReplenishmentLocationDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCRegularLocationAllocating.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickReplenishmentOrder.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PermanentLocManagement.cshtml" />
@@ -1905,6 +1918,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.resx">
       <DependentUpon>201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809242237529_ModifiedLocationDetailToReplenishmentLocationDetail.resx">
+      <DependentUpon>201809242237529_ModifiedLocationDetailToReplenishmentLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809242241102_ModifiedPurchaseOrderInventoryDbSet.resx">
+      <DependentUpon>201809242241102_ModifiedPurchaseOrderInventoryDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809242329143_AddedTwoPropertiesInSpeciesInventory.resx">
+      <DependentUpon>201809242329143_AddedTwoPropertiesInSpeciesInventory.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

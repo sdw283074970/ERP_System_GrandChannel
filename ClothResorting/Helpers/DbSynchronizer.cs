@@ -90,7 +90,7 @@ namespace ClothResorting.Helpers
                     && c.Style == speciesInDb.Style
                     && c.Color == speciesInDb.Color
                     && c.Size == speciesInDb.Size)
-                .Select(c => c.InvPcs)
+                .Select(c => c.AvailablePcs)
                 .Sum();
 
             //查询当前种类在永久库位中剩余的件数
@@ -103,7 +103,7 @@ namespace ClothResorting.Helpers
                 .Sum();
 
             //重新计算该种类在数据库的库存数据
-            speciesInDb.InvPcs = locationInv + permanentInv;
+            speciesInDb.AvailablePcs = locationInv + permanentInv;
 
             //重新计算该种类在数据库的原始件数数据(调整前数据)
             speciesInDb.OrgPcs = _context.LocationDetails
@@ -111,7 +111,7 @@ namespace ClothResorting.Helpers
                     && c.Style == speciesInDb.Style
                     && c.Color == speciesInDb.Color
                     && c.Size == speciesInDb.Size)
-                .Select(c => c.OrgPcs)
+                .Select(c => c.Quantity)
                 .Sum();
 
             //重新计算该种类在数据库中的调整后数据
@@ -143,8 +143,8 @@ namespace ClothResorting.Helpers
             var poInDb = _context.PurchaseOrderInventories.Find(poId);
 
             //重新计算该po下的所有种类的件数之和
-            poInDb.InvPcs = _context.SpeciesInventories.Where(c => c.PurchaseOrder == poInDb.PurchaseOrder)
-                .Select(c => c.InvPcs)
+            poInDb.AvailablePcs = _context.SpeciesInventories.Where(c => c.PurchaseOrder == poInDb.PurchaseOrder)
+                .Select(c => c.AvailablePcs)
                 .Sum();
 
             _context.SaveChanges();

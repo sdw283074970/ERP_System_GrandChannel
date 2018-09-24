@@ -120,7 +120,7 @@ namespace ClothResorting.Helpers
                                 && c.Style == request.Style
                                 && c.Color == request.Color
                                 && c.Size == request.Size
-                                && c.InvPcs != 0)
+                                && c.AvailablePcs != 0)
                                 .OrderBy(c => c.InboundDate)    //先进先出
                                 .ThenBy(c => c.Id).ToList();
 
@@ -142,8 +142,8 @@ namespace ClothResorting.Helpers
                                         Size = request.Size,
                                         TargetPcs = targetPcs,
                                         InvBefore = permanentLocInDb.Quantity,
-                                        InvChange = selfLocation.InvPcs,
-                                        InvAfter = selfLocation.InvPcs + permanentLocInDb.Quantity,
+                                        InvChange = selfLocation.AvailablePcs,
+                                        InvAfter = selfLocation.AvailablePcs + permanentLocInDb.Quantity,
                                         FromLocation = selfLocation.Location,
                                         TargetBalance = targetPcs,
                                         OperationDate = _timeNow,
@@ -155,9 +155,9 @@ namespace ClothResorting.Helpers
                                     //移库不造成件数总数的变化
 
                                     //调整永久库位件数
-                                    permanentLocInDb.Quantity = selfLocation.InvPcs;
+                                    permanentLocInDb.Quantity = selfLocation.AvailablePcs;
                                     //调整原库位的件数
-                                    selfLocation.InvPcs = 0;
+                                    selfLocation.AvailablePcs = 0;
 
                                     _context.SaveChanges();
                                 }
@@ -174,8 +174,8 @@ namespace ClothResorting.Helpers
                                         Size = request.Size,
                                         TargetPcs = targetPcs,
                                         InvBefore = permanentLocInDb.Quantity,
-                                        InvChange = replenishment.InvPcs,
-                                        InvAfter = replenishment.InvPcs + permanentLocInDb.Quantity,
+                                        InvChange = replenishment.AvailablePcs,
+                                        InvAfter = replenishment.AvailablePcs + permanentLocInDb.Quantity,
                                         FromLocation = replenishment.Location,
                                         TargetBalance = targetPcs,
                                         OperationDate = _timeNow,
@@ -187,9 +187,9 @@ namespace ClothResorting.Helpers
                                     //移库不造成件数总数的变化
 
                                     //调整永久库位件数
-                                    permanentLocInDb.Quantity = replenishment.InvPcs;
+                                    permanentLocInDb.Quantity = replenishment.AvailablePcs;
                                     //调整原库位的件数
-                                    replenishment.InvPcs = 0;
+                                    replenishment.AvailablePcs = 0;
 
                                     _context.SaveChanges();
                                 }
@@ -263,7 +263,7 @@ namespace ClothResorting.Helpers
                             && c.Style == request.Style
                             && c.Color == request.Color
                             && c.Size == request.Size
-                            && c.InvPcs != 0)
+                            && c.AvailablePcs != 0)
                             .OrderBy(c => c.InboundDate)    //先进先出
                             .ThenBy(c => c.Id).ToList();
                         if (replenishments.Count != 0)
@@ -279,8 +279,8 @@ namespace ClothResorting.Helpers
                                 Size = request.Size,
                                 TargetPcs = targetPcs,
                                 InvBefore = permanentLocInDb.Quantity,
-                                InvChange = replenishmentFromOtherLoc.InvPcs,
-                                InvAfter = replenishmentFromOtherLoc.InvPcs + permanentLocInDb.Quantity,
+                                InvChange = replenishmentFromOtherLoc.AvailablePcs,
+                                InvAfter = replenishmentFromOtherLoc.AvailablePcs + permanentLocInDb.Quantity,
                                 FromLocation = replenishmentFromOtherLoc.Location,
                                 TargetBalance = targetPcs,
                                 OperationDate = _timeNow,
@@ -291,9 +291,9 @@ namespace ClothResorting.Helpers
                             //移库不造成库存件数的出库变化
 
                             //调整永久库位的件数
-                            permanentLocInDb.Quantity += replenishmentFromOtherLoc.InvPcs;
+                            permanentLocInDb.Quantity += replenishmentFromOtherLoc.AvailablePcs;
                             //调整原库位的件数
-                            replenishmentFromOtherLoc.InvPcs = 0;
+                            replenishmentFromOtherLoc.AvailablePcs = 0;
 
                             _context.SaveChanges();
                         }

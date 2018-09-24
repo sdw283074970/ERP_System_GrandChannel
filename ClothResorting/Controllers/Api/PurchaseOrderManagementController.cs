@@ -2,6 +2,7 @@
 using ClothResorting.Dtos;
 using ClothResorting.Models;
 using ClothResorting.Models.ApiTransformModels;
+using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,15 +29,17 @@ namespace ClothResorting.Controllers.Api
                 .Select(Mapper.Map<PurchaseOrderInventory, PurchaseOrderInventoryDto>));
         }
 
-        // POST /api/purchaseordermanagement
-        public IHttpActionResult CreateNewPOInventory([FromBody]POInvJsonObj obj)
+        // POST /api/purchaseordermanagement/?newPurchaseOrder={newPurchaseOrder}
+        public IHttpActionResult CreateNewPOInventory([FromUri]string newPurchaseOrder)
         {
             _context.PurchaseOrderInventories.Add(new PurchaseOrderInventory {
-                PurchaseOrder = obj.PurchaseOrder,
-                Vender = obj.Vender,
-                OrderType = obj.OrderType,
-                InvCtns = 0,
-                InvPcs = 0
+                PurchaseOrder = newPurchaseOrder,
+                Vender = Vendor.SilkIcon,
+                OrderType = OrderType.Replenishment,
+                AvailableCtns = 0,
+                AvailablePcs = 0,
+                PickingPcs = 0,
+                ShippedPcs = 0
             });
 
             _context.SaveChanges();

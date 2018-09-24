@@ -58,12 +58,12 @@ namespace ClothResorting.Controllers.Api
                 Adjustment = obj.Adjust < 0 ? "-" + -obj.Adjust : "+" + obj.Adjust,
                 AdjustDate = _timeNow,
                 SpeciesInventory = speciesInDb,
-                Balance = (speciesInDb.InvPcs + obj.Adjust).ToString()
+                Balance = (speciesInDb.AvailablePcs + obj.Adjust).ToString()
             });
 
             speciesInDb.AdjPcs += obj.Adjust;
-            speciesInDb.InvPcs += obj.Adjust;
-            speciesInDb.PurchaseOrderInventory.InvPcs += obj.Adjust;
+            speciesInDb.AvailablePcs += obj.Adjust;
+            speciesInDb.PurchaseOrderInventory.AvailablePcs += obj.Adjust;
 
             _context.SaveChanges();
 

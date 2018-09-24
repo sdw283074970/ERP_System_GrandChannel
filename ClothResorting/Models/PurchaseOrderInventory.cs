@@ -15,11 +15,15 @@ namespace ClothResorting.Models
 
         public string Vender { get; set; }
 
-        public int InvPcs { get; set; }
+        public int AvailablePcs { get; set; }
 
-        public int InvCtns { get; set; }
+        public int AvailableCtns { get; set; }
 
-        public ICollection<LocationDetail> LocationDetails { get; set; }
+        public int PickingPcs { get; set; }
+
+        public int ShippedPcs { get; set; }
+
+        public ICollection<ReplenishmentLocationDetail> LocationDetails { get; set; }
 
         public ICollection<SpeciesInventory> SpeciesInventories { get; set; }
     }
