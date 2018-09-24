@@ -56,7 +56,5 @@ namespace ClothResorting.Models
         public RegularCartonDetail RegularCaronDetail { get; set; }
 
         public ICollection<CartonInside> CartonInsides { get; set; }
-
-        public ICollection<PickingRecord> PickingRecord { get; set; }
     }
 }

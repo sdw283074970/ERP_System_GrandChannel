@@ -22,7 +22,7 @@ namespace ClothResorting.Helpers
         //生成文件到内存，并不真正输出
         public void GeneratePickDetailPdf(int pullSheetId)
         {
-            var pullSheetInDb = _context.PullSheets
+            var pullSheetInDb = _context.ShipOrders
                 .Include(c => c.PickDetails)
                 .SingleOrDefault(x => x.Id == pullSheetId);
 

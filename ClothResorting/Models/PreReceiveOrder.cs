@@ -38,7 +38,5 @@ namespace ClothResorting.Models
         public ICollection<POSummary> POSummaries { get; set; }
 
         public ICollection<FCRegularLocationDetail> FCRegularLocationDetails { get; set; }
-
-        public ICollection<PickingList> PickingLists { get; set; }
     }
 }

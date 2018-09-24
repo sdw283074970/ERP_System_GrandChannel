@@ -72,11 +72,11 @@
             };
 
             //从地址栏获取参数
-            var psid = getUrlParameter('pullsheetid');
+            var shipOrderId = getUrlParameter('shipOrderId');
 
             $.ajax({
                 type: "GET",
-                url: "/api/pickdetail/" + psid,
+                url: "/api/pickdetail/" + shipOrderId,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -203,7 +203,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/pickdetail/" + psid,
+                    url: "/api/pickdetail/" + shipOrderId,
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);
@@ -238,7 +238,6 @@
 
             //点击放回按钮，将表单中的数据通过api生成对象添加到对应库存中
             $("#div-putback").on("click", ".btn-add", function () {
-                var pullSheetId = psid;
                 var container = $("#input-container").val();
                 var po = $("#input-po").val();
                 //var range = $("#input-range").val();
@@ -259,7 +258,7 @@
                 else
                 {
                     var obj = {
-                        "pullSheetId": pullSheetId,
+                        "shipOrderId": shipOrderId,
                         "container": container.toString(),
                         "purchaseOrder": po.toString(),
                         //"cartonRange": range.toString(),
@@ -284,8 +283,10 @@
                             alert("Items have been put back.");
                             window.location.reload();
                         },
-                        error: function () {
-                            alert("An error occurred.");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }
@@ -297,7 +298,7 @@
                 $(window.location).attr('href', '/api/pickdetail');
             });
 
-            //点击更新拣货信息按钮，出现一系列表单
+            //点击更新"拣货信息(发货日期，拣货人等)"按钮，出现一系列表单
             $("#div-putback").on("click", ".btn-update", function () {
                 var button = $(this);
                 button.next().remove();
@@ -306,11 +307,10 @@
 
             //点击更新按钮，调用ajax更新
             $("#div-putback").on("click", ".btn-updatepickinginfo", function () {
-                var pullSheetId = psid;
                 var pickingMan = $("#input-pickingman").val() == "" ? "Unassigned" : $("#input-pickingman").val().toString();
                 var pickDate = $("#input-pickdate").val() == "" ? "Unassigned" : $("#input-pickdate").val().toString();
 
-                var url = "/api/pickdetail/?pullSheetId=" + pullSheetId + "&pickingMan=" + pickingMan + "&pickDate=" + pickDate;
+                var url = "/api/pickdetail/?shipOrderId=" + shipOrderId + "&pickingMan=" + pickingMan + "&pickDate=" + pickDate;
 
                 $.ajax({
                     type: "PUT",
@@ -322,15 +322,16 @@
                         window.location.reload();
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                        window.location.reload();
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             });
 
             $(".btn-back").on("click", function () {
                 //window.history.back(-1);
-                window.location.replace("/ThirdPartyLogistics/pullsheet");
+                window.location.replace("/ThirdPartyLogistics/shiporder");
             });
         });
     </script>

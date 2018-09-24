@@ -31,10 +31,8 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<RegularCartonDetail, RegularCartonDetailDto>();
             Mapper.CreateMap<FCRegularLocationDto, FCRegularLocationDto>();
             Mapper.CreateMap<FCRegularLocationDetail, FCRegularLocationDetailDto>();
-            Mapper.CreateMap<PickingList, PickingListDto>();
-            Mapper.CreateMap<PickingRecord, PickingRecordDto>();
             Mapper.CreateMap<ShipOrder, ShipOrderDto>();
-            Mapper.CreateMap<PullSheet, PullSheetDto>();
+            Mapper.CreateMap<ShipOrder, ShipOrderDto>();
             Mapper.CreateMap<PickDetail, PickDetailDto>();
             Mapper.CreateMap<PullSheetDiagnostic, PullSheetDiagnosticDto>();
             Mapper.CreateMap<Container, ContainerDto>();

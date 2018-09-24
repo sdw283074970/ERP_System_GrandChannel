@@ -272,11 +272,9 @@
     <Compile Include="Controllers\Api\PickDetailController.cs" />
     <Compile Include="Controllers\Api\PickDetailPutBackController.cs" />
     <Compile Include="Controllers\Api\PickDetailSummaryController.cs" />
-    <Compile Include="Controllers\Api\PickingListManagementController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
-    <Compile Include="Controllers\Api\PickingRecordsController.cs" />
     <Compile Include="Controllers\Api\PullSheetPdfController.cs" />
-    <Compile Include="Controllers\Api\PullSheetController.cs" />
+    <Compile Include="Controllers\Api\ShipOrderController.cs" />
     <Compile Include="Controllers\Api\PullSheetDiagnosticsController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderStatisticsController.cs" />
@@ -288,7 +286,6 @@
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
     <Compile Include="Controllers\Api\SearchResultController.cs" />
-    <Compile Include="Controllers\Api\ShipOrderController.cs" />
     <Compile Include="Controllers\Api\SIRegularPLController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
@@ -308,18 +305,15 @@
     <Compile Include="Dtos\PermanentLocationDto.cs" />
     <Compile Include="Dtos\PermanentLocIORecordDto.cs" />
     <Compile Include="Dtos\PickDetailDto.cs" />
-    <Compile Include="Dtos\PickingListDto.cs" />
-    <Compile Include="Dtos\PickingRecordDto.cs" />
     <Compile Include="Dtos\POSummaryDto.cs" />
     <Compile Include="Dtos\PullSheetDiagnosticDto.cs" />
-    <Compile Include="Dtos\PullSheetDto.cs" />
+    <Compile Include="Dtos\ShipOrderDto.cs" />
     <Compile Include="Dtos\PurchaseOrderInventoryDto.cs" />
     <Compile Include="Dtos\RegularCartonDetailDto.cs" />
     <Compile Include="Dtos\RetrievingRecordDto.cs" />
     <Compile Include="Dtos\CartonDetailDto.cs" />
     <Compile Include="Dtos\PackingListDto.cs" />
     <Compile Include="Dtos\PreReceiveOrdersDto.cs" />
-    <Compile Include="Dtos\ShipOrderDto.cs" />
     <Compile Include="Dtos\SizeRatioDto.cs" />
     <Compile Include="Dtos\SpeciesInventoryDto.cs" />
     <Compile Include="Global.asax.cs">
@@ -975,6 +969,10 @@
     <Compile Include="Migrations\201809201749226_AddedOperatorAdjustorReceiverShippingManInManyDbSet.Designer.cs">
       <DependentUpon>201809201749226_AddedOperatorAdjustorReceiverShippingManInManyDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.cs" />
+    <Compile Include="Migrations\201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.Designer.cs">
+      <DependentUpon>201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1036,10 +1034,8 @@
     <Compile Include="Models\PermanentLocation.cs" />
     <Compile Include="Models\PermanentLocIORecord.cs" />
     <Compile Include="Models\PickDetail.cs" />
-    <Compile Include="Models\PickingList.cs" />
-    <Compile Include="Models\PickingRecord.cs" />
     <Compile Include="Models\POSummary.cs" />
-    <Compile Include="Models\PullSheet.cs" />
+    <Compile Include="Models\ShipOrder.cs" />
     <Compile Include="Models\PullSheetDiagnostic.cs" />
     <Compile Include="Models\PurchaseOrderInventory.cs" />
     <Compile Include="Models\RegularCartonDetail.cs" />
@@ -1059,7 +1055,6 @@
     <Compile Include="Models\PODetail.cs" />
     <Compile Include="Models\PurchaseOrderSummary.cs" />
     <Compile Include="Models\PreReceiveOrder.cs" />
-    <Compile Include="Models\ShipOrder.cs" />
     <Compile Include="Models\SizeRatio.cs" />
     <Compile Include="Models\SpeciesInventory.cs" />
     <Compile Include="Models\StaticClass\DownloadRecord.cs" />
@@ -1393,7 +1388,7 @@
     <Content Include="Views\ThirdPartyLogistics\CartonBreakdownOutbound.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\LocationDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCRegularLocationAllocating.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\GrabReplenishmentOrder.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\PickReplenishmentOrder.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PermanentLocManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PurchaseOrderManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PurchaseOrderStatistics.cshtml" />
@@ -1403,10 +1398,7 @@
     <Content Include="Views\ThirdPartyLogistics\FCRegularCartonDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCReceivingReport.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\FCRegularLocationDetail.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\PickingListManagement.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\PickingRecords.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\ShipOrder.cshtml" />
-    <Content Include="Views\ThirdPartyLogistics\PullSheet.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PickDetailSummary.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PullSheetDiagnostics.cshtml" />
@@ -1910,6 +1902,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809201749226_AddedOperatorAdjustorReceiverShippingManInManyDbSet.resx">
       <DependentUpon>201809201749226_AddedOperatorAdjustorReceiverShippingManInManyDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.resx">
+      <DependentUpon>201809241827551_AddedVendorPropertyInShipOrderDbSetAndDeletedLotsOfUselessDbSets.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

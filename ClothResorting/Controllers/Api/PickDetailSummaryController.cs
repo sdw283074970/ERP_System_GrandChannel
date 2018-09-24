@@ -19,14 +19,14 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/pickdetailsummary/{id}(pullsheetId)
+        // GET /api/pickdetailsummary/{id}(shiporderId)
         public IHttpActionResult GetSummary([FromUri]int id)
         {
             var summaryList = new List<PickDetailSummary>();
 
             var pickDetailsInDb = _context.PickDetails
-                .Include(x => x.PullSheet)
-                .Where(x => x.PullSheet.Id == id);
+                .Include(x => x.ShipOrder)
+                .Where(x => x.ShipOrder.Id == id);
 
 
             foreach(var pickDetail in pickDetailsInDb)

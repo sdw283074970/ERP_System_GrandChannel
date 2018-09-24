@@ -14,5 +14,7 @@ namespace ClothResorting.Models.ApiTransformModels
         public string Address { get; set; }
 
         public string PickTicketsRange { get; set; }
+
+        public string Vendor { get; set; }
     }
 }

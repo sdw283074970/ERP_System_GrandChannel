@@ -78,8 +78,8 @@ namespace ClothResorting.Controllers
             return View();
         }
 
-        // GrabReplenishmentOrder 根据Loadplan提取ReplenishmentOrder页面
-        public ActionResult GrabReplenishmentOrder()
+        // PickReplenishmentOrder 根据Loadplan提取ReplenishmentOrder页面
+        public ActionResult PickReplenishmentOrder()
         {
             return View();
         }
@@ -148,26 +148,8 @@ namespace ClothResorting.Controllers
             return View();
         }
 
-        // PickingList管理页面
-        public ActionResult PickingListManagement()
-        {
-            return View();
-        }
-
-        // PickingList记录页面
-        public ActionResult PickingRecords()
-        {
-            return View();
-        }
-
         // ShipOrder管理页面
         public ActionResult ShipOrder()
-        {
-            return View();
-        }
-
-        // PullSheet管理页面
-        public ActionResult PullSheet()
         {
             return View();
         }

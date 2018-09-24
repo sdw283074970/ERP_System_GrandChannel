@@ -34,7 +34,7 @@ namespace ClothResorting.Controllers.Api
             .FirstOrDefault();
 
             if (locationInDb == null)
-                throw new Exception("Cannot find location info of container " + obj.Container);
+                throw new Exception("Cannot find location info of container " + obj.Container + ". The location cannot be empty.");
 
             var prereceivedOrderInDb = _context.PreReceiveOrders.Find(locationInDb.PreReceiveOrder.Id);
 

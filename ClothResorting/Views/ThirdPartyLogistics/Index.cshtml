@@ -47,15 +47,13 @@
 </div>
 <div class="iframe-freecountry">
     <div style="margin-top:10px;text-align:center">
-        <input id="btn-pullsheet" type="button" class="btn btn-primary" value="Manage pull sheet" /><br />
+        <input id="btn-shiporder" type="button" class="btn btn-primary" value="Manage ship order" /><br />
         <input id="btn-search" type="button" class="btn btn-primary" value="Search Free Country Inventory" style="margin-top:5px" />
     </div>
 </div>
 <div class="iframe-silkicon">
     <div style="margin-top:15px;text-align:center">
-        <a href="/ThirdPartyLogistics/GrabReplenishmentOrder/">
-            <input id="btn-replenishmentorder" type="button" class="btn btn-info" value="Grab Replenishment Order" />
-        </a>
+        <input id="btn-shiporder" type="button" class="btn btn-primary" value="Manage ship order" /><br />
         <a href="/ThirdPartyLogistics/PermanentLocManagement/">
             <input style="margin-top:5px" id="btn-location" type="button" class="btn btn-info" value="Manage Permanent Location" />
         </a>
@@ -347,8 +345,8 @@
                 $(window.location).attr('href', '/ThirdPartyLogistics/InventorySearch/');
             });
 
-            $("#btn-pullsheet").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/pullsheet/');
+            $("#btn-shiporder").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/shiporder/');
             });
 
         });

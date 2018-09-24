@@ -1,36 +1,40 @@
 ﻿
-@*@{
+@{
     ViewBag.Title = "ShipOrder";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Ship Order Page</h2>
+<h2>Pull Sheet/Load Plan Page</h2>
 
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
-        <input id="input-opo" type="text" class="input-lg" placeholder="PO"/><br>
-        <input id="input-customer" type="text" class="input-lg" placeholder="Customer" /><br>
-        <input id="input-address1" type="text" class="input-lg" placeholder="Address 1" /><br>
-        <input id="input-address2" type="text" class="input-lg" placeholder="Address 2" /><br>
-        <input id="input-range" type="text" class="input-lg" placeholder="Pick tikets range" /><br>
-        <input id="btn-create" type="button" class="btn btn-lg" value="Create ship order" />
+    <div id="div-create">
+        <button class="btn btn-primary btn-create">Created a new ship order</button>
     </div>
+    @*<div>
+        <input id="input-range" type="text" class="input-sm" placeholder="Pick tikets range" />
+        <input id="btn-create" type="button" class="btn btn-primary" value="Create pull sheet" />
+    </div>*@
     <div>
-        <table id="table" class="table table-condensed table-hover table-striped">
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>PO</th>
-                    <th>Customer</th>
-                    <th>Address 1</th>
-                    <th>Address 2</th>
-                    <th>Pick tikets range</th>
-                    <th>Ship date</th>
-                    <th>Status</th>
+                    <th style="width:23px">Id</th>
+                    <th @*style="width:49px"*@>PO</th>
+                    <th style="width:79px">Vendor</th>
+                    <th style="width:79px">Customer</th>
+                    <th @*style="width:254px"*@>Address</th>
+                    <th style="width:141px">Pick tickets range</th>
+                    <th style="width:83px">Create date</th>
+                    <th style="width:73px">Create By</th>
+                    <th style="width:63px">Pick date</th style="width:92px">
+                    <th style="width:63px">Pick man</th>
+                    <th style="width:63px">Status</th>
+                    <th style="width:83px">Shipped By</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -42,6 +46,9 @@
     <script>
         $(document).ready(function () {
 
+            var status;
+            var vendor;
+
             $.ajax({
                 type: "GET",
                 url: "/api/shiporder/",
@@ -50,7 +57,12 @@
                 success: function (data) {
                     $("#table").DataTable({
                         data: data,
+                        order: [[0, "desc"]],
                         destroy: true,
+                        //scrollX: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "id",
@@ -65,19 +77,20 @@
                                 }
                             },
                             {
+                                data: "vendor",
+                                render: function (data) {
+                                    vendor = data;
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "customer",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
-                                data: "address_1",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "address_2",
+                                data: "address",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -89,7 +102,25 @@
                                 }
                             },
                             {
-                                data: "shipDate",
+                                data: "createDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickingMan",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -97,17 +128,62 @@
                             {
                                 data: "status",
                                 render: function (data) {
+                                    status = data;
+
                                     if (data == "New Create")
                                     {
-                                        return "<text style='color:Green'>" + data + "</text>";
+                                        return "<text style='color:Orange'>" + data + "</text>";
                                     }
                                     else if (data == "Picking")
                                     {
                                         return "<text style='color:Red'>" + data + "</text>";
                                     }
+                                    else if (data == "Ready")
+                                    {
+                                        return "<text style='color:Green'>" + data + "</text>";
+                                    }
                                     else
                                     {
                                         return "<text style='color:blue'>" + data + "</text>";
+                                    }
+                                }
+                            },
+                            {
+                                data: "shippingMan",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    if (vendor == "Free Country")
+                                    {
+                                        if (status == "Shipped") {
+                                            return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
+                                        }
+                                        else if (status == "Picking" || status == "Ready") {
+                                            return "<button id='" + data + "'class='btn btn-link btn-fcpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
+                                        }
+                                        else {
+                                            return "<button id='" + data + "'class='btn btn-link btn-fcpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
+                                        }
+                                    }
+                                    else if (vendor == "Silk Icon")
+                                    {
+                                        if (status == "Shipped") {
+                                            return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
+                                        }
+                                        else if (status == "Picking" || status == "Ready") {
+                                            return "<button id='" + data + "'class='btn btn-link btn-sipick'>Pick</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
+                                        }
+                                        else {
+                                            return "<button id='" + data + "'class='btn btn-link btn-sipick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
+                                        }
+                                    }
+                                    else
+                                    {
+                                        return "";
                                     }
                                 }
                             }
@@ -119,33 +195,132 @@
                 }
             });
 
-            $("#btn-create").on("click", function () {
-                var opo = $("#input-opo").val().toString();
-                var customer = $("#input-customer").val().toString();
-                var address_1 = $("#input-address1").val().toString();
-                var address_2 = $("#input-address2").val().toString();
-                var range = $("#input-range").val().toString();
+            //Free Country的菜单
+            $("#table").on("click", ".btn-fcpick", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pickdetail/?shipOrderId=' + button.attr('id'));
+            });
 
-                if (opo == "" || customer == "" || address_1 == "" || address_2 == "" || range == "")
-                {
-                    alert("All the fields are required.");
+            $("#table").on("click", ".btn-summary", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pickdetailsummary/?shipOrderId=' + button.attr('value'));
+            });
+
+            $("#table").on("click", ".btn-diag", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?shipOrderId=' + button.attr('value'));
+            });
+
+            //Silk Icon的菜单
+            $("#table").on("click", ".btn-sipick", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pickreplenishmentorder/?shipOrderId=' + button.attr('value'));
+            });
+
+            //点击准备按钮改变状态
+            $("#table").on("click", ".btn-ready", function () {
+                var button = $(this);
+                var shipOrderId = button.attr('value');
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/shiporder/?shipOrderId=" + shipOrderId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        bootbox.alert("Status has been changed.", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+
+            $("#table").on("click", ".btn-ship", function () {
+                var button = $(this);
+                var id = button.attr('value');
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/shiporder/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Selected pull sheet has been shipped.");
+                        window.location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+
+            $("#table").on("click", ".btn-cancel", function () {
+                var button = $(this);
+                var id = button.attr('value');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/shiporder/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+
+            $("#table").on("click", ".btn-download", function () {
+                var button = $(this);
+                var id = button.attr('value');
+
+                $(window.location).attr('href', '/api/pullsheetpdf/' + id);
+            });
+
+            //点击新建发货单按钮，出现一系列表单
+            $("#div-create").on("click", ".btn-create", function () {
+                var button = $(this);
+                button.next().remove();
+                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' style='width:170px;height:30px' required='required'><option value='Free Country'>Vendor: Free Country</option><option value='Silk Icon'>Vendor: Silk Icon</option></select></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
+            });
+
+
+            $("#div-create").on("click", ".btn-add", function () {
+                var range = $("#input-range").val();
+                var po = $("#input-po").val();
+                var customer = $("#input-customer").val();
+                var address = $("#input-address").val();
+                var vendor = $("#select-vendor option:selected").val();
+
+                alert(vendor);
+
+                if (range == "" || po == "" || customer == "" || address == "" || vendor == "") {
+                    alert("All fields are required.");
                 }
-                else
-                {
+                else {
                     var obj = {
-                        "orderPurchaseOrder": opo,
-                        "customer": customer,
-                        "address_1": address_1,
-                        "address_2": address_2,
-                        "pickTicketsRange": range
-                    };
-
+                        "orderPurchaseOrder": po.toString(),
+                        "customer": customer.toString(),
+                        "address": address.toString(),
+                        "pickTicketsRange": range.toString(),
+                        "vendor": vendor.toString()
+                    }
                     $.ajax({
                         type: "POST",
                         url: "/api/shiporder/",
+                        data: JSON.stringify(obj),
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
-                        data: JSON.stringify(obj),
                         success: function () {
                             alert("Success!");
                             window.location.reload();
@@ -158,8 +333,9 @@
             });
 
             $(".btn-back").on("click", function () {
-                window.history.back(-1);
+                //window.history.back(-1);
+                window.location.replace("/ThirdPartyLogistics/index");
             });
         });
     </script>
-}*@
+}

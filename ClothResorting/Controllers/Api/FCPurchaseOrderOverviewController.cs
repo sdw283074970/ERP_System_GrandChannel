@@ -157,23 +157,12 @@ namespace ClothResorting.Controllers.Api
         [HttpDelete]
         public void DeleteFCPreReceiveOrder([FromUri]int id)
         {
-            var pickingRecordsInDb = _context.PickingRecords
-                .Include(c => c.FCRegularLocationDetail.PreReceiveOrder)
-                .Where(c => c.FCRegularLocationDetail.PreReceiveOrder.Id == id);
-
-            _context.PickingRecords.RemoveRange(pickingRecordsInDb);
 
             var cartonInsidesInDb = _context.CartonInsides
                 .Include(c => c.FCRegularLocationDetail.PreReceiveOrder)
                 .Where(c => c.FCRegularLocationDetail.PreReceiveOrder.Id == id);
 
             _context.CartonInsides.RemoveRange(cartonInsidesInDb);
-
-            var pickingListsInDb = _context.PickingLists
-                .Include(c => c.PreReceiveOrder)
-                .Where(c => c.PreReceiveOrder.Id == id);
-
-            _context.PickingLists.RemoveRange(pickingListsInDb);
 
             var fcRegularLocationDetialsInDb = _context.FCRegularLocationDetails
                 .Include(c => c.PreReceiveOrder)

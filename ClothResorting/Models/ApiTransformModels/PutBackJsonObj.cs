@@ -7,7 +7,7 @@ namespace ClothResorting.Models.ApiTransformModels
 {
     public class PutBackJsonObj
     {
-        public int PullSheetId { get; set; }
+        public int ShipOrderId { get; set; }
 
         public string Container { get; set; }
 

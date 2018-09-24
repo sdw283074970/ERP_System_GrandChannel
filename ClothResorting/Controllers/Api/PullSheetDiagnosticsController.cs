@@ -25,8 +25,8 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult GetRecords([FromUri]int id)
         {
             var result = _context.PullSheetDiagnostics
-                .Include(x => x.PullSheet)
-                .Where(x => x.PullSheet.Id == id)
+                .Include(x => x.ShipOrder)
+                .Where(x => x.ShipOrder.Id == id)
                 .Select(Mapper.Map<PullSheetDiagnostic, PullSheetDiagnosticDto>);
 
             return Ok(result);
@@ -37,8 +37,8 @@ namespace ClothResorting.Controllers.Api
         public void CleanAllRecord([FromUri]int id)
         {
             var diagnosticsInDb = _context.PullSheetDiagnostics
-                .Include(x => x.PullSheet)
-                .Where(x => x.PullSheet.Id == id);
+                .Include(x => x.ShipOrder)
+                .Where(x => x.ShipOrder.Id == id);
 
             _context.PullSheetDiagnostics.RemoveRange(diagnosticsInDb);
             _context.SaveChanges();

@@ -45,10 +45,7 @@ namespace ClothResorting.Models
         public DbSet<RegularCartonDetail> RegularCartonDetails { get; set; }
         public DbSet<FCRegularLocationDetail> FCRegularLocationDetails { get; set; }
         public DbSet<CartonInside> CartonInsides { get; set; }
-        public DbSet<PickingList> PickingLists { get; set; }
-        public DbSet<PickingRecord> PickingRecords { get; set; }
         public DbSet<ShipOrder> ShipOrders { get; set; }
-        public DbSet<PullSheet> PullSheets { get; set; }
         public DbSet<PickDetail> PickDetails { get; set; }
         public DbSet<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }
         public DbSet<Container> Containers { get; set; }

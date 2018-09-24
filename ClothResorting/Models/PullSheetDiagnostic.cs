@@ -15,6 +15,6 @@ namespace ClothResorting.Models
 
         public string Description { get; set; }
 
-        public PullSheet PullSheet { get; set; }
+        public ShipOrder ShipOrder { get; set; }
     }
 }

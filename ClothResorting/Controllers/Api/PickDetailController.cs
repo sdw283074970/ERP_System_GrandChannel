@@ -21,13 +21,13 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/pickdetail/{id}(pullsheetid)
+        // GET /api/pickdetail/{id}(shipOrderId)
         [HttpGet]
         public IHttpActionResult GetAllPickDetail([FromUri]int id)
         {
             return Ok(_context.PickDetails
-                .Include(x => x.PullSheet)
-                .Where(x => x.PullSheet.Id == id)
+                .Include(x => x.ShipOrder)
+                .Where(x => x.ShipOrder.Id == id)
                 .Select(Mapper.Map<PickDetail, PickDetailDto>));
         }
 
@@ -40,7 +40,7 @@ namespace ClothResorting.Controllers.Api
             return Ok();
         }
 
-        // POST /api/pickdetail/{id}(pullsheetid)
+        // POST /api/pickdetail/{id}(shipOrderId)
         [HttpPost]
         public void ExtractPullSheetExcel([FromUri]int id)
         {
@@ -62,14 +62,14 @@ namespace ClothResorting.Controllers.Api
             excel.ExtractPullSheet(id);
         }
 
-        // PUT /api/pickdetail/?pullSheetId={pullSheetId}&pickingMan={pickingMan}&pickDate={pickDate}
+        // PUT /api/pickdetail/?shipOrderId={shipOrderId}&pickingMan={pickingMan}&pickDate={pickDate}
         [HttpPut]
-        public void UpdatePickingInfo([FromUri]int pullSheetId, [FromUri]string pickingMan, [FromUri]string pickDate)
+        public void UpdatePickingInfo([FromUri]int shipOrderId, [FromUri]string pickingMan, [FromUri]string pickDate)
         {
-            var pullSheetInDb = _context.PullSheets.Find(pullSheetId);
+            var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
 
-            pullSheetInDb.PickingMan = pickingMan;
-            pullSheetInDb.PickDate = pickDate;
+            shipOrderInDb.PickingMan = pickingMan;
+            shipOrderInDb.PickDate = pickDate;
 
             _context.SaveChanges();
         }

@@ -1312,7 +1312,7 @@ namespace ClothResorting.Helpers
         #region
         public void ExtractPullSheet(int pullSheetId)
         {
-            var pullSheet = _context.PullSheets.Find(pullSheetId);
+            var pullSheet = _context.ShipOrders.Find(pullSheetId);
             var diagnosticList = new List<PullSheetDiagnostic>();
             //首先抽取第一页的PSI信息，将PSI中指定的内容放入一个储存在内存中的“待选对象池”，池中内容不一定都会用完
             _ws = _wb.Worksheets[1];
@@ -1439,7 +1439,7 @@ namespace ClothResorting.Helpers
                                 Type = "Missing",
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                                 Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.",
-                                PullSheet = pullSheet
+                                ShipOrder = pullSheet
                             });
 
                             //_context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
@@ -1513,7 +1513,7 @@ namespace ClothResorting.Helpers
                                 Type = "Shortage",
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                                 Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + (originalTargetPcs - targetPcs).ToString() + "</font> units have been collected.",
-                                PullSheet = pullSheet
+                                ShipOrder = pullSheet
                             });
                         }
                     }
@@ -1532,7 +1532,7 @@ namespace ClothResorting.Helpers
                             Type = "Missing",
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                             Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.",
-                            PullSheet = pullSheet
+                            ShipOrder = pullSheet
                         });
 
                         //_context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
@@ -1593,7 +1593,7 @@ namespace ClothResorting.Helpers
                             Type = "Shortage",
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                             Description = "<font color='red'>" + targetCtns.ToString() + "</font> cartons shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size Bundle:<font color='red'>" + poolLocations.First().SizeBundle + "</font>. <font color='red'>" + (originalCtns - targetCtns).ToString() + "</font> cartons have been collected.",
-                            PullSheet = pullSheet
+                            ShipOrder = pullSheet
                         });
                     }
                     
@@ -1607,7 +1607,7 @@ namespace ClothResorting.Helpers
                         Type = "Missing",
                         DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                         Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
-                        PullSheet = pullSheet
+                        ShipOrder = pullSheet
                     });
                 }
             }
@@ -1642,7 +1642,7 @@ namespace ClothResorting.Helpers
                             Type = "Concealed Overage",
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                             Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
-                            PullSheet = pullSheet
+                            ShipOrder = pullSheet
                         });
                     }
                 }
@@ -1667,7 +1667,7 @@ namespace ClothResorting.Helpers
             }
 
             // 最后更改PullSheet的状态
-            _context.PullSheets.Find(pullSheetId).Status = "Picking";
+            _context.ShipOrders.Find(pullSheetId).Status = "Picking";
 
             _context.PickDetails.AddRange(pickDetailList);
             _context.PullSheetDiagnostics.AddRange(diagnosticList);
@@ -1677,7 +1677,7 @@ namespace ClothResorting.Helpers
 
         //辅助方法：根据调整后的pool以及取货数量，生成该pullsheet下的pickdetail
         #region
-        private PickDetail ConvertToSolidPickDetail(PullSheet pullSheet, FCRegularLocationDetail pool, int targetPcs)
+        private PickDetail ConvertToSolidPickDetail(ShipOrder pullSheet, FCRegularLocationDetail pool, int targetPcs)
         {
             return new PickDetail
             {
@@ -1694,13 +1694,13 @@ namespace ClothResorting.Helpers
                 PcsPerCarton = pool.PcsPerCaron,
                 PickCtns = pool.AvailableCtns == 0 ? 0 : targetPcs / pool.PcsPerCaron,
                 PickPcs = targetPcs,
-                PullSheet = pullSheet,
+                ShipOrder = pullSheet,
                 LocationDetailId = pool.Id,
                 CartonRange = pool.CartonRange
             };
         }
 
-        private PickDetail ConvertToBundlePickDetail(PullSheet pullSheet, FCRegularLocationDetail pool, int targetCtns)
+        private PickDetail ConvertToBundlePickDetail(ShipOrder pullSheet, FCRegularLocationDetail pool, int targetCtns)
         {
             return new PickDetail
             {
@@ -1717,7 +1717,7 @@ namespace ClothResorting.Helpers
                 PcsPerCarton = pool.PcsPerCaron,
                 PickPcs = targetCtns * pool.PcsPerCaron,
                 PickCtns = targetCtns,
-                PullSheet = pullSheet,
+                ShipOrder = pullSheet,
                 LocationDetailId = pool.Id
             };
         }

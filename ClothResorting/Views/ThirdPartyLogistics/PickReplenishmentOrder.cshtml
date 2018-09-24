@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "GrabReplenishmentOrder";
+    ViewBag.Title = "PickReplenishmentOrder";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -79,6 +79,7 @@
         $(document).ready(function () {
             var index;
             var table;
+            $(".iframe").hide();
 
             //打开上传按钮界面事件
             $("#btn-loadplan").click(function () {
