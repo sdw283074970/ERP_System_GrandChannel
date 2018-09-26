@@ -1,0 +1,174 @@
+﻿
+@{
+    ViewBag.Title = "GeneralLocManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>General Location Management</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div id="div-function">
+        <input type="button" class="btn btn-group btn-uploadwindow" value="Upload location report" /><button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Vendor</th>
+                    <th>Uploaded file name</th>
+                    <th>Upload by</th>
+                    <th>Created Date</th>
+                    <th>Inbound Date</th>
+                    <th>Inbound Pcs</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div>
+        <text>Inbound Date: </text><input id="input-date" type="date" /><br />
+        <input id="upload" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload" />
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+            var table;
+            var locId;
+
+            $.ajax({
+                type: "GET",
+                url: "/api/generallocmanagement/",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    if (table) {
+                        table.destroy();
+                    }
+                    table = $("table").DataTable({
+                        destroy: true,
+                        data: data,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    locId = data;
+                                    return "<font>Silk Icon</font>";
+                                }
+                            },
+                            {
+                                data: "uploadedFileName",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "createdDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "inboundPcs",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button locid='" + data + "' class='btn btn-link'>View</button>";
+                                }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            $("#div-function").on("click", ".btn-uploadwindow", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "20%"],
+                    content: $(".iframe")
+                });
+            });
+
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                var inboundDate = $("#input-date").val().toString();
+
+                if (inboundDate != "")
+                {
+                    $.ajax({
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        type: "POST",
+                        url: "/api/generallocmanagement/?inboundDate=" + inboundDate,
+                        data: formData,
+                        beforeSend: function () {
+                            layer.close(index);
+
+                            layer.msg('Extracting files...', {
+                                icon: 1,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
+                        success: function () {
+                            layer.alert("Upload successed!", function () {
+                                window.location.reload();
+                            });
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                location.reload();
+                            });
+                        }
+                    });
+                    $(".iframe").hide();
+                }
+                else
+                {
+                    alert("Inbound Date cannot be empty!");
+                }
+            });
+        });
+    </script>
+}

@@ -10,6 +10,7 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
 using System.Web;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -69,17 +70,17 @@ namespace ClothResorting.Controllers.Api
                 Comment = "This is a bulk sku",
                 Operator = _userName,
                 Receiver = "",
-                Adjustor = "",
+                Adjustor = "system",
                 POSummary = poSummaryInDb
             };
 
             if (newCartonDetail.SizeBundle.Split(' ').Count() > 1)
             {
-                newCartonDetail.OrderType = "Pre-pack";
+                newCartonDetail.OrderType = OrderType.Prepack;
             }
             else
             {
-                newCartonDetail.OrderType = "Solid";
+                newCartonDetail.OrderType = OrderType.Solidpack;
             }
 
             _context.RegularCartonDetails.Add(newCartonDetail);

@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace ClothResorting.Models.StaticClass
+{
+    public static class Status
+    {
+        public const string NewCreated = "New Created";
+
+        public const string InStock = "In Stock";
+
+        public const string Picking = "Picking";
+
+        public const string Ready = "Ready";
+
+        public const string Shipped = "Shipped";
+
+        public const string ToBeAllocated = "To Be Allocated";
+
+        public const string Allocating = "Allocating";
+
+        public const string Reallocated = "Reallocated";
+
+        public const string Unassigned = "Unassigned";
+    }
+}

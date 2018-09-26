@@ -296,40 +296,43 @@
 
 
             $("#div-create").on("click", ".btn-add", function () {
-                var range = $("#input-range").val();
-                var po = $("#input-po").val();
-                var customer = $("#input-customer").val();
-                var address = $("#input-address").val();
-                var vendor = $("#select-vendor option:selected").val();
+                bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
+                    if (result)
+                    {
+                        var range = $("#input-range").val();
+                        var po = $("#input-po").val();
+                        var customer = $("#input-customer").val();
+                        var address = $("#input-address").val();
+                        var vendor = $("#select-vendor option:selected").val();
 
-                alert(vendor);
-
-                if (range == "" || po == "" || customer == "" || address == "" || vendor == "") {
-                    alert("All fields are required.");
-                }
-                else {
-                    var obj = {
-                        "orderPurchaseOrder": po.toString(),
-                        "customer": customer.toString(),
-                        "address": address.toString(),
-                        "pickTicketsRange": range.toString(),
-                        "vendor": vendor.toString()
-                    }
-                    $.ajax({
-                        type: "POST",
-                        url: "/api/shiporder/",
-                        data: JSON.stringify(obj),
-                        contentType: 'application/json; charset=utf-8',
-                        dataType: "json",
-                        success: function () {
-                            alert("Success!");
-                            window.location.reload();
-                        },
-                        error: function () {
-                            alert("Error!");
+                        if (range == "" || po == "" || customer == "" || address == "" || vendor == "") {
+                            alert("All fields are required.");
                         }
-                    });
-                }
+                        else {
+                            var obj = {
+                                "orderPurchaseOrder": po.toString(),
+                                "customer": customer.toString(),
+                                "address": address.toString(),
+                                "pickTicketsRange": range.toString(),
+                                "vendor": vendor.toString()
+                            }
+                            $.ajax({
+                                type: "POST",
+                                url: "/api/shiporder/",
+                                data: JSON.stringify(obj),
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: "json",
+                                success: function () {
+                                    alert("Success!");
+                                    window.location.reload();
+                                },
+                                error: function () {
+                                    alert("Error!");
+                                }
+                            });
+                        }
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

@@ -12,6 +12,7 @@ using System.Net;
 using ClothResorting.Models.DataTransferModels;
 using Microsoft.AspNet.Identity;
 using System.Web.Security;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Helpers
 {
@@ -532,7 +533,7 @@ namespace ClothResorting.Helpers
 
 
 
-        ////以CartonDetail为单位，抽取批量散货的excel信息(与packinglist无关，仅散货)
+        //以CartonDetail为单位，抽取批量散货的excel信息(与packinglist无关，仅散货)
         #region
         //public void ExtractBulkloadRecord()
         //{
@@ -748,6 +749,166 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
+        //SilkIcon补货订单解决方案：新建generallocationsummary和replenishmentLocationdetail对象作为入库记录和起始操作数据
+        public void UploadReplenishimentLocationDetail(string inboundDate, string fileName)
+        {
+            //首先新建一个generallocationsummay
+            _context.GeneralLocationSummaries.Add(new GeneralLocationSummary {
+                CreatedDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                InboundDate = inboundDate,
+                InboundPcs = 0,
+                Vendor = Vendor.SilkIcon,
+                UploadedFileName = fileName,
+                Operator = _userName
+            });
+            _context.SaveChanges();
+
+            //抽取excel中的入库信息
+            //临时表储存新加入的speciesInventory，用于避免在循环中多次查询数据库，以提高效率
+            var speciesList = new List<SpeciesInventory>();
+            var locationDetailList = new List<ReplenishmentLocationDetail>();
+            var poInventoryList = new List<PurchaseOrderInventory>();
+
+            try
+            {
+                int n = 2;
+                int countOfObj = 0;
+                _ws = _wb.Worksheets[1];
+
+                //获取数据库中所有的speciesInventory记录，用于判断入库报告中是否有新种类入库
+                var poInventories = _context.PurchaseOrderInventories.Where(x => x.Id > 0).ToList();
+                var poInventoriesInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
+                var species = _context.SpeciesInventories.Where(c => c.Id > 0).ToList();
+
+                while (_ws.Cells[n, 3].Value2 != null)
+                {
+                    countOfObj += 1;
+                    n += 1;
+                }
+
+                for (int i = 0; i < countOfObj; i++)
+                {
+                    var locationDetail = new ReplenishmentLocationDetail
+                    {
+                        PurchaseOrder = _ws.Cells[2 + i, 1].Value2.ToString(),
+                        Style = _ws.Cells[2 + i, 2].Value2.ToString(),
+                        Color = _ws.Cells[2 + i, 3].Value2.ToString(),
+                        Size = _ws.Cells[2 + i, 4].Value2.ToString(),
+                        Cartons = 0,
+                        AvailableCtns = 0,
+                        Quantity = (int)_ws.Cells[2 + i, 5].Value2(),
+                        AvailablePcs = (int)_ws.Cells[2 + i, 5].Value2(),
+                        Location = _ws.Cells[2 + i, 6].Value2(),
+                        PickingCtns = 0,
+                        PickingPcs = 0,
+                        ShippedCtns = 0,
+                        ShippedPcs = 0,
+                        InboundDate = _dateTimeNow
+                    };
+
+                    //判断数据库中是否已经存在该对象的PO，如果临时表poInventoryList和数据库表poInventoryList中都没有，则说明是新PO需要新建一个该对象的PO，否则直接挂钩
+                    var poInventoryInDb = poInventoriesInDb
+                        .SingleOrDefault(x => x.PurchaseOrder == locationDetail.PurchaseOrder);
+                    var poInventory = poInventoryList
+                        .SingleOrDefault(x => x.PurchaseOrder == locationDetail.PurchaseOrder);
+
+                    if (poInventoryInDb == null && poInventory == null)
+                    {
+                        var newPurchaseOrderInventory = new PurchaseOrderInventory
+                        {
+                            AvailablePcs = 0,
+                            AvailableCtns = 0,
+                            OrderType = OrderType.Replenishment,
+                            PickingPcs = 0,
+                            ShippedPcs = 0,
+                            Vender = Vendor.SilkIcon,
+                            PurchaseOrder = locationDetail.PurchaseOrder
+                        };
+
+                        _context.PurchaseOrderInventories.Add(newPurchaseOrderInventory);
+                        poInventoryList.Add(newPurchaseOrderInventory);
+                        locationDetail.PurchaseOrderInventory = newPurchaseOrderInventory;  //挂钩
+                        //_context.SaveChanges();
+                    }
+                    else    //直接挂钩
+                    {
+                        if (poInventoriesInDb != null)
+                            locationDetail.PurchaseOrderInventory = poInventoryInDb;
+                        else
+                            locationDetail.PurchaseOrderInventory = poInventory;
+                    }
+
+                    locationDetailList.Add(locationDetail);
+
+                    //判断入库的对象是否是新种类，如果临时List和数据库species中都没有则说明是新种类，则在SpeciesInventories表中添加该类
+                    if (species.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                        && c.Style == locationDetail.Style
+                        && c.Color == locationDetail.Color
+                        && c.Size == locationDetail.Size) == null && speciesList.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                        && c.Style == locationDetail.Style
+                        && c.Color == locationDetail.Color
+                        && c.Size == locationDetail.Size) == null)
+                    {
+                        speciesList.Add(new SpeciesInventory
+                        {
+                            PurchaseOrder = locationDetail.PurchaseOrder,
+                            Style = locationDetail.Style,
+                            Color = locationDetail.Color,
+                            Size = locationDetail.Size,
+                            OrgPcs = 0,
+                            AdjPcs = 0,
+                            PickingPcs = 0,
+                            ShippedPcs = 0,
+                            AvailablePcs = 0
+                        });
+                    }
+                }
+
+                _context.LocationDetails.AddRange(locationDetailList);
+                _context.SpeciesInventories.AddRange(speciesList);
+                _context.PurchaseOrderInventories.AddRange(poInventoryList);
+                _context.SaveChanges();
+            }
+            //抽取中如果抛出异常则删掉之前创建的summary对象
+            catch(Exception e)
+            {
+                _context.GeneralLocationSummaries.Remove(_context.GeneralLocationSummaries.OrderByDescending(x => x.Id).First());
+                _context.SaveChanges();
+                throw new Exception(e.Message);
+            }
+
+            //获取刚创建的replenishmentlocationsummary对象
+            var locationSummaryInDb = _context.GeneralLocationSummaries.OrderByDescending(x => x.Id).First();
+
+            //从入库报告中同步pcs数量到generallocationsummary和speciesInventoryInDb的入库pcs数量
+            var speciesInventoryInDb = _context.SpeciesInventories.Where(c => c.Id > 0);
+            foreach (var locationDetail in locationDetailList)
+            {
+                //同步generallocationsummary
+                locationSummaryInDb.InboundPcs += locationDetail.Quantity;
+
+                //此处不使用sync来同步统计是因为在循环中使用sync会多次读写数据库，降低运行效率
+                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size)
+                    .OrgPcs += locationDetail.Quantity;
+
+                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size)
+                    .AdjPcs += locationDetail.Quantity;
+
+                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size)
+                    .AvailablePcs += locationDetail.Quantity;
+            }
+
+            _context.SaveChanges();
+        }
 
 
         //-----👇👇👇👇👇👇-----以下为抽取FC装箱单的方法-----👇👇👇👇👇👇-----

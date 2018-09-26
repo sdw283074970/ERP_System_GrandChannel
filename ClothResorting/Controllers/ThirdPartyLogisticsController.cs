@@ -66,6 +66,8 @@ namespace ClothResorting.Controllers
             return View();
         }
 
+
+
         // LocationDetail 批量Replenishment类型po的上传/查询库存细节页面
         public ActionResult ReplenishmentLocationDetail()
         {
@@ -80,6 +82,12 @@ namespace ClothResorting.Controllers
 
         // PickReplenishmentOrder 根据Loadplan提取ReplenishmentOrder页面
         public ActionResult PickReplenishmentOrder()
+        {
+            return View();
+        }
+
+        // GeneralLocManagement 普通库位的管理页面
+        public ActionResult GeneralLocManagement()
         {
             return View();
         }

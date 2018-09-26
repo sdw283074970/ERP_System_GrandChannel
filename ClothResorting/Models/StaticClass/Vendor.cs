@@ -10,5 +10,7 @@ namespace ClothResorting.Models.StaticClass
         public const string FreeCountry = "Free Country";
 
         public const string SilkIcon = "Silk Icon";
+
+        public const string Unknown = "Unknown";
     }
 }

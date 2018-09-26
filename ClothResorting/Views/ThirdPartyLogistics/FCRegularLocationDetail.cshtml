@@ -130,7 +130,6 @@
                     }
 
                     table = $("#table").DataTable({
-                        //scrollX: true,
                         scrollCollapse: true,
                         scrollY: "600px",
                         iDisplayLength: 100,
@@ -431,7 +430,6 @@
                         }
 
                         table = $("#table").DataTable({
-                            scrollX: true,
                             scrollCollapse: true,
                             scrollY: "600px",
                             iDisplayLength: 100,
@@ -453,8 +451,7 @@
                                         else if (data == "Shipped") {
                                             return "<text style='color:Blue'>" + data + "</text>";
                                         }
-                                        else if (data == "Put Back")
-                                        {
+                                        else if (data == "Put Back") {
                                             return "<text style='color:orange'>" + data + "</text>";
                                         }
                                         else {
@@ -584,6 +581,12 @@
                                     }
                                 },
                                 {
+                                    data: "allocator",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
                                     data: "location",
                                     render: function (data) {
                                         return "<font color='orange'>" + data + "</font>";
@@ -601,7 +604,83 @@
                                             return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
                                     }
                                 }
-                            ]
+                            ],
+                            footerCallback: function (row, data, start, end, display) {
+
+                                var api = this.api(), data;
+
+                                var intVal = function (i) {
+                                    return typeof i === 'string' ?
+                                        i.replace(/[\$,]/g, '') * 1 :
+                                        typeof i === 'number' ?
+                                        i : 0;
+                                };
+
+                                var totalOrgCtns = api
+                                    .column(9)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                var totalOrgPcs = api
+                                    .column(10)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                var totalAvaCtns = api
+                                    .column(11)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                var totalPickingCtns = api
+                                    .column(12)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                var totalShippedCtns = api
+                                    .column(13)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+                                var totalAvaPcs = api
+                                    .column(14)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                var totalPickingPcs = api
+                                    .column(15)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                var totalShippedPcs = api
+                                    .column(16)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                $(api.column(9).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
+                                $(api.column(10).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
+                                $(api.column(11).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
+                                $(api.column(12).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
+                                $(api.column(13).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
+                                $(api.column(14).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
+                                $(api.column(15).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
+                                $(api.column(16).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
+
+                            }
                         });
                     },
                     error: function () {
