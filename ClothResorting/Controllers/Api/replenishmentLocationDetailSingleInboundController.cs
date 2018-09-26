@@ -10,22 +10,26 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
 using ClothResorting.Helpers;
+using ClothResorting.Models.StaticClass;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
-    public class LocationDetailSingleInboundController : ApiController
+    public class ReplenishmentLocationDetailSingleInboundController : ApiController
     {
         private ApplicationDbContext _context;
         private DateTime _timeNow = DateTime.Now;
         private DbSynchronizer _sync;
+        private string _userName;
 
-        public LocationDetailSingleInboundController()
+        public ReplenishmentLocationDetailSingleInboundController()
         {
             _context = new ApplicationDbContext();
             _sync = new DbSynchronizer();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
-        // POST /api/locationdetailsingleinbound
+        // POST /api/ReplenishmentLocationDetailSingleInbound/
         [HttpPost]
         public IHttpActionResult CreateSingleInboundRecord([FromBody]SingleInboundJsonObj obj)
         {
@@ -34,7 +38,19 @@ namespace ClothResorting.Controllers.Api
 
             if (purchaseOrderInventoryInDb == null)
             {
-                return BadRequest();
+                _context.PurchaseOrderInventories.Add(new PurchaseOrderInventory {
+                    OrderType = OrderType.Replenishment,
+                    PurchaseOrder = obj.PurchaseOrder,
+                    AvailableCtns = 0,
+                    AvailablePcs = 0,
+                    PickingPcs = 0,
+                    ShippedPcs = 0,
+                    Vender = Vendor.SilkIcon
+                });
+                _context.SaveChanges();
+
+                purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
+                    .SingleOrDefault(c => c.PurchaseOrder == obj.PurchaseOrder);
             }
 
             var speciesInDbs = _context.SpeciesInventories.Where(c => c.Id > 0);
@@ -45,8 +61,6 @@ namespace ClothResorting.Controllers.Api
                 Color = obj.Color,
                 Size = obj.Size,
                 InboundDate = _timeNow,
-                Cartons = obj.Ctns,
-                AvailableCtns = obj.Ctns,
                 Quantity = obj.Quantity,
                 AvailablePcs = obj.Quantity,
                 Location = obj.Location,
@@ -54,6 +68,7 @@ namespace ClothResorting.Controllers.Api
                 PickingPcs = 0,
                 ShippedCtns = 0,
                 ShippedPcs = 0,
+                Operator = _userName,
                 PurchaseOrderInventory = purchaseOrderInventoryInDb
             };
 
@@ -79,7 +94,7 @@ namespace ClothResorting.Controllers.Api
                 });
 
                 purchaseOrderInventoryInDb.AvailablePcs += obj.Quantity;
-                _context.LocationDetails.Add(record);
+                _context.ReplenishmentLocationDetails.Add(record);
                 _context.SaveChanges();
             }
             else//如果有，则调整该种类的pcs数据
@@ -89,26 +104,25 @@ namespace ClothResorting.Controllers.Api
                 //_sync.SyncPurchaseOrderInventory(purchaseOrderInventoryInDb.Id);
 
                 purchaseOrderInventoryInDb.AvailablePcs += obj.Quantity;
-                purchaseOrderInventoryInDb.AvailableCtns += obj.Ctns;
 
                 speciesInDb.OrgPcs += obj.Quantity;
                 speciesInDb.AdjPcs += obj.Quantity;
                 speciesInDb.AvailablePcs += obj.Quantity;
 
-                _context.LocationDetails.Add(record);
+                _context.ReplenishmentLocationDetails.Add(record);
                 _context.SaveChanges();
             }
 
             GlobalVariable.IsUndoable = true;
 
-            var sample = _context.LocationDetails
+            var sample = _context.ReplenishmentLocationDetails
                 .OrderByDescending(c => c.Id)
                 .First();
 
             //每添加一次单条inbound记录，返回所有结果，实现局部刷新表格
             var result = new List<ReplenishmentLocationDetail>();
 
-            var query = _context.LocationDetails
+            var query = _context.ReplenishmentLocationDetails
                 .Include(c => c.PurchaseOrderInventory)
                 .Where(c => c.PurchaseOrder == obj.PurchaseOrder)
                 .OrderByDescending(c => c.Id)

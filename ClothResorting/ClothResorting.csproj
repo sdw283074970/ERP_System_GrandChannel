@@ -259,8 +259,8 @@
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
     <Compile Include="Controllers\Api\IndexController.cs" />
     <Compile Include="Controllers\Api\InventorySearchController.cs" />
-    <Compile Include="Controllers\Api\LocationDetailController.cs" />
-    <Compile Include="Controllers\Api\LocationDetailSingleInboundController.cs" />
+    <Compile Include="Controllers\Api\ReplenishmentLocationDetailController.cs" />
+    <Compile Include="Controllers\Api\ReplenishmentLocationDetailSingleInboundController.cs" />
     <Compile Include="Controllers\Api\LocationUpdateController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownPcsController.cs" />
     <Compile Include="Controllers\Api\CartonDetailsController.cs" />
@@ -274,6 +274,7 @@
     <Compile Include="Controllers\Api\PickDetailSummaryController.cs" />
     <Compile Include="Controllers\Api\PermanentLocManagementController.cs" />
     <Compile Include="Controllers\Api\PullSheetPdfController.cs" />
+    <Compile Include="Controllers\Api\GeneralLocDetailController.cs" />
     <Compile Include="Controllers\Api\ShipOrderController.cs" />
     <Compile Include="Controllers\Api\PullSheetDiagnosticsController.cs" />
     <Compile Include="Controllers\Api\PurchaseOrderManagementController.cs" />
@@ -991,6 +992,14 @@
     <Compile Include="Migrations\201809252050586_AddedGeneralLocationSummaryDbSet.Designer.cs">
       <DependentUpon>201809252050586_AddedGeneralLocationSummaryDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809262311344_AddedOperatorInReplenishmentLocationDetailDbSet.cs" />
+    <Compile Include="Migrations\201809262311344_AddedOperatorInReplenishmentLocationDetailDbSet.Designer.cs">
+      <DependentUpon>201809262311344_AddedOperatorInReplenishmentLocationDetailDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.cs" />
+    <Compile Include="Migrations\201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.Designer.cs">
+      <DependentUpon>201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1431,6 +1440,7 @@
     <Content Include="Views\FBA\StorageCharge.cshtml" />
     <Content Include="Views\FBA\ChargeMethods.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\GeneralLocManagement.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\GeneralLocDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1939,6 +1949,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809252050586_AddedGeneralLocationSummaryDbSet.resx">
       <DependentUpon>201809252050586_AddedGeneralLocationSummaryDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809262311344_AddedOperatorInReplenishmentLocationDetailDbSet.resx">
+      <DependentUpon>201809262311344_AddedOperatorInReplenishmentLocationDetailDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.resx">
+      <DependentUpon>201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

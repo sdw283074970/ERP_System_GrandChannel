@@ -36,5 +36,9 @@ namespace ClothResorting.Dtos
         public string Location { get; set; }
 
         public DateTime InboundDate { get; set; }
+
+        public string Operator { get; set; }
+
+        public string Editor { get; set; }
     }
 }

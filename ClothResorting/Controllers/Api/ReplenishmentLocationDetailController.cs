@@ -14,24 +14,26 @@ using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
-    public class LocationDetailController : ApiController
+    public class ReplenishmentLocationDetailController : ApiController
     {
         private ApplicationDbContext _context;
         private DbSynchronizer _sync;
+        private string _userName;
 
-        public LocationDetailController()
+        public ReplenishmentLocationDetailController()
         {
             _context = new ApplicationDbContext();
             _sync = new DbSynchronizer();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
-        // GET /api/regularlocationdetail/?preid={id}&po={po}
+        // GET /api/replenishmentlocationdetail/?preid={id}&po={po}
         [HttpGet]
         public IHttpActionResult GetRegularLocationDetail([FromUri]PreIdPoJsonObj obj)
         {
             var result = new List<ReplenishmentLocationDetail>();
 
-            var query = _context.LocationDetails
+            var query = _context.ReplenishmentLocationDetails
                 .Include(c => c.PurchaseOrderInventory)
                 .Where(c => c.PurchaseOrder == obj.Po)
                 .OrderByDescending(c => c.Id)
@@ -44,7 +46,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // POST /api/regularlocationdetail/?po={po}
+        // POST /api/replenishmentlocationdetail/?po={po}
         [HttpPost]
         public IHttpActionResult CreateRegularLocationDetails([FromUri]string po)
         {
@@ -66,14 +68,14 @@ namespace ClothResorting.Controllers.Api
             excel.ExtractReplenishimentLocationDetail(po);
 
             //EF无法准确通过datetime查询对象，只能通过按inbound时间分组获取对象
-            var group = _context.LocationDetails
+            var group = _context.ReplenishmentLocationDetails
                 .GroupBy(c => c.InboundDate).ToList();
 
             var groupCount = group.Count;
 
             var count = group[groupCount - 1].Count();
 
-            var result = _context.LocationDetails
+            var result = _context.ReplenishmentLocationDetails
                 .OrderByDescending(c => c.Id)
                 .Take(count)
                 .ToList();
@@ -103,26 +105,36 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + 333, resultDto);
         }
 
-        // DELETE /api/locationdetail
+        // PUT /api/replenishmentlocationdetail/?locationId={locationId}&locationValue={locationValue}
+        [HttpPut]
+        public void UpdateLocation([FromUri]int locationId, [FromUri]string locationValue)
+        {
+            var locationInDb = _context.ReplenishmentLocationDetails.Find(locationId);
+            locationInDb.Location = locationValue;
+            locationInDb.Editor = _userName;
+            _context.SaveChanges();
+        }
+
+        // DELETE /api/replenishmentlocationdetail/
         [HttpDelete]
         public void Undo([FromUri]string po)
         {
             //如果为可撤销操作，则按照时间分组，在数据库中删除掉最新时间组的所有对象
             if (GlobalVariable.IsUndoable == true)
             {
-                var group = _context.LocationDetails
+                var group = _context.ReplenishmentLocationDetails
                     .GroupBy(c => c.InboundDate).ToList();
 
                 var groupCount = group.Count;
                 var groupInDb = group[groupCount - 1];
                 var count = group[groupCount - 1].Count();
-                var results = _context.LocationDetails
+                var results = _context.ReplenishmentLocationDetails
                     .OrderByDescending(c => c.Id)
                     .Take(count);
 
                 GlobalVariable.IsUndoable = false;      //全局静态变量，用于储存是否允许Undo操作
 
-                _context.LocationDetails.RemoveRange(results);
+                _context.ReplenishmentLocationDetails.RemoveRange(results);
                 _context.SaveChanges();
 
                 //撤销操作后重新同步各个收到UNDO操作影响的species的件数

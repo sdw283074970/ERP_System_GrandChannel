@@ -85,7 +85,7 @@ namespace ClothResorting.Helpers
             var speciesInDb = _context.SpeciesInventories.Find(id);
 
             //查询当前种类在普通库存剩余的总件数
-            locationInv = _context.LocationDetails
+            locationInv = _context.ReplenishmentLocationDetails
                 .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
                     && c.Style == speciesInDb.Style
                     && c.Color == speciesInDb.Color
@@ -106,7 +106,7 @@ namespace ClothResorting.Helpers
             speciesInDb.AvailablePcs = locationInv + permanentInv;
 
             //重新计算该种类在数据库的原始件数数据(调整前数据)
-            speciesInDb.OrgPcs = _context.LocationDetails
+            speciesInDb.OrgPcs = _context.ReplenishmentLocationDetails
                 .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
                     && c.Style == speciesInDb.Style
                     && c.Color == speciesInDb.Color

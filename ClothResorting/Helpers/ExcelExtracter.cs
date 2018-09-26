@@ -640,7 +640,7 @@ namespace ClothResorting.Helpers
         //}
         #endregion
 
-        //以LocationDetail为单位，从入库报告中抽取信息，生成Inventory入库记录(与PackingList无关联，与整个库存的PO对象有关联)
+        //以ReplenishmentLocationDetail为单位，从入库报告中抽取信息，生成Inventory入库记录(与PackingList无关联，与整个库存的PO对象有关联)
         #region
         public void ExtractReplenishimentLocationDetail(string po)
         {
@@ -717,7 +717,7 @@ namespace ClothResorting.Helpers
                 }
             }
             
-            _context.LocationDetails.AddRange(locationDetailList);
+            _context.ReplenishmentLocationDetails.AddRange(locationDetailList);
             _context.SpeciesInventories.AddRange(speciesList);
             _context.SaveChanges();
 
@@ -763,11 +763,14 @@ namespace ClothResorting.Helpers
             });
             _context.SaveChanges();
 
+            //获取刚创建的replenishmentlocationsummary对象
+            var locationSummaryInDb = _context.GeneralLocationSummaries.OrderByDescending(x => x.Id).First();
+
             //抽取excel中的入库信息
-            //临时表储存新加入的speciesInventory，用于避免在循环中多次查询数据库，以提高效率
+            //临时表储存新加入的speciesInventory和purchaseOrderInventory，用于避免在循环中多次查询数据库，以提高效率
             var speciesList = new List<SpeciesInventory>();
-            var locationDetailList = new List<ReplenishmentLocationDetail>();
             var poInventoryList = new List<PurchaseOrderInventory>();
+            var locationDetailList = new List<ReplenishmentLocationDetail>();
 
             try
             {
@@ -803,7 +806,9 @@ namespace ClothResorting.Helpers
                         PickingPcs = 0,
                         ShippedCtns = 0,
                         ShippedPcs = 0,
-                        InboundDate = _dateTimeNow
+                        InboundDate = _dateTimeNow,
+                        GeneralLocationSummary = locationSummaryInDb,
+                        Operator = _userName
                     };
 
                     //判断数据库中是否已经存在该对象的PO，如果临时表poInventoryList和数据库表poInventoryList中都没有，则说明是新PO需要新建一个该对象的PO，否则直接挂钩
@@ -825,17 +830,9 @@ namespace ClothResorting.Helpers
                             PurchaseOrder = locationDetail.PurchaseOrder
                         };
 
-                        _context.PurchaseOrderInventories.Add(newPurchaseOrderInventory);
                         poInventoryList.Add(newPurchaseOrderInventory);
-                        locationDetail.PurchaseOrderInventory = newPurchaseOrderInventory;  //挂钩
-                        //_context.SaveChanges();
-                    }
-                    else    //直接挂钩
-                    {
-                        if (poInventoriesInDb != null)
-                            locationDetail.PurchaseOrderInventory = poInventoryInDb;
-                        else
-                            locationDetail.PurchaseOrderInventory = poInventory;
+                        //_context.PurchaseOrderInventories.Add(newPurchaseOrderInventory); 无效
+                        //locationDetail.PurchaseOrderInventory = newPurchaseOrderInventory; 无效
                     }
 
                     locationDetailList.Add(locationDetail);
@@ -864,10 +861,15 @@ namespace ClothResorting.Helpers
                     }
                 }
 
-                _context.LocationDetails.AddRange(locationDetailList);
+                _context.ReplenishmentLocationDetails.AddRange(locationDetailList);
                 _context.SpeciesInventories.AddRange(speciesList);
                 _context.PurchaseOrderInventories.AddRange(poInventoryList);
                 _context.SaveChanges();
+
+                //现在需要重新为所有新添加的replenishmentLocationDetail指定purchaseOrderInventory和speciesInventory外键
+                var purchaseOrderInventoriesInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
+                var spiciesInDb = _context.SpeciesInventories.Where(x => x.Id > 0);
+
             }
             //抽取中如果抛出异常则删掉之前创建的summary对象
             catch(Exception e)
@@ -877,11 +879,10 @@ namespace ClothResorting.Helpers
                 throw new Exception(e.Message);
             }
 
-            //获取刚创建的replenishmentlocationsummary对象
-            var locationSummaryInDb = _context.GeneralLocationSummaries.OrderByDescending(x => x.Id).First();
-
             //从入库报告中同步pcs数量到generallocationsummary和speciesInventoryInDb的入库pcs数量
             var speciesInventoryInDb = _context.SpeciesInventories.Where(c => c.Id > 0);
+            var purchaseInventoryInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
+
             foreach (var locationDetail in locationDetailList)
             {
                 //同步generallocationsummary
@@ -905,6 +906,8 @@ namespace ClothResorting.Helpers
                     && c.Color == locationDetail.Color
                     && c.Size == locationDetail.Size)
                     .AvailablePcs += locationDetail.Quantity;
+
+                purchaseInventoryInDb.SingleOrDefault(x => x.PurchaseOrder == locationDetail.PurchaseOrder).AvailablePcs += locationDetail.Quantity;
             }
 
             _context.SaveChanges();

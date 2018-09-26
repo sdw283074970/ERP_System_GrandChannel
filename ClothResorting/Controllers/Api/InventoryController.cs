@@ -102,8 +102,8 @@ namespace ClothResorting.Controllers.Api
             _context.AdjustmentRecords.RemoveRange(adjustmentRecords);
 
             //移除数据库中[ClothSorting].[dbo].[LocationDetails]
-            var locationDetails = _context.LocationDetails.Where(c => c.Id > 0);
-            _context.LocationDetails.RemoveRange(locationDetails);
+            var locationDetails = _context.ReplenishmentLocationDetails.Where(c => c.Id > 0);
+            _context.ReplenishmentLocationDetails.RemoveRange(locationDetails);
 
             //移除数据库中[ClothSorting].[dbo].[SpeciesInventories]
             var speciesInventories = _context.SpeciesInventories.Where(c => c.Id > 0);

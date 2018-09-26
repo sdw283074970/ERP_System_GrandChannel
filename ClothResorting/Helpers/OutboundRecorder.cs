@@ -114,7 +114,7 @@ namespace ClothResorting.Helpers
                         //如果固定地点留存件数为0，则先查找库存其他地方是否有余货，有则补货，没有则生成缺货记录。此条为补货/移库记录
                         else
                         {
-                            var replenishments = _context.LocationDetails
+                            var replenishments = _context.ReplenishmentLocationDetails
                                 .Include(c => c.PurchaseOrderInventory)
                                 .Where(c => c.PurchaseOrder == request.PurchaseOrder
                                 && c.Style == request.Style
@@ -257,7 +257,7 @@ namespace ClothResorting.Helpers
                     //当最后永久库位留存件数小于30件时，搜寻整个库存可用记录，如有可用，则调取移库。此条为移库记录
                     if (targetPcs == 0 && permanentLocInDb.Quantity < 30)
                     {
-                        var replenishments = _context.LocationDetails
+                        var replenishments = _context.ReplenishmentLocationDetails
                             .Include(c => c.PurchaseOrderInventory)
                             .Where(c => c.PurchaseOrder == request.PurchaseOrder
                             && c.Style == request.Style

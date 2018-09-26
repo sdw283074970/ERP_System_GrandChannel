@@ -4,21 +4,20 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Replenishment Location Distribution</h2>
+<h2>Replenishment Location Detail</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
+    @*<div>
         <input id="btn-upload" type="button" class="btn btn-info" value="Upload location distribution" /> 
         <input id="btn-download" type="button" class="btn btn-info" value="Download location distribution template" />
         <input id="btn-undo" type="button" class="btn btn-danger" value="Undo" />
-
-    </div>
+    </div>*@
     <div>
-        <font>Po#: <font color="red" id="potext"></font></font>
+        <font>Po#: <font color="red" id="potext">N/A</font></font>
     </div>
-    <div>
+    @*<div>
         <div>
             <font>
                 Style:
@@ -46,12 +45,15 @@
             </font>
             <input id="btn-inbound" type="button" class="btn btn-info" value="Single inbound" />
         </div>
-    </div>
+    </div>*@
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Location Id</th>
                     <th>Inbound Date</th>
+                    <th>Operator</th>
+                    <th>Cut PO</th>
                     <th>Style</th>
                     <th>Color</th>
                     <th>Size</th>
@@ -81,6 +83,8 @@
 
             var index;
             var table;
+            var locationId;
+            var locationValue;
             $(".iframe").hide();
 
 
@@ -107,7 +111,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/LocationDetail/?po=" + po,
+                url: "/api/replenishmentLocationDetail/?po=" + po,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -125,7 +129,26 @@
                         iDisplayLength: 100,
                         columns: [
                             {
+                                data: "id",
+                                render: function (data) {
+                                    locationId = data;
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "inboundDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseOrder",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -175,164 +198,51 @@
                             {
                                 data: "location",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<text locationid='" + locationId + "' class='text-location'>" + data + "</text>";
                                 }
                             }
                         ]
                     });
                 },
-                error: function () {
-                    alert("An error occured!");
-                    alert(JSON.stringify(obj));
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        location.reload();
+                    });
                 }
             });
 
-            $("#btn-upload").on("click", function () {
-
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["40%", "40%"],
-                    content: $(".iframe")
-                });
+            $("#table").on("click", ".text-location", function () {
+                locationValue = $(this).html();
+                locationId = $(this).attr('locationid');
+                $(this).replaceWith("<input locationid='" + locationId + "' class='input-sm input-location' value='" + locationValue + "' placeholder='" + locationValue + "' />");
             });
 
-            $("#uploadfile").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload").get(0).files;
+            $("#table").on("keypress", ".input-location", function () {
 
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
+                locationHolder = $(this).attr('placeholder');
+                locationValue = $(this).val();
+                locationId = $(this).attr('locationid');
 
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/LocationDetail/?po=" + po,
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-                        layer.msg('Extracting files...', {
-                            icon: 16,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });;
-                    },
-                    success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured on the server! Please make sure the po in file matches the po of this page.");
-                    }
-                });
-                $(".iframe").hide();
-            });
-
-            //单件入库
-            $("#btn-inbound").on("click", function () {
-                var style = $("#style").val().toString();
-                var color = $("#color").val().toString();
-                var size = $("#size").val().toString();
-                var ctns = $("#ctns").val();
-                var quantity = $("#quantity").val();
-                var tlocation = $("#location").val().toString();
-
-                if (style == "" || color == "" || size == "" || ctns == "" || quantity == "" || tlocation == "")
+                if (locationValue == "")
                 {
-                    alert("All fields are required!");
+                    locationValue = locationHolder;
                 }
-                else
-                {
-                    var obj = {
-                        "purchaseOrder": po,
-                        "style": style,
-                        "color": color,
-                        "size": size,
-                        "ctns": ctns,
-                        "quantity": quantity,
-                        "location": tlocation
-                    };
 
+                //按回车，触发事件
+                if (event.keyCode == "13") {
                     $.ajax({
-                        type: "POST",
-                        url: "/api/LocationDetailSingleInbound",
+                        type: "PUT",
+                        url: "/api/replenishmentLocationDetail/?locationId=" + locationId + "&locationValue=" + locationValue,
                         contentType: 'application/json; charset=utf-8',
-                        data: JSON.stringify(obj),
                         dataType: "json",
-                        success: function (data) {
-
-                            table = $("#table").DataTable({
-                                destroy: true,
-                                data: data,
-                                scrollCollapse: true,
-                                order: [[0, "desc"]],
-                                scrollY: "600px",
-                                iDisplayLength: 100,
-                                columns: [
-                                    {
-                                        data: "inboundDate",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "style",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "color",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "size",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "quantity",
-                                        render: function (data) {
-                                            return "<font color='orange'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "availablePcs",
-                                        render: function (data) {
-                                            return "<font color='green'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "pickingPcs",
-                                        render: function (data) {
-                                            return "<font color='red'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "shippedPcs",
-                                        render: function (data) {
-                                            return "<font color='blue'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "location",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    }
-                                ]
-                            });
+                        success: function () {
+                            alert("Success!");
+                            window.location.reload();
                         },
-                        error: function () {
-                            alert("error!");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                location.reload();
+                            });
                         }
                     });
                 }

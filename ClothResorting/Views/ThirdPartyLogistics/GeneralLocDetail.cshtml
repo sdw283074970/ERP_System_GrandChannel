@@ -1,0 +1,349 @@
+﻿
+@{
+    ViewBag.Title = "GeneralLocDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>General Location Detail</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="input-po" style="width:170px" class="input-sm" placeholder="Cut PO" />
+        <input id="input-style" style="width:170px" class="input-sm" placeholder="Style" />
+        <input id="input-color" style="width:170px" class="input-sm" placeholder="Color" />
+        <input id="input-size" style="width:170px" class="input-sm" placeholder="Size" />
+        <input id="input-quantity" style="width:170px" class="input-sm" placeholder="Quantity" />
+        <input id="input-location" style="width:170px" class="input-sm" placeholder="Location" />
+        <input id="btn-add" type="button" class="btn btn-info" value="Add" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Inbound Date</th>
+                    <th>Upload by</th>
+                    <th>Cut PO</th>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Org Pcs</th>
+                    <th>Available Pcs</th>
+                    <th>Picking Pcs</th>
+                    <th>Shipped Pcs</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div>
+        <input id="upload" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile" type="button" class="btn btn-default" value="上传文件" />
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var index;
+            var table;
+            $(".iframe").hide();
+
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var id = getUrlParameter('generalLocationSummaryId');
+
+            $.ajax({
+                type: "GET",
+                url: "/api/generalLocDetail/?generalLocationSummaryId=" + id,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+
+                    if (table)
+                    {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
+                        destroy: true,
+                        data: data,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        order: [[0, "desc"]],
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "size",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "availablePcs",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pickingPcs",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        location.reload();
+                    });
+                }
+            });
+
+            $("#btn-upload").on("click", function () {
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["40%", "40%"],
+                    content: $(".iframe")
+                });
+            });
+
+            $("#uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/LocationDetail/?po=" + po,
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Extracting files...', {
+                            icon: 16,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });;
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server! Please make sure the po in file matches the po of this page.");
+                    }
+                });
+                $(".iframe").hide();
+            });
+
+            //单件入库
+            $("#btn-add").on("click", function () {
+                var po = $("#input-po").val().toString();
+                var style = $("#input-style").val().toString();
+                var color = $("#input-color").val().toString();
+                var size = $("#input-size").val().toString();
+                var quantity = $("#input-quantity").val();
+                var tlocation = $("#input-location").val().toString();
+
+                if (po == "" || style == "" || color == "" || size == "" || quantity == "" || tlocation == "")
+                {
+                    alert("All fields are required!");
+                }
+                else
+                {
+                    var obj = {
+                        "purchaseOrder": po,
+                        "style": style,
+                        "color": color,
+                        "size": size,
+                        "quantity": quantity,
+                        "location": tlocation
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/ReplenishmentLocationDetailSingleInbound/",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        success: function (data) {
+
+                            if (table) {
+                                table.destroy();
+                            }
+
+                            table = $("#table").DataTable({
+                                destroy: true,
+                                data: data,
+                                scrollCollapse: true,
+                                scrollY: "600px",
+                                order: [[0, "desc"]],
+                                iDisplayLength: 100,
+                                columns: [
+                                    {
+                                        data: "inboundDate",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "operator",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "purchaseOrder",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "style",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "color",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "size",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "quantity",
+                                        render: function (data) {
+                                            return "<font color='orange'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "availablePcs",
+                                        render: function (data) {
+                                            return "<font color='green'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "pickingPcs",
+                                        render: function (data) {
+                                            return "<font color='red'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "shippedPcs",
+                                        render: function (data) {
+                                            return "<font color='blue'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "location",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    }
+                                ]
+                            });
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

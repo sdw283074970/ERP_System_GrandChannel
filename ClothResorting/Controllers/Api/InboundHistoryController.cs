@@ -25,7 +25,7 @@ namespace ClothResorting.Controllers.Api
         {
             var inboundHistoryList = new List<InboundHistoryRecord>();
 
-            var inboundRecords = _context.LocationDetails
+            var inboundRecords = _context.ReplenishmentLocationDetails
                 .Where(c => c.PurchaseOrder == obj.PurchaseOrder
                     && c.Style == obj.Style
                     && c.Color == obj.Color

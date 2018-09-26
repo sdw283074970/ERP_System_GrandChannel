@@ -105,7 +105,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button locid='" + data + "' class='btn btn-link'>View</button>";
+                                    return "<button locid='" + data + "' class='btn btn-link btn-view'>View</button>";
                                 }
                             }
                         ]
@@ -168,6 +168,15 @@
                 {
                     alert("Inbound Date cannot be empty!");
                 }
+            });
+
+            $("#table").on("click", ".btn-view", function () {
+                var id = $(this).attr('locid');
+                $(window.location).attr('href', "/thirdpartylogistics/GeneralLocDetail/?generalLocationSummaryId=" + id)
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
             });
         });
     </script>
