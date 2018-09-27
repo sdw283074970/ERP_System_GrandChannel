@@ -868,7 +868,25 @@ namespace ClothResorting.Helpers
 
                 //现在需要重新为所有新添加的replenishmentLocationDetail指定purchaseOrderInventory和speciesInventory外键
                 var purchaseOrderInventoriesInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
-                var spiciesInDb = _context.SpeciesInventories.Where(x => x.Id > 0);
+
+                var speciesInDb = _context.SpeciesInventories
+                    .Include(x => x.PurchaseOrderInventory)
+                    .Where(x => x.PurchaseOrderInventory == null);
+                var locationInDb = _context.ReplenishmentLocationDetails
+                    .Include(x => x.PurchaseOrderInventory)
+                    .Where(x => x.PurchaseOrderInventory == null);
+
+                foreach(var location in locationInDb)
+                {
+                    location.PurchaseOrderInventory = purchaseOrderInventoriesInDb
+                        .SingleOrDefault(x => x.PurchaseOrder == location.PurchaseOrder);
+                }
+
+                foreach(var s in speciesInDb)
+                {
+                    s.PurchaseOrderInventory = purchaseOrderInventoriesInDb
+                        .SingleOrDefault(x => x.PurchaseOrder == s.PurchaseOrder);
+                }
 
             }
             //抽取中如果抛出异常则删掉之前创建的summary对象
