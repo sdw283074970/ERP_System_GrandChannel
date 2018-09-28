@@ -46,5 +46,7 @@ namespace ClothResorting.Models
         public GeneralLocationSummary GeneralLocationSummary { get; set; }
 
         public SpeciesInventory SpeciesInventory { get; set; }
+
+        public ICollection<PickDetail> PickDetails { get; set; }
     }
 }

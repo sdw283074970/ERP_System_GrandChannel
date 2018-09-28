@@ -13,6 +13,6 @@ namespace ClothResorting.Models
 
         public int Quantity { get; set; }
 
-        public FCRegularLocationDetail FCRegularLocationDetail { get; set; }
+        //public FCRegularLocationDetail FCRegularLocationDetail { get; set; }
     }
 }

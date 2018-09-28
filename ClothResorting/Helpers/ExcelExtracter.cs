@@ -1572,6 +1572,7 @@ namespace ClothResorting.Helpers
             //每一个SKU都在“待选池”中拣货
             var pickDetailList = new List<PickDetail>();
             var usedPoolCartonLocationDetails = new List<FCRegularLocationDetail>();
+            var regularLocationDetailInDb = _context.FCRegularLocationDetails.Where(x => x.Id > 0);
 
             for(int i = 1; i <= pullSheetCount; i++)
             {
@@ -1648,7 +1649,7 @@ namespace ClothResorting.Helpers
                             //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
                             if (pool.AvailablePcs <= targetPcs && pool.AvailablePcs != 0 && targetPcs!= 0)
                             {
-                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, pool.AvailablePcs));
+                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailablePcs));
 
                                 targetPcs -= pool.AvailablePcs;
 
@@ -1664,7 +1665,7 @@ namespace ClothResorting.Helpers
                             //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
                             else if ( pool.AvailablePcs > targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
                             {
-                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, targetPcs));
+                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs));
 
                                 pool.PickingCtns += targetPcs / pool.PcsPerCaron;
                                 pool.PickingPcs += targetPcs;
@@ -1742,7 +1743,7 @@ namespace ClothResorting.Helpers
                         //当当前的待选对象箱数小于等于目标箱数时，全部拿走，并记录
                         if (pool.AvailableCtns <= targetCtns && pool.AvailableCtns != 0 && targetCtns != 0)
                         {
-                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, pool.AvailableCtns));
+                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailableCtns));
 
                             pool.PickingCtns += pool.AvailableCtns;
                             pool.PickingPcs += pool.AvailableCtns * pool.PcsPerCaron;
@@ -1758,7 +1759,7 @@ namespace ClothResorting.Helpers
                         //当当前的待选对象箱数大于目标箱数时，只拿走需要的，并记录
                         else if (pool.AvailableCtns > targetCtns && pool.AvailableCtns != 0 && targetCtns != 0)
                         {
-                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, targetCtns));
+                            pickDetailList.Add(ConvertToBundlePickDetail(pullSheet, pool, regularLocationDetailInDb, targetCtns));
 
                             pool.PickingCtns += targetCtns;
                             pool.PickingPcs += targetCtns * pool.PcsPerCaron;
@@ -1818,7 +1819,7 @@ namespace ClothResorting.Helpers
                     if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
                     {
                         //一起添加到拣货单，并注明这是Concealed Overage
-                        var concealedOverage = ConvertToSolidPickDetail(pullSheet, partailCarton, partailCartonDiff * partailCarton.PcsPerCaron);
+                        var concealedOverage = ConvertToSolidPickDetail(pullSheet, partailCarton, regularLocationDetailInDb, partailCartonDiff * partailCarton.PcsPerCaron);
                         concealedOverage.Memo = "Overage";
                         concealedOverage.PickCtns = 0;
                         pickDetailList.Add(concealedOverage);
@@ -1844,9 +1845,9 @@ namespace ClothResorting.Helpers
             {
                 var cartonInDb = cartonLocationDetailsInDb.SingleOrDefault(x => x.Id == usedCartonLocation.Id);
 
-                if (cartonInDb.Status == "In Stock")
+                if (cartonInDb.Status == Status.InStock)
                 {
-                    cartonInDb.Status = "Picking";
+                    cartonInDb.Status = Status.Picking;
                 }
 
                 cartonInDb.AvailableCtns = usedCartonLocation.AvailableCtns;
@@ -1856,7 +1857,7 @@ namespace ClothResorting.Helpers
             }
 
             // 最后更改PullSheet的状态
-            _context.ShipOrders.Find(shipOrderId).Status = "Picking";
+            _context.ShipOrders.Find(shipOrderId).Status = Status.Picking;
 
             _context.PickDetails.AddRange(pickDetailList);
             _context.PullSheetDiagnostics.AddRange(diagnosticList);
@@ -1866,7 +1867,7 @@ namespace ClothResorting.Helpers
 
         //辅助方法：根据调整后的pool以及取货数量，生成该pullsheet下的pickdetail
         #region
-        private PickDetail ConvertToSolidPickDetail(ShipOrder pullSheet, FCRegularLocationDetail pool, int targetPcs)
+        private PickDetail ConvertToSolidPickDetail(ShipOrder pullSheet, FCRegularLocationDetail pool, IEnumerable<FCRegularLocationDetail> locationsInDb, int targetPcs)
         {
             return new PickDetail
             {
@@ -1885,11 +1886,12 @@ namespace ClothResorting.Helpers
                 PickPcs = targetPcs,
                 ShipOrder = pullSheet,
                 LocationDetailId = pool.Id,
-                CartonRange = pool.CartonRange
+                CartonRange = pool.CartonRange,
+                FCRegularLocationDetail = locationsInDb.SingleOrDefault(x => x.Id == pool.Id)
             };
         }
 
-        private PickDetail ConvertToBundlePickDetail(ShipOrder pullSheet, FCRegularLocationDetail pool, int targetCtns)
+        private PickDetail ConvertToBundlePickDetail(ShipOrder pullSheet, FCRegularLocationDetail pool, IEnumerable<FCRegularLocationDetail> locationsInDb, int targetCtns)
         {
             return new PickDetail
             {
@@ -1907,7 +1909,8 @@ namespace ClothResorting.Helpers
                 PickPcs = targetCtns * pool.PcsPerCaron,
                 PickCtns = targetCtns,
                 ShipOrder = pullSheet,
-                LocationDetailId = pool.Id
+                LocationDetailId = pool.Id,
+                FCRegularLocationDetail = locationsInDb.SingleOrDefault(x => x.Id == pool.Id)
             };
         }
         #endregion

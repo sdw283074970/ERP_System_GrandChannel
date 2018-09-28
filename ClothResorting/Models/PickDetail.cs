@@ -37,10 +37,14 @@ namespace ClothResorting.Models
 
         public string PickDate { get; set; }
 
-        public ShipOrder ShipOrder { get; set; }
-
         public string Memo { get; set; }
 
         public string CartonRange { get; set; }
+
+        public ShipOrder ShipOrder { get; set; }
+
+        public FCRegularLocationDetail FCRegularLocationDetail { get; set; }
+
+        public ReplenishmentLocationDetail ReplenishmentLocationDetail { get; set; }
     }
 }
