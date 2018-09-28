@@ -642,111 +642,111 @@ namespace ClothResorting.Helpers
 
         //以ReplenishmentLocationDetail为单位，从入库报告中抽取信息，生成Inventory入库记录(与PackingList无关联，与整个库存的PO对象有关联)
         #region
-        public void ExtractReplenishimentLocationDetail(string po)
-        {
-            int n = 3;
-            int countOfObj = 0;
-            var locationDetailList = new List<ReplenishmentLocationDetail>();
+        //public void ExtractReplenishimentLocationDetail(string po)
+        //{
+        //    int n = 3;
+        //    int countOfObj = 0;
+        //    var locationDetailList = new List<ReplenishmentLocationDetail>();
 
-            _ws = _wb.Worksheets[1];
-            _purchaseOrder = _ws.Cells[1, 2] == null? "" : _ws.Cells[1, 2].Value2.ToString();
+        //    _ws = _wb.Worksheets[1];
+        //    _purchaseOrder = _ws.Cells[1, 2] == null? "" : _ws.Cells[1, 2].Value2.ToString();
 
-            var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
-                .SingleOrDefault(c => c.PurchaseOrder == _purchaseOrder);
+        //    var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
+        //        .SingleOrDefault(c => c.PurchaseOrder == _purchaseOrder);
 
 
-            if (_purchaseOrder != po)
-            {
-                Dispose();
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
-            }
+        //    if (_purchaseOrder != po)
+        //    {
+        //        Dispose();
+        //        throw new HttpResponseException(HttpStatusCode.BadRequest);
+        //    }
 
-            //获取数据库中所有的speciesInventory记录，用于判断入库报告中是否有新种类入库
-            var species = _context.SpeciesInventories.Where(c => c.Id > 0).ToList();
-            //临时表储存新加入的speciesInventory，用于避免在循环中多次查询数据库，以提高效率
-            var speciesList = new List<SpeciesInventory>();
+        //    //获取数据库中所有的speciesInventory记录，用于判断入库报告中是否有新种类入库
+        //    var species = _context.SpeciesInventories.Where(c => c.Id > 0).ToList();
+        //    //临时表储存新加入的speciesInventory，用于避免在循环中多次查询数据库，以提高效率
+        //    var speciesList = new List<SpeciesInventory>();
 
-            while (_ws.Cells[n, 3].Value2 != null)
-            {
-                countOfObj += 1;
-                n += 1;
-            }
+        //    while (_ws.Cells[n, 3].Value2 != null)
+        //    {
+        //        countOfObj += 1;
+        //        n += 1;
+        //    }
 
-            for(int i = 0; i < countOfObj; i++)
-            {
-                var locationDetail = new ReplenishmentLocationDetail
-                {
-                    PurchaseOrderInventory = purchaseOrderInventoryInDb,
-                    PurchaseOrder = _purchaseOrder,
-                    Style = _ws.Cells[3 + i, 1].Value2.ToString(),
-                    Color = _ws.Cells[3 + i, 2].Value2.ToString(),
-                    Size = _ws.Cells[3 + i, 3].Value2.ToString(),
-                    Cartons = (int)_ws.Cells[3 + i, 4].Value2(),
-                    AvailableCtns = (int)_ws.Cells[3 + i, 4].Value2(),
-                    Quantity = (int)_ws.Cells[3 + i, 5].Value2(),
-                    AvailablePcs = (int)_ws.Cells[3 + i, 5].Value2(),
-                    Location = _ws.Cells[3 + i, 6].Value2(),
-                    PickingCtns = 0,
-                    PickingPcs = 0,
-                    ShippedCtns = 0,
-                    ShippedPcs = 0,
-                    InboundDate = _dateTimeNow
-                };
+        //    for(int i = 0; i < countOfObj; i++)
+        //    {
+        //        var locationDetail = new ReplenishmentLocationDetail
+        //        {
+        //            PurchaseOrderInventory = purchaseOrderInventoryInDb,
+        //            PurchaseOrder = _purchaseOrder,
+        //            Style = _ws.Cells[3 + i, 1].Value2.ToString(),
+        //            Color = _ws.Cells[3 + i, 2].Value2.ToString(),
+        //            Size = _ws.Cells[3 + i, 3].Value2.ToString(),
+        //            Cartons = (int)_ws.Cells[3 + i, 4].Value2(),
+        //            AvailableCtns = (int)_ws.Cells[3 + i, 4].Value2(),
+        //            Quantity = (int)_ws.Cells[3 + i, 5].Value2(),
+        //            AvailablePcs = (int)_ws.Cells[3 + i, 5].Value2(),
+        //            Location = _ws.Cells[3 + i, 6].Value2(),
+        //            PickingCtns = 0,
+        //            PickingPcs = 0,
+        //            ShippedCtns = 0,
+        //            ShippedPcs = 0,
+        //            InboundDate = _dateTimeNow
+        //        };
 
-                locationDetailList.Add(locationDetail);
+        //        locationDetailList.Add(locationDetail);
 
-                //判断入库的对象是否是新种类，如果临时List和数据库species中都没有则说明是新种类，则在SpeciesInventories表中添加该类
-                if (species.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder 
-                    && c.Style == locationDetail.Style
-                    && c.Color == locationDetail.Color
-                    && c.Size == locationDetail.Size) == null && speciesList.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
-                    && c.Style == locationDetail.Style
-                    && c.Color == locationDetail.Color
-                    && c.Size == locationDetail.Size) == null)
-                {
-                    speciesList.Add(new SpeciesInventory {
-                        PurchaseOrder = locationDetail.PurchaseOrder,
-                        Style = locationDetail.Style,
-                        Color = locationDetail.Color,
-                        Size = locationDetail.Size,
-                        OrgPcs = 0,
-                        AdjPcs = 0,
-                        AvailablePcs = 0,
-                        PurchaseOrderInventory = purchaseOrderInventoryInDb
-                    });
-                }
-            }
+        //        //判断入库的对象是否是新种类，如果临时List和数据库species中都没有则说明是新种类，则在SpeciesInventories表中添加该类
+        //        if (species.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder 
+        //            && c.Style == locationDetail.Style
+        //            && c.Color == locationDetail.Color
+        //            && c.Size == locationDetail.Size) == null && speciesList.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+        //            && c.Style == locationDetail.Style
+        //            && c.Color == locationDetail.Color
+        //            && c.Size == locationDetail.Size) == null)
+        //        {
+        //            speciesList.Add(new SpeciesInventory {
+        //                PurchaseOrder = locationDetail.PurchaseOrder,
+        //                Style = locationDetail.Style,
+        //                Color = locationDetail.Color,
+        //                Size = locationDetail.Size,
+        //                OrgPcs = 0,
+        //                AdjPcs = 0,
+        //                AvailablePcs = 0,
+        //                PurchaseOrderInventory = purchaseOrderInventoryInDb
+        //            });
+        //        }
+        //    }
             
-            _context.ReplenishmentLocationDetails.AddRange(locationDetailList);
-            _context.SpeciesInventories.AddRange(speciesList);
-            _context.SaveChanges();
+        //    _context.ReplenishmentLocationDetails.AddRange(locationDetailList);
+        //    _context.SpeciesInventories.AddRange(speciesList);
+        //    _context.SaveChanges();
 
-            //从入库报告中同步pcs数量到speciesInventory的原始数量、调整数量和库存数量中
-            var speciesInventoryInDb = _context.SpeciesInventories.Where(c => c.Id > 0);
-            foreach(var locationDetail in locationDetailList)
-            {
-                //此处不使用sync来同步统计是因为在循环中使用sync会多次读写数据库，降低运行效率
-                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
-                    && c.Style == locationDetail.Style
-                    && c.Color == locationDetail.Color
-                    && c.Size == locationDetail.Size)
-                    .OrgPcs += locationDetail.Quantity;
+        //    //从入库报告中同步pcs数量到speciesInventory的原始数量、调整数量和库存数量中
+        //    var speciesInventoryInDb = _context.SpeciesInventories.Where(c => c.Id > 0);
+        //    foreach(var locationDetail in locationDetailList)
+        //    {
+        //        //此处不使用sync来同步统计是因为在循环中使用sync会多次读写数据库，降低运行效率
+        //        speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+        //            && c.Style == locationDetail.Style
+        //            && c.Color == locationDetail.Color
+        //            && c.Size == locationDetail.Size)
+        //            .OrgPcs += locationDetail.Quantity;
 
-                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
-                    && c.Style == locationDetail.Style
-                    && c.Color == locationDetail.Color
-                    && c.Size == locationDetail.Size)
-                    .AdjPcs += locationDetail.Quantity;
+        //        speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+        //            && c.Style == locationDetail.Style
+        //            && c.Color == locationDetail.Color
+        //            && c.Size == locationDetail.Size)
+        //            .AdjPcs += locationDetail.Quantity;
 
-                speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
-                    && c.Style == locationDetail.Style
-                    && c.Color == locationDetail.Color
-                    && c.Size == locationDetail.Size)
-                    .AvailablePcs += locationDetail.Quantity;
-            }
+        //        speciesInventoryInDb.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+        //            && c.Style == locationDetail.Style
+        //            && c.Color == locationDetail.Color
+        //            && c.Size == locationDetail.Size)
+        //            .AvailablePcs += locationDetail.Quantity;
+        //    }
 
-            _context.SaveChanges();
-        }
+        //    _context.SaveChanges();
+        //}
         #endregion
 
         //SilkIcon补货订单解决方案：新建generallocationsummary和replenishmentLocationdetail对象作为入库记录和起始操作数据
@@ -874,12 +874,15 @@ namespace ClothResorting.Helpers
                     .Where(x => x.PurchaseOrderInventory == null);
                 var locationInDb = _context.ReplenishmentLocationDetails
                     .Include(x => x.PurchaseOrderInventory)
-                    .Where(x => x.PurchaseOrderInventory == null);
+                    .Where(x => x.PurchaseOrderInventory == null || x.SpeciesInventory == null);
 
                 foreach(var location in locationInDb)
                 {
                     location.PurchaseOrderInventory = purchaseOrderInventoriesInDb
                         .SingleOrDefault(x => x.PurchaseOrder == location.PurchaseOrder);
+
+                    location.SpeciesInventory = speciesInDb.SingleOrDefault(x => x.PurchaseOrder == location.PurchaseOrder
+                        && x.Style == location.Style && x.Color == location.Color && x.Size == location.Size);
                 }
 
                 foreach(var s in speciesInDb)
@@ -1496,9 +1499,9 @@ namespace ClothResorting.Helpers
         //-----👇👇👇👇👇👇-----以下为抽取FC出货单的方法-----👇👇👇👇👇👇-----
         //抽取Pull sheet模板中的信息，生成ShipOrder下的拣货记录表，并从原库存中将可用箱数部分或全部转化为“拣货中”箱数
         #region
-        public void ExtractPullSheet(int pullSheetId)
+        public void ExtractPullSheet(int shipOrderId)
         {
-            var pullSheet = _context.ShipOrders.Find(pullSheetId);
+            var pullSheet = _context.ShipOrders.Find(shipOrderId);
             var diagnosticList = new List<PullSheetDiagnostic>();
             //首先抽取第一页的PSI信息，将PSI中指定的内容放入一个储存在内存中的“待选对象池”，池中内容不一定都会用完
             _ws = _wb.Worksheets[1];
@@ -1853,7 +1856,7 @@ namespace ClothResorting.Helpers
             }
 
             // 最后更改PullSheet的状态
-            _context.ShipOrders.Find(pullSheetId).Status = "Picking";
+            _context.ShipOrders.Find(shipOrderId).Status = "Picking";
 
             _context.PickDetails.AddRange(pickDetailList);
             _context.PullSheetDiagnostics.AddRange(diagnosticList);
@@ -1876,7 +1879,7 @@ namespace ClothResorting.Helpers
                 PickDate = _dateTimeNow.ToString("MM/dd/yyyy"),
                 Container = pool.Container,
                 Location = pool.Location,
-                Status = "Picking",
+                Status = Status.Picking,
                 PcsPerCarton = pool.PcsPerCaron,
                 PickCtns = pool.AvailableCtns == 0 ? 0 : targetPcs / pool.PcsPerCaron,
                 PickPcs = targetPcs,
@@ -1897,7 +1900,7 @@ namespace ClothResorting.Helpers
                 PcsBundle = pool.PcsBundle,
                 CustomerCode = pool.CustomerCode,
                 PickDate = _dateTimeNow.ToString("MM/dd/yyyy"),
-                Status = "Picking",
+                Status = Status.Picking,
                 Container = pool.Container,
                 Location = pool.Location,
                 PcsPerCarton = pool.PcsPerCaron,

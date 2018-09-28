@@ -24,5 +24,7 @@ namespace ClothResorting.Models.StaticClass
         public const string Reallocated = "Reallocated";
 
         public const string Unassigned = "Unassigned";
+
+        public const string NotAvailable = "N/A";
     }
 }

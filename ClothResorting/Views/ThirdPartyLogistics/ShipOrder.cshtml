@@ -214,9 +214,10 @@
             //Silk Icon的菜单
             $("#table").on("click", ".btn-sipick", function () {
                 var button = $(this);
-                $(window.location).attr('href', '/thirdpartylogistics/pickreplenishmentorder/?shipOrderId=' + button.attr('value'));
+                $(window.location).attr('href', '/thirdpartylogistics/pickreplenishmentorder/?shipOrderId=' + button.attr('id'));
             });
 
+            //共有菜单
             //点击准备按钮改变状态
             $("#table").on("click", ".btn-ready", function () {
                 var button = $(this);

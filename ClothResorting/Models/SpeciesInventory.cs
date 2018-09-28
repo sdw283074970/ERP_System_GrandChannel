@@ -30,5 +30,7 @@ namespace ClothResorting.Models
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
 
         public ICollection<AdjustmentRecord> AdjustmentRecords { get; set; }
+
+        public ICollection<ReplenishmentLocationDetail> ReplenishmentLocationDetail { get; set; }
     }
 }

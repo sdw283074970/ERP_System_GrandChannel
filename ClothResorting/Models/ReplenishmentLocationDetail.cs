@@ -44,5 +44,7 @@ namespace ClothResorting.Models
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
 
         public GeneralLocationSummary GeneralLocationSummary { get; set; }
+
+        public SpeciesInventory SpeciesInventory { get; set; }
     }
 }

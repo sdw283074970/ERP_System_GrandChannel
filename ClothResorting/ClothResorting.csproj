@@ -259,6 +259,7 @@
     <Compile Include="Controllers\Api\InboundHistoryController.cs" />
     <Compile Include="Controllers\Api\IndexController.cs" />
     <Compile Include="Controllers\Api\InventorySearchController.cs" />
+    <Compile Include="Controllers\Api\LoadPlanController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentLocationDetailController.cs" />
     <Compile Include="Controllers\Api\ReplenishmentLocationDetailSingleInboundController.cs" />
     <Compile Include="Controllers\Api\LocationUpdateController.cs" />
@@ -322,6 +323,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Canceller.cs" />
     <Compile Include="Helpers\CartonBreakdownGetter.cs" />
     <Compile Include="Helpers\CartonBreaker.cs" />
     <Compile Include="Helpers\Downloader.cs" />
@@ -999,6 +1001,10 @@
     <Compile Include="Migrations\201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.cs" />
     <Compile Include="Migrations\201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.Designer.cs">
       <DependentUpon>201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809272133591_ConnectedReplenishmentLocationDetailsWithSpeciesInventories.cs" />
+    <Compile Include="Migrations\201809272133591_ConnectedReplenishmentLocationDetailsWithSpeciesInventories.Designer.cs">
+      <DependentUpon>201809272133591_ConnectedReplenishmentLocationDetailsWithSpeciesInventories.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -1955,6 +1961,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.resx">
       <DependentUpon>201809262317554_AddedEditorInReplenishmentLocationDetailDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809272133591_ConnectedReplenishmentLocationDetailsWithSpeciesInventories.resx">
+      <DependentUpon>201809272133591_ConnectedReplenishmentLocationDetailsWithSpeciesInventories.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

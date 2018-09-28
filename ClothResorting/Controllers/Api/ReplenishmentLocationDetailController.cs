@@ -46,66 +46,66 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // POST /api/replenishmentlocationdetail/?po={po}
-        [HttpPost]
-        public IHttpActionResult CreateRegularLocationDetails([FromUri]string po)
-        {
-            var fileSavePath = "";
+        //// POST /api/replenishmentlocationdetail/?po={po}
+        //[HttpPost]
+        //public IHttpActionResult CreateRegularLocationDetails([FromUri]string po)
+        //{
+        //    var fileSavePath = "";
 
-            //从httpRequest中获取文件并写入磁盘系统
-            var filesGetter = new FilesGetter();
+        //    //从httpRequest中获取文件并写入磁盘系统
+        //    var filesGetter = new FilesGetter();
 
-            fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+        //    fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
 
-            if(fileSavePath == "")
-            {
-                return BadRequest();
-            }
+        //    if(fileSavePath == "")
+        //    {
+        //        return BadRequest();
+        //    }
 
-            //从上传的文件中抽取LocationDetails
-            var excel = new ExcelExtracter(fileSavePath);
+        //    //从上传的文件中抽取LocationDetails
+        //    var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractReplenishimentLocationDetail(po);
+        //    //excel.ExtractReplenishimentLocationDetail(po);
 
-            //EF无法准确通过datetime查询对象，只能通过按inbound时间分组获取对象
-            var group = _context.ReplenishmentLocationDetails
-                .GroupBy(c => c.InboundDate).ToList();
+        //    //EF无法准确通过datetime查询对象，只能通过按inbound时间分组获取对象
+        //    var group = _context.ReplenishmentLocationDetails
+        //        .GroupBy(c => c.InboundDate).ToList();
 
-            var groupCount = group.Count;
+        //    var groupCount = group.Count;
 
-            var count = group[groupCount - 1].Count();
+        //    var count = group[groupCount - 1].Count();
 
-            var result = _context.ReplenishmentLocationDetails
-                .OrderByDescending(c => c.Id)
-                .Take(count)
-                .ToList();
+        //    var result = _context.ReplenishmentLocationDetails
+        //        .OrderByDescending(c => c.Id)
+        //        .Take(count)
+        //        .ToList();
 
-            var resultDto = Mapper.Map<List<ReplenishmentLocationDetail>, List<ReplenishmentLocationDetailDto>>(result);
+        //    var resultDto = Mapper.Map<List<ReplenishmentLocationDetail>, List<ReplenishmentLocationDetailDto>>(result);
 
-            //同步刷新批量导入的LocationDetail所对应purchaseOrderInventory中的pcs件数
-            var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
-                .SingleOrDefault(c => c.PurchaseOrder == po);
+        //    //同步刷新批量导入的LocationDetail所对应purchaseOrderInventory中的pcs件数
+        //    var purchaseOrderInventoryInDb = _context.PurchaseOrderInventories
+        //        .SingleOrDefault(c => c.PurchaseOrder == po);
 
-            _sync.SyncPurchaseOrderInventory(purchaseOrderInventoryInDb.Id);
+        //    _sync.SyncPurchaseOrderInventory(purchaseOrderInventoryInDb.Id);
 
-            _context.SaveChanges();
+        //    _context.SaveChanges();
 
-            //仅测试用
-            var tester = new Tester();
-            tester.CreatePermanentLocForEachSpecies(_context);
+        //    //仅测试用
+        //    var tester = new Tester();
+        //    tester.CreatePermanentLocForEachSpecies(_context);
 
-            //强行关闭进程
-            var killer = new ExcelKiller();
+        //    //强行关闭进程
+        //    var killer = new ExcelKiller();
 
-            killer.Dispose();
+        //    killer.Dispose();
 
-            //标记以上整个操作为可撤销
-            GlobalVariable.IsUndoable = true;
+        //    //标记以上整个操作为可撤销
+        //    GlobalVariable.IsUndoable = true;
 
-            return Created(Request.RequestUri + "/" + 333, resultDto);
-        }
+        //    return Created(Request.RequestUri + "/" + 333, resultDto);
+        //}
 
-        // PUT /api/replenishmentlocationdetail/?locationId={locationId}&locationValue={locationValue}
+        // PUT /api/replenishmentlocationdetail/?locationId={locationId}&locationValue={locationValue} 改变库位
         [HttpPut]
         public void UpdateLocation([FromUri]int locationId, [FromUri]string locationValue)
         {

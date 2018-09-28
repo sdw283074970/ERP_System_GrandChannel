@@ -10,6 +10,8 @@ using System.Net.Http;
 using System.Data.Entity;
 using System.Web.Http;
 using System.Web;
+using ClothResorting.Helpers;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -43,12 +45,12 @@ namespace ClothResorting.Controllers.Api
                 Address = obj.Address,
                 PickTicketsRange = obj.PickTicketsRange,
                 CreateDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                PickDate = "Unassigned",
-                PickingMan = "Unassigned",
-                Status = "New Create",
+                PickDate = Status.Unassigned,
+                PickingMan = Status.Unassigned,
+                Status = Status.NewCreated,
                 Operator = _userName,
                 Vendor = obj.Vendor,
-                ShippingMan = ""
+                ShippingMan = Status.Unassigned
             });
 
             _context.SaveChanges();
@@ -66,7 +68,7 @@ namespace ClothResorting.Controllers.Api
             var pickDetailsInDb = _context.PickDetails
                 .Include(x => x.ShipOrder)
                 .Where(x => x.ShipOrder.Id == id
-                    && x.Status == "Picking");
+                    && x.Status == Status.Picking);
 
             var shipOrderInDb = _context.ShipOrders.Find(id);
             
@@ -85,15 +87,15 @@ namespace ClothResorting.Controllers.Api
                 locationDetail.PickingCtns -= pickDetail.PickCtns;
                 locationDetail.PickingPcs -= pickDetail.PickPcs;
 
-                pickDetail.Status = "Shipped";
+                pickDetail.Status = Status.Shipped;
 
                 if (locationDetail.AvailableCtns == 0 && locationDetail.PickingCtns == 0)
                 {
-                    locationDetail.Status = "Shipped";
+                    locationDetail.Status = Status.Shipped;
                 }
             }
 
-            shipOrderInDb.Status = "Shipped";
+            shipOrderInDb.Status = Status.Shipped;
             shipOrderInDb.ShippingMan = _userName;
 
             _context.SaveChanges();
@@ -104,58 +106,37 @@ namespace ClothResorting.Controllers.Api
         public void ChangeStatus([FromUri]int shipOrderId)
         {
             var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
-            if (shipOrderInDb.Status == "Picking")
+            if (shipOrderInDb.Status == Status.Picking)
             {
-                shipOrderInDb.Status = "Ready";
+                shipOrderInDb.Status = Status.Ready;
             }
-            else if (shipOrderInDb.Status == "Ready")
+            else if (shipOrderInDb.Status == Status.Ready)
             {
-                shipOrderInDb.Status = "Picking";
+                shipOrderInDb.Status = Status.Picking;
             }
             _context.SaveChanges();
         }
 
         // DELETE /api/shipOrder/{id}(shipOrderId) 移除
         [HttpDelete]
-        public void CancelShipOrder([FromUri]int id)
+        public void CancelShipOrder([FromUri]int shipOrderId)
         {
             var pickDetailsInDb = _context.PickDetails
                 .Include(x => x.ShipOrder)
-                .Where(x => x.ShipOrder.Id == id
-                    && x.Status == "Picking");
+                .Where(x => x.ShipOrder.Id == shipOrderId
+                    && x.Status == Status.Picking);
 
-            var locationDeatilsInDb = _context.FCRegularLocationDetails
-                .Where(x => x.Id > 0)
-                .ToList();
+            var shipOrdrInDb = pickDetailsInDb.First().ShipOrder;
+            var canceller = new Canceller();
 
-            foreach (var pickDetail in pickDetailsInDb)
+            if (shipOrdrInDb.Vendor == Vendor.FreeCountry)
             {
-                var locationDetail = locationDeatilsInDb.SingleOrDefault(x => x.Id == pickDetail.LocationDetailId);
-
-                locationDetail.AvailableCtns += pickDetail.PickCtns;
-                locationDetail.AvailablePcs += pickDetail.PickPcs;
-
-                locationDetail.PickingCtns -= pickDetail.PickCtns;
-                locationDetail.PickingPcs -= pickDetail.PickPcs;
-
-                if (locationDetail.PickingCtns == 0 && locationDetail.AvailableCtns != 0)
-                {
-                    locationDetail.Status = "In Stock";
-                }
+                canceller.CancelFreeCountryOrder(shipOrderId, pickDetailsInDb);
             }
+            else if(shipOrdrInDb.Vendor == Vendor.SilkIcon)
+            {
 
-            var shipOrderInDb = _context.ShipOrders.Find(id);
-
-            var diagnosticsInDb = _context.PullSheetDiagnostics
-                .Include(x => x.ShipOrder)
-                .Where(x => x.ShipOrder.Id == id);
-
-            _context.PickDetails.RemoveRange(pickDetailsInDb);
-            _context.PullSheetDiagnostics.RemoveRange(diagnosticsInDb);
-            _context.SaveChanges();
-
-            _context.ShipOrders.Remove(shipOrderInDb);
-            _context.SaveChanges();
+            }
         }
     }
 }
