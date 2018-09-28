@@ -21,36 +21,36 @@ namespace ClothResorting.Controllers.Api
         }
 
         // POST /api/ReplenishmentOrderOutbound
-        [HttpPost]
-        public IHttpActionResult CreatePermanentLocIORecord()
-        {
-            var fileSavePath = "";
+        //[HttpPost]
+        //public IHttpActionResult CreatePermanentLocIORecord()
+        //{
+        //    var fileSavePath = "";
 
-            //从httpRequest中获取文件并写入磁盘系统
-            var filesGetter = new FilesGetter();
+        //    //从httpRequest中获取文件并写入磁盘系统
+        //    var filesGetter = new FilesGetter();
 
-            fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+        //    fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
 
-            if (fileSavePath == "")
-            {
-                return BadRequest();
-            }
+        //    if (fileSavePath == "")
+        //    {
+        //        return BadRequest();
+        //    }
 
-            var extractor = new LoadPlanExtracter(fileSavePath);
-            var recorder = new OutboundRecorder();
+        //    var extractor = new LoadPlanExtracter(fileSavePath);
+        //    var recorder = new OutboundRecorder();
 
-            var pickRequests = extractor.GetPickRequestsFromXlsx();
+        //    var pickRequests = extractor.GetPickRequestsFromXlsx();
 
-            var records = recorder.OutputReplenishmentOrderIORecord(pickRequests);
+        //    var records = recorder.OutputReplenishmentOrderIORecord(pickRequests);
 
-            var resultDto = Mapper.Map<IEnumerable<PermanentLocIORecord>, IEnumerable<PermanentLocIORecordDto>>(records);
+        //    var resultDto = Mapper.Map<IEnumerable<PermanentLocIORecord>, IEnumerable<PermanentLocIORecordDto>>(records);
 
-            //强行关闭进程
-            var killer = new ExcelKiller();
+        //    //强行关闭进程
+        //    var killer = new ExcelKiller();
 
-            killer.Dispose();
+        //    killer.Dispose();
 
-            return Created(Request.RequestUri + "/" + 12345, resultDto);
-        }
+        //    return Created(Request.RequestUri + "/" + 12345, resultDto);
+        //}
     }
 }
