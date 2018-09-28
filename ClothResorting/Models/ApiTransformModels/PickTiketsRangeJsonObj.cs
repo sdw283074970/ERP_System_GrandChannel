@@ -16,5 +16,7 @@ namespace ClothResorting.Models.ApiTransformModels
         public string PickTicketsRange { get; set; }
 
         public string Vendor { get; set; }
+
+        public string OrderType { get; set; }
     }
 }

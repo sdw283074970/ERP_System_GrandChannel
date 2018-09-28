@@ -40,5 +40,7 @@ namespace ClothResorting.Dtos
         public string Operator { get; set; }
 
         public string Editor { get; set; }
+
+        public string Status { get; set; }
     }
 }

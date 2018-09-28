@@ -25,6 +25,7 @@
                     <th style="width:23px">Id</th>
                     <th @*style="width:49px"*@>PO</th>
                     <th style="width:79px">Vendor</th>
+                    <th style="width:79px">Order Type</th>
                     <th style="width:79px">Customer</th>
                     <th @*style="width:254px"*@>Address</th>
                     <th style="width:141px">Pick tickets range</th>
@@ -84,6 +85,12 @@
                                 }
                             },
                             {
+                                data: "orderType",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "customer",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
@@ -130,7 +137,7 @@
                                 render: function (data) {
                                     status = data;
 
-                                    if (data == "New Create")
+                                    if (data == "New Created")
                                     {
                                         return "<text style='color:Orange'>" + data + "</text>";
                                     }
@@ -201,11 +208,6 @@
                 $(window.location).attr('href', '/thirdpartylogistics/pickdetail/?shipOrderId=' + button.attr('id'));
             });
 
-            $("#table").on("click", ".btn-summary", function () {
-                var button = $(this);
-                $(window.location).attr('href', '/thirdpartylogistics/pickdetailsummary/?shipOrderId=' + button.attr('value'));
-            });
-
             $("#table").on("click", ".btn-diag", function () {
                 var button = $(this);
                 $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?shipOrderId=' + button.attr('value'));
@@ -218,6 +220,12 @@
             });
 
             //共有菜单
+            //拣货单统计
+            $("#table").on("click", ".btn-summary", function () {
+                var button = $(this);
+                $(window.location).attr('href', '/thirdpartylogistics/pickdetailsummary/?shipOrderId=' + button.attr('value'));
+            });
+
             //点击准备按钮改变状态
             $("#table").on("click", ".btn-ready", function () {
                 var button = $(this);
@@ -225,7 +233,7 @@
 
                 $.ajax({
                     type: "PUT",
-                    url: "/api/shiporder/?shipOrderId=" + shipOrderId,
+                    url: "/api/shiporder/?onChangeShipOrderId=" + shipOrderId,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
@@ -234,28 +242,37 @@
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                        window.location.reload();
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             });
 
+            //点击ship发货
             $("#table").on("click", ".btn-ship", function () {
-                var button = $(this);
-                var id = button.attr('value');
 
-                $.ajax({
-                    type: "PUT",
-                    url: "/api/shiporder/" + id,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function () {
-                        alert("Selected pull sheet has been shipped.");
-                        window.location.reload();
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                        window.location.reload();
+                var button = $(this);
+                var shipOrderId = button.attr('value');
+                alert(shipOrderId);
+
+                bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
+                    if (result) {
+
+                        $.ajax({
+                            type: "PUT",
+                            url: "/api/shiporder/?shipOrderId=" + shipOrderId,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function () {
+                                alert("Selected pull sheet has been shipped.");
+                                window.location.reload();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                                window.location.reload();
+                            }
+                        });
                     }
                 });
             });
@@ -266,17 +283,18 @@
 
                 $.ajax({
                     type: "DELETE",
-                    url: "/api/shiporder/" + id,
+                    url: "/api/shiporder/?shipOrderId=" + id,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
-                        alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
+                        bootbox.alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
                             window.location.reload();
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                        window.location.reload();
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             });
@@ -292,48 +310,58 @@
             $("#div-create").on("click", ".btn-create", function () {
                 var button = $(this);
                 button.next().remove();
-                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' style='width:170px;height:30px' required='required'><option value='Free Country'>Vendor: Free Country</option><option value='Silk Icon'>Vendor: Silk Icon</option></select></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
+                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'><option class='option-freecountry' value='Free Country'>Vendor: Free Country</option><option class='option-silkicon' value='Silk Icon'>Vendor: Silk Icon</option></select><select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
             });
 
+            //在新建订单选择vendor时，选择free country将只有一种order type可选，先择silk icon将有两种 //暂时不起作用
+            $("#div-create").on("click", ".select-vendor option:selected", function () {
+                alert("selected!");
+                if ($(this).val() == "Free Country")
+                {
+                    $("#select-ordertype").replaceWith("<select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select>");
+                }
+                else if ($(this).val() == "Silk Icon")
+                {
+                    $("#select-ordertype").replaceWith("<select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option><option value='Replenishment'>Order Type: Replenishment</option></select>");
+                }
+            });
 
+            //点击添加按钮，新建一个新的运单
             $("#div-create").on("click", ".btn-add", function () {
-                bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
-                    if (result)
-                    {
-                        var range = $("#input-range").val();
-                        var po = $("#input-po").val();
-                        var customer = $("#input-customer").val();
-                        var address = $("#input-address").val();
-                        var vendor = $("#select-vendor option:selected").val();
+                var range = $("#input-range").val();
+                var po = $("#input-po").val();
+                var customer = $("#input-customer").val();
+                var address = $("#input-address").val();
+                var vendor = $("#select-vendor option:selected").val();
+                var orderType = $("#select-ordertype option:selected").val();
 
-                        if (range == "" || po == "" || customer == "" || address == "" || vendor == "") {
-                            alert("All fields are required.");
-                        }
-                        else {
-                            var obj = {
-                                "orderPurchaseOrder": po.toString(),
-                                "customer": customer.toString(),
-                                "address": address.toString(),
-                                "pickTicketsRange": range.toString(),
-                                "vendor": vendor.toString()
-                            }
-                            $.ajax({
-                                type: "POST",
-                                url: "/api/shiporder/",
-                                data: JSON.stringify(obj),
-                                contentType: 'application/json; charset=utf-8',
-                                dataType: "json",
-                                success: function () {
-                                    alert("Success!");
-                                    window.location.reload();
-                                },
-                                error: function () {
-                                    alert("Error!");
-                                }
-                            });
-                        }
+                if (range == "" || po == "" || customer == "" || address == "" || vendor == "") {
+                    alert("All fields are required.");
+                }
+                else {
+                    var obj = {
+                        "orderPurchaseOrder": po.toString(),
+                        "customer": customer.toString(),
+                        "address": address.toString(),
+                        "pickTicketsRange": range.toString(),
+                        "vendor": vendor.toString(),
+                        "orderType": orderType.toString()
                     }
-                });
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/shiporder/",
+                        data: JSON.stringify(obj),
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            alert("Success!");
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert("Error!");
+                        }
+                    });
+                }
             });
 
             $(".btn-back").on("click", function () {

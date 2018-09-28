@@ -188,6 +188,8 @@ namespace ClothResorting.Helpers
                             location.SpeciesInventory.AvailablePcs -= location.AvailablePcs;
                             location.SpeciesInventory.PickingPcs += location.AvailablePcs;
 
+                            location.Status = Status.Picking;
+
                             location.AvailablePcs = 0;
                         }
                         else
@@ -221,6 +223,8 @@ namespace ClothResorting.Helpers
                             location.SpeciesInventory.AvailablePcs -= targetPcs;
                             location.SpeciesInventory.PickingPcs += targetPcs;
 
+                            location.Status = Status.Picking;
+
                             targetPcs = 0;
                             break;      //当目标件数为0时，停止拿货
                         }
@@ -230,6 +234,7 @@ namespace ClothResorting.Helpers
                     if (targetPcs > 0)
                     {
                         //生成缺货记录
+                        // TO DO
                     }
                 }
             }

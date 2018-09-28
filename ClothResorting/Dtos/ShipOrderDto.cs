@@ -30,5 +30,7 @@ namespace ClothResorting.Dtos
         public string ShippingMan { get; set; }
 
         public string Vendor { get; set; }
+
+        public string OrderType { get; set; }
     }
 }

@@ -39,6 +39,7 @@ namespace ClothResorting.Controllers.Api
             extractor.PickReplenishmentLoadPlan(shipOrderId);
 
             shipOrderInDb.Status = Status.Picking;
+            _context.SaveChanges();
         }
     }
 }

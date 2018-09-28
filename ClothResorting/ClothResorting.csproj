@@ -323,7 +323,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\Canceller.cs" />
+    <Compile Include="Helpers\ShipOrderManager.cs" />
     <Compile Include="Helpers\CartonBreakdownGetter.cs" />
     <Compile Include="Helpers\CartonBreaker.cs" />
     <Compile Include="Helpers\Downloader.cs" />
@@ -1009,6 +1009,14 @@
     <Compile Include="Migrations\201809281656205_ConnectPickDetailsWithFCRegularAndReplenishmentLocationDetail.cs" />
     <Compile Include="Migrations\201809281656205_ConnectPickDetailsWithFCRegularAndReplenishmentLocationDetail.Designer.cs">
       <DependentUpon>201809281656205_ConnectPickDetailsWithFCRegularAndReplenishmentLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809281759535_AddedOrderTypeInShipOrderDbSet.cs" />
+    <Compile Include="Migrations\201809281759535_AddedOrderTypeInShipOrderDbSet.Designer.cs">
+      <DependentUpon>201809281759535_AddedOrderTypeInShipOrderDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.cs" />
+    <Compile Include="Migrations\201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.Designer.cs">
+      <DependentUpon>201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -1971,6 +1979,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809281656205_ConnectPickDetailsWithFCRegularAndReplenishmentLocationDetail.resx">
       <DependentUpon>201809281656205_ConnectPickDetailsWithFCRegularAndReplenishmentLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809281759535_AddedOrderTypeInShipOrderDbSet.resx">
+      <DependentUpon>201809281759535_AddedOrderTypeInShipOrderDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.resx">
+      <DependentUpon>201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

@@ -31,6 +31,8 @@ namespace ClothResorting.Models
 
         public string Vendor { get; set; }
 
+        public string OrderType { get; set; }
+
         public ICollection<PickDetail> PickDetails { get; set; }
 
         public ICollection<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }

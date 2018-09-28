@@ -808,7 +808,8 @@ namespace ClothResorting.Helpers
                         ShippedPcs = 0,
                         InboundDate = _dateTimeNow,
                         GeneralLocationSummary = locationSummaryInDb,
-                        Operator = _userName
+                        Operator = _userName,
+                        Status = Status.InStock
                     };
 
                     //判断数据库中是否已经存在该对象的PO，如果临时表poInventoryList和数据库表poInventoryList中都没有，则说明是新PO需要新建一个该对象的PO，否则直接挂钩
@@ -831,8 +832,6 @@ namespace ClothResorting.Helpers
                         };
 
                         poInventoryList.Add(newPurchaseOrderInventory);
-                        //_context.PurchaseOrderInventories.Add(newPurchaseOrderInventory); 无效
-                        //locationDetail.PurchaseOrderInventory = newPurchaseOrderInventory; 无效
                     }
 
                     locationDetailList.Add(locationDetail);

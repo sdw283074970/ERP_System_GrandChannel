@@ -19,14 +19,17 @@ namespace ClothResorting.Controllers.Api
     {
         private ApplicationDbContext _context;
         private string _userName;
+        private ShipOrderManager _manager;
 
         public ShipOrderController()
         {
             _context = new ApplicationDbContext();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _manager = new ShipOrderManager();
         }
 
         // GET /api/ShipOrder/ 查询
+        [HttpGet]
         public IHttpActionResult GetAllShipOrder()
         {
             var resultDto = _context.ShipOrders.OrderByDescending(x => x.Id)
@@ -35,7 +38,7 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultDto);
         }
 
-        // POST /api/ShipOrder/ 新建
+        // POST /api/ShipOrder/ 新建订单
         [HttpPost]
         public IHttpActionResult CreateNewShipOrder([FromBody]PickTiketsRangeJsonObj obj)
         {
@@ -50,7 +53,8 @@ namespace ClothResorting.Controllers.Api
                 Status = Status.NewCreated,
                 Operator = _userName,
                 Vendor = obj.Vendor,
-                ShippingMan = Status.Unassigned
+                ShippingMan = Status.Unassigned,
+                OrderType = obj.OrderType
             });
 
             _context.SaveChanges();
@@ -61,51 +65,18 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + result.Id, resultDto);
         }
 
-        // PUT /api/ShipOrder/{id}(shipOrderId) 发货
+        // PUT /api/ShipOrder/?shipOrderId={ishipOrderId} 发货订单
         [HttpPut]
-        public void ShipShipOrder([FromUri]int id)
+        public void ShipShipOrder([FromUri]int shipOrderId)
         {
-            var pickDetailsInDb = _context.PickDetails
-                .Include(x => x.ShipOrder)
-                .Where(x => x.ShipOrder.Id == id
-                    && x.Status == Status.Picking);
-
-            var shipOrderInDb = _context.ShipOrders.Find(id);
-            
-            var locationDeatilsInDb = _context.FCRegularLocationDetails
-                .Where(x => x.Id > 0)
-                .ToList();
-
-            //此处应简化数据库查询
-            foreach(var pickDetail in pickDetailsInDb)
-            {
-                var locationDetail = locationDeatilsInDb.SingleOrDefault(x => x.Id == pickDetail.LocationDetailId);
-
-                locationDetail.ShippedCtns += pickDetail.PickCtns;
-                locationDetail.ShippedPcs += pickDetail.PickPcs;
-
-                locationDetail.PickingCtns -= pickDetail.PickCtns;
-                locationDetail.PickingPcs -= pickDetail.PickPcs;
-
-                pickDetail.Status = Status.Shipped;
-
-                if (locationDetail.AvailableCtns == 0 && locationDetail.PickingCtns == 0)
-                {
-                    locationDetail.Status = Status.Shipped;
-                }
-            }
-
-            shipOrderInDb.Status = Status.Shipped;
-            shipOrderInDb.ShippingMan = _userName;
-
-            _context.SaveChanges();
+            _manager.ConfirmAndShip(shipOrderId);
         }
         
-        // PUT /api/shiporder/?shipOrderId={id}
+        // PUT /api/shiporder/?onChangeShipOrderId={id} 改变订单状态
         [HttpPut]
-        public void ChangeStatus([FromUri]int shipOrderId)
+        public void ChangeStatus([FromUri]int onChangeshipOrderId)
         {
-            var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
+            var shipOrderInDb = _context.ShipOrders.Find(onChangeshipOrderId);
             if (shipOrderInDb.Status == Status.Picking)
             {
                 shipOrderInDb.Status = Status.Ready;
@@ -117,26 +88,11 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
-        // DELETE /api/shipOrder/{id}(shipOrderId) 移除
+        // DELETE /api/shipOrder/?shipOrderId={ishipOrderId} 取消订单
         [HttpDelete]
         public void CancelShipOrder([FromUri]int shipOrderId)
         {
-            var pickDetailsInDb = _context.PickDetails
-                .Include(x => x.ShipOrder)
-                .Where(x => x.ShipOrder.Id == shipOrderId
-                    && x.Status == Status.Picking);
-
-            var shipOrdrInDb = pickDetailsInDb.First().ShipOrder;
-            var canceller = new Canceller();
-
-            if (shipOrdrInDb.Vendor == Vendor.FreeCountry)
-            {
-                canceller.CancelFreeCountryOrder(shipOrderId, pickDetailsInDb);
-            }
-            else if(shipOrdrInDb.Vendor == Vendor.SilkIcon)
-            {
-
-            }
+            _manager.CancelShipOrder(shipOrderId);
         }
     }
 }
