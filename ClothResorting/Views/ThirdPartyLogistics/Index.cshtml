@@ -47,14 +47,17 @@
 </div>
 <div class="iframe-freecountry">
     <div style="margin-top:10px;text-align:center">
-        <input id="btn-shiporder" type="button" class="btn btn-primary" value="Manage ship order" /><br />
+        <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" /><br />
         <input id="btn-search" type="button" class="btn btn-primary" value="Search Free Country Inventory" style="margin-top:5px" />
         <input id="btn-pl" type="button" class="btn btn-primary" value="Search Free Country Packing List" style="margin-top:5px" />
     </div>
 </div>
 <div class="iframe-silkicon">
     <div style="margin-top:15px;text-align:center">
-        <input id="btn-shiporder" type="button" class="btn btn-primary" value="Manage ship order" /><br />
+        <input type="button" class="btn btn-info btn-shiporder" value="Manage ship order" /><br />
+        <a href="/thirdpartylogistics/generallocmanagement/">
+            <input style="margin-top:5px" type="button" class="btn btn-info btn-managelocation" value="Manage general location" />
+        </a>
         <a href="/ThirdPartyLogistics/PermanentLocManagement/">
             <input style="margin-top:5px" id="btn-location" type="button" class="btn btn-info" value="Manage Permanent Location" />
         </a>
@@ -350,7 +353,7 @@
                 $(window.location).attr('href', '/ThirdPartyLogistics/PackingListSearch/');
             });
 
-            $("#btn-shiporder").on("click", function () {
+            $(".btn-shiporder").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/shiporder/');
             });
 

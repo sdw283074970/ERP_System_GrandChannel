@@ -300,6 +300,7 @@
             });
 
             $("#table").on("click", ".btn-download", function () {
+
                 var button = $(this);
                 var id = button.attr('value');
 
@@ -310,12 +311,11 @@
             $("#div-create").on("click", ".btn-create", function () {
                 var button = $(this);
                 button.next().remove();
-                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'><option class='option-freecountry' value='Free Country'>Vendor: Free Country</option><option class='option-silkicon' value='Silk Icon'>Vendor: Silk Icon</option></select><select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
+                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'><option class='option-select' value='Free Country'>Vendor: Free Country</option><option class='option-select' value='Silk Icon'>Vendor: Silk Icon</option></select><select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
             });
 
-            //在新建订单选择vendor时，选择free country将只有一种order type可选，先择silk icon将有两种 //暂时不起作用
-            $("#div-create").on("click", ".select-vendor option:selected", function () {
-                alert("selected!");
+            //在新建订单选择vendor时，选择free country将只有一种order type可选，先择silk icon将有两种
+            $("#div-create").on("change", "#select-vendor", function () {
                 if ($(this).val() == "Free Country")
                 {
                     $("#select-ordertype").replaceWith("<select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select>");
