@@ -25,16 +25,56 @@ namespace ClothResorting.Helpers
             var sheet = doc.Workbook.Worksheets.Add("Sheet1");
             var cells = sheet.Cells;
 
+            //调整第1~4,8~9,12~14列宽度
+            var col1_4 = new ColumnInfo(doc, sheet);
+            var col7_14 = new ColumnInfo(doc, sheet);
+
+            col1_4.ColumnIndexStart = 0;
+            col1_4.ColumnIndexEnd = 3;
+            col7_14.ColumnIndexStart = 6;
+            col7_14.ColumnIndexEnd = 13;
+
+            col1_4.Width = 16 * 256;
+            col7_14.Width = 16 * 256;
+
+            sheet.AddColumnInfo(col1_4);
+            sheet.AddColumnInfo(col7_14);
+
             //定义合并单元格，合并从[1,1]到[2,14]的范围
             sheet.AddMergeArea(new MergeArea(1, 2, 1, 14));
 
-            //创建单元格样式，垂直居中且水平居中
+            //创建题目单元格样式，垂直水平且居中
+            var xfTitle = doc.NewXF();
+            xfTitle.VerticalAlignment = VerticalAlignments.Centered;
+            xfTitle.HorizontalAlignment = HorizontalAlignments.Centered;
+            xfTitle.UseBorder = true;
+            xfTitle.TopLineStyle = 1;
+            xfTitle.BottomLineStyle = 1;
+            xfTitle.LeftLineStyle = 1;
+            xfTitle.RightLineStyle = 1;
+            xfTitle.TopLineColor = Colors.Black;
+            xfTitle.BottomLineColor = Colors.Black;
+            xfTitle.RightLineColor = Colors.Black;
+            xfTitle.LeftLineColor = Colors.Black;
+            xfTitle.Font.Bold = true;
+            xfTitle.Font.Height = 16 * 20;
+
+            //创建内容单元格样式，垂直居中且水平居中
             var xf = doc.NewXF();
             xf.VerticalAlignment = VerticalAlignments.Centered;
             xf.HorizontalAlignment = HorizontalAlignments.Centered;
+            xf.UseBorder = true;
+            xf.TopLineStyle = 1;
+            xf.BottomLineStyle = 1;
+            xf.LeftLineStyle = 1;
+            xf.RightLineStyle = 1;
+            xf.TopLineColor = Colors.Black;
+            xf.BottomLineColor = Colors.Black;
+            xf.RightLineColor = Colors.Black;
+            xf.LeftLineColor = Colors.Black;
 
             //标题
-            cells.Add(1, 1, "RWL -RECEIVING REPORT-", xf);
+            cells.Add(1, 1, "RWL -RECEIVING REPORT-", xfTitle);
 
             //集装箱信息
             cells.Add(4, 1, "Vendor:", xf);
@@ -45,10 +85,10 @@ namespace ClothResorting.Helpers
             cells.Add(9, 1, "TOTAL CTNS:", xf);
             cells.Add(10, 1, "REMARKS:", xf);
 
-            for (int i= 0; i < 7; i++)
-            {
-                sheet.AddMergeArea(new MergeArea(i + 4, i + 4, 2, 3));
-            }
+            //for (int i= 0; i < 7; i++)
+            //{
+            //    sheet.AddMergeArea(new MergeArea(i + 4, i + 4, 2, 3));
+            //}
 
             cells.Add(4, 2, container.Vendor, xf);
             cells.Add(5, 2, container.ReceivedDate, xf);
@@ -141,6 +181,125 @@ namespace ClothResorting.Helpers
             //response.OutputStream.Write(Content, 0, Content.Length);
             //response.Flush();
             //response.End();
+        }
+
+        public void GenerateSearchResultsExcelFile(IList<RegularCartonDetail> searchResults, string container, string po, string color, string style, string customer, string size)
+        {
+            var doc = new XlsDocument();
+            doc.FileName = "SearchResults" + "-" + DateTime.Now.ToString("MMddyyyyhhmmss") + ".xls";
+            var sheet = doc.Workbook.Worksheets.Add("Sheet1");
+            var cells = sheet.Cells;
+
+            //调整第1~6,8~9,12~14列宽度
+            var col1_6 = new ColumnInfo(doc, sheet);
+            var col8_9 = new ColumnInfo(doc, sheet);
+            var col12_14 = new ColumnInfo(doc, sheet);
+
+            col1_6.ColumnIndexStart = 0;
+            col1_6.ColumnIndexEnd = 5;
+            col8_9.ColumnIndexStart = 7;
+            col8_9.ColumnIndexEnd = 8;
+            col12_14.ColumnIndexStart = 11;
+            col12_14.ColumnIndexEnd = 13;
+
+            col1_6.Width = 16 * 256;
+            col8_9.Width = 16 * 256;
+            col12_14.Width = 16 * 256;
+
+            sheet.AddColumnInfo(col1_6);
+            sheet.AddColumnInfo(col8_9);
+            sheet.AddColumnInfo(col12_14);
+
+            //定义合并单元格，合并从[1,1]到[2,14]的范围
+            sheet.AddMergeArea(new MergeArea(1, 2, 1, 14));
+
+            //创建题目单元格样式，垂直水平且居中
+            var xfTitle = doc.NewXF();
+            xfTitle.VerticalAlignment = VerticalAlignments.Centered;
+            xfTitle.HorizontalAlignment = HorizontalAlignments.Centered;
+            xfTitle.UseBorder = true;
+            xfTitle.TopLineStyle = 1;
+            xfTitle.BottomLineStyle = 1;
+            xfTitle.LeftLineStyle = 1;
+            xfTitle.RightLineStyle = 1;
+            xfTitle.TopLineColor = Colors.Black;
+            xfTitle.BottomLineColor = Colors.Black;
+            xfTitle.RightLineColor = Colors.Black;
+            xfTitle.LeftLineColor = Colors.Black;
+            xfTitle.Font.Bold = true;
+            xfTitle.Font.Height = 16 * 20;
+
+            //创建内容单元格样式，垂直居中且水平居中
+            var xf = doc.NewXF();
+            xf.VerticalAlignment = VerticalAlignments.Centered;
+            xf.HorizontalAlignment = HorizontalAlignments.Centered;
+            xf.UseBorder = true;
+            xf.TopLineStyle = 1;
+            xf.BottomLineStyle = 1;
+            xf.LeftLineStyle = 1;
+            xf.RightLineStyle = 1;
+            xf.TopLineColor = Colors.Black;
+            xf.BottomLineColor = Colors.Black;
+            xf.RightLineColor = Colors.Black;
+            xf.LeftLineColor = Colors.Black;
+
+            //标题
+            cells.Add(1, 1, "Sorted by: Container=" + container + " && Cut PO=" + po + " && Style=" + style + " && Color=" + color + " && Customer=" + customer + " && Size=" + size, xfTitle);
+
+            //建立列
+            var columnNames = "Created By,Received By,Carton Range,Customer,Cut PO,Style,Color,Size Code,Pcs Code,Pack,Quantity,Received Pcs,Cartons,Received Ctns";
+            var index = 1;
+
+            foreach (var columnName in columnNames.Split(','))
+            {
+                cells.Add(3, index, columnName, xf);
+                index++;
+            }
+
+            //填充收货细节
+            index = 0;
+            foreach (var r in searchResults)
+            {
+                cells.Add(4 + index, 1, r.Operator, xf);
+                cells.Add(4 + index, 2, r.Receiver, xf);
+                cells.Add(4 + index, 3, r.CartonRange, xf);
+                cells.Add(4 + index, 4, r.Customer, xf);
+                cells.Add(4 + index, 5, r.PurchaseOrder, xf);
+                cells.Add(4 + index, 6, r.Style, xf);
+                cells.Add(4 + index, 7, r.Color, xf);
+                cells.Add(4 + index, 8, r.SizeBundle, xf);
+                cells.Add(4 + index, 9, r.PcsBundle, xf);
+                cells.Add(4 + index, 10, r.PcsPerCarton, xf);
+                cells.Add(4 + index, 11, r.Quantity, xf);
+                cells.Add(4 + index, 12, r.ActualPcs, xf);
+                cells.Add(4 + index, 13, r.Cartons, xf);
+                cells.Add(4 + index, 14, r.ActualCtns, xf);
+                index++;
+            }
+
+            //表脚统计
+            cells.Add(6 + index, 10, "Total:", xf);
+            cells.Add(6 + index, 11, searchResults.Sum(x => x.Quantity).ToString(), xf);
+            cells.Add(6 + index, 12, searchResults.Sum(x => x.ActualPcs).ToString(), xf);
+            cells.Add(6 + index, 13, searchResults.Sum(x => x.Cartons).ToString(), xf);
+            cells.Add(6 + index, 14, searchResults.Sum(x => x.ActualCtns).ToString(), xf);
+
+            //下载
+            doc.Save(@"D:\SearchResults\");
+            var fileName = doc.FileName;
+            var path = @"D:\SearchResults\" + doc.FileName;
+            var response = HttpContext.Current.Response;
+            var downloadFile = new FileInfo(path);
+            response.ClearHeaders();
+            response.Buffer = false;
+            response.ContentType = "application/octet-stream";
+            response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8));
+            response.Clear();
+            response.AppendHeader("Content-Length", downloadFile.Length.ToString());
+            response.WriteFile(downloadFile.FullName);
+            response.Flush();
+            response.Close();
+            response.End();
         }
     }
 }

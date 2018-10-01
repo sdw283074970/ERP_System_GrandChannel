@@ -11,14 +11,14 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
+    <div id="div-search">
         <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
         <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
         <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
         <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
         <input style="width:140px" id="input-customer" class="input-sm" placeholder="Customer" />
         <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
-        <button id="btn-search" class="btn btn-info">Search</button><br />
+        <button id="btn-search" class="btn btn-info">Search</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -59,6 +59,7 @@
         $(document).ready(function () {
 
             var table;
+            var downloader;
 
             $("#btn-search").on('click', function () {
                 var container = $("#input-container").val() == "" ? "NULL" : $("#input-container").val();
@@ -218,6 +219,10 @@
                                 $(api.column(13).footer()).html("<font color='blue'>" + totalActualCartons + "</font>");
                             }
                         });
+
+                        //动态添加一个导出结果按钮
+                        if (downloader == null)
+                            downloader = $("#div-search").append("<button id='btn-download' class='btn btn-primary'>Export Result based on searching conditions</button>");
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -225,6 +230,20 @@
                         });
                     }
                 });
+            });
+
+            //点击导出结果按钮，导出结果
+            $("#div-search").on("click", "#btn-download", function () {
+                var container = $("#input-container").val() == "" ? "NULL" : $("#input-container").val();
+                var po = $("#input-po").val() == "" ? "NULL" : $("#input-po").val().toString();
+                var style = $("#input-style").val() == "" ? "NULL" : $("#input-style").val().toString();
+                var color = $("#input-color").val() == "" ? "NULL" : $("#input-color").val().toString();
+                var customer = $("#input-customer").val() == "" ? "NULL" : $("#input-customer").val().toString();
+                var size = $("#input-size").val() == "" ? "NULL" : $("#input-size").val().toString();
+
+                var url = "/api/searchresultdownload/?container=" + container + "&po=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size;
+
+                $(window.location).attr('href', url);
             });
 
             $(".btn-back").on("click", function () {
