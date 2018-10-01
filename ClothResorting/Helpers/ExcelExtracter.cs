@@ -86,16 +86,16 @@ namespace ClothResorting.Helpers
             var newOrder = new PreReceiveOrder
             {
                 ActualReceivedCtns = 0,
-                CustomerName = "Unknown",
+                CustomerName = Vendor.Unknown,
                 CreatDate = _dateTimeNow,
                 TotalCartons = 0,
                 TotalGrossWeight = 0,
                 TotalNetWeight = 0,
                 TotalVol = 0,
-                ContainerNumber = "Unknown",
+                ContainerNumber = Status.Unknown,
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
-                Status = "New Created",
+                Status = Status.NewCreated,
                 Operator = _userName
             };
 
@@ -941,14 +941,14 @@ namespace ClothResorting.Helpers
         {
             _context.PreReceiveOrders.Add(new PreReceiveOrder
             {
-                CustomerName = "Free Country",
+                CustomerName = Vendor.FreeCountry,
                 CreatDate = _dateTimeNow,
-                ContainerNumber = "UNKNOWN",
+                ContainerNumber = Status.Unknown,
                 TotalCartons = 0,
                 ActualReceivedCtns = 0,
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
-                Status = "New Created",
+                Status = Status.NewCreated,
                 TotalGrossWeight = 0,
                 TotalNetWeight = 0,
                 TotalVol = 0,
@@ -1001,7 +1001,7 @@ namespace ClothResorting.Helpers
                     CBM = 0,
                     ActualCtns = 0,
                     ActualPcs = 0,
-                    Container = "Unknown",
+                    Container = Status.Unknown,
                     PreReceiveOrder = preReceiveOrderInDb,
                     Operator = _userName
                 });
@@ -1012,7 +1012,7 @@ namespace ClothResorting.Helpers
             //可以在本页面获取packingList的总量
             //preReceiveOrderInDb.TotalCartons += (int) _ws.Cells[_countOfPo * 2 + 1, 8].Value2;
             //preReceiveOrderInDb.TotalPcs += (int)_ws.Cells[_countOfPo * 2 + 1, 6].Value2;
-            preReceiveOrderInDb.CustomerName = "Free Country";
+            preReceiveOrderInDb.CustomerName = Vendor.FreeCountry;
 
             _context.POSummaries.AddRange(packingList);
             _context.SaveChanges();
@@ -1100,7 +1100,7 @@ namespace ClothResorting.Helpers
                     .Where(c => c.PurchaseOrder == purchaseOrder
                         && c.PreReceiveOrder.Id == id
                         && c.PoLine == poLine
-                        && c.Container == "Unknown");
+                        && c.Container == Status.Unknown);
 
                     var poSummaryList = poSummaryInDbs.ToList();
 
@@ -1139,7 +1139,7 @@ namespace ClothResorting.Helpers
                             }
 
                             var poSummaryInDb = poSummaryInDbs.First();
-                            poSummaryInDb.OrderType = "Solid";
+                            poSummaryInDb.OrderType = OrderType.Solidpack;
 
                             //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
                             if (poSummaryList.Count() == 1)
@@ -1162,12 +1162,12 @@ namespace ClothResorting.Helpers
                                     ActualCtns = 0,
                                     ActualPcs = 0,
                                     InboundDate = null,
-                                    Status = "New Created",
+                                    Status = Status.NewCreated,
                                     ToBeAllocatedCtns = 0,
                                     ToBeAllocatedPcs = 0,
                                     POSummary = poSummaryInDb,
                                     Comment = "",
-                                    OrderType = "Solid",
+                                    OrderType = OrderType.Solidpack,
                                     Operator  = _userName,
                                     Adjustor = "",
                                     Receiver = ""
@@ -1195,11 +1195,11 @@ namespace ClothResorting.Helpers
                                     ActualCtns = 0,
                                     ActualPcs = 0,
                                     InboundDate = null,
-                                    Status = "New Created",
+                                    Status = Status.NewCreated,
                                     ToBeAllocatedCtns = 0,
                                     ToBeAllocatedPcs = 0,
                                     Comment = "",
-                                    OrderType = "Solid",
+                                    OrderType = OrderType.Solidpack,
                                     Operator = _userName,
                                     Adjustor = "",
                                     Receiver = ""
@@ -1230,7 +1230,7 @@ namespace ClothResorting.Helpers
                         if (poSummaryList.Count() == 1)
                         {
                             var poSummaryInDb = poSummaryInDbs.First();
-                            poSummaryInDb.OrderType = "Pre-pack";
+                            poSummaryInDb.OrderType = OrderType.Prepack;
 
                             var regularCartonDetail = new RegularCartonDetail
                             {
@@ -1250,12 +1250,12 @@ namespace ClothResorting.Helpers
                                 ActualCtns = 0,
                                 ActualPcs = 0,
                                 InboundDate = null,
-                                Status = "New Created",
+                                Status = Status.NewCreated,
                                 ToBeAllocatedCtns = 0,
                                 ToBeAllocatedPcs = 0,
                                 POSummary = poSummaryInDb,
                                 Comment = "",
-                                OrderType = "Pre-pack",
+                                OrderType = OrderType.Prepack,
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = ""
@@ -1283,11 +1283,11 @@ namespace ClothResorting.Helpers
                                 ActualCtns = 0,
                                 ActualPcs = 0,
                                 InboundDate = null,
-                                Status = "New Created",
+                                Status = Status.NewCreated,
                                 ToBeAllocatedCtns = 0,
                                 ToBeAllocatedPcs = 0,
                                 Comment = "",
-                                OrderType = "Pre-pack",
+                                OrderType = OrderType.Prepack,
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = ""
@@ -1625,7 +1625,7 @@ namespace ClothResorting.Helpers
                         {
                             diagnosticList.Add(new PullSheetDiagnostic
                             {
-                                Type = "Missing",
+                                Type = Status.Missing,
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                                 Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.",
                                 ShipOrder = pullSheet
@@ -1699,7 +1699,7 @@ namespace ClothResorting.Helpers
                         {
                             // ...生成缺货记录
                             diagnosticList.Add(new PullSheetDiagnostic {
-                                Type = "Shortage",
+                                Type = Status.Shortage,
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                                 Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + (originalTargetPcs - targetPcs).ToString() + "</font> units have been collected.",
                                 ShipOrder = pullSheet
@@ -1718,7 +1718,7 @@ namespace ClothResorting.Helpers
                     {
                         diagnosticList.Add(new PullSheetDiagnostic
                         {
-                            Type = "Missing",
+                            Type = Status.Missing,
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                             Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template if the information is correct.",
                             ShipOrder = pullSheet
@@ -1779,7 +1779,7 @@ namespace ClothResorting.Helpers
                         //...生成缺货记录
                         diagnosticList.Add(new PullSheetDiagnostic
                         {
-                            Type = "Shortage",
+                            Type = Status.Shortage,
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                             Description = "<font color='red'>" + targetCtns.ToString() + "</font> cartons shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size Bundle:<font color='red'>" + poolLocations.First().SizeBundle + "</font>. <font color='red'>" + (originalCtns - targetCtns).ToString() + "</font> cartons have been collected.",
                             ShipOrder = pullSheet
@@ -1793,7 +1793,7 @@ namespace ClothResorting.Helpers
                     //...生成缺货记录
                     diagnosticList.Add(new PullSheetDiagnostic
                     {
-                        Type = "Missing",
+                        Type = Status.Missing,
                         DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                         Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
                         ShipOrder = pullSheet
@@ -1819,7 +1819,7 @@ namespace ClothResorting.Helpers
                     {
                         //一起添加到拣货单，并注明这是Concealed Overage
                         var concealedOverage = ConvertToSolidPickDetail(pullSheet, partailCarton, regularLocationDetailInDb, partailCartonDiff * partailCarton.PcsPerCaron);
-                        concealedOverage.Memo = "Overage";
+                        concealedOverage.Memo = Status.Overage;
                         concealedOverage.PickCtns = 0;
                         pickDetailList.Add(concealedOverage);
 
@@ -1828,7 +1828,7 @@ namespace ClothResorting.Helpers
 
                         diagnosticList.Add(new PullSheetDiagnostic
                         {
-                            Type = "Concealed Overage",
+                            Type = Status.ConcealedOverage,
                             DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
                             Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
                             ShipOrder = pullSheet

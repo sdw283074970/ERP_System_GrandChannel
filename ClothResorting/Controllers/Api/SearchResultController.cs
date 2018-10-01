@@ -8,6 +8,8 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
 using ClothResorting.Helpers;
+using AutoMapper;
+using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -19,6 +21,46 @@ namespace ClothResorting.Controllers.Api
         {
             _context = new ApplicationDbContext();
         }
+
+        // GET /api/searchresult/?container={container}&po={po}&style={style}&color={color}&customer={customer}&size={size}
+        [HttpGet]
+        public IHttpActionResult SearchPackingList([FromUri]string container, [FromUri]string po, [FromUri]string color, [FromUri]string style, [FromUri]string customer, [FromUri]string size)
+        {
+            var searchResults = _context.RegularCartonDetails.Where(x => x.Id > 0).ToList();
+
+            if (container != "NULL")
+            {
+                searchResults = searchResults.Where(x => x.Container == container).ToList();
+            }
+
+            if (po != "NULL")
+            {
+                searchResults = searchResults.Where(x => x.PurchaseOrder == po).ToList();
+            }
+
+            if (style != "NULL")
+            {
+                searchResults = searchResults.Where(x => x.Style == style).ToList();
+            }
+
+            if (color != "NULL")
+            {
+                searchResults = searchResults.Where(x => x.Color == color).ToList();
+            }
+
+            if (customer != "NULL")
+            {
+                searchResults = searchResults.Where(x => x.Customer == customer).ToList();
+            }
+
+            if (size != "NULL")
+            {
+                searchResults = searchResults.Where(x => x.SizeBundle == size).ToList();
+            }
+
+            return Ok(Mapper.Map<IList<RegularCartonDetail>, IList<RegularCartonDetailDto>>(searchResults));
+        }
+
 
         // POST /api/searchresult 需要DTO
         [HttpPost]

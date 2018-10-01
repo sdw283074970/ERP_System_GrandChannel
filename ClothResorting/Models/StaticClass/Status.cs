@@ -26,5 +26,16 @@ namespace ClothResorting.Models.StaticClass
         public const string Unassigned = "Unassigned";
 
         public const string NotAvailable = "N/A";
+
+        public const string Unknown = "Unknown";
+
+        public const string Missing = "Missing";
+
+        public const string Shortage = "Shortage";
+
+        public const string Overage = "Overage";
+
+        public const string ConcealedOverage = "Concealed Overage";
+
     }
 }

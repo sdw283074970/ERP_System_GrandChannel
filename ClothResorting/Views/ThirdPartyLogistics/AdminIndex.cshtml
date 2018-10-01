@@ -49,6 +49,7 @@
     <div style="margin-top:10px;text-align:center">
         <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" /><br />
         <input id="btn-search" type="button" class="btn btn-primary" value="Search Free Country Inventory" style="margin-top:5px" />
+        <input id="btn-pl" type="button" class="btn btn-primary" value="Search Free Country Packing List" style="margin-top:5px" />
     </div>
 </div>
 <div class="iframe-silkicon">
@@ -322,7 +323,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "10%"],
+                    area: ["20%", "20%"],
                     content: $(".iframe-freecountry")
                 });
             });
@@ -340,6 +341,10 @@
 
             $("#btn-search").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/InventorySearch/');
+            });
+
+            $("#btn-pl").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/PackingListSearch/');
             });
 
             $(".btn-shiporder").on("click", function () {

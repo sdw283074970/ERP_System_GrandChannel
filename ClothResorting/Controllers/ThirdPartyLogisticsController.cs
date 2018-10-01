@@ -197,5 +197,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //装箱单搜索页面
+        public ActionResult PackingListSearch()
+        {
+            return View();
+        }
     }
 }

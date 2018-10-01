@@ -84,7 +84,7 @@
                     if (table) {
                         table.destroy();
                     }
-                    table = $("table").DataTable({
+                    table = $("#table").DataTable({
                         destroy: true,
                         data: data,
                         //scrollX: true,
@@ -176,8 +176,10 @@
                         ]
                     });
                 },
-                error: function (data) {
-                    alert("Error!");
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        location.reload();
+                    });
                 }
             });
 
