@@ -57,5 +57,7 @@ namespace ClothResorting.Dtos
 
         public string Receiver { get; set; }
 
+        public string Vendor { get; set; }
+
     }
 }

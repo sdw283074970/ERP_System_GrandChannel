@@ -80,7 +80,7 @@ namespace ClothResorting.Helpers
         //-----👇👇👇👇👇👇-----以下为抽取SILKICON装箱单的新方法-----👇👇👇👇👇👇-----
         //建立一个Pre-Recieve Order对象并添加进数据库
         #region
-        public void CreatePreReceiveOrder()
+        public void CreatePreReceiveOrder(string orderType)
         {
             //建立一个PreReceiveOrder对象
             var newOrder = new PreReceiveOrder
@@ -96,16 +96,15 @@ namespace ClothResorting.Helpers
                 TotalPcs = 0,
                 ActualReceivedPcs = 0,
                 Status = Status.NewCreated,
-                Operator = _userName
+                Operator = _userName,
+                WorkOrderType = orderType
             };
 
             _context.PreReceiveOrders.Add(newOrder);
             _context.SaveChanges();
         }
-        #endregion
 
         //扫描单页模板，计算每一个POSummary并写入数据库
-        #region
         public void ExtractSIPOSummaryAndCartonDetail(int preId, string orderType)
         {
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preId);     //获取刚建立的PreReceiveOrder
@@ -137,7 +136,8 @@ namespace ClothResorting.Helpers
             {
                 poList.Add(new POSummary {
                     PreReceiveOrder = preReceiveOrderInDb,
-                    Operator = _userName
+                    Operator = _userName,
+                    Vendor = Vendor.SilkIcon
                 });
             }
 
@@ -187,7 +187,7 @@ namespace ClothResorting.Helpers
                         });
                     }
 
-                    if (orderType == "Replenishment")
+                    if (orderType == OrderType.Replenishment)
                     {
                         //为每一个不为0的size都生成一个cartonDetail对象
                         foreach (var size in sizeList)
@@ -214,18 +214,19 @@ namespace ClothResorting.Helpers
                                     Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn].Value2,
                                     SizeBundle = size.SizeName,
                                     PcsBundle = size.Count.ToString(),
-                                    Status = "Created",
+                                    Status = Status.NewCreated,
                                     OrderType = orderType,
                                     POSummary = poSummary,
                                     Comment = "",
                                     Operator = _userName,
                                     Receiver = "",
-                                    Adjustor = ""
+                                    Adjustor = "",
+                                    Vendor = Vendor.SilkIcon
                                 });
                             }
                         }
                     }
-                    else if (orderType == "Regular")    //Regular类型的订单size和pcs为捆绑字符，入S M L XL/1 2 2 1
+                    else if (orderType == OrderType.Regular)    //Regular类型的订单size和pcs为捆绑字符，入S M L XL/1 2 2 1
                     {
                         var sizeBundle = sizeList[0].SizeName;
                         var pcsBundle = sizeList[0].Count.ToString();
@@ -258,21 +259,22 @@ namespace ClothResorting.Helpers
                             Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn].Value2,
                             SizeBundle = sizeBundle,
                             PcsBundle = pcsBundle,
-                            Status = "Created",
+                            Status = Status.NewCreated,
                             OrderType = orderType,
                             POSummary = poSummary,
                             Comment = "",
                             Operator = _userName,
                             Receiver = "",
-                            Adjustor = ""
+                            Adjustor = "",
+                            Vendor = Vendor.SilkIcon
                         });
                     }
 
                     //经过计算cartonDetailList的信息，重新补充POSummary的信息
-                    poSummary.Container = "UnKnown";
+                    poSummary.Container = Status.Unknown;
                     poSummary.PurchaseOrder = cartonDetailList[0].PurchaseOrder;
                     poSummary.Style = cartonDetailList[0].Style;
-                    poSummary.Customer = "Silk-Icon";
+                    poSummary.Customer = Vendor.SilkIcon;
                     poSummary.Quantity = cartonDetailList.Sum(x => x.Quantity);
                     poSummary.Cartons = cartonDetailList.Sum(x => x.Cartons);
                     poSummary.OrderType = orderType;
@@ -285,7 +287,7 @@ namespace ClothResorting.Helpers
             //重新统计新建的preReceiveOrder对象的数据
             preReceiveOrderInDb.TotalCartons += cartonList.Sum(x => x.Cartons);
             preReceiveOrderInDb.TotalPcs += cartonList.Sum(x => x.Quantity);
-            preReceiveOrderInDb.CustomerName = "Silk-Icon";
+            preReceiveOrderInDb.CustomerName = Vendor.SilkIcon;
 
             _context.RegularCartonDetails.AddRange(cartonList);
             _context.SaveChanges();
@@ -293,11 +295,10 @@ namespace ClothResorting.Helpers
         #endregion
         //-----👆👆👆👆👆👆-----以上为抽取SILKICON装箱单的新方法-----👆👆👆👆👆👆-----
 
-
-
         //-----👇👇👇👇👇👇-----以下为抽取SILKICON装箱单的旧方法-----👇👇👇👇👇👇-----
-        //扫描并抽取每一页的Carton信息概览
         #region
+
+        //扫描并抽取每一页的Carton信息概览
         public void ExtractSIPurchaseOrderSummary()
         {
             var list = new List<PurchaseOrderSummary>();
@@ -364,10 +365,8 @@ namespace ClothResorting.Helpers
             _context.PurchaseOrderSummaries.AddRange(list);
             _context.SaveChanges();
         }
-        #endregion
 
         //抽取SilkIcon公司发来的Excel表格中的CartonDetails
-        #region
         public void ExtractCartonDetails()
         {
             var wbCount = _wb.Worksheets.Count;
@@ -494,10 +493,8 @@ namespace ClothResorting.Helpers
                 _context.SaveChanges();
             }
         }
-        #endregion
 
         //私有方法，获取箱号范围的前后段
-        #region
         //从类似"12-25"字符串中获取箱号范围的前段
         private int GetFrom(string cn)
         {
@@ -528,10 +525,7 @@ namespace ClothResorting.Helpers
             }
         }
         #endregion
-
         //-----👆👆👆👆👆👆-----以上为抽取SILKICON装箱单的旧方法-----👆👆👆👆👆👆-----
-
-
 
         //以CartonDetail为单位，抽取批量散货的excel信息(与packinglist无关，仅散货)
         #region
@@ -638,10 +632,8 @@ namespace ClothResorting.Helpers
         //        Dispose();
         //    }
         //}
-        #endregion
 
         //以ReplenishmentLocationDetail为单位，从入库报告中抽取信息，生成Inventory入库记录(与PackingList无关联，与整个库存的PO对象有关联)
-        #region
         //public void ExtractReplenishimentLocationDetail(string po)
         //{
         //    int n = 3;
@@ -750,14 +742,14 @@ namespace ClothResorting.Helpers
         #endregion
 
         //SilkIcon补货订单解决方案：新建generallocationsummary和replenishmentLocationdetail对象作为入库记录和起始操作数据
-        public void UploadReplenishimentLocationDetail(string inboundDate, string fileName)
+        public void UploadReplenishimentLocationDetail(string vendor, string inboundDate, string fileName)
         {
             //首先新建一个generallocationsummay
             _context.GeneralLocationSummaries.Add(new GeneralLocationSummary {
                 CreatedDate = DateTime.Now.ToString("yyyy-MM-dd"),
                 InboundDate = inboundDate,
                 InboundPcs = 0,
-                Vendor = Vendor.SilkIcon,
+                Vendor = vendor,
                 UploadedFileName = fileName,
                 Operator = _userName
             });
@@ -809,7 +801,8 @@ namespace ClothResorting.Helpers
                         InboundDate = _dateTimeNow,
                         GeneralLocationSummary = locationSummaryInDb,
                         Operator = _userName,
-                        Status = Status.InStock
+                        Status = Status.InStock,
+                        Vendor = Vendor.SilkIcon
                     };
 
                     //判断数据库中是否已经存在该对象的PO，如果临时表poInventoryList和数据库表poInventoryList中都没有，则说明是新PO需要新建一个该对象的PO，否则直接挂钩
@@ -855,7 +848,8 @@ namespace ClothResorting.Helpers
                             AdjPcs = 0,
                             PickingPcs = 0,
                             ShippedPcs = 0,
-                            AvailablePcs = 0
+                            AvailablePcs = 0,
+                            Vendor = Vendor.SilkIcon
                         });
                     }
                 }
@@ -933,10 +927,9 @@ namespace ClothResorting.Helpers
             _context.SaveChanges();
         }
 
-
         //-----👇👇👇👇👇👇-----以下为抽取FC装箱单的方法-----👇👇👇👇👇👇-----
-        //新建FreeCountry的预收货订单
         #region
+        //新建FreeCountry的工作订单(预收货订单)
         public void CreateFCPreReceiveOrder()
         {
             _context.PreReceiveOrders.Add(new PreReceiveOrder
@@ -957,10 +950,8 @@ namespace ClothResorting.Helpers
 
             _context.SaveChanges();
         }
-        #endregion
 
         //抽取excel文件中的PO信息，并与指定的FC预收订单关联
-        #region
         public void ExtractFCPurchaseOrderSummary(int id)
         {
             _ws = _wb.Worksheets[1];
@@ -1003,7 +994,8 @@ namespace ClothResorting.Helpers
                     ActualPcs = 0,
                     Container = Status.Unknown,
                     PreReceiveOrder = preReceiveOrderInDb,
-                    Operator = _userName
+                    Operator = _userName,
+                    Vendor = Vendor.FreeCountry
                 });
 
                 index += 2;
@@ -1017,10 +1009,8 @@ namespace ClothResorting.Helpers
             _context.POSummaries.AddRange(packingList);
             _context.SaveChanges();
         }
-        #endregion
 
         //抽取Detail中的各个PO详细信息
-        #region
         public void ExtractFCPurchaseOrderDetail(int id)
         {
             _ws = _wb.Worksheets[2];
@@ -1170,7 +1160,8 @@ namespace ClothResorting.Helpers
                                     OrderType = OrderType.Solidpack,
                                     Operator  = _userName,
                                     Adjustor = "",
-                                    Receiver = ""
+                                    Receiver = "",
+                                    Vendor = Vendor.FreeCountry
                                 };
 
                                 regularCartonDetailList.Add(regularCartonDetail);
@@ -1202,7 +1193,8 @@ namespace ClothResorting.Helpers
                                     OrderType = OrderType.Solidpack,
                                     Operator = _userName,
                                     Adjustor = "",
-                                    Receiver = ""
+                                    Receiver = "",
+                                    Vendor = Vendor.FreeCountry
                                 };
 
                                 foreach (var poSummaryIndb in poSummaryInDbs)
@@ -1258,7 +1250,8 @@ namespace ClothResorting.Helpers
                                 OrderType = OrderType.Prepack,
                                 Operator = _userName,
                                 Adjustor = "",
-                                Receiver = ""
+                                Receiver = "",
+                                Vendor = Vendor.FreeCountry
                             };
 
                             regularCartonDetailList.Add(regularCartonDetail);
@@ -1290,7 +1283,8 @@ namespace ClothResorting.Helpers
                                 OrderType = OrderType.Prepack,
                                 Operator = _userName,
                                 Adjustor = "",
-                                Receiver = ""
+                                Receiver = "",
+                                Vendor = Vendor.FreeCountry
                             };
 
                             foreach (var poSummaryIndb in poSummaryInDbs)
@@ -1327,7 +1321,6 @@ namespace ClothResorting.Helpers
             //最后以cartonDetail的信息为准，重新统计一次各POSummary和PreReceiveOrder的应收件数的箱数
             SyncFcsQtyAndCtns(id);
         }
-        #endregion
 
         //私有辅助方
         #region
@@ -1412,7 +1405,6 @@ namespace ClothResorting.Helpers
             }
         }
 
-
         //如果箱子中只有一种size，只返回这种size的数量，否则返回原有熟练bundle
         private string CheckPcs(string sizeBundle, string pcsBundle)
         {
@@ -1443,9 +1435,9 @@ namespace ClothResorting.Helpers
             }
         }
         #endregion
+
+        #endregion
         //-----👆👆👆👆👆👆-----以上为抽取FC装箱单的方法-----👆👆👆👆👆👆-----
-
-
 
         //// 抽取FreeCountry正常订单的库存模板分配信息
         #region
@@ -1493,7 +1485,6 @@ namespace ClothResorting.Helpers
         //    _context.SaveChanges();
         //}
         #endregion
-
 
         //-----👇👇👇👇👇👇-----以下为抽取FC出货单的方法-----👇👇👇👇👇👇-----
         //抽取Pull sheet模板中的信息，生成ShipOrder下的拣货记录表，并从原库存中将可用箱数部分或全部转化为“拣货中”箱数
@@ -1862,10 +1853,8 @@ namespace ClothResorting.Helpers
             _context.PullSheetDiagnostics.AddRange(diagnosticList);
             _context.SaveChanges();
         }
-        #endregion
 
         //辅助方法：根据调整后的pool以及取货数量，生成该pullsheet下的pickdetail
-        #region
         private PickDetail ConvertToSolidPickDetail(ShipOrder pullSheet, FCRegularLocationDetail pool, IEnumerable<FCRegularLocationDetail> locationsInDb, int targetPcs)
         {
             return new PickDetail
@@ -1914,8 +1903,6 @@ namespace ClothResorting.Helpers
         }
         #endregion
         //-----👆👆👆👆👆👆-----以上为抽取FC出货单的方法-----👆👆👆👆👆👆-----
-
-
 
         //强行中止EXCEL进程的方法
         #region

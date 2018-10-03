@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -49,7 +50,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractSIPOSummaryAndCartonDetail(id, "Replenishment");
+            excel.ExtractSIPOSummaryAndCartonDetail(id, OrderType.Replenishment);
 
             //excel.ExtractSIPurchaseOrderSummary();
 

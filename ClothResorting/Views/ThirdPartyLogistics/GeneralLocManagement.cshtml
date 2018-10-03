@@ -49,9 +49,27 @@
             var table;
             var locId;
 
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var vendor = getUrlParameter('vendor');
+
             $.ajax({
                 type: "GET",
-                url: "/api/generallocmanagement/",
+                url: "/api/generallocmanagement/?vendor=" + vendor,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -140,7 +158,7 @@
                         cache: false,
                         processData: false,
                         type: "POST",
-                        url: "/api/generallocmanagement/?inboundDate=" + inboundDate,
+                        url: "/api/generallocmanagement/?vendor=" + vendor + "&inboundDate=" + inboundDate,
                         data: formData,
                         beforeSend: function () {
                             layer.close(index);

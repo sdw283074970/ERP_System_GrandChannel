@@ -32,5 +32,7 @@ namespace ClothResorting.Dtos
         public string Status { get; set; }
 
         public string Operator { get; set; }
+
+        public string WorkOrderType { get; set; }
     }
 }

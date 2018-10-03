@@ -51,5 +51,6 @@ namespace ClothResorting.Dtos
 
         public string Allocator { get; set; }
 
+        public string Vendor { get; set; }
     }
 }

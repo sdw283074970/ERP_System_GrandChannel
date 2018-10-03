@@ -39,5 +39,7 @@ namespace ClothResorting.Dtos
 
         public string Operator { get; set; }
 
+        public string Vendor { get; set; }
+
     }
 }

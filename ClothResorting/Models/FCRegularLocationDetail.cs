@@ -49,6 +49,8 @@ namespace ClothResorting.Models
 
         public string Allocator { get; set; }
 
+        public string Vendor { get; set; }
+
         public DateTime InboundDate { get; set; }
 
         public PreReceiveOrder PreReceiveOrder { get; set; }

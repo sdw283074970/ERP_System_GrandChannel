@@ -57,6 +57,8 @@ namespace ClothResorting.Models
 
         public string Operator { get; set; }
 
+        public string Vendor { get; set; }
+
         public DateTime? InboundDate { get; set; }
 
         public POSummary POSummary { get; set; }

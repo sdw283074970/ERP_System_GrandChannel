@@ -71,6 +71,7 @@ namespace ClothResorting.Controllers.Api
                 Operator = _userName,
                 Receiver = "",
                 Adjustor = "system",
+                Vendor = poSummaryInDb.Vendor,
                 POSummary = poSummaryInDb
             };
 
@@ -126,7 +127,7 @@ namespace ClothResorting.Controllers.Api
                 regularCartonDetailInDb.Adjustor = _userName;
 
                 //将状态改为待分配
-                regularCartonDetailInDb.Status = "To Be Allocated";
+                regularCartonDetailInDb.Status = Status.ToBeAllocated;
 
                 //只为第一个SKU同步箱数
                 if (index == 1)

@@ -37,5 +37,7 @@ namespace ClothResorting.Models.StaticClass
 
         public const string ConcealedOverage = "Concealed Overage";
 
+        public const string Allocated = "Allocated";
+
     }
 }

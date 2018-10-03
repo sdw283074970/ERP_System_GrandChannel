@@ -5,12 +5,15 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Pre-receive Order Overview</h2>
+<h2>Work Order Overview</h2>
 
 <div class="maincontainer">
     <div>
-        <input id="create1" type="button" class="btn btn-group" value="Creat An Empty Work Order" />
-        <input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" /> 
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-create" type="button" class="btn btn-group" value="Creat An Empty Work Order" />
+        <input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" />
         <input id="silkiconmenu" type="button" class="btn btn-info" value="Silk Icon Manu" />
     </div>
     <div>
@@ -18,7 +21,8 @@
             <thead>
                 <tr>
                     <th>Id</th>
-                    <th>Customer Name</th>
+                    <th>Vendor Name</th>
+                    <th>Work Order Type</th>
                     <th>Created Date</th>
                     <th>Created By</th>
                     <th style="width:95px">Container#</th>
@@ -43,6 +47,17 @@
     </div>
     <div>
         <input id="uploadfc" type="button" class="btn btn-default" value="Upload FC" />
+    </div>
+</div>
+<div class="iframe-ordertype">
+    <div style="margin-top:10px;text-align:center">
+        <text>Select work order type: </text>
+        <select id="select-ordertype" style="width:170px;height:30px">
+            <option value="Regular">Regular/Fulfillment</option>
+            <option value="Replenishment">Replenishment</option>
+            <option value="Mix">Mix</option>
+        </select><br />
+        <button id="create1" style="margin-top:10px" class="btn btn-primary">Create</button>
     </div>
 </div>
 <div class="iframe-freecountry">
@@ -75,8 +90,11 @@
             var index;
             var customer;
             var quantity;
+            var workOrderType
+            var vendor;
 
             $(".iframe").hide();
+            $(".iframe-ordertype").hide();
             $(".iframe-freecountry").hide();
             $(".iframe-silkicon").hide();
 
@@ -87,7 +105,6 @@
                 },
                 order: [[0, "desc"]],
                 scrollY: "600px",
-                //scrollX: true,
                 scrollCollapse: true,
                 iDisplayLength: 100,
                 columns: [
@@ -102,6 +119,22 @@
                         render: function (data) {
                             customer = data;
                             return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "workOrderType",
+                        render: function (data) {
+
+                            if (data == "Regular")
+                            {
+                                workOrderType = "Regular/Fulfillment";
+                                return "<text>" + data + "/Fulfillment</text>";
+                            }
+                            else
+                            {
+                                workOrderType = data;
+                                return "<text>" + data + "</text>";
+                            }
                         }
                     },
                     {
@@ -150,25 +183,51 @@
                     {
                         data: "id",
                         render: function (data) {
-                            if (customer == "SILK-ICON")
-                                return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            else if (quantity == 0)
+                            if (quantity != 0)
                             {
-                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                if (customer == "SILK-ICON")
+                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
+                                else if (workOrderType == "Regular/Fulfillment")
+                                    return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                else if (workOrderType == "Mix")
+                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                else if (workOrderType == "Replenishment")
+                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                return "";
                             }
                             else
                             {
-                                return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a>";
+                                if (customer == "SILK-ICON")
+                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                else if (workOrderType == "Regular/Fulfillment")
+                                    return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                else if (workOrderType == "Mix")
+                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                else if (workOrderType == "Replenishment")
+                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                return "";
                             }
                         }
                     }
                 ]
             });
 
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "10%"],
+                    content: $(".iframe-ordertype")
+                });
+            })
+
             $("#create1").click(function () {
+                var orderType = $("#select-ordertype option:selected").val();
+
                 $.ajax({
                     type: "POST",
-                    url: "/api/Index",
+                    url: "/api/Index/?orderType=" + orderType,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
@@ -340,7 +399,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "15%"],
+                    area: ["20%", "20%"],
                     content: $(".iframe-silkicon")
                 });
             });
@@ -357,6 +416,10 @@
                 $(window.location).attr('href', '/ThirdPartyLogistics/shiporder/');
             });
 
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
         });
+
     </script>
 }

@@ -31,6 +31,7 @@
             <thead>
                 <tr>
                     <th>Container</th>
+                    <th>Vendor</th>
                     <th>Status</th>
                     <th>Range</th>
                     <th>PO</th>
@@ -56,7 +57,7 @@
             <tbody></tbody>
             <tfoot>
                 <tr>
-                    <th colspan="9" style="text-align:right">Total:</th>
+                    <th colspan="10" style="text-align:right">Total:</th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -138,6 +139,12 @@
                         columns: [
                             {
                                 data: "container",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "vendor",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -318,68 +325,68 @@
                             };
 
                             var totalOrgCtns = api
-                                .column(9)
-                                .data()
-                                .reduce(function (a, b) {
-                                    return intVal(a) + intVal(b);
-                                }, 0);
-
-                            var totalOrgPcs = api
                                 .column(10)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalAvaCtns = api
+                            var totalOrgPcs = api
                                 .column(11)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalPickingCtns = api
+                            var totalAvaCtns = api
                                 .column(12)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalShippedCtns = api
+                            var totalPickingCtns = api
                                 .column(13)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
-                            var totalAvaPcs = api
+
+                            var totalShippedCtns = api
                                 .column(14)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
-
-                            var totalPickingPcs = api
+                            var totalAvaPcs = api
                                 .column(15)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalShippedPcs = api
+                            var totalPickingPcs = api
                                 .column(16)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            $(api.column(9).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
-                            $(api.column(10).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
-                            $(api.column(11).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
-                            $(api.column(12).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
-                            $(api.column(13).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
-                            $(api.column(14).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
-                            $(api.column(15).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
-                            $(api.column(16).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
+                            var totalShippedPcs = api
+                                .column(17)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            $(api.column(10).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
+                            $(api.column(11).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
+                            $(api.column(12).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
+                            $(api.column(13).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
+                            $(api.column(14).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
+                            $(api.column(15).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
+                            $(api.column(16).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
+                            $(api.column(17).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
 
                             $("#orgCtns").html("Inbound Cartons: " + totalOrgCtns);
                             $("#orgPcs").html("Inbound Units: " + totalOrgPcs);
@@ -438,6 +445,12 @@
                             columns: [
                                 {
                                     data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "vendor",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
@@ -617,68 +630,68 @@
                                 };
 
                                 var totalOrgCtns = api
-                                    .column(9)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                var totalOrgPcs = api
                                     .column(10)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                var totalAvaCtns = api
+                                var totalOrgPcs = api
                                     .column(11)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                var totalPickingCtns = api
+                                var totalAvaCtns = api
                                     .column(12)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                var totalShippedCtns = api
+                                var totalPickingCtns = api
                                     .column(13)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
-                                var totalAvaPcs = api
+
+                                var totalShippedCtns = api
                                     .column(14)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
-
-                                var totalPickingPcs = api
+                                var totalAvaPcs = api
                                     .column(15)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                var totalShippedPcs = api
+                                var totalPickingPcs = api
                                     .column(16)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                $(api.column(9).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
-                                $(api.column(10).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
-                                $(api.column(11).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
-                                $(api.column(12).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
-                                $(api.column(13).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
-                                $(api.column(14).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
-                                $(api.column(15).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
-                                $(api.column(16).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
+                                var totalShippedPcs = api
+                                    .column(17)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                $(api.column(10).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
+                                $(api.column(11).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
+                                $(api.column(12).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
+                                $(api.column(13).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
+                                $(api.column(14).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
+                                $(api.column(15).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
+                                $(api.column(16).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
+                                $(api.column(17).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
 
                             }
                         });

@@ -11,6 +11,7 @@ using ClothResorting.Helpers;
 using AutoMapper;
 using ClothResorting.Dtos;
 using System.Web;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -71,7 +72,7 @@ namespace ClothResorting.Controllers.Api
                         Cartons = sku.ToBeAllocatedCtns,
                         Quantity = sku.ToBeAllocatedPcs,
                         PcsPerCaron = sku.PcsPerCarton,
-                        Status = "In Stock",
+                        Status = Status.InStock,
                         Location = obj.Location,
                         AvailableCtns = sku.ToBeAllocatedCtns,
                         PickingCtns = 0,
@@ -83,12 +84,13 @@ namespace ClothResorting.Controllers.Api
                         PreReceiveOrder = prereceiveOrder,
                         RegularCaronDetail = sku,
                         CartonRange = cartonRange,
-                        Allocator = _userName
+                        Allocator = _userName,
+                        Vendor = sku.Vendor
                     });
 
                     sku.ToBeAllocatedCtns = 0;
                     sku.ToBeAllocatedPcs = 0;
-                    sku.Status = "Allocated";
+                    sku.Status = Status.Allocated;
                 }
 
                 //locationDeatilList.Add(new FCRegularLocationDetail {
@@ -150,7 +152,6 @@ namespace ClothResorting.Controllers.Api
             }
             catch(Exception e)
             {
-                //return Ok();
                 throw new Exception("Success! All cartons have been allocated.");
             }
         }

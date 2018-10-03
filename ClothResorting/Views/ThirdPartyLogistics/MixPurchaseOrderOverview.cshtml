@@ -1,21 +1,25 @@
-﻿﻿
+﻿
 @{
-    ViewBag.Title = "SIPurchaseOrderOverview";
+    ViewBag.Title = "MixPurchaseOrderOverview";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Replenishment Purchase Order Overview</h2>
+<h2>Mix Purchase Order Overview</h2>
+
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
         <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
     </div>
+    <div>
+        <input id="btn-replenishmentmenu" type="button" class="btn btn-info" value="Replenishment Menu" />
+        <input id="btn-regularmenu" type="button" class="btn btn-info" value="Regular Menu" />
+        <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
+    </div>
     <div id="div-bulk">
         <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
-    </div>
-    <div>
-        <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -49,12 +53,27 @@
         <input id="upload2" type="file" accept="xls/xlsx" />
     </div>
     <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk Icon Replenishment PL" />
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" /><br />
+        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk-Icon Regular PL" /><br />
+        <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country PL" />
     </div>
 </div>
 <div class="iframe-download">
     <div>
         <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" />
+        <input id="download-freecountry" type="button" class="btn btn-default" value="Download FC Packing List Template" />
+    </div>
+</div>
+<div class="iframe-replenishmentmenu">
+    <div style="margin-top:15px;text-align:center">
+        <button style="margin-top:5px" id="btn-replenishmentlocation" class="btn btn-info">Manage Replenishment Location</button><br />
+        <button style="margin-top:5px" id="btn-replenishmentpo" class="btn btn-info">Manage Replenishment PO</button>
+    </div>
+</div>
+<div class="iframe-regularmenu">
+    <div style="margin-top:15px;text-align:center">
+        <input style="margin-top:5px" id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" /><br />
+        <input style="margin-top:5px" id="btn-location" type="button" class="btn btn-info" value="View inventory" />
     </div>
 </div>
 @section scripts
@@ -64,6 +83,8 @@
 
             $(".iframe").hide();
             $(".iframe-download").hide();
+            $(".iframe-replenishmentmenu").hide();
+            $(".iframe-regularmenu").hide();
             var quantity;
 
             //解析url中的参数函数
@@ -84,6 +105,7 @@
 
             //从地址栏获取参数
             var preId = getUrlParameter('preid');
+            var vendor = getUrlParameter('vendor');
 
             var urlstring = "/api/fcpurchaseorderoverview/" + preId;
 
@@ -245,18 +267,6 @@
                 }
             });
 
-            $("#btn-allocate").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationAllocating/?preid=' + preId.toString());
-            });
-
-            $("#btn-location").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + preId.toString());
-            });
-
-            $("#btn-plmanage").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/PickingListManagement/?preid=' + preId.toString());
-            });
-
             //全装箱单正常收货
             $("#btn-rcvall").on("click", function () {
                 $.ajax({
@@ -316,6 +326,103 @@
                     },
                     error: function () {
                         layer.alert("An error occured on the server!");
+                    }
+                });
+                $(".iframe").hide();
+            });
+
+            //执行上传SILK-ICON的Regular订单装箱单
+            $("#uploadregularfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/SIRegularPL/" + preId,
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Extracting files...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function () {
+                        layer.alert("An error occured on the server!");
+                    }
+                });
+                $(".iframe").hide();
+            });
+
+            //执行上传FC订单的装箱单
+            $("#uploadfc").on("click", function () {
+                var formData = new FormData();
+                var files = $("#upload2").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/fcpurchaseorderoverview/" + preId,
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Extracting files...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Extract successed!", function () {
+                            location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage + " This current uploaded fragmentary packing list will be deleted automatically.", function () {
+                            $.ajax({
+                                contentType: false,
+                                cache: false,
+                                processData: false,
+                                type: "DELETE",
+                                url: "/api/index/" + preId,
+                                beforeSend: function () {
+                                    layer.msg('Deleting...', {
+                                        icon: 1,
+                                        shade: 0.01,
+                                        time: 99 * 1000
+                                    });
+                                },
+                                success: function () {
+                                    layer.alert("The current uploaded packing list has been deleted. Browser will go back to home page of 3rd Party Logistics.", function () {
+                                        window.location.reload();
+                                    });
+                                },
+                                error: function () {
+                                    layer.alert("Delete failed. Please go back to index and delete this packing list manually. Browser will go back to home page of 3rd Party Logistics.", function () {
+                                        window.history.back(-1);
+                                    });
+                                }
+                            });
+                        });
                     }
                 });
                 $(".iframe").hide();
@@ -410,6 +517,44 @@
             $("#download-freecountry").on("click", function () {
                 $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=' + "FreeCountry");
                 $(".iframe-template").hide();
+            });
+
+            //打开补货菜单弹窗
+            $("#btn-replenishmentmenu").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "20%"],
+                    content: $(".iframe-replenishmentmenu")
+                });
+            });
+
+            $("#btn-replenishmentlocation").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/generallocmanagement/?vendor=' + vendor);
+            });
+
+            $("#btn-replenishmentpo").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/PurchaseOrderManagement/?vendor=' + vendor);
+            });
+
+            //打开正常菜单弹窗
+            $("#btn-regularmenu").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "20%"],
+                    content: $(".iframe-regularmenu")
+                });
+            });
+
+            $("#btn-allocate").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationAllocating/?preid=' + preId.toString());
+            });
+
+            $("#btn-location").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + preId.toString());
             });
 
             $(".btn-back").on("click", function () {

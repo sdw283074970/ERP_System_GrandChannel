@@ -21,12 +21,12 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/index/
+        // POST /api/index/?=orderType={orderType}
         [HttpPost]
-        public IHttpActionResult CreateNewPrereceiveOrder()
+        public IHttpActionResult CreateNewPrereceiveOrder([FromUri]string orderType)
         {
             var extractor = new ExcelExtracter();
-            extractor.CreatePreReceiveOrder();
+            extractor.CreatePreReceiveOrder(orderType);
 
             var sample = _context.PreReceiveOrders.OrderByDescending(x => x.Id).First();
             var sampleDto = Mapper.Map<PreReceiveOrder, PreReceiveOrdersDto>(sample);

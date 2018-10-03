@@ -64,8 +64,8 @@ namespace ClothResorting.Controllers.Api
                 carton.ToBeAllocatedCtns = carton.Cartons;
                 carton.ToBeAllocatedPcs = carton.Quantity;
 
-                carton.POSummary.ActualCtns += carton.Cartons;
-                carton.POSummary.ActualPcs += carton.Quantity;
+                carton.POSummary.ActualCtns = carton.POSummary.Cartons;
+                carton.POSummary.ActualPcs = carton.POSummary.Quantity;
 
                 actualCtns += carton.Cartons;
                 actualPcs += carton.Quantity;

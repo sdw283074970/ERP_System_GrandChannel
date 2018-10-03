@@ -5,21 +5,20 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Purchase Order Overview</h2>
+<h2>Regular Purchase Order Overview</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
         <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
     </div>
-    <div id="div-bulk">
-        <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
-    </div>
     <div>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
         <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
-        @*<input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Pick & Ship" />*@
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
+    </div>
+    <div id="div-bulk">
+        <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -27,6 +26,7 @@
                 <tr>
                     <th><input id="select-all" type="checkbox" value="0" /></th>
                     <th>Container</th>
+                    <th>Vendor</th>
                     <th>Created By</th>
                     <th>PO</th>
                     <th>Style</th>
@@ -52,20 +52,14 @@
         <input id="upload2" type="file" accept="xls/xlsx" />
     </div>
     <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" />
-    </div>
-    <div>
-        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk-Icon Regular PL" />
-    </div>
-    <div>
-        <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country PL" />
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" /><br />
+        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk Icon Regular PL" /><br />
+        <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country Regular PL" /><br />
     </div>
 </div>
 <div class="iframe-download">
     <div>
-        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" />
-    </div>
-    <div>
+        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" /><br />
         <input id="download-freecountry" type="button" class="btn btn-default" value="Download FC Packing List Template" />
     </div>
 </div>
@@ -119,6 +113,12 @@
                         data: "container",
                         render: function (data) {
                             return "<a href='/ThirdPartyLogistics/ReceivingReport/?preid=" + preId + "&container=" + data + "'><button class='btn btn-link btn-report'>" + data + "</button></a><br>";
+                        }
+                    },
+                    {
+                        data: "vendor",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
                         }
                     },
                     {
@@ -291,42 +291,6 @@
                 });
             });
 
-            //执行上传SILK-ICON的补货订单装箱单
-            $("#uploadfile").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload2").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/ThirdPartyLogisticsApi/" + preId,
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-                        layer.msg('Extracting files...', {
-                            icon: 1,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
-                    }
-                });
-                $(".iframe").hide();
-            });
-
             //执行上传SILK-ICON的Regular订单装箱单
             $("#uploadregularfile").on("click", function () {
                 var formData = new FormData();
@@ -455,7 +419,7 @@
             $("#div-bulk").on("click", ".btn-bulk", function () {
                 var button = $(this);
                 button.next().remove();
-                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
+                button.replaceWith("<div><select id='select-vendor' style='width:170px;height:30px'><option value='Free Country'>Vendor: Free Country</option></select><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
@@ -465,6 +429,7 @@
                 var orderType = $("#input-ordertype").val();
                 var poLine = $("#input-poline").val();
                 var customer = $("#input-customer").val();
+                var vendor = $("#select-vendor option:selected").val();
 
                 if (purchaseOrder == "" || style == "" || orderType == "" || poLine == "" || customer == "") {
                     alert("All fields are required.");
@@ -476,7 +441,8 @@
                         "style": style.toString(),
                         "orderType": orderType.toString(),
                         "pOLine": poLine,
-                        "customer": customer.toString()
+                        "customer": customer.toString(),
+                        "vendor": vendor
                     };
 
                     $.ajax({

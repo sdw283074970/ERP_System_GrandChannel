@@ -18,7 +18,6 @@
     <div>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
         <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
-        @*<input id="btn-plmanage" type="button" class="btn btn-default btn-info" value="Pick & Ship" />*@
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
     </div>
     <div>
@@ -27,6 +26,7 @@
                 <tr>
                     <th><input id="select-all" type="checkbox" value="0" /></th>
                     <th>Container</th>
+                    <th>Vendor</th>
                     <th>Created By</th>
                     <th>PO</th>
                     <th>Style</th>
@@ -52,20 +52,14 @@
         <input id="upload2" type="file" accept="xls/xlsx" />
     </div>
     <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" />
-    </div>
-    <div>
-        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk-Icon Regular PL" />
-    </div>
-    <div>
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" /><br />
+        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk-Icon Regular PL" /><br />
         <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country PL" />
     </div>
 </div>
 <div class="iframe-download">
     <div>
-        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" />
-    </div>
-    <div>
+        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" /><br />
         <input id="download-freecountry" type="button" class="btn btn-default" value="Download FC Packing List Template" />
     </div>
 </div>
@@ -119,6 +113,12 @@
                         data: "container",
                         render: function (data) {
                             return "<a href='/ThirdPartyLogistics/ReceivingReport/?preid=" + preId + "&container=" + data + "'><button class='btn btn-link btn-report'>" + data + "</button></a><br>";
+                        }
+                    },
+                    {
+                        data: "vendor",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
                         }
                     },
                     {

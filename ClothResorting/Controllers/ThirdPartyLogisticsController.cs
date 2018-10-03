@@ -203,5 +203,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //混合订单PO总览页面
+        public ActionResult MixPurchaseOrderOverview()
+        {
+            return View();
+        }
     }
 }

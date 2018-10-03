@@ -41,7 +41,8 @@ namespace ClothResorting.Controllers.Api
                 Cartons = 0,
                 ActualCtns = 0,
                 Operator = _userName,
-                PreReceiveOrder = preReceiveOrderInDb
+                PreReceiveOrder = preReceiveOrderInDb,
+                Vendor = obj.Vendor
             };
 
             _context.POSummaries.Add(newBulkPO);

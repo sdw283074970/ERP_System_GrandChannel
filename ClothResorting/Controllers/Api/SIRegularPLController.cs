@@ -1,5 +1,6 @@
 ﻿using ClothResorting.Helpers;
 using ClothResorting.Models;
+using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractSIPOSummaryAndCartonDetail(id, "Regular");
+            excel.ExtractSIPOSummaryAndCartonDetail(id, OrderType.Prepack);
 
             var killer = new ExcelKiller();
 

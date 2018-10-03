@@ -27,6 +27,8 @@ namespace ClothResorting.Models
 
         public int ShippedPcs { get; set; }
 
+        public string Vendor { get; set; }
+
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
 
         public ICollection<AdjustmentRecord> AdjustmentRecords { get; set; }

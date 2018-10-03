@@ -43,6 +43,8 @@ namespace ClothResorting.Models
 
         public DateTime InboundDate { get; set; }
 
+        public string Vendor { get; set; }
+
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
 
         public GeneralLocationSummary GeneralLocationSummary { get; set; }

@@ -11,6 +11,7 @@ using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
 using ClothResorting.Helpers;
 using System.Web;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -31,7 +32,8 @@ namespace ClothResorting.Controllers.Api
             var result = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.POSummary.PreReceiveOrder.Id == id
-                    && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0))
+                    && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0)
+                    && c.OrderType != OrderType.Replenishment)      //这种入库方法不支持补货类型的订单(有另外一套体系)
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
 
             return Ok(result);
@@ -98,7 +100,8 @@ namespace ClothResorting.Controllers.Api
                         PreReceiveOrder = preReceiveOrderInDb,
                         RegularCaronDetail = cartonDetailInDb,
                         CartonRange = cartonRange,
-                        Allocator = _userName
+                        Allocator = _userName,
+                        Vendor = cartonDetailInDb.Vendor
                     });
 
                     index++;
@@ -131,7 +134,8 @@ namespace ClothResorting.Controllers.Api
                         PreReceiveOrder = preReceiveOrderInDb,
                         RegularCaronDetail = cartonDetailInDb,
                         CartonRange = cartonRange,
-                        Allocator = _userName
+                        Allocator = _userName,
+                        Vendor = cartonDetailInDb.Vendor
                     });
                 }
 

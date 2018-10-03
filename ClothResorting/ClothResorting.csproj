@@ -303,7 +303,6 @@
     <Compile Include="Dtos\Fba\ChargeMethodDto.cs" />
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
-    <Compile Include="Dtos\FCRegularLocationDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
     <Compile Include="Dtos\ReplenishmentLocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
@@ -1019,6 +1018,18 @@
     <Compile Include="Migrations\201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.Designer.cs">
       <DependentUpon>201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810021755492_AddedWorkOrderTypeInPreReceiveOrder.cs" />
+    <Compile Include="Migrations\201810021755492_AddedWorkOrderTypeInPreReceiveOrder.Designer.cs">
+      <DependentUpon>201810021755492_AddedWorkOrderTypeInPreReceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810022131555_AddedVendorInPOSummaryAndRegularCartonDetailAndFCRegularLocationDetail.cs" />
+    <Compile Include="Migrations\201810022131555_AddedVendorInPOSummaryAndRegularCartonDetailAndFCRegularLocationDetail.Designer.cs">
+      <DependentUpon>201810022131555_AddedVendorInPOSummaryAndRegularCartonDetailAndFCRegularLocationDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810022239584_AddedVendorInSeveralModels.cs" />
+    <Compile Include="Migrations\201810022239584_AddedVendorInSeveralModels.Designer.cs">
+      <DependentUpon>201810022239584_AddedVendorInSeveralModels.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1461,6 +1472,7 @@
     <Content Include="Views\ThirdPartyLogistics\GeneralLocManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\GeneralLocDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PackingListSearch.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\MixPurchaseOrderOverview.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1987,6 +1999,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.resx">
       <DependentUpon>201809281842327_AddedStatusInReplenishmentLocationDetailDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810021755492_AddedWorkOrderTypeInPreReceiveOrder.resx">
+      <DependentUpon>201810021755492_AddedWorkOrderTypeInPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810022131555_AddedVendorInPOSummaryAndRegularCartonDetailAndFCRegularLocationDetail.resx">
+      <DependentUpon>201810022131555_AddedVendorInPOSummaryAndRegularCartonDetailAndFCRegularLocationDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810022239584_AddedVendorInSeveralModels.resx">
+      <DependentUpon>201810022239584_AddedVendorInSeveralModels.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

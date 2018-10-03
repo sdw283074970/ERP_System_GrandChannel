@@ -29,7 +29,6 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<AdjustmentRecord, AdjustmentRecordDto>();
             Mapper.CreateMap<POSummary, POSummaryDto>();
             Mapper.CreateMap<RegularCartonDetail, RegularCartonDetailDto>();
-            Mapper.CreateMap<FCRegularLocationDto, FCRegularLocationDto>();
             Mapper.CreateMap<FCRegularLocationDetail, FCRegularLocationDetailDto>();
             Mapper.CreateMap<ShipOrder, ShipOrderDto>();
             Mapper.CreateMap<ShipOrder, ShipOrderDto>();

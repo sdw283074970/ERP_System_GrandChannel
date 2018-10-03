@@ -20,19 +20,19 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/generallocmanagement/
+        // GET /api/generallocmanagement/?vendor={vendor}
         [HttpGet]
-        public IHttpActionResult GetAllGeneralLocationSummay()
+        public IHttpActionResult GetAllGeneralLocationSummay([FromUri]string vendor)
         {
             return Ok(_context.GeneralLocationSummaries
-                .Where(x => x.Id > 0)
+                .Where(x => x.Vendor == vendor)
                 .OrderByDescending(x => x.Id)
                 .Select(Mapper.Map<GeneralLocationSummary, GeneralLocationSummaryDto>));
         }
 
-        // POST /api/generallocmanagement/?inboundDate={inboundDate}
+        // POST /api/generallocmanagement/?vendor={vendor}&inboundDate={inboundDate}
         [HttpPost]
-        public void CreateNewGeneralLocationSummaryAndDetail([FromUri]string inboundDate)
+        public void CreateNewGeneralLocationSummaryAndDetail([FromUri]string vendor, [FromUri]string inboundDate)
         {
             var fileSavePath = "";
             var filesGetter = new FilesGetter();
@@ -46,7 +46,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.UploadReplenishimentLocationDetail(inboundDate, fileSavePath.Split('\\').Last().Split('.').First());
+            excel.UploadReplenishimentLocationDetail(vendor, inboundDate, fileSavePath.Split('\\').Last().Split('.').First());
         }
     }
 }

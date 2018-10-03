@@ -19,5 +19,7 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string Customer { get; set; }
 
+        public string Vendor { get; set; }
+
     }
 }
