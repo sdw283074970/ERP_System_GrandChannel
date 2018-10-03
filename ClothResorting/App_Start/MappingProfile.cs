@@ -36,6 +36,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<PullSheetDiagnostic, PullSheetDiagnosticDto>();
             Mapper.CreateMap<Container, ContainerDto>();
             Mapper.CreateMap<GeneralLocationSummary, GeneralLocationSummaryDto>();
+            Mapper.CreateMap<UpperVendor, UpperVendorDto>();
 
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();

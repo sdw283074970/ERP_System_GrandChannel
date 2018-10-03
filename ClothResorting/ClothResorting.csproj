@@ -247,6 +247,7 @@
     <Compile Include="Controllers\Api\Fba\ChargeMethodController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeTemplateController.cs" />
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
+    <Compile Include="Controllers\Api\UpperVendorController.cs" />
     <Compile Include="Controllers\Api\FCPurchaseOrderOverviewController.cs" />
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
     <Compile Include="Controllers\Api\FCRegularCartonDetailsController.cs" />
@@ -320,6 +321,7 @@
     <Compile Include="Dtos\PreReceiveOrdersDto.cs" />
     <Compile Include="Dtos\SizeRatioDto.cs" />
     <Compile Include="Dtos\SpeciesInventoryDto.cs" />
+    <Compile Include="Dtos\UpperVendorDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -1030,6 +1032,14 @@
     <Compile Include="Migrations\201810022239584_AddedVendorInSeveralModels.Designer.cs">
       <DependentUpon>201810022239584_AddedVendorInSeveralModels.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810031829251_AddedUpperVendorDbSet.cs" />
+    <Compile Include="Migrations\201810031829251_AddedUpperVendorDbSet.Designer.cs">
+      <DependentUpon>201810031829251_AddedUpperVendorDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810031835199_ConnectedUpperVendorWithPrereceiveOrder.cs" />
+    <Compile Include="Migrations\201810031835199_ConnectedUpperVendorWithPrereceiveOrder.Designer.cs">
+      <DependentUpon>201810031835199_ConnectedUpperVendorWithPrereceiveOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1119,6 +1129,7 @@
     <Compile Include="Models\StaticClass\RoleName.cs" />
     <Compile Include="Models\StaticClass\Status.cs" />
     <Compile Include="Models\StaticClass\Vendor.cs" />
+    <Compile Include="Models\UpperVendor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -2008,6 +2019,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810022239584_AddedVendorInSeveralModels.resx">
       <DependentUpon>201810022239584_AddedVendorInSeveralModels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810031829251_AddedUpperVendorDbSet.resx">
+      <DependentUpon>201810031829251_AddedUpperVendorDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810031835199_ConnectedUpperVendorWithPrereceiveOrder.resx">
+      <DependentUpon>201810031835199_ConnectedUpperVendorWithPrereceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

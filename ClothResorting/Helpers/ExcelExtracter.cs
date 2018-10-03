@@ -80,13 +80,13 @@ namespace ClothResorting.Helpers
         //-----👇👇👇👇👇👇-----以下为抽取SILKICON装箱单的新方法-----👇👇👇👇👇👇-----
         //建立一个Pre-Recieve Order对象并添加进数据库
         #region
-        public void CreatePreReceiveOrder(string orderType)
+        public void CreatePreReceiveOrder(string orderType, string vendor)
         {
             //建立一个PreReceiveOrder对象
             var newOrder = new PreReceiveOrder
             {
                 ActualReceivedCtns = 0,
-                CustomerName = Vendor.Unknown,
+                CustomerName = vendor,
                 CreatDate = _dateTimeNow,
                 TotalCartons = 0,
                 TotalGrossWeight = 0,
@@ -97,7 +97,8 @@ namespace ClothResorting.Helpers
                 ActualReceivedPcs = 0,
                 Status = Status.NewCreated,
                 Operator = _userName,
-                WorkOrderType = orderType
+                WorkOrderType = orderType,
+                UpperVendor = _context.UpperVendors.SingleOrDefault(x => x.Name == vendor)
             };
 
             _context.PreReceiveOrders.Add(newOrder);

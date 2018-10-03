@@ -50,7 +50,9 @@
     </div>
 </div>
 <div class="iframe-ordertype">
-    <div style="margin-top:10px;text-align:center">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select vendor: </text>
+        <select id="select-vendor" style="width:170px;height:30px"></select><br />
         <text>Select work order type: </text>
         <select id="select-ordertype" style="width:170px;height:30px">
             <option value="Regular">Regular/Fulfillment</option>
@@ -97,6 +99,25 @@
             $(".iframe-ordertype").hide();
             $(".iframe-freecountry").hide();
             $(".iframe-silkicon").hide();
+
+            //动态获取Vendor数据
+            $.ajax({
+                type: "GET",
+                url: "/api/uppervendor/",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++)
+                    {
+                        $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
 
             $("#table").DataTable({
                 ajax: {
@@ -212,133 +233,40 @@
                 ]
             });
 
+            //打开创建空work order弹窗
             $("#btn-create").click(function () {
                 index = layer.open({
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "10%"],
+                    area: ["20%", "20%"],
                     content: $(".iframe-ordertype")
                 });
             })
 
+            //点击创建按钮，创建新的work order
             $("#create1").click(function () {
                 var orderType = $("#select-ordertype option:selected").val();
+                var vendor = $("#select-vendor option:selected").val();
 
                 $.ajax({
                     type: "POST",
-                    url: "/api/Index/?orderType=" + orderType,
+                    url: "/api/Index/?orderType=" + orderType + "&vendor=" + vendor,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
                         alert("New Pre-receive Order created success!");
                         window.location.reload();
                     },
-                    error: function () {
-                        alert("Error!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             })
 
-            $("#uploadfile").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload2").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/ThirdPartyLogisticsApi",
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-                        layer.msg('Extracting files...', {
-                            icon: 1,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
-                    }
-                });
-                $(".iframe").hide();
-            });
-
-            $("#uploadfc").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload2").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/fcpurchaseorderoverview/",
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-                        layer.msg('Extracting files...', {
-                            icon: 1,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured! Please check the file you uploaded matched the unified format.");
-                    }
-                });
-                $(".iframe").hide();
-            });
-
-            $("#btn-delete").on("click", function () {
-                bootbox.confirm("Are you sure to delete ALL records? All the records will be deleted and this operation is not reversible.", function (result) {
-                    if (result) {
-                        $.ajax({
-                            contentType: false,
-                            cache: false,
-                            processData: false,
-                            type: "DELETE",
-                            url: "/api/Inventory",
-                            beforeSend: function () {
-                                layer.msg('Deleting...', {
-                                    icon: 1,
-                                    shade: 0.01,
-                                    time: 99 * 1000
-                                });;
-                            },
-                            success: function () {
-                                layer.alert("Delete successed!", function () {
-                                    location.reload();
-                                });
-                            },
-                            error: function () {
-                                layer.alert("Error!");
-                            }
-                        });
-                    }
-                });
-            });
-
+            //点击workorder对应的删除按钮，删除所选workorder
             $("#table").on("click", ".btn-delete", function () {
                 var button = $(this);
                 var id = button.attr('id');

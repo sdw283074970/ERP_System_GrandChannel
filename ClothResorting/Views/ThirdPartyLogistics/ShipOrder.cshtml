@@ -269,8 +269,9 @@
                                 window.location.reload();
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                                window.location.reload();
+                                bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
                             }
                         });
                     }
@@ -357,8 +358,10 @@
                             alert("Success!");
                             window.location.reload();
                         },
-                        error: function () {
-                            alert("Error!");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }

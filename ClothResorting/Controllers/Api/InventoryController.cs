@@ -85,59 +85,59 @@ namespace ClothResorting.Controllers.Api
             }
         }
 
-        // DELETE /api/Inventory
-        [HttpDelete]
-        public void RemoveAllRecord()
-        {
-            //移除数据库中[ClothSorting].[dbo].[PermanentLocIORecords]
-            var permanentIORecords = _context.PermanentLocIORecord.Where(c => c.Id > 0);
-            _context.PermanentLocIORecord.RemoveRange(permanentIORecords);
+        //// DELETE /api/Inventory
+        //[HttpDelete]
+        //public void RemoveAllRecord()
+        //{
+        //    //移除数据库中[ClothSorting].[dbo].[PermanentLocIORecords]
+        //    var permanentIORecords = _context.PermanentLocIORecord.Where(c => c.Id > 0);
+        //    _context.PermanentLocIORecord.RemoveRange(permanentIORecords);
 
-            //移除数据库中[ClothSorting].[dbo].[PermanentLocations]
-            var permanentLoc = _context.PermanentLocations.Where(c => c.Id > 0);
-            _context.PermanentLocations.RemoveRange(permanentLoc);
+        //    //移除数据库中[ClothSorting].[dbo].[PermanentLocations]
+        //    var permanentLoc = _context.PermanentLocations.Where(c => c.Id > 0);
+        //    _context.PermanentLocations.RemoveRange(permanentLoc);
 
-            //移除数据库中[ClothSorting].[dbo].[AdjustmentRecords]
-            var adjustmentRecords = _context.AdjustmentRecords.Where(c => c.Id > 0);
-            _context.AdjustmentRecords.RemoveRange(adjustmentRecords);
+        //    //移除数据库中[ClothSorting].[dbo].[AdjustmentRecords]
+        //    var adjustmentRecords = _context.AdjustmentRecords.Where(c => c.Id > 0);
+        //    _context.AdjustmentRecords.RemoveRange(adjustmentRecords);
 
-            //移除数据库中[ClothSorting].[dbo].[LocationDetails]
-            var locationDetails = _context.ReplenishmentLocationDetails.Where(c => c.Id > 0);
-            _context.ReplenishmentLocationDetails.RemoveRange(locationDetails);
+        //    //移除数据库中[ClothSorting].[dbo].[LocationDetails]
+        //    var locationDetails = _context.ReplenishmentLocationDetails.Where(c => c.Id > 0);
+        //    _context.ReplenishmentLocationDetails.RemoveRange(locationDetails);
 
-            //移除数据库中[ClothSorting].[dbo].[SpeciesInventories]
-            var speciesInventories = _context.SpeciesInventories.Where(c => c.Id > 0);
-            _context.SpeciesInventories.RemoveRange(speciesInventories);
+        //    //移除数据库中[ClothSorting].[dbo].[SpeciesInventories]
+        //    var speciesInventories = _context.SpeciesInventories.Where(c => c.Id > 0);
+        //    _context.SpeciesInventories.RemoveRange(speciesInventories);
 
-            //移除数据库中[ClothSorting].[dbo].[PurchaseOrderInventories]
-            var purchaseOrderInventories = _context.PurchaseOrderInventories.Where(c => c.Id > 0);
-            _context.PurchaseOrderInventories.RemoveRange(purchaseOrderInventories);
+        //    //移除数据库中[ClothSorting].[dbo].[PurchaseOrderInventories]
+        //    var purchaseOrderInventories = _context.PurchaseOrderInventories.Where(c => c.Id > 0);
+        //    _context.PurchaseOrderInventories.RemoveRange(purchaseOrderInventories);
 
-            //移除数据库中[ClothSorting].[dbo].[SizeRatios]
-            var sizeRatios = _context.SizeRatios.Where(c => c.Id > 0);
-            _context.SizeRatios.RemoveRange(sizeRatios);
+        //    //移除数据库中[ClothSorting].[dbo].[SizeRatios]
+        //    var sizeRatios = _context.SizeRatios.Where(c => c.Id > 0);
+        //    _context.SizeRatios.RemoveRange(sizeRatios);
 
-            //移除数据库中[ClothSorting].[dbo].[CartonBreakDowns]
-            var cartonBreakdowns = _context.CartonBreakDowns.Where(c => c.Id > 0);
-            _context.CartonBreakDowns.RemoveRange(cartonBreakdowns);
+        //    //移除数据库中[ClothSorting].[dbo].[CartonBreakDowns]
+        //    var cartonBreakdowns = _context.CartonBreakDowns.Where(c => c.Id > 0);
+        //    _context.CartonBreakDowns.RemoveRange(cartonBreakdowns);
 
-            //移除数据库中[ClothSorting].[dbo].[CartonDetails]
-            var cartonDetails = _context.CartonDetails.Where(c => c.Id > 0);
-            _context.CartonDetails.RemoveRange(cartonDetails);
+        //    //移除数据库中[ClothSorting].[dbo].[CartonDetails]
+        //    var cartonDetails = _context.CartonDetails.Where(c => c.Id > 0);
+        //    _context.CartonDetails.RemoveRange(cartonDetails);
 
-            //移除数据库中[ClothSorting].[dbo].[Measurements]
-            var measurements = _context.Measurements.Where(c => c.Id > 0);
-            _context.Measurements.RemoveRange(measurements);
+        //    //移除数据库中[ClothSorting].[dbo].[Measurements]
+        //    var measurements = _context.Measurements.Where(c => c.Id > 0);
+        //    _context.Measurements.RemoveRange(measurements);
 
-            //移除数据库中[ClothSorting].[dbo].[PurchaseOrderSummaries]
-            var packingLists = _context.PurchaseOrderSummaries.Where(c => c.Id > 0);
-            _context.PurchaseOrderSummaries.RemoveRange(packingLists);
+        //    //移除数据库中[ClothSorting].[dbo].[PurchaseOrderSummaries]
+        //    var packingLists = _context.PurchaseOrderSummaries.Where(c => c.Id > 0);
+        //    _context.PurchaseOrderSummaries.RemoveRange(packingLists);
 
-            //移除数据库中[ClothSorting].[dbo].[PreReceiveOrders]
-            var preReceiveOrders = _context.PreReceiveOrders.Where(c => c.Id > 0);
-            _context.PreReceiveOrders.RemoveRange(preReceiveOrders);
+        //    //移除数据库中[ClothSorting].[dbo].[PreReceiveOrders]
+        //    var preReceiveOrders = _context.PreReceiveOrders.Where(c => c.Id > 0);
+        //    _context.PreReceiveOrders.RemoveRange(preReceiveOrders);
 
-            _context.SaveChanges();
-        }
+        //    _context.SaveChanges();
+        //}
     }
 }

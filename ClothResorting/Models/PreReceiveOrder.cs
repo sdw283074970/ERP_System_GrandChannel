@@ -35,6 +35,8 @@ namespace ClothResorting.Models
 
         public string WorkOrderType { get; set; }
 
+        public UpperVendor UpperVendor { get; set; }
+
         public ICollection<PurchaseOrderSummary> PurchaseOrderSummaries { get; set; }
 
         public ICollection<POSummary> POSummaries { get; set; }

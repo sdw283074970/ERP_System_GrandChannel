@@ -52,8 +52,8 @@
         <input id="upload2" type="file" accept="xls/xlsx" />
     </div>
     <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" /><br />
-        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk Icon Regular PL" /><br />
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Replenishment Packing List" /><br />
+        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Regular Packing List" /><br />
         <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country Regular PL" /><br />
     </div>
 </div>
@@ -90,6 +90,7 @@
 
             //从地址栏获取参数
             var preId = getUrlParameter('preid');
+            var vendor = getUrlParameter('vendor');
 
             var urlstring = "/api/fcpurchaseorderoverview/" + preId;
 
@@ -419,7 +420,7 @@
             $("#div-bulk").on("click", ".btn-bulk", function () {
                 var button = $(this);
                 button.next().remove();
-                button.replaceWith("<div><select id='select-vendor' style='width:170px;height:30px'><option value='Free Country'>Vendor: Free Country</option></select><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
+                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
@@ -429,7 +430,6 @@
                 var orderType = $("#input-ordertype").val();
                 var poLine = $("#input-poline").val();
                 var customer = $("#input-customer").val();
-                var vendor = $("#select-vendor option:selected").val();
 
                 if (purchaseOrder == "" || style == "" || orderType == "" || poLine == "" || customer == "") {
                     alert("All fields are required.");
