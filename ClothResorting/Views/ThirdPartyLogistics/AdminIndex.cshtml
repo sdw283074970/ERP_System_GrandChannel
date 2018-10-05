@@ -15,6 +15,7 @@
         <input id="btn-create" type="button" class="btn btn-group" value="Creat An Empty Work Order" />
         <input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" />
         <input id="silkiconmenu" type="button" class="btn btn-info" value="Silk Icon Manu" />
+        <input id="btn-fix" type="button" class="btn btn-danger" value="在线修正" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -196,6 +197,24 @@
                 ]
             });
 
+            //在线修正按钮，本次将为所有workorder填Vendor的坑，以及为所有posummary、cartodetails填Order Type的坑
+            $("#btn-fix").click(function () {
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/OnlineFix/",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Success!");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
             $("#btn-create").click(function () {
                 index = layer.open({
                     title: false,
@@ -218,8 +237,10 @@
                         alert("New Pre-receive Order created success!");
                         window.location.reload();
                     },
-                    error: function () {
-                        alert("Error!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             })
@@ -252,8 +273,10 @@
                             location.reload();
                         });
                     },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
                 $(".iframe").hide();
@@ -287,8 +310,10 @@
                             location.reload();
                         });
                     },
-                    error: function () {
-                        layer.alert("An error occured! Please check the file you uploaded matched the unified format.");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
                 $(".iframe").hide();
@@ -315,8 +340,10 @@
                                     location.reload();
                                 });
                             },
-                            error: function () {
-                                layer.alert("Error!");
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
                             }
                         });
                     }
@@ -353,8 +380,10 @@
                                         location.reload();
                                     });
                                 },
-                                error: function () {
-                                    layer.alert("Error!");
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                        window.location.reload();
+                                    });
                                 }
                             });
                         }

@@ -200,10 +200,12 @@ namespace ClothResorting.Helpers
                                 _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
                                 _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
                                 _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
+                                var cartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString();
+                                var cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2;
 
                                 cartonDetailList.Add(new RegularCartonDetail
                                 {
-                                    CartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString(),
+                                    CartonRange = cartonRange,
                                     PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
                                     Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
                                     Customer = _runCode == null ? "" : _runCode.ToString(),
@@ -211,13 +213,13 @@ namespace ClothResorting.Helpers
                                     GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
                                     NetWeight = _netWeight == null ? 0 : (double)_netWeight,
                                     Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
-                                    Cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
-                                    PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 3].Value2,
-                                    Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 2].Value2,
+                                    Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
+                                    PcsPerCarton = size.Count,
+                                    Quantity = cartons * size.Count,
                                     SizeBundle = size.SizeName,
                                     PcsBundle = size.Count.ToString(),
                                     Status = Status.NewCreated,
-                                    OrderType = purchaseOrderType,
+                                    OrderType = poType,
                                     POSummary = poSummary,
                                     Comment = "",
                                     Operator = _userName,
@@ -258,13 +260,13 @@ namespace ClothResorting.Helpers
                             GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
                             NetWeight = _netWeight == null ? 0 : (double)_netWeight,
                             Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
-                            Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
                             PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 3].Value2,
                             Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 2].Value2,
+                            Cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
                             SizeBundle = sizeBundle,
                             PcsBundle = pcsBundle,
                             Status = Status.NewCreated,
-                            OrderType = purchaseOrderType,
+                            OrderType = poType,
                             POSummary = poSummary,
                             Comment = "",
                             Operator = _userName,
@@ -282,7 +284,7 @@ namespace ClothResorting.Helpers
                     poSummary.Style = cartonDetailList[0].Style;
                     poSummary.Quantity = cartonDetailList.Sum(x => x.Quantity);
                     poSummary.Cartons = cartonDetailList.Sum(x => x.Cartons);
-                    poSummary.OrderType = purchaseOrderType;
+                    poSummary.OrderType = cartonDetailList.GroupBy(x => x.OrderType).Count() > 1 ? OrderType.Mix : cartonDetailList[0].OrderType;
                 }
                 startIndex += countOfSKU + 2;
 

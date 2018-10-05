@@ -15,5 +15,7 @@ namespace ClothResorting.Models.StaticClass
 
         public const string Regular = "Regular";
 
+        public const string Mix = "Mix";
+
     }
 }

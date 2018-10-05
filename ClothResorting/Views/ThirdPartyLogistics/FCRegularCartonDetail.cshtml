@@ -24,6 +24,7 @@
                     <th>Range</th>
                     <th>Customer</th>
                     <th>PO</th>
+                    <th>Order Type</th>
                     <th>Style</th>
                     <th>Color</th>
                     <th>Size Code</th>
@@ -88,6 +89,9 @@
                 success: function (data, status, xhr) {
                     $("#table").DataTable({
                         data: data,
+                        scrollY: "600px",
+                        scrollCollapse: true,
+                        iDisplayLength: 100,
                         columns: [
                             {
                                 data: "id",
@@ -128,6 +132,12 @@
                             },
                             {
                                 data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orderType",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
