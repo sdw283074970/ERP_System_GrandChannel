@@ -59,6 +59,10 @@ namespace ClothResorting.Models
 
         public string Vendor { get; set; }
 
+        public string SKU { get; set; }
+
+        public string ColorCode { get; set; }
+
         public DateTime? InboundDate { get; set; }
 
         public POSummary POSummary { get; set; }

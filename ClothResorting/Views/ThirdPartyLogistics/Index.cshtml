@@ -13,8 +13,11 @@
     </div>
     <div>
         <input id="btn-create" type="button" class="btn btn-group" value="Creat An Empty Work Order" />
-        <input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" />
-        <input id="silkiconmenu" type="button" class="btn btn-info" value="Silk Icon Manu" />
+        <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" />
+        <input id="btn-pl" type="button" class="btn btn-primary" value="Search PO in Packing List" />
+        <input id="btn-search" type="button" class="btn btn-primary" value="Search Inventory" />
+        @*<input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" />*@
+        <input id="silkiconmenu" type="button" class="btn btn-primary" value="Silk Icon Manu" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -55,29 +58,25 @@
         <select id="select-vendor" style="width:170px;height:30px"></select><br />
         <text>Select work order type: </text>
         <select id="select-ordertype" style="width:170px;height:30px">
-            <option value="Regular">Regular/Fulfillment</option>
+            <option value="Regular">Pre-pack/Pick&Pack</option>
             <option value="Replenishment">Replenishment</option>
             <option value="Mix">Mix</option>
         </select><br />
         <button id="create1" style="margin-top:10px" class="btn btn-primary">Create</button>
     </div>
 </div>
-<div class="iframe-freecountry">
+@*<div class="iframe-freecountry">
     <div style="margin-top:10px;text-align:center">
-        <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" /><br />
-        <input id="btn-search" type="button" class="btn btn-primary" value="Search Free Country Inventory" style="margin-top:5px" />
-        <input id="btn-pl" type="button" class="btn btn-primary" value="Search Free Country Packing List" style="margin-top:5px" />
     </div>
-</div>
+</div>*@
 <div class="iframe-silkicon">
     <div style="margin-top:15px;text-align:center">
-        <input type="button" class="btn btn-info btn-shiporder" value="Manage ship order" /><br />
         <a href="/thirdpartylogistics/generallocmanagement/">
             <input style="margin-top:5px" type="button" class="btn btn-info btn-managelocation" value="Manage general location" />
         </a>
-        <a href="/ThirdPartyLogistics/PermanentLocManagement/">
+        @*<a href="/ThirdPartyLogistics/PermanentLocManagement/">
             <input style="margin-top:5px" id="btn-location" type="button" class="btn btn-info" value="Manage Permanent Location" />
-        </a>
+        </a>*@
         <a href="/ThirdPartyLogistics/PurchaseOrderManagement">
             <input style="margin-top:5px" id="btn-po" type="button" class="btn btn-info" value="Manage Purchase Order" />
         </a>
@@ -97,7 +96,7 @@
 
             $(".iframe").hide();
             $(".iframe-ordertype").hide();
-            $(".iframe-freecountry").hide();
+            //$(".iframe-freecountry").hide();
             $(".iframe-silkicon").hide();
 
             //动态获取Vendor数据
@@ -148,8 +147,8 @@
 
                             if (data == "Regular")
                             {
-                                workOrderType = "Regular/Fulfillment";
-                                return "<text>" + data + "/Fulfillment</text>";
+                                workOrderType = "Pre-pack/Pick&Pack";
+                                return "<text>" + data + "/Pick&Pack</text>";
                             }
                             else
                             {
@@ -208,7 +207,7 @@
                             {
                                 if (customer == "SILK-ICON")
                                     return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
-                                else if (workOrderType == "Regular/Fulfillment")
+                                else if (workOrderType == "Pre-pack/Pick&Pack")
                                     return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
                                 else if (workOrderType == "Mix")
                                     return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
@@ -220,7 +219,7 @@
                             {
                                 if (customer == "SILK-ICON")
                                     return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                else if (workOrderType == "Regular/Fulfillment")
+                                else if (workOrderType == "Pre-pack/Pick&Pack")
                                     return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                                 else if (workOrderType == "Mix")
                                     return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
@@ -311,15 +310,15 @@
             });
 
             //打开FreeCountry菜单弹窗
-            $("#freecountrymenu").on("click", function () {
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["20%", "20%"],
-                    content: $(".iframe-freecountry")
-                });
-            });
+            //$("#freecountrymenu").on("click", function () {
+            //    index = layer.open({
+            //        title: false,
+            //        type: 1,
+            //        shadeclose: true,
+            //        area: ["20%", "20%"],
+            //        content: $(".iframe-freecountry")
+            //    });
+            //});
 
             //打开SilkIcon菜单弹窗
             $("#silkiconmenu").on("click", function () {

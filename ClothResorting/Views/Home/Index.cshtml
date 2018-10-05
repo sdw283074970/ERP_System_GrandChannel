@@ -45,16 +45,20 @@
         $(document).ready(function () {
 
             var index;
+
             $(".iframe").hide();
 
             $("#btn-3pl").on("click", function () {
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["20%", "10%"],
-                    content: $(".iframe")
-                });
+
+                $(window.location).attr('href', "/thirdpartylogistics/index");
+
+                //index = layer.open({
+                //    title: false,
+                //    type: 1,
+                //    shadeclose: true,
+                //    area: ["20%", "10%"],
+                //    content: $(".iframe")
+                //});
             });
 
             $("#btn-regular").on("click", function () {

@@ -12,12 +12,12 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div id="div-create">
-        <button class="btn btn-primary btn-create">Created a new ship order</button>
+        <button id="btn-create" class="btn btn-primary">Created a new ship order</button>
     </div>
     @*<div>
-        <input id="input-range" type="text" class="input-sm" placeholder="Pick tikets range" />
-        <input id="btn-create" type="button" class="btn btn-primary" value="Create pull sheet" />
-    </div>*@
+            <input id="input-range" type="text" class="input-sm" placeholder="Pick tikets range" />
+            <input id="btn-create" type="button" class="btn btn-primary" value="Create pull sheet" />
+        </div>*@
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
@@ -31,7 +31,7 @@
                     <th style="width:141px">Pick tickets range</th>
                     <th style="width:83px">Create date</th>
                     <th style="width:73px">Create By</th>
-                    <th style="width:63px">Pick date</th style="width:92px">
+                    <th style="width:63px">Pick date</th>
                     <th style="width:63px">Pick man</th>
                     <th style="width:63px">Status</th>
                     <th style="width:83px">Shipped By</th>
@@ -42,13 +42,47 @@
         </table>
     </div>
 </div>
+<div class="iframe">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Purchase Order: </text><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><br />
+        <text>Select Vendor: </text><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'></select><br />
+        <text>Select Order Type: </text><select id='select-ordertype' style='width:170px;height:30px' required='required'>
+            <option value='Regular'>Regular</option>
+            <option value='Replenishment'>Replenishment</option>
+        </select><br />
+        <text>Customer: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><br />
+        <text>Address: </text><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><br />
+        <text>Pick Tickets Range: </text><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><br />
+        <button id="btn-add" class='btn btn-primary'>New ship order</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
             var status;
-            var vendor;
+            var orderType;
+            var index;
+            $(".iframe").hide();
+
+            //动态获取Vendor数据
+            $.ajax({
+                type: "GET",
+                url: "/api/uppervendor/",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
 
             $.ajax({
                 type: "GET",
@@ -80,13 +114,13 @@
                             {
                                 data: "vendor",
                                 render: function (data) {
-                                    vendor = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "orderType",
                                 render: function (data) {
+                                    orderType = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -137,20 +171,16 @@
                                 render: function (data) {
                                     status = data;
 
-                                    if (data == "New Created")
-                                    {
+                                    if (data == "New Created") {
                                         return "<text style='color:Orange'>" + data + "</text>";
                                     }
-                                    else if (data == "Picking")
-                                    {
+                                    else if (data == "Picking") {
                                         return "<text style='color:Red'>" + data + "</text>";
                                     }
-                                    else if (data == "Ready")
-                                    {
+                                    else if (data == "Ready") {
                                         return "<text style='color:Green'>" + data + "</text>";
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "<text style='color:blue'>" + data + "</text>";
                                     }
                                 }
@@ -164,8 +194,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (vendor == "Free Country")
-                                    {
+                                    if (orderType == "Regular") {
                                         if (status == "Shipped") {
                                             return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
                                         }
@@ -176,8 +205,7 @@
                                             return "<button id='" + data + "'class='btn btn-link btn-fcpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                         }
                                     }
-                                    else if (vendor == "Silk Icon")
-                                    {
+                                    else if (orderType == "Replenishment") {
                                         if (status == "Shipped") {
                                             return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
                                         }
@@ -188,8 +216,7 @@
                                             return "<button id='" + data + "'class='btn btn-link btn-sipick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                         }
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "";
                                     }
                                 }
@@ -201,6 +228,17 @@
                     alert("Error!");
                 }
             });
+
+            //点击创建新运单按钮，打开新建弹窗
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "300px"],
+                    content: $(".iframe")
+                });
+            })
 
             //Free Country的菜单
             $("#table").on("click", ".btn-fcpick", function () {
@@ -309,26 +347,25 @@
             });
 
             //点击新建发货单按钮，出现一系列表单
-            $("#div-create").on("click", ".btn-create", function () {
-                var button = $(this);
-                button.next().remove();
-                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'><option class='option-select' value='Free Country'>Vendor: Free Country</option><option class='option-select' value='Silk Icon'>Vendor: Silk Icon</option></select><select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
-            });
+            //$("#div-create").on("click", ".btn-create", function () {
+            //    var button = $(this);
+            //    button.next().remove();
+            //    button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'><option class='option-select' value='Free Country'>Vendor: Free Country</option><option class='option-select' value='Silk Icon'>Vendor: Silk Icon</option></select><select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
+            //});
 
             //在新建订单选择vendor时，选择free country将只有一种order type可选，先择silk icon将有两种
-            $("#div-create").on("change", "#select-vendor", function () {
-                if ($(this).val() == "Free Country")
-                {
-                    $("#select-ordertype").replaceWith("<select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select>");
+            $("#select-vendor").on("change", function () {
+                if ($(this).val() == "Silk Icon") {
+                    $("#select-ordertype").replaceWith("<select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Regular</option><option value='Replenishment'>Replenishment</option></select>");
                 }
-                else if ($(this).val() == "Silk Icon")
+                else
                 {
-                    $("#select-ordertype").replaceWith("<select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option><option value='Replenishment'>Order Type: Replenishment</option></select>");
+                    $("#select-ordertype").replaceWith("<select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Regular</option></select>");
                 }
             });
 
             //点击添加按钮，新建一个新的运单
-            $("#div-create").on("click", ".btn-add", function () {
+            $("#btn-add").on("click", function () {
                 var range = $("#input-range").val();
                 var po = $("#input-po").val();
                 var customer = $("#input-customer").val();

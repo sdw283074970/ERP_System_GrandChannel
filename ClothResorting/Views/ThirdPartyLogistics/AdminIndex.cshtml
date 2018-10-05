@@ -190,7 +190,7 @@
                                 return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                             else if (workOrderType == "Replenishment")
                                 return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            return "";
+                            return "<button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";;
                         }
                     }
                 ]

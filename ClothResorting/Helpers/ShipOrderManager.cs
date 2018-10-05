@@ -36,7 +36,7 @@ namespace ClothResorting.Helpers
             foreach (var pickDetail in pickDetailsInDb)
             {
                 //发货Regular Oder的方法
-                if (orderType == OrderType.Regular)
+                if (orderType == OrderType.Prepack)
                 {
                     var locationDetail = pickDetail.FCRegularLocationDetail;
 
@@ -95,7 +95,7 @@ namespace ClothResorting.Helpers
             var orderType = shipOrderInDb.OrderType;
 
             //取消Regular Oder的方法
-            if (orderType == OrderType.Regular)
+            if (orderType == OrderType.Prepack)
             {
                 foreach (var pickDetail in pickDetailsInDb)
                 {

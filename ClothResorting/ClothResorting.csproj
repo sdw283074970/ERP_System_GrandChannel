@@ -290,7 +290,7 @@
     <Compile Include="Controllers\Api\ReplenishmentSingleOrderOutboundController.cs" />
     <Compile Include="Controllers\Api\RetrievingDetailPrePackOrderController.cs" />
     <Compile Include="Controllers\Api\SearchResultController.cs" />
-    <Compile Include="Controllers\Api\SIRegularPLController.cs" />
+    <Compile Include="Controllers\Api\RegularPackingListController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
     <Compile Include="Controllers\FBAController.cs" />
@@ -1039,6 +1039,10 @@
     <Compile Include="Migrations\201810031835199_ConnectedUpperVendorWithPrereceiveOrder.cs" />
     <Compile Include="Migrations\201810031835199_ConnectedUpperVendorWithPrereceiveOrder.Designer.cs">
       <DependentUpon>201810031835199_ConnectedUpperVendorWithPrereceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810042223577_AddedSKUAndColorNumberInRegularCartonDetailAndRegularLocationDetail.cs" />
+    <Compile Include="Migrations\201810042223577_AddedSKUAndColorNumberInRegularCartonDetailAndRegularLocationDetail.Designer.cs">
+      <DependentUpon>201810042223577_AddedSKUAndColorNumberInRegularCartonDetailAndRegularLocationDetail.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -2025,6 +2029,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810031835199_ConnectedUpperVendorWithPrereceiveOrder.resx">
       <DependentUpon>201810031835199_ConnectedUpperVendorWithPrereceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810042223577_AddedSKUAndColorNumberInRegularCartonDetailAndRegularLocationDetail.resx">
+      <DependentUpon>201810042223577_AddedSKUAndColorNumberInRegularCartonDetailAndRegularLocationDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

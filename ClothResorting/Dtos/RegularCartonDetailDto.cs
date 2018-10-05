@@ -47,17 +47,23 @@ namespace ClothResorting.Dtos
 
         public string Status { get; set; }
 
-        public DateTime InboundDate { get; set; }
+        public string OrderType { get; set; }
 
         public string Comment { get; set; }
+
+        public string Receiver { get; set; }
 
         public string Adjustor { get; set; }
 
         public string Operator { get; set; }
 
-        public string Receiver { get; set; }
-
         public string Vendor { get; set; }
+
+        public string SKU { get; set; }
+
+        public string ColorCode { get; set; }
+
+        public DateTime InboundDate { get; set; }
 
     }
 }

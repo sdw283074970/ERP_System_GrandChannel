@@ -52,5 +52,9 @@ namespace ClothResorting.Dtos
         public string Allocator { get; set; }
 
         public string Vendor { get; set; }
+
+        public string SKU { get; set; }
+
+        public string ColorCode { get; set; }
     }
 }

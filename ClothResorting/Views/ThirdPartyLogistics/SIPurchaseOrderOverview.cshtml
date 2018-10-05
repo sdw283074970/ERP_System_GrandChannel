@@ -10,11 +10,7 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
         <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
-    </div>
-    <div id="div-bulk">
-        <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
-    </div>
-    <div>
+        <button id="btn-bulk" class="btn btn-info">Create Bulk PO Summary</button>
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
     </div>
     <div>
@@ -45,17 +41,32 @@
     </div>
 </div>
 <div class="iframe">
-    <div>
-        <input id="upload2" type="file" accept="xls/xlsx" />
-    </div>
-    <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk Icon Replenishment PL" />
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select vendor: </text>
+        <select id="select-vendor" style="width:170px;height:30px"></select><br />
+        <text>Select po type: </text>
+        <select id="select-potype" style="width:170px;height:30px">
+            <option value="Solid Pack">Solid Pack</option>
+        </select><br />
+        <input id="upload2" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
+        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Packing List" /><br />
     </div>
 </div>
 <div class="iframe-download">
-    <div>
-        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" />
+    <div style="margin-top:20px;text-align:center">
+        <input id="download-silkicon" type="button" class="btn btn-primary" value="Download Packing List Template" /><br />
     </div>
+</div>
+<div class="iframe-create" style="margin-top:20px;margin-right:20px;text-align:right">
+    <text>Purchase Order: </text><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><br />
+    <text>Select PO Type: </text><select id='select-ordertype' style='width:170px;height:30px'>
+        <option value='Pre-pack'>Pre-pack</option>
+        <option value='Solid Pack' style='width:170px;height:30px'>Solid Pack</option>
+    </select><br />
+    <text>Style: </text><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><br />
+    <text>PO Line: </text><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><br />
+    <text>Customer: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><br />
+    <button id="btn-add" class='btn btn-primary' style="margin-top:10px">Add</button>
 </div>
 @section scripts
 {
@@ -64,6 +75,8 @@
 
             $(".iframe").hide();
             $(".iframe-download").hide();
+            $(".iframe-create").hide();
+
             var quantity;
 
             //解析url中的参数函数
@@ -84,8 +97,29 @@
 
             //从地址栏获取参数
             var preId = getUrlParameter('preid');
+            var vendor = getUrlParameter('vendor');
 
             var urlstring = "/api/fcpurchaseorderoverview/" + preId;
+
+            $("#select-vendor").append("<option value='" + vendor + "'>" + vendor + "</option>");
+
+            //动态获取Vendor数据
+            //$.ajax({
+            //    type: "GET",
+            //    url: "/api/uppervendor/",
+            //    contentType: 'application/json; charset=utf-8',
+            //    dataType: "json",
+            //    success: function (data) {
+            //        for (var i = 0; i < data.length; i++) {
+            //            $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+            //        }
+            //    },
+            //    error: function (XMLHttpRequest, textStatus, errorThrown) {
+            //        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+            //            window.location.reload();
+            //        });
+            //    }
+            //});
 
             $("#table").DataTable({
                 ajax: {
@@ -280,7 +314,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "20%"],
+                    area: ["300px", "250px"],
                     content: $(".iframe")
                 });
             });
@@ -348,23 +382,27 @@
                 });
             });
 
-            //点击添加散货PO Summary，出现一系列表单
-            $("#div-bulk").on("click", ".btn-bulk", function () {
-                var button = $(this);
-                button.next().remove();
-                button.replaceWith("<div><select id='select-vendor' style='width:170px;height:30px'><option value='Free Country'>Vendor: Free Country</option></select><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
+            //点击添加散货PO Summary，弹出表单对话框
+            $("#btn-bulk").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["300px", "250px"],
+                    content: $(".iframe-create")
+                });
+                button.replaceWith("<div><div>");
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
-            $("#div-bulk").on("click", ".btn-update", function () {
+            $("#btn-add").on("click", function () {
                 var purchaseOrder = $("#input-po").val();
                 var style = $("#input-style").val();
-                var orderType = $("#input-ordertype").val();
+                var orderType = $("#select-ordertype option:selected").val();
                 var poLine = $("#input-poline").val();
                 var customer = $("#input-customer").val();
-                var vendor = $("#select-vendor option:selected").val();
 
-                if (purchaseOrder == "" || style == "" || orderType == "" || poLine == "" || customer == "") {
+                if (purchaseOrder == "" || style == "" || poLine == "" || customer == "") {
                     alert("All fields are required.");
                 }
                 else {
@@ -388,8 +426,10 @@
                             alert("Add success!");
                             window.location.reload();
                         },
-                        error: function () {
-                            alert("Add failed.");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }

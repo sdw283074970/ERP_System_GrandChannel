@@ -77,7 +77,7 @@ namespace ClothResorting.Helpers
         }
         #endregion
 
-        //-----👇👇👇👇👇👇-----以下为抽取SILKICON装箱单的新方法-----👇👇👇👇👇👇-----
+        //-----👇👇👇👇👇👇-----以下为抽取普通客户装箱单的新方法-----👇👇👇👇👇👇-----
         //建立一个Pre-Recieve Order对象并添加进数据库
         #region
         public void CreatePreReceiveOrder(string orderType, string vendor)
@@ -106,7 +106,7 @@ namespace ClothResorting.Helpers
         }
 
         //扫描单页模板，计算每一个POSummary并写入数据库
-        public void ExtractSIPOSummaryAndCartonDetail(int preId, string orderType)
+        public void ExtractPOSummaryAndCartonDetail(int preId, string purchaseOrderType, string vendor)
         {
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preId);     //获取刚建立的PreReceiveOrder
 
@@ -138,7 +138,7 @@ namespace ClothResorting.Helpers
                 poList.Add(new POSummary {
                     PreReceiveOrder = preReceiveOrderInDb,
                     Operator = _userName,
-                    Vendor = Vendor.SilkIcon
+                    Vendor = preReceiveOrderInDb.CustomerName
                 });
             }
 
@@ -177,7 +177,8 @@ namespace ClothResorting.Helpers
                 {
                     //扫描每一种SKU有多少种Size及数量
                     var sizeList = new List<SizeRatio>();
-                    var countOfSize = countOfColumn - 12;
+                    var countOfSize = countOfColumn - 14;
+                    var poType = _ws.Cells[startIndex + 1 + j, 8].Value2 == null ? "Solid Pack" : _ws.Cells[startIndex + 1 + j, 8].Value2.ToString();
 
                     for (int k = 0; k < countOfSize; k++)
                     {
@@ -188,7 +189,7 @@ namespace ClothResorting.Helpers
                         });
                     }
 
-                    if (orderType == OrderType.Replenishment)
+                    if (poType == OrderType.SolidPack)       //类型为Solid的po，最小入库计量单位为件(pcs)
                     {
                         //为每一个不为0的size都生成一个cartonDetail对象
                         foreach (var size in sizeList)
@@ -203,7 +204,7 @@ namespace ClothResorting.Helpers
                                 cartonDetailList.Add(new RegularCartonDetail
                                 {
                                     CartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString(),
-                                    PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
+                                    PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
                                     Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
                                     Customer = _runCode == null ? "" : _runCode.ToString(),
                                     Dimension = _dimension == null ? "" : _dimension.ToString(),
@@ -211,23 +212,25 @@ namespace ClothResorting.Helpers
                                     NetWeight = _netWeight == null ? 0 : (double)_netWeight,
                                     Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
                                     Cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
-                                    PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2,
-                                    Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn].Value2,
+                                    PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 3].Value2,
+                                    Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 2].Value2,
                                     SizeBundle = size.SizeName,
                                     PcsBundle = size.Count.ToString(),
                                     Status = Status.NewCreated,
-                                    OrderType = orderType,
+                                    OrderType = purchaseOrderType,
                                     POSummary = poSummary,
                                     Comment = "",
                                     Operator = _userName,
                                     Receiver = "",
                                     Adjustor = "",
-                                    Vendor = Vendor.SilkIcon
+                                    Vendor = vendor,
+                                    SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                    ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                 });
                             }
                         }
                     }
-                    else if (orderType == OrderType.Regular)    //Regular类型的订单size和pcs为捆绑字符，入S M L XL/1 2 2 1
+                    else if (poType == OrderType.Prepack)    //prepack类型的po，即最小入库计量单位为箱(carton)或者件(pcs), size和pcs可以为捆绑字符，如S M L XL/1 2 2 1
                     {
                         var sizeBundle = sizeList[0].SizeName;
                         var pcsBundle = sizeList[0].Count.ToString();
@@ -248,7 +251,7 @@ namespace ClothResorting.Helpers
                         cartonDetailList.Add(new RegularCartonDetail
                         {
                             CartonRange = cartonRange,
-                            PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
+                            PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
                             Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
                             Customer = _runCode == null ? "" : _runCode.ToString(),
                             Dimension = _dimension == null ? "" : _dimension.ToString(),
@@ -256,18 +259,20 @@ namespace ClothResorting.Helpers
                             NetWeight = _netWeight == null ? 0 : (double)_netWeight,
                             Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
                             Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
-                            PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2,
-                            Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn].Value2,
+                            PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 3].Value2,
+                            Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 2].Value2,
                             SizeBundle = sizeBundle,
                             PcsBundle = pcsBundle,
                             Status = Status.NewCreated,
-                            OrderType = orderType,
+                            OrderType = purchaseOrderType,
                             POSummary = poSummary,
                             Comment = "",
                             Operator = _userName,
                             Receiver = "",
                             Adjustor = "",
-                            Vendor = Vendor.SilkIcon
+                            Vendor = vendor,
+                            SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                            ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString()
                         });
                     }
 
@@ -275,10 +280,9 @@ namespace ClothResorting.Helpers
                     poSummary.Container = Status.Unknown;
                     poSummary.PurchaseOrder = cartonDetailList[0].PurchaseOrder;
                     poSummary.Style = cartonDetailList[0].Style;
-                    poSummary.Customer = Vendor.SilkIcon;
                     poSummary.Quantity = cartonDetailList.Sum(x => x.Quantity);
                     poSummary.Cartons = cartonDetailList.Sum(x => x.Cartons);
-                    poSummary.OrderType = orderType;
+                    poSummary.OrderType = purchaseOrderType;
                 }
                 startIndex += countOfSKU + 2;
 
@@ -288,7 +292,6 @@ namespace ClothResorting.Helpers
             //重新统计新建的preReceiveOrder对象的数据
             preReceiveOrderInDb.TotalCartons += cartonList.Sum(x => x.Cartons);
             preReceiveOrderInDb.TotalPcs += cartonList.Sum(x => x.Quantity);
-            preReceiveOrderInDb.CustomerName = Vendor.SilkIcon;
 
             _context.RegularCartonDetails.AddRange(cartonList);
             _context.SaveChanges();
@@ -1130,7 +1133,7 @@ namespace ClothResorting.Helpers
                             }
 
                             var poSummaryInDb = poSummaryInDbs.First();
-                            poSummaryInDb.OrderType = OrderType.Solidpack;
+                            poSummaryInDb.OrderType = OrderType.SolidPack;
 
                             //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
                             if (poSummaryList.Count() == 1)
@@ -1158,7 +1161,7 @@ namespace ClothResorting.Helpers
                                     ToBeAllocatedPcs = 0,
                                     POSummary = poSummaryInDb,
                                     Comment = "",
-                                    OrderType = OrderType.Solidpack,
+                                    OrderType = OrderType.SolidPack,
                                     Operator  = _userName,
                                     Adjustor = "",
                                     Receiver = "",
@@ -1191,7 +1194,7 @@ namespace ClothResorting.Helpers
                                     ToBeAllocatedCtns = 0,
                                     ToBeAllocatedPcs = 0,
                                     Comment = "",
-                                    OrderType = OrderType.Solidpack,
+                                    OrderType = OrderType.SolidPack,
                                     Operator = _userName,
                                     Adjustor = "",
                                     Receiver = "",

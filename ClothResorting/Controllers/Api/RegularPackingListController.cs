@@ -10,18 +10,18 @@ using System.Web.Http;
 
 namespace ClothResorting.Controllers.Api
 {
-    public class SIRegularPLController : ApiController
+    public class RegularPackingListController : ApiController
     {
         public ApplicationDbContext _context;
 
-        public SIRegularPLController()
+        public RegularPackingListController()
         {
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/siregularpl/{id}
+        // POST /api/regularpackinglist/?preId={id}&vendor={cendor}&purchaseOrderType={purchaseOrderType}
         [HttpPost]
-        public void UploadSIRegularPL([FromUri]int id)
+        public void UploadRegularPackingList([FromUri]int preId, [FromUri]string vendor, [FromUri]string purchaseOrderType)
         {
             var fileSavePath = "";
 
@@ -36,7 +36,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractSIPOSummaryAndCartonDetail(id, OrderType.Prepack);
+            excel.ExtractPOSummaryAndCartonDetail(preId, purchaseOrderType, vendor);
 
             var killer = new ExcelKiller();
 

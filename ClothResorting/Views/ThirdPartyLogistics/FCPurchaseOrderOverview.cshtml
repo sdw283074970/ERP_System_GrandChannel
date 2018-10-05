@@ -11,14 +11,10 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
         <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
-    </div>
-    <div>
+        <button id="btn-bulk" class="btn btn-info">Create Bulk PO Summary</button>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
         <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
-    </div>
-    <div id="div-bulk">
-        <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -30,7 +26,7 @@
                     <th>Created By</th>
                     <th>PO</th>
                     <th>Style</th>
-                    <th>Order Type</th>
+                    <th>PO Type</th>
                     <th>PO Line</th>
                     <th>Customer</th>
                     <th>Quantity</th>
@@ -48,20 +44,37 @@
     </div>
 </div>
 <div class="iframe">
-    <div>
-        <input id="upload2" type="file" accept="xls/xlsx" />
-    </div>
-    <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Replenishment Packing List" /><br />
-        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Regular Packing List" /><br />
-        <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country Regular PL" /><br />
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select vendor: </text>
+        <select id="select-vendor" style="width:170px;height:30px"></select><br />
+        <text>Select po type: </text>
+        <select id="select-potype" style="width:170px;height:30px">
+            <option value="Pre-pack">Pre-pack</option>
+            <option value="Solid Pack">Solid Pack</option>
+            <option value='Mix' style='width:170px;height:30px'>Mix</option>
+        </select><br />
+        <input id="upload2" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
+        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Regular Packing List" /><br />
+        <input id="uploadfc" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Free Country Packing List" /><br />
     </div>
 </div>
 <div class="iframe-download">
-    <div>
-        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" /><br />
-        <input id="download-freecountry" type="button" class="btn btn-default" value="Download FC Packing List Template" />
+    <div style="margin-top:20px;text-align:center">
+        <input id="download-silkicon" type="button" class="btn btn-primary" value="Download Packing List Template" /><br />
+        <input id="download-freecountry" type="button" class="btn btn-primary" value="Download FC Packing List Template" style="margin-top:5px" />
     </div>
+</div>
+<div class="iframe-create" style="margin-top:20px;margin-right:20px;text-align:right">
+    <text>Purchase Order: </text><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><br />
+    <text>Select PO Type: </text><select id='select-ordertype' style='width:170px;height:30px'>
+        <option value='Pre-pack'>Pre-pack</option>
+        <option value='Solid Pack' style='width:170px;height:30px'>Solid Pack</option>
+        <option value='Mix' style='width:170px;height:30px'>Mix</option>
+    </select><br />
+    <text>Style: </text><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><br />
+    <text>PO Line: </text><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><br />
+    <text>Customer: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><br />
+    <button id="btn-add" class='btn btn-primary' style="margin-top:10px">Add</button>
 </div>
 @section scripts
 {
@@ -70,6 +83,8 @@
 
             $(".iframe").hide();
             $(".iframe-download").hide();
+            $(".iframe-create").hide();
+
             var quantity;
 
             //解析url中的参数函数
@@ -93,6 +108,26 @@
             var vendor = getUrlParameter('vendor');
 
             var urlstring = "/api/fcpurchaseorderoverview/" + preId;
+
+            $("#select-vendor").append("<option value='" + vendor + "'>" + vendor + "</option>");
+
+            //动态获取Vendor数据
+            //$.ajax({
+            //    type: "GET",
+            //    url: "/api/uppervendor/",
+            //    contentType: 'application/json; charset=utf-8',
+            //    dataType: "json",
+            //    success: function (data) {
+            //        for (var i = 0; i < data.length; i++) {
+            //            $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+            //        }
+            //    },
+            //    error: function (XMLHttpRequest, textStatus, errorThrown) {
+            //        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+            //            window.location.reload();
+            //        });
+            //    }
+            //});
 
             $("#table").DataTable({
                 ajax: {
@@ -186,12 +221,10 @@
                     {
                         data: "id",
                         render: function (data) {
-                            if (quantity == 0)
-                            {
+                            if (quantity == 0) {
                                 return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>";
                             }
-                            else
-                            {
+                            else {
                                 return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a>";
                             }
                         }
@@ -222,12 +255,10 @@
                     arr.push(val);
                 });
 
-                if (container == "")
-                {
+                if (container == "") {
                     alert("Please enter container number!");
                 }
-                else
-                {
+                else {
                     var obj = {
                         "arr": arr,
                         "container": container,
@@ -245,8 +276,10 @@
                             alert("Update success!");
                             location.reload();
                         },
-                        error: function () {
-                            alert("An error occured!");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }
@@ -275,8 +308,10 @@
                         alert("Success!");
                         window.location.reload();
                     },
-                    error: function () {
-                        alert("Error!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             });
@@ -287,15 +322,16 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "20%"],
+                    area: ["300px", "250px"],
                     content: $(".iframe")
                 });
             });
 
-            //执行上传SILK-ICON的Regular订单装箱单
-            $("#uploadregularfile").on("click", function () {
+            //执行上传一般客户的Pre-pack装箱单或Solid Pack装箱单
+            $("#uploadppkfile").on("click", function () {
                 var formData = new FormData();
                 var files = $("#upload2").get(0).files;
+                var purchaseOrderType = $("#select-potype option:selected").val();
 
                 if (files.length > 0) {
                     formData.append("fileName", files[0]);
@@ -306,7 +342,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/SIRegularPL/" + preId,
+                    url: "/api/RegularPackingList/?preId=" + preId + "&vendor=" + vendor + "&purchaseOrderType=" + purchaseOrderType,
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);
@@ -321,14 +357,16 @@
                             location.reload();
                         });
                     },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
                 $(".iframe").hide();
             });
 
-            //执行上传FC订单的装箱单
+            //执行上传FC的装箱单
             $("#uploadfc").on("click", function () {
                 var formData = new FormData();
                 var files = $("#upload2").get(0).files;
@@ -396,8 +434,7 @@
                 //var isBulkPo = fcsPcs == 0 ? true : false;
 
                 bootbox.confirm("Are you sure you want to delete this PO Summary?", function (result) {
-                    if (result)
-                    {
+                    if (result) {
                         $.ajax({
                             type: "DELETE",
                             url: "/api/fcreceivingreport/" + button.attr('id'),
@@ -408,30 +445,36 @@
                                 window.location.reload();
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                                window.location.reload();
+                                bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
                             }
                         });
                     }
                 });
             });
 
-            //点击添加散货PO Summary，出现一系列表单
-            $("#div-bulk").on("click", ".btn-bulk", function () {
-                var button = $(this);
-                button.next().remove();
-                button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
+            //点击添加散货PO Summary，弹出表单对话框
+            $("#btn-bulk").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["300px", "250px"],
+                    content: $(".iframe-create")
+                });
+                button.replaceWith("<div><div>");
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
-            $("#div-bulk").on("click", ".btn-update", function () {
+            $("#btn-add").on("click", function () {
                 var purchaseOrder = $("#input-po").val();
                 var style = $("#input-style").val();
-                var orderType = $("#input-ordertype").val();
+                var orderType = $("#select-ordertype option:selected").val();
                 var poLine = $("#input-poline").val();
                 var customer = $("#input-customer").val();
 
-                if (purchaseOrder == "" || style == "" || orderType == "" || poLine == "" || customer == "") {
+                if (purchaseOrder == "" || style == "" || poLine == "" || customer == "") {
                     alert("All fields are required.");
                 }
                 else {
@@ -455,8 +498,10 @@
                             alert("Add success!");
                             window.location.reload();
                         },
-                        error: function () {
-                            alert("Add failed.");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }

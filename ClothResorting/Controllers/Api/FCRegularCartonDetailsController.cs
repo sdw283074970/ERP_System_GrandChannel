@@ -81,7 +81,7 @@ namespace ClothResorting.Controllers.Api
             }
             else
             {
-                newCartonDetail.OrderType = OrderType.Solidpack;
+                newCartonDetail.OrderType = OrderType.SolidPack;
             }
 
             _context.RegularCartonDetails.Add(newCartonDetail);

@@ -5,7 +5,7 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Free Country Regular Carton Detail</h2>
+<h2>Carton Detail Page</h2>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
@@ -20,6 +20,7 @@
                     <th>Id</th>
                     <th>Created By</th>
                     <th>Received By</th>
+                    <th>SKU</th>
                     <th>Range</th>
                     <th>Customer</th>
                     <th>PO</th>
@@ -102,6 +103,12 @@
                             },
                             {
                                 data: "receiver",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "sku",
                                 render: function (data) {
                                     return "<font>" + data + "</font>";
                                 }
