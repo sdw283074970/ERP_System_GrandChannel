@@ -20,19 +20,19 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/generallocmanagement/?vendor={vendor}
+        // GET /api/generallocmanagement/?preId={preId}
         [HttpGet]
-        public IHttpActionResult GetAllGeneralLocationSummay([FromUri]string vendor)
+        public IHttpActionResult GetAllGeneralLocationSummay([FromUri]int preId)
         {
             return Ok(_context.GeneralLocationSummaries
-                .Where(x => x.Vendor == vendor)
+                .Where(x => x.PreReceiveOrder.Id == preId)
                 .OrderByDescending(x => x.Id)
                 .Select(Mapper.Map<GeneralLocationSummary, GeneralLocationSummaryDto>));
         }
 
-        // POST /api/generallocmanagement/?vendor={vendor}&inboundDate={inboundDate}
+        // POST /api/generallocmanagement/?preId={preId}&vendor={vendor}&inboundDate={inboundDate}&preId={preId}
         [HttpPost]
-        public void CreateNewGeneralLocationSummaryAndDetail([FromUri]string vendor, [FromUri]string inboundDate)
+        public void CreateNewGeneralLocationSummaryAndDetail([FromUri]string vendor, [FromUri]string inboundDate, [FromUri]int preId)
         {
             var fileSavePath = "";
             var filesGetter = new FilesGetter();
@@ -46,7 +46,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.UploadReplenishimentLocationDetail(vendor, inboundDate, fileSavePath.Split('\\').Last().Split('.').First());
+            excel.UploadReplenishimentLocationDetail(preId, vendor, inboundDate, fileSavePath.Split('\\').Last().Split('.').First());
         }
     }
 }

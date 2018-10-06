@@ -22,5 +22,7 @@ namespace ClothResorting.Models
         public int InboundPcs { get; set; }
 
         public ICollection<ReplenishmentLocationDetail> RelenishmentLocationDetails { get; set; }
+
+        public PreReceiveOrder PreReceiveOrder { get; set; }
     }
 }

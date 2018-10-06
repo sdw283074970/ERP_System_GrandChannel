@@ -21,11 +21,11 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/purchaseordermanagement
-        public IHttpActionResult GetAllPurchaseOrderInventory()
+        // GET /api/purchaseordermanagement/?vendor={vendor}
+        public IHttpActionResult GetAllPurchaseOrderInventory([FromUri]string vendor)
         {
             return Ok(_context.PurchaseOrderInventories
-                .Where(c => c.Id > 0)
+                .Where(c => c.Vender == vendor)
                 .Select(Mapper.Map<PurchaseOrderInventory, PurchaseOrderInventoryDto>));
         }
 

@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@*管理SilkIcon的PO*@
+@*管理Replenishment类型业务的PO*@
 <h1>Third-party Logistics Distribution System</h1>
 <h2>Purchase Order Management</h2>
 <div>
@@ -52,11 +52,29 @@
 
             var table;
 
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var vendor = getUrlParameter('vendor');
+
             $.ajax({
                 contentType: 'application/json; charset=utf-8',
                 type: "GET",
                 dataType: "json",
-                url: "/api/PurchaseOrderManagement/",
+                url: "/api/PurchaseOrderManagement/?vendor=" + vendor,
                 success: function (data) {
 
                     if (table) {

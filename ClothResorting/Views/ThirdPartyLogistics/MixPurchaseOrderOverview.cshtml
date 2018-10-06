@@ -12,14 +12,10 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
         <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
-    </div>
-    <div>
+        <button id="btn-bulk" class="btn btn-info">Create Bulk PO Summary</button>
         <input id="btn-replenishmentmenu" type="button" class="btn btn-info" value="Replenishment Menu" />
         <input id="btn-regularmenu" type="button" class="btn btn-info" value="Regular Menu" />
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
-    </div>
-    <div id="div-bulk">
-        <button class="btn btn-primary btn-bulk">Create Bulk PO Summary</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -49,32 +45,49 @@
     </div>
 </div>
 <div class="iframe">
-    <div>
-        <input id="upload2" type="file" accept="xls/xlsx" />
-    </div>
-    <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload Silk-Icon Replenishment PL" /><br />
-        <input id="uploadregularfile" type="button" class="btn btn-default" value="Upload Silk-Icon Regular PL" /><br />
-        <input id="uploadfc" type="button" class="btn btn-default" value="Upload Free Country PL" />
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select vendor: </text>
+        <select id="select-vendor" style="width:170px;height:30px"></select><br />
+        <text>Select po type: </text>
+        <select id="select-potype" style="width:170px;height:30px">
+            <option value="Pre-pack">Pre-pack</option>
+            <option value="Solid Pack">Solid Pack</option>
+            <option value='Mix' style='width:170px;height:30px'>Mix</option>
+            <option value="Replenishment">Replenishment</option>
+        </select><br />
+        <input id="upload2" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
+        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Regular Packing List" /><br />
     </div>
 </div>
 <div class="iframe-download">
-    <div>
-        <input id="download-silkicon" type="button" class="btn btn-default" value="Download SI Packing List Template" />
-        <input id="download-freecountry" type="button" class="btn btn-default" value="Download FC Packing List Template" />
+    <div style="margin-top:20px;text-align:center">
+        <input id="download-silkicon" type="button" class="btn btn-primary" value="Download Packing List Template" /><br />
     </div>
 </div>
 <div class="iframe-replenishmentmenu">
     <div style="margin-top:15px;text-align:center">
-        <button style="margin-top:5px" id="btn-replenishmentlocation" class="btn btn-info">Manage Replenishment Location</button><br />
-        <button style="margin-top:5px" id="btn-replenishmentpo" class="btn btn-info">Manage Replenishment PO</button>
+        <button style="margin-top:10px" id="btn-generalallocate" class="btn btn-info">General Location Management</button><br />
+        <button style="margin-top:10px" id="btn-pomanagement" class="btn btn-info">Purchase Order Management</button>
     </div>
 </div>
 <div class="iframe-regularmenu">
     <div style="margin-top:15px;text-align:center">
-        <input style="margin-top:5px" id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" /><br />
-        <input style="margin-top:5px" id="btn-location" type="button" class="btn btn-info" value="View inventory" />
+        <input style="margin-top:10px" id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" /><br />
+        <input style="margin-top:10px" id="btn-location" type="button" class="btn btn-info" value="View inventory" />
     </div>
+</div>
+<div class="iframe-create" style="margin-top:20px;margin-right:20px;text-align:right">
+    <text>Purchase Order: </text><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><br />
+    <text>Select PO Type: </text><select id='select-ordertype' style='width:170px;height:30px'>
+        <option value='Pre-pack'>Pre-pack</option>
+        <option value='Solid Pack' style='width:170px;height:30px'>Solid Pack</option>
+        <option value='Mix' style='width:170px;height:30px'>Mix</option>
+        <option value='Replenishment' style='width:170px;height:30px'>Replenishment</option>
+    </select><br />
+    <text>Style: </text><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><br />
+    <text>PO Line: </text><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><br />
+    <text>Customer: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><br />
+    <button id="btn-add" class='btn btn-primary' style="margin-top:10px">Add</button>
 </div>
 @section scripts
 {
@@ -85,6 +98,7 @@
             $(".iframe-download").hide();
             $(".iframe-replenishmentmenu").hide();
             $(".iframe-regularmenu").hide();
+            $(".iframe-create").hide();
             var quantity;
 
             //解析url中的参数函数
@@ -108,6 +122,8 @@
             var vendor = getUrlParameter('vendor');
 
             var urlstring = "/api/fcpurchaseorderoverview/" + preId;
+
+            $("#select-vendor").append("<option value='" + vendor + "'>" + vendor + "</option>");
 
             $("#table").DataTable({
                 ajax: {
@@ -295,10 +311,11 @@
                 });
             });
 
-            //执行上传SILK-ICON的补货订单装箱单
-            $("#uploadfile").on("click", function () {
+            //执行上传一般客户的Pre-pack装箱单、Solid Pack装箱单或Replenishment装箱单
+            $("#uploadppkfile").on("click", function () {
                 var formData = new FormData();
                 var files = $("#upload2").get(0).files;
+                var purchaseOrderType = $("#select-potype option:selected").val();
 
                 if (files.length > 0) {
                     formData.append("fileName", files[0]);
@@ -309,79 +326,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/ThirdPartyLogisticsApi/" + preId,
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-                        layer.msg('Extracting files...', {
-                            icon: 1,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
-                    }
-                });
-                $(".iframe").hide();
-            });
-
-            //执行上传SILK-ICON的Regular订单装箱单
-            $("#uploadregularfile").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload2").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/SIRegularPL/" + preId,
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-                        layer.msg('Extracting files...', {
-                            icon: 1,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function () {
-                        layer.alert("Extract successed!", function () {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        layer.alert("An error occured on the server!");
-                    }
-                });
-                $(".iframe").hide();
-            });
-
-            //执行上传FC订单的装箱单
-            $("#uploadfc").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload2").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/fcpurchaseorderoverview/" + preId,
+                    url: "/api/RegularPackingList/?preId=" + preId + "&vendor=" + vendor + "&purchaseOrderType=" + purchaseOrderType,
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);
@@ -397,31 +342,8 @@
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage + " This current uploaded fragmentary packing list will be deleted automatically.", function () {
-                            $.ajax({
-                                contentType: false,
-                                cache: false,
-                                processData: false,
-                                type: "DELETE",
-                                url: "/api/index/" + preId,
-                                beforeSend: function () {
-                                    layer.msg('Deleting...', {
-                                        icon: 1,
-                                        shade: 0.01,
-                                        time: 99 * 1000
-                                    });
-                                },
-                                success: function () {
-                                    layer.alert("The current uploaded packing list has been deleted. Browser will go back to home page of 3rd Party Logistics.", function () {
-                                        window.location.reload();
-                                    });
-                                },
-                                error: function () {
-                                    layer.alert("Delete failed. Please go back to index and delete this packing list manually. Browser will go back to home page of 3rd Party Logistics.", function () {
-                                        window.history.back(-1);
-                                    });
-                                }
-                            });
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
                         });
                     }
                 });
@@ -455,23 +377,27 @@
                 });
             });
 
-            //点击添加散货PO Summary，出现一系列表单
-            $("#div-bulk").on("click", ".btn-bulk", function () {
-                var button = $(this);
-                button.next().remove();
-                button.replaceWith("<div><select id='select-vendor' style='width:170px;height:30px'><option value='Free Country'>Vendor: Free Country</option></select><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-ordertype' style='width:250px' class='input-sm' placeholder='Order Type: Solid/In&Out/Replenishment' /><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><button class='btn btn-primary btn-update'>Add</button><div>");
+            //点击添加散货PO Summary，弹出表单对话框
+            $("#btn-bulk").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["300px", "250px"],
+                    content: $(".iframe-create")
+                });
+                button.replaceWith("<div><div>");
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
-            $("#div-bulk").on("click", ".btn-update", function () {
+            $("#btn-add").on("click", function () {
                 var purchaseOrder = $("#input-po").val();
                 var style = $("#input-style").val();
-                var orderType = $("#input-ordertype").val();
+                var orderType = $("#select-ordertype option:selected").val();
                 var poLine = $("#input-poline").val();
                 var customer = $("#input-customer").val();
-                var vendor = $("#select-vendor option:selected").val();
 
-                if (purchaseOrder == "" || style == "" || orderType == "" || poLine == "" || customer == "") {
+                if (purchaseOrder == "" || style == "" || poLine == "" || customer == "") {
                     alert("All fields are required.");
                 }
                 else {
@@ -495,8 +421,10 @@
                             alert("Add success!");
                             window.location.reload();
                         },
-                        error: function () {
-                            alert("Add failed.");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }
@@ -511,12 +439,6 @@
                     area: ["20%", "20%"],
                     content: $(".iframe-download")
                 });
-            });
-
-            //下载FC的PL模板
-            $("#download-freecountry").on("click", function () {
-                $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=' + "FreeCountry");
-                $(".iframe-template").hide();
             });
 
             //打开补货菜单弹窗
@@ -549,10 +471,24 @@
                 });
             });
 
+            //点击replenishment菜单下的分配库位按钮，打开普通库位管理页面
+            $("#btn-generalallocate").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/generallocmanagement/?preId=' + preId.toString() + "&vendor=" + vendor);
+            });
+
+            //点击replenishment菜单下的订单管理按钮， 打开对应Vendor的订单统计和管理页面
+            $("#btn-pomanagement").html(vendor + " PO Management");
+
+            $("#btn-pomanagement").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/PurchaseOrderManagement/?vendor=' + vendor);
+            });
+
+            //点击regular菜单下的分配库位按钮，进入分配regular库位页面
             $("#btn-allocate").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationAllocating/?preid=' + preId.toString());
             });
 
+            //点击regular菜单下的查看库存按钮，进入库存管理页面
             $("#btn-location").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + preId.toString());
             });

@@ -11,6 +11,8 @@
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
         <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
         <button id="btn-bulk" class="btn btn-info">Create Bulk PO Summary</button>
+        <button id="btn-allocate" class="btn btn-info">General Location Management</button>
+        <button id="btn-pomanagement" class="btn btn-info">Purchase Order Management</button>
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
     </div>
     <div>
@@ -46,7 +48,7 @@
         <select id="select-vendor" style="width:170px;height:30px"></select><br />
         <text>Select po type: </text>
         <select id="select-potype" style="width:170px;height:30px">
-            <option value="Solid Pack">Solid Pack</option>
+            <option value="Solid Pack">Replenishment</option>
         </select><br />
         <input id="upload2" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
         <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Packing List" /><br />
@@ -279,12 +281,16 @@
                 }
             });
 
+            //点击分配库位按钮，打开普通库位管理页面
             $("#btn-allocate").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationAllocating/?preid=' + preId.toString());
+                $(window.location).attr('href', '/ThirdPartyLogistics/generallocmanagement/?preId=' + preId.toString() + "&vendor=" + vendor);
             });
 
-            $("#btn-location").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + preId.toString());
+            //点击订单管理按钮， 打开对应Vendor的订单统计和管理页面
+            $("#btn-pomanagement").html(vendor + " PO Management");
+
+            $("#btn-pomanagement").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/PurchaseOrderManagement/?vendor=' + vendor);
             });
 
             $("#btn-plmanage").on("click", function () {
@@ -451,6 +457,8 @@
                 $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=' + "FreeCountry");
                 $(".iframe-template").hide();
             });
+
+            //点击分配库位按钮，打开普通库位管理页面
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

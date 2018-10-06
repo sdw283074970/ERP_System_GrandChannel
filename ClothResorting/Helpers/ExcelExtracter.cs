@@ -189,7 +189,7 @@ namespace ClothResorting.Helpers
                         });
                     }
 
-                    if (poType == OrderType.SolidPack)       //类型为Solid的po，最小入库计量单位为件(pcs)
+                    if (poType == OrderType.SolidPack || poType == OrderType.Replenishment)       //类型为Solid和Replenishment的po，最小入库计量单位为件(pcs)
                     {
                         //为每一个不为0的size都生成一个cartonDetail对象
                         foreach (var size in sizeList)
@@ -748,8 +748,11 @@ namespace ClothResorting.Helpers
         #endregion
 
         //SilkIcon补货订单解决方案：新建generallocationsummary和replenishmentLocationdetail对象作为入库记录和起始操作数据
-        public void UploadReplenishimentLocationDetail(string vendor, string inboundDate, string fileName)
+        public void UploadReplenishimentLocationDetail(int preId, string vendor, string inboundDate, string fileName)
         {
+            //获取该上传库存属于的工作订单
+            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preId);
+
             //首先新建一个generallocationsummay
             _context.GeneralLocationSummaries.Add(new GeneralLocationSummary {
                 CreatedDate = DateTime.Now.ToString("yyyy-MM-dd"),
@@ -757,7 +760,8 @@ namespace ClothResorting.Helpers
                 InboundPcs = 0,
                 Vendor = vendor,
                 UploadedFileName = fileName,
-                Operator = _userName
+                Operator = _userName,
+                PreReceiveOrder = preReceiveOrderInDb
             });
             _context.SaveChanges();
 
@@ -808,7 +812,7 @@ namespace ClothResorting.Helpers
                         GeneralLocationSummary = locationSummaryInDb,
                         Operator = _userName,
                         Status = Status.InStock,
-                        Vendor = Vendor.SilkIcon
+                        Vendor = vendor
                     };
 
                     //判断数据库中是否已经存在该对象的PO，如果临时表poInventoryList和数据库表poInventoryList中都没有，则说明是新PO需要新建一个该对象的PO，否则直接挂钩
@@ -826,7 +830,7 @@ namespace ClothResorting.Helpers
                             OrderType = OrderType.Replenishment,
                             PickingPcs = 0,
                             ShippedPcs = 0,
-                            Vender = Vendor.SilkIcon,
+                            Vender = vendor,
                             PurchaseOrder = locationDetail.PurchaseOrder
                         };
 
@@ -855,7 +859,7 @@ namespace ClothResorting.Helpers
                             PickingPcs = 0,
                             ShippedPcs = 0,
                             AvailablePcs = 0,
-                            Vendor = Vendor.SilkIcon
+                            Vendor = vendor
                         });
                     }
                 }
