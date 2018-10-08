@@ -17,7 +17,7 @@
         <input id="btn-pl" type="button" class="btn btn-primary" value="Search PO in Packing List" />
         <input id="btn-search" type="button" class="btn btn-primary" value="Search Inventory" />
         @*<input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" />*@
-        <input id="silkiconmenu" type="button" class="btn btn-primary" value="Silk Icon Manu" />
+        @*<input id="silkiconmenu" type="button" class="btn btn-primary" value="Silk Icon Manu" />*@
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -209,24 +209,24 @@
                                     return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
                                 else if (workOrderType == "Pre-pack/Pick&Pack")
                                     return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                                else if (workOrderType == "Mix")
-                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
                                 else if (workOrderType == "Replenishment")
                                     return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                                return "";
+                                else
+                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
                             }
-                            else
-                            {
-                                if (customer == "SILK-ICON")
-                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                else if (workOrderType == "Pre-pack/Pick&Pack")
-                                    return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                else if (workOrderType == "Mix")
-                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                else if (workOrderType == "Replenishment")
-                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                return "";
-                            }
+                            return "";
+                            //else
+                            //{
+                            //    if (customer == "SILK-ICON")
+                            //        return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                            //    else if (workOrderType == "Pre-pack/Pick&Pack")
+                            //        return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                            //    else if (workOrderType == "Mix")
+                            //        return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                            //    else if (workOrderType == "Replenishment")
+                            //        return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                            //    return "";
+                            //}
                         }
                     }
                 ]
@@ -321,15 +321,15 @@
             //});
 
             //打开SilkIcon菜单弹窗
-            $("#silkiconmenu").on("click", function () {
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["20%", "20%"],
-                    content: $(".iframe-silkicon")
-                });
-            });
+            //$("#silkiconmenu").on("click", function () {
+            //    index = layer.open({
+            //        title: false,
+            //        type: 1,
+            //        shadeclose: true,
+            //        area: ["20%", "20%"],
+            //        content: $(".iframe-silkicon")
+            //    });
+            //});
 
             $("#btn-search").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/InventorySearch/');

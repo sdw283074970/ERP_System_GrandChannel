@@ -12,5 +12,7 @@ namespace ClothResorting.Models.DataTransferModels
         public string AdjustedPcs { get; set; }
 
         public string Balance { get; set; }
+
+        public string Memo { get; set; }
     }
 }

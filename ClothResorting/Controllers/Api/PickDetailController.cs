@@ -9,6 +9,7 @@ using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Helpers;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -31,12 +32,20 @@ namespace ClothResorting.Controllers.Api
                 .Select(Mapper.Map<PickDetail, PickDetailDto>));
         }
 
-        // GET /api/pickdetail/
+        // GET /api/pickdetail/?orderType={orderType}
         [HttpGet]
-        public IHttpActionResult DownloadPullSheetTemplate()
+        public IHttpActionResult DownloadPullSheetTemplate([FromUri]string orderType)
         {
             var downloader = new Downloader();
-            downloader.DownloadFromServer("PullSheet-Template.xlsx", @"D:\Template\");
+
+            if (orderType == OrderType.Regular)
+            {
+                downloader.DownloadFromServer("RegularPullSheet-Template.xlsx", @"D:\Template\");
+            }
+            else if (orderType == OrderType.Replenishment)
+            {
+                downloader.DownloadFromServer("ReplenishmentLoadPlan-Template.xlsx", @"D:\Template\");
+            }
             return Ok();
         }
 

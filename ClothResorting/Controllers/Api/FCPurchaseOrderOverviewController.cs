@@ -186,7 +186,14 @@ namespace ClothResorting.Controllers.Api
 
             _context.PreReceiveOrders.Remove(preReceiveOrderInDb);
 
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Please delete all general location report under this work order.");
+            }
         }
     }
 }

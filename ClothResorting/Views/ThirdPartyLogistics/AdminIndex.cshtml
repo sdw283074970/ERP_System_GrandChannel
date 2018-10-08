@@ -187,11 +187,10 @@
                                 return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                             else if (workOrderType == "Regular/Fulfillment")
                                 return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            else if (workOrderType == "Mix")
-                                return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                             else if (workOrderType == "Replenishment")
                                 return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            return "<button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";;
+                            else
+                                return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                         }
                     }
                 ]
@@ -381,7 +380,7 @@
                                     });
                                 },
                                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                                         window.location.reload();
                                     });
                                 }

@@ -9,9 +9,7 @@
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
-    </div>
-    <div id="div-bulk">
-        <button class="btn btn-primary btn-bulk">Receive Bulk Cartons</button>
+        <button id="btn-bulk" class="btn btn-primary">Receive Bulk Cartons</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -49,10 +47,20 @@
         </font>
     </div>
 </div>
+<div class="iframe" style="text-align:right;margin-top:20px;margin-right:20px">
+    <text>Carton Range: <input id='input-range' style='width:170px' class='input-sm' placeholder='Carton range' /></text><br />
+    <text>Color: <input id='input-color' style='width:170px' class='input-sm' placeholder='Color' /></text><br />
+    <text>Size: <input id='input-size' style='width:170px' class='input-sm' placeholder='Size or size combination' /></text><br />
+    <text>Units: <input id='input-units' style='width:170px' class='input-sm' placeholder='Units or units combination' /></text><br />
+    <text>Pack: <input id='input-pack' style='width:170px' class='input-sm' placeholder='Units per Carton' /></text><br />
+    <button class='btn btn-primary btn-update'>Add</button>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
+
+            $(".iframe").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -192,8 +200,7 @@
                                     if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange)) {
                                         return "<font color='red'>" + data + "</font>";
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "";
                                     }
                                 }
@@ -201,12 +208,10 @@
                             {
                                 data: "actualCtns",
                                 render: function (data) {
-                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
-                                    {
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange)) {
                                         return "<font color='red'>" + data + "</font>";
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "";
                                     }
                                 }
@@ -214,13 +219,11 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
-                                    {
+                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange)) {
                                         return "<input name='selected' type='checkbox' class='cb-selected' value='"
                                             + data + "' /> No problem";
                                     }
-                                    else
-                                    {
+                                    else {
                                         return "";
                                     }
                                 }
@@ -233,18 +236,15 @@
                                         lastCartonRange = currentCartonRange;
                                         return "";
                                     }
-                                    else if (quantity == 0 && lastCartonRange != currentCartonRange)
-                                    {
+                                    else if (quantity == 0 && lastCartonRange != currentCartonRange) {
                                         lastCartonRange = currentCartonRange;
                                         return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><br /><button style='width:30px' class='btn btn-link btn-manual' value='" + data + "'>OK</button><button style='width:40px' deleteid='" + data + "' class='btn btn-link btn-delete'>X</button>";
                                     }
-                                    else if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
-                                    {
+                                    else if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange)) {
                                         lastCartonRange = currentCartonRange;
                                         return "<input id='" + data + "' type='number' class='input-manual' style='width:50px' value='' /><br /><button style='width:50px' class='btn btn-link btn-manual' value='" + data + "'>OK</button>";
                                     }
-                                    else
-                                    {
+                                    else {
                                         lastCartonRange = currentCartonRange;
                                         return "";
                                     }
@@ -288,6 +288,11 @@
                     dataType: "json",
                     success: function (data) {
                         location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
 
@@ -315,18 +320,23 @@
                         alert("Update success!");
                         window.history.back(-1);
                     },
-                    error: function () {
-                        alert("An error occured!");
-                        alert(JSON.stringify(arr));
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             });
 
-            //点击添加散货按钮，出现一系列表单
-            $("#div-bulk").on("click", ".btn-bulk", function () {
-                var button = $(this);
-                button.next().remove();
-                button.replaceWith("<div><input id='input-range' style='width:170px' class='input-sm' placeholder='Carton range' /><input id='input-color' style='width:170px' class='input-sm' placeholder='Color code' /><input id='input-size' style='width:170px' class='input-sm' placeholder='Size or size combination' /><input id='input-units' style='width:170px' class='input-sm' placeholder='Units or units combination' /><input id='input-pack' style='width:170px' class='input-sm' placeholder='Units per Carton' /><button class='btn btn-primary btn-update'>Add</button><div>");
+            //点击添加散货按钮，弹出表单
+            $("#btn-bulk").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["300px", "300px"],
+                    content: $(".iframe")
+                });
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
@@ -337,12 +347,10 @@
                 var pcsPerCarton = $("#input-pack").val();
                 var cartonRange = $("#input-range").val();
 
-                if (color == "" || size == "" || units == "" || pcsPerCarton == "")
-                {
+                if (color == "" || size == "" || units == "" || pcsPerCarton == "") {
                     alert("All fields are required.");
                 }
-                else
-                {
+                else {
                     var obj = {
                         "id": id,
                         "cartonRange": cartonRange.toString(),
@@ -363,8 +371,10 @@
                             $(this).parent().replaceWith("<button class='btn btn-primary btn-bulk'>Receive Bulk Cartons</button><button id='undo' class='btn btn-danger'>Undo</button>");
                             window.location.reload();
                         },
-                        error: function () {
-                            alert("Add failed.");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 }
@@ -386,8 +396,9 @@
                                 window.location.reload();
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                                window.location.reload();
+                                alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
                             }
                         });
                     }

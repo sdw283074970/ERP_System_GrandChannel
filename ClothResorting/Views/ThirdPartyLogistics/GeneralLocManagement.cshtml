@@ -124,7 +124,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button locid='" + data + "' class='btn btn-link btn-view'>View Location</button>";
+                                    return "<button locid='" + data + "' class='btn btn-link btn-view'>View Location</button><button locid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
                                 }
                             }
                         ]
@@ -189,9 +189,33 @@
                 }
             });
 
+            //查看上传的入库报告细节
             $("#table").on("click", ".btn-view", function () {
                 var id = $(this).attr('locid');
                 $(window.location).attr('href', "/thirdpartylogistics/GeneralLocDetail/?generalLocationSummaryId=" + id)
+            });
+
+            //删除选中的入库报告，并在统计中同步移除数据
+            $("#table").on("click", ".btn-delete", function () {
+
+                var id = $(this).attr('locid');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/generallocmanagement/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        layer.alert("Delete success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            location.reload();
+                        });
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

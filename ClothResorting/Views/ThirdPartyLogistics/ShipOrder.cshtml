@@ -64,6 +64,7 @@
             var status;
             var orderType;
             var index;
+            var vendor;
             $(".iframe").hide();
 
             //动态获取Vendor数据
@@ -114,6 +115,7 @@
                             {
                                 data: "vendor",
                                 render: function (data) {
+                                    vendor = data;
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -199,25 +201,22 @@
                                             return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
                                         }
                                         else if (status == "Picking" || status == "Ready") {
-                                            return "<button id='" + data + "'class='btn btn-link btn-fcpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
+                                            return "<button id='" + data + "'class='btn btn-link btn-regularpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
                                         }
                                         else {
-                                            return "<button id='" + data + "'class='btn btn-link btn-fcpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
+                                            return "<button id='" + data + "'class='btn btn-link btn-regularpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                         }
                                     }
-                                    else if (orderType == "Replenishment") {
+                                    else{
                                         if (status == "Shipped") {
                                             return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
                                         }
                                         else if (status == "Picking" || status == "Ready") {
-                                            return "<button id='" + data + "'class='btn btn-link btn-sipick'>Pick</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
+                                            return "<button id='" + data + "'class='btn btn-link btn-replenishmentpick'>Pick</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
                                         }
                                         else {
-                                            return "<button id='" + data + "'class='btn btn-link btn-sipick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
+                                            return "<button id='" + data + "'class='btn btn-link btn-replenishmentpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button>"
                                         }
-                                    }
-                                    else {
-                                        return "";
                                     }
                                 }
                             }
@@ -229,21 +228,10 @@
                 }
             });
 
-            //点击创建新运单按钮，打开新建弹窗
-            $("#btn-create").click(function () {
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["400px", "300px"],
-                    content: $(".iframe")
-                });
-            })
-
-            //Free Country的菜单
-            $("#table").on("click", ".btn-fcpick", function () {
+            //Regular类型订单的发货菜单
+            $("#table").on("click", ".btn-regularpick", function () {
                 var button = $(this);
-                $(window.location).attr('href', '/thirdpartylogistics/pickdetail/?shipOrderId=' + button.attr('id'));
+                $(window.location).attr('href', '/thirdpartylogistics/pickdetail/?shipOrderId=' + button.attr('id') + "&orderType=Regular");
             });
 
             $("#table").on("click", ".btn-diag", function () {
@@ -251,10 +239,10 @@
                 $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?shipOrderId=' + button.attr('value'));
             });
 
-            //Silk Icon的菜单
-            $("#table").on("click", ".btn-sipick", function () {
+            //Replenihment类型订单的发货菜单
+            $("#table").on("click", ".btn-replenishmentpick", function () {
                 var button = $(this);
-                $(window.location).attr('href', '/thirdpartylogistics/pickreplenishmentorder/?shipOrderId=' + button.attr('id'));
+                $(window.location).attr('href', '/thirdpartylogistics/pickreplenishmentorder/?shipOrderId=' + button.attr('id') + "&orderType=Replenishment");
             });
 
             //共有菜单
@@ -346,12 +334,16 @@
                 $(window.location).attr('href', '/api/pullsheetpdf/' + id);
             });
 
-            //点击新建发货单按钮，出现一系列表单
-            //$("#div-create").on("click", ".btn-create", function () {
-            //    var button = $(this);
-            //    button.next().remove();
-            //    button.replaceWith("<div><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase order' /><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'><option class='option-select' value='Free Country'>Vendor: Free Country</option><option class='option-select' value='Silk Icon'>Vendor: Silk Icon</option></select><select id='select-ordertype' style='width:170px;height:30px' required='required'><option value='Regular'>Order Type: Regular</option></select><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><button class='btn btn-primary btn-add'>New ship order</button><div>");
-            //});
+            //点击创建新运单按钮，打开新建运单弹窗
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "300px"],
+                    content: $(".iframe")
+                });
+            })
 
             //在新建订单选择vendor时，选择free country将只有一种order type可选，先择silk icon将有两种
             $("#select-vendor").on("change", function () {

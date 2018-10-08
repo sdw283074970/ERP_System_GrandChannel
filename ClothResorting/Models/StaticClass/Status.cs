@@ -39,5 +39,6 @@ namespace ClothResorting.Models.StaticClass
 
         public const string Allocated = "Allocated";
 
+        public const string Delete = "Deleted";
     }
 }

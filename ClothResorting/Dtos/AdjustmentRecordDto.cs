@@ -20,5 +20,7 @@ namespace ClothResorting.Dtos
         public string Adjustment { get; set; }
 
         public DateTime AdjustDate { get; set; }
+
+        public string Memo { get; set; }
     }
 }

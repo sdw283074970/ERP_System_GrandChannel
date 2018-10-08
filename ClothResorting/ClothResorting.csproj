@@ -1049,6 +1049,10 @@
     <Compile Include="Migrations\201810052305148_ConnectedGeneralLocManagementWithPreReceiveOrder.Designer.cs">
       <DependentUpon>201810052305148_ConnectedGeneralLocManagementWithPreReceiveOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810082304583_AddedMemoInAdjustmentRecord.cs" />
+    <Compile Include="Migrations\201810082304583_AddedMemoInAdjustmentRecord.Designer.cs">
+      <DependentUpon>201810082304583_AddedMemoInAdjustmentRecord.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2040,6 +2044,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810052305148_ConnectedGeneralLocManagementWithPreReceiveOrder.resx">
       <DependentUpon>201810052305148_ConnectedGeneralLocManagementWithPreReceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810082304583_AddedMemoInAdjustmentRecord.resx">
+      <DependentUpon>201810082304583_AddedMemoInAdjustmentRecord.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

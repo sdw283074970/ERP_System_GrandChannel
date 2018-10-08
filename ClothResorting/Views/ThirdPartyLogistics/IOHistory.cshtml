@@ -251,7 +251,7 @@
                 $("#change-date").html("Adjusted Date");
                 $("#change-pcs").html("Adjusted Pcs");
                 $("#memo1").html("Balance");
-                $("#memo2").html("Memo2");
+                $("#memo2").html("Memo");
 
                 $.ajax({
                     type: "POST",
@@ -287,9 +287,9 @@
                                     }
                                 },
                                 {
-                                    data: "balance",
+                                    data: "memo",
                                     render: function (data) {
-                                        return "<text></text>";
+                                        return "<text>" + data + "</text>";
                                     }
                                 }
                             ]

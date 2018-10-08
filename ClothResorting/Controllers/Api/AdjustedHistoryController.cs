@@ -37,7 +37,8 @@ namespace ClothResorting.Controllers.Api
                 adjustedRecordList.Add(new AdjustedRecord {
                     AdjustedDate = record.AdjustDate,
                     AdjustedPcs = record.Adjustment,
-                    Balance = record.Balance
+                    Balance = record.Balance,
+                    Memo = record.Memo
                 });
             }
 

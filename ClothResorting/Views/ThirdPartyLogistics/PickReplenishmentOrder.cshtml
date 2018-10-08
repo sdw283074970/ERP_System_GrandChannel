@@ -12,7 +12,7 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div id="div-function">
-        <input type="button" class="btn btn-group btn-create" value="Upload load plan" /><button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button><input type="button" class="btn btn-info btn-update" value="Update picking info" /><button class="btn btn-primary btn-pickbulk">Pick bulk item</button>
+        <input type="button" class="btn btn-group btn-create" value="Upload Pull Sheet/Load Plan" /><button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button><input type="button" class="btn btn-info btn-update" value="Update picking info" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -74,6 +74,7 @@
 
             //从地址栏获取参数
             var shipOrderId = getUrlParameter('shipOrderId');
+            var orderType = getUrlParameter('orderType');
 
             $.ajax({
                 type: "GET",
@@ -95,7 +96,7 @@
                             {
                                 data: "status",
                                 render: function (data) {
-                                    if(data == "Picking")
+                                    if (data == "Picking")
                                         return "<font color='red'>" + data + "</font>";
                                     else
                                         return "<font color='blue'>" + data + "</font>";
@@ -266,12 +267,10 @@
                 var pcs = $("#input-pbpcs").val();
                 var pbLocation = $("#input-location").val();
 
-                if (container == "" || po == "" || style == "" || color == ""  || customer == ""  || sizeBundle == ""  || pcsBundle == ""  || pack == ""  || cartons == ""  || pcs == ""  || pbLocation == "")
-                {
+                if (container == "" || po == "" || style == "" || color == "" || customer == "" || sizeBundle == "" || pcsBundle == "" || pack == "" || cartons == "" || pcs == "" || pbLocation == "") {
                     alert("All feilds are required.");
                 }
-                else
-                {
+                else {
                     var obj = {
                         "shipOrderId": shipOrderId,
                         "container": container.toString(),
@@ -310,7 +309,7 @@
 
             //点击下载模板按钮下载loadplan模板
             $("#div-function").on("click", ".btn-template", function () {
-                $(window.location).attr('href', '/api/loadplan/');
+                $(window.location).attr('href', '/api/pickdetail/?orderType=' + orderType);
             });
 
             //点击更新"拣货信息(发货日期，拣货人等)"按钮，出现一系列表单
@@ -346,367 +345,8 @@
             });
 
             $(".btn-back").on("click", function () {
-                //window.history.back(-1);
                 window.location.replace("/ThirdPartyLogistics/shiporder");
             });
         });
     </script>
 }
-
-
-@*<div>
-    <div>
-        <input type="button" class="btn btn-default btn-back" value="<< Back" />
-    </div>
-    <div>
-        <input id="btn-loadplan" type="button" class="btn btn-info" value="Upload load plan File" />
-    </div>
-    <div>
-        <div>
-            <font>
-                OPO:
-                <input id="opo" style="width:100px" />
-            </font>
-            <font>
-                PO:
-                <input id="po" style="width:100px" />
-            </font>
-            <font>
-                Style:
-                <input id="style" style="width:100px" />
-            </font>
-            <font>
-                Color:
-                <input id="color" style="width:100px" />
-            </font>
-            <font>
-                Size:
-                <input id="size" style="width:100px" />
-            </font>
-            <font>
-                Pcs:
-                <input id="pcs" style="width:100px" />
-            </font>
-            <input id="btn-outbound" type="button" class="btn btn-info" value="Single outbound" />
-        </div>
-    </div>
-    <div>
-        <table id="table" class="table table-condensed table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>Permanent Loc</th>
-                    <th>OPO</th>
-                    <th>PO</th>
-                    <th>Style</th>
-                    <th>Color</th>
-                    <th>Size</th>
-                    <th>Target Pcs</th>
-                    <th>Inv Before</th>
-                    <th>Inv Change</th>
-                    <th>Inv Balance</th>
-                    <th>From Location</th>
-                    <th>Target Balance</th>
-                    <th>Operation Date</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>
-<div class="iframe">
-    <div>
-        <input id="upload3" type="file" accept="xls/xlsx" />
-    </div>
-    <div>
-        <input id="uploadfile2" type="button" class="btn btn-default" value="上传文件" />
-    </div>
-</div>
-@section scripts
-{
-    <script>
-        $(document).ready(function () {
-            var index;
-            var table;
-            $(".iframe").hide();
-
-            //打开上传按钮界面事件
-            $("#btn-loadplan").click(function () {
-                layui.use("layer", function () {
-                    var layer = layui.layer;
-
-                    index = layer.open({
-                        title: false,
-                        type: 1,
-                        shadeclose: true,
-                        area: ["40%", "40%"],
-                        content: $(".iframe")
-                    });
-                });
-            });
-
-            //上传文件按钮事件，批量商品按照loadplan出库
-            $("#uploadfile2").on("click", function () {
-                var formData = new FormData();
-                var files = $("#upload3").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                $.ajax({
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    type: "POST",
-                    url: "/api/replenishmentOrderOutbound",
-                    data: formData,
-                    beforeSend: function () {
-                        layer.close(index);
-
-                        layui.use('layer', function () {
-                            var layer = layui.layer;
-                            index = layer.msg('Extracting files...', {
-                                icon: 16,
-                                shade: 0.01,
-                                time: 99 * 1000
-                            });;
-                        });
-                    },
-                    success: function (data) {
-
-                        layer.close(index);
-
-                        if (table)
-                        {
-                            table.destroy();
-                        }
-
-                        $("#table").DataTable({
-                            destroy: true,
-                            data: data,
-                            columns: [
-                                {
-                                    data: "permanentLoc",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "orderPurchaseOrder",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "purchaseOrder",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "style",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "color",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "size",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "targetPcs",
-                                    render: function (data) {
-                                        return "<font color='blue'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "invBefore",
-                                    render: function (data) {
-                                        return "<font color='green'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "invChange",
-                                    render: function (data) {
-                                        return "<font color='red'>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "invAfter",
-                                    render: function (data) {
-                                        return "<font color='green'>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "fromLocation",
-                                    render: function (data) {
-                                        return "<font color='orange'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "targetBalance",
-                                    render: function (data) {
-                                        return "<font color='blue'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "operationDate",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                }
-                            ]
-                        });
-                    },
-                    error: function (data) {
-                        alert("Error");
-                    }
-                });
-
-                $(".iframe").hide();
-            });
-
-            //单件商品对象出库
-            $("#btn-outbound").on("click", function () {
-                var opo = $("#opo").val().toString();
-                var po = $("#po").val().toString();
-                var style = $("#style").val().toString();
-                var color = $("#color").val().toString();
-                var size = $("#size").val().toString();
-                var pcs = $("#pcs").val();
-
-                if (opo == "" || po == "" || style == "" || color == "" || pcs == "")
-                {
-                    alert("All fiels are required!");
-                }
-                else
-                {
-                    var obj = {
-                        "orderPurchaseOrder": opo,
-                        "purchaseOrder": po,
-                        "style": style,
-                        "color": color,
-                        "size": size,
-                        "targetPcs": pcs
-                    };
-
-                    $.ajax({
-                        type: "POST",
-                        url: "/api/ReplenishmentSingleOrderOutbound",
-                        contentType: 'application/json; charset=utf-8',
-                        data: JSON.stringify(obj),
-                        dataType: "json",
-                        success: function (data) {
-                            if (table) {
-                                table.destroy();
-                            }
-
-                            $("#table").DataTable({
-                                destroy: true,
-                                data: data,
-                                columns: [
-                                    {
-                                        data: "permanentLoc",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "orderPurchaseOrder",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "purchaseOrder",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "style",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "color",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "size",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "targetPcs",
-                                        render: function (data) {
-                                            return "<font color='blue'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "invBefore",
-                                        render: function (data) {
-                                            return "<font color='green'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "invChange",
-                                        render: function (data) {
-                                            return "<font color='red'>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "invAfter",
-                                        render: function (data) {
-                                            return "<font color='green'>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "fromLocation",
-                                        render: function (data) {
-                                            return "<font color='orange'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "targetBalance",
-                                        render: function (data) {
-                                            return "<font color='blue'>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "operationDate",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    }
-                                ]
-                            });
-                        },
-                        error: function (data) {
-                            alert("Invalid Permanent Location.");
-                        }
-                    });
-                }
-            });
-
-
-            $(".btn-back").on("click", function () {
-                window.history.back(-1);
-            });
-
-        });
-    </script>
-}*@
-
