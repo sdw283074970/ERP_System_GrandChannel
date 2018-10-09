@@ -55,6 +55,7 @@
             <option value='Mix' style='width:170px;height:30px'>Mix</option>
             <option value="Replenishment">Replenishment</option>
         </select><br />
+        <font color="red">*Note: Replenishment type cannot mix with any other types.</font><br />
         <input id="upload2" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
         <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Regular Packing List" /><br />
     </div>
@@ -66,13 +67,13 @@
 </div>
 <div class="iframe-replenishmentmenu">
     <div style="margin-top:15px;text-align:center">
-        <button style="margin-top:10px" id="btn-generalallocate" class="btn btn-info">General Location Management</button><br />
-        <button style="margin-top:10px" id="btn-pomanagement" class="btn btn-info">Purchase Order Management</button>
+        <button style="margin-top:10px" id="btn-generalallocate" class="btn btn-info">Allocate Replenishment Location</button><br />
+        <button style="margin-top:10px" id="btn-pomanagement" class="btn btn-info">Manage Purchase Order</button>
     </div>
 </div>
 <div class="iframe-regularmenu">
     <div style="margin-top:15px;text-align:center">
-        <input style="margin-top:10px" id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" /><br />
+        <input style="margin-top:10px" id="btn-allocate" type="button" class="btn btn-info" value="Allocate Regular location" /><br />
         <input style="margin-top:10px" id="btn-location" type="button" class="btn btn-info" value="View inventory" />
     </div>
 </div>
@@ -306,7 +307,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "20%"],
+                    area: ["400px", "200px"],
                     content: $(".iframe")
                 });
             });

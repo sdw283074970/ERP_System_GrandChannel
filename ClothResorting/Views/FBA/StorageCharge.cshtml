@@ -10,9 +10,7 @@
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
-    </div>
-    <div id="div-button">
-        <input type="button" class="btn btn-primary btn-create" value="Create New Charge Template" />
+        <input id="btn-create" type="button" class="btn btn-primary" value="Create New Charge Template" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -58,12 +56,32 @@
         </table>
     </div>
 </div>
+<div class="iframe-create">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Template Name: </text><input id='input-templatename' style='width:170px' class='input-sm' placeholder='Template Name' /><br />
+        <text>Customer Name: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer Name' /><br />
+        <text>Charge Period: </text>
+        <select id="select-timeunit" style="width:170px;height:30px">
+            <option value="Day">Day</option>
+            <option value="Week">Week</option>
+            <option value="Month">Month</option>
+        </select><br />
+        <text>Select Currancy: </text>
+        <select id="select-currency" style="width:170px;height:30px">
+            <option value="USD">USD</option>
+            <option value="RMB">RMB</option>
+            <option value="EUR">EUR</option>
+        </select><br />
+        <button id="btn-new" class='btn btn-primary'>Create</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
             $(".iframe").hide();
+            $(".iframe-create").hide();
             var index;
             var templateId;
 
@@ -125,18 +143,23 @@
                 }
             });
 
-            //点击添加收费模板按钮，出现一系列表单
-            $("#div-button").on("click", ".btn-create", function () {
-                var button = $(this);
-                button.replaceWith("<input id='input-templatename' style='width:170px' class='input-sm' placeholder='Template Name' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer Name' /><input id='input-timeunit' style='width:170px' class='input-sm' placeholder='Time Unit' /><input id='input-currency' style='width:170px' class='input-sm' placeholder='Currency' /><button class='btn btn-primary btn-new'>Create</button>");
+            //点击添加收费模板按钮，打开新建收费模板弹窗
+            $("#btn-create").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe-create")
+                });
             });
 
             //点击Create按钮，添加数据到数据库
-            $("#div-button").on("click", ".btn-new", function () {
+            $("#btn-new").on("click", function () {
                 var templateName = $("#input-templatename").val() == "" ? "Default Template" : $("#input-templatename").val().toString();
                 var customer = $("#input-customer").val() == "" ? "Default Customer" : $("#input-customer").val().toString();
-                var timeUnit = $("#input-timeunit").val() == "" ? "Day" : $("#input-timeunit").val().toString();
-                var currency = $("#input-currency").val() == "" ? "USD" : $("#input-currency").val().toString();
+                var timeUnit = $("#select-timeunit option:selected").val();
+                var currency = $("#select-currency option:selected").val();
 
                 var url = "/api/fba/chargetemplate/?templateName=" + templateName + "&customer=" + customer + "&timeunit=" + timeUnit + "&currency=" + currency;
 
@@ -225,7 +248,6 @@
                                         }
                                         else if (data == 2) {
                                             return "<text>2nd " + timeUnit + "</text>";
-
                                         }
                                         else if (data == 3) {
                                             return "<text>3rd " + timeUnit + "</text>";
@@ -288,18 +310,16 @@
             $("#uploadfile").on("click", function () {
                 var formData = new FormData();
                 var files = $("#upload").get(0).files;
-                
+
                 var lastBillingDate = $("#input-lastbillingdate").val();
                 var currentBillingDate = $("#input-currentbillingdate").val();
 
                 alert(lastBillingDate);
 
-                if (lastBillingDate == "" || currentBillingDate == "")
-                {
+                if (lastBillingDate == "" || currentBillingDate == "") {
                     alert("All the dates are required.");
                 }
-                else
-                {
+                else {
                     if (files.length > 0) {
                         formData.append("fileName", files[0]);
 

@@ -1,5 +1,6 @@
 ﻿using ClothResorting.Models;
 using ClothResorting.Models.FBAModels;
+using ClothResorting.Models.FBAModels.StaticModels;
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
@@ -143,13 +144,32 @@ namespace ClothResorting.Helpers
             var timeSpan = endDt.Subtract(startDt);
             double duration = 0;
 
-            if (timeUnit == "Week")
+            if (timeUnit == TimeUnit.Week)
             {
                 duration = Math.Ceiling((double)timeSpan.Days / 7);
+
+                //计算从入库日期开始到本账单日开始计算时间这点时间内，是否为7天的倍数。如果是，则正常计算，否则，算出的周数要减1，因为在上一个账单日就已经计算过本周残余的天数了
+                var lastTimeSpan = lastBillingDt.Subtract(inboundDt);
+                if (Math.Ceiling((double)lastTimeSpan.Days % 7) != 0)
+                {
+                    duration -= 1;
+                }
             }
-            else
+            else if (timeUnit == TimeUnit.Month)
             {
-                duration = Math.Ceiling((double)timeSpan.Days / 7);
+                duration = Math.Ceiling((double)timeSpan.Days / 30);
+
+                //计算从入库日期开始到本账单日开始计算时间这点时间内，是否为30天的倍数。如果是，则正常计算，否则，算出的月数要减1，因为在上一个账单日就已经计算过本月残余的天数了
+                var lastTimeSpan = lastBillingDt.Subtract(inboundDt);
+                if (Math.Ceiling((double)lastTimeSpan.Days % 30) != 0)
+                {
+                    duration -= 1;
+                }
+            }
+            else if (timeUnit == TimeUnit.Day)
+            {
+                duration = Math.Ceiling((double)timeSpan.Days);
+                var lastTimeSpan = lastBillingDt.Subtract(inboundDt);
             }
 
             return (int)duration;

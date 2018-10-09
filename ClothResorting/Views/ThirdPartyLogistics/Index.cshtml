@@ -205,28 +205,26 @@
                         render: function (data) {
                             if (quantity != 0)
                             {
-                                if (customer == "SILK-ICON")
-                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
-                                else if (workOrderType == "Pre-pack/Pick&Pack")
+                                //if (customer == "SILK-ICON")
+                                //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
+                                if (workOrderType == "Pre-pack/Pick&Pack")
                                     return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
                                 else if (workOrderType == "Replenishment")
                                     return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
                                 else
                                     return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
                             }
-                            return "";
-                            //else
-                            //{
-                            //    if (customer == "SILK-ICON")
-                            //        return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            //    else if (workOrderType == "Pre-pack/Pick&Pack")
-                            //        return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            //    else if (workOrderType == "Mix")
-                            //        return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            //    else if (workOrderType == "Replenishment")
-                            //        return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            //    return "";
-                            //}
+                            else
+                            {
+                                //if (customer == "SILK-ICON")
+                                //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                if (workOrderType == "Pre-pack/Pick&Pack")
+                                    return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                else if (workOrderType == "Replenishment")
+                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                else
+                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                            }
                         }
                     }
                 ]
