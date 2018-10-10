@@ -22,18 +22,19 @@
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
                 <tr>
-                    <th style="width:23px">Id</th>
+                    <th style="width:39px">Id</th>
                     <th @*style="width:49px"*@>PO</th>
                     <th style="width:79px">Vendor</th>
                     <th style="width:79px">Order Type</th>
                     <th style="width:79px">Customer</th>
+                    <th style="width:63px">Dpt.</th>
                     <th @*style="width:254px"*@>Address</th>
                     <th style="width:141px">Pick tickets range</th>
                     <th style="width:83px">Create date</th>
                     <th style="width:73px">Create By</th>
                     <th style="width:63px">Pick date</th>
                     <th style="width:63px">Pick man</th>
-                    <th style="width:63px">Status</th>
+                    <th style="width:83px">Status</th>
                     <th style="width:83px">Shipped By</th>
                     <th>Operation</th>
                 </tr>
@@ -67,6 +68,24 @@
             var vendor;
             $(".iframe").hide();
 
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var departmentCode = getUrlParameter('departmentCode');
+
             //动态获取Vendor数据
             $.ajax({
                 type: "GET",
@@ -87,7 +106,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/shiporder/",
+                url: "/api/shiporder/?departmentCode=" + departmentCode,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -128,6 +147,12 @@
                             },
                             {
                                 data: "customer",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "departmentCode",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -375,7 +400,8 @@
                         "address": address.toString(),
                         "pickTicketsRange": range.toString(),
                         "vendor": vendor.toString(),
-                        "orderType": orderType.toString()
+                        "orderType": orderType.toString(),
+                        "departmentCode": departmentCode.toString()
                     }
                     $.ajax({
                         type: "POST",

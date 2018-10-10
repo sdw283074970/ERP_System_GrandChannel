@@ -209,5 +209,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //Invoice管理页面
+        public ActionResult InvoiceMangement()
+        {
+            return View();
+        }
     }
 }

@@ -32,5 +32,7 @@ namespace ClothResorting.Dtos
         public string Vendor { get; set; }
 
         public string OrderType { get; set; }
+
+        public string DepartmentCode { get; set; }
     }
 }

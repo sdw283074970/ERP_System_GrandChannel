@@ -11,8 +11,12 @@ namespace ClothResorting.Models
 
         public string Name { get; set; }
 
-        public string Department { get; set; }
+        public string DepartmentCode { get; set; }
 
         public ICollection<PreReceiveOrder> WorkOrders { get; set; }
+
+        public ICollection<ChargingItem> ChargingItems { get; set; }
+
+        public ICollection<Invoice> Invoices { get; set; }
     }
 }

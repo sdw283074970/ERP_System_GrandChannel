@@ -33,6 +33,8 @@ namespace ClothResorting.Models
 
         public string OrderType { get; set; }
 
+        public string DepartmentCode { get; set; }
+
         public ICollection<PickDetail> PickDetails { get; set; }
 
         public ICollection<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }

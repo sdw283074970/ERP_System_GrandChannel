@@ -37,6 +37,9 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<Container, ContainerDto>();
             Mapper.CreateMap<GeneralLocationSummary, GeneralLocationSummaryDto>();
             Mapper.CreateMap<UpperVendor, UpperVendorDto>();
+            Mapper.CreateMap<ChargingItem, ChargingItemDto>();
+            Mapper.CreateMap<Invoice, InvoiceDto>();
+            Mapper.CreateMap<InvoiceDetail, InvoiceDetailDto>();
 
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();

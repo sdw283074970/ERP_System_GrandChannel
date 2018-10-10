@@ -51,6 +51,9 @@ namespace ClothResorting.Models
         public DbSet<Container> Containers { get; set; }
         public DbSet<GeneralLocationSummary> GeneralLocationSummaries { get; set; }
         public DbSet<UpperVendor> UpperVendors { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
+        public DbSet<ChargingItem> ChargingItems { get; set; }
 
         public static ApplicationDbContext Create()
         {

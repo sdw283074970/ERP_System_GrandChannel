@@ -301,11 +301,14 @@
     <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
     <Compile Include="Dtos\AdjustmentRecordDto.cs" />
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
+    <Compile Include="Dtos\ChargingItemDto.cs" />
     <Compile Include="Dtos\ContainerDto.cs" />
     <Compile Include="Dtos\Fba\ChargeMethodDto.cs" />
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
+    <Compile Include="Dtos\InvoiceDetailDto.cs" />
+    <Compile Include="Dtos\InvoiceDto.cs" />
     <Compile Include="Dtos\ReplenishmentLocationDetailDto.cs" />
     <Compile Include="Dtos\MeasurementDto.cs" />
     <Compile Include="Dtos\PermanentLocationDto.cs" />
@@ -1053,6 +1056,14 @@
     <Compile Include="Migrations\201810082304583_AddedMemoInAdjustmentRecord.Designer.cs">
       <DependentUpon>201810082304583_AddedMemoInAdjustmentRecord.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810101711073_AddedInvoiceAndInvoiceDetailsAndChargingItemsDbSets.cs" />
+    <Compile Include="Migrations\201810101711073_AddedInvoiceAndInvoiceDetailsAndChargingItemsDbSets.Designer.cs">
+      <DependentUpon>201810101711073_AddedInvoiceAndInvoiceDetailsAndChargingItemsDbSets.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810101741110_ChangedDepartmentToDepartmentCode.cs" />
+    <Compile Include="Migrations\201810101741110_ChangedDepartmentToDepartmentCode.Designer.cs">
+      <DependentUpon>201810101741110_ChangedDepartmentToDepartmentCode.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1094,6 +1105,7 @@
     <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
     <Compile Include="Models\CartonInside.cs" />
+    <Compile Include="Models\ChargingItem.cs" />
     <Compile Include="Models\Container.cs" />
     <Compile Include="Models\DataTransferModels\AdjustedRecord.cs" />
     <Compile Include="Models\DataTransferModels\Bulkload.cs" />
@@ -1111,6 +1123,8 @@
     <Compile Include="Models\FCRegularLocationDetail.cs" />
     <Compile Include="Models\GeneralLocationSummary.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
+    <Compile Include="Models\Invoice.cs" />
+    <Compile Include="Models\InvoiceDetail.cs" />
     <Compile Include="Models\ReplenishmentLocationDetail.cs" />
     <Compile Include="Models\PermanentLocation.cs" />
     <Compile Include="Models\PermanentLocIORecord.cs" />
@@ -1498,6 +1512,7 @@
     <Content Include="Views\ThirdPartyLogistics\GeneralLocDetail.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\PackingListSearch.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\MixPurchaseOrderOverview.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\InvoiceManagement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2048,6 +2063,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810082304583_AddedMemoInAdjustmentRecord.resx">
       <DependentUpon>201810082304583_AddedMemoInAdjustmentRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810101711073_AddedInvoiceAndInvoiceDetailsAndChargingItemsDbSets.resx">
+      <DependentUpon>201810101711073_AddedInvoiceAndInvoiceDetailsAndChargingItemsDbSets.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810101741110_ChangedDepartmentToDepartmentCode.resx">
+      <DependentUpon>201810101741110_ChangedDepartmentToDepartmentCode.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

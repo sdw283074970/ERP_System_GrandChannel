@@ -28,12 +28,13 @@ namespace ClothResorting.Controllers.Api
             _manager = new ShipOrderManager();
         }
 
-        // GET /api/ShipOrder/ 查询
+        // GET /api/ShipOrder/?departmentCode={departmentCode} 查询
         [HttpGet]
-        public IHttpActionResult GetAllShipOrder()
+        public IHttpActionResult GetAllShipOrder([FromUri]string departmentCode)
         {
             var resultDto = _context.ShipOrders.OrderByDescending(x => x.Id)
-                .Where(x => x.Id > 0).Select(Mapper.Map<ShipOrder, ShipOrderDto>);
+                .Where(x => x.DepartmentCode == departmentCode)
+                .Select(Mapper.Map<ShipOrder, ShipOrderDto>);
 
             return Ok(resultDto);
         }
@@ -54,7 +55,8 @@ namespace ClothResorting.Controllers.Api
                 Operator = _userName,
                 Vendor = obj.Vendor,
                 ShippingMan = Status.Unassigned,
-                OrderType = obj.OrderType
+                OrderType = obj.OrderType,
+                DepartmentCode = obj.DepartmentCode
             });
 
             _context.SaveChanges();
