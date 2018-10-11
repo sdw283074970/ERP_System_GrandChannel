@@ -21,6 +21,22 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
+        //GET /api/index/?departmentCode={departmentCode} 获取指定部门的所有的PreReceiveOrders(work order)
+        public IHttpActionResult GetPrereceiveOrder([FromUri]string departmentCode)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var preReceiveOrderLists = _context.PreReceiveOrders
+                .Include(x => x.UpperVendor)
+                .Where(x => x.UpperVendor.DepartmentCode == departmentCode)
+                .Select(Mapper.Map<PreReceiveOrder, PreReceiveOrdersDto>);
+
+            return Ok(preReceiveOrderLists);
+        }
+
         // POST /api/index/?orderType={orderType}&vendor={vendor}
         [HttpPost]
         public IHttpActionResult CreateNewPrereceiveOrder([FromUri]string orderType, [FromUri]string vendor)

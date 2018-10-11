@@ -13,11 +13,10 @@
     </div>
     <div>
         <input id="btn-create" type="button" class="btn btn-group" value="Creat An Empty Work Order" />
-        <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" />
-        <input id="btn-pl" type="button" class="btn btn-primary" value="Search PO in Packing List" />
+        <input id="btn-pl" type="button" class="btn btn-primary" value="Search Packing List" />
         <input id="btn-search" type="button" class="btn btn-primary" value="Search Inventory" />
-        @*<input id="freecountrymenu" type="button" class="btn btn-primary" value="Free Country Manu" />*@
-        @*<input id="silkiconmenu" type="button" class="btn btn-primary" value="Silk Icon Manu" />*@
+        <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" />
+        <input id="btn-invoice" type="button" class="btn btn-primary" value="Manage Invoice" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -65,18 +64,11 @@
         <button id="create1" style="margin-top:10px" class="btn btn-primary">Create</button>
     </div>
 </div>
-@*<div class="iframe-freecountry">
-    <div style="margin-top:10px;text-align:center">
-    </div>
-</div>*@
 <div class="iframe-silkicon">
     <div style="margin-top:15px;text-align:center">
         <a href="/thirdpartylogistics/generallocmanagement/">
             <input style="margin-top:5px" type="button" class="btn btn-info btn-managelocation" value="Manage general location" />
         </a>
-        @*<a href="/ThirdPartyLogistics/PermanentLocManagement/">
-            <input style="margin-top:5px" id="btn-location" type="button" class="btn btn-info" value="Manage Permanent Location" />
-        </a>*@
         <a href="/ThirdPartyLogistics/PurchaseOrderManagement">
             <input style="margin-top:5px" id="btn-po" type="button" class="btn btn-info" value="Manage Purchase Order" />
         </a>
@@ -102,7 +94,7 @@
             //动态获取Vendor数据
             $.ajax({
                 type: "GET",
-                url: "/api/uppervendor/",
+                url: "/api/uppervendor/?departmentCode=CD",
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -120,7 +112,7 @@
 
             $("#table").DataTable({
                 ajax: {
-                    url: "/api/Inventory",
+                    url: "/api/index/?departmentCode=CD",
                     dataSrc: ""
                 },
                 order: [[0, "desc"]],
@@ -307,28 +299,6 @@
                 }
             });
 
-            //打开FreeCountry菜单弹窗
-            //$("#freecountrymenu").on("click", function () {
-            //    index = layer.open({
-            //        title: false,
-            //        type: 1,
-            //        shadeclose: true,
-            //        area: ["20%", "20%"],
-            //        content: $(".iframe-freecountry")
-            //    });
-            //});
-
-            //打开SilkIcon菜单弹窗
-            //$("#silkiconmenu").on("click", function () {
-            //    index = layer.open({
-            //        title: false,
-            //        type: 1,
-            //        shadeclose: true,
-            //        area: ["20%", "20%"],
-            //        content: $(".iframe-silkicon")
-            //    });
-            //});
-
             $("#btn-search").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/InventorySearch/');
             });
@@ -339,6 +309,10 @@
 
             $(".btn-shiporder").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/shiporder/?departmentCode=CD');
+            });
+
+            $("#btn-invoice").on("click", function () {
+                $(window.location).attr('href', '/ThirdPartyLogistics/invoicemanagement/?departmentCode=CD');
             });
 
             $(".btn-back").on("click", function () {

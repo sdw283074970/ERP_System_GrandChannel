@@ -17,13 +17,13 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/uppervendor/
+        // GET /api/uppervendor/?departmentCode={departmentCode}
         [HttpGet]
-        public IHttpActionResult GetAllUpperVendors()
+        public IHttpActionResult GetAllUpperVendors([FromUri]string departmentCode)
         {
             var list = new List<string>();
 
-            var vendors = _context.UpperVendors.Where(x => x.Id > 0);
+            var vendors = _context.UpperVendors.Where(x => x.DepartmentCode == departmentCode);
 
             foreach(var vendor in vendors)
             {

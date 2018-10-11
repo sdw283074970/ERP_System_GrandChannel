@@ -29,10 +29,10 @@ namespace ClothResorting.Dtos
 
         public string PurchaseOrder { get; set; }
 
-        public DateTime? InvoiceDate { get; set; }
+        public string InvoiceDate { get; set; }
 
-        public DateTime? DueDate { get; set; }
+        public string DueDate { get; set; }
 
-        public DateTime? ShipDate { get; set; }
+        public string ShipDate { get; set; }
     }
 }

@@ -14,10 +14,6 @@
     <div id="div-create">
         <button id="btn-create" class="btn btn-primary">Created a new ship order</button>
     </div>
-    @*<div>
-            <input id="input-range" type="text" class="input-sm" placeholder="Pick tikets range" />
-            <input id="btn-create" type="button" class="btn btn-primary" value="Create pull sheet" />
-        </div>*@
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
@@ -89,7 +85,7 @@
             //动态获取Vendor数据
             $.ajax({
                 type: "GET",
-                url: "/api/uppervendor/",
+                url: "/api/uppervendor/?departmentCode=" + departmentCode,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -248,8 +244,10 @@
                         ]
                     });
                 },
-                error: function () {
-                    alert("Error!");
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
                 }
             });
 
@@ -293,7 +291,7 @@
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
                         });
                     }
