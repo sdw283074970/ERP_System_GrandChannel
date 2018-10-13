@@ -201,7 +201,7 @@ namespace ClothResorting.Helpers
                                 _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
                                 _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
                                 var cartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString();
-                                var cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2;
+                                var cartons = _ws.Cells[startIndex + 1 + j, 10].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 10].Value2;
 
                                 cartonDetailList.Add(new RegularCartonDetail
                                 {
@@ -215,7 +215,7 @@ namespace ClothResorting.Helpers
                                     Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
                                     Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
                                     PcsPerCarton = size.Count,
-                                    Quantity = cartons * size.Count,
+                                    Quantity = cartons == 0 ? cartonDetailList.SingleOrDefault(x => x.CartonRange == cartonRange && x.Cartons != 0).Cartons * size.Count : cartons,         //首个SKU为0的情况
                                     SizeBundle = size.SizeName,
                                     PcsBundle = size.Count.ToString(),
                                     Status = Status.NewCreated,
@@ -230,6 +230,42 @@ namespace ClothResorting.Helpers
                                     ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                 });
                             }
+                        }
+                        //如果每一个Size都为0，那么用第一个Size生成一个新的对象作为留底记录
+                        if (IsAllSizeEmpty(sizeList))
+                        {
+                            _netWeight = _ws.Cells[startIndex + 1 + j, 7].Value2;
+                            _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
+                            _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
+                            _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
+                            var cartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString();
+
+                            cartonDetailList.Add(new RegularCartonDetail
+                            {
+                                CartonRange = cartonRange,
+                                PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
+                                Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
+                                Customer = _runCode == null ? "" : _runCode.ToString(),
+                                Dimension = _dimension == null ? "" : _dimension.ToString(),
+                                GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
+                                NetWeight = _netWeight == null ? 0 : (double)_netWeight,
+                                Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
+                                Cartons = _ws.Cells[startIndex + 1 + j, 10].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
+                                PcsPerCarton = 0,
+                                Quantity = 0,
+                                SizeBundle = sizeList[0].SizeName,      //用第一个Size名称占位
+                                PcsBundle = "0",
+                                Status = Status.NewCreated,
+                                OrderType = poType,
+                                POSummary = poSummary,
+                                Comment = "",
+                                Operator = _userName,
+                                Receiver = "",
+                                Adjustor = "",
+                                Vendor = vendor,
+                                SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
+                            });
                         }
                     }
                     else if (poType == OrderType.Prepack)    //prepack类型的po，即最小入库计量单位为箱(carton)或者件(pcs), size和pcs可以为捆绑字符，如S M L XL/1 2 2 1
@@ -262,7 +298,7 @@ namespace ClothResorting.Helpers
                             Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
                             PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 3].Value2,
                             Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 2].Value2,
-                            Cartons = (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
+                            Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
                             SizeBundle = sizeBundle,
                             PcsBundle = pcsBundle,
                             Status = Status.NewCreated,
@@ -297,6 +333,29 @@ namespace ClothResorting.Helpers
 
             _context.RegularCartonDetails.AddRange(cartonList);
             _context.SaveChanges();
+        }
+
+        private bool IsAllSizeEmpty(IList<SizeRatio> sizeList)
+        {
+            var result = false;
+            var emptyCount = 0;
+
+            foreach(var size in sizeList)
+            {
+                if (size.Count == 0)
+                {
+                    emptyCount++;
+                }
+            }
+            
+            if(emptyCount == sizeList.Count)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         #endregion
         //-----👆👆👆👆👆👆-----以上为抽取SILKICON装箱单的新方法-----👆👆👆👆👆👆-----

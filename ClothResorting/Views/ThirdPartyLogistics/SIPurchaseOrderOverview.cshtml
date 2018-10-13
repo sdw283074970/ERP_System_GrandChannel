@@ -51,7 +51,7 @@
             <option value="Solid Pack">Replenishment</option>
         </select><br />
         <input id="upload2" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
-        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Packing List" /><br />
+        <input id="uploadfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Packing List" /><br />
     </div>
 </div>
 <div class="iframe-download">
@@ -339,7 +339,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/ThirdPartyLogisticsApi/" + preId,
+                    url: "/api/RegularPackingList/?preId=" + preId + "&vendor=" + vendor + "&purchaseOrderType=Replenishment",
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);

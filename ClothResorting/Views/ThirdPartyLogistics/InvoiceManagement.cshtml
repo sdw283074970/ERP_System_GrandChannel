@@ -23,6 +23,7 @@
                     <th style="width:33px">Id</th>
                     <th>INVOICE#</th>
                     <th>PO</th>
+                    <th>CONTAINER</th>
                     <th>TYPE</th>
                     <th>ISSUE DATE</th>
                     <th>TOTAL DUE</th>
@@ -41,22 +42,23 @@
 </div>
 <div class="iframe">
     <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
-        <text>INVOICE#: </text><input id='input-invoicenumber' style='width:170px' class='input-sm' placeholder='Invoice Number' /><br />
-        <text>PO: </text><input id='input-po' style='width:170px' class='input-sm' placeholder='Purchase Order' /><br />
-        <text>ISSUE DATE: </text><input id='input-invoicedate' type="date" style='width:170px'/><br />
+        <text>INVOICE#: </text><input type="text" id='input-invoicenumber' style='width:170px' class='input-sm' placeholder='Invoice Number' /><br />
+        <text>PO: </text><input type="text" id='input-po' style='width:170px' class='input-sm' placeholder='Purchase Order' /><br />
+        <text>CONTAINER: </text><input type="text" id='input-container' style='width:170px' class='input-sm' placeholder='Container Number' /><br />
+        <text>ENCLOSED: </text><input type="text" id='input-enclosed' style='width:170px' class='input-sm' placeholder='Enclosed' /><br />
+        <text>SHIP VIA: </text><input type="text" id='input-shipvia' style='width:170px' class='input-sm' placeholder='Ship Via' /><br />
+        <text>TERMS: </text><input type="text" id='input-terms' style='width:170px' class='input-sm' placeholder='Terms' /><br />
+        <text>ISSUE DATE: </text><input id='input-invoicedate' type="date" style='width:170px' /><br />
         <text>DUE DATE: </text><input id='input-duedate' type="date" style='width:170px' /><br />
-        <text>TERMS: </text><input id='input-terms' style='width:170px' class='input-sm' placeholder='Terms' /><br />
         <text>SHIP DATE: </text><input id='input-shipdate' type="date" style='width:170px' /><br />
-        <text>ENCLOSED: </text><input id='input-enclosed' style='width:170px' class='input-sm' placeholder='Enclosed' /><br />
-        <text>SHIP VIA: </text><input id='input-shipvia' style='width:170px' class='input-sm' placeholder='Ship Via' /><br />
-        <text>BILL TO: </text><textarea id='input-billto' style='width:170px;height:75px'></textarea><br />
-        <text>SHIP TO: </text><textarea id='input-shipto' style='width:170px;height:75px'></textarea><br />
         <text>CURRENCY: </text>
         <select id='select-currency' style='width:170px;height:30px' required='required'>
             <option value='USD'>USD</option>
             <option value='RMB'>RMB</option>
             <option value='EUR'>EUR</option>
         </select><br />
+        <text>BILL TO: </text><textarea id='input-billto' style='width:170px;height:75px'></textarea><br />
+        <text>SHIP TO: </text><textarea id='input-shipto' style='width:170px;height:75px'></textarea><br />
         <button style="margin-top:20px" id="btn-add" class='btn btn-primary'>New Invoice</button>
     </div>
 </div>
@@ -134,6 +136,12 @@
                                     },
                                     {
                                         data: "purchaseOrder",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "container",
                                         render: function (data) {
                                             return "<text>" + data + "</text>";
                                         }
@@ -258,6 +266,12 @@
                                     }
                                 },
                                 {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
                                     data: "invoiceType",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
@@ -328,7 +342,6 @@
                 });
             });
 
-
             //点击创建新Invoice，打开新建弹窗
             $("#btn-create").click(function () {
                 index = layer.open({
@@ -344,6 +357,7 @@
             $("#div-iframe").on("click", "#btn-add", function () { 
                 var invoiceNumber = $("#input-invoicenumber").val().toString();
                 var po = $("#input-po").val().toString();
+                var container = $("#input-container").val() == "" ? "" : $("#input-container").val().toString();
                 var invoiceDate = $("#input-invoicedate").val().toString();
                 var dueDate = $("#input-duedate").val().toString();
                 var enclosed = $("#input-enclosed").val().toString();
@@ -359,10 +373,11 @@
                     "departmentCode": departmentCode,
                     "invoiceNumber": invoiceNumber,
                     "purchaseOrder": po,
+                    "container": container,
                     "invoiceDate": invoiceDate,
                     "dueDate": dueDate,
                     "enclosed": enclosed,
-                    "shipDate": shipDate,
+                    "shipDate": shipDate, 
                     "shipVia": shipVia,
                     "billTo": billTo,
                     "shipTo": shipTo,
@@ -376,11 +391,11 @@
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    success: function () {
-                        layer.alert("Create success!", function () {
-                            window.location.reload();
-                        });
-                    },
+                    //success: function () {
+                    //    layer.alert("Create success!", function () {
+                    //        window.location.reload();
+                    //    });
+                    //},
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
@@ -419,6 +434,7 @@
                         $("#input-shipvia").val(data.shipVia);
                         $("#input-billto").html(data.billTo);
                         $("#input-shipto").html(data.shipTo);
+                        $("#input-container").val(data.container);
 
                         //将新建按钮替换成保存按钮
                         $("#btn-add").replaceWith("<button iid='" + invoiceId + "' style='margin-top:20px' id='btn-save' class='btn btn-primary'>Save</button>");
@@ -453,6 +469,7 @@
                 var billTo = $("#input-billto").val().toString();
                 var shipTo = $("#input-shipto").val().toString();
                 var terms = $("#input-terms").val();
+                var container = $("#input-container").val() == "" ? "" : $("#input-container").val().toString();
                 var currency = $("#select-currency option:selected").val();
 
                 var obj = {
@@ -468,7 +485,8 @@
                     "billTo": billTo,
                     "shipTo": shipTo,
                     "currency": currency,
-                    "terms": terms
+                    "terms": terms,
+                    "container": container
                 };
 
                 $.ajax({
@@ -491,7 +509,7 @@
             });
 
             $("#btn-chargingitem").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/ChargingItemManagement/?departmentCode=' + departmentCode);
+                $(window.location).attr('href', '/ThirdPartyLogistics/ChargingItemManagement/?vendor=' + vendor + '&departmentCode=' + departmentCode);
             });
 
             $(".btn-back").on("click", function () {

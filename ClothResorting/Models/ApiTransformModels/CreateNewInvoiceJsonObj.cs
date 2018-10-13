@@ -13,6 +13,8 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string InvoiceNumber { get; set; }
 
+        public string Contianer { get; set; }
+
         public string PurchaseOrder { get; set; }
 
         public string InvoiceDate { get; set; }

@@ -243,6 +243,7 @@
     <Compile Include="Controllers\Api\BulkPOSummaryController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
+    <Compile Include="Controllers\Api\ChargingItemManagementController.cs" />
     <Compile Include="Controllers\Api\ContainerController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeMethodController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeTemplateController.cs" />
@@ -1073,6 +1074,30 @@
     <Compile Include="Migrations\201810102348581_ModifiedNullableDateTimetoString.Designer.cs">
       <DependentUpon>201810102348581_ModifiedNullableDateTimetoString.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810112012449_AddedUnitInChargingItem.cs" />
+    <Compile Include="Migrations\201810112012449_AddedUnitInChargingItem.Designer.cs">
+      <DependentUpon>201810112012449_AddedUnitInChargingItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810112116104_ChangedVendorToUpperVendor.cs" />
+    <Compile Include="Migrations\201810112116104_ChangedVendorToUpperVendor.Designer.cs">
+      <DependentUpon>201810112116104_ChangedVendorToUpperVendor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810112348212_RemovedUnitInChargingItem.cs" />
+    <Compile Include="Migrations\201810112348212_RemovedUnitInChargingItem.Designer.cs">
+      <DependentUpon>201810112348212_RemovedUnitInChargingItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810112349468_AddedUnitInChargingItem1.cs" />
+    <Compile Include="Migrations\201810112349468_AddedUnitInChargingItem1.Designer.cs">
+      <DependentUpon>201810112349468_AddedUnitInChargingItem1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810112353526_ChangedRateClassFromIntToDouble.cs" />
+    <Compile Include="Migrations\201810112353526_ChangedRateClassFromIntToDouble.Designer.cs">
+      <DependentUpon>201810112353526_ChangedRateClassFromIntToDouble.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810121656034_AddedContainerInInvoice.cs" />
+    <Compile Include="Migrations\201810121656034_AddedContainerInInvoice.Designer.cs">
+      <DependentUpon>201810121656034_AddedContainerInInvoice.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1097,6 +1122,7 @@
     <Compile Include="Models\ApiTransformModels\BasicFourAttrsJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\BulkPOSummaryJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\CartonBreakdownRequestJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\ChargingItemJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ContainerInfoJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\CreateNewInvoiceJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\FCRegularLocationAllocatingJsonObj.cs" />
@@ -1163,6 +1189,7 @@
     <Compile Include="Models\SizeRatio.cs" />
     <Compile Include="Models\SpeciesInventory.cs" />
     <Compile Include="Models\StaticClass\DownloadRecord.cs" />
+    <Compile Include="Models\StaticClass\InvoiceType.cs" />
     <Compile Include="Models\StaticClass\OrderType.cs" />
     <Compile Include="Models\StaticClass\RoleName.cs" />
     <Compile Include="Models\StaticClass\Status.cs" />
@@ -1523,6 +1550,7 @@
     <Content Include="Views\ThirdPartyLogistics\PackingListSearch.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\MixPurchaseOrderOverview.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\InvoiceManagement.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\ChargingItemManagement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2085,6 +2113,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810102348581_ModifiedNullableDateTimetoString.resx">
       <DependentUpon>201810102348581_ModifiedNullableDateTimetoString.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810112012449_AddedUnitInChargingItem.resx">
+      <DependentUpon>201810112012449_AddedUnitInChargingItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810112116104_ChangedVendorToUpperVendor.resx">
+      <DependentUpon>201810112116104_ChangedVendorToUpperVendor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810112348212_RemovedUnitInChargingItem.resx">
+      <DependentUpon>201810112348212_RemovedUnitInChargingItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810112349468_AddedUnitInChargingItem1.resx">
+      <DependentUpon>201810112349468_AddedUnitInChargingItem1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810112353526_ChangedRateClassFromIntToDouble.resx">
+      <DependentUpon>201810112353526_ChangedRateClassFromIntToDouble.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810121656034_AddedContainerInInvoice.resx">
+      <DependentUpon>201810121656034_AddedContainerInInvoice.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

@@ -37,11 +37,11 @@ namespace ClothResorting.Helpers
         public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string timeUnit, string lastBillingDate, string currentBillingDate)
         {
             //首先将ChargeMehods表按照时间顺序排序
-            chargeMethods = chargeMethods.OrderBy(x => x.From);
+            var chargeMethodsList = chargeMethods.OrderBy(x => x.From).ToList();
 
             _ws = _wb.Worksheets[1];
-            var countOfEntries = -7;
-            var index = 1;
+            var countOfEntries = 0;
+            var index = 2;
             while(index > 0)
             {
                 if (_ws.Cells[index, 1].Value2 != null)
@@ -58,25 +58,58 @@ namespace ClothResorting.Helpers
 
             for(int i = 0; i < countOfEntries; i++)
             {
-                var inboundDate = _ws.Cells[i + 7, 7].Value.ToString("MM/dd/yyyy");
-                string outboundDate = _ws.Cells[i + 7, 8].Value2 == null ? null : _ws.Cells[i + 7, 8].Value.ToString("MM/dd/yyyy");
-                var totalPlts = _ws.Cells[i + 7, 6].Value2 == 0 || _ws.Cells[i + 7, 6].Value2 == null ? 1 : (int)_ws.Cells[i + 7, 6].Value2;
-                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate);
+                var startTimeUnit = 1;
+                string inboundDate = _ws.Cells[i + 2, 8].Value.ToString("MM/dd/yyyy");
+                string outboundDate = _ws.Cells[i + 2, 9].Value2 == null ? null : _ws.Cells[i + 2, 9].Value.ToString("MM/dd/yyyy");
+                var totalPlts = _ws.Cells[i + 2, 7].Value2 == 0 || _ws.Cells[i + 2, 7].Value2 == null ? 1 : (int)_ws.Cells[i + 2, 7].Value2;
+                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit);
                 double storageCharge = 0;
                 double lastFee = 0;
 
-                foreach(var method in chargeMethods)
+                //查找应该从第几个时间单位开始计费(查找开始计费的时间落在哪个计费区域)
+                int starIndex = 0;
+                for(int k = 0; k < chargeMethodsList.Count(); k++)
                 {
-                    if (storedDuration >= method.Duration)
+                    if (startTimeUnit >= chargeMethodsList[k].From && startTimeUnit <=chargeMethodsList[k].To)
                     {
-                        storageCharge += method.Duration * method.Fee * totalPlts;
-                        storedDuration -= method.Duration;
-                        lastFee = method.Fee;
-                    }
-                    else if (storedDuration < method.Duration)
-                    {
-                        storageCharge += storedDuration * method.Fee * totalPlts;
+                        starIndex = k;
                         break;
+                    }
+                }
+
+                for( int j = starIndex; j < chargeMethods.Count(); j++)
+                {
+                    if (j == starIndex)
+                    {
+                        var currentDuration = chargeMethodsList[j].To - startTimeUnit + 1;
+                        if (storedDuration >= currentDuration)
+                        {
+                            storageCharge += currentDuration * chargeMethodsList[j].Fee * totalPlts;
+                            storedDuration -= currentDuration;
+                            lastFee = chargeMethodsList[j].Fee;
+                        }
+                        else
+                        {
+                            storageCharge += storedDuration * chargeMethodsList[j].Fee * totalPlts;
+                            storedDuration = 0;
+                            lastFee = chargeMethodsList[j].Fee;
+                        }
+                    }
+                    else
+                    {
+                        if (storedDuration >= chargeMethodsList[j].Duration)
+                        {
+                            storageCharge += chargeMethodsList[j].Duration * chargeMethodsList[j].Fee * totalPlts;
+                            storedDuration -= chargeMethodsList[j].Duration;
+                            lastFee = chargeMethodsList[j].Fee;
+                        }
+                        else if (storedDuration < chargeMethodsList[j].Duration)
+                        {
+                            storageCharge += storedDuration * chargeMethodsList[j].Fee * totalPlts;
+                            storedDuration = 0;
+                            lastFee = chargeMethodsList[j].Fee;
+                            break;
+                        }
                     }
                 }
 
@@ -85,22 +118,22 @@ namespace ClothResorting.Helpers
                     storageCharge += storedDuration * lastFee * totalPlts;
                 }
 
-                _ws.Cells[i + 7, 9] = storageCharge;
+                _ws.Cells[i + 2, 10] = storageCharge;
             }
 
             //打上账单日
-            _ws.Cells[countOfEntries + 7, 2] = "Last Billing Date:";
-            _ws.Cells[countOfEntries + 7, 3] = lastBillingDate;
+            _ws.Cells[countOfEntries + 3, 2] = "Last Billing Date:";
+            _ws.Cells[countOfEntries + 3, 3] = lastBillingDate;
 
-            _ws.Cells[countOfEntries + 7, 5] = "Current Billing Date:";
-            _ws.Cells[countOfEntries + 7, 6] = currentBillingDate;
+            _ws.Cells[countOfEntries + 3, 5] = "Current Billing Date:";
+            _ws.Cells[countOfEntries + 3, 6] = currentBillingDate;
 
             _wb.Save();
             _excel.Quit();
         }
 
         //输入两个日期字符串以及账单日范围，算出有多少周
-        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate)
+        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, out int startTimeUnit)
         {
             DateTime startDt;
             DateTime endDt;
@@ -141,38 +174,72 @@ namespace ClothResorting.Helpers
                 endDt = outboundDt;
             }
 
-            var timeSpan = endDt.Subtract(startDt);
-            double duration = 0;
+            var currentTimeSpan = endDt.Subtract(startDt);
+            var totalTimeSpan = endDt.Subtract(inboundDt);
+            double currentDuration = 0;
+            var start = 1;
 
             if (timeUnit == TimeUnit.Week)
             {
-                duration = Math.Ceiling((double)timeSpan.Days / 7);
+                double totalDuration = Math.Ceiling(((double)totalTimeSpan.Days + 1) / 7);                //第一天总是要计费的
 
-                //计算从入库日期开始到本账单日开始计算时间这点时间内，是否为7天的倍数。如果是，则正常计算，否则，算出的周数要减1，因为在上一个账单日就已经计算过本周残余的天数了
-                var lastTimeSpan = lastBillingDt.Subtract(inboundDt);
-                if (Math.Ceiling((double)lastTimeSpan.Days % 7) != 0)
+                //计算从入库日期开始到本账单日开始计算时间这点时间内，已计算过费用的周数，总天数拣去已收费周数等于应收费周数
+                if (lastBillingDt > inboundDt)
                 {
-                    duration -= 1;
+                    var pastDuration = Math.Ceiling((double)lastBillingDt.Subtract(inboundDt).Days / 7);    //已经重复记了一天，就不用再+1天了
+                    currentDuration = totalDuration - pastDuration;
+
+                    // 计算从第几个时间单位开始计费（除去账单日前计过费的时间）
+                    start = (int)pastDuration + 1;
                 }
+                else
+                {
+                    currentDuration = totalDuration;
+                }
+
             }
             else if (timeUnit == TimeUnit.Month)
             {
-                duration = Math.Ceiling((double)timeSpan.Days / 30);
+                double totalDuration = Math.Ceiling(((double)totalTimeSpan.Days + 1) / 30);                //第一天总是要计费的
 
-                //计算从入库日期开始到本账单日开始计算时间这点时间内，是否为30天的倍数。如果是，则正常计算，否则，算出的月数要减1，因为在上一个账单日就已经计算过本月残余的天数了
-                var lastTimeSpan = lastBillingDt.Subtract(inboundDt);
-                if (Math.Ceiling((double)lastTimeSpan.Days % 30) != 0)
+                //计算从入库日期开始到本账单日开始计算时间这点时间内，已计算过费用的月数，总天数拣去已收费月数等于应收费月数
+                if (lastBillingDt > inboundDt)
                 {
-                    duration -= 1;
+                    var pastDuration = Math.Ceiling((double)lastBillingDt.Subtract(inboundDt).Days / 30);    //已经重复记了一天，就不用再+1天了
+                    currentDuration = totalDuration - pastDuration;
+
+                    // 计算从第几个时间单位开始计费（除去账单日前计过费的时间）
+                    start = (int)pastDuration + 1;
                 }
+                else
+                {
+                    currentDuration = totalDuration;
+                }
+
             }
             else if (timeUnit == TimeUnit.Day)
             {
-                duration = Math.Ceiling((double)timeSpan.Days);
-                var lastTimeSpan = lastBillingDt.Subtract(inboundDt);
+                double totalDuration = Math.Ceiling((double)totalTimeSpan.Days + 1);                //第一天总是要计费的
+
+                //计算从入库日期开始到本账单日开始计算时间这点时间内，已计算过费用的天数，总天数拣去已收费天数等于应收费天数
+                if (lastBillingDt > inboundDt)
+                {
+                    var pastDuration = Math.Ceiling((double)lastBillingDt.Subtract(inboundDt).Days);    //已经重复记了一天，就不用再+1天了
+                    currentDuration = totalDuration - pastDuration;
+
+                    // 计算从第几个时间单位开始计费（除去账单日前计过费的时间）
+                    start = (int)pastDuration + 1;
+                }
+                else
+                {
+                    currentDuration = totalDuration;
+                }
+
             }
 
-            return (int)duration;
+            startTimeUnit = start;
+
+            return (int)currentDuration;
         }
     }
 }

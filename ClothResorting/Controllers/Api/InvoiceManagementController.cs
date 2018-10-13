@@ -11,6 +11,7 @@ using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
 using System.Globalization;
 using Microsoft.Office.Interop.Excel;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -65,8 +66,23 @@ namespace ClothResorting.Controllers.Api
                 BillTo = obj.BillTo,
                 ShipTo = obj.ShipTo,
                 Currency = obj.Currency,
-                UpperVendor = vendorInDb
+                UpperVendor = vendorInDb,
+                Container = obj.Contianer
             };
+
+
+            if (obj.Contianer != "" && obj.PurchaseOrder != "")
+            {
+                newInvoice.InvoiceType = InvoiceType.Operation;
+            }
+            else if (obj.Contianer != "")
+            {
+                newInvoice.InvoiceType = InvoiceType.Receiving;
+            }
+            else if (obj.PurchaseOrder != "")
+            {
+                newInvoice.InvoiceType = InvoiceType.OperationAndShipping;
+            }
 
             _context.Invoices.Add(newInvoice);
             _context.SaveChanges();
@@ -93,6 +109,20 @@ namespace ClothResorting.Controllers.Api
             invoiceInDb.BillTo = obj.BillTo;
             invoiceInDb.ShipTo = obj.ShipTo;
             invoiceInDb.Currency = obj.Currency;
+            invoiceInDb.Container = obj.Contianer;
+            
+            if (obj.Contianer != "" && obj.PurchaseOrder != "")
+            {
+                invoiceInDb.InvoiceType = InvoiceType.Operation;
+            }
+            else if (obj.Contianer != "")
+            {
+                invoiceInDb.InvoiceType = InvoiceType.Receiving;
+            }
+            else if (obj.PurchaseOrder != "")
+            {
+                invoiceInDb.InvoiceType = InvoiceType.OperationAndShipping;
+            }
 
             _context.SaveChanges();
         }

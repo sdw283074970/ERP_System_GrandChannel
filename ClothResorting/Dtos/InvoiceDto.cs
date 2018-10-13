@@ -34,5 +34,8 @@ namespace ClothResorting.Dtos
         public string DueDate { get; set; }
 
         public string ShipDate { get; set; }
+
+        public string Container { get; set; }
+
     }
 }

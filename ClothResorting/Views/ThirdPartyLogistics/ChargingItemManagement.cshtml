@@ -1,0 +1,224 @@
+﻿
+@{
+    ViewBag.Title = "ChargingItemManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>Third-party Logistics Distribution System</h1>
+<h2 id="h2-vendor">Charging Item Management</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <text>BILL TO:</text><br />
+        <text>SHIP TO:</text><br />
+        <text>SHIP DATE:</text><br />
+        <text>SHIP VIA:</text>
+    </div>
+    <div id="div-create">
+        <button id="btn-create" class="btn btn-primary">Add new charging item</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:66px">Id</th>
+                    <th>TYPE</th>
+                    <th>NAME</th>
+                    <th>RATE</th>
+                    <th>UOM</th>
+                    <th>DESCRIPTION</th>
+                    <th style="width:180px">OPERATION</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Charging Type: </text>
+        <select id='select-type' style='width:170px;height:30px' required='required'>
+            <option value='Box In&Out'>Box In&Out</option>
+            <option value='Pick&Pack'>Pick&Pack</option>
+            <option value='Label Service'>Label Service</option>
+            <option value='Storage Service'>Storage Service</option>
+            <option value='Return Service'>Return Service</option>
+            <option value='Shipping Service'>Shipping Service</option>
+            <option value='Valued Added Service'>Valued Added Service</option>
+            <option value='Other Service'>OtherService</option>
+        </select><br />
+        <text>Charging Item Name: </text><input id='input-name' style='width:170px' class='input-sm' placeholder='Name' /><br />
+        <text>Rate: </text><input id='input-rate' style='width:170px' class='input-sm' placeholder='Rate' /><br />
+        <text>UOM:</text>
+        <select id='select-unit' style='width:170px;height:30px' required='required'>
+            <option value='CTN'>CTN</option>
+            <option value='PC'>PC</option>
+            <option value='LABEL'>LABEL</option>
+            <option value='PLT'>PLT</option>
+            <option value='ORDER'>ORDER</option>
+            <option value='SHIPMENT'>SHIPMENT</option>
+        </select><br />
+        <text>Description: </text><textarea id='input-description' style='width:170px;height:75px' class='input-sm' placeholder="(Option)"></textarea><br />
+        <button style="margin-top:20px" id="btn-add" class='btn btn-primary'>New Charging Template</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+            var table;
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var vendor = getUrlParameter('vendor');
+            var departmentCode = getUrlParameter('departmentCode');
+
+            $("#h2-vendor").html(vendor + " Charging Item Management");
+
+            $.ajax({
+                type: "GET",
+                url: "/api/chargingitemmanagement/?vendor=" + vendor + "&departmentCode=" + departmentCode,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+
+                    if (table) {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
+                        data: data,
+                        order: [[0, "desc"]],
+                        destroy: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "chargingType",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "name",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "rate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "unit",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button cid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button cid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            //点击创建新收费项目，打开新建弹窗
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "500px"],
+                    content: $(".iframe")
+                });
+            })
+
+            //点击新收费项目按钮，生成新的收费项目
+            $("#div-iframe").on("click", "#btn-add", function () {
+                var chargingType = $("#select-type option:selected").val();
+                var name = $("#input-name").val().toString();
+                var rate = $("#input-rate").val();
+                var unit = $("#select-unit option:selected").val();
+                var description = $("#input-description").val().toString();
+
+                var obj = {
+                    "vendor": vendor,
+                    "departmentCode": departmentCode,
+                    "chargingType": chargingType,
+                    "name": name,
+                    "rate": rate,
+                    "unit": unit,
+                    "description": description
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/chargingitemmanagement/",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function () {
+                        layer.alert("Create success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击编辑按钮编辑收费项目
+            //明日再战
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+
+        });
+    </script>
+}

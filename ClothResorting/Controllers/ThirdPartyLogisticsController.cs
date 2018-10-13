@@ -215,5 +215,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //ChargingItem管理页面
+        public ActionResult ChargingItemManagement()
+        {
+            return View();
+        }
     }
 }

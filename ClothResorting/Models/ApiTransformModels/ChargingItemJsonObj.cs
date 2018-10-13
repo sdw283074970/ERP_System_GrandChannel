@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ClothResorting.Dtos
+namespace ClothResorting.Models.ApiTransformModels
 {
-    public class ChargingItemDto
+    public class ChargingItemJsonObj
     {
-        public int Id { get; set; }
+        public string Vendor { get; set; }
+
+        public string DepartmentCode { get; set; }
 
         public string ChargingType { get; set; }
 
@@ -18,5 +20,6 @@ namespace ClothResorting.Dtos
         public string Description { get; set; }
 
         public string Unit { get; set; }
+
     }
 }
