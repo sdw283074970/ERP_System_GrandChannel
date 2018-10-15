@@ -215,7 +215,7 @@ namespace ClothResorting.Helpers
                                     Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
                                     Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
                                     PcsPerCarton = size.Count,
-                                    Quantity = cartons == 0 ? cartonDetailList.SingleOrDefault(x => x.CartonRange == cartonRange && x.Cartons != 0).Cartons * size.Count : cartons,         //首个SKU为0的情况
+                                    Quantity = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? cartons * size.Count : cartonDetailList.SingleOrDefault(x => x.CartonRange == cartonRange && x.Cartons != 0).Cartons * size.Count,         //首先查找当前对象是不是第一个出现该carton range的对象，查找当前carton range的第一个对象的箱数，乘以当前对象的单位件数即是当前对象的总件数
                                     SizeBundle = size.SizeName,
                                     PcsBundle = size.Count.ToString(),
                                     Status = Status.NewCreated,
