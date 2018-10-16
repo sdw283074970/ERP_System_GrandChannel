@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ClothResorting.Models
+namespace ClothResorting.Models.ApiTransformModels
 {
-    public class InvoiceDetail
+    public class InvoiceDetailJsonObj
     {
-        public int Id { get; set; }
+        public int invoiceId { get; set; }
 
         public string Activity { get; set; }
 
@@ -15,14 +15,12 @@ namespace ClothResorting.Models
 
         public string Unit { get; set; }
 
-        public double Quantity { get; set; }
-
         public double Rate { get; set; }
 
         public double Amount { get; set; }
 
-        public string Memo { get; set; }
+        public double Quantity { get; set; }
 
-        public Invoice Invoice { get; set; }
+        public string Memo { get; set; }
     }
 }

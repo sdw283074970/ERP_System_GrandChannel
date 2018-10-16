@@ -13,7 +13,7 @@ namespace ClothResorting.Models
 
         public string InvoiceType { get; set; }
 
-        public int TotalDue { get; set; }
+        public double TotalDue { get; set; }
 
         public string BillTo { get; set; }
 

@@ -248,6 +248,7 @@
     <Compile Include="Controllers\Api\Fba\ChargeMethodController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeTemplateController.cs" />
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
+    <Compile Include="Controllers\Api\InvoiceDetailController.cs" />
     <Compile Include="Controllers\Api\InvoiceManagementController.cs" />
     <Compile Include="Controllers\Api\OnlineFixController.cs" />
     <Compile Include="Controllers\Api\UpperVendorController.cs" />
@@ -1098,6 +1099,14 @@
     <Compile Include="Migrations\201810121656034_AddedContainerInInvoice.Designer.cs">
       <DependentUpon>201810121656034_AddedContainerInInvoice.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810152322139_AddedMemoAndQuantityInInvoiceDetail.cs" />
+    <Compile Include="Migrations\201810152322139_AddedMemoAndQuantityInInvoiceDetail.Designer.cs">
+      <DependentUpon>201810152322139_AddedMemoAndQuantityInInvoiceDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.cs" />
+    <Compile Include="Migrations\201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.Designer.cs">
+      <DependentUpon>201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1129,6 +1138,7 @@
     <Compile Include="Models\ApiTransformModels\ArrPreIdLocationJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ArrPreIdContainerJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\IdCpoJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\InvoiceDetailJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\OpoRangePreidJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PermanentLocJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\PickTiketsRangeJsonObj.cs" />
@@ -1139,6 +1149,7 @@
     <Compile Include="Models\ApiTransformModels\RegualrCartonBulkJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\ShipOrderJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
+    <Compile Include="Models\ApiTransformModels\VendorDepartmentCodeTypeJsonObj.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
     <Compile Include="Models\CartonInside.cs" />
     <Compile Include="Models\ChargingItem.cs" />
@@ -1551,6 +1562,7 @@
     <Content Include="Views\ThirdPartyLogistics\MixPurchaseOrderOverview.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\InvoiceManagement.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\ChargingItemManagement.cshtml" />
+    <Content Include="Views\ThirdPartyLogistics\InvoiceDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2131,6 +2143,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810121656034_AddedContainerInInvoice.resx">
       <DependentUpon>201810121656034_AddedContainerInInvoice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810152322139_AddedMemoAndQuantityInInvoiceDetail.resx">
+      <DependentUpon>201810152322139_AddedMemoAndQuantityInInvoiceDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.resx">
+      <DependentUpon>201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

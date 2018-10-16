@@ -15,8 +15,12 @@ namespace ClothResorting.Dtos
 
         public string Unit { get; set; }
 
-        public string Rate { get; set; }
+        public double Quantity { get; set; }
 
-        public string Amount { get; set; }
+        public double Rate { get; set; }
+
+        public double Amount { get; set; }
+
+        public string Memo { get; set; }
     }
 }

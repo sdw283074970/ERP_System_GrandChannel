@@ -1179,7 +1179,7 @@ namespace ClothResorting.Helpers
 
                     var cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2;
 
-                    //Solid pack中也可能出现多种Size混一箱，不能当作regular订单处理
+                    //Solid pack中也可能出现多种Size混一箱，不能当作pre-pack订单处理
                     if (countOfSKU > 1)    //Solid订单的情况
                     {
                         var sizeArr = sizeBD.Split(' ');
@@ -1197,8 +1197,8 @@ namespace ClothResorting.Helpers
                                 continue;
                             }
 
-                            var poSummaryInDb = poSummaryInDbs.First();
-                            poSummaryInDb.OrderType = OrderType.SolidPack;
+                            var poSummaryInDb = poSummaryInDbs.FirstOrDefault();
+                            poSummaryInDb.OrderType =  OrderType.SolidPack;
 
                             //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
                             if (poSummaryList.Count() == 1)
@@ -1285,7 +1285,7 @@ namespace ClothResorting.Helpers
                             }
                         }
                     }
-                    else    //Regular订单PO的情况
+                    else    //Pre-pack订单PO的情况
                     {
                         //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
                         if (poSummaryList.Count() == 1)
@@ -1369,6 +1369,7 @@ namespace ClothResorting.Helpers
                                 {
                                     regularCartonDetail.POSummary = poSummaryIndb;
                                     regularCartonDetailList.Add(regularCartonDetail);
+                                    poSummaryIndb.OrderType = OrderType.Prepack;
                                     break;
                                 }
                             }

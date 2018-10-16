@@ -67,15 +67,15 @@ namespace ClothResorting.Controllers.Api
                 ShipTo = obj.ShipTo,
                 Currency = obj.Currency,
                 UpperVendor = vendorInDb,
-                Container = obj.Contianer
+                Container = obj.Container
             };
 
 
-            if (obj.Contianer != "" && obj.PurchaseOrder != "")
+            if (obj.Container != "" && obj.PurchaseOrder != "")
             {
                 newInvoice.InvoiceType = InvoiceType.Operation;
             }
-            else if (obj.Contianer != "")
+            else if (obj.Container != "")
             {
                 newInvoice.InvoiceType = InvoiceType.Receiving;
             }
@@ -109,13 +109,13 @@ namespace ClothResorting.Controllers.Api
             invoiceInDb.BillTo = obj.BillTo;
             invoiceInDb.ShipTo = obj.ShipTo;
             invoiceInDb.Currency = obj.Currency;
-            invoiceInDb.Container = obj.Contianer;
+            invoiceInDb.Container = obj.Container;
             
-            if (obj.Contianer != "" && obj.PurchaseOrder != "")
+            if (obj.Container != "" && obj.PurchaseOrder != "")
             {
                 invoiceInDb.InvoiceType = InvoiceType.Operation;
             }
-            else if (obj.Contianer != "")
+            else if (obj.Container != "")
             {
                 invoiceInDb.InvoiceType = InvoiceType.Receiving;
             }
@@ -124,6 +124,20 @@ namespace ClothResorting.Controllers.Api
                 invoiceInDb.InvoiceType = InvoiceType.OperationAndShipping;
             }
 
+            _context.SaveChanges();
+        }
+
+        // DELETE /api/invoicemanagement/{id}
+        public void DeleteInvoice([FromUri]int id)
+        {
+            var invoiceInDb = _context.Invoices
+                .Include(x => x.InvoiceDetails)
+                .SingleOrDefault(x => x.Id == id);
+
+            var invoiceDetailInDb = invoiceInDb.InvoiceDetails;
+
+            _context.InvoiceDetails.RemoveRange(invoiceDetailInDb);
+            _context.Invoices.Remove(invoiceInDb);
             _context.SaveChanges();
         }
     }

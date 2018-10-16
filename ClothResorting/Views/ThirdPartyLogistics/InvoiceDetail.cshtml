@@ -1,0 +1,544 @@
+﻿
+@{
+    ViewBag.Title = "InvoiceDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Third-party Logistics Distribution System</h1>
+<h2>Invoice Detail Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <text id="text-billto">BILL TO:</text><br />
+        <text id="text-shipto">SHIP TO:</text><br />
+        <text id="text-shipdate">SHIP DATE:</text><br />
+        <text id="text-shipvia">SHIP VIA:</text>
+    </div>
+    <div id="div-create">
+        <button id="btn-create" class="btn btn-primary">Add charging item</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:66px">Id</th>
+                    <th>ACTIVITY</th>
+                    <th>CHARGING TYPE</th>
+                    <th>UOM</th>
+                    <th>QTY</th>
+                    <th>RATE</th>
+                    <th>AMOUNT</th>
+                    <th>MEMO</th>
+                    <th style="width:180px">OPERATION</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="6" style="text-align:right">BALANCE DUE:</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
+        <text id="text-number">Container#/PO#:</text><br />
+        <div id="div-quantity" style="margin-top:20px">
+            <text>CTNS: <font id="text-ctns" color="red">Cartons</font></text><text style="margin-left:20px">PCS: <font id="text-pcs" color="red">Pieces:</font></text>
+        </div>
+        <div id="div-type" style="margin-top:20px">
+            <text>Select a charging type: </text><select id='select-type' style='width:170px;height:30px' required='required'>
+                <option>Loading...</option>
+            </select>
+        </div>
+        <div id="div-name" style="margin-top:20px">
+            <text>Charging item name: </text><select id='select-name' style='width:170px;height:30px' required='required'>
+                <option>Select a charging type</option>
+            </select>
+        </div>
+        <div id="div-rate" style="margin-top:20px">
+            <text>Rate: </text><input id="input-rate" class="input-sm input-calculator" style='width:80px;height:30px' placeholder="Rate" /><text>/</text><text id="text-unit">CTN</text><text style="margin-left:20px">Quantity: <input id="input-quantity" class="input-sm input-calculator" style='width:80px;height:30px' placeholder="QTY" /></text><br />
+        </div>
+        <div id="div-description" style="margin-top:20px">
+            <text id="text-description">Description:: </text><br />
+        </div>
+        <div id="div-memo" style="margin-top:20px">
+            <text>Memo: <textarea id="input-memo" style='width:170px;height:75px' placeholder="(Optional)"></textarea></text><br />
+        </div>
+        <div id="div-amount" style="margin-top:20px">
+            <text>Amount: <font id="text-amount" color="red"></font></text><br />
+        </div>
+        <button style="margin-top:20px" id="btn-charge" class='btn btn-primary'>Charge</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+            var index;
+            var table;
+            var chargingType;
+            var quantity;
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var invoiceId = getUrlParameter('invoiceId');
+            var vendor = getUrlParameter('vendor');
+            var departmentCode = getUrlParameter('departmentCode')
+
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json, charset=utf-8',
+                dataType: "json",
+                url: "/api/invoicedetail/?invoiceId=" + invoiceId,
+                success: function (data) {
+                    if (table) {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
+                        data: data,
+                        order: [[0, "desc"]],
+                        destroy: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "activity",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "chargingType",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "unit",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "rate",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "amount",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "memo",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                }
+                            }
+                        ],
+                        footerCallback: function (row, data, start, end, display) {
+
+                            var api = this.api(), data;
+
+                            var intVal = function (i) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '') * 1 :
+                                    typeof i === 'number' ?
+                                    i : 0;
+                            };
+
+                            var totalAmount = api
+                                .column(6)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            $(api.column(6).footer()).html("<font color='red'>" + totalAmount + "</font>");
+                        }
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            //添加收费项目，打开新建弹窗
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "500px"],
+                    content: $(".iframe")
+                });
+            })
+
+            // Ajax0, GET柜号/PO号、BillTo等信息
+            $.ajax({
+                type: "GET",
+                contentType: "application/json, charset=8-utf",
+                dataType: "json",
+                url: "/api/invoiceDetail/" + invoiceId,
+                success: function (data) {
+                    $("#text-billto").html(data.billTo);
+                    $("#text-shipto").html(data.shipTo);
+                    $("#text-shipdate").html(data.shipDate);
+                    $("#text-shipvia").html(data.shipVia);
+                    $("#text-number").html(data.reference);
+                    $("#text-ctns").html(data.ctns);
+                    $("#text-pcs").html(data.pcs);
+                    $("#input-quantity").val(data.ctns);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            // Ajax1, 获取该部门该Vendor适用的收费类型
+            $.ajax({
+                type: "GET",
+                url: "/api/invoiceDetail/?vendor=" + vendor + "&departmentCode=" + departmentCode,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+
+                    $("#select-type").find("option:selected").text("");
+                    $("#select-type").empty();
+                    $("#select-type").append("<option value='empty'>Select a charging type</option>");
+
+                    for (var i = 0; i < data.length; i++) {
+                        $("#select-type").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            // Ajax2, 改变下拉菜单的收费类型，获取该收费类型的所有选项
+            $("#select-type").on("change", function () {
+                chargingType = $("#select-type option:selected").val();
+
+                if (chargingType != "empty")
+                {
+                    var obj = {
+                        "vendor": vendor,
+                        "departmentCode": departmentCode,
+                        "item": chargingType
+                    };
+
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/invoiceDetail/",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        success: function (data) {
+
+                            $("#select-name").find("option:selected").text("");
+                            $("#select-name").empty();
+                            $("#select-name").append("<option value='empty'>Select a charging item</option>");
+
+                            for (var i = 0; i < data.length; i++) {
+                                $("#select-name").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+
+            //Ajax3, 选择收费项目，更新新建页面的单位、单价、描述等选项
+            $("#select-name").on("change", function () {
+                var itemName = $("#select-name").val();
+
+                if(itemName != "empty")
+                {
+                    var obj = itemName;
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/invoiceDetail/?vendor=" + vendor + "&departmentCode=" + departmentCode,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        success: function (data) {
+                            $("#input-rate").val(data.rate);
+                            $("#text-unit").html(data.unit);
+                            $("#text-description").html(data.description);
+
+                            if (data.unit == "CTN")
+                            {
+                                quantity = $("#text-ctns").html();
+                                $("#input-quantity").val(quantity);
+                            }
+                            else if (data.unit == "PC")
+                            {
+                                quantity = $("#text-pcs").html();
+                                $("#input-quantity").val(quantity);
+                            }
+                            else
+                            {
+                                quantity = 0;
+                                $("#input-quantity").val(0);
+                            }
+
+                            $("#text-amount").html((data.rate * quantity).toFixed(2));
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+
+            //Ajax4, 保存添加该收费项目
+            $("#btn-charge").on("click", function () {
+
+                var chargingType = $("#select-type option:selected").val();
+                var activity = $("#select-name option:selected").val();
+
+                if (chargingType != "empty" && activity != "empty")
+                {
+                    var unit = $("#text-unit").html();
+                    var rate = $("#input-rate").val();
+                    var amount = $("#text-amount").html();
+                    var quantity = $("#input-quantity").val();
+                    var memo = $("#input-memo").val();
+
+                    var obj = {
+                        "invoiceId": invoiceId,
+                        "activity": activity,
+                        "chargingType": chargingType,
+                        "unit": unit,
+                        "rate": rate,
+                        "amount": amount,
+                        "quantity": quantity,
+                        "memo": memo
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        url: "/api/invoicedetail/",
+                        data: JSON.stringify(obj),
+                        success: function () {
+                            layer.alert("Add success!", function () {
+
+                                layer.close(layer.index);
+                                layer.close(index);
+
+                                $.ajax({
+                                    type: "GET",
+                                    contentType: 'application/json, charset=utf-8',
+                                    dataType: "json",
+                                    url: "/api/invoicedetail/?invoiceId=" + invoiceId,
+                                    success: function (data) {
+                                        if (table) {
+                                            table.destroy();
+                                        }
+
+                                        table = $("#table").DataTable({
+                                            data: data,
+                                            order: [[0, "desc"]],
+                                            destroy: true,
+                                            scrollCollapse: true,
+                                            scrollY: "600px",
+                                            iDisplayLength: 100,
+                                            columns: [
+                                                {
+                                                    data: "id",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "activity",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "chargingType",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "unit",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "quantity",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "rate",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "amount",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "memo",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "id",
+                                                    render: function (data) {
+                                                        return "<button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                                    }
+                                                }
+                                            ],
+                                            footerCallback: function (row, data, start, end, display) {
+
+                                                var api = this.api(), data;
+
+                                                var intVal = function (i) {
+                                                    return typeof i === 'string' ?
+                                                        i.replace(/[\$,]/g, '') * 1 :
+                                                        typeof i === 'number' ?
+                                                        i : 0;
+                                                };
+
+                                                var totalAmount = api
+                                                    .column(6)
+                                                    .data()
+                                                    .reduce(function (a, b) {
+                                                        return intVal(a) + intVal(b);
+                                                    }, 0);
+
+                                                $(api.column(6).footer()).html("<font color='blue'>" + totalAmount + "</font>");
+                                            }
+                                        });
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                            window.location.reload();
+                                        });
+                                    }
+                                });
+                            });
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+
+            });
+
+            //监控输入的费率和数量，当这两个input变化时改变Amount的值
+            $(".input-calculator").on("change", function () {
+                var rate = 0;
+                var quantity = 0;
+                rate = $("#input-rate").val();
+                quantity = $("#input-quantity").val();
+
+                var amount = parseFloat((rate * quantity).toFixed(2));
+
+                $("#text-amount").html(amount);
+            });
+
+            //Ajax5, 点击删除按钮，删除所选收费项目并自动重新计算总数
+            $("#table").on("click", ".btn-delete", function () {
+                var id = $(this).attr('iid');
+
+                $.ajax({
+                    type: "DELETE",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    url: "/api/invoicedetail/" + id,
+                    success: function () {
+                        layer.alert("Delete success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+
+        });
+    </script>
+}

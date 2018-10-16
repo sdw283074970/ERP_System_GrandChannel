@@ -13,7 +13,7 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string InvoiceNumber { get; set; }
 
-        public string Contianer { get; set; }
+        public string Container { get; set; }
 
         public string PurchaseOrder { get; set; }
 
@@ -23,7 +23,7 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string Enclosed { get; set; }
 
-        public string  ShipDate { get; set; }
+        public string ShipDate { get; set; }
 
         public string ShipVia { get; set; }
 

@@ -348,7 +348,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["400px", "500px"],
+                    area: ["400px", "550px"],
                     content: $(".iframe")
                 });
             })
@@ -391,11 +391,11 @@
                     data: JSON.stringify(obj),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    //success: function () {
-                    //    layer.alert("Create success!", function () {
-                    //        window.location.reload();
-                    //    });
-                    //},
+                    success: function () {
+                        layer.alert("Create success!", function () {
+                            window.location.reload();
+                        });
+                    },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
@@ -510,6 +510,35 @@
 
             $("#btn-chargingitem").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/ChargingItemManagement/?vendor=' + vendor + '&departmentCode=' + departmentCode);
+            });
+
+            $("#table").on("click", ".btn-view", function () {
+                var invoiceId = $(this).attr('iid');
+                var url = "/ThirdPartyLogistics/InvoiceDetail/?invoiceId=" + invoiceId + "&vendor=" + vendor + "&departmentCode=" + departmentCode;
+
+                $(window.location).attr('href', url);
+            });
+
+            //点击删除按钮，删除所选的Invoice
+            $("#table").on("click", ".btn-delete", function () {
+                var id = $(this).attr('iid');
+
+                $.ajax({
+                    type: "DELETE",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    url: "/api/invoicemanagement/" + id,
+                    success: function () {
+                        layer.alert("Delete success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {
