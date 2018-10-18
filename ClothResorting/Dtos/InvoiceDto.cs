@@ -37,5 +37,7 @@ namespace ClothResorting.Dtos
 
         public string Container { get; set; }
 
+        public string Status { get; set; }
+
     }
 }

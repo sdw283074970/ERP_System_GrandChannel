@@ -340,7 +340,7 @@
             });
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
-            $("#div-bulk").on("click", ".btn-update", function () {
+            $(".btn-update").on("click", function () {
                 var color = $("#input-color").val();
                 var size = $("#input-size").val();
                 var units = $("#input-units").val();

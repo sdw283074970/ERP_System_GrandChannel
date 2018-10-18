@@ -37,6 +37,8 @@ namespace ClothResorting.Models
 
         public string Container { get; set; }
 
+        public string Status { get; set; }
+
         public UpperVendor UpperVendor { get; set; }
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }

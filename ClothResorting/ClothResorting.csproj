@@ -1171,6 +1171,10 @@
     <Compile Include="Migrations\201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.Designer.cs">
       <DependentUpon>201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810180000540_AddedStatusInInvoice.cs" />
+    <Compile Include="Migrations\201810180000540_AddedStatusInInvoice.Designer.cs">
+      <DependentUpon>201810180000540_AddedStatusInInvoice.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1266,6 +1270,7 @@
     <Compile Include="Models\StaticClass\DownloadRecord.cs" />
     <Compile Include="Models\StaticClass\InvoiceType.cs" />
     <Compile Include="Models\StaticClass\OrderType.cs" />
+    <Compile Include="Models\StaticClass\QuickBookBaseURLs.cs" />
     <Compile Include="Models\StaticClass\RoleName.cs" />
     <Compile Include="Models\StaticClass\Status.cs" />
     <Compile Include="Models\StaticClass\Vendor.cs" />
@@ -2213,6 +2218,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.resx">
       <DependentUpon>201810162136593_ModifiedInvoiceTotalDueFromIntToDouble.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810180000540_AddedStatusInInvoice.resx">
+      <DependentUpon>201810180000540_AddedStatusInInvoice.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
