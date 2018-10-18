@@ -138,7 +138,9 @@ namespace ClothResorting.Helpers
                 poList.Add(new POSummary {
                     PreReceiveOrder = preReceiveOrderInDb,
                     Operator = _userName,
-                    Vendor = preReceiveOrderInDb.CustomerName
+                    Vendor = preReceiveOrderInDb.CustomerName,
+                    Container = Status.Unknown,
+                    Customer = ""
                 });
             }
 
@@ -178,7 +180,7 @@ namespace ClothResorting.Helpers
                     //扫描每一种SKU有多少种Size及数量
                     var sizeList = new List<SizeRatio>();
                     var countOfSize = countOfColumn - 14;
-                    var poType = _ws.Cells[startIndex + 1 + j, 8].Value2 == null ? "Solid Pack" : _ws.Cells[startIndex + 1 + j, 8].Value2.ToString();
+                    var poType = _ws.Cells[startIndex + 1 + j, 8].Value2 == null ? OrderType.SolidPack : OrderType.Prepack;
 
                     for (int k = 0; k < countOfSize; k++)
                     {
@@ -196,12 +198,58 @@ namespace ClothResorting.Helpers
                         {
                             if (size.Count != 0)
                             {
+                                try
+                                {
+                                    _netWeight = _ws.Cells[startIndex + 1 + j, 7].Value2;
+                                    _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
+                                    _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
+                                    _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
+                                    var cartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString();
+                                    var cartons = _ws.Cells[startIndex + 1 + j, 10].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 10].Value2;
+
+                                    cartonDetailList.Add(new RegularCartonDetail
+                                    {
+                                        CartonRange = cartonRange,
+                                        PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
+                                        Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
+                                        Customer = _runCode == null ? "" : _runCode.ToString(),
+                                        Dimension = _dimension == null ? "" : _dimension.ToString(),
+                                        GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
+                                        NetWeight = _netWeight == null ? 0 : (double)_netWeight,
+                                        Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
+                                        Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
+                                        PcsPerCarton = size.Count,
+                                        Quantity = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? cartons * size.Count : cartonDetailList.SingleOrDefault(x => x.CartonRange == cartonRange && x.Cartons != 0).Cartons * size.Count,         //首先查找当前对象是不是第一个出现该carton range的对象，查找当前carton range的第一个对象的箱数，乘以当前对象的单位件数即是当前对象的总件数
+                                        SizeBundle = size.SizeName,
+                                        PcsBundle = size.Count.ToString(),
+                                        Status = Status.NewCreated,
+                                        OrderType = poType,
+                                        POSummary = poSummary,
+                                        Comment = "",
+                                        Operator = _userName,
+                                        Receiver = "",
+                                        Adjustor = "",
+                                        Vendor = vendor,
+                                        SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                        ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
+                                    });
+                                }
+                                catch(Exception e)
+                                {
+                                    throw new Exception("Check around row start from " + startIndex);
+                                }
+                            }
+                        }
+                        //如果每一个Size都为0，那么用第一个Size生成一个新的对象作为留底记录
+                        if (IsAllSizeEmpty(sizeList))
+                        {
+                            try
+                            {
                                 _netWeight = _ws.Cells[startIndex + 1 + j, 7].Value2;
                                 _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
                                 _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
                                 _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
                                 var cartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString();
-                                var cartons = _ws.Cells[startIndex + 1 + j, 10].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 10].Value2;
 
                                 cartonDetailList.Add(new RegularCartonDetail
                                 {
@@ -213,11 +261,11 @@ namespace ClothResorting.Helpers
                                     GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
                                     NetWeight = _netWeight == null ? 0 : (double)_netWeight,
                                     Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
-                                    Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
-                                    PcsPerCarton = size.Count,
-                                    Quantity = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? cartons * size.Count : cartonDetailList.SingleOrDefault(x => x.CartonRange == cartonRange && x.Cartons != 0).Cartons * size.Count,         //首先查找当前对象是不是第一个出现该carton range的对象，查找当前carton range的第一个对象的箱数，乘以当前对象的单位件数即是当前对象的总件数
-                                    SizeBundle = size.SizeName,
-                                    PcsBundle = size.Count.ToString(),
+                                    Cartons = _ws.Cells[startIndex + 1 + j, 10].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
+                                    PcsPerCarton = 0,
+                                    Quantity = 0,
+                                    SizeBundle = sizeList[0].SizeName,      //用第一个Size名称占位
+                                    PcsBundle = "0",
                                     Status = Status.NewCreated,
                                     OrderType = poType,
                                     POSummary = poSummary,
@@ -230,9 +278,25 @@ namespace ClothResorting.Helpers
                                     ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                 });
                             }
+                            catch (Exception e)
+                            {
+                                throw new Exception("Check around row start from " + startIndex);
+                            }
                         }
-                        //如果每一个Size都为0，那么用第一个Size生成一个新的对象作为留底记录
-                        if (IsAllSizeEmpty(sizeList))
+                    }
+                    else if (poType == OrderType.Prepack)    //prepack类型的po，即最小入库计量单位为箱(carton)或者件(pcs), size和pcs可以为捆绑字符，如S M L XL/1 2 2 1
+                    {
+                        var sizeBundle = sizeList[0].SizeName;
+                        var pcsBundle = sizeList[0].Count.ToString();
+
+                        //统计当前SKU中的size组合
+                        for (int k = 1; k < sizeList.Count; k++)
+                        {
+                            sizeBundle += " " + sizeList[k].SizeName;
+                            pcsBundle += " " + sizeList[k].Count.ToString();
+                        }
+
+                        try
                         {
                             _netWeight = _ws.Cells[startIndex + 1 + j, 7].Value2;
                             _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
@@ -250,11 +314,11 @@ namespace ClothResorting.Helpers
                                 GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
                                 NetWeight = _netWeight == null ? 0 : (double)_netWeight,
                                 Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
-                                Cartons = _ws.Cells[startIndex + 1 + j, 10].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 10].Value2,
-                                PcsPerCarton = 0,
-                                Quantity = 0,
-                                SizeBundle = sizeList[0].SizeName,      //用第一个Size名称占位
-                                PcsBundle = "0",
+                                PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 3].Value2,
+                                Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 2].Value2,
+                                Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
+                                SizeBundle = sizeBundle,
+                                PcsBundle = pcsBundle,
                                 Status = Status.NewCreated,
                                 OrderType = poType,
                                 POSummary = poSummary,
@@ -264,54 +328,13 @@ namespace ClothResorting.Helpers
                                 Adjustor = "",
                                 Vendor = vendor,
                                 SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
-                                ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
+                                ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString()
                             });
                         }
-                    }
-                    else if (poType == OrderType.Prepack)    //prepack类型的po，即最小入库计量单位为箱(carton)或者件(pcs), size和pcs可以为捆绑字符，如S M L XL/1 2 2 1
-                    {
-                        var sizeBundle = sizeList[0].SizeName;
-                        var pcsBundle = sizeList[0].Count.ToString();
-
-                        //统计当前SKU中的size组合
-                        for (int k = 1; k < sizeList.Count; k++)
+                        catch (Exception e)
                         {
-                            sizeBundle += " " + sizeList[k].SizeName;
-                            pcsBundle += " " + sizeList[k].Count.ToString();
+                            throw new Exception("Check around row start from " + startIndex);
                         }
-
-                        _netWeight = _ws.Cells[startIndex + 1 + j, 7].Value2;
-                        _grossWeight = _ws.Cells[startIndex + 1 + j, 6].Value2;
-                        _runCode = _ws.Cells[startIndex + 1 + j, 4].Value2;
-                        _dimension = _ws.Cells[startIndex + 1 + j, 5].Value2;
-                        var cartonRange = _ws.Cells[startIndex + 1 + j, 1].Value2.ToString();
-
-                        cartonDetailList.Add(new RegularCartonDetail
-                        {
-                            CartonRange = cartonRange,
-                            PurchaseOrder = _ws.Cells[startIndex + 1 + j, 2].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, 2].Value2.ToString(),
-                            Style = _ws.Cells[startIndex + 1 + j, 3].Value2.ToString(),
-                            Customer = _runCode == null ? "" : _runCode.ToString(),
-                            Dimension = _dimension == null ? "" : _dimension.ToString(),
-                            GrossWeight = _grossWeight == null ? 0 : (double)_grossWeight,
-                            NetWeight = _netWeight == null ? 0 : (double)_netWeight,
-                            Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
-                            PcsPerCarton = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 3].Value2,
-                            Quantity = (int)_ws.Cells[startIndex + 1 + j, countOfColumn - 2].Value2,
-                            Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
-                            SizeBundle = sizeBundle,
-                            PcsBundle = pcsBundle,
-                            Status = Status.NewCreated,
-                            OrderType = poType,
-                            POSummary = poSummary,
-                            Comment = "",
-                            Operator = _userName,
-                            Receiver = "",
-                            Adjustor = "",
-                            Vendor = vendor,
-                            SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
-                            ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString()
-                        });
                     }
 
                     //经过计算cartonDetailList的信息，重新补充POSummary的信息
