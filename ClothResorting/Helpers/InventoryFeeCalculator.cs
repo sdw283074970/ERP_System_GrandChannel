@@ -42,7 +42,11 @@ namespace ClothResorting.Helpers
             _ws = _wb.Worksheets[1];
             var countOfEntries = 0;
             var index = 2;
-            while(index > 0)
+
+            _ws.Cells[1, 11] = timeUnit + "s Stored in Billing Period";
+            _ws.Cells[1, 12] = "Charge From " + timeUnit;
+
+            while (index > 0)
             {
                 if (_ws.Cells[index, 1].Value2 != null)
                 {
@@ -66,6 +70,9 @@ namespace ClothResorting.Helpers
                 double storageCharge = 0;
                 double lastFee = 0;
 
+                _ws.Cells[i + 2, 11] = storedDuration;
+                _ws.Cells[i + 2, 12] = startTimeUnit;
+
                 //查找应该从第几个时间单位开始计费(查找开始计费的时间落在哪个计费区域)
                 int starIndex = 0;
                 for(int k = 0; k < chargeMethodsList.Count(); k++)
@@ -75,24 +82,30 @@ namespace ClothResorting.Helpers
                         starIndex = k;
                         break;
                     }
+
+                    if (startTimeUnit > chargeMethodsList[chargeMethodsList.Count - 1].From)
+                    {
+                        starIndex = chargeMethodsList.Count - 1;
+                        break;
+                    }
                 }
 
                 for( int j = starIndex; j < chargeMethods.Count(); j++)
                 {
-                    if (j == starIndex)
+                    lastFee = chargeMethodsList[j].Fee;
+
+                    if (j == starIndex && j != chargeMethods.Count() -1)
                     {
                         var currentDuration = chargeMethodsList[j].To - startTimeUnit + 1;
                         if (storedDuration >= currentDuration)
                         {
                             storageCharge += currentDuration * chargeMethodsList[j].Fee * totalPlts;
                             storedDuration -= currentDuration;
-                            lastFee = chargeMethodsList[j].Fee;
                         }
                         else
                         {
                             storageCharge += storedDuration * chargeMethodsList[j].Fee * totalPlts;
                             storedDuration = 0;
-                            lastFee = chargeMethodsList[j].Fee;
                         }
                     }
                     else
@@ -101,13 +114,11 @@ namespace ClothResorting.Helpers
                         {
                             storageCharge += chargeMethodsList[j].Duration * chargeMethodsList[j].Fee * totalPlts;
                             storedDuration -= chargeMethodsList[j].Duration;
-                            lastFee = chargeMethodsList[j].Fee;
                         }
                         else if (storedDuration < chargeMethodsList[j].Duration)
                         {
                             storageCharge += storedDuration * chargeMethodsList[j].Fee * totalPlts;
                             storedDuration = 0;
-                            lastFee = chargeMethodsList[j].Fee;
                             break;
                         }
                     }
@@ -122,11 +133,11 @@ namespace ClothResorting.Helpers
             }
 
             //打上账单日
-            _ws.Cells[countOfEntries + 3, 2] = "Last Billing Date:";
+            _ws.Cells[countOfEntries + 3, 2] = "Start Billing Date:";
             _ws.Cells[countOfEntries + 3, 3] = lastBillingDate;
 
-            _ws.Cells[countOfEntries + 3, 5] = "Current Billing Date:";
-            _ws.Cells[countOfEntries + 3, 6] = currentBillingDate;
+            _ws.Cells[countOfEntries + 3, 8] = "Close Billing Date:";
+            _ws.Cells[countOfEntries + 3, 9] = currentBillingDate;
 
             _wb.Save();
             _excel.Quit();
