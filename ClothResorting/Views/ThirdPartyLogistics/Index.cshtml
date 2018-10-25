@@ -17,6 +17,7 @@
         <input id="btn-search" type="button" class="btn btn-primary" value="Search Inventory" />
         <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" />
         <input id="btn-invoice" type="button" class="btn btn-primary" value="Manage Invoice" />
+        <img src="~/Img/c2qb_green_btn_lg_default.png" id="img-connect" class="btn" alt="Connect to QBO" style="height:48px"/>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -313,6 +314,24 @@
 
             $("#btn-invoice").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/invoicemanagement/?departmentCode=CD');
+            });
+
+            //获取QBO授权
+            $("#img-connect").on("click", function () {
+                $.ajax({
+                    type: "GET",
+                    url: "/api/QuickBooksOnlineOAuth/",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    success: function (data) {
+                        $(window.location).attr('href', data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

@@ -6,12 +6,15 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.ComponentModel.DataAnnotations.Schema;
 using ClothResorting.Models.Interface;
 using ClothResorting.Models.FBAModels;
+using System.Collections.Generic;
 
 namespace ClothResorting.Models
 {
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
     public class ApplicationUser : IdentityUser
     {
+        public ICollection<OAuthInfo> OAuthInfo { get; set; }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
@@ -54,6 +57,7 @@ namespace ClothResorting.Models
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
         public DbSet<ChargingItem> ChargingItems { get; set; }
+        public DbSet<OAuthInfo> OAuthInfo { get; set; }
 
         public static ApplicationDbContext Create()
         {

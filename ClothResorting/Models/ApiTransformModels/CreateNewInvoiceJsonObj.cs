@@ -11,7 +11,7 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string DepartmentCode { get; set; }
 
-        public string InvoiceNumber { get; set; }
+        //public string InvoiceNumber { get; set; }
 
         public string Container { get; set; }
 
@@ -33,6 +33,6 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string Currency { get; set; }
 
-        public string Terms { get; set; }
+        //public string Terms { get; set; }
     }
 }

@@ -28,12 +28,12 @@
                     <th>ISSUE DATE</th>
                     <th>TOTAL DUE</th>
                     <th>DUE DATE</th>
-                    <th>TERMS</th>
                     <th>ENCLOSED</th>
                     <th>SHIP DATE</th>
                     <th>SHIP VIA</th>
                     <th>CURRENCY</th>
-                    <th style="width:180px">OPERATION</th>
+                    <th>REQUEST ID</th>
+                    <th style="width:220px">OPERATION</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -42,12 +42,12 @@
 </div>
 <div class="iframe">
     <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
-        <text>INVOICE#: </text><input type="text" id='input-invoicenumber' style='width:170px' class='input-sm' placeholder='Invoice Number' /><br />
+@*        <text>INVOICE#: </text><input type="text" id='input-invoicenumber' style='width:170px' class='input-sm' placeholder='Invoice Number' /><br />*@
         <text>PO: </text><input type="text" id='input-po' style='width:170px' class='input-sm' placeholder='Purchase Order' /><br />
         <text>CONTAINER: </text><input type="text" id='input-container' style='width:170px' class='input-sm' placeholder='Container Number' /><br />
         <text>ENCLOSED: </text><input type="text" id='input-enclosed' style='width:170px' class='input-sm' placeholder='Enclosed' /><br />
         <text>SHIP VIA: </text><input type="text" id='input-shipvia' style='width:170px' class='input-sm' placeholder='Ship Via' /><br />
-        <text>TERMS: </text><input type="text" id='input-terms' style='width:170px' class='input-sm' placeholder='Terms' /><br />
+        @*<text>TERMS: </text><input type="text" id='input-terms' style='width:170px' class='input-sm' placeholder='Terms' /><br />*@
         <text>ISSUE DATE: </text><input id='input-invoicedate' type="date" style='width:170px' /><br />
         <text>DUE DATE: </text><input id='input-duedate' type="date" style='width:170px' /><br />
         <text>SHIP DATE: </text><input id='input-shipdate' type="date" style='width:170px' /><br />
@@ -69,6 +69,9 @@
 
             var table;
             var vendor;
+            var state;
+            var realmId;
+            var code;
             $(".iframe").hide();
 
             //解析url中的参数函数
@@ -88,10 +91,33 @@
             };
 
             var departmentCode = getUrlParameter('departmentCode');
+            state = getUrlParameter('state');
+            code = getUrlParameter('code');
+            realmId = getUrlParameter('realmId');
+
+            //将重定向的URL中传递的三个授权参数送到后台进行下一步授权认证
+            if (typeof (state) != "undefined" || typeof (code) != "undefined" || typeof (realmId) != "undefined")
+            {
+                $.ajax({
+                    type: "POST",
+                    url: "/api/QuickBooksOnlineOAuth/?state=" + state + "&code=" + code + "&realmId=" + realmId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: "",
+                    success: function (data) {
+                        layer.alert("User info has been synchronized with Quick Books.");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            }
 
             //动态获取Vendor数据
             $.ajax({
-                type: "GET",
+                type: "GET", 
                 url: "/api/uppervendor/?departmentCode=" + departmentCode,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
@@ -171,12 +197,6 @@
                                         }
                                     },
                                     {
-                                        data: "terms",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
                                         data: "enclosed",
                                         render: function (data) {
                                             return "<text>" + data + "</text>";
@@ -201,9 +221,15 @@
                                         }
                                     },
                                     {
+                                        data: "requestId",
+                                        render: function (data) {
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
                                         data: "id",
                                         render: function (data) {
-                                            return "<button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                            return "<img style='height:40px' id='img-sync' iid ='" + data + "'src='/Img/c2qb_green_btn_sm_default.png' class='btn' alt='Sync' /><button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
                                         }
                                     }
                                 ]
@@ -217,7 +243,7 @@
                     });
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                         window.location.reload();
                     });
                 }
@@ -296,12 +322,6 @@
                                     }
                                 },
                                 {
-                                    data: "terms",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
                                     data: "enclosed",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
@@ -326,9 +346,15 @@
                                     }
                                 },
                                 {
+                                    data: "requestId",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
                                     data: "id",
                                     render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                        return "<img style='height:40px' id='img-sync' iid ='" + data + "'src='/Img/c2qb_green_btn_sm_default.png' class='btn' alt='Sync' /><button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
                                     }
                                 }
                             ]
@@ -355,7 +381,7 @@
 
             //点击new invoice按钮创建新invoice
             $("#div-iframe").on("click", "#btn-add", function () { 
-                var invoiceNumber = $("#input-invoicenumber").val().toString();
+                //var invoiceNumber = $("#input-invoicenumber").val().toString();
                 var po = $("#input-po").val().toString();
                 var container = $("#input-container").val() == "" ? "" : $("#input-container").val().toString();
                 var invoiceDate = $("#input-invoicedate").val().toString();
@@ -371,7 +397,7 @@
                 var obj = {
                     "vendor": vendor,
                     "departmentCode": departmentCode,
-                    "invoiceNumber": invoiceNumber,
+                    //"invoiceNumber": invoiceNumber,
                     "purchaseOrder": po,
                     "container": container,
                     "invoiceDate": invoiceDate,
@@ -382,7 +408,7 @@
                     "billTo": billTo,
                     "shipTo": shipTo,
                     "currency": currency,
-                    "terms": terms
+                    //"terms": terms
                 };
 
                 $.ajax({
@@ -424,12 +450,12 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
-                        $("#input-invoicenumber").val(data.invoiceNumber);
+                        //$("#input-invoicenumber").val(data.invoiceNumber);
                         $("#input-po").val(data.purchaseOrder);
                         $("#input-invoicedate").val(data.invoiceDate);
                         $("#input-duedate").val(data.dueDate);
                         $("#input-enclosed").val(data.enclosed);
-                        $("#input-terms").val(data.terms);
+                        //$("#input-terms").val(data.terms);
                         $("#input-shipdate").val(data.shipDate)
                         $("#input-shipvia").val(data.shipVia);
                         $("#input-billto").html(data.billTo);
@@ -459,7 +485,7 @@
             //点击保存按钮保存改动，成功后刷新页面
             $("#div-iframe").on("click", "#btn-save", function () {
                 var id = $(this).attr('iid');
-                var invoiceNumber = $("#input-invoicenumber").val().toString();
+                //var invoiceNumber = $("#input-invoicenumber").val().toString();
                 var po = $("#input-po").val().toString();
                 var invoiceDate = $("#input-invoicedate").val().toString();
                 var dueDate = $("#input-duedate").val().toString();
@@ -468,14 +494,14 @@
                 var shipVia = $("#input-shipvia").val().toString();
                 var billTo = $("#input-billto").val().toString();
                 var shipTo = $("#input-shipto").val().toString();
-                var terms = $("#input-terms").val();
+                //var terms = $("#input-terms").val();
                 var container = $("#input-container").val() == "" ? "" : $("#input-container").val().toString();
                 var currency = $("#select-currency option:selected").val();
 
                 var obj = {
                     "vendor": vendor,
                     "departmentCode": departmentCode,
-                    "invoiceNumber": invoiceNumber,
+                    //"invoiceNumber": invoiceNumber,
                     "purchaseOrder": po,
                     "invoiceDate": invoiceDate,
                     "dueDate": dueDate,
@@ -485,7 +511,7 @@
                     "billTo": billTo,
                     "shipTo": shipTo,
                     "currency": currency,
-                    "terms": terms,
+                    //"terms": terms,
                     "container": container
                 };
 
@@ -530,6 +556,28 @@
                     url: "/api/invoicemanagement/" + id,
                     success: function () {
                         layer.alert("Delete success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击同步按钮，上传Invoice到QB中去
+            $("#table").on("click", "#img-sync", function () {
+                var id = $(this).attr('iid');
+
+                $.ajax({
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    url: "/api/QuickBooksOnlineOAuth/" + id,
+                    success: function () {
+                        layer.alert("Success!", function () {
                             window.location.reload();
                         });
                     },

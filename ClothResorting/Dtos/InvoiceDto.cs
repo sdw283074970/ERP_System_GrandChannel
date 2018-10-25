@@ -17,8 +17,6 @@ namespace ClothResorting.Dtos
 
         public string BillTo { get; set; }
 
-        public string Terms { get; set; }
-
         public string Enclosed { get; set; }
 
         public string ShipTo { get; set; }
@@ -38,6 +36,8 @@ namespace ClothResorting.Dtos
         public string Container { get; set; }
 
         public string Status { get; set; }
+
+        public string RequestId { get; set; }
 
     }
 }

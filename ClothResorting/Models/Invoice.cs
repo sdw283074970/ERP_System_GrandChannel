@@ -17,8 +17,6 @@ namespace ClothResorting.Models
 
         public string BillTo { get; set; }
 
-        public string Terms { get; set; }
-
         public string Enclosed { get; set; }
 
         public string ShipTo { get; set; }
@@ -31,13 +29,15 @@ namespace ClothResorting.Models
 
         public string InvoiceDate { get; set; }
 
-        public string DueDate { get;set;}
+        public string DueDate { get; set; }
 
         public string ShipDate { get; set; }
 
         public string Container { get; set; }
 
         public string Status { get; set; }
+
+        public string RequestId { get; set; }
 
         public UpperVendor UpperVendor { get; set; }
 

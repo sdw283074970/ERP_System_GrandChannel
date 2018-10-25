@@ -53,11 +53,10 @@ namespace ClothResorting.Controllers.Api
 
             var newInvoice = new Invoice
             {
-                InvoiceNumber = obj.InvoiceNumber,
+                InvoiceNumber = "Unsynchronised",
                 InvoiceType = "",
                 InvoiceDate = obj.InvoiceDate,
                 TotalDue = 0,
-                Terms = obj.Terms,
                 PurchaseOrder = obj.PurchaseOrder,
                 DueDate = obj.DueDate,
                 Enclosed = obj.Enclosed,
@@ -67,7 +66,8 @@ namespace ClothResorting.Controllers.Api
                 ShipTo = obj.ShipTo,
                 Currency = obj.Currency,
                 UpperVendor = vendorInDb,
-                Container = obj.Container
+                Container = obj.Container,
+                RequestId = ""
             };
 
 
@@ -98,9 +98,8 @@ namespace ClothResorting.Controllers.Api
         {
             var invoiceInDb = _context.Invoices.Find(id);
 
-            invoiceInDb.InvoiceNumber = obj.InvoiceNumber;
+            //invoiceInDb.InvoiceNumber = obj.InvoiceNumber;
             invoiceInDb.InvoiceDate = obj.InvoiceDate;
-            invoiceInDb.Terms = obj.Terms;
             invoiceInDb.PurchaseOrder = obj.PurchaseOrder;
             invoiceInDb.DueDate = obj.DueDate;
             invoiceInDb.Enclosed = obj.Enclosed;
