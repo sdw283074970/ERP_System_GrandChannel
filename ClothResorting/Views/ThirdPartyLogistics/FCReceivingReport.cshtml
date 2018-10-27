@@ -10,7 +10,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
-    </head>
+        <meta name="description" content="The description of my page" />
+</head>
 <body>
     <h1>Third-party Logistics Distribution System</h1>
     <h2>Receiving Report</h2>
@@ -46,6 +47,7 @@
                         <th style="width:100px">Inbound Qty</th>
                         <th style="width:80px">Fcs Ctns</th>
                         <th style="width:100px">Inbound Ctns</th>
+                        <th style="width:80px">SKU</th>
                         <th style="width:100px">Memo</th>
                         <th>Comment</th>
                     </tr>
@@ -54,6 +56,7 @@
                 <tfoot>
                     <tr>
                         <th colspan="8" style="text-align:right">Total:</th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -213,6 +216,12 @@
                             render: function (data) {
                                 //receivedCtns += data;
                                 return "<font color='red'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "sku",
+                            render: function (data) {
+                                return "<font>" + data + "</font>";
                             }
                         },
                         {

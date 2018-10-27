@@ -52,6 +52,7 @@ namespace ClothResorting.Controllers.Api
                     ReceivableCtns = cartonDetail.Cartons,
                     ReceivedCtns = cartonDetail.ActualCtns,
                     Color = cartonDetail.Color,
+                    SKU = cartonDetail.SKU,
                     Memo = "",
                     Comment = cartonDetail.Comment
                 };
@@ -78,7 +79,7 @@ namespace ClothResorting.Controllers.Api
             var generator = new ExcelGenerator();
             generator.GenerateRecevingReportExcel(containerInDb, resultList);
 
-            return Ok();
+            return Ok(resultList);
         }
     }
 }

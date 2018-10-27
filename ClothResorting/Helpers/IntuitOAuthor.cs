@@ -36,10 +36,10 @@ namespace ClothResorting.Helpers
         static string logPath = ConfigurationManager.AppSettings["logPath"];
         static string appEnvironment = ConfigurationManager.AppSettings["appEnvironment"];
         static OAuth2Client oauthClient = new OAuth2Client(clientID, clientSecret, redirectURI, appEnvironment);
-        static string authCode;
-        static string idToken;
-        public static IList<JsonWebKey> keys;
-        public static Dictionary<string, string> dictionary = new Dictionary<string, string>();
+        //static string authCode;
+        //static string idToken;
+        //public static IList<JsonWebKey> keys;
+        //public static Dictionary<string, string> dictionary = new Dictionary<string, string>();
 
         public IntuitOAuthor()
         {
@@ -77,7 +77,7 @@ namespace ClothResorting.Helpers
             var userInDb = _context.Users
                 .Include(x => x.OAuthInfo)
                 .SingleOrDefault(x => x.Id == userId);
-
+            
             if (userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO) == null)
             {
                 _context.OAuthInfo.Add(new OAuthInfo
@@ -89,7 +89,7 @@ namespace ClothResorting.Helpers
                     ApplicationUser = userInDb
                 });
             }
-            else
+            else if (accessToken != null || refreshToken != null)
             {
                 userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).AccessToken = accessToken;
                 userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).refreshToken = refreshToken;
@@ -132,7 +132,7 @@ namespace ClothResorting.Helpers
         }
 
         //调用API查询CUSTOMER
-        public ICollection<Customer> GetAllCustomer(string userId)
+        public Customer GetAllCustomer(string userId)
         {
             var oauthInfo = _context.Users
                 .Include(x => x.OAuthInfo)
@@ -142,11 +142,44 @@ namespace ClothResorting.Helpers
 
             var oauthValidator = new OAuth2RequestValidator(oauthInfo.AccessToken);
             var serviceContext = new ServiceContext(oauthInfo.RealmId, IntuitServicesType.QBO, oauthValidator);
-            var commonServiceQBO = new DataService(serviceContext);
-            var inService = new QueryService<Customer>(serviceContext);
-            var result = inService.ExecuteIdsQuery("SELECT * FROM Customer");
 
-            return result;
+            serviceContext.RequestId = GuidGenerator.GenerateGuid();
+
+            //因为Configuration的识别有问题，只能手动指定以下属性
+            serviceContext.IppConfiguration.MinorVersion.Qbo = "8";
+            //serviceContext.IppConfiguration.Message.Request.SerializationFormat = Intuit.Ipp.Core.Configuration.SerializationFormat.Xml;
+            //serviceContext.IppConfiguration.Message.Request.CompressionFormat = Intuit.Ipp.Core.Configuration.CompressionFormat.GZip;
+            //serviceContext.IppConfiguration.Message.Response.SerializationFormat = Intuit.Ipp.Core.Configuration.SerializationFormat.Xml;
+            //serviceContext.IppConfiguration.Message.Response.CompressionFormat = Intuit.Ipp.Core.Configuration.CompressionFormat.GZip;
+
+            var dataService = new DataService(serviceContext);
+
+            serviceContext.RequestId = GuidGenerator.GenerateGuid();
+            //var inService = new QueryService<Customer>(serviceContext);
+            //try
+            //{
+                //var result = inService.ExecuteIdsQuery("SELECT * FROM Customer").FirstOrDefault();
+                var customer = new Customer {
+                    GivenName = "QQQ",
+                    Title = "WWW",
+                    MiddleName = "EEE",
+                    FamilyName = "AAA"
+                };
+
+                
+
+                var result = dataService.Add(customer) as Customer;
+
+            //}
+            //catch(Exception e)
+            //{
+            //    throw new Exception();
+            //}
+            //var customerTest = new CustomerCRUD();
+
+            //var result = customerTest.CustomerFindAllTestUsingoAuth(serviceContext);
+
+            return new Customer();
         }
         #region 私有方法
         public void output(string logMsg)

@@ -10,28 +10,28 @@ namespace ClothResortingUnitTest.Helpers
     [TestFixture]
     public class TesterTests
     {
-        [Test]
-        [TestCase("12-15", 12)]
-        [TestCase("122", 122)]
-        public void GetFrom_WhenInputString_ReturnCorrectNumber(string cartonNumberRange, int expect)
-        {
-            var test = new Tester();
+        //[Test]
+        //[TestCase("12-15", 12)]
+        //[TestCase("122", 122)]
+        //public void GetFrom_WhenInputString_ReturnCorrectNumber(string cartonNumberRange, int expect)
+        //{
+        //    var test = new Tester();
 
-            var result = test.GetFrom(cartonNumberRange);
+        //    var result = test.GetFrom(cartonNumberRange);
 
-            Assert.That(result, Is.EqualTo(expect));
-        }
+        //    Assert.That(result, Is.EqualTo(expect));
+        //}
 
-        [Test]
-        [TestCase("12-15", 15)]
-        [TestCase("122", 122)]
-        public void GetTo_WhenInputString_ReturnCorrectNumber(string cartonNumberRange, int expect)
-        {
-            var test = new Tester();
+        //[Test]
+        //[TestCase("12-15", 15)]
+        //[TestCase("122", 122)]
+        //public void GetTo_WhenInputString_ReturnCorrectNumber(string cartonNumberRange, int expect)
+        //{
+        //    var test = new Tester();
 
-            var result = test.GetTo(cartonNumberRange);
+        //    var result = test.GetTo(cartonNumberRange);
 
-            Assert.That(result, Is.EqualTo(expect));
-        }
+        //    Assert.That(result, Is.EqualTo(expect));
+        //}
     }
 }

@@ -33,6 +33,8 @@ namespace ClothResorting.Models.DataTransferModels
 
         public int ReceivedCtns { get; set; }
 
+        public string SKU { get; set; }
+
         public string Memo { get; set; }
 
         public string Comment { get; set; }

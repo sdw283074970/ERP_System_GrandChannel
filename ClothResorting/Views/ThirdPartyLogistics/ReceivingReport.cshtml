@@ -35,9 +35,10 @@
                     <th style="width:80px">Ttl Qty</th>
                     <th style="width:80px">Fcs Ctns</th>
                     <th style="width:80px">Ttl Ctns</th>
-                    <th>Comment</th>
+                    <th style="width:80px">SKU</th>
                     <th style="width:80px">Received By</th>
                     <th style="width:80px">Adjusted By</th>
+                    <th>Comment</th>
                     <th style="width:80px">Operation</th>
                 </tr>
             </thead>
@@ -163,9 +164,9 @@
                                 }
                             },
                             {
-                                data: "comment",
+                                data: "sku",
                                 render: function (data) {
-                                    return "<font>" + data + "</font>";
+                                    return "<font color='red'>" + data + "</font>";
                                 }
                             },
                             {
@@ -176,6 +177,12 @@
                             },
                             {
                                 data: "adjustor",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "comment",
                                 render: function (data) {
                                     return "<font>" + data + "</font>";
                                 }
@@ -196,8 +203,8 @@
                 var button = $(this);
                 var cartonDetailId = button.attr('id');
 
-                var commentObj = button.parent().parent("tr").children('td').eq(10).children('font');
-                var content = button.parent().parent("tr").children('td').eq(10).children('font').html();
+                var commentObj = button.parent().parent("tr").children('td').eq(13).children('font');
+                var content = button.parent().parent("tr").children('td').eq(13).children('font').html();
 
                 commentObj.replaceWith("<input class='input-lg' value='" + content + "' />");
                 button.replaceWith("<button id='" + cartonDetailId + "' class='btn btn-link btn-confirm'>Ok</button>");
@@ -208,7 +215,7 @@
                 var button = $(this);
                 var cartonDetailId = button.attr('id');
 
-                var commentObj = button.parent().parent("tr").children('td').eq(10).children("input");
+                var commentObj = button.parent().parent("tr").children('td').eq(13).children("input");
                 var content = commentObj.val();
 
                 var obj = {

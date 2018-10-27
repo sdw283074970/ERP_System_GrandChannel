@@ -25,23 +25,23 @@ namespace ClothResorting.Helpers
             var sheet = doc.Workbook.Worksheets.Add("Sheet1");
             var cells = sheet.Cells;
 
-            //调整第1~4,8~9,12~14列宽度
+            //调整第1~4,7~15列宽度
             var col1_4 = new ColumnInfo(doc, sheet);
-            var col7_14 = new ColumnInfo(doc, sheet);
+            var col7_15 = new ColumnInfo(doc, sheet);
 
             col1_4.ColumnIndexStart = 0;
             col1_4.ColumnIndexEnd = 3;
-            col7_14.ColumnIndexStart = 6;
-            col7_14.ColumnIndexEnd = 13;
+            col7_15.ColumnIndexStart = 6;
+            col7_15.ColumnIndexEnd = 14;
 
             col1_4.Width = 16 * 256;
-            col7_14.Width = 16 * 256;
+            col7_15.Width = 16 * 256;
 
             sheet.AddColumnInfo(col1_4);
-            sheet.AddColumnInfo(col7_14);
+            sheet.AddColumnInfo(col7_15);
 
-            //定义合并单元格，合并从[1,1]到[2,14]的范围
-            sheet.AddMergeArea(new MergeArea(1, 2, 1, 14));
+            //定义合并单元格，合并从[1,1]到[2,15]的范围
+            sheet.AddMergeArea(new MergeArea(1, 2, 1, 15));
 
             //创建题目单元格样式，垂直水平且居中
             var xfTitle = doc.NewXF();
@@ -99,7 +99,7 @@ namespace ClothResorting.Helpers
             cells.Add(10, 2, container.Remark, xf);
 
             //建立列
-            var columnNames = "Sequence,Range,Cut Po,Style,Customer,Color,Size,Pcs,Receivable Qty,Inbound Qty,Receivable Ctns,Inbound Ctns,Memo,Comment";
+            var columnNames = "Sequence,Range,Cut Po,Style,Customer,Color,Size,Pcs,Receivable Qty,Inbound Qty,Receivable Ctns,Inbound Ctns,SKU,Memo,Comment";
             var index = 1;
 
             foreach(var columnName in columnNames.Split(','))
@@ -124,8 +124,9 @@ namespace ClothResorting.Helpers
                 cells.Add(13 + index, 10, r.ReceivedQty, xf);
                 cells.Add(13 + index, 11, r.ReceivableCtns, xf);
                 cells.Add(13 + index, 12, r.ReceivedCtns, xf);
-                cells.Add(13 + index, 13, r.Memo, xf);
-                cells.Add(13 + index, 14, r.Comment, xf);
+                cells.Add(13 + index, 13, r.SKU, xf);
+                cells.Add(13 + index, 14, r.Memo, xf);
+                cells.Add(13 + index, 15, r.Comment, xf);
                 index++;
             }
 
