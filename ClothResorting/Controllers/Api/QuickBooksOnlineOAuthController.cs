@@ -74,11 +74,11 @@ namespace ClothResorting.Controllers.Api
             System.Threading.Tasks.Task.Run(async () => { await _intuitOAuth.RefreshToken(userId); }).Wait();
 
             //同步invoice到QBO中
+            var service = new QBOServiceManager();
 
-            //查询所有的客户
-            var result = _intuitOAuth.GetAllCustomer(userId);
+            service.SyncChargingItemToQBO(id);
 
-            return Created(Request.RequestUri, result);
+            return Created(Request.RequestUri, "Sync Success!");
         }
     }
 }

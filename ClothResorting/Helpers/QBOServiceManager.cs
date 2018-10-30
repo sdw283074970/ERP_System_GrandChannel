@@ -10,6 +10,8 @@ using System.Web.Script.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
 using Jil;
+using ClothResorting.Models.QBOModels;
+using Newtonsoft.Json;
 
 namespace ClothResorting.Helpers
 {
@@ -18,57 +20,123 @@ namespace ClothResorting.Helpers
         private ApplicationDbContext _context;
         private string _baseUrl;
         private string _userId;
-        private OAuthInfo _oauthInfo;
 
         public QBOServiceManager()
         {
             _context = new ApplicationDbContext();
             _baseUrl = QuickBookBaseURLs.SandBox;
             _userId = HttpContext.Current.User.Identity.GetUserId<string>();
-            _oauthInfo = _context.Users
+        }
+
+        //将系统中的收费服务项目与QBO中的收费服务对比，将系统中有但QBO中没有的项目同步到QBO中去
+        #region Steps description
+            //1.检查公司ERP系统中的收费项目是否与QBO中的收费项目同步，并同步未同步的部分
+            //2.检查公司ERP系统中的Customer是否与QBO中的Customer同步，如已同步则查询对应Customer的Value，否则报错，显示要求手动同步
+            //3.将要同步的Invoice对象转换成QBO能识别的对象并序列化
+            //4.同步Invoice
+        #endregion
+        public void SyncChargingItemToQBO(int invoiceId)
+        {
+            var oauthInfo = _context.Users
                 .Include(x => x.OAuthInfo)
                 .SingleOrDefault(x => x.Id == _userId)
                 .OAuthInfo
                 .SingleOrDefault(x => x.PlatformName == Platform.QBO);
-        }
 
-        //将系统中的收费服务项目与QBO中的收费服务对比，将系统中有但QBO中没有的项目同步到QBO中去
-        public void SyncChargingItemToQBO()
-        {
+            var invoiceInDb = _context.Invoices
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.UpperVendor)
+                .SingleOrDefault(x => x.Id == invoiceId);
+
+            var companyName = invoiceInDb.UpperVendor.Name;
+
+            var companyId = string.Empty;
+
+            #region Step 1
             //获取系统中所有不重名的收费项目列表(待解决)
             var itemList = _context.ChargingItems.ToList();
-            //var list = _context.ChargingItems.Select(x => new { Type = x.ChargingType, Name = x.Name.Distinct() });
 
             //获取QBO中的收费列表
-            var queryStatement = "SELECT * FROM Item WHERE Type = 'Service'";
-            var stringifiedJsonObj = WebServiceManager.SendQueryRequest(QBOUrlGenerator.QueryRequestUrl(_baseUrl, _oauthInfo.RealmId, queryStatement), _oauthInfo.AccessToken);
+            var itemQuery = "SELECT * FROM Item WHERE Type = 'Service'";
+            var itemJsonResponseData = WebServiceManager.SendQueryRequest(QBOUrlGenerator.QueryRequestUrl(_baseUrl, oauthInfo.RealmId, itemQuery), oauthInfo.AccessToken);
 
             //将获得的Json对象反序列化
-            IList<string> result = new List<string>();
-            using (var input = new StringReader(stringifiedJsonObj))
+            var itemResponseBody = new ItemResponseBody();
+            using (var input = new StringReader(itemJsonResponseData))
             {
-                result = JSON.Deserialize<IList<ChargingItem>>(input).Select(x => x.Name).ToList();
+                //var responseBody = JSON.Deserialize<ResponseBody>(input);     //Jil的反序列化方法不太好用
+                itemResponseBody = JsonConvert.DeserializeObject<ItemResponseBody>(itemJsonResponseData);
             }
 
-            //对比两表，将重复的表抛弃
-            foreach(var item in itemList)
+            //对比两表，将不重复的item做成QBO能接受的对象格式并序列化
+            foreach (var item in itemList)
             {
-                if (result.Contains(item.Name))
+                if (itemResponseBody.QueryResponse.Item.Where(x => x.Name == item.Name).Count() == 0)
                 {
-                    itemList.Remove(item);
+                    var itemCreateRequestModel = new ItemCreateRequestModel {
+                        IncomeAccountRef = new IncomeAccountRef { Value = "1", Name = "Services"},    //默认关联账户是1 Services账户
+                        Name = item.Name,
+                        Type = "Service"
+                    };
+
+                    string itemJsonData = JsonConvert.SerializeObject(itemCreateRequestModel);
+                    //调用建立新Item的API在QBO中建立不重复的收费项目
+                    var itemResponse = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, oauthInfo.RealmId, "item"), itemJsonData, "POST", oauthInfo.AccessToken);
                 }
             }
+            #endregion
 
-            //将筛选后的表做成QBO能接受的对象格式并序列化
-            string stringifieJsonDate = string.Empty;
-            using (var output = new StringWriter())
+            #region Step 2
+            var customerQuery = "SELECT * FROM CUSTOMER WHERE COMPANYNAME = '" + companyName + "'";
+
+            var companyNameJsonResponseData = WebServiceManager.SendQueryRequest(QBOUrlGenerator.QueryRequestUrl(_baseUrl, oauthInfo.RealmId, customerQuery), oauthInfo.AccessToken);
+
+            var customerResponseBody = new CustomerResponseBody();
+            using (var input = new StringReader(itemJsonResponseData))
             {
-                JSON.Serialize(itemList, output);
-                stringifieJsonDate = output.ToString();
+                customerResponseBody = JsonConvert.DeserializeObject<CustomerResponseBody>(companyNameJsonResponseData);
             }
 
-            //调用建立新Item的API在QBO中建立不重复的收费项目
-            var response = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, _oauthInfo.RealmId, "Item"), stringifieJsonDate, "POST", _oauthInfo.AccessToken);
+            //如果响应表示QBO中没有我们要查询的公司，则报错，提示手动在QBO中建立
+            if (customerResponseBody.QueryResponse.MaxResults == 0)
+            {
+                throw new Exception("Company " + companyName + " was not found in QuickBooks. Please create that company in QuickBooks first and try again.");
+            }
+            else
+            {
+                companyId = customerResponseBody.QueryResponse.Customer.Id;
+            }
+            #endregion
+
+            #region Step 3
+            var invoice = new InvoiceCreateRequestBody();
+            var lineList = new List<Line>();
+
+            //查询目标Invoice中的收费项目分别在QBO中的Id(value)
+
+            //生成QBO能接受的invoice格式
+            foreach(var i in invoiceInDb.InvoiceDetails)
+            {
+                var line = new Line {
+                    Amount = i.Rate * i.Quantity,
+                    DetailType = "SalesItemLineDetail",
+                    SalesItemLineDetail = new SalesItemLineDetail {
+                        ItemRef = new ItemRef { Value = "1" },      //明日再战
+                        UnitPrice = i.Rate,
+                        Qty = i.Quantity
+                    },
+                };
+
+                lineList.Add(line);
+            }
+
+            invoice.Line = lineList;
+            invoice.CustomerRef.Value = companyId;
+
+            var invoiceJsonData = JsonConvert.SerializeObject(invoice);
+            var invoiceJsonResponseData = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, oauthInfo.RealmId, "invoice"), invoiceJsonData, "POST", oauthInfo.AccessToken);
+            
+            #endregion
         }
     }
 }

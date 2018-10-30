@@ -131,56 +131,57 @@ namespace ClothResorting.Helpers
             }
         }
 
-        //调用API查询CUSTOMER
-        public Customer GetAllCustomer(string userId)
-        {
-            var oauthInfo = _context.Users
-                .Include(x => x.OAuthInfo)
-                .SingleOrDefault(x => x.Id == userId)
-                .OAuthInfo
-                .SingleOrDefault(x => x.PlatformName == Platform.QBO);
+        //调用API查询CUSTOMER。这是官方SDK方法，在建立URL时会报错无法识别URL，可能是自带方法的编码有BUG，弃用。
+        //public Customer GetAllCustomer(string userId)
+        //{
+        //    var oauthInfo = _context.Users
+        //        .Include(x => x.OAuthInfo)
+        //        .SingleOrDefault(x => x.Id == userId)
+        //        .OAuthInfo
+        //        .SingleOrDefault(x => x.PlatformName == Platform.QBO);
 
-            var oauthValidator = new OAuth2RequestValidator(oauthInfo.AccessToken);
-            var serviceContext = new ServiceContext(oauthInfo.RealmId, IntuitServicesType.QBO, oauthValidator);
+        //    var oauthValidator = new OAuth2RequestValidator(oauthInfo.AccessToken);
+        //    var serviceContext = new ServiceContext(oauthInfo.RealmId, IntuitServicesType.QBO, oauthValidator);
 
-            serviceContext.RequestId = GuidGenerator.GenerateGuid();
+        //    serviceContext.RequestId = GuidGenerator.GenerateGuid();
 
-            //因为Configuration的识别有问题，只能手动指定以下属性
-            serviceContext.IppConfiguration.MinorVersion.Qbo = "8";
-            //serviceContext.IppConfiguration.Message.Request.SerializationFormat = Intuit.Ipp.Core.Configuration.SerializationFormat.Xml;
-            //serviceContext.IppConfiguration.Message.Request.CompressionFormat = Intuit.Ipp.Core.Configuration.CompressionFormat.GZip;
-            //serviceContext.IppConfiguration.Message.Response.SerializationFormat = Intuit.Ipp.Core.Configuration.SerializationFormat.Xml;
-            //serviceContext.IppConfiguration.Message.Response.CompressionFormat = Intuit.Ipp.Core.Configuration.CompressionFormat.GZip;
+        //    //因为Configuration的识别有问题，只能手动指定以下属性
+        //    serviceContext.IppConfiguration.MinorVersion.Qbo = "8";
+        //    //serviceContext.IppConfiguration.Message.Request.SerializationFormat = Intuit.Ipp.Core.Configuration.SerializationFormat.Xml;
+        //    //serviceContext.IppConfiguration.Message.Request.CompressionFormat = Intuit.Ipp.Core.Configuration.CompressionFormat.GZip;
+        //    //serviceContext.IppConfiguration.Message.Response.SerializationFormat = Intuit.Ipp.Core.Configuration.SerializationFormat.Xml;
+        //    //serviceContext.IppConfiguration.Message.Response.CompressionFormat = Intuit.Ipp.Core.Configuration.CompressionFormat.GZip;
 
-            var dataService = new DataService(serviceContext);
+        //    var dataService = new DataService(serviceContext);
 
-            serviceContext.RequestId = GuidGenerator.GenerateGuid();
-            //var inService = new QueryService<Customer>(serviceContext);
-            //try
-            //{
-                //var result = inService.ExecuteIdsQuery("SELECT * FROM Customer").FirstOrDefault();
-                var customer = new Customer {
-                    GivenName = "QQQ",
-                    Title = "WWW",
-                    MiddleName = "EEE",
-                    FamilyName = "AAA"
-                };
+        //    serviceContext.RequestId = GuidGenerator.GenerateGuid();
+        //    //var inService = new QueryService<Customer>(serviceContext);
+        //    //try
+        //    //{
+        //        //var result = inService.ExecuteIdsQuery("SELECT * FROM Customer").FirstOrDefault();
+        //        var customer = new Customer {
+        //            GivenName = "QQQ",
+        //            Title = "WWW",
+        //            MiddleName = "EEE",
+        //            FamilyName = "AAA"
+        //        };
 
                 
 
-                var result = dataService.Add(customer) as Customer;
+        //        var result = dataService.Add(customer) as Customer;
 
-            //}
-            //catch(Exception e)
-            //{
-            //    throw new Exception();
-            //}
-            //var customerTest = new CustomerCRUD();
+        //    //}
+        //    //catch(Exception e)
+        //    //{
+        //    //    throw new Exception();
+        //    //}
+        //    //var customerTest = new CustomerCRUD();
 
-            //var result = customerTest.CustomerFindAllTestUsingoAuth(serviceContext);
+        //    //var result = customerTest.CustomerFindAllTestUsingoAuth(serviceContext);
 
-            return new Customer();
-        }
+        //    return new Customer();
+        //}
+
         #region 私有方法
         public void output(string logMsg)
         {
