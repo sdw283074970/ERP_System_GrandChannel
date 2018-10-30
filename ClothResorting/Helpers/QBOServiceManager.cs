@@ -53,7 +53,7 @@ namespace ClothResorting.Helpers
             var companyId = string.Empty;
 
             #region Step 1
-            //获取系统中所有不重名的收费项目列表(待解决)
+            //获取系统中所有不重名的收费项目列表(未解决)
             var itemList = _context.ChargingItems.ToList();
 
             //获取QBO中的收费列表
@@ -104,27 +104,41 @@ namespace ClothResorting.Helpers
             }
             else
             {
-                companyId = customerResponseBody.QueryResponse.Customer.Id;
+                companyId = customerResponseBody.QueryResponse.Customer.First().Id;
             }
             #endregion
 
             #region Step 3
-            var invoice = new InvoiceCreateRequestBody();
+            var invoice = new InvoiceCreateRequestBody {
+                CustomerRef = new CustomerRef(),
+            };
             var lineList = new List<Line>();
 
             //查询目标Invoice中的收费项目分别在QBO中的Id(value)
+            //再次查询收费项目列表并将响应反序列化
+            itemJsonResponseData = WebServiceManager.SendQueryRequest(QBOUrlGenerator.QueryRequestUrl(_baseUrl, oauthInfo.RealmId, itemQuery), oauthInfo.AccessToken);
+            itemResponseBody = new ItemResponseBody();
+            using (var input = new StringReader(itemJsonResponseData))
+            {
+                itemResponseBody = JsonConvert.DeserializeObject<ItemResponseBody>(itemJsonResponseData);
+            }
+
+            if (invoiceInDb.InvoiceDetails.Count == 0)
+            {
+                throw new Exception("Upload failed because the invoice is empty.");
+            }
 
             //生成QBO能接受的invoice格式
-            foreach(var i in invoiceInDb.InvoiceDetails)
+            foreach (var i in invoiceInDb.InvoiceDetails)
             {
                 var line = new Line {
                     Amount = i.Rate * i.Quantity,
                     DetailType = "SalesItemLineDetail",
                     SalesItemLineDetail = new SalesItemLineDetail {
-                        ItemRef = new ItemRef { Value = "1" },      //明日再战
+                        ItemRef = new ItemRef { Value = itemResponseBody.QueryResponse.Item.SingleOrDefault(x => x.Name == i.Activity).Id },
                         UnitPrice = i.Rate,
                         Qty = i.Quantity
-                    },
+                    }
                 };
 
                 lineList.Add(line);

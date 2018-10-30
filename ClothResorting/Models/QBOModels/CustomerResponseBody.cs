@@ -16,7 +16,7 @@ namespace ClothResorting.Models.QBOModels
 
     public class CustomerQueryResponse
     {
-        public Customer Customer { get; set; }
+        public ICollection<Customer> Customer { get; set; }
 
         [JsonProperty("startPosition")]
         public int StartPosition { get; set; }
