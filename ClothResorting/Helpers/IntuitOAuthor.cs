@@ -69,43 +69,48 @@ namespace ClothResorting.Helpers
         //获取通行口令
         public async System.Threading.Tasks.Task GetAccessToken(string userId, string code, string realmId)
         {
-            var tokenResponse = await oauthClient.GetBearerTokenAsync(code);
-
-            var accessToken = tokenResponse.AccessToken;
-            var refreshToken = tokenResponse.RefreshToken;
-
             var userInDb = _context.Users
                 .Include(x => x.OAuthInfo)
                 .SingleOrDefault(x => x.Id == userId);
-            
-            if (userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO) == null)
+
+            //这个判断语句是为了防止用户二次刷新信息携带页面(code参数)造成的refreshToken无效的操作
+            if (code != userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).LastRequestCode)
             {
-                _context.OAuthInfo.Add(new OAuthInfo
+                var tokenResponse = await oauthClient.GetBearerTokenAsync(code);
+
+                var accessToken = tokenResponse.AccessToken;
+                var refreshToken = tokenResponse.RefreshToken;
+
+                if (userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO) == null)
                 {
-                    PlatformName = Platform.QBO,
-                    refreshToken = refreshToken,
-                    RealmId = realmId,
-                    AccessToken = accessToken,
-                    ApplicationUser = userInDb
-                });
+                    _context.OAuthInfo.Add(new OAuthInfo
+                    {
+                        PlatformName = Platform.QBO,
+                        RefreshToken = refreshToken,
+                        RealmId = realmId,
+                        AccessToken = accessToken,
+                        ApplicationUser = userInDb,
+                        LastRequestCode = code
+                    });
+                }
+                else if (accessToken != null || refreshToken != null)
+                {
+                    userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).AccessToken = accessToken;
+                    userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).RefreshToken = refreshToken;
+                    userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).RealmId = realmId;
+                    userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).LastRequestCode = code;
+                }
+
+                //验证返回的口令是否真的来自OAut服务器，如果是则将口令保存至数据库保存
+                //var isTokenValid = await oauthClient.ValidateIDTokenAsync(tokenResponse.IdentityToken);
+
+                //if (isTokenValid)
+                //{
+                //    _context.SaveChanges();
+                //}
+
+                _context.SaveChanges();
             }
-            else if (accessToken != null || refreshToken != null)
-            {
-                userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).AccessToken = accessToken;
-                userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).refreshToken = refreshToken;
-                userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).RealmId = realmId;
-            }
-
-            //验证返回的口令是否真的来自OAut服务器，如果是则将口令保存至数据库保存
-            //var isTokenValid = await oauthClient.ValidateIDTokenAsync(tokenResponse.IdentityToken);
-
-            //if (isTokenValid)
-            //{
-            //    _context.SaveChanges();
-            //}
-
-            _context.SaveChanges();
-
         }
 
         //使用Refresh token刷新通行口令
@@ -115,7 +120,7 @@ namespace ClothResorting.Helpers
                 .Include(x => x.OAuthInfo)
                 .SingleOrDefault(x => x.Id == userId);
 
-            var lastRefreshToken = userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).refreshToken;
+            var lastRefreshToken = userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).RefreshToken;
 
             var tokenResponse = await oauthClient.RefreshTokenAsync(lastRefreshToken);
 
@@ -125,7 +130,7 @@ namespace ClothResorting.Helpers
             if (userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO) != null)
             {
                 userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).AccessToken = accessToken;
-                userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).refreshToken = refreshToken;
+                userInDb.OAuthInfo.SingleOrDefault(x => x.PlatformName == Platform.QBO).RefreshToken = refreshToken;
 
                 _context.SaveChanges();
             }

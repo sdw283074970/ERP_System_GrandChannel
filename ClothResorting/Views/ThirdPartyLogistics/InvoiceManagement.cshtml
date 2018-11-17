@@ -577,14 +577,10 @@
                     dataType: "json",
                     url: "/api/QuickBooksOnlineOAuth/" + id,
                     success: function () {
-                        layer.alert("Success!", function () {
-                            window.location.reload();
-                        });
+                        layer.alert("Success!");
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
-                        });
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
                     }
                 });
             });

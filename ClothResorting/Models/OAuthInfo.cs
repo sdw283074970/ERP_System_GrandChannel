@@ -13,9 +13,11 @@ namespace ClothResorting.Models
 
         public string AccessToken { get; set; }
 
-        public string refreshToken { get; set; }
+        public string RefreshToken { get; set; }
 
         public string RealmId { get; set; }
+
+        public string LastRequestCode { get; set; }
 
         public ApplicationUser ApplicationUser { get; set; }
     }

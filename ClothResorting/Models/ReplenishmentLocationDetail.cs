@@ -45,6 +45,8 @@ namespace ClothResorting.Models
 
         public string Vendor { get; set; }
 
+        public bool IsHanger { get; set; }
+
         public PurchaseOrderInventory PurchaseOrderInventory { get; set; }
 
         public GeneralLocationSummary GeneralLocationSummary { get; set; }

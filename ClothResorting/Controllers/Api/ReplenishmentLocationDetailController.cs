@@ -27,15 +27,15 @@ namespace ClothResorting.Controllers.Api
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
-        // GET /api/replenishmentlocationdetail/?preid={id}&po={po}
+        // GET /api/replenishmentlocationdetail/?po={po}
         [HttpGet]
-        public IHttpActionResult GetRegularLocationDetail([FromUri]PreIdPoJsonObj obj)
+        public IHttpActionResult GetLocationDetail([FromUri]string po)
         {
             var result = new List<ReplenishmentLocationDetail>();
 
             var query = _context.ReplenishmentLocationDetails
                 .Include(c => c.PurchaseOrderInventory)
-                .Where(c => c.PurchaseOrder == obj.Po)
+                .Where(c => c.PurchaseOrder == po)
                 .OrderByDescending(c => c.Id)
                 .ToList();
 
@@ -138,7 +138,7 @@ namespace ClothResorting.Controllers.Api
                 _context.SaveChanges();
 
                 //撤销操作后重新同步各个收到UNDO操作影响的species的件数
-                foreach(var result in results)
+                foreach (var result in results)
                 {
                     var speciesId = _context.SpeciesInventories
                         .Single(c => c.PurchaseOrder == result.PurchaseOrder

@@ -856,8 +856,8 @@ namespace ClothResorting.Helpers
             var poInventoryList = new List<PurchaseOrderInventory>();
             var locationDetailList = new List<ReplenishmentLocationDetail>();
 
-            try
-            {
+            //try
+            //{
                 int n = 2;
                 int countOfObj = 0;
                 _ws = _wb.Worksheets[1];
@@ -883,9 +883,9 @@ namespace ClothResorting.Helpers
                         Size = _ws.Cells[2 + i, 4].Value2.ToString(),
                         Cartons = 0,
                         AvailableCtns = 0,
-                        Quantity = (int)_ws.Cells[2 + i, 5].Value2(),
-                        AvailablePcs = (int)_ws.Cells[2 + i, 5].Value2(),
-                        Location = _ws.Cells[2 + i, 6].Value2(),
+                        Quantity = (int)_ws.Cells[2 + i, 5].Value2,
+                        AvailablePcs = (int)_ws.Cells[2 + i, 5].Value2,
+                        Location = _ws.Cells[2 + i, 6].Value2,
                         PickingCtns = 0,
                         PickingPcs = 0,
                         ShippedCtns = 0,
@@ -894,6 +894,7 @@ namespace ClothResorting.Helpers
                         GeneralLocationSummary = locationSummaryInDb,
                         Operator = _userName,
                         Status = Status.InStock,
+                        IsHanger = _ws.Cells[2 + i, 7].Value2 == null ? false : true,
                         Vendor = vendor
                     };
 
@@ -956,7 +957,8 @@ namespace ClothResorting.Helpers
 
                 var speciesInDb = _context.SpeciesInventories
                     .Include(x => x.PurchaseOrderInventory)
-                    .Where(x => x.PurchaseOrderInventory == null);
+                    //.Where(x => x.PurchaseOrderInventory == null);
+                    .Where(x => x.Id > 0);
                 var locationInDb = _context.ReplenishmentLocationDetails
                     .Include(x => x.PurchaseOrderInventory)
                     .Where(x => x.PurchaseOrderInventory == null || x.SpeciesInventory == null);
@@ -972,18 +974,21 @@ namespace ClothResorting.Helpers
 
                 foreach(var s in speciesInDb)
                 {
-                    s.PurchaseOrderInventory = purchaseOrderInventoriesInDb
-                        .SingleOrDefault(x => x.PurchaseOrder == s.PurchaseOrder);
+                    if (s.PurchaseOrderInventory == null)
+                    {
+                        s.PurchaseOrderInventory = purchaseOrderInventoriesInDb
+                            .SingleOrDefault(x => x.PurchaseOrder == s.PurchaseOrder);
+                    }
                 }
 
-            }
+            //}
             //抽取中如果抛出异常则删掉之前创建的summary对象
-            catch(Exception e)
-            {
-                _context.GeneralLocationSummaries.Remove(_context.GeneralLocationSummaries.OrderByDescending(x => x.Id).First());
-                _context.SaveChanges();
-                throw new Exception(e.Message);
-            }
+            //catch (Exception e)
+            //{
+            //    _context.GeneralLocationSummaries.Remove(_context.GeneralLocationSummaries.OrderByDescending(x => x.Id).First());
+            //    _context.SaveChanges();
+            //    throw new Exception(e.Message);
+            //}
 
             //从入库报告中同步pcs数量到generallocationsummary和speciesInventoryInDb的入库pcs数量
             var speciesInventoryInDb = _context.SpeciesInventories.Where(c => c.Id > 0);
@@ -1791,7 +1796,7 @@ namespace ClothResorting.Helpers
                         }
                     }
                 }
-                else if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Bundle
+                else if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Pre-pack
                 {
                     //待选池中所有符合拣货条件的对象
                     var poolLocations = cartonLocationPool.Where(x => x.Style == style

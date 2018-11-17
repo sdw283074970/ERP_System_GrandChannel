@@ -42,5 +42,7 @@ namespace ClothResorting.Dtos
         public string Editor { get; set; }
 
         public string Status { get; set; }
+
+        public bool IsHanger { get; set; }
     }
 }

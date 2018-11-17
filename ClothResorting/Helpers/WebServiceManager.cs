@@ -30,12 +30,13 @@ namespace ClothResorting.Helpers
 
             request.Method = method;
             request.ContentType = "application/json";
-            request.Timeout = 20000;
+            //request.Timeout = 20000;
             request.KeepAlive = false;
             request.ServicePoint.Expect100Continue = false;
             request.ContentLength = data.Length;
             request.Headers.Add("Authorization", "Bearer " + accessToken);
             request.Accept = "application/json";
+            request.UserAgent = "APIExplorer";
             ServicePointManager.DefaultConnectionLimit = 1000;      //提高每秒默认请求数量
 
             using (var reqStream = request.GetRequestStream())
@@ -68,9 +69,10 @@ namespace ClothResorting.Helpers
 
                 request.Method = "GET";
                 request.ContentType = "application/plain";
-                request.Timeout = 800;
+                //request.Timeout = 800;
                 request.Headers.Add("Authorization", "Bearer " + accessToken);
                 request.Accept = "application/json";
+                request.UserAgent = "APIExplorer";
 
                 var response = request.GetResponse();
 

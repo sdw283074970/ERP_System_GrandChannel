@@ -12,6 +12,7 @@ using System.IO;
 using Jil;
 using ClothResorting.Models.QBOModels;
 using Newtonsoft.Json;
+using System.Configuration;
 
 namespace ClothResorting.Helpers
 {
@@ -24,7 +25,7 @@ namespace ClothResorting.Helpers
         public QBOServiceManager()
         {
             _context = new ApplicationDbContext();
-            _baseUrl = QuickBookBaseURLs.SandBox;
+            _baseUrl = ConfigurationManager.AppSettings["baseUrl"];
             _userId = HttpContext.Current.User.Identity.GetUserId<string>();
         }
 
@@ -35,7 +36,7 @@ namespace ClothResorting.Helpers
             //3.将要同步的Invoice对象转换成QBO能识别的对象并序列化
             //4.同步Invoice
         #endregion
-        public void SyncChargingItemToQBO(int invoiceId)
+        public void SyncInvoice(int invoiceId)
         {
             var oauthInfo = _context.Users
                 .Include(x => x.OAuthInfo)
@@ -74,7 +75,7 @@ namespace ClothResorting.Helpers
                 if (itemResponseBody.QueryResponse.Item.Where(x => x.Name == item.Name).Count() == 0)
                 {
                     var itemCreateRequestModel = new ItemCreateRequestModel {
-                        IncomeAccountRef = new IncomeAccountRef { Value = "1", Name = "Services"},    //默认关联账户是1 Services账户
+                        IncomeAccountRef = new IncomeAccountRef { Value = "26"},    //默认关联账户是1 Services账户
                         Name = item.Name,
                         Type = "Service"
                     };
@@ -150,6 +151,7 @@ namespace ClothResorting.Helpers
             var invoiceJsonData = JsonConvert.SerializeObject(invoice);
             var invoiceJsonResponseData = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, oauthInfo.RealmId, "invoice"), invoiceJsonData, "POST", oauthInfo.AccessToken);
             
+            //可以将返回的数据继续与数据库的invoice数据同步，暂留
             #endregion
         }
     }

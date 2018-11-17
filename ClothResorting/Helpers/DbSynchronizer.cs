@@ -52,7 +52,7 @@ namespace ClothResorting.Helpers
         }
 
         //每确认一次carton收取情况，同步一次该PreRecieveOrder的ctn收货总量、库存数量及pcs收货总量、
-            //库存数量
+        //库存数量
         public void SyncPreReceivedOrder(CartonDetail cartonDetailSample)
         {
             var pl = cartonDetailSample.PurchaseOrderSummary;
@@ -94,13 +94,13 @@ namespace ClothResorting.Helpers
                 .Sum();
 
             //查询当前种类在永久库位中剩余的件数
-            permanentInv = _context.PermanentLocations
-                .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
-                    && c.Style == speciesInDb.Style
-                    && c.Color == speciesInDb.Color
-                    && c.Size == speciesInDb.Size)
-                .Select(c => c.Quantity)
-                .Sum();
+            //permanentInv = _context.PermanentLocations
+            //    .Where(c => c.PurchaseOrder == speciesInDb.PurchaseOrder
+            //        && c.Style == speciesInDb.Style
+            //        && c.Color == speciesInDb.Color
+            //        && c.Size == speciesInDb.Size)
+            //    .Select(c => c.Quantity)
+            //    .Sum();
 
             //重新计算该种类在数据库的库存数据
             speciesInDb.AvailablePcs = locationInv + permanentInv;

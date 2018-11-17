@@ -358,7 +358,7 @@
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
                         });
                     }

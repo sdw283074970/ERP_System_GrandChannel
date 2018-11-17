@@ -22,8 +22,8 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<SizeRatio, SizeRatioDto>();
             Mapper.CreateMap<CartonBreakDown, CartonBreakDownDto>();
             Mapper.CreateMap<ReplenishmentLocationDetail, ReplenishmentLocationDetailDto>();
-            Mapper.CreateMap<PermanentLocIORecord, PermanentLocIORecordDto>();
-            Mapper.CreateMap<PermanentLocation, PermanentLocationDto>();
+            //Mapper.CreateMap<PermanentLocIORecord, PermanentLocIORecordDto>();
+            //Mapper.CreateMap<PermanentLocation, PermanentLocationDto>();
             Mapper.CreateMap<PurchaseOrderInventory, PurchaseOrderInventoryDto>();
             Mapper.CreateMap<SpeciesInventory, SpeciesInventoryDto>();
             Mapper.CreateMap<AdjustmentRecord, AdjustmentRecordDto>();

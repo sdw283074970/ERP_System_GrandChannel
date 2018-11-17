@@ -76,7 +76,7 @@ namespace ClothResorting.Controllers.Api
             //同步invoice到QBO中
             var service = new QBOServiceManager();
 
-            service.SyncChargingItemToQBO(id);
+            service.SyncInvoice(id);
 
             return Created(Request.RequestUri, "Sync Success!");
         }

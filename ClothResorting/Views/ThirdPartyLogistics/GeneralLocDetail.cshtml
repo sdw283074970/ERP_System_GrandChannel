@@ -35,6 +35,7 @@
                     <th>Available Pcs</th>
                     <th>Picking Pcs</th>
                     <th>Shipped Pcs</th>
+                    <th>Is Hanger</th>
                     <th>Location</th>
                 </tr>
             </thead>
@@ -169,6 +170,15 @@
                                 data: "shippedPcs",
                                 render: function (data) {
                                     return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "isHanger",
+                                render: function (data) {
+                                    if (data == true)
+                                        return "<font color='green'>YES</font>";
+                                    else
+                                        return "<font color='red'>NO</font>";
                                 }
                             },
                             {
@@ -335,6 +345,15 @@
                                         data: "shippedPcs",
                                         render: function (data) {
                                             return "<font color='blue'>" + data + "</font>";
+                                        }
+                                    },
+                                    {
+                                        data: "isHanger",
+                                        render: function (data) {
+                                            if (data == true)
+                                                return "<font color='green'>YES</font>";
+                                            else
+                                                return "<font color='red'>NO</font>";
                                         }
                                     },
                                     {

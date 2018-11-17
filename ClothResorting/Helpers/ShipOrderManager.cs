@@ -89,7 +89,9 @@ namespace ClothResorting.Helpers
                 .Include(x => x.ReplenishmentLocationDetail.PurchaseOrderInventory)
                 .Include(x => x.ReplenishmentLocationDetail.SpeciesInventory)
                 .Where(x => x.ShipOrder.Id == shipOrderId
-                    && x.Status == Status.Picking);
+                    && (x.Status == Status.Picking || x.Status == Status.NewCreated));
+
+            var count = pickDetailsInDb.Count();
 
             var shipOrderInDb = pickDetailsInDb.First().ShipOrder;
             var orderType = shipOrderInDb.OrderType;
