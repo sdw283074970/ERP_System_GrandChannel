@@ -88,16 +88,14 @@ namespace ClothResorting.Helpers
                 .Include(x => x.FCRegularLocationDetail)
                 .Include(x => x.ReplenishmentLocationDetail.PurchaseOrderInventory)
                 .Include(x => x.ReplenishmentLocationDetail.SpeciesInventory)
-                .Where(x => x.ShipOrder.Id == shipOrderId
-                    && (x.Status == Status.Picking || x.Status == Status.NewCreated));
+                .Where(x => x.ShipOrder.Id == shipOrderId);
 
-            var count = pickDetailsInDb.Count();
+            var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
 
-            var shipOrderInDb = pickDetailsInDb.First().ShipOrder;
             var orderType = shipOrderInDb.OrderType;
 
             //取消Regular Oder的方法
-            if (orderType == OrderType.Prepack)
+            if (orderType == OrderType.Prepack && shipOrderInDb.Status != Status.Shipped)
             {
                 foreach (var pickDetail in pickDetailsInDb)
                 {
@@ -115,7 +113,7 @@ namespace ClothResorting.Helpers
                     }
                 }
             }
-            else if (orderType == OrderType.Replenishment)
+            else if (orderType == OrderType.Replenishment && shipOrderInDb.Status != Status.Shipped)
             {
                 foreach(var pickDetail in pickDetailsInDb)
                 {

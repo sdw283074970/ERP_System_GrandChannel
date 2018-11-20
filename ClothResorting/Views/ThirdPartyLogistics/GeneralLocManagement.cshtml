@@ -218,6 +218,11 @@
                 });
             });
 
+            //点击下载模板按钮下载LocationReport模板
+            $("#div-function").on("click", ".btn-template", function () {
+                $(window.location).attr('href', '/api/generallocmanagement/');
+            });
+
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });

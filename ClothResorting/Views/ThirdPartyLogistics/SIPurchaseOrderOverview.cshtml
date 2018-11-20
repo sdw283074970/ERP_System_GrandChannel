@@ -56,7 +56,7 @@
 </div>
 <div class="iframe-download">
     <div style="margin-top:20px;text-align:center">
-        <input id="download-silkicon" type="button" class="btn btn-primary" value="Download Packing List Template" /><br />
+        <input id="download-generic" type="button" class="btn btn-primary" value="Download Generic Packing List Template" /><br />
     </div>
 </div>
 <div class="iframe-create" style="margin-top:20px;margin-right:20px;text-align:right">
@@ -452,9 +452,9 @@
                 });
             });
 
-            //下载FC的PL模板
-            $("#download-freecountry").on("click", function () {
-                $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=' + "FreeCountry");
+            //下载通用模板
+            $("#download-generic").on("click", function () {
+                $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=Generic');
                 $(".iframe-template").hide();
             });
 

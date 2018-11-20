@@ -236,7 +236,7 @@ namespace ClothResorting.Helpers
                                 }
                                 catch(Exception e)
                                 {
-                                    throw new Exception("Check around row start from " + startIndex);
+                                    throw new Exception("Check around row start from [" + startIndex + "], exception occurs around in row [" + (startIndex + 1 + j) + "]");
                                 }
                             }
                         }
@@ -280,7 +280,7 @@ namespace ClothResorting.Helpers
                             }
                             catch (Exception e)
                             {
-                                throw new Exception("Check around row start from " + startIndex);
+                                throw new Exception("Check around row start from [" + startIndex + "], exception occurs around in row [" + (startIndex + 1 + j) + "]");
                             }
                         }
                     }

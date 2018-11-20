@@ -234,7 +234,12 @@ namespace ClothResorting.Helpers
                     if (targetPcs > 0)
                     {
                         //生成缺货记录
-                        // TO DO
+                        _context.PullSheetDiagnostics.Add(new PullSheetDiagnostic {
+                            Type = Status.Missing,
+                            DiagnosticDate = DateTime.Now.ToString("dd/MM/yyyy"),
+                            Description = "<font color='red'>" + targetPcs + "</font> PCS shortage of Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style: <font color='red'>" + style + "</font>, Size: <font color='red'>" + size + "</font> has been detected. Please advise.",
+                            ShipOrder = _context.ShipOrders.Find(shipOrderId)
+                        });
                     }
                 }
             }

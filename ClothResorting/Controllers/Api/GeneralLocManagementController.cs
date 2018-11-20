@@ -22,6 +22,17 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
+        // GET /api/generallocmanagement/
+        [HttpGet]
+        public IHttpActionResult DownloadTemplate()
+        {
+            var downloader = new Downloader();
+
+            downloader.DownloadFromServer("ReplenishmentLocationReport-Template.xlsx", @"D:\Template\");
+
+            return Ok();
+        }
+
         // GET /api/generallocmanagement/?preId={preId}
         [HttpGet]
         public IHttpActionResult GetAllGeneralLocationSummay([FromUri]int preId)

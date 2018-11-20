@@ -47,6 +47,10 @@ namespace ClothResorting.Controllers.Api
             {
                 downloader.DownloadFromServer("FreeCountryPackingList-Template.XLSX", @"D:\Template\");
             }
+            else
+            {
+                downloader.DownloadFromServer("GenericPackingList- Template.xlsx", @"D:\Template\");
+            }
 
             return Ok();
         }

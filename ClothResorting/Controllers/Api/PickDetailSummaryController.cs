@@ -31,6 +31,11 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var pickDetail in pickDetailsInDb)
             {
+                if (pickDetail.PickPcs == 0)
+                {
+                    continue;
+                }
+
                 var pickDetailInSummary = summaryList.SingleOrDefault(x => x.Style == pickDetail.Style 
                     && x.Color == pickDetail.Color 
                     && x.SizeBundle == pickDetail.SizeBundle

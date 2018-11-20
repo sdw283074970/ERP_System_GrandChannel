@@ -124,6 +124,11 @@ namespace ClothResorting.Helpers
 
                     for (int i = startIndex; i < startIndex + 20 && i < pickDetailList.Count; i++)
                     {
+                        if (pickDetailList[i].PickPcs == 0)
+                        {
+                            continue;
+                        }
+
                         var firstCell = new PdfPCell(new Paragraph(pickDetailList[i].Container, new Font(BF_light, 9)));
                         firstCell.MinimumHeight = 25f;
 

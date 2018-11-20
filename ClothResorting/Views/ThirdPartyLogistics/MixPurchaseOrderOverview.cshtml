@@ -62,7 +62,7 @@
 </div>
 <div class="iframe-download">
     <div style="margin-top:20px;text-align:center">
-        <input id="download-silkicon" type="button" class="btn btn-primary" value="Download Packing List Template" /><br />
+        <input id="download-generic" type="button" class="btn btn-primary" value="Download Generic Packing List Template" /><br />
     </div>
 </div>
 <div class="iframe-replenishmentmenu">
@@ -492,6 +492,12 @@
             //点击regular菜单下的查看库存按钮，进入库存管理页面
             $("#btn-location").on("click", function () {
                 $(window.location).attr('href', '/ThirdPartyLogistics/FCRegularLocationDetail/?preid=' + preId.toString());
+            });
+
+            //下载通用模板
+            $("#download-generic").on("click", function () {
+                $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=Generic');
+                $(".iframe-template").hide();
             });
 
             $(".btn-back").on("click", function () {
