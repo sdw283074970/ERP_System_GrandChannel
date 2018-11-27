@@ -11,6 +11,8 @@ namespace ClothResorting.Models
 
         public string Name { get; set; }
 
+        public string CustomerCode { get; set; }
+
         public string DepartmentCode { get; set; }
 
         public ICollection<PreReceiveOrder> WorkOrders { get; set; }

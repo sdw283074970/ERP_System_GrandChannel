@@ -346,6 +346,7 @@
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
     <Compile Include="Controllers\Api\ChargingItemManagementController.cs" />
     <Compile Include="Controllers\Api\ContainerController.cs" />
+    <Compile Include="Controllers\Api\CustomerManagementController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeMethodController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeTemplateController.cs" />
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
@@ -397,6 +398,7 @@
     <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\RegularPackingListController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
     <Compile Include="Controllers\FBAController.cs" />
     <Compile Include="Controllers\Api\GeneralLocManagementController.cs" />
@@ -1235,6 +1237,10 @@
     <Compile Include="Migrations\201811162259472_AddedLastRequestCodePropertyInOAuthInfo.Designer.cs">
       <DependentUpon>201811162259472_AddedLastRequestCodePropertyInOAuthInfo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201811262215030_AddedCustomerCodeInUpperVendor.cs" />
+    <Compile Include="Migrations\201811262215030_AddedCustomerCodeInUpperVendor.Designer.cs">
+      <DependentUpon>201811262215030_AddedCustomerCodeInUpperVendor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1740,6 +1746,7 @@
     <Content Include="Scripts\popper.js.map" />
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
+    <Content Include="Views\Customer\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2340,6 +2347,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201811162259472_AddedLastRequestCodePropertyInOAuthInfo.resx">
       <DependentUpon>201811162259472_AddedLastRequestCodePropertyInOAuthInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201811262215030_AddedCustomerCodeInUpperVendor.resx">
+      <DependentUpon>201811262215030_AddedCustomerCodeInUpperVendor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
