@@ -42,5 +42,22 @@ namespace ClothResorting.Controllers.Api
 
             return Created(Request.RequestUri + "/" + result.Id, Mapper.Map<UpperVendor, UpperVendorDto>(result));
         }
+
+        [HttpDelete]
+        //DELETE /api/customer/{id}
+        public void DeleteCustomer([FromUri]int id)
+        {
+            var customerInDb = _context.UpperVendors.Find(id);
+
+            try
+            {
+                _context.UpperVendors.Remove(customerInDb);
+                _context.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Cannot delete this customer because one or more work orders or ship orders rely on it. Make sure deleting all related work orders and ship orders before deleteing this customer.");
+            }
+        }
     }
 }

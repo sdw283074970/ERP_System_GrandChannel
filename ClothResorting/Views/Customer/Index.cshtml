@@ -10,7 +10,7 @@
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
-        <input id="newcustomer" type="button" class="btn btn-info" value="New Customer">
+        <input id="btn-create" type="button" class="btn btn-info" value="New Customer">
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -48,7 +48,7 @@
     <script>
         $(document).ready(function () {
         
-
+            $(".iframe").hide();
 
             $.ajax({
                 type: "GET",
@@ -105,6 +105,17 @@
                 }
             });
 
+            //打开创建空work order弹窗
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe")
+                });
+            })
+
             //点击Add按钮，添加新的客户
             $("#btn-add").on("click", function () {
 
@@ -118,7 +129,9 @@
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
-                        layer.alert("Success!");
+                        layer.alert("Delete success!", function () {
+                            window.location.reload();
+                        });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -143,7 +156,9 @@
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
-                        layer.alaert("Delete success!");
+                        layer.alert("Delete success!", function () {
+                            window.location.reload();
+                        });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
