@@ -1730,6 +1730,16 @@ namespace ClothResorting.Helpers
                         var targetPcs = size.Count;
                         var originalTargetPcs = size.Count;
 
+                        //如果只拿一种size，则按每箱件数降序排列取货，否则按照ID升序排列
+                        if (size.Count == 1)
+                        {
+                            poolLocations.OrderByDescending(x => x.PcsPerCaron);
+                        }
+                        else
+                        {
+                            poolLocations.OrderBy(x => x.Id);
+                        }
+
                         foreach (var pool in poolLocations)
                         {
                             //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
@@ -1753,12 +1763,13 @@ namespace ClothResorting.Helpers
                             {
                                 pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs));
 
-                                pool.PickingCtns += targetPcs / pool.PcsPerCaron;
                                 pool.PickingPcs += targetPcs;
 
                                 if (pool.AvailableCtns != 0)        //库存中有在同一箱的多种SKU情况，分拆入库后在数据库的表示中是没有箱数的，只有件数
                                 {
+                                    pool.PickingCtns += targetPcs / pool.PcsPerCaron;
                                     pool.AvailableCtns -= targetPcs / pool.PcsPerCaron;
+                                    pool.Status = Status.Picking;
                                 }
 
                                 pool.AvailablePcs -= targetPcs;
@@ -1882,7 +1893,7 @@ namespace ClothResorting.Helpers
                     {
                         Type = Status.Missing,
                         DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                        Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
+                        Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
                         ShipOrder = pullSheet
                     });
                 }

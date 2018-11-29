@@ -95,7 +95,7 @@ namespace ClothResorting.Helpers
             var orderType = shipOrderInDb.OrderType;
 
             //取消Regular Oder的方法
-            if (orderType == OrderType.Prepack && shipOrderInDb.Status != Status.Shipped)
+            if (orderType == OrderType.Regular && shipOrderInDb.Status != Status.Shipped)
             {
                 foreach (var pickDetail in pickDetailsInDb)
                 {
@@ -107,7 +107,7 @@ namespace ClothResorting.Helpers
                     locationDetail.PickingCtns -= pickDetail.PickCtns;
                     locationDetail.PickingPcs -= pickDetail.PickPcs;
 
-                    if (locationDetail.PickingCtns == 0 && locationDetail.AvailableCtns != 0)
+                    if (locationDetail.PickingCtns == 0 && locationDetail.AvailablePcs != 0)
                     {
                         locationDetail.Status = Status.InStock;
                     }
