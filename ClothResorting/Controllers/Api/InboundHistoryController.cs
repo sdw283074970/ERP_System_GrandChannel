@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -26,6 +27,7 @@ namespace ClothResorting.Controllers.Api
             var inboundHistoryList = new List<InboundHistoryRecord>();
 
             var inboundRecords = _context.ReplenishmentLocationDetails
+                .Include(x => x.GeneralLocationSummary)
                 .Where(c => c.PurchaseOrder == obj.PurchaseOrder
                     && c.Style == obj.Style
                     && c.Color == obj.Color
@@ -35,7 +37,7 @@ namespace ClothResorting.Controllers.Api
             foreach(var record in inboundRecords)
             {
                 inboundHistoryList.Add(new InboundHistoryRecord {
-                    InboundDate = record.InboundDate,
+                    FileName = record.GeneralLocationSummary.UploadedFileName,
                     Location = record.Location,
                     InboundPcs = "+" + record.Quantity.ToString(),
                     ResidualPcs = record.AvailablePcs

@@ -34,5 +34,7 @@ namespace ClothResorting.Models
         public ICollection<AdjustmentRecord> AdjustmentRecords { get; set; }
 
         public ICollection<ReplenishmentLocationDetail> ReplenishmentLocationDetail { get; set; }
+
+        public ICollection<OutboundHistory> OutboundHistory { get; set; }
     }
 }

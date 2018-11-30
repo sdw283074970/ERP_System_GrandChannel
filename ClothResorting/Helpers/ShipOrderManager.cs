@@ -67,6 +67,21 @@ namespace ClothResorting.Helpers
                     locationDetail.PurchaseOrderInventory.ShippedPcs += pickDetail.PickPcs;
                     locationDetail.PurchaseOrderInventory.PickingPcs -= pickDetail.PickPcs;
 
+                    //同时将Pick Detail中的所有条目添加到Outbound History中
+                    var skuInDb = _context.SpeciesInventories
+                        .SingleOrDefault(x => x.PurchaseOrder == pickDetail.PurchaseOrder
+                        && x.Style == pickDetail.Style
+                        && x.Color == pickDetail.Color
+                        && x.Size == pickDetail.SizeBundle);
+
+                    _context.OutboundHistories.Add(new OutboundHistory {
+                        FromLocation = pickDetail.Location,
+                        OutboundDate = DateTime.Now,
+                        OrderPurchaseOrder = shipOrderInDb.OrderPurchaseOrder,
+                        SpeciesInventory = skuInDb,
+                        OutboundPcs = pickDetail.PickPcs
+                    });
+
                     if (locationDetail.PickingCtns == 0 && locationDetail.AvailableCtns == 0)
                     {
                         locationDetail.Status = Status.Shipped;

@@ -56,6 +56,7 @@ namespace ClothResorting.Models
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
         public DbSet<ChargingItem> ChargingItems { get; set; }
         public DbSet<OAuthInfo> OAuthInfo { get; set; }
+        public DbSet<OutboundHistory> OutboundHistories { get; set; }
 
         public static ApplicationDbContext Create()
         {

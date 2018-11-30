@@ -82,7 +82,7 @@
 
             //点击入库记录按钮
             $("#btn-inbound").on("click", function () {
-                $("#change-date").html("Inbound Date");
+                $("#change-date").html("Inbound File Name");
                 $("#change-pcs").html("Inbound Pcs");
                 $("#memo1").html("Residual Pcs");
                 $("#memo2").html("Location");
@@ -104,7 +104,7 @@
                             data: data,
                             columns: [
                                 {
-                                    data: "inboundDate",
+                                    data: "fileName",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }

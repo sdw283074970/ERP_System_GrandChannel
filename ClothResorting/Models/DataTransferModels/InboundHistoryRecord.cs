@@ -7,7 +7,7 @@ namespace ClothResorting.Models.DataTransferModels
 {
     public class InboundHistoryRecord
     {
-        public DateTime InboundDate { get; set; }
+        public string FileName { get; set; }
 
         public string InboundPcs { get; set; }
 
