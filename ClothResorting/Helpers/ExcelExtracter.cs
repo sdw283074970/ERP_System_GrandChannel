@@ -219,7 +219,7 @@ namespace ClothResorting.Helpers
                                         Color = _ws.Cells[startIndex + 1 + j, 9].Value2.ToString(),
                                         Cartons = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? (int)_ws.Cells[startIndex + 1 + j, 10].Value2 : 0,        //同一箱只会计一次箱数，但件数还是分开记
                                         PcsPerCarton = size.Count,
-                                        Quantity = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? cartons * size.Count : cartonDetailList.SingleOrDefault(x => x.CartonRange == cartonRange && x.Cartons != 0).Cartons * size.Count,         //首先查找当前对象是不是第一个出现该carton range的对象，查找当前carton range的第一个对象的箱数，乘以当前对象的单位件数即是当前对象的总件数
+                                        Quantity = cartonDetailList.Where(x => x.CartonRange == cartonRange).Count() == 0 ? cartons * size.Count : cartonDetailList.First(x => x.CartonRange == cartonRange && x.Cartons != 0).Cartons * size.Count,         //首先查找当前对象是不是第一个出现该carton range的对象，查找当前carton range的第一个对象的箱数，乘以当前对象的单位件数即是当前对象的总件数
                                         SizeBundle = size.SizeName,
                                         PcsBundle = size.Count.ToString(),
                                         Status = Status.NewCreated,
@@ -1886,16 +1886,18 @@ namespace ClothResorting.Helpers
                     
                     //usedPoolCartonLocationDetails.AddRange(poolLocations);
                 }
-                else    //最后是count等于0,即数据库中不存在相关sku记录的情况,把该sku打印出来,生成缺货记录
+                else    //最后是count等于0,即数据库POSummary中不存在相关sku记录的情况。原做法是直接打印缺货记录，但有些装箱单将各种SKU放在同一个POSummay中导致查找不到。新做法是跳过查找POSummary，直接查找库存取货
                 {
                     //...生成缺货记录
-                    diagnosticList.Add(new PullSheetDiagnostic
-                    {
-                        Type = Status.Missing,
-                        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                        Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
-                        ShipOrder = pullSheet
-                    });
+                    //diagnosticList.Add(new PullSheetDiagnostic
+                    //{
+                    //    Type = Status.Missing,
+                    //    DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                    //    Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>N/A</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
+                    //    ShipOrder = pullSheet
+                    //});
+
+
                 }
             }
 
