@@ -54,30 +54,34 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var carton in cartonDetailsInDb)
             {
-                //更新收货人
-                carton.Receiver = _userName;
+                //批量收获只对实收货物间数仍然为0的对象有效，防止多次点击生成额外的待分配件数
+                if (carton.ActualPcs == 0)
+                {
+                    //更新收货人
+                    carton.Receiver = _userName;
 
-                carton.Status = "To Be Allocated";
+                    carton.Status = "To Be Allocated";
 
-                carton.ActualCtns = carton.Cartons;
-                carton.ActualPcs = carton.Quantity;
-                carton.ToBeAllocatedCtns = carton.Cartons;
-                carton.ToBeAllocatedPcs = carton.Quantity;
+                    carton.ActualCtns = carton.Cartons;
+                    carton.ActualPcs = carton.Quantity;
+                    carton.ToBeAllocatedCtns = carton.Cartons;
+                    carton.ToBeAllocatedPcs = carton.Quantity;
 
-                carton.POSummary.ActualCtns = carton.POSummary.Cartons;
-                carton.POSummary.ActualPcs = carton.POSummary.Quantity;
+                    carton.POSummary.ActualCtns = carton.POSummary.Cartons;
+                    carton.POSummary.ActualPcs = carton.POSummary.Quantity;
 
-                actualCtns += carton.Cartons;
-                actualPcs += carton.Quantity;
+                    actualCtns += carton.Cartons;
+                    actualPcs += carton.Quantity;
 
-                //carton.POSummary.PreReceiveOrder.ActualReceivedCtns = carton.POSummary.PreReceiveOrder.TotalCartons;
-                //carton.POSummary.PreReceiveOrder.ActualReceivedPcs = carton.POSummary.PreReceiveOrder.TotalPcs;
+                    //carton.POSummary.PreReceiveOrder.ActualReceivedCtns = carton.POSummary.PreReceiveOrder.TotalCartons;
+                    //carton.POSummary.PreReceiveOrder.ActualReceivedPcs = carton.POSummary.PreReceiveOrder.TotalPcs;
+                }
             }
 
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(id);
 
-            preReceiveOrderInDb.ActualReceivedCtns = actualCtns;
-            preReceiveOrderInDb.ActualReceivedPcs = actualPcs;
+            preReceiveOrderInDb.ActualReceivedCtns += actualCtns;
+            preReceiveOrderInDb.ActualReceivedPcs += actualPcs;
 
             _context.SaveChanges();
         }

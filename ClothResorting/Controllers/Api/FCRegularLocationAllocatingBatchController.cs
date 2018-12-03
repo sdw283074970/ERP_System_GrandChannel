@@ -55,8 +55,7 @@ namespace ClothResorting.Controllers.Api
 
                 var inOneBoxSKU = regularCartonDetailsIndb
                     .Where(X => X.PurchaseOrder == purchaseOrder
-                        && X.Color == color
-                        && X.Style == style
+                        && X.SKU == regularCartonDetail.SKU
                         && X.CartonRange == cartonRange);
 
                 foreach(var sku in inOneBoxSKU)

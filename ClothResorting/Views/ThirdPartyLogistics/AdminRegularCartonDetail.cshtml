@@ -158,7 +158,6 @@
                             {
                                 data: "quantity",
                                 render: function (data) {
-                                    quantity = data;
                                     return "<font color='blue'>" + data + "</font>";
                                 }
                             },
@@ -171,41 +170,20 @@
                             {
                                 data: "cartons",
                                 render: function (data) {
-                                    cartons = data;
-                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange)) {
-                                        return "<font color='red'>" + data + "</font>";
-                                    }
-                                    else
-                                    {
-                                        return "";
-                                    }
+                                    return "<font color='red'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "actualCtns",
                                 render: function (data) {
-                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
-                                    {
-                                        return "<font color='red'>" + data + "</font>";
-                                    }
-                                    else
-                                    {
-                                        return "";
-                                    }
+                                    return "<font color='red'>" + data + "</font>";
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if ((cartons != 0 || quantity == 0) && (currentCartonRange != lastCartonRange))
-                                    {
-                                        return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
                                             + data + "' /> No problem";
-                                    }
-                                    else
-                                    {
-                                        return "";
-                                    }
                                 }
                             },
                             {
