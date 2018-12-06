@@ -143,7 +143,7 @@ namespace ClothResorting.Controllers.Api
                     ReceivableCtns = cartonDetail.Cartons,
                     ReceivedCtns = cartonDetail.ActualCtns,
                     Color = cartonDetail.Color,
-                    SKU = cartonDetail.SKU,
+                    SKU = cartonDetail.Batch,
                     Memo = "",
                     Comment = cartonDetail.Comment
                 };

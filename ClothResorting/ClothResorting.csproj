@@ -1246,6 +1246,10 @@
     <Compile Include="Migrations\201811292233106_AddedOutboundHistoryModel.Designer.cs">
       <DependentUpon>201811292233106_AddedOutboundHistoryModel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201812051842188_RenameSKUToBatch.cs" />
+    <Compile Include="Migrations\201812051842188_RenameSKUToBatch.Designer.cs">
+      <DependentUpon>201812051842188_RenameSKUToBatch.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2359,6 +2363,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201811292233106_AddedOutboundHistoryModel.resx">
       <DependentUpon>201811292233106_AddedOutboundHistoryModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812051842188_RenameSKUToBatch.resx">
+      <DependentUpon>201812051842188_RenameSKUToBatch.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

@@ -51,7 +51,7 @@ namespace ClothResorting.Models
 
         public string Vendor { get; set; }
 
-        public string SKU { get; set; }
+        public string Batch { get; set; }
 
         public string ColorCode { get; set; }
 

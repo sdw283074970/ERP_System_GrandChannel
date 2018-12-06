@@ -54,13 +54,13 @@ namespace ClothResorting.Controllers.Api
                 .POSummary
                 .Id;
 
-            var regularCartonDetail = _context.FCRegularLocationDetails.Find(obj.Id);
+            var regularCartonDetail = _context.RegularCartonDetails.Find(obj.Id);
 
             var inOneBoxSKUs = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.CartonRange == cartonRange 
                     && c.POSummary.Id == poSummaryId
-                    && c.SKU == regularCartonDetail.SKU);
+                    && c.Batch == regularCartonDetail.Batch);
 
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(obj.PreId);
 

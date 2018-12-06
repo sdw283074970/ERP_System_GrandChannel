@@ -230,7 +230,7 @@ namespace ClothResorting.Helpers
                                         Receiver = "",
                                         Adjustor = "",
                                         Vendor = vendor,
-                                        SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                        Batch = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
                                         ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                     });
                                 }
@@ -328,7 +328,7 @@ namespace ClothResorting.Helpers
                                 Receiver = "",
                                 Adjustor = "",
                                 Vendor = vendor,
-                                SKU = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                Batch = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
                                 ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString()
                             });
                         }
@@ -830,7 +830,7 @@ namespace ClothResorting.Helpers
         //}
         #endregion
 
-        //SilkIcon补货订单解决方案：新建generallocationsummary和replenishmentLocationdetail对象作为入库记录和起始操作数据
+        //补货订单解决方案：新建generallocationsummary和replenishmentLocationdetail对象作为入库记录和起始操作数据
         public void UploadReplenishimentLocationDetail(int preId, string vendor, string inboundDate, string fileName)
         {
             //获取该上传库存属于的工作订单
@@ -1114,7 +1114,9 @@ namespace ClothResorting.Helpers
             //id = _context.PreReceiveOrders.OrderByDescending(c => c.Id).First().Id;
             var regularCartonDetailList = new List<RegularCartonDetail>();
 
-            //扫描Detail页面中有多少个RegularCartonDetal对象
+            var batch = 1;
+
+            //扫描Detail页面中有多少个RegularCartonDetail对象
             for (int i = 0; i < _countOfPo; i++)
             {
                 var countOfSpace = 0;
@@ -1257,6 +1259,7 @@ namespace ClothResorting.Helpers
                                     Operator  = _userName,
                                     Adjustor = "",
                                     Receiver = "",
+                                    Batch = batch.ToString(),
                                     Vendor = Vendor.FreeCountry
                                 };
 
@@ -1290,6 +1293,7 @@ namespace ClothResorting.Helpers
                                     Operator = _userName,
                                     Adjustor = "",
                                     Receiver = "",
+                                    Batch = batch.ToString(),
                                     Vendor = Vendor.FreeCountry
                                 };
 
@@ -1347,6 +1351,7 @@ namespace ClothResorting.Helpers
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = "",
+                                Batch = batch.ToString(),
                                 Vendor = Vendor.FreeCountry
                             };
 
@@ -1380,6 +1385,7 @@ namespace ClothResorting.Helpers
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = "",
+                                Batch = batch.ToString(),
                                 Vendor = Vendor.FreeCountry
                             };
 
@@ -1410,6 +1416,8 @@ namespace ClothResorting.Helpers
                     countOfSpace += 1;
                     rowIndex += 1;
                 }
+
+                batch++;        //FC的每一个PO视为一个批次，作为入库过程中相同箱号的区分
             }
 
             _context.RegularCartonDetails.AddRange(regularCartonDetailList);
@@ -1697,7 +1705,7 @@ namespace ClothResorting.Helpers
 
                 var skuCount = sku == null ? 0 : sku.RegularCartonDetails.Count;
 
-                if (skuCount > 1)       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
+                if (skuCount != 1)       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
                 {
 
                     //为该SKU下的每一种Size备货
@@ -1806,7 +1814,7 @@ namespace ClothResorting.Helpers
                         }
                     }
                 }
-                else if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Pre-pack
+                else //if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Pre-pack
                 {
                     //待选池中所有符合拣货条件的对象
                     var poolLocations = cartonLocationPool.Where(x => x.Style == style
@@ -1884,11 +1892,10 @@ namespace ClothResorting.Helpers
                             ShipOrder = pullSheet
                         });
                     }
-                    
                     //usedPoolCartonLocationDetails.AddRange(poolLocations);
                 }
-                else    //最后是count等于0,即数据库POSummary中不存在相关sku记录的情况。原做法是直接打印缺货记录，但有些装箱单将各种SKU放在同一个POSummay中导致查找不到。新做法是跳过查找POSummary，直接查找库存取货
-                {
+                //else    //最后是count等于0,即数据库POSummary中不存在相关sku记录的情况。原方法是直接打印缺货记录，但有些装箱单将各种SKU放在同一个POSummay中导致查找不到。新方法是跳过查找POSummary，直接查找库存取货
+                //{
                     //...生成缺货记录
                     //diagnosticList.Add(new PullSheetDiagnostic
                     //{
@@ -1898,8 +1905,8 @@ namespace ClothResorting.Helpers
                     //    ShipOrder = pullSheet
                     //});
 
-
-                }
+                    
+                //}
             }
 
             //这里进行Concealed Overage检查

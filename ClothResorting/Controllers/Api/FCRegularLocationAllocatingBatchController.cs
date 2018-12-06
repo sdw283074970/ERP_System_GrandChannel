@@ -43,55 +43,58 @@ namespace ClothResorting.Controllers.Api
             {
                 var regularCartonDetail = regularCartonDetailsIndb.SingleOrDefault(c => c.Id == id);
 
-                if (regularCartonDetail.Container == null || regularCartonDetail.Container == "Unknown")
+                if (regularCartonDetail.ToBeAllocatedCtns != 0)     //只有当待分配箱数不等于0的适合才在库存中建立对象。防止用户多次点击。
                 {
-                    throw new Exception("Invalid contaier number. Container must be assigned first.");
+                    if (regularCartonDetail.Container == null || regularCartonDetail.Container == "Unknown")
+                    {
+                        throw new Exception("Invalid contaier number. Container must be assigned first.");
+                    }
+
+                    var purchaseOrder = regularCartonDetail.PurchaseOrder;
+                    var color = regularCartonDetail.Color;
+                    var style = regularCartonDetail.Style;
+                    var cartonRange = regularCartonDetail.CartonRange;
+
+                    var inOneBoxSKU = regularCartonDetailsIndb
+                        .Where(X => X.PurchaseOrder == purchaseOrder
+                            && X.Batch == regularCartonDetail.Batch
+                            && X.CartonRange == cartonRange);
+
+                    foreach (var sku in inOneBoxSKU)
+                    {
+                        locationDeatilList.Add(new FCRegularLocationDetail
+                        {
+                            Container = sku.Container,
+                            PurchaseOrder = purchaseOrder,
+                            Style = style,
+                            Color = color,
+                            CustomerCode = sku.Customer,
+                            SizeBundle = sku.SizeBundle,
+                            PcsBundle = sku.PcsBundle,
+                            Cartons = sku.ToBeAllocatedCtns,
+                            Quantity = sku.ToBeAllocatedPcs,
+                            PcsPerCaron = sku.PcsPerCarton,
+                            Status = Status.InStock,
+                            Location = obj.Location,
+                            AvailableCtns = sku.ToBeAllocatedCtns,
+                            PickingCtns = 0,
+                            ShippedCtns = 0,
+                            AvailablePcs = sku.ToBeAllocatedPcs,
+                            PickingPcs = 0,
+                            ShippedPcs = 0,
+                            InboundDate = _timeNow,
+                            PreReceiveOrder = prereceiveOrder,
+                            RegularCaronDetail = sku,
+                            CartonRange = cartonRange,
+                            Allocator = _userName,
+                            Vendor = sku.Vendor
+                        });
+
+                        sku.ToBeAllocatedCtns = 0;
+                        sku.ToBeAllocatedPcs = 0;
+                        sku.Status = Status.Allocated;
+                    }
                 }
-
-                var purchaseOrder = regularCartonDetail.PurchaseOrder;
-                var color = regularCartonDetail.Color;
-                var style = regularCartonDetail.Style;
-                var cartonRange = regularCartonDetail.CartonRange;
-
-                var inOneBoxSKU = regularCartonDetailsIndb
-                    .Where(X => X.PurchaseOrder == purchaseOrder
-                        && X.SKU == regularCartonDetail.SKU
-                        && X.CartonRange == cartonRange);
-
-                foreach(var sku in inOneBoxSKU)
-                {
-                    locationDeatilList.Add(new FCRegularLocationDetail {
-                        Container = sku.Container,
-                        PurchaseOrder = purchaseOrder,
-                        Style = style,
-                        Color = color,
-                        CustomerCode = sku.Customer,
-                        SizeBundle = sku.SizeBundle,
-                        PcsBundle = sku.PcsBundle,
-                        Cartons = sku.ToBeAllocatedCtns,
-                        Quantity = sku.ToBeAllocatedPcs,
-                        PcsPerCaron = sku.PcsPerCarton,
-                        Status = Status.InStock,
-                        Location = obj.Location,
-                        AvailableCtns = sku.ToBeAllocatedCtns,
-                        PickingCtns = 0,
-                        ShippedCtns = 0,
-                        AvailablePcs = sku.ToBeAllocatedPcs,
-                        PickingPcs = 0,
-                        ShippedPcs = 0,
-                        InboundDate = _timeNow,
-                        PreReceiveOrder = prereceiveOrder,
-                        RegularCaronDetail = sku,
-                        CartonRange = cartonRange,
-                        Allocator = _userName,
-                        Vendor = sku.Vendor
-                    });
-
-                    sku.ToBeAllocatedCtns = 0;
-                    sku.ToBeAllocatedPcs = 0;
-                    sku.Status = Status.Allocated;
-                }
-
                 //locationDeatilList.Add(new FCRegularLocationDetail {
                 //    Container = regularCartonDetail.POSummary.Container,
                 //    PurchaseOrder = regularCartonDetail.PurchaseOrder,

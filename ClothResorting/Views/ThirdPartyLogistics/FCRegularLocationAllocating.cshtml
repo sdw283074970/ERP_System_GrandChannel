@@ -16,10 +16,11 @@
                 <tr>
                     <th>Container</th>
                     <th>Ctn Range</th>
+                    <th>Batch</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Color</th>
-                    <th>CC</th>
+                    <th>SKU</th>
                     <th>Size Bundle</th>
                     <th>Pcs Bundle</th>
                     <th>Status</th>
@@ -55,6 +56,8 @@
             var currentStyle = "current";
             var lastColor = "last";
             var currentColor = "current";
+            var lastBatch = "last";
+            var currentBatch = "current";
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -90,6 +93,7 @@
                     table = $("#table").DataTable({
                         data: data,
                         destroy: true,
+                        order: [[2, "asc"]],
                         //scrollX: true,
                         scrollCollapse: true,
                         scrollY: "600px",
@@ -111,6 +115,18 @@
                                     else
                                     {
                                         currentCartonRange = data;
+                                    }
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "batch",
+                                render: function (data) {
+                                    if (data != lastBatch) {
+                                        lastBatch = data;
+                                    }
+                                    else {
+                                        currentBatch = data;
                                     }
                                     return "<text>" + data + "</text>";
                                 }
@@ -200,7 +216,7 @@
                                 data: "id",
                                 render: function (data) {
                                     //if (currentCartonRange == lastCartonRange && currentPO == lastPO && currentStyle == lastStyle && currentColor == lastColor)
-                                    if (currentCartonRange == lastCartonRange)
+                                    if (currentCartonRange == lastCartonRange && currentBatch == lastBatch)
                                     {
                                         return "";
                                     }
@@ -310,6 +326,7 @@
                                 data: data,
                                 destroy: true,
                                 //scrollX: true,
+                                order: [[2, "asc"]],
                                 scrollCollapse: true,
                                 scrollY: "600px",
                                 iDisplayLength: 100,
@@ -328,6 +345,18 @@
                                             }
                                             else {
                                                 currentCartonRange = data;
+                                            }
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
+                                        data: "batch",
+                                        render: function (data) {
+                                            if (data != lastBatch) {
+                                                lastBatch = data;
+                                            }
+                                            else {
+                                                currentBatch = data;
                                             }
                                             return "<text>" + data + "</text>";
                                         }
@@ -412,7 +441,7 @@
                                     {
                                         data: "id",
                                         render: function (data) {
-                                            if (currentCartonRange == lastCartonRange && currentPO == lastPO && currentStyle == lastStyle && currentColor == lastColor) {
+                                            if (currentCartonRange == lastCartonRange && currentBatch == lastBatch) {
                                                 return "";
                                             }
                                             else {
@@ -454,9 +483,6 @@
                             table.search(lastSearchBar).draw();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            //alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            //    window.location.reload();
-                            //});
                             alert(XMLHttpRequest.responseJSON.exceptionMessage);
                             window.location.reload();
                         }
@@ -554,6 +580,18 @@
                                         }
                                     },
                                     {
+                                        data: "batch",
+                                        render: function (data) {
+                                            if (data != lastBatch) {
+                                                lastBatch = data;
+                                            }
+                                            else {
+                                                currentBatch = data;
+                                            }
+                                            return "<text>" + data + "</text>";
+                                        }
+                                    },
+                                    {
                                         data: "purchaseOrder",
                                         render: function (data) {
 
@@ -633,7 +671,7 @@
                                     {
                                         data: "id",
                                         render: function (data) {
-                                            if (currentCartonRange == lastCartonRange && currentPO == lastPO && currentStyle == lastStyle && currentColor == lastColor) {
+                                            if (currentCartonRange == lastCartonRange && currentBatch == lastBatch) {
                                                 return "";
                                             }
                                             else {

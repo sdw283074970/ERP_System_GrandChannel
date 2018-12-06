@@ -62,7 +62,7 @@ namespace ClothResorting.Controllers.Api
                 .Include(x => x.RegularCaronDetail.POSummary.PreReceiveOrder)
                 .Where(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.Id == preId
                     && x.PurchaseOrder == locationInDb.PurchaseOrder
-                    && x.SKU == locationInDb.SKU
+                    && x.Batch == locationInDb.Batch
                     && x.CartonRange == locationInDb.CartonRange
                     && x.AvailableCtns == 0);
 
