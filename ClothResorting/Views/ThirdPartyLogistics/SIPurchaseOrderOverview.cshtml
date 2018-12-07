@@ -20,6 +20,7 @@
             <thead>
                 <tr>
                     <th><input id="select-all" type="checkbox" value="0" /></th>
+                    <th>Id</th>
                     <th>Container</th>
                     <th>Vendor</th>
                     <th>Created By</th>
@@ -137,6 +138,12 @@
                         render: function (data) {
                             return "<input name='selected' type='checkbox' class='cb-selected' value='"
                                         + data + "' />";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
                         }
                     },
                     {

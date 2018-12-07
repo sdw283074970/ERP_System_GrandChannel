@@ -167,10 +167,14 @@ namespace ClothResorting.Controllers.Api
                 .SingleOrDefault(x => x.Id == id);
 
             regularCartonDetailInDb.POSummary.ActualCtns -= regularCartonDetailInDb.ActualCtns;
+            regularCartonDetailInDb.POSummary.Cartons -= regularCartonDetailInDb.Cartons;
             regularCartonDetailInDb.POSummary.PreReceiveOrder.ActualReceivedCtns -= regularCartonDetailInDb.ActualCtns;
+            regularCartonDetailInDb.POSummary.PreReceiveOrder.TotalCartons -= regularCartonDetailInDb.Cartons;
 
             regularCartonDetailInDb.POSummary.ActualPcs -= regularCartonDetailInDb.ActualPcs;
+            regularCartonDetailInDb.POSummary.Quantity -= regularCartonDetailInDb.Quantity;
             regularCartonDetailInDb.POSummary.PreReceiveOrder.ActualReceivedPcs -= regularCartonDetailInDb.ActualPcs;
+            regularCartonDetailInDb.POSummary.PreReceiveOrder.TotalPcs -= regularCartonDetailInDb.Quantity;
 
             try
             {

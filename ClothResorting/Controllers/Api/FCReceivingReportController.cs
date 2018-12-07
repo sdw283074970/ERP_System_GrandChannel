@@ -98,6 +98,8 @@ namespace ClothResorting.Controllers.Api
             {
                 cartonDetail.POSummary.PreReceiveOrder.ActualReceivedCtns -= cartonDetail.ActualCtns;
                 cartonDetail.POSummary.PreReceiveOrder.ActualReceivedPcs -= cartonDetail.ActualPcs;
+                cartonDetail.POSummary.PreReceiveOrder.TotalCartons -= cartonDetail.Cartons;
+                cartonDetail.POSummary.PreReceiveOrder.TotalPcs -= cartonDetail.Quantity;
             }
 
             try
