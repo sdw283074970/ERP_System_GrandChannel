@@ -105,6 +105,7 @@ namespace ClothResorting.Controllers.Api
                         RegularCaronDetail = cartonDetailInDb,
                         CartonRange = cartonRange,
                         Allocator = _userName,
+                        Batch = cartonDetailInDb.Batch,
                         Vendor = cartonDetailInDb.Vendor
                     });
 
@@ -139,6 +140,7 @@ namespace ClothResorting.Controllers.Api
                         RegularCaronDetail = cartonDetailInDb,
                         CartonRange = cartonRange,
                         Allocator = _userName,
+                        Batch = cartonDetailInDb.Batch,
                         Vendor = cartonDetailInDb.Vendor
                     });
                 }

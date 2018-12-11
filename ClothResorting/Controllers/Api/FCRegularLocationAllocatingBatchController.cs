@@ -65,9 +65,9 @@ namespace ClothResorting.Controllers.Api
                         locationDeatilList.Add(new FCRegularLocationDetail
                         {
                             Container = sku.Container,
-                            PurchaseOrder = purchaseOrder,
-                            Style = style,
-                            Color = color,
+                            PurchaseOrder = sku.PurchaseOrder,
+                            Style = sku.Style,
+                            Color = sku.Color,
                             CustomerCode = sku.Customer,
                             SizeBundle = sku.SizeBundle,
                             PcsBundle = sku.PcsBundle,
@@ -87,7 +87,8 @@ namespace ClothResorting.Controllers.Api
                             RegularCaronDetail = sku,
                             CartonRange = cartonRange,
                             Allocator = _userName,
-                            Vendor = sku.Vendor
+                            Vendor = sku.Vendor,
+                            Batch = sku.Batch
                         });
 
                         sku.ToBeAllocatedCtns = 0;

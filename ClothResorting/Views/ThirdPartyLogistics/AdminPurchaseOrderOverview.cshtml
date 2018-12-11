@@ -26,6 +26,7 @@
                 <tr>
                     <th><input id="select-all" type="checkbox" value="0" /></th>
                     <th>Container</th>
+                    <th>Id</th>
                     <th>Vendor</th>
                     <th>Created By</th>
                     <th>PO</th>
@@ -113,6 +114,12 @@
                         data: "container",
                         render: function (data) {
                             return "<a href='/ThirdPartyLogistics/ReceivingReport/?preid=" + preId + "&container=" + data + "'><button class='btn btn-link btn-report'>" + data + "</button></a><br>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
                         }
                     },
                     {

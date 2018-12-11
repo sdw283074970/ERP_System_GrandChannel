@@ -50,6 +50,7 @@
                     <th>Shipped Pcs</th>
                     <th>Inbound Date</th>
                     <th>Allocated By</th>
+                    <th>Batch</th>
                     <th>Location</th>
                     <th>Operation</th>
                 </tr>
@@ -58,6 +59,7 @@
             <tfoot>
                 <tr>
                     <th colspan="10" style="text-align:right">Total:</th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -292,6 +294,12 @@
                                 data: "allocator",
                                 render: function (data) {
                                     return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "batch",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
@@ -597,6 +605,12 @@
                                     data: "allocator",
                                     render: function (data) {
                                         return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "batch",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
                                     }
                                 },
                                 {

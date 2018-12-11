@@ -18,6 +18,7 @@
         <input id="input-size" style="width:170px" class="input-sm" placeholder="Size" />
         <input id="input-quantity" style="width:170px" class="input-sm" placeholder="Quantity" />
         <input id="input-location" style="width:170px" class="input-sm" placeholder="Location" />
+        <input id="input-description" style="width:170px" class="input-sm" placeholder="Description(Optional)" />
         <input id="btn-add" type="button" class="btn btn-info" value="Add" />
     </div>
     <div>
@@ -251,6 +252,7 @@
                 var size = $("#input-size").val().toString();
                 var quantity = $("#input-quantity").val();
                 var tlocation = $("#input-location").val().toString();
+                var description = $("#input-description").val().toString();
 
                 if (po == "" || style == "" || color == "" || size == "" || quantity == "" || tlocation == "")
                 {
@@ -264,12 +266,13 @@
                         "color": color,
                         "size": size,
                         "quantity": quantity,
-                        "location": tlocation
+                        "location": tlocation,
+                        "description": description
                     };
 
                     $.ajax({
                         type: "POST",
-                        url: "/api/ReplenishmentLocationDetailSingleInbound/",
+                        url: "/api/ReplenishmentLocationDetailSingleInbound/" + id,
                         contentType: 'application/json; charset=utf-8',
                         data: JSON.stringify(obj),
                         dataType: "json",

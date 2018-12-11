@@ -20,8 +20,8 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/InboundHistory
-        [HttpPost]
+        // GET /api/InboundHistory/
+        [HttpGet]
         public IHttpActionResult ReturnInboundHistory([FromBody]BasicFourAttrsJsonObj obj)
         {
             var inboundHistoryList = new List<InboundHistoryRecord>();
@@ -36,19 +36,19 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var record in inboundRecords)
             {
-                inboundHistoryList.Add(new InboundHistoryRecord {
-                    FileName = record.GeneralLocationSummary.UploadedFileName,
-                    Location = record.Location,
-                    InboundPcs = "+" + record.Quantity.ToString(),
-                    ResidualPcs = record.AvailablePcs
-                });
+                if (record.GeneralLocationSummary != null)
+                {
+                    inboundHistoryList.Add(new InboundHistoryRecord
+                    {
+                        FileName = record.GeneralLocationSummary.UploadedFileName,
+                        Location = record.Location,
+                        InboundPcs = "+" + record.Quantity.ToString(),
+                        ResidualPcs = record.AvailablePcs
+                    });
+                }
             }
 
-            return Created(Request.RequestUri
-                + "/" + obj.PurchaseOrder
-                + "&" + obj.Style
-                + "&" + obj.Color
-                + "&" + obj.Size, inboundHistoryList);
+            return Ok(inboundHistoryList);
         }
     }
 }

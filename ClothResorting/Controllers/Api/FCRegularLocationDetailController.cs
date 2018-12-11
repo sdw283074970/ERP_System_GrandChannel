@@ -8,6 +8,7 @@ using System.Data.Entity;
 using ClothResorting.Models;
 using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -61,10 +62,9 @@ namespace ClothResorting.Controllers.Api
             var locationsInDb = _context.FCRegularLocationDetails
                 .Include(x => x.RegularCaronDetail.POSummary.PreReceiveOrder)
                 .Where(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.Id == preId
-                    && x.PurchaseOrder == locationInDb.PurchaseOrder
                     && x.Batch == locationInDb.Batch
                     && x.CartonRange == locationInDb.CartonRange
-                    && x.AvailableCtns == 0);
+                    && x.Cartons == 0);
 
             foreach(var location in locationsInDb)
             {
@@ -82,11 +82,11 @@ namespace ClothResorting.Controllers.Api
 
                 cartonDetailInDb.ToBeAllocatedCtns += availableCtns;
                 cartonDetailInDb.ToBeAllocatedPcs += availablePcs;
-                cartonDetailInDb.Status = "Realllocating";
+                cartonDetailInDb.Status = Status.Reallocating;
 
                 location.AvailableCtns = 0;
                 location.AvailablePcs = 0;
-                location.Status = "Reallocated";
+                location.Status = Status.Reallocated;
 
                 //当正在拣货数量不为零时，不能移库（在前端实现）
                 //当有库存没有已发出去的货时，删除库存记录(否则不删除记录)，将库存记录的剩余库存移至SKU待分配页面

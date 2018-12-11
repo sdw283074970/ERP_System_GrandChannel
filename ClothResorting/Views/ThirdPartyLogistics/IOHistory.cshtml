@@ -88,8 +88,8 @@
                 $("#memo2").html("Location");
 
                 $.ajax({
-                    type: "POST",
-                    url: "/api/InboundHistory",
+                    type: "GET",
+                    url: "/api/InboundHistory/",
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(obj),
                     dataType: "json",
@@ -145,7 +145,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "/api/OutboundHistory",
+                    url: "/api/OutboundHistory/",
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(obj),
                     dataType: "json",

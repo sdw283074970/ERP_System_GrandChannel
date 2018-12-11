@@ -9,6 +9,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using System.Web;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -16,10 +18,12 @@ namespace ClothResorting.Controllers.Api
     {
         private ApplicationDbContext _context;
         private DateTime _timeNow = DateTime.Now;
+        private string _userName;
 
         public PurchaseOrderStatisticsController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/purchaseorderstatistics/?po={po}
@@ -50,6 +54,33 @@ namespace ClothResorting.Controllers.Api
                     && c.Color == obj.Color
                     && c.Size == obj.Size);
 
+            if (speciesInDb == null)
+            {
+                throw new Exception("Invalid SKU input.");
+            }
+
+            if (obj.Adjust > 0)
+            {
+                _context.ReplenishmentLocationDetails.Add(new ReplenishmentLocationDetail
+                {
+                    PurchaseOrder = obj.PurchaseOrder,
+                    Style = obj.Style,
+                    Color = obj.Color,
+                    Size = obj.Size,
+                    Location = "Adjustment",
+                    InboundDate = _timeNow,
+                    Quantity = obj.Adjust,
+                    AvailablePcs = obj.Adjust,
+                    Operator = _userName,
+                    Editor = _userName,
+                    Vendor = speciesInDb.Vendor,
+                    IsHanger = false,
+                    Status = Status.InStock,
+                    SpeciesInventory = speciesInDb,
+                    PurchaseOrderInventory = speciesInDb.PurchaseOrderInventory
+                });
+            }
+
             _context.AdjustmentRecords.Add(new AdjustmentRecord {
                 PurchaseOrder = obj.PurchaseOrder,
                 Style = obj.Style,
@@ -58,7 +89,8 @@ namespace ClothResorting.Controllers.Api
                 Adjustment = obj.Adjust < 0 ? "-" + -obj.Adjust : "+" + obj.Adjust,
                 AdjustDate = _timeNow,
                 SpeciesInventory = speciesInDb,
-                Balance = (speciesInDb.AvailablePcs + obj.Adjust).ToString()
+                Balance = (speciesInDb.AvailablePcs + obj.Adjust).ToString(),
+                Memo = obj.Description
             });
 
             speciesInDb.AdjPcs += obj.Adjust;

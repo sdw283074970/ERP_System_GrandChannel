@@ -30,6 +30,10 @@
                 Adjust:
                 <input id="adjust" style="width:100px" />
             </font>
+            <font>
+                Description:
+                <input id="description" style="width:100px" />
+            </font>
             <input id="btn-adj" type="button" class="btn btn-info" value="Adjust" />
         </div>
     </div>
@@ -172,13 +176,15 @@
                 var color = $("#color").val().toString();
                 var size = $("#size").val().toString();
                 var adjust = $("#adjust").val();
+                var description = $("#description").val().toString();
 
                 var obj = {
                     "purchaseOrder": po,
                     "style": style,
                     "color": color,
                     "size": size,
-                    "adjust": adjust
+                    "adjust": adjust,
+                    "description": description
                 };
 
                 $.ajax({

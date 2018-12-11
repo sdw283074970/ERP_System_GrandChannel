@@ -8,5 +8,7 @@ namespace ClothResorting.Models.ApiTransformModels
     public class AdjustmentJsonObj : BasicFourAttrsJsonObj
     {
         public int Adjust { get; set; }
+
+        public string Description { get; set; }
     }
 }

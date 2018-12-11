@@ -46,9 +46,13 @@ namespace ClothResorting.Helpers
                     locationDetail.PickingCtns -= pickDetail.PickCtns;
                     locationDetail.PickingPcs -= pickDetail.PickPcs;
 
-                    if (locationDetail.PickingCtns == 0 && locationDetail.AvailableCtns == 0)
+                    if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs == 0)
                     {
                         locationDetail.Status = Status.Shipped;
+                    }
+                    else if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs != 0)
+                    {
+                        locationDetail.Status = Status.InStock;
                     }
                 }
                 else if (orderType == OrderType.Replenishment)      //发货Replenishment Order的方法
@@ -82,9 +86,13 @@ namespace ClothResorting.Helpers
                         OutboundPcs = pickDetail.PickPcs
                     });
 
-                    if (locationDetail.PickingCtns == 0 && locationDetail.AvailableCtns == 0)
+                    if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs == 0)
                     {
                         locationDetail.Status = Status.Shipped;
+                    }
+                    else if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs != 0)
+                    {
+                        locationDetail.Status = Status.InStock;
                     }
                 }
             }
@@ -122,7 +130,7 @@ namespace ClothResorting.Helpers
                     locationDetail.PickingCtns -= pickDetail.PickCtns;
                     locationDetail.PickingPcs -= pickDetail.PickPcs;
 
-                    if (locationDetail.PickingCtns == 0 && locationDetail.AvailablePcs != 0)
+                    if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs != 0)
                     {
                         locationDetail.Status = Status.InStock;
                     }
