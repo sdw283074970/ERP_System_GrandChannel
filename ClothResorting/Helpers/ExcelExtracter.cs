@@ -1914,37 +1914,39 @@ namespace ClothResorting.Helpers
             //检查待选池中的对象，是否有多种SKU在同一箱(寄生SKU)但只拿出部分件数的情况，生成"隐藏多货"Concealed Overage诊断记录，并将这些多的货也添加到拣货表里
             var partailCartons = cartonLocationPool.Where(x => x.Cartons == 0 && x.Quantity != 0);
 
-            foreach (var partailCarton in partailCartons)
-            {
-                //找到宿主SKU
-                var baseCarton = cartonLocationPool.SingleOrDefault(x => x.CartonRange == partailCarton.CartonRange && x.Cartons != 0);
+            //暂时禁用查询隐藏多货的功能
 
-                if (baseCarton != null)    //如果没有找到，则说明本身就是宿主，直接跳过检验
-                {
-                    //寄生SKU的剩余件数除以单位件与宿主SKU的剩余箱数的差，再乘以该SKU的单位件数，即是隐藏多货的件数
-                    var partailCartonDiff = partailCarton.AvailablePcs / partailCarton.PcsPerCaron - baseCarton.AvailableCtns;
+            //foreach (var partailCarton in partailCartons)
+            //{
+            //    //找到宿主SKU
+            //    var baseCarton = cartonLocationPool.SingleOrDefault(x => x.CartonRange == partailCarton.CartonRange && x.Cartons != 0);
 
-                    if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
-                    {
-                        //一起添加到拣货单，并注明这是Concealed Overage
-                        var concealedOverage = ConvertToSolidPickDetail(pullSheet, partailCarton, regularLocationDetailInDb, partailCartonDiff * partailCarton.PcsPerCaron);
-                        concealedOverage.Memo = Status.Overage;
-                        concealedOverage.PickCtns = 0;
-                        pickDetailList.Add(concealedOverage);
+            //    if (baseCarton != null)    //如果没有找到，则说明本身就是宿主，直接跳过检验
+            //    {
+            //        //寄生SKU的剩余件数除以单位件与宿主SKU的剩余箱数的差，再乘以该SKU的单位件数，即是隐藏多货的件数
+            //        var partailCartonDiff = partailCarton.AvailablePcs / partailCarton.PcsPerCaron - baseCarton.AvailableCtns;
 
-                        partailCarton.PickingPcs = partailCartonDiff * partailCarton.PcsPerCaron;
-                        partailCarton.AvailablePcs -= partailCartonDiff * partailCarton.PcsPerCaron;
+            //        if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
+            //        {
+            //            //一起添加到拣货单，并注明这是Concealed Overage
+            //            var concealedOverage = ConvertToSolidPickDetail(pullSheet, partailCarton, regularLocationDetailInDb, partailCartonDiff * partailCarton.PcsPerCaron);
+            //            concealedOverage.Memo = Status.Overage;
+            //            concealedOverage.PickCtns = 0;
+            //            pickDetailList.Add(concealedOverage);
 
-                        diagnosticList.Add(new PullSheetDiagnostic
-                        {
-                            Type = Status.ConcealedOverage,
-                            DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                            Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
-                            ShipOrder = pullSheet
-                        });
-                    }
-                }
-            }
+            //            partailCarton.PickingPcs = partailCartonDiff * partailCarton.PcsPerCaron;
+            //            partailCarton.AvailablePcs -= partailCartonDiff * partailCarton.PcsPerCaron;
+
+            //            diagnosticList.Add(new PullSheetDiagnostic
+            //            {
+            //                Type = Status.ConcealedOverage,
+            //                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+            //                Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
+            //                ShipOrder = pullSheet
+            //            });
+            //        }
+            //    }
+            //}
 
             //将新收集的"备选池"对象同步到其原有的数据库对象中去
             var cartonLocationDetailsInDb = _context.FCRegularLocationDetails.Where(x => x.Id > 0);

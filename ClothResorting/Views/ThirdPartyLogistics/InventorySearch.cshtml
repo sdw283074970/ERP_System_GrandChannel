@@ -57,6 +57,7 @@
                 <font id="shippedPcs" color="blue"></font><br />
             </div>
             <div>
+                <select id="select-vendor" style="width:170px;height:30px"></select>
                 <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
                 <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
                 <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
@@ -65,13 +66,16 @@
                 <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
                 <input style="width:140px" id="input-location" class="input-sm" placeholder="Location" />
                 <input type="checkbox" id="check-isshipped" class="cb-selected" /> Display Shipped Items
-                <button id="btn-search" class="btn btn-info">Search</button><br />
+                <input type="checkbox" id="check-isreplenishment" class="cb-selected" /> Is Replenishment
+                <button id="btn-search" class="btn btn-info">Search</button>
+                <button id="btn-export" class="btn btn-primary">Export Results as Excel File</button><br />
             </div>
             <div>
                 <table id="table" class="table table-condensed table-hover table-striped">
                     <thead>
                         <tr>
                             <th>Container</th>
+                            <th>Vendor</th>
                             <th>Status</th>
                             <th>Range</th>
                             <th>PO</th>
@@ -89,13 +93,17 @@
                             <th>Picking Pcs</th>
                             <th>Shipped Pcs</th>
                             <th>Inbound Date</th>
+                            <th>Allocated By</th>
+                            <th>Batch</th>
                             <th>Location</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="9" style="text-align:right">Total:</th>
+                            <th colspan="10" style="text-align:right">Total:</th>
+                            <th></th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -129,7 +137,29 @@
 <script>
     $(document).ready(function () {
 
+        var table;
+
+        //动态获取Vendor数据
+        $.ajax({
+            type: "GET",
+            url: "/api/uppervendor/?departmentCode=CD",
+            contentType: 'application/json; charset=utf-8',
+            dataType: "json",
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                    window.location.reload();
+                });
+            }
+        });
+
+        //点击搜索，返回搜索结果
         $("#btn-search").on("click", function () {
+
             var container = $("#input-container").val() == '' ? "NULL" : $("#input-container").val().toString();
             var po = $("#input-po").val() == '' ? "NULL" : $("#input-po").val().toString();
             var style = $("#input-style").val() == '' ? "NULL" : $("#input-style").val().toString();
@@ -138,6 +168,9 @@
             var size = $("#input-size").val() == '' ? "NULL" : $("#input-size").val().toString();
             var location = $("#input-location").val() == '' ? "NULL" : $("#input-location").val().toString();
             var isShipped = $("#check-isshipped").is(":checked");
+            var isReplenishment = $("#check-isreplenishment").is(":checked");
+            var vendor = $("#select-vendor option:selected").val();
+
 
             //var obj = {
             //    "container": container,
@@ -148,7 +181,7 @@
             //    "location": location
             //};
 
-            var url = "/api/inventorysearch/?container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped;
+            var url = "/api/inventorysearch/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment;
 
             alert(url);
 
@@ -157,15 +190,317 @@
                 url: url,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
-                success: function () {
+                success: function (data) {
+                    if (table) {
+                        table.destroy();
+                    }
 
+                    table = $("#table").DataTable({
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        data: data,
+                        destroy: true,
+                        columns: [
+                            {
+                                data: "container",
+                                render: function (data) {
+                                    if (data == undefined)
+                                        return "<text>N/A</text>";
+                                    else
+                                        return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "vendor",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    if (data == "Picking") {
+                                        return "<text style='color:Red'>" + data + "</text>";
+                                    }
+                                    else if (data == "Shipped") {
+                                        return "<text style='color:Blue'>" + data + "</text>";
+                                    }
+                                    else if (data == "Put Back") {
+                                        return "<text style='color:orange'>" + data + "</text>";
+                                    }
+                                    else {
+                                        return "<text style='color:Green'>" + data + "</text>";
+                                    }
+                                }
+                            },
+                            {
+                                data: "cartonRange",
+                                render: function (data) {
+                                    if (data == "Put Back")
+                                    {
+                                        isPutBack = true;
+                                        return "<text>" + data + "</text>";
+                                    }
+                                    else if (data == undefined)
+                                        return "<text>N/A</text>";
+                                    else
+                                        isPutBack = false;
+                                        return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "color",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "customerCode",
+                                render: function (data) {
+                                    if (data == undefined)
+                                        return "<text>N/A</text>";
+                                    else
+                                        return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "sizeBundle",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pcsBundle",
+                                render: function (data) {
+                                    if (data == undefined)
+                                        return "<text>N/A</text>";
+                                    else
+                                        return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "cartons",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "availableCtns",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<font>" + data + "</font>";
+                                    else
+                                        return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pickingCtns",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<font>" + data + "</font>";
+                                    else
+                                        return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedCtns",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<font>" + data + "</font>";
+                                    else
+                                        return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "availablePcs",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<font>" + data + "</font>";
+                                    else
+                                        return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "pickingPcs",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<font>" + data + "</font>";
+                                    else
+                                        return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "shippedPcs",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<font>" + data + "</font>";
+                                    else
+                                        return "<font color='blue' color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "allocator",
+                                render: function (data) {
+                                    if (data == undefined)
+                                        return "<text>N/A</text>";
+                                    else
+                                        return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "batch",
+                                render: function (data) {
+                                    if (data == undefined)
+                                        return "<text>N/A</text>";
+                                    else
+                                        return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                            }
+                        ],
+                        footerCallback: function (row, data, start, end, display) {
+
+                            var api = this.api(), data;
+
+                            var intVal = function (i) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '') * 1 :
+                                    typeof i === 'number' ?
+                                    i : 0;
+                            };
+
+                            var totalOrgCtns = api
+                                .column(10)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalOrgPcs = api
+                                .column(11)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalAvaCtns = api
+                                .column(12)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalPickingCtns = api
+                                .column(13)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalShippedCtns = api
+                                .column(14)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+                            var totalAvaPcs = api
+                                .column(15)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalPickingPcs = api
+                                .column(16)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            var totalShippedPcs = api
+                                .column(17)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            $(api.column(10).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
+                            $(api.column(11).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
+                            $(api.column(12).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
+                            $(api.column(13).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
+                            $(api.column(14).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
+                            $(api.column(15).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
+                            $(api.column(16).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
+                            $(api.column(17).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
+
+                            $("#orgCtns").html("Inbound Cartons: " + totalOrgCtns);
+                            $("#orgPcs").html("Inbound Units: " + totalOrgPcs);
+                            $("#availableCtns").html("Available Cartons: " + totalAvaCtns);
+                            $("#availablePcs").html("Available Units: " + totalAvaPcs);
+                            $("#pickingCtns").html("Picking Cartons: " + totalPickingCtns);
+                            $("#pickingPcs").html("Picking Units: " + totalPickingPcs);
+                            $("#shippedCtns").html("Shipped Cartons:" + totalShippedCtns);
+                            $("#shippedPcs").html("Shipped Units:" + totalShippedPcs);
+                        }
+                    });
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
                     window.location.reload();
                 }
             });
         });
 
+        //点击导出结果按钮，导出结果
+        $("#btn-export").on("click", function () {
+            var container = $("#input-container").val() == '' ? "NULL" : $("#input-container").val().toString();
+            var po = $("#input-po").val() == '' ? "NULL" : $("#input-po").val().toString();
+            var style = $("#input-style").val() == '' ? "NULL" : $("#input-style").val().toString();
+            var color = $("#input-color").val() == '' ? "NULL" : $("#input-color").val().toString();
+            var customer = $("#input-customer").val() == '' ? "NULL" : $("#input-customer").val().toString();
+            var size = $("#input-size").val() == '' ? "NULL" : $("#input-size").val().toString();
+            var location = $("#input-location").val() == '' ? "NULL" : $("#input-location").val().toString();
+            var isShipped = $("#check-isshipped").is(":checked");
+            var isReplenishment = $("#check-isreplenishment").is(":checked");
+            var vendor = $("#select-vendor option:selected").val();
+
+            var url = "/api/inventoryreportdownload/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment;
+
+            $(window.location).attr('href', url);
+        });
+
+        $(".btn-back").on("click", function () {
+            window.history.back(-1);
+        });
     });
 </script>

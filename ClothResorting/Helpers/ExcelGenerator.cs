@@ -302,5 +302,111 @@ namespace ClothResorting.Helpers
             response.Close();
             response.End();
         }
+
+        public void GenerateInventoryReportExcelFile(IList<InventoryReportDetail> inventoryList, string vendor)
+        {
+            var doc = new XlsDocument();
+            doc.FileName = "InventoryReport" + "-" + DateTime.Now.ToString("MMddyyyyhhmmss") + ".xls";
+            var sheet = doc.Workbook.Worksheets.Add("Sheet1");
+            var cells = sheet.Cells;
+
+            //调整第8~11列宽度
+            var col1_11 = new ColumnInfo(doc, sheet);
+
+            col1_11.ColumnIndexStart = 0;
+            col1_11.ColumnIndexEnd = 10;
+
+            col1_11.Width = 16 * 256;
+
+            sheet.AddColumnInfo(col1_11);
+
+            //定义合并单元格，合并从[1,1]到[2,14]的范围
+            sheet.AddMergeArea(new MergeArea(1, 2, 1, 11));
+            
+            //创建题目单元格样式，垂直水平且居中
+            var xfTitle = doc.NewXF();
+            xfTitle.VerticalAlignment = VerticalAlignments.Centered;
+            xfTitle.HorizontalAlignment = HorizontalAlignments.Centered;
+            xfTitle.UseBorder = true;
+            xfTitle.TopLineStyle = 1;
+            xfTitle.BottomLineStyle = 1;
+            xfTitle.LeftLineStyle = 1;
+            xfTitle.RightLineStyle = 1;
+            xfTitle.TopLineColor = Colors.Black;
+            xfTitle.BottomLineColor = Colors.Black;
+            xfTitle.RightLineColor = Colors.Black;
+            xfTitle.LeftLineColor = Colors.Black;
+            xfTitle.Font.Bold = true;
+            xfTitle.Font.Height = 16 * 20;
+
+            //创建内容单元格样式，垂直居中且水平居中
+            var xf = doc.NewXF();
+            xf.VerticalAlignment = VerticalAlignments.Centered;
+            xf.HorizontalAlignment = HorizontalAlignments.Centered;
+            xf.UseBorder = true;
+            xf.TopLineStyle = 1;
+            xf.BottomLineStyle = 1;
+            xf.LeftLineStyle = 1;
+            xf.RightLineStyle = 1;
+            xf.TopLineColor = Colors.Black;
+            xf.BottomLineColor = Colors.Black;
+            xf.RightLineColor = Colors.Black;
+            xf.LeftLineColor = Colors.Black;
+
+            //标题
+            cells.Add(1, 1, vendor + " Inventory Report", xfTitle);
+
+            //建立列
+            var columnNames = "Container,Status,Cut PO,Style,Color,Size,Pack,Original Ctns,Original Pcs,Available Ctns,Available Pcs";
+            var index = 1;
+
+            foreach (var columnName in columnNames.Split(','))
+            {
+                cells.Add(3, index, columnName, xf);
+                index++;
+            }
+
+            //填充库存细节
+            index = 0;
+            foreach (var inventory in inventoryList)
+            {
+                cells.Add(4 + index, 1, inventory.Container ?? "N/A", xf);
+                cells.Add(4 + index, 2, inventory.Status, xf);
+                cells.Add(4 + index, 3, inventory.PurchaseOrder, xf);
+                cells.Add(4 + index, 4, inventory.Style, xf);
+                cells.Add(4 + index, 5, inventory.Color, xf);
+                cells.Add(4 + index, 6, inventory.SizeBundle, xf);
+                cells.Add(4 + index, 7, inventory.Pack ?? "N/A", xf);
+                cells.Add(4 + index, 8, inventory.Cartons, xf);
+                cells.Add(4 + index, 9, inventory.Quantity, xf);
+                cells.Add(4 + index, 10, inventory.AvailableCtns, xf);
+                cells.Add(4 + index, 11, inventory.AvailablePcs, xf);
+                index++;
+            }
+
+            //表脚统计
+            cells.Add(6 + index, 7, "Total:", xf);
+            cells.Add(6 + index, 8, inventoryList.Sum(x => x.Cartons).ToString(), xf);
+            cells.Add(6 + index, 9, inventoryList.Sum(x => x.Quantity).ToString(), xf);
+            cells.Add(6 + index, 10, inventoryList.Sum(x => x.AvailableCtns).ToString(), xf);
+            cells.Add(6 + index, 11, inventoryList.Sum(x => x.AvailablePcs).ToString(), xf);
+
+            //下载
+            doc.Save(@"D:\SearchResults\");
+            var fileName = doc.FileName;
+            var path = @"D:\SearchResults\" + doc.FileName;
+            var response = HttpContext.Current.Response;
+            var downloadFile = new FileInfo(path);
+            response.ClearHeaders();
+            response.Buffer = false;
+            response.ContentType = "application/octet-stream";
+            response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8));
+            response.Clear();
+            response.AppendHeader("Content-Length", downloadFile.Length.ToString());
+            response.WriteFile(downloadFile.FullName);
+            response.Flush();
+            response.Close();
+            response.End();
+        }
     }
 }
