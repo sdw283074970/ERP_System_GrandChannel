@@ -21,14 +21,49 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/fcregularlocationdetail/{preid}
-        public IHttpActionResult GetAllLocationDetail([FromUri]int id)
+        // GET /api/fcregularlocationdetail/?preId={preid}&container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size}
+        public IHttpActionResult GetAllLocationDetail([FromUri]int preId, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
             var resultDto = _context.FCRegularLocationDetails
                 .Include(c => c.PreReceiveOrder)
-                .Where(c => c.PreReceiveOrder.Id == id)
+                .Where(c => c.PreReceiveOrder.Id == preId)
                 .ToList()
                 .Select(Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>);
+
+            if (container != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Container == container);
+            }
+
+            if (batch != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Batch == batch);
+            }
+
+            if (po != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.PurchaseOrder == po);
+            }
+
+            if (style != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Style == style);
+            }
+
+            if (color != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Color == color);
+            }
+
+            if (sku != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.CustomerCode == sku);
+            }
+
+            if (size != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.SizeBundle == size);
+            }
 
             return Ok(resultDto);
         }
@@ -37,7 +72,27 @@ namespace ClothResorting.Controllers.Api
         [HttpDelete]
         public void RelocateLocation([FromUri]int id)
         {
-            var locationInDb = _context.FCRegularLocationDetails
+            RelocateSingleId(id, _context);
+
+            _context.SaveChanges();
+        }
+
+        // DELETE /api/FcRegularlocationDetail/ 批量删除记录, 将删除的记录移回SKU待分配
+        [HttpDelete]
+        public void RelocatedSelectedId([FromBody]int[] arr)
+        {
+            foreach(var id in arr)
+            {
+                RelocateSingleId(id, _context);
+            }
+
+            _context.SaveChanges();
+        }
+
+        //对单个Id对象移库的方法
+        private void RelocateSingleId(int id, ApplicationDbContext context)
+        {
+            var locationInDb = context.FCRegularLocationDetails
                 .Include(x => x.PreReceiveOrder)
                 .Include(x => x.RegularCaronDetail)
                 .SingleOrDefault(x => x.Id == id);
@@ -55,18 +110,18 @@ namespace ClothResorting.Controllers.Api
 
             if (locationInDb.ShippedPcs == 0)
             {
-                _context.FCRegularLocationDetails.Remove(locationInDb);
+                context.FCRegularLocationDetails.Remove(locationInDb);
             }
 
             //然后找到所有寄生箱对象，即找到在同一箱的其他size库存(range相同且可用箱数为0的对象)
-            var locationsInDb = _context.FCRegularLocationDetails
+            var locationsInDb = context.FCRegularLocationDetails
                 .Include(x => x.RegularCaronDetail.POSummary.PreReceiveOrder)
                 .Where(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.Id == preId
                     && x.Batch == locationInDb.Batch
                     && x.CartonRange == locationInDb.CartonRange
                     && x.Cartons == 0);
 
-            foreach(var location in locationsInDb)
+            foreach (var location in locationsInDb)
             {
                 var cartonDetailInDb = location.RegularCaronDetail;
 
@@ -92,11 +147,9 @@ namespace ClothResorting.Controllers.Api
                 //当有库存没有已发出去的货时，删除库存记录(否则不删除记录)，将库存记录的剩余库存移至SKU待分配页面
                 if (shippedPcs == 0)
                 {
-                    _context.FCRegularLocationDetails.Remove(location);
+                    context.FCRegularLocationDetails.Remove(location);
                 }
             }
-
-            _context.SaveChanges();
         }
     }
 }

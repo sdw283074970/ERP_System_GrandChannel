@@ -27,6 +27,17 @@
         <input id="btn-shipped" type="button" class="btn btn-default btn-info btn-view" value="View shipped" />
     </div>
     <div>
+        <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
+        <input style="width:140px" id="input-batch" class="input-sm" placeholder="Batch" />
+        <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
+        <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
+        <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
+        <input style="width:140px" id="input-sku" class="input-sm" placeholder="SKU/PPK/Customer" />
+        <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
+        <button id="btn-filter" class="btn btn-info">Filter</button>
+        <button id="btn-clear" class="btn btn-danger">Clear Filter</button>
+    </div>
+    <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -52,6 +63,7 @@
                     <th>Allocated By</th>
                     <th>Batch</th>
                     <th>Location</th>
+                    <th><input id="select-all" type="checkbox" value="12345" /> </th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -70,64 +82,313 @@
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th></th>
-                    <th></th>
+                    <th colspan="3" style="text-align:right"><button id="btn-relocateselected" class="btn btn-primary">Relocate selected items</button></th>
                 </tr>
             </tfoot>
         </table>
     </div>
 </div>
-@section scripts
+    @section scripts
 {
-    <script>
-        $(document).ready(function () {
+        <script>
+            $(document).ready(function () {
 
-            var table;
-            var pickingCtns;
-            var availableCtns;
-            var orgPcs;
-            var isPutBack = false;
+                var table;
+                var pickingCtns;
+                var availableCtns;
+                var orgPcs;
+                var isPutBack = false;
 
-            //为DataTable插件服务的函数，用于计算某指定列的和
-            jQuery.fn.dataTable.Api.register('sum()', function () {
-                return this.flatten().reduce(function (a, b) {
-                    if (typeof a === 'string') {
-                        a = a.replace(/[^\d.-]/g, '') * 1;
+                var filter = {
+                    container: "NULL",
+                    batch: "NULL",
+                    po: "NULL",
+                    style: "NULL",
+                    color: "NULL",
+                    sku: "NULL",
+                    size: "NULL"
+                };
+
+                //为DataTable插件服务的函数，用于计算某指定列的和
+                jQuery.fn.dataTable.Api.register('sum()', function () {
+                    return this.flatten().reduce(function (a, b) {
+                        if (typeof a === 'string') {
+                            a = a.replace(/[^\d.-]/g, '') * 1;
+                        }
+                        if (typeof b === 'string') {
+                            b = b.replace(/[^\d.-]/g, '') * 1;
+                        }
+
+                        return a + b;
+                    }, 0);
+                });
+
+                //解析url中的参数函数
+                function getUrlParameter(sParam) {
+                    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                        sURLVariables = sPageURL.split('&'),
+                        sParameterName,
+                        i;
+
+                    for (i = 0; i < sURLVariables.length; i++) {
+                        sParameterName = sURLVariables[i].split('=');
+
+                        if (sParameterName[0] === sParam) {
+                            return sParameterName[1] === undefined ? true : sParameterName[1];
+                        }
                     }
-                    if (typeof b === 'string') {
-                        b = b.replace(/[^\d.-]/g, '') * 1;
+                };
+
+                //从地址栏获取参数
+                var preid = getUrlParameter('preid');
+
+                $.ajax({
+                    type: "GET",
+                    url: "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        GetInventoryTable(data, table)
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+
+                $(".btn-view").on("click", function () {
+                    var button = $(this);
+                    var url = "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size;
+
+                    if (button.val() == "View all") {
+                        url = "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size;
+                    }
+                    else if (button.val() == "View stock") {
+                        url = "/api/FCRegularLocationDetailStock/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size;
+                    }
+                    else if (button.val() == "View picking") {
+                        url = "/api/FCRegularLocationDetailpicking/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size;
+                    }
+                    else if (button.val() == "View shipped") {
+                        url = "/api/FCRegularLocationDetailshipped/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size;
+                    }
+                    else {
+                        alert("Invalid button.");
                     }
 
-                    return a + b;
-                }, 0);
-            });
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
 
-            //解析url中的参数函数
-            function getUrlParameter(sParam) {
-                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-                    sURLVariables = sPageURL.split('&'),
-                    sParameterName,
-                    i;
+                            GetInventoryTable(data, table);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
+                        }
+                    });
+                });
 
-                for (i = 0; i < sURLVariables.length; i++) {
-                    sParameterName = sURLVariables[i].split('=');
+                //点击移库按钮，移除当前库位
+                $("#table").on("click", ".btn-relocate", function () {
+                    var id = $(this).attr("id");
 
-                    if (sParameterName[0] === sParam) {
-                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    $.ajax({
+                        type: "DELETE",
+                        url: "/api/FCRegularLocationDetail/" + id,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            alert("Success!");
+
+                            $.ajax({
+                                type: "GET",
+                                url: "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: "json",
+                                success: function (data) {
+                                    GetInventoryTable(data, table)
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                                    window.location.reload();
+                                }
+                            });
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
+                        }
+                    });
+                });
+
+                //勾选全选选项，则选择所有对象
+                $("#select-all").on("click", function () {
+                    if ($("#select-all").is(":checked")) {
+                        $(".cb-selected").prop("checked", true);
                     }
-                }
-            };
+                    else {
+                        $(".cb-selected").prop("checked", false);
+                    }
+                });
 
-            //从地址栏获取参数
-            var preid = getUrlParameter('preid');
+                //点击移库所选按钮
+                $("#btn-relocateselected").on("click", function () {
+                    var button = $(this);
+                    var arr = new Array();
 
-            $.ajax({
-                type: "GET",
-                url: "/api/FCRegularLocationDetail/" + preid,
-                contentType: 'application/json; charset=utf-8',
-                dataType: "json",
-                success: function (data) {
+                    //将所有被选中的CheckBox的对象的id放到数组中
+                    $("input:checkbox[name='selected']:checked").each(function (i) {
+                        var val = $(this).val();
+                        arr.push(val);
+                    });
 
+                    $.ajax({
+                        type: "DELETE",
+                        data: JSON.stringify(arr),
+                        url: "/api/FCRegularLocationDetail/",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+
+                            alert("Success!");
+
+                            $.ajax({
+                                type: "GET",
+                                url: "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: "json",
+                                success: function (data) {
+                                    GetInventoryTable(data, table)
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                        window.location.reload();
+                                    });
+                                }
+                            });
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                });
+
+                //点击Edit，将当对应的<font>元素(地址)替换成一个<input>元素(输入)，原编辑按钮替换成<button>元素(确认)，并移除X按钮(移除)
+                $("#table").on("click", ".btn-edit", function () {
+                    var locationId = $(this).attr('locationid');
+                    var locationObj = $(this).parent().parent("tr").children('td').eq(18).children('font');
+                    var content = $(this).parent().parent("tr").children('td').eq(18).children('font').html();
+
+                    $(this).next().remove();
+                    locationObj.replaceWith("<input style='width:80px' locationid='" + locationId + "' class='input-sm' value='" + content + "' />");
+                    $(this).replaceWith("<button locationid='" + locationId + "' class='btn btn-link btn-confirm'>Ok</button>");
+                });
+
+                //点击确定，将对应的<input>元素中的信息同步至数据库，并复原之前的按钮
+                $("#table").on("click", ".btn-confirm", function () {
+                    var locationId = $(this).attr('locationid');
+                    var inputObj = $(this).parent().parent("tr").children('td').eq(18).children('input');
+                    var content = inputObj.val();
+
+                    inputObj.replaceWith("<font color='orange'>" + content + "(Put Back)</font>");
+                    $(this).replaceWith("<button style='width:40px' locationid='" + locationId + "'class='btn btn-link btn-edit' value='" + content + "'>Edit</button><button style='width:30px' locationid='" + locationId + "'class='btn btn-link btn-delete'>X</button>");
+
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/pickdetailputback/?id=" + locationId + "&location=" + content,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
+                            alert("Success!");
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
+                        }
+                    });
+                });
+
+                //点击X按钮，将当前的Put Back库存对象从数据库移除
+                $("#table").on("click", ".btn-delete", function () {
+                    var locationId = $(this).attr('locationid');
+
+                    $.ajax({
+                        type: "DELETE",
+                        url: "/api/pickdetailputback/?id=" + locationId,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
+                            alert("Delete success!");
+                            window.location.reload();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
+                        }
+                    });
+                });
+
+                //点击过滤按钮，返回按条件获得的结果
+                $("#btn-filter").on("click", function () {
+                    filter.container = $("#input-container").val() == '' ? "NULL" : $("#input-container").val().toString();
+                    filter.batch = $("#input-batch").val() == '' ? "NULL" : $("#input-batch").val().toString();
+                    filter.po = $("#input-po").val() == '' ? "NULL" : $("#input-po").val().toString();
+                    filter.style = $("#input-style").val() == '' ? "NULL" : $("#input-style").val().toString();
+                    filter.color = $("#input-color").val() == '' ? "NULL" : $("#input-color").val().toString();
+                    filter.sku = $("#input-sku").val() == '' ? "NULL" : $("#input-sku").val().toString();
+                    filter.size = $("#input-size").val() == '' ? "NULL" : $("#input-size").val().toString();
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
+
+                            alert("Filer applied.");
+                            GetInventoryTable(data, table)
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
+                        }
+                    });
+                });
+
+                //点击清除过滤按钮，返回所有结果
+                $("#btn-clear").on("click", function () {
+                    filter.container = "NULL";
+                    filter.batch = "NULL";
+                    filter.po = "NULL";
+                    filter.style = "NULL";
+                    filter.color = "NULL";
+                    filter.sku = "NULL";
+                    filter.size = "NULL";
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
+
+                            alert("Filter has been reset.")
+                            GetInventoryTable(data, table)
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            window.location.reload();
+                        }
+                    });
+                });
+
+                function GetInventoryTable(data, table) {
                     if (table) {
                         table.destroy();
                     }
@@ -160,8 +421,7 @@
                                     else if (data == "Shipped") {
                                         return "<text style='color:Blue'>" + data + "</text>";
                                     }
-                                    else if (data == "Put Back")
-                                    {
+                                    else if (data == "Put Back") {
                                         return "<text style='color:orange'>" + data + "</text>";
                                     }
                                     else {
@@ -312,6 +572,16 @@
                                 data: "id",
                                 render: function (data) {
                                     //当库存剩余为0且没有在拣货，或有在拣货的情况下，隐藏移库按钮
+                                    if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0 || isPutBack)
+                                        return "";
+                                    else
+                                        return "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    //当库存剩余为0且没有在拣货，或有在拣货的情况下，隐藏移库按钮
                                     if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0)
                                         return "";
                                     else if (isPutBack)
@@ -404,393 +674,14 @@
                             $("#pickingPcs").html("Picking Units: " + totalPickingPcs);
                             $("#shippedCtns").html("Shipped Cartons:" + totalShippedCtns);
                             $("#shippedPcs").html("Shipped Units:" + totalShippedPcs);
-
                         }
                     });
-                },
-                error: function () {
-                    alert("error!");
-                }
-            });
+                };
 
-            $(".btn-view").on("click", function () {
-                var button = $(this);
-                var url = "/api/FCRegularLocationDetail/" + preid;
-
-                if (button.val() == "View all") {
-                    url = "/api/FCRegularLocationDetail/" + preid;
-                }
-                else if (button.val() == "View stock") {
-                    url = "/api/FCRegularLocationDetailStock/" + preid;
-                }
-                else if (button.val() == "View picking") {
-                    url = "/api/FCRegularLocationDetailpicking/" + preid;
-                }
-                else if (button.val() == "View shipped") {
-                    url = "/api/FCRegularLocationDetailshipped/" + preid;
-                }
-                else {
-                    alert("Invalid button.");
-                }
-
-                $.ajax({
-                    type: "GET",
-                    url: url,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function (data) {
-
-                        if (table) {
-                            table.destroy();
-                        }
-
-                        table = $("#table").DataTable({
-                            scrollCollapse: true,
-                            scrollY: "600px",
-                            iDisplayLength: 100,
-                            data: data,
-                            destroy: true,
-                            columns: [
-                                {
-                                    data: "container",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "vendor",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "status",
-                                    render: function (data) {
-                                        if (data == "Picking") {
-                                            return "<text style='color:Red'>" + data + "</text>";
-                                        }
-                                        else if (data == "Shipped") {
-                                            return "<text style='color:Blue'>" + data + "</text>";
-                                        }
-                                        else if (data == "Put Back") {
-                                            return "<text style='color:orange'>" + data + "</text>";
-                                        }
-                                        else {
-                                            return "<text style='color:Green'>" + data + "</text>";
-                                        }
-                                    }
-                                },
-                                {
-                                    data: "cartonRange",
-                                    render: function (data) {
-                                        if (data == "Put Back")
-                                            isPutBack = true;
-                                        else
-                                            isPutBack = false;
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "purchaseOrder",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "style",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "color",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "customerCode",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "sizeBundle",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "pcsBundle",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "cartons",
-                                    render: function (data) {
-                                        return "<font color='orange'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "quantity",
-                                    render: function (data) {
-                                        orgPcs = data;
-                                        return "<font color='orange'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "availableCtns",
-                                    render: function (data) {
-                                        availableCtns = data;
-                                        if (data == 0)
-                                            return "<font>" + data + "</font>";
-                                        else
-                                            return "<font color='green'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "pickingCtns",
-                                    render: function (data) {
-                                        pickingCtns = data;
-                                        if (data == 0)
-                                            return "<font>" + data + "</font>";
-                                        else
-                                            return "<font color='red'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "shippedCtns",
-                                    render: function (data) {
-                                        if (data == 0)
-                                            return "<font>" + data + "</font>";
-                                        else
-                                            return "<font color='blue'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "availablePcs",
-                                    render: function (data) {
-                                        if (data == 0)
-                                            return "<font>" + data + "</font>";
-                                        else
-                                            return "<font color='green'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "pickingPcs",
-                                    render: function (data) {
-                                        if (data == 0)
-                                            return "<font>" + data + "</font>";
-                                        else
-                                            return "<font color='red'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "shippedPcs",
-                                    render: function (data) {
-                                        if (data == 0)
-                                            return "<font>" + data + "</font>";
-                                        else
-                                            return "<font color='blue' color='blue'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "inboundDate",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "allocator",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "batch",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "location",
-                                    render: function (data) {
-                                        return "<font color='orange'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        //当库存剩余为0且没有在拣货，或有在拣货的情况下，隐藏移库按钮
-                                        if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0)
-                                            return "";
-                                        else if (isPutBack)
-                                            return "<button style='width:40px' locationid='" + data + "'class='btn btn-link btn-edit'>Edit</button><button style='width:30px' locationid='" + data + "'class='btn btn-link btn-delete'>X</button>";
-                                        else
-                                            return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
-                                    }
-                                }
-                            ],
-                            footerCallback: function (row, data, start, end, display) {
-
-                                var api = this.api(), data;
-
-                                var intVal = function (i) {
-                                    return typeof i === 'string' ?
-                                        i.replace(/[\$,]/g, '') * 1 :
-                                        typeof i === 'number' ?
-                                        i : 0;
-                                };
-
-                                var totalOrgCtns = api
-                                    .column(10)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                var totalOrgPcs = api
-                                    .column(11)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                var totalAvaCtns = api
-                                    .column(12)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                var totalPickingCtns = api
-                                    .column(13)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                var totalShippedCtns = api
-                                    .column(14)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-                                var totalAvaPcs = api
-                                    .column(15)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                var totalPickingPcs = api
-                                    .column(16)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                var totalShippedPcs = api
-                                    .column(17)
-                                    .data()
-                                    .reduce(function (a, b) {
-                                        return intVal(a) + intVal(b);
-                                    }, 0);
-
-                                $(api.column(10).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
-                                $(api.column(11).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
-                                $(api.column(12).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
-                                $(api.column(13).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
-                                $(api.column(14).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
-                                $(api.column(15).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
-                                $(api.column(16).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
-                                $(api.column(17).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
-
-                            }
-                        });
-                    },
-                    error: function () {
-                        alert("error!");
-                    }
+                $(".btn-back").on("click", function () {
+                    window.history.back(-1);
                 });
+
             });
-
-            $("#table").on("click", ".btn-relocate", function () {
-                var id = $(this).attr("id");
-
-                $.ajax({
-                    type: "DELETE",
-                    url: "/api/FCRegularLocationDetail/" + id,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function (data) {
-                        alert("Success!");
-                        window.location.reload();
-                    },
-                    error: function () {
-                        alert("Error");
-                    }
-                });
-            });
-
-            //点击Edit，将当对应的<font>元素(地址)替换成一个<input>元素(输入)，原编辑按钮替换成<button>元素(确认)，并移除X按钮(移除)
-            $("#table").on("click", ".btn-edit", function () {
-                var locationId = $(this).attr('locationid');
-                var locationObj = $(this).parent().parent("tr").children('td').eq(18).children('font');
-                var content = $(this).parent().parent("tr").children('td').eq(18).children('font').html();
-
-                $(this).next().remove();
-                locationObj.replaceWith("<input style='width:80px' locationid='" + locationId + "' class='input-sm' value='" + content + "' />");
-                $(this).replaceWith("<button locationid='" + locationId + "' class='btn btn-link btn-confirm'>Ok</button>");
-            });
-
-            //点击确定，将对应的<input>元素中的信息同步至数据库，并复原之前的按钮
-            $("#table").on("click", ".btn-confirm", function () {
-                var locationId = $(this).attr('locationid');
-                var inputObj = $(this).parent().parent("tr").children('td').eq(18).children('input');
-                var content = inputObj.val();
-
-                inputObj.replaceWith("<font color='orange'>" + content + "(Put Back)</font>");
-                $(this).replaceWith("<button style='width:40px' locationid='" + locationId + "'class='btn btn-link btn-edit' value='" + content + "'>Edit</button><button style='width:30px' locationid='" + locationId + "'class='btn btn-link btn-delete'>X</button>");
-
-                $.ajax({
-                    type: "PUT",
-                    url: "/api/pickdetailputback/?id=" + locationId + "&location=" + content,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function (data) {
-                        alert("Success!");
-                    },
-                    error: function () {
-                        alert("Error");
-                    }
-                });
-            });
-
-            //点击X按钮，将当前的Put Back库存对象从数据库移除
-            $("#table").on("click", ".btn-delete", function () {
-                var locationId = $(this).attr('locationid');
-
-                $.ajax({
-                    type: "DELETE",
-                    url: "/api/pickdetailputback/?id=" + locationId,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function (data) {
-                        alert("Delete success!");
-                        window.location.reload();
-                    },
-                    error: function () {
-                        alert("Error");
-                    }
-                });
-            });
-
-            $(".btn-back").on("click", function () {
-                window.history.back(-1);
-            });
-
-        });
-    </script>
-}
+        </script>
+    }

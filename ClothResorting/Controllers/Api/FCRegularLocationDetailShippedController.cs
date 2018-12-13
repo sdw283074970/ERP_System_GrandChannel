@@ -21,14 +21,49 @@ namespace ClothResorting.Controllers.Api
         }
 
         // GET /api/fcregularlocationdetailshipped
-        public IHttpActionResult GetAllShipped([FromUri]int id)
+        public IHttpActionResult GetAllShipped([FromUri]int preId, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
             var resultDto = _context.FCRegularLocationDetails
                 .Include(c => c.PreReceiveOrder)
-                .Where(c => c.PreReceiveOrder.Id == id
+                .Where(c => c.PreReceiveOrder.Id == preId
                     && c.Status == "Shipped")
                 .ToList()
                 .Select(Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>);
+
+            if (container != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Container == container);
+            }
+
+            if (batch != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Batch == batch);
+            }
+
+            if (po != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.PurchaseOrder == po);
+            }
+
+            if (style != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Style == style);
+            }
+
+            if (color != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Color == color);
+            }
+
+            if (sku != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.CustomerCode == sku);
+            }
+
+            if (size != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.SizeBundle == size);
+            }
 
             return Ok(resultDto);
         }

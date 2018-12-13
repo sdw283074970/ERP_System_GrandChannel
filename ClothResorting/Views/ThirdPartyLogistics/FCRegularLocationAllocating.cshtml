@@ -177,7 +177,7 @@
                             table.search(lastSearchBar).draw();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
                             window.location.reload();
                         }
                     });
@@ -304,7 +304,7 @@
                     dataType: "json",
                     success: function (data) {
 
-                        alert("Filter has been cleared.");
+                        alert("Filter has been reset.");
                         GetTable(data, table);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
