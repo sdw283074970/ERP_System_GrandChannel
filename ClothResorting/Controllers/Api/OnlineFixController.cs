@@ -22,7 +22,7 @@ namespace ClothResorting.Controllers.Api
 
         // PUT /api/onlinefix/
         [HttpPut]
-        public void FixProblems()
+        public IHttpActionResult FixProblems()
         {
             //var workOrdersInDb = _context.PreReceiveOrders
             //    .Include(x => x.UpperVendor)
@@ -107,32 +107,52 @@ namespace ClothResorting.Controllers.Api
 
             //_context.SaveChanges();
 
-            ////同时修复应收箱数件数
+            //同时修复应收/实收箱数件数
 
-            //var preOrderInDb = _context.PreReceiveOrders
-            //    .Include(x => x.POSummaries)
+            var preOrderInDb = _context.PreReceiveOrders
+                .Include(x => x.POSummaries)
+                .Where(x => x.Id > 0);
+
+            foreach (var preOrder in preOrderInDb)
+            {
+                preOrder.TotalCartons = preOrder.POSummaries.Sum(x => x.Cartons);
+                preOrder.TotalPcs = preOrder.POSummaries.Sum(x => x.Quantity);
+
+                preOrder.ActualReceivedCtns = preOrder.POSummaries.Sum(x => x.ActualCtns);
+                preOrder.ActualReceivedPcs = preOrder.POSummaries.Sum(x => x.ActualPcs);
+            }
+
+            _context.SaveChanges();
+
+            //修复所有的LocationDetail中的Batch
+
+            //var locationInDb = _context.FCRegularLocationDetails
+            //    .Include(x => x.RegularCaronDetail)
             //    .Where(x => x.Id > 0);
 
-            //foreach(var preOrder in preOrderInDb)
+            //foreach(var location in locationInDb)
             //{
-            //    preOrder.TotalCartons = preOrder.POSummaries.Sum(x => x.Cartons);
-            //    preOrder.TotalPcs = preOrder.POSummaries.Sum(x => x.Quantity);
+            //    location.Batch = location.RegularCaronDetail.Batch;
             //}
 
             //_context.SaveChanges();
 
-            //修复所有的LocationDetail中的Batch
+            var cartonDetailInDb = _context.RegularCartonDetails
+                .Include(x => x.FCRegularLocationDetail)
+                .Where(x => x.Container == "STRONGHOLD FONTANA TRANSFER");
 
-            var locationInDb = _context.FCRegularLocationDetails
-                .Include(x => x.RegularCaronDetail)
-                .Where(x => x.Id > 0);
+            var resultList = new List<int>();
+            var result = "";
 
-            foreach(var location in locationInDb)
+            foreach(var carton in cartonDetailInDb)
             {
-                location.Batch = location.RegularCaronDetail.Batch;
+                if (carton.FCRegularLocationDetail.Count == 0)
+                {
+                    result = result + " " + carton.Id.ToString();
+                }
             }
 
-            _context.SaveChanges();
+            return Ok(result);
         }
 
         // DELETE /onlinefix/

@@ -11,8 +11,18 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
+
     <div id="div-putback">
         <input type="button" class="btn btn-group btn-create1" value="Upload Pull Sheet/Load plan" /><button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button><input type="button" class="btn btn-info btn-update" value="Update picking info" /><button class="btn btn-primary btn-putback">Put back items</button>
+    </div>
+    <div>
+        <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
+        <input style="width:140px" id="input-customer" class="input-sm" placeholder="Customer" />
+        <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
+        <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
+        <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
+        <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
+        <button id="btn-pick" class="btn btn-info">Pick</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -326,7 +336,38 @@
                         window.location.reload();
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击拣货按钮，按条件拣货
+            $("#btn-pick").on("click", function () {
+                var container = $("#input-container").val() == '' ? "NULL" : $("#input-container").val().toString();
+                var po = $("#input-po").val() == '' ? "NULL" : $("#input-po").val().toString();
+                var style = $("#input-style").val() == '' ? "NULL" : $("#input-style").val().toString();
+                var color = $("#input-color").val() == '' ? "NULL" : $("#input-color").val().toString();
+                var customer = $("#input-customer").val() == '' ? "NULL" : $("#input-customer").val().toString();
+                var size = $("#input-size").val() == '' ? "NULL" : $("#input-size").val().toString();
+
+                var url = "/api/pickdetail/?shipOrderId=" + shipOrderId + "&container=" + container + "&customer=" + customer + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&size=" + size;
+
+                alert(url);
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
                         });
                     }

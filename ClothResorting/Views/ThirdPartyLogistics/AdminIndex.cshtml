@@ -203,8 +203,8 @@
                     url: "/api/OnlineFix/",
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
-                    success: function () {
-                        alert("Success!");
+                    success: function (data) {
+                        alert(data);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

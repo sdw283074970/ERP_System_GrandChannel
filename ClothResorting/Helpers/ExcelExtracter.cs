@@ -1706,116 +1706,7 @@ namespace ClothResorting.Helpers
 
                 var skuCount = sku == null ? 0 : sku.RegularCartonDetails.Count;
 
-                if (skuCount != 1)       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
-                {
-
-                    //为该SKU下的每一种Size备货
-                    foreach (var size in sizeList)
-                    {
-                        //待选池中所有符合拣货条件的对象
-                        var poolLocations = cartonLocationPool.Where(x => x.Style == style
-                                && x.Color == color
-                                && x.SizeBundle == size.SizeName
-                                && x.PurchaseOrder == purchaseOrder);
-
-                        if (poolLocations.Count() == 0)
-                        {
-                            diagnosticList.Add(new PullSheetDiagnostic
-                            {
-                                Type = Status.Missing,
-                                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.",
-                                ShipOrder = pullSheet
-                            });
-
-                            //_context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
-                            //_context.PullSheetDiagnostics.AddRange(diagnosticList);
-                            //_context.SaveChanges();
-
-                            //throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.");
-
-                            continue;
-                        }
-
-                        var targetPcs = size.Count;
-                        var originalTargetPcs = size.Count;
-
-                        //如果只拿一种size，则按每箱件数降序排列取货，否则按照ID升序排列
-                        if (size.Count == 1)
-                        {
-                            poolLocations.OrderByDescending(x => x.PcsPerCaron);
-                        }
-                        else
-                        {
-                            poolLocations.OrderBy(x => x.Id);
-                        }
-
-                        foreach (var pool in poolLocations)
-                        {
-                            //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
-                            if (pool.AvailablePcs <= targetPcs && pool.AvailablePcs != 0 && targetPcs!= 0)
-                            {
-                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailablePcs));
-
-                                targetPcs -= pool.AvailablePcs;
-
-                                pool.PickingCtns += pool.AvailableCtns;
-                                pool.PickingPcs += pool.AvailablePcs;
-
-                                pool.AvailableCtns = 0;
-                                pool.AvailablePcs = 0;
-
-                                //将有变化的结果放到新建的“使用过的待选池”中
-                                usedPoolCartonLocationDetails.Add(pool);
-                            }
-                            //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
-                            else if ( pool.AvailablePcs > targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
-                            {
-                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs));
-
-                                pool.PickingPcs += targetPcs;
-
-                                if (pool.AvailableCtns != 0)        //库存中有在同一箱的多种SKU情况，分拆入库后在数据库的表示中是没有箱数的，只有件数
-                                {
-                                    pool.PickingCtns += targetPcs / pool.PcsPerCaron;
-                                    pool.AvailableCtns -= targetPcs / pool.PcsPerCaron;
-                                    pool.Status = Status.Picking;
-                                }
-
-                                pool.AvailablePcs -= targetPcs;
-
-                                targetPcs = 0;
-
-                                //将有变化的结果放到新建的“使用过的待选池”中
-                                usedPoolCartonLocationDetails.Add(pool);
-
-                                ////如果剩余的待选对象箱数为0或者1，则剩下的件数都是Concealed Overage件数，生成对应的剩余记录
-                                //if (pool.AvailableCtns == 0 || pool.AvailableCtns == 1 && pool.AvailablePcs != 0)
-                                //{
-                                //    diagnosticList.Add(new PullSheetDiagnostic {
-                                //        Type = "Concealed Overage",
-                                //        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                //        Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units concealed overage in Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>.<font color='red'>" + originalTargetPcs.ToString() + "</font> units has been collected.",
-                                //        PullSheet = pullSheet
-                                //    });
-                                //}
-                            }
-                        }
-
-                        //如果targetPcs还没收集齐，则生成缺货记录
-                        if (targetPcs > 0)
-                        {
-                            // ...生成缺货记录
-                            diagnosticList.Add(new PullSheetDiagnostic {
-                                Type = Status.Shortage,
-                                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + (originalTargetPcs - targetPcs).ToString() + "</font> units have been collected.",
-                                ShipOrder = pullSheet
-                            });
-                        }
-                    }
-                }
-                else //if (skuCount == 1)    //如果POSummary下只有一个RegularCartonDetail对象就说明是Pre-pack
+                if (skuCount == 1 && sku.RegularCartonDetails.First().SizeBundle.Contains(" "))    //如果POSummary下只有一个RegularCartonDetail对象且Size中含有空格就说明是Pre-pack
                 {
                     //待选池中所有符合拣货条件的对象
                     var poolLocations = cartonLocationPool.Where(x => x.Style == style
@@ -1895,18 +1786,128 @@ namespace ClothResorting.Helpers
                     }
                     //usedPoolCartonLocationDetails.AddRange(poolLocations);
                 }
+                else       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
+                {
+
+                    //为该SKU下的每一种Size备货
+                    foreach (var size in sizeList)
+                    {
+                        //待选池中所有符合拣货条件的对象
+                        var poolLocations = cartonLocationPool.Where(x => x.Style == style
+                                && x.Color == color
+                                && x.SizeBundle == size.SizeName
+                                && x.PurchaseOrder == purchaseOrder);
+
+                        if (poolLocations.Count() == 0)
+                        {
+                            diagnosticList.Add(new PullSheetDiagnostic
+                            {
+                                Type = Status.Missing,
+                                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                                Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.",
+                                ShipOrder = pullSheet
+                            });
+
+                            //_context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
+                            //_context.PullSheetDiagnostics.AddRange(diagnosticList);
+                            //_context.SaveChanges();
+
+                            //throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.");
+
+                            continue;
+                        }
+
+                        var targetPcs = size.Count;
+                        var originalTargetPcs = size.Count;
+
+                        //如果只拿一种size，则按每箱件数降序排列取货，否则按照ID升序排列
+                        if (size.Count == 1)
+                        {
+                            poolLocations.OrderByDescending(x => x.PcsPerCaron);
+                        }
+                        else
+                        {
+                            poolLocations.OrderBy(x => x.Id);
+                        }
+
+                        foreach (var pool in poolLocations)
+                        {
+                            //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
+                            if (pool.AvailablePcs <= targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
+                            {
+                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailablePcs));
+
+                                targetPcs -= pool.AvailablePcs;
+
+                                pool.PickingCtns += pool.AvailableCtns;
+                                pool.PickingPcs += pool.AvailablePcs;
+
+                                pool.AvailableCtns = 0;
+                                pool.AvailablePcs = 0;
+
+                                //将有变化的结果放到新建的“使用过的待选池”中
+                                usedPoolCartonLocationDetails.Add(pool);
+                            }
+                            //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
+                            else if (pool.AvailablePcs > targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
+                            {
+                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs));
+
+                                pool.PickingPcs += targetPcs;
+
+                                if (pool.AvailableCtns != 0)        //库存中有在同一箱的多种SKU情况，分拆入库后在数据库的表示中是没有箱数的，只有件数
+                                {
+                                    pool.PickingCtns += targetPcs / pool.PcsPerCaron;
+                                    pool.AvailableCtns -= targetPcs / pool.PcsPerCaron;
+                                    pool.Status = Status.Picking;
+                                }
+
+                                pool.AvailablePcs -= targetPcs;
+
+                                targetPcs = 0;
+
+                                //将有变化的结果放到新建的“使用过的待选池”中
+                                usedPoolCartonLocationDetails.Add(pool);
+
+                                ////如果剩余的待选对象箱数为0或者1，则剩下的件数都是Concealed Overage件数，生成对应的剩余记录
+                                //if (pool.AvailableCtns == 0 || pool.AvailableCtns == 1 && pool.AvailablePcs != 0)
+                                //{
+                                //    diagnosticList.Add(new PullSheetDiagnostic {
+                                //        Type = "Concealed Overage",
+                                //        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                                //        Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units concealed overage in Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>.<font color='red'>" + originalTargetPcs.ToString() + "</font> units has been collected.",
+                                //        PullSheet = pullSheet
+                                //    });
+                                //}
+                            }
+                        }
+
+                        //如果targetPcs还没收集齐，则生成缺货记录
+                        if (targetPcs > 0)
+                        {
+                            // ...生成缺货记录
+                            diagnosticList.Add(new PullSheetDiagnostic
+                            {
+                                Type = Status.Shortage,
+                                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                                Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units shortage in Style:<font color='red'>" + style + "</font>, Cut PO: <font color='red'>" + purchaseOrder + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>. <font color='red'>" + (originalTargetPcs - targetPcs).ToString() + "</font> units have been collected.",
+                                ShipOrder = pullSheet
+                            });
+                        }
+                    }
+                }
                 //else    //最后是count等于0,即数据库POSummary中不存在相关sku记录的情况。原方法是直接打印缺货记录，但有些装箱单将各种SKU放在同一个POSummay中导致查找不到。新方法是跳过查找POSummary，直接查找库存取货
                 //{
-                    //...生成缺货记录
-                    //diagnosticList.Add(new PullSheetDiagnostic
-                    //{
-                    //    Type = Status.Missing,
-                    //    DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                    //    Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>N/A</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
-                    //    ShipOrder = pullSheet
-                    //});
+                //...生成缺货记录
+                //diagnosticList.Add(new PullSheetDiagnostic
+                //{
+                //    Type = Status.Missing,
+                //    DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                //    Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>N/A</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
+                //    ShipOrder = pullSheet
+                //});
 
-                    
+
                 //}
             }
 
