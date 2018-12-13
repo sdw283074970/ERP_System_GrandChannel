@@ -28,9 +28,9 @@ namespace ClothResorting.Controllers.Api
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
-        // POST /api/FCRegularLocationAllocatingBatch
+        // POST /api/FCRegularLocationAllocatingBatch/?container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size}
         [HttpPost]
-        public IHttpActionResult CreateBatchLocationDetail([FromBody]ArrPreIdLocationJsonObj obj)
+        public IHttpActionResult CreateBatchLocationDetail([FromBody]ArrPreIdLocationJsonObj obj, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
             var locationDeatilList = new List<FCRegularLocationDetail>();
             var regularCartonDetailsIndb = _context.RegularCartonDetails
@@ -51,8 +51,6 @@ namespace ClothResorting.Controllers.Api
                     }
 
                     var purchaseOrder = regularCartonDetail.PurchaseOrder;
-                    var color = regularCartonDetail.Color;
-                    var style = regularCartonDetail.Style;
                     var cartonRange = regularCartonDetail.CartonRange;
 
                     var inOneBoxSKU = regularCartonDetailsIndb
@@ -60,40 +58,40 @@ namespace ClothResorting.Controllers.Api
                             && X.Batch == regularCartonDetail.Batch
                             && X.CartonRange == cartonRange);
 
-                    foreach (var sku in inOneBoxSKU)
+                    foreach (var inBoxSKU in inOneBoxSKU)
                     {
                         locationDeatilList.Add(new FCRegularLocationDetail
                         {
-                            Container = sku.Container,
-                            PurchaseOrder = sku.PurchaseOrder,
-                            Style = sku.Style,
-                            Color = sku.Color,
-                            CustomerCode = sku.Customer,
-                            SizeBundle = sku.SizeBundle,
-                            PcsBundle = sku.PcsBundle,
-                            Cartons = sku.ToBeAllocatedCtns,
-                            Quantity = sku.ToBeAllocatedPcs,
-                            PcsPerCaron = sku.PcsPerCarton,
+                            Container = inBoxSKU.Container,
+                            PurchaseOrder = inBoxSKU.PurchaseOrder,
+                            Style = inBoxSKU.Style,
+                            Color = inBoxSKU.Color,
+                            CustomerCode = inBoxSKU.Customer,
+                            SizeBundle = inBoxSKU.SizeBundle,
+                            PcsBundle = inBoxSKU.PcsBundle,
+                            Cartons = inBoxSKU.ToBeAllocatedCtns,
+                            Quantity = inBoxSKU.ToBeAllocatedPcs,
+                            PcsPerCaron = inBoxSKU.PcsPerCarton,
                             Status = Status.InStock,
                             Location = obj.Location,
-                            AvailableCtns = sku.ToBeAllocatedCtns,
+                            AvailableCtns = inBoxSKU.ToBeAllocatedCtns,
                             PickingCtns = 0,
                             ShippedCtns = 0,
-                            AvailablePcs = sku.ToBeAllocatedPcs,
+                            AvailablePcs = inBoxSKU.ToBeAllocatedPcs,
                             PickingPcs = 0,
                             ShippedPcs = 0,
                             InboundDate = _timeNow,
                             PreReceiveOrder = prereceiveOrder,
-                            RegularCaronDetail = sku,
+                            RegularCaronDetail = inBoxSKU,
                             CartonRange = cartonRange,
                             Allocator = _userName,
-                            Vendor = sku.Vendor,
-                            Batch = sku.Batch
+                            Vendor = inBoxSKU.Vendor,
+                            Batch = inBoxSKU.Batch
                         });
 
-                        sku.ToBeAllocatedCtns = 0;
-                        sku.ToBeAllocatedPcs = 0;
-                        sku.Status = Status.Allocated;
+                        inBoxSKU.ToBeAllocatedCtns = 0;
+                        inBoxSKU.ToBeAllocatedPcs = 0;
+                        inBoxSKU.Status = Status.Allocated;
                     }
                 }
                 //locationDeatilList.Add(new FCRegularLocationDetail {
@@ -142,20 +140,54 @@ namespace ClothResorting.Controllers.Api
             //var recordsDto = Mapper.Map<List<FCRegularLocationDetail>, List<FCRegularLocationDetailDto>>(latestRecords.ToList());
 
             //返回剩下的所有仍然未分配的结果
-            var result = _context.RegularCartonDetails
+            var resultDto = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.POSummary.PreReceiveOrder.Id == obj.PreId
                     && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0))
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
 
-            try
+            if (container != "NULL")
             {
-                return Created(Request.RequestUri + "/" + result.OrderBy(c => c.Id).First().Id + ":" + result.OrderByDescending(x => x.Id).First().Id, result);
-
+                resultDto = resultDto.Where(x => x.Container == container);
             }
-            catch(Exception e)
+
+            if (batch != "NULL")
             {
-                throw new Exception("Success! All cartons have been allocated.");
+                resultDto = resultDto.Where(x => x.Batch == batch);
+            }
+
+            if (po != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.PurchaseOrder == po);
+            }
+
+            if (style != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Style == style);
+            }
+
+            if (color != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Color == color);
+            }
+
+            if (sku != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Customer == sku);
+            }
+
+            if (size != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.SizeBundle == size);
+            }
+
+            if (resultDto.Count() == 0)
+            {
+                return Ok(resultDto);
+            }
+            else
+            {
+                return Created(Request.RequestUri + "/" + resultDto.OrderBy(c => c.Id).First().Id + ":" + resultDto.OrderByDescending(x => x.Id).First().Id, resultDto);
             }
         }
     }

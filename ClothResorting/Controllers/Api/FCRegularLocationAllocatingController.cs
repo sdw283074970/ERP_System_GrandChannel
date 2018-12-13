@@ -26,22 +26,57 @@ namespace ClothResorting.Controllers.Api
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
-        // GET /api/fcregularlocationallocating/{preid} 获取还没有被分配的SKU
-        public IHttpActionResult GetUnallocatedCartons([FromUri]int id)
+        // GET /api/fcregularlocationallocating/?preId={preid}&container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size}/ 获取还没有被分配的SKU
+        public IHttpActionResult GetUnallocatedCartons([FromUri]int preId, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
-            var result = _context.RegularCartonDetails
+            var resultDto = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
-                .Where(c => c.POSummary.PreReceiveOrder.Id == id
+                .Where(c => c.POSummary.PreReceiveOrder.Id == preId
                     && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0)
                     && c.OrderType != OrderType.Replenishment)      //这种入库方法不支持补货类型的订单(有另外一套体系)
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
 
-            return Ok(result);
+            if (container != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Container == container);
+            }
+
+            if (batch != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Batch == batch);
+            }
+
+            if (po != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.PurchaseOrder == po);
+            }
+
+            if (style != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Style == style);
+            }
+
+            if (color != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Color == color);
+            }
+
+            if (sku != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Customer == sku);
+            }
+
+            if (size != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.SizeBundle == size);
+            }
+
+            return Ok(resultDto);
         }
 
-        // POST /api/fcregularlocationallocating/ 根据传入数据分解已收货对象，obj.id为cartondetail的id，cartondetail在此处用作记录待分配箱数及件数
+        // POST /api/fcregularlocationallocating/?container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size} 根据传入数据分解已收货对象，obj.id为cartondetail的id，cartondetail在此处用作记录待分配箱数及件数
         [HttpPost]
-        public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj)
+        public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
             var cartonRange = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
@@ -169,6 +204,41 @@ namespace ClothResorting.Controllers.Api
                 .Where(c => c.POSummary.PreReceiveOrder.Id == obj.PreId
                     && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0))
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
+
+            if (container != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Container == container);
+            }
+
+            if (batch != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Batch == batch);
+            }
+
+            if (po != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.PurchaseOrder == po);
+            }
+
+            if (style != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Style == style);
+            }
+
+            if (color != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Color == color);
+            }
+
+            if (sku != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.Customer == sku);
+            }
+
+            if (size != "NULL")
+            {
+                resultDto = resultDto.Where(x => x.SizeBundle == size);
+            }
 
             try
             {

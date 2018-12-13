@@ -120,6 +120,8 @@ namespace ClothResorting.Controllers.Api
                 location.AvailablePcs = 0;
             }
 
+            shipOrderInDb.Status = Status.Picking;
+
             _context.PickDetails.AddRange(pickList);
             _context.SaveChanges();
         }

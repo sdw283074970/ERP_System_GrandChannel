@@ -11,6 +11,17 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
+        <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
+        <input style="width:140px" id="input-batch" class="input-sm" placeholder="Batch" />
+        <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
+        <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
+        <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
+        <input style="width:140px" id="input-sku" class="input-sm" placeholder="SKU/PPK/Customer" />
+        <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
+        <button id="btn-filter" class="btn btn-info">Filter</button>
+        <button id="btn-clear" class="btn btn-danger">Clear Filter</button>
+    </div>
+    <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -59,6 +70,16 @@
             var lastBatch = "last";
             var currentBatch = "current";
 
+            var filter = {
+                container: "NULL",
+                batch: "NULL",
+                po: "NULL",
+                style: "NULL",
+                color: "NULL",
+                sku: "NULL",
+                size: "NULL"
+            };
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -80,185 +101,15 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/FCRegularLocationAllocating/" + preid,
+                url: "/api/FCRegularLocationAllocating/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-
-                    if (table)
-                    {
-                        table.destroy();
-                    }
-
-                    table = $("#table").DataTable({
-                        data: data,
-                        destroy: true,
-                        order: [[2, "asc"]],
-                        //scrollX: true,
-                        scrollCollapse: true,
-                        scrollY: "600px",
-                        iDisplayLength: 100,
-                        columns: [
-                            {
-                                data: "container",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "cartonRange",
-                                render: function (data) {
-                                    if (data != lastCartonRange)
-                                    {
-                                        lastCartonRange = data;
-                                    }
-                                    else
-                                    {
-                                        currentCartonRange = data;
-                                    }
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "batch",
-                                render: function (data) {
-                                    if (data != lastBatch) {
-                                        lastBatch = data;
-                                    }
-                                    else {
-                                        currentBatch = data;
-                                    }
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "purchaseOrder",
-                                render: function (data) {
-
-                                    if (data != lastPO)
-                                        lastPO = data;
-                                    else
-                                        currentPO = data;
-
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "style",
-                                render: function (data) {
-
-                                    if (data != lastStyle)
-                                        lastStyle = data;
-                                    else
-                                        currentStyle = data;
-
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "color",
-                                render: function (data) {
-
-                                    if (data != lastColor)
-                                        lastColor = data;
-                                    else
-                                        currentColor = data;
-
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "customer",
-                                render: function (data) {
-                                    return "<font>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "sizeBundle",
-                                render: function (data) {
-                                    return "<font>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "pcsBundle",
-                                render: function (data) {
-                                    return "<font>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "status",
-                                render: function (data) {
-                                    if (data == "To Be Allocated")
-                                    {
-                                        return "<font style='color:Red'>" + data + "</font>";
-                                    }
-                                    else
-                                    {
-                                        return "<font style='color:Orange'>" + data + "</font>";
-                                    }
-                                }
-                            },
-                            {
-                                data: "toBeAllocatedCtns",
-                                render: function (data) {
-                                    cartons = data;
-                                    if (cartons != 0)
-                                    {
-                                        return "<font color='blue'>" + data + "</font>";
-                                    }
-                                    else
-                                    {
-                                        return "";
-                                    }
-                                }
-                            },
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    //if (currentCartonRange == lastCartonRange && currentPO == lastPO && currentStyle == lastStyle && currentColor == lastColor)
-                                    if (currentCartonRange == lastCartonRange && currentBatch == lastBatch)
-                                    {
-                                        return "";
-                                    }
-                                    else
-                                    {
-                                        return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                            + data + "' />";
-                                    }
-                                }
-                            },
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    if (cartons != 0)
-                                    {
-                                        return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
-                                    }
-                                    else
-                                    {
-                                        return "";
-                                    }
-                                }
-                            },
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    if (cartons != 0)
-                                    {
-                                        return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
-                                    }
-                                    else
-                                    {
-                                        return "";
-                                    }
-                                }
-                            }
-                        ]
-                    });
-
+                    GetTable(data, table);
                 },
-                error: function () {
-                    alert("An error occured!");
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                    window.location.reload();
                 }
             });
 
@@ -310,171 +161,14 @@
                     $.ajax({
                         type: "POST",
                         data: JSON.stringify(obj),
-                        url: "/api/FCRegularLocationAllocating/",
+                        url: "/api/FCRegularLocationAllocating/?container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
                         success: function (data) {
 
                             alert("Success!");
 
-                            if (table)
-                            {
-                                table.destroy();
-                            }
-
-                            table = $("#table").DataTable({
-                                data: data,
-                                destroy: true,
-                                //scrollX: true,
-                                order: [[2, "asc"]],
-                                scrollCollapse: true,
-                                scrollY: "600px",
-                                iDisplayLength: 100,
-                                columns: [
-                                    {
-                                        data: "container",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "cartonRange",
-                                        render: function (data) {
-                                            if (data != lastCartonRange) {
-                                                lastCartonRange = data;
-                                            }
-                                            else {
-                                                currentCartonRange = data;
-                                            }
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "batch",
-                                        render: function (data) {
-                                            if (data != lastBatch) {
-                                                lastBatch = data;
-                                            }
-                                            else {
-                                                currentBatch = data;
-                                            }
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "purchaseOrder",
-                                        render: function (data) {
-
-                                            if (data != lastPO)
-                                                lastPO = data;
-                                            else
-                                                currentPO = data;
-
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "style",
-                                        render: function (data) {
-
-                                            if (data != lastStyle)
-                                                lastStyle = data;
-                                            else
-                                                currentStyle = data;
-
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "color",
-                                        render: function (data) {
-
-                                            if (data != lastColor)
-                                                lastColor = data;
-                                            else
-                                                currentColor = data;
-
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "customer",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "sizeBundle",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "pcsBundle",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "status",
-                                        render: function (data) {
-                                            if (data == "To Be Allocated") {
-                                                return "<font style='color:Red'>" + data + "</font>";
-                                            }
-                                            else {
-                                                return "<font style='color:Orange'>" + data + "</font>";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "toBeAllocatedCtns",
-                                        render: function (data) {
-                                            cartons = data;
-                                            if (cartons != 0) {
-                                                return "<font color='blue'>" + data + "</font>";
-                                            }
-                                            else {
-                                                return "";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            if (currentCartonRange == lastCartonRange && currentBatch == lastBatch) {
-                                                return "";
-                                            }
-                                            else {
-                                                return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                                    + data + "' />";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            if (cartons != 0) {
-                                                return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
-                                            }
-                                            else {
-                                                return "";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            if (cartons != 0) {
-                                                //return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
-                                                return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
-                                            }
-                                            else {
-                                                return "";
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
+                            GetTable(data, table);
 
                             //将之前的搜索信息继续保存到搜索条过滤器中
                             var searchBar = $("#table_filter").children('label').children('input');
@@ -542,169 +236,14 @@
                     $.ajax({
                         type: "POST",
                         data: JSON.stringify(obj),
-                        url: "/api/FCRegularLocationAllocatingBatch/",
+                        url: "/api/FCRegularLocationAllocatingBatch/?container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
                         success: function (data) {
 
                             alert("Success!");
 
-                            if (table) {
-                                table.destroy();
-                            }
-
-                            table = $("#table").DataTable({
-                                data: data,
-                                destroy: true,
-                                //scrollX: true,
-                                scrollCollapse: true,
-                                scrollY: "600px",
-                                order: [[2, "asc"]],
-                                iDisplayLength: 100,
-                                columns: [
-                                    {
-                                        data: "container",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "cartonRange",
-                                        render: function (data) {
-                                            if (data != lastCartonRange) {
-                                                lastCartonRange = data;
-                                            }
-                                            else {
-                                                currentCartonRange = data;
-                                            }
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "batch",
-                                        render: function (data) {
-                                            if (data != lastBatch) {
-                                                lastBatch = data;
-                                            }
-                                            else {
-                                                currentBatch = data;
-                                            }
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "purchaseOrder",
-                                        render: function (data) {
-
-                                            if (data != lastPO)
-                                                lastPO = data;
-                                            else
-                                                currentPO = data;
-
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "style",
-                                        render: function (data) {
-
-                                            if (data != lastStyle)
-                                                lastStyle = data;
-                                            else
-                                                currentStyle = data;
-
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "color",
-                                        render: function (data) {
-
-                                            if (data != lastColor)
-                                                lastColor = data;
-                                            else
-                                                currentColor = data;
-
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "customer",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "sizeBundle",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "pcsBundle",
-                                        render: function (data) {
-                                            return "<font>" + data + "</font>";
-                                        }
-                                    },
-                                    {
-                                        data: "status",
-                                        render: function (data) {
-                                            if (data == "To Be Allocated") {
-                                                return "<font style='color:Red'>" + data + "</font>";
-                                            }
-                                            else {
-                                                return "<font style='color:Orange'>" + data + "</font>";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "toBeAllocatedCtns",
-                                        render: function (data) {
-                                            cartons = data;
-                                            if (cartons != 0) {
-                                                return "<font color='blue'>" + data + "</font>";
-                                            }
-                                            else {
-                                                return "";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            if (currentCartonRange == lastCartonRange && currentBatch == lastBatch) {
-                                                return "";
-                                            }
-                                            else {
-                                                return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                                    + data + "' />";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            if (cartons != 0) {
-                                                return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
-                                            }
-                                            else {
-                                                return "";
-                                            }
-                                        }
-                                    },
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            if (cartons != 0) {
-                                                return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
-                                            }
-                                            else {
-                                                return "";
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
+                            GetTable(data, table);
 
                             //将之前的搜索信息继续保存到搜索条过滤器中
                             var searchBar = $("#table_filter").children('label').children('input');
@@ -713,15 +252,229 @@
                             table.search(lastSearchBar).draw();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            //alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            //    window.location.reload();
-                            //});
-                            alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
                             window.location.reload();
                         }
                     });
                 }
             });
+
+            //点击过滤按钮，按条件过滤
+            $("#btn-filter").on("click", function () {
+
+                filter.container = $("#input-container").val() == '' ? "NULL" : $("#input-container").val().toString();
+                filter.batch = $("#input-batch").val() == '' ? "NULL" : $("#input-batch").val().toString();
+                filter.po = $("#input-po").val() == '' ? "NULL" : $("#input-po").val().toString();
+                filter.style = $("#input-style").val() == '' ? "NULL" : $("#input-style").val().toString();
+                filter.color = $("#input-color").val() == '' ? "NULL" : $("#input-color").val().toString();
+                filter.sku = $("#input-sku").val() == '' ? "NULL" : $("#input-sku").val().toString();
+                filter.size = $("#input-size").val() == '' ? "NULL" : $("#input-size").val().toString();
+
+                $.ajax({
+                    type: "GET",
+                    url: "/api/FCRegularLocationAllocating/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        alert("Filter applied.");
+                        GetTable(data, table);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+
+            //点击清楚过滤器按钮，清除所有条件，并返回所有结果
+            $("#btn-clear").on("click", function () {
+                filter.container = "NULL";
+                filter.batch = "NULL";
+                filter.po = "NULL";
+                filter.style = "NULL";
+                filter.color = "NULL";
+                filter.sku = "NULL";
+                filter.size = "NULL";
+
+                $.ajax({
+                    type: "GET",
+                    url: "/api/FCRegularLocationAllocating/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        alert("Filter has been cleared.");
+                        GetTable(data, table);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                        window.location.reload();
+                    }
+                });
+            });
+
+            function GetTable(data, table) {
+                if (table) {
+                    table.destroy();
+                }
+
+                table = $("#table").DataTable({
+                    data: data,
+                    destroy: true,
+                    //scrollX: true,
+                    order: [[2, "asc"]],
+                    scrollCollapse: true,
+                    scrollY: "600px",
+                    iDisplayLength: 100,
+                    columns: [
+                        {
+                            data: "container",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "cartonRange",
+                            render: function (data) {
+                                if (data != lastCartonRange) {
+                                    lastCartonRange = data;
+                                }
+                                else {
+                                    currentCartonRange = data;
+                                }
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "batch",
+                            render: function (data) {
+                                if (data != lastBatch) {
+                                    lastBatch = data;
+                                }
+                                else {
+                                    currentBatch = data;
+                                }
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "purchaseOrder",
+                            render: function (data) {
+
+                                if (data != lastPO)
+                                    lastPO = data;
+                                else
+                                    currentPO = data;
+
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "style",
+                            render: function (data) {
+
+                                if (data != lastStyle)
+                                    lastStyle = data;
+                                else
+                                    currentStyle = data;
+
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "color",
+                            render: function (data) {
+
+                                if (data != lastColor)
+                                    lastColor = data;
+                                else
+                                    currentColor = data;
+
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "customer",
+                            render: function (data) {
+                                return "<font>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "sizeBundle",
+                            render: function (data) {
+                                return "<font>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "pcsBundle",
+                            render: function (data) {
+                                return "<font>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "status",
+                            render: function (data) {
+                                if (data == "To Be Allocated") {
+                                    return "<font style='color:Red'>" + data + "</font>";
+                                }
+                                else {
+                                    return "<font style='color:Orange'>" + data + "</font>";
+                                }
+                            }
+                        },
+                        {
+                            data: "toBeAllocatedCtns",
+                            render: function (data) {
+                                cartons = data;
+                                if (cartons != 0) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                                else {
+                                    return "";
+                                }
+                            }
+                        },
+                        {
+                            data: "id",
+                            render: function (data) {
+                                //if (currentCartonRange == lastCartonRange && currentBatch == lastBatch) {
+                                if (cartons == 0)
+                                {
+                                    return "";
+                                }
+                                else {
+                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                        + data + "' />";
+                                }
+                            }
+                        },
+                        {
+                            data: "id",
+                            render: function (data) {
+                                if (cartons != 0) {
+                                    return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
+                                }
+                                else {
+                                    return "";
+                                }
+                            }
+                        },
+                        {
+                            data: "id",
+                            render: function (data) {
+                                if (cartons != 0) {
+                                    //return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                    return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                }
+                                else {
+                                    return "";
+                                }
+                            }
+                        }
+                    ]
+                });
+            };
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
