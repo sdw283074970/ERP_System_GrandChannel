@@ -1592,7 +1592,8 @@ namespace ClothResorting.Helpers
         //}
         #endregion
 
-        //-----👇👇👇👇👇👇-----以下为抽取FC出货单的方法-----👇👇👇👇👇👇-----
+        //-----👇👇👇👇👇👇-----以下为抽取Regular出货单的方法-----👇👇👇👇👇👇-----
+        //
         //抽取Pull sheet模板中的信息，生成ShipOrder下的拣货记录表，并从原库存中将可用箱数部分或全部转化为“拣货中”箱数
         #region
         public void ExtractPullSheet(int shipOrderId)
@@ -1668,7 +1669,8 @@ namespace ClothResorting.Helpers
             //每一个SKU都在“待选池”中拣货
             var pickDetailList = new List<PickDetail>();
             var usedPoolCartonLocationDetails = new List<FCRegularLocationDetail>();
-            var regularLocationDetailInDb = _context.FCRegularLocationDetails.Where(x => x.Id > 0);
+            var regularLocationDetailInDb = _context.FCRegularLocationDetails
+                .Where(x => x.Id > 0);
 
             for(int i = 1; i <= pullSheetCount; i++)
             {
@@ -1786,7 +1788,7 @@ namespace ClothResorting.Helpers
                     }
                     //usedPoolCartonLocationDetails.AddRange(poolLocations);
                 }
-                else       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid
+                else       //如果POSummary不只一个RegularCartonDetail对象就说明是Solid或其他非FC业务
                 {
 
                     //为该SKU下的每一种Size备货
@@ -1839,11 +1841,11 @@ namespace ClothResorting.Helpers
 
                                 targetPcs -= pool.AvailablePcs;
 
-                                pool.PickingCtns += pool.AvailableCtns;
                                 pool.PickingPcs += pool.AvailablePcs;
-
-                                pool.AvailableCtns = 0;
                                 pool.AvailablePcs = 0;
+
+                                //pool.PickingCtns += pool.AvailableCtns;
+                                //pool.AvailableCtns = 0;
 
                                 //将有变化的结果放到新建的“使用过的待选池”中
                                 usedPoolCartonLocationDetails.Add(pool);
@@ -1857,8 +1859,8 @@ namespace ClothResorting.Helpers
 
                                 if (pool.AvailableCtns != 0)        //库存中有在同一箱的多种SKU情况，分拆入库后在数据库的表示中是没有箱数的，只有件数
                                 {
-                                    pool.PickingCtns += targetPcs / pool.PcsPerCaron;
-                                    pool.AvailableCtns -= targetPcs / pool.PcsPerCaron;
+                                    //pool.PickingCtns += targetPcs / pool.PcsPerCaron;
+                                    //pool.AvailableCtns -= targetPcs / pool.PcsPerCaron;
                                     pool.Status = Status.Picking;
                                 }
 
@@ -1913,7 +1915,7 @@ namespace ClothResorting.Helpers
 
             //这里进行Concealed Overage检查
             //检查待选池中的对象，是否有多种SKU在同一箱(寄生SKU)但只拿出部分件数的情况，生成"隐藏多货"Concealed Overage诊断记录，并将这些多的货也添加到拣货表里
-            var partailCartons = cartonLocationPool.Where(x => x.Cartons == 0 && x.Quantity != 0);
+            //var partailCartons = cartonLocationPool.Where(x => x.Cartons == 0 && x.Quantity != 0);
 
             //暂时禁用查询隐藏多货的功能
 
@@ -1950,22 +1952,40 @@ namespace ClothResorting.Helpers
             //}
 
             //将新收集的"备选池"对象同步到其原有的数据库对象中去
-            var cartonLocationDetailsInDb = _context.FCRegularLocationDetails.Where(x => x.Id > 0);
 
-            foreach(var usedCartonLocation in usedPoolCartonLocationDetails)
+            foreach (var usedCartonLocation in usedPoolCartonLocationDetails)
             {
-                var cartonInDb = cartonLocationDetailsInDb.SingleOrDefault(x => x.Id == usedCartonLocation.Id);
+                var cartonInDb = regularLocationDetailInDb.SingleOrDefault(x => x.Id == usedCartonLocation.Id);
 
                 if (cartonInDb.Status == Status.InStock)
                 {
                     cartonInDb.Status = Status.Picking;
                 }
 
-                cartonInDb.AvailableCtns = usedCartonLocation.AvailableCtns;
                 cartonInDb.AvailablePcs = usedCartonLocation.AvailablePcs;
-                cartonInDb.PickingCtns = usedCartonLocation.PickingCtns;
                 cartonInDb.PickingPcs = usedCartonLocation.PickingPcs;
+
+                if (cartonInDb.Cartons != 0)
+                {
+                    var originalAvailableCtns = cartonInDb.AvailableCtns;
+
+                    //如果原始箱数不等于0，说明是宿主箱，需检查是否有寄生箱，
+
+                    //如果没有寄生箱，则计算箱数
+                    cartonInDb.AvailableCtns = cartonInDb.Cartons - (cartonInDb.Quantity - cartonInDb.AvailablePcs) / cartonInDb.PcsPerCaron;
+                    cartonInDb.PickingCtns += originalAvailableCtns - cartonInDb.AvailableCtns - cartonInDb.ShippedCtns;
+                    //如果有，则遍历寄生箱重新更新箱数
+
+                }
+                else
+                {
+                    //如果原始箱数等于0，说明是寄生箱，需要检查宿主箱重新计算箱数
+                }
+
             }
+
+            //此时只更新了件数的使用情况。由于一箱中可能有很多SKU，所以最后统一更新箱数的使用情况
+
 
             // 最后更改PullSheet的状态
             _context.ShipOrders.Find(shipOrderId).Status = Status.Picking;
@@ -2022,8 +2042,48 @@ namespace ClothResorting.Helpers
                 FCRegularLocationDetail = locationsInDb.SingleOrDefault(x => x.Id == pool.Id)
             };
         }
+
+        //辅助方法：检验当前的sku是否是该库位箱子中最后的物品，如果是则找到宿主对象调节箱数，否则维持现状
+        private int CheckAndAdjustCartons(IEnumerable<FCRegularLocationDetail> regularLocationDetailInDb, FCRegularLocationDetail usedCartonLocation)
+        {
+            //查询所有CartonRange相同且批次相同的库存对象
+            var usedCartonLocationDetails = regularLocationDetailInDb
+                .Where(x => x.CartonRange == usedCartonLocation.CartonRange && x.Batch == usedCartonLocation.Batch);
+
+            //查询宿主对象
+            var mainLocation = usedCartonLocationDetails.SingleOrDefault(x => x.Cartons != 0);
+            var currentDeductableCtn = mainLocation.AvailableCtns;      //当前最大可扣除箱数
+
+            if (mainLocation != null)
+            {
+                //遍历所有查询到的库存对象，计算最小扣除箱数数量
+                foreach(var usedLocation in usedCartonLocationDetails)
+                {
+                    //当前库存对象应扣总箱数(包含之前已扣除的箱数)
+                    var locationDeductableCtn = (usedLocation.Quantity - usedLocation.AvailablePcs) / usedLocation.PcsPerCaron;
+
+                    if (locationDeductableCtn == 0)
+                    {
+                        break;      //如果其中任何一个库存对象都不够抽一箱出来，那么跳过算法，返回0箱
+                    }
+                    else
+                    {
+                        currentDeductableCtn = Math.Min(locationDeductableCtn, currentDeductableCtn);
+                    }
+                }
+
+                //调节宿主对象的箱数
+                var originalAvailableCtns = mainLocation.AvailableCtns;
+                mainLocation.AvailableCtns = mainLocation.Cartons - currentDeductableCtn;
+                mainLocation.PickingCtns += originalAvailableCtns - mainLocation.AvailableCtns;
+
+                return currentDeductableCtn;
+            }
+
+            return 0;
+        }
         #endregion
-        //-----👆👆👆👆👆👆-----以上为抽取FC出货单的方法-----👆👆👆👆👆👆-----
+        //-----👆👆👆👆👆👆-----以上为抽取Regular出货单的方法-----👆👆👆👆👆👆-----
 
         //强行中止EXCEL进程的方法
         #region
