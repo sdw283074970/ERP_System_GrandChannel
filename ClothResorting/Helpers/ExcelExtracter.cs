@@ -1646,6 +1646,7 @@ namespace ClothResorting.Helpers
             foreach(var psi in psiList)
             {
                 var psiResult = _context.FCRegularLocationDetails
+                    .Include(x => x.PreReceiveOrder)
                     .Where(c => c.Container == psi.Container
                         && c.PurchaseOrder == psi.CutPurchaseOrder
                         && c.Style == psi.Style)
@@ -1670,6 +1671,7 @@ namespace ClothResorting.Helpers
             var pickDetailList = new List<PickDetail>();
             var usedPoolCartonLocationDetails = new List<FCRegularLocationDetail>();
             var regularLocationDetailInDb = _context.FCRegularLocationDetails
+                .Include(x => x.PreReceiveOrder)
                 .Where(x => x.Id > 0);
 
             for(int i = 1; i <= pullSheetCount; i++)
@@ -1711,7 +1713,8 @@ namespace ClothResorting.Helpers
                 if (skuCount == 1 && sku.RegularCartonDetails.First().SizeBundle.Contains(" "))    //如果POSummary下只有一个RegularCartonDetail对象且Size中含有空格就说明是Pre-pack
                 {
                     //待选池中所有符合拣货条件的对象
-                    var poolLocations = cartonLocationPool.Where(x => x.Style == style
+                    var poolLocations = cartonLocationPool
+                        .Where(x => x.Style == style
                             && x.Color == color
                             && x.PurchaseOrder == purchaseOrder);
 
@@ -1754,7 +1757,7 @@ namespace ClothResorting.Helpers
                             pool.AvailablePcs = 0;
 
                             //将有变化的结果放到新建的“使用过的待选池”中
-                            usedPoolCartonLocationDetails.Add(pool);
+                            //usedPoolCartonLocationDetails.Add(pool);
                         }
                         //当当前的待选对象箱数大于目标箱数时，只拿走需要的，并记录
                         else if (pool.AvailableCtns > targetCtns && pool.AvailableCtns != 0 && targetCtns != 0)
@@ -1770,7 +1773,7 @@ namespace ClothResorting.Helpers
                             targetCtns = 0;
 
                             //将有变化的结果放到新建的“使用过的待选池”中
-                            usedPoolCartonLocationDetails.Add(pool);
+                            //usedPoolCartonLocationDetails.Add(pool);
                         }
                     }
 
@@ -1810,12 +1813,6 @@ namespace ClothResorting.Helpers
                                 ShipOrder = pullSheet
                             });
 
-                            //_context.PickDetails.AddRange(pickDetailList);      //报错前将成功取货的对象添加进表
-                            //_context.PullSheetDiagnostics.AddRange(diagnosticList);
-                            //_context.SaveChanges();
-
-                            //throw new Exception("Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.");
-
                             continue;
                         }
 
@@ -1834,53 +1831,70 @@ namespace ClothResorting.Helpers
 
                         foreach (var pool in poolLocations)
                         {
+                            //与pool在同一集装箱的相同箱号且相同批次号的所有对象，用来作为区分是否有寄生对象的依据
+                            var parasiticPoolLocations = poolLocations.Where(x => x.Container == pool.Container
+                                    && x.CartonRange == pool.CartonRange
+                                    && x.Batch == pool.Batch);
+
                             //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
                             if (pool.AvailablePcs <= targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
                             {
-                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailablePcs));
+                                //如果以上数量为1，则说明没有, 正常操作
+                                if (parasiticPoolLocations.Count() == 1)
+                                {
+                                    pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailablePcs));
 
-                                targetPcs -= pool.AvailablePcs;
+                                    targetPcs -= pool.AvailablePcs;
 
-                                pool.PickingPcs += pool.AvailablePcs;
-                                pool.AvailablePcs = 0;
+                                    pool.PickingPcs += pool.AvailablePcs;
+                                    pool.AvailablePcs = 0;
 
-                                //pool.PickingCtns += pool.AvailableCtns;
-                                //pool.AvailableCtns = 0;
+                                    pool.PickingCtns += pool.AvailableCtns;
+                                    pool.AvailableCtns = 0;
+                                }
+                                //否则说明有寄生对象
+                                else
+                                {
+                                    pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailablePcs));
 
-                                //将有变化的结果放到新建的“使用过的待选池”中
-                                usedPoolCartonLocationDetails.Add(pool);
+                                    targetPcs -= pool.AvailablePcs;
+
+                                    pool.PickingPcs += pool.AvailablePcs;
+                                    pool.AvailablePcs = 0;
+
+                                    //检查并调节所有宿主对象以及寄生对象
+                                    CheckAndAdjustCartons(parasiticPoolLocations);
+                                }
+
+                                pool.Status = Status.Picking;
                             }
                             //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
                             else if (pool.AvailablePcs > targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
                             {
-                                pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs));
-
-                                pool.PickingPcs += targetPcs;
-
-                                if (pool.AvailableCtns != 0)        //库存中有在同一箱的多种SKU情况，分拆入库后在数据库的表示中是没有箱数的，只有件数
+                                //如果同类型数量为1，则说明没有寄生对象, 正常操作
+                                if (parasiticPoolLocations.Count() == 1)
                                 {
-                                    //pool.PickingCtns += targetPcs / pool.PcsPerCaron;
-                                    //pool.AvailableCtns -= targetPcs / pool.PcsPerCaron;
-                                    pool.Status = Status.Picking;
+                                    pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs));
+
+                                    pool.PickingPcs += targetPcs;
+                                    pool.AvailablePcs -= targetPcs;
+
+                                    targetPcs = 0;
+                                }
+                                else    //否则就是有寄生对象
+                                {
+                                    pickDetailList.Add(ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs));
+
+                                    pool.PickingPcs += targetPcs;
+                                    pool.AvailablePcs -= targetPcs;
+
+                                    targetPcs = 0;
+
+                                    //检查并调节所有宿主对象以及寄生对象
+                                    CheckAndAdjustCartons(parasiticPoolLocations);
                                 }
 
-                                pool.AvailablePcs -= targetPcs;
-
-                                targetPcs = 0;
-
-                                //将有变化的结果放到新建的“使用过的待选池”中
-                                usedPoolCartonLocationDetails.Add(pool);
-
-                                ////如果剩余的待选对象箱数为0或者1，则剩下的件数都是Concealed Overage件数，生成对应的剩余记录
-                                //if (pool.AvailableCtns == 0 || pool.AvailableCtns == 1 && pool.AvailablePcs != 0)
-                                //{
-                                //    diagnosticList.Add(new PullSheetDiagnostic {
-                                //        Type = "Concealed Overage",
-                                //        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                //        Description = "<font color='red'>" + targetPcs.ToString() + "</font> Units concealed overage in Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>" + size.SizeName + "</font>.<font color='red'>" + originalTargetPcs.ToString() + "</font> units has been collected.",
-                                //        PullSheet = pullSheet
-                                //    });
-                                //}
+                                pool.Status = Status.Picking;
                             }
                         }
 
@@ -1898,95 +1912,61 @@ namespace ClothResorting.Helpers
                         }
                     }
                 }
-                //else    //最后是count等于0,即数据库POSummary中不存在相关sku记录的情况。原方法是直接打印缺货记录，但有些装箱单将各种SKU放在同一个POSummay中导致查找不到。新方法是跳过查找POSummary，直接查找库存取货
-                //{
-                //...生成缺货记录
-                //diagnosticList.Add(new PullSheetDiagnostic
-                //{
-                //    Type = Status.Missing,
-                //    DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                //    Description = "SKU Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size:<font color='red'>N/A</font> was not found. Some PSI infomations must be missed or incorrect.<br>Please check if the related container number listed in PSI is existed and correct.",
-                //    ShipOrder = pullSheet
-                //});
-
-
-                //}
             }
-
-            //这里进行Concealed Overage检查
-            //检查待选池中的对象，是否有多种SKU在同一箱(寄生SKU)但只拿出部分件数的情况，生成"隐藏多货"Concealed Overage诊断记录，并将这些多的货也添加到拣货表里
-            //var partailCartons = cartonLocationPool.Where(x => x.Cartons == 0 && x.Quantity != 0);
-
-            //暂时禁用查询隐藏多货的功能
-
-            //foreach (var partailCarton in partailCartons)
-            //{
-            //    //找到宿主SKU
-            //    var baseCarton = cartonLocationPool.SingleOrDefault(x => x.CartonRange == partailCarton.CartonRange && x.Cartons != 0);
-
-            //    if (baseCarton != null)    //如果没有找到，则说明本身就是宿主，直接跳过检验
-            //    {
-            //        //寄生SKU的剩余件数除以单位件与宿主SKU的剩余箱数的差，再乘以该SKU的单位件数，即是隐藏多货的件数
-            //        var partailCartonDiff = partailCarton.AvailablePcs / partailCarton.PcsPerCaron - baseCarton.AvailableCtns;
-
-            //        if (partailCartonDiff != 0)     //如果残差不等于零，说该SKU明有隐藏多货的情况
-            //        {
-            //            //一起添加到拣货单，并注明这是Concealed Overage
-            //            var concealedOverage = ConvertToSolidPickDetail(pullSheet, partailCarton, regularLocationDetailInDb, partailCartonDiff * partailCarton.PcsPerCaron);
-            //            concealedOverage.Memo = Status.Overage;
-            //            concealedOverage.PickCtns = 0;
-            //            pickDetailList.Add(concealedOverage);
-
-            //            partailCarton.PickingPcs = partailCartonDiff * partailCarton.PcsPerCaron;
-            //            partailCarton.AvailablePcs -= partailCartonDiff * partailCarton.PcsPerCaron;
-
-            //            diagnosticList.Add(new PullSheetDiagnostic
-            //            {
-            //                Type = Status.ConcealedOverage,
-            //                DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-            //                Description = "Concealed Overage detected. Please marking the situation of style:<font color='red'>" + partailCarton.Style.ToString() + "</font>, Color:<font color='red'>" + partailCarton.Color.ToString() + "</font>, Size: <font color='red'>" + partailCarton.SizeBundle.ToString() + "</font>, Cut Po: <font color='red'>" + partailCarton.PurchaseOrder.ToString() + "</font>, Units: <font color='red'>" + (partailCarton.PcsPerCaron * partailCartonDiff).ToString() + "</font>",
-            //                ShipOrder = pullSheet
-            //            });
-            //        }
-            //    }
-            //}
 
             //将新收集的"备选池"对象同步到其原有的数据库对象中去
 
-            foreach (var usedCartonLocation in usedPoolCartonLocationDetails)
+            foreach (var cartonLocation in cartonLocationPool)
             {
-                var cartonInDb = regularLocationDetailInDb.SingleOrDefault(x => x.Id == usedCartonLocation.Id);
+                var cartonInDb = regularLocationDetailInDb
+                    .Include(x => x.PreReceiveOrder)
+                    .SingleOrDefault(x => x.Id == cartonLocation.Id);
 
                 if (cartonInDb.Status == Status.InStock)
                 {
                     cartonInDb.Status = Status.Picking;
                 }
 
-                cartonInDb.AvailablePcs = usedCartonLocation.AvailablePcs;
-                cartonInDb.PickingPcs = usedCartonLocation.PickingPcs;
+                cartonInDb.AvailablePcs = cartonLocation.AvailablePcs;
+                cartonInDb.PickingPcs = cartonLocation.PickingPcs;
 
-                if (cartonInDb.Cartons != 0)
-                {
-                    var originalAvailableCtns = cartonInDb.AvailableCtns;
+                cartonInDb.AvailableCtns = cartonLocation.AvailableCtns;
+                cartonInDb.PickingPcs = cartonLocation.PickingPcs;
 
-                    //如果原始箱数不等于0，说明是宿主箱，需检查是否有寄生箱，
+                ////如果原始箱数不等于0，说明是宿主箱，需检查是否有寄生箱，
+                //if (cartonInDb.Cartons != 0)
+                //{
+                //    var originalAvailableCtns = cartonInDb.AvailableCtns;
+                //    //如果没有寄生箱，则计算箱数
+                //    if (!DoesContainParasiticLocation(cartonInDb))
+                //    {
+                //        cartonInDb.AvailableCtns = cartonInDb.Cartons - (cartonInDb.Quantity - cartonInDb.AvailablePcs) / cartonInDb.PcsPerCaron;
+                //        cartonInDb.PickingCtns += originalAvailableCtns - cartonInDb.AvailableCtns - cartonInDb.ShippedCtns;
+                //    }
+                //    //如果有寄生箱，则遍历寄生箱重新更新箱数
+                //    else
+                //    {
+                //        var parasiticLocationsInDb = regularLocationDetailInDb
+                //            .Where(x => x.PreReceiveOrder.Id == cartonInDb.PreReceiveOrder.Id
+                //                && x.CartonRange == cartonInDb.CartonRange
+                //                && x.Batch == cartonInDb.Batch);
 
-                    //如果没有寄生箱，则计算箱数
-                    cartonInDb.AvailableCtns = cartonInDb.Cartons - (cartonInDb.Quantity - cartonInDb.AvailablePcs) / cartonInDb.PcsPerCaron;
-                    cartonInDb.PickingCtns += originalAvailableCtns - cartonInDb.AvailableCtns - cartonInDb.ShippedCtns;
-                    //如果有，则遍历寄生箱重新更新箱数
+                //        CheckAndAdjustCartons(parasiticLocationsInDb);
+                //    }
+                //}
+                ////如果原始箱数等于0，说明是寄生箱，需要检查宿主箱重新计算箱数
+                //else
+                //{
+                //    var parasiticLocationsInDb = regularLocationDetailInDb
+                //        .Where(x => x.PreReceiveOrder.Id == cartonInDb.PreReceiveOrder.Id
+                //            && x.CartonRange == cartonInDb.CartonRange
+                //            && x.Batch == cartonInDb.Batch);
 
-                }
-                else
-                {
-                    //如果原始箱数等于0，说明是寄生箱，需要检查宿主箱重新计算箱数
-                }
+                //    CheckAndAdjustCartons(parasiticLocationsInDb);
+                //}
 
             }
-
-            //此时只更新了件数的使用情况。由于一箱中可能有很多SKU，所以最后统一更新箱数的使用情况
-
-
+            
             // 最后更改PullSheet的状态
             _context.ShipOrders.Find(shipOrderId).Status = Status.Picking;
 
@@ -2044,26 +2024,23 @@ namespace ClothResorting.Helpers
         }
 
         //辅助方法：检验当前的sku是否是该库位箱子中最后的物品，如果是则找到宿主对象调节箱数，否则维持现状
-        private int CheckAndAdjustCartons(IEnumerable<FCRegularLocationDetail> regularLocationDetailInDb, FCRegularLocationDetail usedCartonLocation)
+        private void CheckAndAdjustCartons(IEnumerable<FCRegularLocationDetail> parasiticLocationsInDb)
         {
-            //查询所有CartonRange相同且批次相同的库存对象
-            var usedCartonLocationDetails = regularLocationDetailInDb
-                .Where(x => x.CartonRange == usedCartonLocation.CartonRange && x.Batch == usedCartonLocation.Batch);
-
             //查询宿主对象
-            var mainLocation = usedCartonLocationDetails.SingleOrDefault(x => x.Cartons != 0);
+            var mainLocation = parasiticLocationsInDb.SingleOrDefault(x => x.Cartons != 0);
             var currentDeductableCtn = mainLocation.AvailableCtns;      //当前最大可扣除箱数
 
             if (mainLocation != null)
             {
                 //遍历所有查询到的库存对象，计算最小扣除箱数数量
-                foreach(var usedLocation in usedCartonLocationDetails)
+                foreach(var parasiticLocation in parasiticLocationsInDb)
                 {
                     //当前库存对象应扣总箱数(包含之前已扣除的箱数)
-                    var locationDeductableCtn = (usedLocation.Quantity - usedLocation.AvailablePcs) / usedLocation.PcsPerCaron;
+                    var locationDeductableCtn = (parasiticLocation.Quantity - parasiticLocation.AvailablePcs) / parasiticLocation.PcsPerCaron;
 
                     if (locationDeductableCtn == 0)
                     {
+                        currentDeductableCtn = 0;
                         break;      //如果其中任何一个库存对象都不够抽一箱出来，那么跳过算法，返回0箱
                     }
                     else
@@ -2076,11 +2053,25 @@ namespace ClothResorting.Helpers
                 var originalAvailableCtns = mainLocation.AvailableCtns;
                 mainLocation.AvailableCtns = mainLocation.Cartons - currentDeductableCtn;
                 mainLocation.PickingCtns += originalAvailableCtns - mainLocation.AvailableCtns;
+            }
+        }
 
-                return currentDeductableCtn;
+        //私有方法：检验当前Location对象是否存在寄生对象
+        private bool DoesContainParasiticLocation(FCRegularLocationDetail location)
+        {
+            var parasiticCount = _context.FCRegularLocationDetails
+                .Include(x => x.PreReceiveOrder)
+                .Where(x => x.Container == location.Container
+                    && x.CartonRange == location.CartonRange
+                    && x.Batch == location.Batch)
+                .Count();
+
+            if (parasiticCount == 1)
+            {
+                return false;
             }
 
-            return 0;
+            return true;
         }
         #endregion
         //-----👆👆👆👆👆👆-----以上为抽取Regular出货单的方法-----👆👆👆👆👆👆-----
