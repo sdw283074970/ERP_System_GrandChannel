@@ -97,6 +97,20 @@ namespace ClothResorting.Controllers.Api
                 .Include(x => x.RegularCaronDetail)
                 .SingleOrDefault(x => x.Id == id);
 
+            //检查当前移库对象是否有正在拣货的寄生对象，如果有则抛出异常
+            var parasitcItemsInDb = context.FCRegularLocationDetails
+                .Where(x => x.Container == locationInDb.Container
+                    && x.CartonRange == locationInDb.CartonRange
+                    && x.Batch == locationInDb.Batch);
+
+            foreach(var item in parasitcItemsInDb)
+            {
+                if (item.PickingPcs != 0)
+                {
+                    throw new Exception("Cannot relocate item PO:" + item.PurchaseOrder + " Style=:" + item.Style + " Color:" + item.Color + " Size:" + item.SizeBundle + ". Because certain items under carton range: " + item.CartonRange + " Batch:" + item.Batch + " is in picking.");
+                }
+            }
+
             var preId = locationInDb.PreReceiveOrder.Id;
 
             //首先将宿主箱返回到待分配状态
@@ -127,9 +141,6 @@ namespace ClothResorting.Controllers.Api
 
                 var availableCtns = location.AvailableCtns;
                 var availablePcs = location.AvailablePcs;
-                //var pickingCtns = location.PickingCtns;
-                //var pickingPcs = location.PickingPcs;
-                //var shippedCtns = location.ShippedCtns;
                 var shippedPcs = location.ShippedPcs;
 
                 //当pickingCtns不为0时，说明有货正在拣，不能进行移库操作。此项限制在前端完成
