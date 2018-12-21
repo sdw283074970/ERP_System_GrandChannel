@@ -133,7 +133,7 @@ namespace ClothResorting.Helpers
             } while (index > 0);
 
             //先建立这么多数量的空POSummary
-            for(int i = 0; i < _countOfPo; i++)
+            for (int i = 0; i < _countOfPo; i++)
             {
                 poList.Add(new POSummary {
                     PreReceiveOrder = preReceiveOrderInDb,
@@ -151,15 +151,15 @@ namespace ClothResorting.Helpers
             //分别扫描各个POSummary的CartonDetail
             var startIndex = 1;
             var poSummariesInDb = _context.POSummaries.OrderByDescending(x => x.Id).Take(poList.Count);
-            
-            foreach(var poSummary in poSummariesInDb)
+
+            foreach (var poSummary in poSummariesInDb)
             {
                 //扫描当前POSummary对象的CartonDetail有多少行
                 index = startIndex + 1;
                 var cartonDetailList = new List<RegularCartonDetail>();
                 var countOfSKU = 0;
                 var countOfColumn = 0;
-                
+
                 //扫描一个POSummary有多少个SKU
                 while (_ws.Cells[index, 1].Value2 != null)
                 {
@@ -175,7 +175,7 @@ namespace ClothResorting.Helpers
                     index++;
                 }
 
-                for(int j = 0; j < countOfSKU; j++)
+                for (int j = 0; j < countOfSKU; j++)
                 {
                     //扫描每一种SKU有多少种Size及数量
                     var sizeList = new List<SizeRatio>();
@@ -235,7 +235,7 @@ namespace ClothResorting.Helpers
                                         ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                     });
                                 }
-                                catch(Exception e)
+                                catch (Exception e)
                                 {
                                     throw new Exception("Check around row start from [" + startIndex + "], exception occurs around in row [" + (startIndex + 1 + j) + "]");
                                 }
@@ -365,15 +365,15 @@ namespace ClothResorting.Helpers
             var result = false;
             var emptyCount = 0;
 
-            foreach(var size in sizeList)
+            foreach (var size in sizeList)
             {
                 if (size.Count == 0)
                 {
                     emptyCount++;
                 }
             }
-            
-            if(emptyCount == sizeList.Count)
+
+            if (emptyCount == sizeList.Count)
             {
                 return true;
             }
@@ -589,7 +589,7 @@ namespace ClothResorting.Helpers
         private int GetFrom(string cn)
         {
             string[] arr;
-            if(cn.Contains('-'))
+            if (cn.Contains('-'))
             {
                 arr = cn.Split('-');
                 return int.Parse(arr[0]);
@@ -798,7 +798,7 @@ namespace ClothResorting.Helpers
         //            });
         //        }
         //    }
-            
+
         //    _context.ReplenishmentLocationDetails.AddRange(locationDetailList);
         //    _context.SpeciesInventories.AddRange(speciesList);
         //    _context.SaveChanges();
@@ -860,128 +860,128 @@ namespace ClothResorting.Helpers
 
             //try
             //{
-                int n = 2;
-                int countOfObj = 0;
-                _ws = _wb.Worksheets[1];
+            int n = 2;
+            int countOfObj = 0;
+            _ws = _wb.Worksheets[1];
 
-                //获取数据库中所有的speciesInventory记录，用于判断入库报告中是否有新种类入库
-                var poInventories = _context.PurchaseOrderInventories.Where(x => x.Id > 0).ToList();
-                var poInventoriesInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
-                var species = _context.SpeciesInventories.Where(c => c.Id > 0).ToList();
+            //获取数据库中所有的speciesInventory记录，用于判断入库报告中是否有新种类入库
+            var poInventories = _context.PurchaseOrderInventories.Where(x => x.Id > 0).ToList();
+            var poInventoriesInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
+            var species = _context.SpeciesInventories.Where(c => c.Id > 0).ToList();
 
-                while (_ws.Cells[n, 3].Value2 != null)
+            while (_ws.Cells[n, 3].Value2 != null)
+            {
+                countOfObj += 1;
+                n += 1;
+            }
+
+            for (int i = 0; i < countOfObj; i++)
+            {
+                var locationDetail = new ReplenishmentLocationDetail
                 {
-                    countOfObj += 1;
-                    n += 1;
-                }
+                    PurchaseOrder = _ws.Cells[2 + i, 1].Value2.ToString(),
+                    Style = _ws.Cells[2 + i, 2].Value2.ToString(),
+                    Color = _ws.Cells[2 + i, 3].Value2.ToString(),
+                    Size = _ws.Cells[2 + i, 4].Value2.ToString(),
+                    Cartons = 0,
+                    AvailableCtns = 0,
+                    Quantity = (int)_ws.Cells[2 + i, 5].Value2,
+                    AvailablePcs = (int)_ws.Cells[2 + i, 5].Value2,
+                    Location = _ws.Cells[2 + i, 6].Value2,
+                    PickingCtns = 0,
+                    PickingPcs = 0,
+                    ShippedCtns = 0,
+                    ShippedPcs = 0,
+                    InboundDate = _dateTimeNow,
+                    GeneralLocationSummary = locationSummaryInDb,
+                    Operator = _userName,
+                    Status = Status.InStock,
+                    IsHanger = _ws.Cells[2 + i, 7].Value2 == null ? false : true,
+                    Vendor = vendor
+                };
 
-                for (int i = 0; i < countOfObj; i++)
+                //判断数据库中是否已经存在该对象的PO，如果临时表poInventoryList和数据库表poInventoryList中都没有，则说明是新PO需要新建一个该对象的PO，否则直接挂钩
+                var poInventoryInDb = poInventoriesInDb
+                    .SingleOrDefault(x => x.PurchaseOrder == locationDetail.PurchaseOrder);
+                var poInventory = poInventoryList
+                    .SingleOrDefault(x => x.PurchaseOrder == locationDetail.PurchaseOrder);
+
+                if (poInventoryInDb == null && poInventory == null)
                 {
-                    var locationDetail = new ReplenishmentLocationDetail
+                    var newPurchaseOrderInventory = new PurchaseOrderInventory
                     {
-                        PurchaseOrder = _ws.Cells[2 + i, 1].Value2.ToString(),
-                        Style = _ws.Cells[2 + i, 2].Value2.ToString(),
-                        Color = _ws.Cells[2 + i, 3].Value2.ToString(),
-                        Size = _ws.Cells[2 + i, 4].Value2.ToString(),
-                        Cartons = 0,
+                        AvailablePcs = 0,
                         AvailableCtns = 0,
-                        Quantity = (int)_ws.Cells[2 + i, 5].Value2,
-                        AvailablePcs = (int)_ws.Cells[2 + i, 5].Value2,
-                        Location = _ws.Cells[2 + i, 6].Value2,
-                        PickingCtns = 0,
+                        OrderType = OrderType.Replenishment,
                         PickingPcs = 0,
-                        ShippedCtns = 0,
                         ShippedPcs = 0,
-                        InboundDate = _dateTimeNow,
-                        GeneralLocationSummary = locationSummaryInDb,
-                        Operator = _userName,
-                        Status = Status.InStock,
-                        IsHanger = _ws.Cells[2 + i, 7].Value2 == null ? false : true,
-                        Vendor = vendor
+                        Vender = vendor,
+                        PurchaseOrder = locationDetail.PurchaseOrder
                     };
 
-                    //判断数据库中是否已经存在该对象的PO，如果临时表poInventoryList和数据库表poInventoryList中都没有，则说明是新PO需要新建一个该对象的PO，否则直接挂钩
-                    var poInventoryInDb = poInventoriesInDb
-                        .SingleOrDefault(x => x.PurchaseOrder == locationDetail.PurchaseOrder);
-                    var poInventory = poInventoryList
-                        .SingleOrDefault(x => x.PurchaseOrder == locationDetail.PurchaseOrder);
-
-                    if (poInventoryInDb == null && poInventory == null)
-                    {
-                        var newPurchaseOrderInventory = new PurchaseOrderInventory
-                        {
-                            AvailablePcs = 0,
-                            AvailableCtns = 0,
-                            OrderType = OrderType.Replenishment,
-                            PickingPcs = 0,
-                            ShippedPcs = 0,
-                            Vender = vendor,
-                            PurchaseOrder = locationDetail.PurchaseOrder
-                        };
-
-                        poInventoryList.Add(newPurchaseOrderInventory);
-                    }
-
-                    locationDetailList.Add(locationDetail);
-
-                    //判断入库的对象是否是新种类，如果临时List和数据库species中都没有则说明是新种类，则在SpeciesInventories表中添加该类
-                    if (species.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
-                        && c.Style == locationDetail.Style
-                        && c.Color == locationDetail.Color
-                        && c.Size == locationDetail.Size) == null && speciesList.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
-                        && c.Style == locationDetail.Style
-                        && c.Color == locationDetail.Color
-                        && c.Size == locationDetail.Size) == null)
-                    {
-                        speciesList.Add(new SpeciesInventory
-                        {
-                            PurchaseOrder = locationDetail.PurchaseOrder,
-                            Style = locationDetail.Style,
-                            Color = locationDetail.Color,
-                            Size = locationDetail.Size,
-                            OrgPcs = 0,
-                            AdjPcs = 0,
-                            PickingPcs = 0,
-                            ShippedPcs = 0,
-                            AvailablePcs = 0,
-                            Vendor = vendor
-                        });
-                    }
+                    poInventoryList.Add(newPurchaseOrderInventory);
                 }
 
-                _context.ReplenishmentLocationDetails.AddRange(locationDetailList);
-                _context.SpeciesInventories.AddRange(speciesList);
-                _context.PurchaseOrderInventories.AddRange(poInventoryList);
-                _context.SaveChanges();
+                locationDetailList.Add(locationDetail);
 
-                //现在需要重新为所有新添加的replenishmentLocationDetail指定purchaseOrderInventory和speciesInventory外键
-                var purchaseOrderInventoriesInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
-
-                var speciesInDb = _context.SpeciesInventories
-                    .Include(x => x.PurchaseOrderInventory)
-                    //.Where(x => x.PurchaseOrderInventory == null);
-                    .Where(x => x.Id > 0);
-                var locationInDb = _context.ReplenishmentLocationDetails
-                    .Include(x => x.PurchaseOrderInventory)
-                    .Where(x => x.PurchaseOrderInventory == null || x.SpeciesInventory == null);
-
-                foreach(var location in locationInDb)
+                //判断入库的对象是否是新种类，如果临时List和数据库species中都没有则说明是新种类，则在SpeciesInventories表中添加该类
+                if (species.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size) == null && speciesList.SingleOrDefault(c => c.PurchaseOrder == locationDetail.PurchaseOrder
+                    && c.Style == locationDetail.Style
+                    && c.Color == locationDetail.Color
+                    && c.Size == locationDetail.Size) == null)
                 {
-                    location.PurchaseOrderInventory = purchaseOrderInventoriesInDb
-                        .SingleOrDefault(x => x.PurchaseOrder == location.PurchaseOrder);
-
-                    location.SpeciesInventory = speciesInDb.SingleOrDefault(x => x.PurchaseOrder == location.PurchaseOrder
-                        && x.Style == location.Style && x.Color == location.Color && x.Size == location.Size);
-                }
-
-                foreach(var s in speciesInDb)
-                {
-                    if (s.PurchaseOrderInventory == null)
+                    speciesList.Add(new SpeciesInventory
                     {
-                        s.PurchaseOrderInventory = purchaseOrderInventoriesInDb
-                            .SingleOrDefault(x => x.PurchaseOrder == s.PurchaseOrder);
-                    }
+                        PurchaseOrder = locationDetail.PurchaseOrder,
+                        Style = locationDetail.Style,
+                        Color = locationDetail.Color,
+                        Size = locationDetail.Size,
+                        OrgPcs = 0,
+                        AdjPcs = 0,
+                        PickingPcs = 0,
+                        ShippedPcs = 0,
+                        AvailablePcs = 0,
+                        Vendor = vendor
+                    });
                 }
+            }
+
+            _context.ReplenishmentLocationDetails.AddRange(locationDetailList);
+            _context.SpeciesInventories.AddRange(speciesList);
+            _context.PurchaseOrderInventories.AddRange(poInventoryList);
+            _context.SaveChanges();
+
+            //现在需要重新为所有新添加的replenishmentLocationDetail指定purchaseOrderInventory和speciesInventory外键
+            var purchaseOrderInventoriesInDb = _context.PurchaseOrderInventories.Where(x => x.Id > 0);
+
+            var speciesInDb = _context.SpeciesInventories
+                .Include(x => x.PurchaseOrderInventory)
+                //.Where(x => x.PurchaseOrderInventory == null);
+                .Where(x => x.Id > 0);
+            var locationInDb = _context.ReplenishmentLocationDetails
+                .Include(x => x.PurchaseOrderInventory)
+                .Where(x => x.PurchaseOrderInventory == null || x.SpeciesInventory == null);
+
+            foreach (var location in locationInDb)
+            {
+                location.PurchaseOrderInventory = purchaseOrderInventoriesInDb
+                    .SingleOrDefault(x => x.PurchaseOrder == location.PurchaseOrder);
+
+                location.SpeciesInventory = speciesInDb.SingleOrDefault(x => x.PurchaseOrder == location.PurchaseOrder
+                    && x.Style == location.Style && x.Color == location.Color && x.Size == location.Size);
+            }
+
+            foreach (var s in speciesInDb)
+            {
+                if (s.PurchaseOrderInventory == null)
+                {
+                    s.PurchaseOrderInventory = purchaseOrderInventoriesInDb
+                        .SingleOrDefault(x => x.PurchaseOrder == s.PurchaseOrder);
+                }
+            }
 
             //}
             //抽取中如果抛出异常则删掉之前创建的summary对象
@@ -1076,7 +1076,7 @@ namespace ClothResorting.Helpers
 
             index = 2;
 
-            for(int i = 0; i < _countOfPo; i++)
+            for (int i = 0; i < _countOfPo; i++)
             {
                 packingList.Add(new POSummary {
                     PurchaseOrder = _ws.Cells[index, 1].Value2.ToString(),
@@ -1130,9 +1130,9 @@ namespace ClothResorting.Helpers
                 {
                     var poLineCheck = (int)_ws.Cells[startIndex + 1, 3].Value2;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    throw new Exception("Upload failed. A header of a PO object is missing. Please check PO Line cell [" + (startIndex + 1 ).ToString() + ",3] and make sure if the value or the header(Order, Style#, Line#) existed.");
+                    throw new Exception("Upload failed. A header of a PO object is missing. Please check PO Line cell [" + (startIndex + 1).ToString() + ",3] and make sure if the value or the header(Order, Style#, Line#) existed.");
                 }
 
                 var poLine = (int)_ws.Cells[startIndex + 1, 3].Value2;
@@ -1174,7 +1174,7 @@ namespace ClothResorting.Helpers
                     var pcsBundle = sizeList[0].Count.ToString();
 
                     //统计当前SKU中的size组合
-                    for(int index = 1; index < sizeList.Count; index++)
+                    for (int index = 1; index < sizeList.Count; index++)
                     {
                         sizeBundle += " " + sizeList[index].SizeName;
                         pcsBundle += " " + sizeList[index].Count.ToString();
@@ -1202,7 +1202,7 @@ namespace ClothResorting.Helpers
                     {
                         var cartonsCheck = (int)_ws.Cells[startIndex + 3 + j, 11].Value2;
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         throw new Exception("Upload failed. Please check cartons cell [" + (startIndex + 3).ToString() + ",10] and make sure if the value existed.");
                     }
@@ -1222,13 +1222,13 @@ namespace ClothResorting.Helpers
                             var pcs = pcsArr[s];
 
                             //如4 0 0 0 12的pcs bundle，中间的三个0情况不做记录，跳过
-                            if(int.Parse(pcs) == 0)
+                            if (int.Parse(pcs) == 0)
                             {
                                 continue;
                             }
 
                             var poSummaryInDb = poSummaryInDbs.FirstOrDefault();
-                            poSummaryInDb.OrderType =  OrderType.SolidPack;
+                            poSummaryInDb.OrderType = OrderType.SolidPack;
 
                             //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
                             if (poSummaryList.Count() == 1)
@@ -1257,7 +1257,7 @@ namespace ClothResorting.Helpers
                                     POSummary = poSummaryInDb,
                                     Comment = "",
                                     OrderType = OrderType.SolidPack,
-                                    Operator  = _userName,
+                                    Operator = _userName,
                                     Adjustor = "",
                                     Receiver = "",
                                     Batch = batch.ToString(),
@@ -1410,7 +1410,7 @@ namespace ClothResorting.Helpers
                         }
                     }
                 }
-                
+
                 //扫描该PoSummary对象与下一个对象之间的间隔行数
                 while (_ws.Cells[rowIndex, 1].Value2 == null && countOfSpace <= 5)
                 {
@@ -1438,7 +1438,7 @@ namespace ClothResorting.Helpers
                 .Include(x => x.PreReceiveOrder)
                 .Where(x => x.PreReceiveOrder.Id == id);
 
-            foreach(var poSummaryInDb in poSummarysInDb)
+            foreach (var poSummaryInDb in poSummarysInDb)
             {
                 poSummaryInDb.Quantity = poSummaryInDb.RegularCartonDetails.Sum(x => x.Quantity);
                 poSummaryInDb.Cartons = poSummaryInDb.RegularCartonDetails.Sum(s => s.Cartons);
@@ -1485,7 +1485,7 @@ namespace ClothResorting.Helpers
             var zeroCount = 0;
             var noneZeroIndex = 0;
 
-            for(int i = 0; i < pcsCount; i++)
+            for (int i = 0; i < pcsCount; i++)
             {
                 if (pcsString[i] == "0")
                 {
@@ -1495,7 +1495,7 @@ namespace ClothResorting.Helpers
 
             if (zeroCount == pcsCount - 1)      //只有一个pcs有数量其他全为零，说明这是solid pack
             {
-                for(int i = 0; i < pcsCount; i++)  //找出第几个pcs是不为零的
+                for (int i = 0; i < pcsCount; i++)  //找出第几个pcs是不为零的
                 {
                     if (pcsString[i] != "0")
                     {
@@ -1607,7 +1607,7 @@ namespace ClothResorting.Helpers
             var index = 2;
             var psiList = new List<PSIModel>();
 
-            while(_ws.Cells[index, 1].Value2 != null)
+            while (_ws.Cells[index, 1].Value2 != null)
             {
                 psiRowCount += 1;
                 index += 1;
@@ -1621,7 +1621,7 @@ namespace ClothResorting.Helpers
                 var style = _ws.Cells[i + 2, 3].Value2.ToString();
                 var isExisted = false;
 
-                foreach(var psi in psiList)
+                foreach (var psi in psiList)
                 {
                     //if (psi.Container == container && psi.CutPurchaseOrder == cutPo && psi.Style == style)
                     if (psi.Container == container)
@@ -1644,7 +1644,7 @@ namespace ClothResorting.Helpers
             //基于PSI信息，查找整个数据库的库存对象，将这些对象放在一个“待选池”列表中
             var cartonLocationPool = new List<FCRegularLocationDetail>();
 
-            foreach(var psi in psiList)
+            foreach (var psi in psiList)
             {
                 var psiResult = _context.FCRegularLocationDetails
                     .Include(x => x.PreReceiveOrder)
@@ -1663,7 +1663,7 @@ namespace ClothResorting.Helpers
             index = 1;
 
             //扫描有多少种需要拣货的SKU
-            while(_ws.Cells[index, 1].Value2 != null)
+            while (_ws.Cells[index, 1].Value2 != null)
             {
                 pullSheetCount += 1;
                 index += 3;
@@ -1675,7 +1675,7 @@ namespace ClothResorting.Helpers
                 .Include(x => x.PreReceiveOrder)
                 .Where(x => x.Id > 0);
 
-            for(int i = 1; i <= pullSheetCount; i++)
+            for (int i = 1; i <= pullSheetCount; i++)
             {
                 index = 4;      //size列的起始点
                 var startRow = (i - 1) * 3 + 1;
@@ -1736,7 +1736,7 @@ namespace ClothResorting.Helpers
                     var targetCtns = sizeList.Sum(x => x.Count) / poolLocations.First().PcsPerCaron;
                     var originalCtns = targetCtns;
 
-                    foreach(var pool in poolLocations)
+                    foreach (var pool in poolLocations)
                     {
                         //当当前的待选对象箱数小于等于目标箱数时，全部拿走，并记录
                         if (pool.AvailableCtns <= targetCtns && pool.AvailableCtns != 0 && targetCtns != 0)
@@ -1829,15 +1829,14 @@ namespace ClothResorting.Helpers
                             {
                                 var pickDetail = ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, pool.AvailablePcs);
 
-                                //如果相同箱号批次号的对象数量为1，则说明没有寄生对象, 正常操作
+                                targetPcs -= pool.AvailablePcs;
+
+                                pool.PickingPcs += pool.AvailablePcs;
+                                pool.AvailablePcs = 0;
+
+                                //如果相同箱号批次号的对象数量为1，则说明没有寄生对象, 正常操调节箱数
                                 if (parasiticPoolLocations.Count() == 1)
                                 {
-
-                                    targetPcs -= pool.AvailablePcs;
-
-                                    pool.PickingPcs += pool.AvailablePcs;
-                                    pool.AvailablePcs = 0;
-
                                     pickDetail.PickCtns = pool.AvailableCtns;
 
                                     pool.PickingCtns += pool.AvailableCtns;
@@ -1846,37 +1845,14 @@ namespace ClothResorting.Helpers
                                 //否则说明有宿主对象和寄生对象
                                 else
                                 {
-                                    targetPcs -= pool.AvailablePcs;
-
-                                    pool.PickingPcs += pool.AvailablePcs;
-                                    pool.AvailablePcs = 0;
-
-                                    //查找宿主对象以及宿主对象对应的拣货对象(即使是本身也查找，省去一个判断逻辑)
-                                    var mainLocation = cartonLocationPool.SingleOrDefault(x => x.Container == pool.Container
-                                        && x.CartonRange == pool.CartonRange
-                                        && x.Batch == pool.Batch
-                                        && x.Cartons != 0);
-
-                                    var mainPickDetail = pickDetailList.SingleOrDefault(x => x.SizeBundle == mainLocation.SizeBundle
-                                        && x.Style == mainLocation.Style
-                                        && x.PurchaseOrder == mainLocation.PurchaseOrder
-                                        && x.CartonRange == mainLocation.CartonRange);
-
-                                    //获取并调节宿主对象的总调节箱数
+                                    //获取宿主对象的总调节箱数
                                     var deductableCartons = GetDeductableCartons(parasiticPoolLocations);
 
-                                    var originalAvailableCtns = mainLocation.AvailableCtns;
-                                    mainLocation.AvailableCtns = mainLocation.Cartons - deductableCartons;
-                                    mainLocation.PickingCtns += originalAvailableCtns - mainLocation.AvailableCtns;
-
-                                    if (mainPickDetail != null)
-                                    {
-                                        mainPickDetail.PickCtns = originalAvailableCtns - mainLocation.AvailableCtns;
-                                    }
+                                    //按当前对象是否是宿主对象来调节对应的库存箱数和拣货箱数
+                                    AdjustParasiticOrHostObjectsCtns(pool, deductableCartons, pickDetail, cartonLocationPool, pickDetailList);
                                 }
 
                                 pickDetailList.Add(pickDetail);
-
                                 pool.Status = Status.Picking;
                             }
                             //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
@@ -1884,12 +1860,14 @@ namespace ClothResorting.Helpers
                             {
                                 var pickDetail = ConvertToSolidPickDetail(pullSheet, pool, regularLocationDetailInDb, targetPcs);
 
+                                pool.PickingPcs += targetPcs;
+                                pool.AvailablePcs -= targetPcs;
+
+                                targetPcs = 0;
+
                                 //如果同类型数量为1，则说明没有寄生对象, 正常操作
                                 if (parasiticPoolLocations.Count() == 1)
                                 {
-                                    pool.PickingPcs += targetPcs;
-                                    pool.AvailablePcs -= targetPcs;
-
                                     var deductableCtns = (pool.Quantity - pool.AvailablePcs) / pool.PcsPerCaron;
                                     var originalCtns = pool.AvailableCtns;
 
@@ -1898,41 +1876,17 @@ namespace ClothResorting.Helpers
 
                                     pickDetail.PickCtns = originalCtns - pool.AvailableCtns;
 
-                                    targetPcs = 0;
                                 }
                                 else    //否则就是有寄生对象
                                 {
-                                    pool.PickingPcs += targetPcs;
-                                    pool.AvailablePcs -= targetPcs;
-
-                                    targetPcs = 0;
-
-                                    //查找宿主对象(即使是本身也查找，省去一个判断逻辑)
-                                    var mainLocation = cartonLocationPool.SingleOrDefault(x => x.Container == pool.Container
-                                        && x.CartonRange == pool.CartonRange
-                                        && x.Batch == pool.Batch
-                                        && x.Cartons != 0);
-
-                                    var mainPickDetail = pickDetailList.SingleOrDefault(x => x.SizeBundle == mainLocation.SizeBundle
-                                        && x.Style == mainLocation.Style
-                                        && x.PurchaseOrder == mainLocation.PurchaseOrder
-                                        && x.CartonRange == mainLocation.CartonRange);
-
-                                    //获取宿主对象的总调节箱数并调节
+                                    //获取宿主对象的总调节箱数
                                     var deductableCartons = GetDeductableCartons(parasiticPoolLocations);
 
-                                    var originalAvailableCtns = mainLocation.AvailableCtns;
-                                    mainLocation.AvailableCtns = mainLocation.Cartons - deductableCartons;
-                                    mainLocation.PickingCtns += originalAvailableCtns - mainLocation.AvailableCtns;
-
-                                    if (mainPickDetail != null)
-                                    {
-                                        mainPickDetail.PickCtns = originalAvailableCtns - mainLocation.AvailableCtns;
-                                    }
+                                    //按当前对象是否是宿主对象来调节对应的库存箱数和拣货箱数
+                                    AdjustParasiticOrHostObjectsCtns(pool, deductableCartons, pickDetail, cartonLocationPool, pickDetailList);
                                 }
 
                                 pickDetailList.Add(pickDetail);
-
                                 pool.Status = Status.Picking;
                             }
                         }
@@ -1972,7 +1926,7 @@ namespace ClothResorting.Helpers
                 cartonInDb.AvailableCtns = cartonLocation.AvailableCtns;
                 cartonInDb.PickingCtns = cartonLocation.PickingCtns;
             }
-            
+
             // 最后更改PullSheet的状态
             _context.ShipOrders.Find(shipOrderId).Status = Status.Picking;
 
@@ -2040,7 +1994,7 @@ namespace ClothResorting.Helpers
             if (mainLocation != null)
             {
                 //遍历所有查询到的库存对象，计算最小扣除箱数数量
-                foreach(var parasiticLocation in parasiticLocationsInDb)
+                foreach (var parasiticLocation in parasiticLocationsInDb)
                 {
                     //当前库存对象应扣总箱数(包含之前已扣除的箱数)
                     var locationDeductableCtn = (parasiticLocation.Quantity - parasiticLocation.AvailablePcs) / parasiticLocation.PcsPerCaron;
@@ -2061,7 +2015,51 @@ namespace ClothResorting.Helpers
             return 0;
         }
 
-        //私有方法：检验当前Location对象是否存在寄生对象
+        //辅助方法：基于cartionLocation对象的现有属性和总应减箱数，计算并调节其可用箱数及在拣箱数
+        private void AdjustAvailableAndPickingCtns(FCRegularLocationDetail pool, int originalAvailableCtns, int deductableCtns)
+        {
+            pool.AvailableCtns = pool.Cartons - deductableCtns;
+            pool.PickingCtns += originalAvailableCtns - pool.AvailableCtns;
+        }
+
+        //辅助方法：当当前抽取对象属于寄生对象或宿主对象时，调节其以及其相关的拣货对象的箱数
+        private void AdjustParasiticOrHostObjectsCtns(FCRegularLocationDetail pool, int deductableCartons, PickDetail pickDetail, IEnumerable<FCRegularLocationDetail> cartonLocationPool, IEnumerable<PickDetail> pickDetailList)
+        {
+            //如果当前对象本身就是宿主，则直接调节
+            if (pool.Cartons != 0)
+            {
+                var originalAvailableCtns = pool.AvailableCtns;
+
+                AdjustAvailableAndPickingCtns(pool, originalAvailableCtns, deductableCartons);
+
+                pickDetail.PickCtns = originalAvailableCtns - pool.AvailableCtns;
+            }
+            //如过当前对象不是宿主，则查找宿主对象以及宿主拣货对象
+            else
+            {
+                var mainLocation = cartonLocationPool.SingleOrDefault(x => x.Container == pool.Container
+                    && x.CartonRange == pool.CartonRange
+                    && x.Batch == pool.Batch
+                    && x.Cartons != 0);
+
+                var mainPickDetail = pickDetailList.SingleOrDefault(x => x.SizeBundle == mainLocation.SizeBundle
+                    && x.Style == mainLocation.Style
+                    && x.PurchaseOrder == mainLocation.PurchaseOrder
+                    && x.CartonRange == mainLocation.CartonRange);
+
+                var originalAvailableCtns = mainLocation.AvailableCtns;
+
+                AdjustAvailableAndPickingCtns(mainLocation, originalAvailableCtns, deductableCartons);
+
+                //如果宿主对象已经在拣货列表中，则调节
+                if (mainPickDetail != null)
+                {
+                    mainPickDetail.PickCtns = originalAvailableCtns - mainLocation.AvailableCtns;
+                }
+            }
+        }
+
+        //辅助方法：检验当前Location对象是否存在寄生对象
         private bool DoesContainParasiticLocation(FCRegularLocationDetail location)
         {
             var parasiticCount = _context.FCRegularLocationDetails

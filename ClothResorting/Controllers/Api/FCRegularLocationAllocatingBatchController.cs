@@ -43,7 +43,7 @@ namespace ClothResorting.Controllers.Api
             {
                 var regularCartonDetail = regularCartonDetailsIndb.SingleOrDefault(c => c.Id == id);
 
-                if (regularCartonDetail.ToBeAllocatedCtns != 0)     //只有当待分配箱数不等于0的适合才在库存中建立对象。防止用户多次点击。
+                if (regularCartonDetail.ToBeAllocatedCtns != 0)     //只有当待分配箱数不等于0的时候才在库存中建立对象。防止用户多次点击。
                 {
                     if (regularCartonDetail.Container == null || regularCartonDetail.Container == "Unknown")
                     {

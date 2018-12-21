@@ -122,17 +122,51 @@ namespace ClothResorting.Helpers
             {
                 foreach (var pickDetail in pickDetailsInDb)
                 {
-                    var locationDetail = pickDetail.FCRegularLocationDetail;
+                    var locationDetailInDb = pickDetail.FCRegularLocationDetail;
+                    var parasiticLocationDetail = _context.FCRegularLocationDetails.Where(x => x.Container == locationDetailInDb.Container
+                        && x.CartonRange == locationDetailInDb.CartonRange
+                        && x.Batch == locationDetailInDb.Batch)
+                        .ToList();
 
-                    locationDetail.AvailableCtns += pickDetail.PickCtns;
-                    locationDetail.AvailablePcs += pickDetail.PickPcs;
+                    locationDetailInDb.AvailablePcs += pickDetail.PickPcs;
+                    locationDetailInDb.PickingPcs -= pickDetail.PickPcs;
 
-                    locationDetail.PickingCtns -= pickDetail.PickCtns;
-                    locationDetail.PickingPcs -= pickDetail.PickPcs;
+                    locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
+                    locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
 
-                    if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs != 0)
+                    ////如果该拣货对象的库存不存在寄生对象的情况，则箱数正常返回到库存
+                    //if (parasiticLocationDetail.Count() == 1)
+                    //{
+                    //    locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
+                    //    locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                    //}
+                    ////否则为寄生/宿主对象，按照已返回的件数重新计算箱数
+                    //else
+                    //{
+                    //    //如果当前对象就是宿主对象，正常返回箱数到库存
+                    //    if (locationDetailInDb.Cartons != 0)
+                    //    {
+                    //        locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
+                    //        locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                    //    }
+                    //    //否则找到宿主对象，与其比较谁的应存箱数最大，并将这个数字更新到宿主对象的箱数中
+                    //    else
+                    //    {
+                    //        var mainLocationInDb = _context.FCRegularLocationDetails
+                    //            .SingleOrDefault(x => x.Container == locationDetailInDb.Container
+                    //                && x.CartonRange == locationDetailInDb.Container
+                    //                && x.Batch == locationDetailInDb.Batch
+                    //                && x.Cartons != 0);
+
+                    //        var originaAvailableCtns = mainLocationInDb.AvailableCtns;
+
+                    //    }
+                    //}
+
+                    //更改状态
+                    if (locationDetailInDb.PickingPcs == 0 && locationDetailInDb.AvailablePcs != 0)
                     {
-                        locationDetail.Status = Status.InStock;
+                        locationDetailInDb.Status = Status.InStock;
                     }
                 }
             }
@@ -171,6 +205,11 @@ namespace ClothResorting.Helpers
 
             _context.ShipOrders.Remove(shipOrderInDb);
             _context.SaveChanges();
+        }
+
+        private void AdjustCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb)
+        {
+            //查找当前对象的所有寄生对象
         }
     }
 }
