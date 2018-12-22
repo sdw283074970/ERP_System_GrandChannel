@@ -131,37 +131,30 @@ namespace ClothResorting.Helpers
                     locationDetailInDb.AvailablePcs += pickDetail.PickPcs;
                     locationDetailInDb.PickingPcs -= pickDetail.PickPcs;
 
-                    locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
-                    locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                    //locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
+                    //locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
 
-                    ////如果该拣货对象的库存不存在寄生对象的情况，则箱数正常返回到库存
-                    //if (parasiticLocationDetail.Count() == 1)
-                    //{
-                    //    locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
-                    //    locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
-                    //}
-                    ////否则为寄生/宿主对象，按照已返回的件数重新计算箱数
-                    //else
-                    //{
-                    //    //如果当前对象就是宿主对象，正常返回箱数到库存
-                    //    if (locationDetailInDb.Cartons != 0)
-                    //    {
-                    //        locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
-                    //        locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
-                    //    }
-                    //    //否则找到宿主对象，与其比较谁的应存箱数最大，并将这个数字更新到宿主对象的箱数中
-                    //    else
-                    //    {
-                    //        var mainLocationInDb = _context.FCRegularLocationDetails
-                    //            .SingleOrDefault(x => x.Container == locationDetailInDb.Container
-                    //                && x.CartonRange == locationDetailInDb.Container
-                    //                && x.Batch == locationDetailInDb.Batch
-                    //                && x.Cartons != 0);
-
-                    //        var originaAvailableCtns = mainLocationInDb.AvailableCtns;
-
-                    //    }
-                    //}
+                    //如果该拣货对象的库存不存在寄生对象的情况，则箱数正常返回到库存
+                    if (parasiticLocationDetail.Count() == 1)
+                    {
+                        locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
+                        locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                    }
+                    //否则为寄生/宿主对象，按照已返回的件数重新计算箱数
+                    else
+                    {
+                        //如果当前对象就是宿主对象，正常返回箱数到库存
+                        if (locationDetailInDb.Cartons != 0)
+                        {
+                            locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
+                            locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                        }
+                        //否则找到宿主对象，与其比较谁的应存箱数最大，并将这个数字更新到宿主对象的箱数中
+                        else
+                        {
+                            AdjustMainCartons(_context, locationDetailInDb);
+                        }
+                    }
 
                     //更改状态
                     if (locationDetailInDb.PickingPcs == 0 && locationDetailInDb.AvailablePcs != 0)
@@ -207,9 +200,34 @@ namespace ClothResorting.Helpers
             _context.SaveChanges();
         }
 
-        private void AdjustCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb)
+        private void AdjustMainCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb)
         {
-            //查找当前对象的所有寄生对象
+            //查找当前对象的宿主对象
+            var mainLocationInDb = context.FCRegularLocationDetails
+                .SingleOrDefault(x => x.Container == locationDetailInDb.Container
+                    && x.CartonRange == locationDetailInDb.CartonRange
+                    && x.Batch == locationDetailInDb.Batch
+                    && x.Cartons != 0);
+
+            var originaAvailableCtns = mainLocationInDb.AvailableCtns;
+            var remainableCtns = Math.Max(mainLocationInDb.AvailableCtns, Ceiling(locationDetailInDb.AvailablePcs, locationDetailInDb.PcsPerCaron));
+
+            mainLocationInDb.AvailableCtns = remainableCtns;
+            mainLocationInDb.PickingCtns = mainLocationInDb.Cartons - mainLocationInDb.AvailableCtns - mainLocationInDb.ShippedCtns;
+
+            //context.SaveChanges();
+        }
+
+        private int Ceiling(int a, int b)
+        {
+            if (a % b == 0)
+            {
+                return a / b;
+            }
+            else
+            {
+                return a / b + 1;
+            }
         }
     }
 }
