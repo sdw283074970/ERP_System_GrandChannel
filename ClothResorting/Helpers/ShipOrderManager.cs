@@ -38,21 +38,45 @@ namespace ClothResorting.Helpers
                 //发货Regular Oder的方法
                 if (orderType == OrderType.Regular)
                 {
-                    var locationDetail = pickDetail.FCRegularLocationDetail;
+                    var locationDetailInDb = pickDetail.FCRegularLocationDetail;
 
-                    locationDetail.ShippedCtns += pickDetail.PickCtns;
-                    locationDetail.ShippedPcs += pickDetail.PickPcs;
+                    var parasiticLocationDetail = _context.FCRegularLocationDetails.Where(x => x.Container == locationDetailInDb.Container
+                        && x.CartonRange == locationDetailInDb.CartonRange
+                        && x.Batch == locationDetailInDb.Batch)
+                        .ToList();
 
-                    locationDetail.PickingCtns -= pickDetail.PickCtns;
-                    locationDetail.PickingPcs -= pickDetail.PickPcs;
+                    locationDetailInDb.ShippedPcs += pickDetail.PickPcs;
+                    locationDetailInDb.PickingPcs -= pickDetail.PickPcs;
 
-                    if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs == 0)
+                    //如果该拣货对象的库存不存在寄生对象的情况，则箱数正常从拣货箱数扣除并加倒
+                    if (parasiticLocationDetail.Count() == 1)
                     {
-                        locationDetail.Status = Status.Shipped;
+                        locationDetailInDb.ShippedCtns += pickDetail.PickCtns;
+                        locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
                     }
-                    else if (locationDetail.PickingPcs == 0 && locationDetail.AvailablePcs != 0)
+                    //否则，先查找到宿主并扣除宿主拣货箱数
+                    else
                     {
-                        locationDetail.Status = Status.InStock;
+                        //如果当前对象就是宿主对象，正常除拣货箱数
+                        if (locationDetailInDb.Cartons != 0)
+                        {
+                            locationDetailInDb.ShippedCtns += pickDetail.PickCtns;
+                            locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                        }
+                        //否则找到宿主对象，与其比较谁的应发箱数最大，并将这个数字更新到已发箱数中
+                        else
+                        {
+                            AdjustMainShippedCartons(_context, locationDetailInDb, parasiticLocationDetail);
+                        }
+                    }
+
+                    if (locationDetailInDb.PickingPcs == 0 && locationDetailInDb.AvailablePcs == 0)
+                    {
+                        locationDetailInDb.Status = Status.Shipped;
+                    }
+                    else if (locationDetailInDb.PickingPcs == 0 && locationDetailInDb.AvailablePcs != 0)
+                    {
+                        locationDetailInDb.Status = Status.InStock;
                     }
                 }
                 else if (orderType == OrderType.Replenishment)      //发货Replenishment Order的方法
@@ -131,9 +155,6 @@ namespace ClothResorting.Helpers
                     locationDetailInDb.AvailablePcs += pickDetail.PickPcs;
                     locationDetailInDb.PickingPcs -= pickDetail.PickPcs;
 
-                    //locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
-                    //locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
-
                     //如果该拣货对象的库存不存在寄生对象的情况，则箱数正常返回到库存
                     if (parasiticLocationDetail.Count() == 1)
                     {
@@ -152,7 +173,7 @@ namespace ClothResorting.Helpers
                         //否则找到宿主对象，与其比较谁的应存箱数最大，并将这个数字更新到宿主对象的箱数中
                         else
                         {
-                            AdjustMainCartons(_context, locationDetailInDb);
+                            AdjustMainAvailableCartons(_context, locationDetailInDb);
                         }
                     }
 
@@ -200,7 +221,7 @@ namespace ClothResorting.Helpers
             _context.SaveChanges();
         }
 
-        private void AdjustMainCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb)
+        private void AdjustMainAvailableCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb)
         {
             //查找当前对象的宿主对象
             var mainLocationInDb = context.FCRegularLocationDetails
@@ -214,8 +235,29 @@ namespace ClothResorting.Helpers
 
             mainLocationInDb.AvailableCtns = remainableCtns;
             mainLocationInDb.PickingCtns = mainLocationInDb.Cartons - mainLocationInDb.AvailableCtns - mainLocationInDb.ShippedCtns;
+        }
 
-            //context.SaveChanges();
+        private void AdjustMainShippedCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb, IEnumerable<FCRegularLocationDetail> parasiticLocationDetail)
+        {
+            //查找当前对象的宿主对象
+            var mainLocationInDb = context.FCRegularLocationDetails
+                .SingleOrDefault(x => x.Container == locationDetailInDb.Container
+                    && x.CartonRange == locationDetailInDb.CartonRange
+                    && x.Batch == locationDetailInDb.Batch
+                    && x.Cartons != 0);
+
+            var originaShippedCtns = mainLocationInDb.ShippedCtns;
+            var updatedShippedCtns = mainLocationInDb.Cartons;
+
+
+            foreach (var location in parasiticLocationDetail)
+            {
+                updatedShippedCtns = Math.Min(updatedShippedCtns, location.ShippedPcs / location.PcsPerCaron);
+            }
+
+            mainLocationInDb.ShippedCtns = updatedShippedCtns;
+            mainLocationInDb.PickingCtns -= updatedShippedCtns - originaShippedCtns;
+
         }
 
         private int Ceiling(int a, int b)
