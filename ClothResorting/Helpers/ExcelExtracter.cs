@@ -1750,6 +1750,8 @@ namespace ClothResorting.Helpers
 
                             pool.AvailableCtns = 0;
                             pool.AvailablePcs = 0;
+
+                            pool.Status = Status.Picking;
                         }
                         //当当前的待选对象箱数大于目标箱数时，只拿走需要的，并记录
                         else if (pool.AvailableCtns > targetCtns && pool.AvailableCtns != 0 && targetCtns != 0)
@@ -1763,6 +1765,8 @@ namespace ClothResorting.Helpers
                             pool.AvailablePcs -= targetCtns * pool.PcsPerCaron;
 
                             targetCtns = 0;
+
+                            pool.Status = Status.Picking;
                         }
                     }
 
@@ -1784,11 +1788,23 @@ namespace ClothResorting.Helpers
                     //为该SKU下的每一种Size备货
                     foreach (var size in sizeList)
                     {
-                        //待选池中所有符合拣货条件的对象
-                        var poolLocations = cartonLocationPool.Where(x => x.Style == style
-                                && x.Color == color
-                                && x.SizeBundle == size.SizeName
-                                && x.PurchaseOrder == purchaseOrder);
+                        //依照出货规则从待选池中所有符合拣货条件的对象
+                        var poolLocations = cartonLocationPool.Where(x => x.SizeBundle == size.SizeName);
+
+                        if (purchaseOrder != "N/A")
+                        {
+                            poolLocations = poolLocations.Where(x => x.PurchaseOrder == purchaseOrder);
+                        }
+
+                        if (style != "N/A")
+                        {
+                            poolLocations = poolLocations.Where(x => x.Style == style);
+                        }
+
+                        if (color != "N/A")
+                        {
+                            poolLocations = poolLocations.Where(x => x.Color == color);
+                        }
 
                         if (poolLocations.Count() == 0)
                         {
@@ -1853,7 +1869,11 @@ namespace ClothResorting.Helpers
                                 }
 
                                 pickDetailList.Add(pickDetail);
-                                pool.Status = Status.Picking;
+
+                                if (pool.PickingPcs != 0)
+                                {
+                                    pool.Status = Status.Picking;
+                                }
                             }
                             //当当前的待选对象件数大于目标件数时，只拿走需要的，并生成对应的PickDetail
                             else if (pool.AvailablePcs > targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
@@ -1875,7 +1895,6 @@ namespace ClothResorting.Helpers
                                     pool.PickingCtns += originalCtns - pool.AvailableCtns;
 
                                     pickDetail.PickCtns = originalCtns - pool.AvailableCtns;
-
                                 }
                                 else    //否则就是有寄生对象
                                 {
@@ -1887,7 +1906,11 @@ namespace ClothResorting.Helpers
                                 }
 
                                 pickDetailList.Add(pickDetail);
-                                pool.Status = Status.Picking;
+
+                                if(pool.PickingPcs != 0)
+                                {
+                                    pool.Status = Status.Picking;
+                                }
                             }
                         }
 
@@ -1915,10 +1938,10 @@ namespace ClothResorting.Helpers
                     .Include(x => x.PreReceiveOrder)
                     .SingleOrDefault(x => x.Id == cartonLocation.Id);
 
-                if (cartonInDb.Status == Status.InStock)
-                {
-                    cartonInDb.Status = Status.Picking;
-                }
+                //if (cartonInDb.Status == Status.InStock)
+                //{
+                //    cartonInDb.Status = cartonLocation.Status;
+                //}
 
                 cartonInDb.AvailablePcs = cartonLocation.AvailablePcs;
                 cartonInDb.PickingPcs = cartonLocation.PickingPcs;
@@ -2028,7 +2051,7 @@ namespace ClothResorting.Helpers
             //如果当前对象本身就是宿主，则直接调节
             if (pool.Cartons != 0)
             {
-                var originalAvailableCtns = pool.AvailableCtns;
+                var originalAvailableCtns = pool.Cartons - pool.ShippedCtns - pool.PickingCtns;
 
                 AdjustAvailableAndPickingCtns(pool, originalAvailableCtns, deductableCartons);
 
@@ -2042,12 +2065,14 @@ namespace ClothResorting.Helpers
                     && x.Batch == pool.Batch
                     && x.Cartons != 0);
 
-                var mainPickDetail = pickDetailList.SingleOrDefault(x => x.SizeBundle == mainLocation.SizeBundle
+                var mainPickDetail = pickDetailList
+                    .FirstOrDefault(x => x.SizeBundle == mainLocation.SizeBundle
                     && x.Style == mainLocation.Style
                     && x.PurchaseOrder == mainLocation.PurchaseOrder
-                    && x.CartonRange == mainLocation.CartonRange);
+                    && x.CartonRange == mainLocation.CartonRange
+                    && x.SizeBundle == mainLocation.SizeBundle);
 
-                var originalAvailableCtns = mainLocation.AvailableCtns;
+                var originalAvailableCtns = mainLocation.Cartons - mainLocation.ShippedCtns - mainLocation.PickingCtns;
 
                 AdjustAvailableAndPickingCtns(mainLocation, originalAvailableCtns, deductableCartons);
 
