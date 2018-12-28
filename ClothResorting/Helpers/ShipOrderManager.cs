@@ -164,17 +164,7 @@ namespace ClothResorting.Helpers
                     //否则为寄生/宿主对象，按照已返回的件数重新计算箱数
                     else
                     {
-                        //如果当前对象就是宿主对象，正常返回箱数到库存
-                        if (locationDetailInDb.Cartons != 0)
-                        {
-                            locationDetailInDb.AvailableCtns += pickDetail.PickCtns;
-                            locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
-                        }
-                        //否则找到宿主对象，与其比较谁的应存箱数最大，并将这个数字更新到宿主对象的箱数中
-                        else
-                        {
-                            AdjustMainAvailableCartons(_context, locationDetailInDb);
-                        }
+                        AdjustMainAvailableCartons(_context, locationDetailInDb);
                     }
 
                     //更改状态
@@ -223,41 +213,68 @@ namespace ClothResorting.Helpers
 
         private void AdjustMainAvailableCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb)
         {
-            //查找当前对象的宿主对象
-            var mainLocationInDb = context.FCRegularLocationDetails
-                .SingleOrDefault(x => x.Container == locationDetailInDb.Container
-                    && x.CartonRange == locationDetailInDb.CartonRange
-                    && x.Batch == locationDetailInDb.Batch
-                    && x.Cartons != 0);
+            //如果其本身就是宿主对象
+            if (locationDetailInDb.Cartons != 0)
+            {
+                var originalAvailableCtns = locationDetailInDb.AvailableCtns;
+                var remainableCtns = Math.Max(locationDetailInDb.AvailableCtns, Ceiling(locationDetailInDb.AvailablePcs, locationDetailInDb.PcsPerCaron));
 
-            var originaAvailableCtns = mainLocationInDb.AvailableCtns;
-            var remainableCtns = Math.Max(mainLocationInDb.AvailableCtns, Ceiling(locationDetailInDb.AvailablePcs, locationDetailInDb.PcsPerCaron));
+                locationDetailInDb.AvailableCtns = remainableCtns;
+                locationDetailInDb.PickingCtns = locationDetailInDb.Cartons - locationDetailInDb.AvailableCtns - locationDetailInDb.ShippedCtns;
+            }
+            else
+            {
+                //查找当前对象的宿主对象
+                var mainLocationInDb = context.FCRegularLocationDetails
+                    .SingleOrDefault(x => x.Container == locationDetailInDb.Container
+                        && x.CartonRange == locationDetailInDb.CartonRange
+                        && x.Batch == locationDetailInDb.Batch
+                        && x.Cartons != 0);
 
-            mainLocationInDb.AvailableCtns = remainableCtns;
-            mainLocationInDb.PickingCtns = mainLocationInDb.Cartons - mainLocationInDb.AvailableCtns - mainLocationInDb.ShippedCtns;
+                var originaAvailableCtns = mainLocationInDb.AvailableCtns;
+                var remainableCtns = Math.Max(mainLocationInDb.AvailableCtns, Ceiling(locationDetailInDb.AvailablePcs, locationDetailInDb.PcsPerCaron));
+
+                mainLocationInDb.AvailableCtns = remainableCtns;
+                mainLocationInDb.PickingCtns = mainLocationInDb.Cartons - mainLocationInDb.AvailableCtns - mainLocationInDb.ShippedCtns;
+            }
         }
 
         private void AdjustMainShippedCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb, IEnumerable<FCRegularLocationDetail> parasiticLocationDetail)
         {
-            //查找当前对象的宿主对象
-            var mainLocationInDb = context.FCRegularLocationDetails
-                .SingleOrDefault(x => x.Container == locationDetailInDb.Container
-                    && x.CartonRange == locationDetailInDb.CartonRange
-                    && x.Batch == locationDetailInDb.Batch
-                    && x.Cartons != 0);
-
-            var originaShippedCtns = mainLocationInDb.ShippedCtns;
-            var updatedShippedCtns = mainLocationInDb.Cartons;
-
-
-            foreach (var location in parasiticLocationDetail)
+            //如果其本身就是宿主对象
+            if (locationDetailInDb.Cartons != 0)
             {
-                updatedShippedCtns = Math.Min(updatedShippedCtns, location.ShippedPcs / location.PcsPerCaron);
+                var originaShippedCtns = locationDetailInDb.ShippedCtns;
+                var updatedShippedCtns = locationDetailInDb.Cartons;
+
+                foreach (var location in parasiticLocationDetail)
+                {
+                    updatedShippedCtns = Math.Min(updatedShippedCtns, location.ShippedPcs / location.PcsPerCaron);
+                }
+
+                locationDetailInDb.ShippedCtns = updatedShippedCtns;
+                locationDetailInDb.PickingCtns -= updatedShippedCtns - originaShippedCtns;
             }
+            else
+            {
+                //查找当前对象的宿主对象
+                var mainLocationInDb = context.FCRegularLocationDetails
+                    .SingleOrDefault(x => x.Container == locationDetailInDb.Container
+                        && x.CartonRange == locationDetailInDb.CartonRange
+                        && x.Batch == locationDetailInDb.Batch
+                        && x.Cartons != 0);
 
-            mainLocationInDb.ShippedCtns = updatedShippedCtns;
-            mainLocationInDb.PickingCtns -= updatedShippedCtns - originaShippedCtns;
+                var originaShippedCtns = mainLocationInDb.ShippedCtns;
+                var updatedShippedCtns = mainLocationInDb.Cartons;
 
+                foreach (var location in parasiticLocationDetail)
+                {
+                    updatedShippedCtns = Math.Min(updatedShippedCtns, location.ShippedPcs / location.PcsPerCaron);
+                }
+
+                mainLocationInDb.ShippedCtns = updatedShippedCtns;
+                mainLocationInDb.PickingCtns -= updatedShippedCtns - originaShippedCtns;
+            }
         }
 
         private int Ceiling(int a, int b)

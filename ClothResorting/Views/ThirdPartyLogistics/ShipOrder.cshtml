@@ -316,6 +316,14 @@
                             url: "/api/shiporder/?shipOrderId=" + shipOrderId,
                             contentType: 'application/json; charset=utf-8',
                             dataType: "json",
+                            beforeSend: function () {
+                                layer.close(index);
+                                layer.msg('Processing...', {
+                                    icon: 1,
+                                    shade: 0.01,
+                                    time: 99 * 1000
+                                });
+                            },
                             success: function () {
                                 alert("Selected pull sheet has been shipped.");
                                 window.location.reload();
@@ -330,6 +338,7 @@
                 });
             });
 
+            //点击取消按钮，取消所选运单
             $("#table").on("click", ".btn-cancel", function () {
                 var button = $(this);
                 var id = button.attr('value');
@@ -339,6 +348,14 @@
                     url: "/api/shiporder/?shipOrderId=" + id,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
                     success: function () {
                         bootbox.alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
                             window.location.reload();

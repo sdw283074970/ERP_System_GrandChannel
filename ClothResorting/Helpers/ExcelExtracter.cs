@@ -1789,7 +1789,7 @@ namespace ClothResorting.Helpers
                     foreach (var size in sizeList)
                     {
                         //依照出货规则从待选池中所有符合拣货条件的对象
-                        var poolLocations = cartonLocationPool.Where(x => x.SizeBundle == size.SizeName);
+                        var poolLocations = cartonLocationPool.Where(x => x.SizeBundle == size.SizeName && x.AvailablePcs != 0);
 
                         if (purchaseOrder != "N/A")
                         {
@@ -1824,17 +1824,22 @@ namespace ClothResorting.Helpers
 
                         //如果只拿一种size，则按每箱件数降序排列取货，否则按照升序排列
 
-                        if (size.Count == 1)
-                        {
-                            poolLocations.OrderByDescending(x => x.PcsPerCaron);
-                        }
-                        else
-                        {
-                            poolLocations.OrderBy(x => x.Id);
-                        }
+                        //if (size.Count == 1)
+                        //{
+                        //    poolLocations.OrderByDescending(x => x.PcsPerCaron);
+                        //}
+                        //else
+                        //{
+                        //    poolLocations.OrderBy(x => x.Id);
+                        //}
 
                         foreach (var pool in poolLocations)
                         {
+                            if (targetPcs == 0)
+                            {
+                                break;
+                            }
+
                             //与pool在同一集装箱的相同箱号且相同批次号的所有对象，用来作为区分是否有寄生对象的依据
                             var parasiticPoolLocations = cartonLocationPool.Where(x => x.Container == pool.Container
                                     && x.CartonRange == pool.CartonRange
@@ -2012,7 +2017,7 @@ namespace ClothResorting.Helpers
         {
             //查询宿主对象
             var mainLocation = parasiticLocationsInDb.SingleOrDefault(x => x.Cartons != 0);
-            var currentDeductableCtn = mainLocation.AvailableCtns;      //当前最大可扣除箱数
+            var currentDeductableCtn = mainLocation.Cartons;      //当前最大可扣除箱数
 
             if (mainLocation != null)
             {
@@ -2079,7 +2084,7 @@ namespace ClothResorting.Helpers
                 //如果宿主对象已经在拣货列表中，则调节
                 if (mainPickDetail != null)
                 {
-                    mainPickDetail.PickCtns = originalAvailableCtns - mainLocation.AvailableCtns;
+                    mainPickDetail.PickCtns += originalAvailableCtns - mainLocation.AvailableCtns;
                 }
             }
         }

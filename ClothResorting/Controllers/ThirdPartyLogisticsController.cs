@@ -66,8 +66,6 @@ namespace ClothResorting.Controllers
             return View();
         }
 
-
-
         // LocationDetail 批量Replenishment类型po的上传/查询库存细节页面
         public ActionResult ReplenishmentLocationDetail()
         {

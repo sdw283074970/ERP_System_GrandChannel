@@ -56,7 +56,7 @@ namespace ClothResorting.Controllers
             //    throw raise;
             //}
 
-            var excel = new ExcelExtracter(@"c:\users\downw\desktop\FC\SU85P0035FT-18 PL.xlsx");
+            //var excel = new ExcelExtracter(@"c:\users\downw\desktop\FC\SU85P0035FT-18 PL.xlsx");
 
             ViewBag.Message = "Your application description page.";
 

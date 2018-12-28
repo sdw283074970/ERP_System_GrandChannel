@@ -199,12 +199,12 @@
             //在线修正按钮，本次将为所有workorder填Vendor的坑，以及为所有posummary、cartodetails填Order Type的坑
             $("#btn-fix").click(function () {
                 $.ajax({
-                    type: "PUT",
+                    type: "POST",
                     url: "/api/OnlineFix/",
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
-                    success: function (data) {
-                        alert(data);
+                    success: function () {
+                        alert("Success!");
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
