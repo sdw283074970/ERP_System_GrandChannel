@@ -317,7 +317,6 @@
                             contentType: 'application/json; charset=utf-8',
                             dataType: "json",
                             beforeSend: function () {
-                                layer.close(index);
                                 layer.msg('Processing...', {
                                     icon: 1,
                                     shade: 0.01,
@@ -325,8 +324,10 @@
                                 });
                             },
                             success: function () {
-                                alert("Selected pull sheet has been shipped.");
-                                window.location.reload();
+                                layer.close(index);
+                                layer.alert("Selected pull sheet has been shipped.", function () {
+                                    window.location.reload();
+                                });
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
                                 bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -349,7 +350,6 @@
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     beforeSend: function () {
-                        layer.close(index);
                         layer.msg('Processing...', {
                             icon: 1,
                             shade: 0.01,
@@ -357,12 +357,13 @@
                         });
                     },
                     success: function () {
-                        bootbox.alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
+                        layer.close(index);
+                        layer.alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
                             window.location.reload();
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
                         });
                     }
