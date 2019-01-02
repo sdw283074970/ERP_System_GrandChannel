@@ -138,6 +138,7 @@
     $(document).ready(function () {
 
         var table;
+        var index;
 
         //动态获取Vendor数据
         $.ajax({
@@ -190,7 +191,16 @@
                 url: url,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
+                beforeSend: function () {
+                    index =  layer.msg('Searching...', {
+                        icon: 1,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
                 success: function (data) {
+                    layer.close(index);
+
                     if (table) {
                         table.destroy();
                     }

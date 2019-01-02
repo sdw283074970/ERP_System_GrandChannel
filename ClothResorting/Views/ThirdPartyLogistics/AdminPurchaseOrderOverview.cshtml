@@ -72,6 +72,7 @@
             $(".iframe").hide();
             $(".iframe-download").hide();
             var quantity;
+            var index;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -240,12 +241,23 @@
                         contentType: 'application/json; charset=utf-8',
                         data: JSON.stringify(obj),
                         dataType: "json",
+                        beforeSend: function () {
+                            index = layer.msg('Updating continer number...', {
+                                icon: 1,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
                         success: function (data) {
+                            layer.close(index);
+
                             alert("Update success!");
                             location.reload();
                         },
-                        error: function () {
-                            alert("An error occured!");
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                location.reload();
+                            });
                         }
                     });
                 }
@@ -270,12 +282,23 @@
                     url: "/api/fcreceivingreport/" + preId,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
+                    beforeSend: function () {
+                        index = layer.msg('Receiving...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
                     success: function () {
+                        layer.close(index);
+
                         alert("Success!");
                         window.location.reload();
                     },
-                    error: function () {
-                        alert("Error!");
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            location.reload();
+                        });
                     }
                 });
             });

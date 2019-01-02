@@ -54,6 +54,8 @@
         $(document).ready(function () {
 
             var table;
+            var index;
+
             var lastCartonValue = 0;
             var lastLocation = "";
             var cartons;
@@ -241,10 +243,18 @@
                         url: "/api/FCRegularLocationAllocatingBatch/?container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
+                        beforeSend: function () {
+                            index = layer.msg('Allocating...', {
+                                icon: 1,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
                         success: function (data) {
+                            layer.close(index);
 
                             alert("Success!");
-
+                                
                             GetTable(data, table);
 
                             //将之前的搜索信息继续保存到搜索条过滤器中
@@ -278,7 +288,15 @@
                     url: "/api/FCRegularLocationAllocating/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
+                    beforeSend: function () {
+                        index = layer.msg('Filtering...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
                     success: function (data) {
+                        layer.close(index);
 
                         alert("Filter applied.");
                         GetTable(data, table);
