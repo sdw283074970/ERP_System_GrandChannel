@@ -20,6 +20,12 @@
                     <th>Customer Name</th>
                     <th>Customer Code</th>
                     <th>Department Code</th>
+                    <th>Address Line 1</th>
+                    <th>Address Line 2</th>
+                    <th>Tel.</th>
+                    <th>E-mail</th>
+                    <th>Contact Person</th>
+                    <th>Status</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -32,14 +38,22 @@
 
 <div class="iframe">
     <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
-        <text>Customer Name: </text><input type="text" id='input-name' style='width:170px' class='input-sm' placeholder='e.g. Free Country' /><br />
-        <text>Customer Code: </text><input type="text" id='input-code' style='width:170px' class='input-sm' placeholder='e.g. GRAND123456' /><br />
-        <text>Department Code: </text>
-        <select id='select-code' style='width:170px;height:30px' required='required'>
+        <text style="margin-top:20px">Customer Name: </text><input type="text" id='input-name' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. Free Country' /><br />
+        <text style="margin-top:20px">Customer Code: </text><input type="text" id='input-code' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. GRANDGD' /><br />
+        <text style="margin-top:20px">Department Code: </text>
+        <select id='select-code' style='width:300px;height:30px;margin-top:20px' required='required'>
             <option value='CD'>CD (Clothing Dpt.)</option>
-            <option value='GD'>GD (General Dpt.)</option>
+            <option value='FBA'>FBA (Fulfillment by Amazon Dpt.)</option>
         </select><br />
-        <button id="btn-add" class="btn btn-primary">Add</button>
+        <text style="margin-top:20px">Address Line 1: </text><input type="text" id='input-firstaddress' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text style="margin-top:20px">Address Line 2: </text><input type="text" id='input-secondaddress' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text style="margin-top:20px">Tel: </text><input type="text" id='input-tel' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. XXX-XXX-XXXX' /><br />
+        <text style="margin-top:20px">Email: </text><input type="text" id='input-email' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. customer@domain.com' /><br />
+        <text style="margin-top:20px">Contact Person: </text><input type="text" id='input-person' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+
+
+
+        <button id="btn-add" class="btn btn-primary" style="margin-top:20px">Add</button>
     </div>
 </div>
 
@@ -90,9 +104,48 @@
                                 }
                             },
                             {
+                                data: "firstAddressLine",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "secondAddressLine",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "telNumber",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "emailAddress",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "contactPerson",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    if (data == "Active")
+                                        return "<font color='green'>" + data + "</font>";
+                                    else
+                                        return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-delete btn-link'>Delete</button>";
+                                    return "<button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-deactive btn-link'>Active/Deactive</button><button iid='" + data + "' class='btn btn-delete btn-link'>Delete</button>";
                                 }
                             },
                         ]
@@ -111,7 +164,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["400px", "200px"],
+                    area: ["500px", "550px"],
                     content: $(".iframe")
                 });
             })
@@ -123,13 +176,20 @@
                 var customerCode = $("#input-code").val().toString();
                 var departmentCode = $("#select-code option:selected").val().toString();
 
+                var firstAddressLine = $("#input-firstaddress").val().toString();
+                var secondAddressLine = $("#input-secondaddress").val().toString();
+
+                var telNumber = $("#input-tel").val().toString();
+                var emailAddress = $("#input-email").val().toString();
+                var contactPerson = $("#input-person").val().toString();
+
                 $.ajax({
                     type: "POST",
-                    url: "/api/customermanagement/?name=" + name + "&customerCode=" + customerCode + "&departmentCode=" + departmentCode,
+                    url: "/api/customermanagement/?name=" + name + "&customerCode=" + customerCode + "&departmentCode=" + departmentCode + "&firstAddressLine=" + firstAddressLine + "&secondAddressLine=" + secondAddressLine + "&telNumber=" + telNumber + "&emailAddress=" + emailAddress + "&contactPerson=" + contactPerson,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {
-                        layer.alert("Delete success!", function () {
+                        layer.alert("Success!", function () {
                             window.location.reload();
                         });
                     },
@@ -166,6 +226,10 @@
                         });
                     }
                 });
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
             });
         });
     </script>

@@ -14,5 +14,17 @@ namespace ClothResorting.Dtos
         public string DepartmentCode { get; set; }
 
         public string CustomerCode { get; set; }
+
+        public string FirstAddressLine { get; set; }
+
+        public string SecondAddressLine { get; set; }
+
+        public string TelNumber { get; set; }
+
+        public string EmailAddress { get; set; }
+
+        public string ContactPerson { get; set; }
+
+        public string Status { get; set; }
     }
 }

@@ -1,0 +1,100 @@
+﻿
+@{
+    ViewBag.Title = "MasterOrder";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA System</h1>
+<h2>Master Order Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-master" type="button" class="btn btn-primary" value="Creat new master order" />
+        <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Grand No.</th>
+                    <th>Container No.</th>
+                    <th>Total CBM</th>
+                    <th>Total Plts</th>
+                    <th>Total Ctns</th>
+                    <th>Actual Ctns</th>
+                    <th>Inbound Date</th>
+                    <th>ETA</th>
+                    <th>Status</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>CARRIER: <input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm'/></text><br />
+        <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm'/></text><br />
+        <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm'/></text><br />
+        <text>ETA: <input id='input-eta' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>ETD: <input id='input-etd' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>ETA PORT: <input id='input-eta' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>PLACE OF RECEIPT: <input id='input-receipt' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>PORT OF DISCHARGE: <input id='input-pod' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>PLACE OF DELIVERY: <input id='input-delivery' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>CONTAINER NO.: <input id='input-container' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+        <button id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var customerId = getUrlParameter('customerId');
+
+            //点击新建主单按钮，打开新建主单弹窗
+            $("#btn-master").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["450px", "750px"],
+                    content: $(".iframe")
+                });
+            });
+
+            //点击新建按钮，为当前客户新建一个主单
+            $("#btn-new").on("click", function () {
+
+            });
+
+        });
+    </script>
+}

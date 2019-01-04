@@ -25,5 +25,23 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //客户所有总单页面
+        public ActionResult MasterOrder()
+        {
+            return View();
+        }
+
+        //总单详细内容页面
+        public ActionResult MasterDetail()
+        {
+            return View();
+        }
+
+        //库内操作内容页面
+        public ActionResult WarehouseOperation()
+        {
+            return View();
+        }
     }
 }

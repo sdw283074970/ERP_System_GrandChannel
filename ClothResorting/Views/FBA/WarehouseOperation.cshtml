@@ -1,0 +1,39 @@
+﻿
+@{
+    ViewBag.Title = "WarehouseOperation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA System</h1>
+<h2>Warehouse Operation Page</h2>
+<h2>Grand ID: GRANDID123456</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Container</th>
+                    <th>FBA shmt ID.</th>
+                    <th>Amz Ref ID.</th>
+                    <th>Lot Size</th>
+                    <th>FBA whse Code</th>
+                    <th>Actual GW(KG)</th>
+                    <th>Actual CBM</th>
+                    <th>Actual Quantity</th>
+                    <th>Unlaied Quantity</th>
+                    <th><input id="select-all" type="checkbox" value="12345" /></th>
+                    <th>Cartons</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

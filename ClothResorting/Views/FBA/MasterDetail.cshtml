@@ -1,0 +1,77 @@
+﻿
+@{
+    ViewBag.Title = "MasterDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA System</h1>
+<h2>Master Order Detail</h2>
+<h2>Grand ID: GRANDID123456</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-upload" type="button" class="btn btn-primary" value="Upload packing list" />
+        <input id="btn-unloading" type="button" class="btn btn-primary" value="Manage unloading report" />
+        <input id="btn-receive" type="button" class="btn btn-primary" value="Receive all without problem" />
+        <input id="btn-operation" type="button" class="btn btn-primary" value="WH Operation" />
+        <input id="btn-receipt" type="button" class="btn btn-primary" value="Create warehouse receipt" />
+        <input id="btn-allocating" type="button" class="btn btn-primary" value="Allocate location" />
+        <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Container</th>
+                    <th>FBA shmt ID</th>
+                    <th>Amz Ref ID</th>
+                    <th>Lot Size</th>
+                    <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
+                    <th>GW(KG)</th>
+                    <th>CBM</th>
+                    <th>Quantity</th>
+                    <th>Actual GW(KG)</th>
+                    <th>Actual CBM</th>
+                    <th>Actual Quantity</th>
+                    <th>Remark</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div style="text-align:center">
+        <input id="input-upload" type="file" class="custom-file-input" accept="xls/xlsx" />
+    </div>
+    <div style="margin-top:20%">
+        <input id="input-uploadtemplate" type="button" class="btn btn-primary" value="Upload Packing List" />
+        <input id="input-download" type="button" class="btn btn-info" value="Download Template" />
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+
+            //打开上传装箱单类型弹窗
+            $("#btn-upload").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "20%"],
+                    content: $(".iframe")
+                });
+            });
+        });
+    </script>
+}
