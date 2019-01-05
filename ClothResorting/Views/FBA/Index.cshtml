@@ -38,12 +38,23 @@
     <script>
         $(document).ready(function () {
 
+            var index;
+
             $.ajax({
                 type: "GET",
                 url: "/api/fba/FBAindex/",
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
+                beforeSend: function () {
+                    index = layer.msg('Processing...', {
+                        icon: 1,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
                 success: function (data) {
+                    layer.close(index);
+
                     $("#table").DataTable({
                         destroy: true,
                         data: data,

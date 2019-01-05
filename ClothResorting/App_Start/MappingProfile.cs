@@ -42,6 +42,9 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<InvoiceDetail, InvoiceDetailDto>();
             Mapper.CreateMap<OutboundHistory, OutboundHistoryDto>();
 
+            //FBA(Under DefaultConnection)
+            Mapper.CreateMap<FBAMasterOrder, FBAMasterOrderDto>();
+
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();
             Mapper.CreateMap<ChargeMethod, ChargeMethodDto>();

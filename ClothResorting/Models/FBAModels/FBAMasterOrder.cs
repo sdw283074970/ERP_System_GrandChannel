@@ -1,5 +1,6 @@
 ﻿using ClothResorting.Models.FBAModels.BaseClass;
 using ClothResorting.Models.FBAModels.Interfaces;
+using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,16 +14,32 @@ namespace ClothResorting.Models.FBAModels
 
         public string GrandNumber { get; set; }
 
-        public string TotalCBM { get; set; }
+        public float TotalCBM { get; set; }
 
-        public string TotalPlts { get; set; }
+        public int TotalCtns { get; set; }
 
-        public string TotalCtns { get; set; }
+        public float ActualCBM { get; set; }
+
+        public int ActualCtns { get; set; }
+
+        public int ActualPlts { get; set; }
 
         public DateTime InboundDate { get; set; }
 
-        string Status { get; set; }
+        public string Status { get; set; }
 
         public UpperVendor Customer { get; set; }
+
+        public FBAMasterOrder()
+        {
+            GrandNumber = string.Empty;
+            TotalCBM = 0f;
+            ActualPlts = 0;
+            ActualCBM = 0f;
+            ActualCtns = 0;
+            TotalCtns = 0;
+            InboundDate = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
+            Status = StaticClass.Status.NewCreated;
+        }
     }
 }
