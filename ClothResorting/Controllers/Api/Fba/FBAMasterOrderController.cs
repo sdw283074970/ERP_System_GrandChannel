@@ -10,6 +10,7 @@ using AutoMapper;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Dtos.Fba;
 using ClothResorting.Models.FBAModels.BaseClass;
+using System.Globalization;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -54,6 +55,32 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var resultDto = Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(_context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber));
             return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
+        }
+
+        // PUT /api/fba/fbamasterOrder/?masterOrderId={masterOrderId}&container={container}&inboundDate={inboundDate}
+        [HttpPut]
+        public void UpdateMasterOrderInfo([FromUri]int masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
+        {
+            var inboundDateTime = new DateTime();
+            inboundDateTime = ParseStringToDateTime(inboundDateTime, inboundDate);
+
+            var masterOrderInDb = _context.FBAMasterOrders.Include(x => x.FBAOrderDetails).SingleOrDefault(x => x.Id == masterOrderId);
+
+            masterOrderInDb.Container = container;
+            masterOrderInDb.InboundDate = inboundDateTime;
+
+            foreach(var detail in masterOrderInDb.FBAOrderDetails)
+            {
+                detail.Container = container;
+            }
+
+            _context.SaveChanges();
+        }
+
+        public DateTime ParseStringToDateTime(DateTime dateTime, string stringTime)
+        {
+            DateTime.TryParseExact(stringTime, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
+            return dateTime;
         }
     }
 }

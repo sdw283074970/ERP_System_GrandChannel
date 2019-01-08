@@ -12,6 +12,7 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
+        <input id="btn-customer" type="button" class="btn btn-primary" value="Manage customer" />
         <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
         <a href="~/fba/storagecharge"><input id="btn-storage" type="button" class="btn btn-primary" value="Calculate storage" /></a>
     </div>
@@ -127,6 +128,11 @@
             $("#table").on("click", ".btn-manageorders", function () {
                 var customerId = $(this).attr('iid');
                 $(window.location).attr('href', '/fba/masterorder/?customerId=' + customerId);
+            });
+
+            //点击管理客户，跳转到客户管理页面
+            $("#btn-customer").on("click", function () {
+                $(window.location).attr('href', '/customer');
             });
 
             $(".btn-back").on("click", function () {

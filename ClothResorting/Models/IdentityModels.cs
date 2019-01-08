@@ -60,6 +60,7 @@ namespace ClothResorting.Models
 
         //FBA
         public DbSet<FBAMasterOrder> FBAMasterOrders { get; set; }
+        public DbSet<FBAOrderDetail> FBAOrderDetails { get; set; }
 
         public static ApplicationDbContext Create()
         {

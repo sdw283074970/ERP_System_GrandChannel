@@ -22,5 +22,25 @@ namespace ClothResorting.Models.FBAModels.BaseClass
         public float ActualGrossWeight { get; set; }
 
         public float ActualQuantity { get; set; }
+
+        public string Comment { get; set; }
+
+        public BaseFBAOrderDetail()
+        {
+            Container = string.Empty;
+            ShipmentId = string.Empty;
+            AmzRefId = string.Empty;
+            WarehouseCode = string.Empty;
+            ActualCBM = 0f;
+            ActualGrossWeight = 0f;
+            ActualQuantity = 0;
+        }
+
+        public void AssembleFirstStringPart(string shipmentId, string amzRefId, string warehouseCode)
+        {
+            ShipmentId = shipmentId ?? string.Empty;
+            AmzRefId = amzRefId ?? string.Empty;
+            WarehouseCode = warehouseCode ?? string.Empty;
+        }
     }
 }

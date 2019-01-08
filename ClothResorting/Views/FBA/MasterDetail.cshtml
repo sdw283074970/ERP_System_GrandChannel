@@ -27,7 +27,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Container</th>
-                    <th>FBA shmt ID</th>
+                    <th>FBA shmt ID/SKU</th>
                     <th>Amz Ref ID</th>
                     <th>Lot Size</th>
                     <th>FBA whse Code</th>
@@ -55,14 +55,48 @@
         <input id="input-download" type="button" class="btn btn-info" value="Download Template" />
     </div>
 </div>
+<div class="iframe-info">
+    <div style="text-align:right;margin-right:20px">
+        <text>Actual Gross Weight: <input id="input-gw" type="text" class="input-sm" style="margin-top:20px"/></text><br />
+        <text>Actual CBM: <input id="input-cbm" type="text" class="input-sm" style="margin-top:20px"/></text><br />
+        <text>Actual Quantity: <input id="input-quantity" type="text" class="input-sm" style="margin-top:20px;margin-bottom:20px"/></text><br />
+        <text>Comsumed Quantity: <font id="font-comsumed" color="red">0</font></text><br />
+        <text>Comment: <textarea id="textarea-comment" placeholder="Leave comment here" style="width:200px;height:150px;margin-top:20px"></textarea></text><br />
+        <button id="btn-updateinfo" class="btn btn-primary" style="margin-top:20px">Update</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
             $(".iframe").hide();
+            $(".iframe-info").hide();
 
-            //打开上传装箱单类型弹窗
+            var table;
+            var index;
+            var url;
+            var orderDetailId;
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var masterOrderId = getUrlParameter('masterOrderId');
+
+            //点击上传打开上传装箱单类型弹窗
             $("#btn-upload").on("click", function () {
                 index = layer.open({
                     title: false,
@@ -72,6 +106,249 @@
                     content: $(".iframe")
                 });
             });
+
+            //点击各个条目的Update按钮打开更新信息弹窗
+            $("#table").on("click", ".btn-update", function () {
+                orderDetailId = $(this).attr('iid');
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "50%"],
+                    content: $(".iframe-info")
+                });
+            });
+
+            url = '/api/fba/MasterDetail/' + masterOrderId;
+
+            GetAjaxTable("GET", url);
+
+            //点击上传PL按钮，上传PL
+            $("#input-uploadtemplate").on("click", function () {
+                var formData = new FormData();
+                var files = $("#input-upload").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                url = "/api/fba/MasterDetail/?masterOrderId=" + masterOrderId
+
+                SendUploadAjaxMethod("POST", url, formData);
+            });
+
+            //点击Update按钮，更新信息
+            $("#btn-updateinfo").on("click", function () {
+                var actualGrossWeight = $("#input-gw").val();
+                var actualCBM = $("#input-cbm").val();
+                var actualQuantity = $("#input-quantity").val();
+                var comment = $("#textarea-comment").val();
+
+                var obj = {
+                    "actualGrossWeight": actualGrossWeight,
+                    "actualCBM": actualCBM,
+                    "actualQuantity": actualQuantity,
+                    "comment": comment
+                }
+
+                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+
+                SendAjaxMethod("PUT", url, obj);
+            });
+
+            //点击无问题收取所有货物按钮，收取所有货物
+            $("#btn-receive").on("click", function () {
+                url = "/api/fba/masterdetail/?masterOrderId=" + masterOrderId;
+                var obj = {};
+                SendAjaxMethod("PUT", url, obj);
+            });
+
+            function GetAjaxTable(methodType, url) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shipmentId",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "amzRefId",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "lotSize",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "warehouseCode",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "howToDeliver",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "grossWeight",
+                                    render: function (data) {
+                                        return "<font color='green'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "cbm",
+                                    render: function (data) {
+                                        return "<font color='green'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "quantity",
+                                    render: function (data) {
+                                        return "<font color='green'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualGrossWeight",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualCBM",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualQuantity",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "remark",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<button iid='" + data + "' class='btn btn-link btn-update'>Update</button>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendUploadAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

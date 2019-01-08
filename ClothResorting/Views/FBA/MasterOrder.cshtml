@@ -55,6 +55,13 @@
         <button id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
     </div>
 </div>
+<div class="iframe-info">
+    <div style="text-align:right;margin-right:20px">
+        <text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
+        <text>Inbound Date: <input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
+        <button id="btn-updateinfo" class="btn btn-primary" style="margin-top:20px">Update</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -63,8 +70,10 @@
             var index;
             var table;
             var url;
+            var masterOrderId;
 
             $(".iframe").hide();
+            $(".iframe-info").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -142,6 +151,28 @@
                 $(window.location).attr('href', '/fba/MasterDetail/?masterOrderId=' + masterOrderId);
             });
 
+            //点击各个条目的Update Info按钮打开更新信息弹窗
+            $("#table").on("click", ".btn-update", function () {
+                masterOrderId = $(this).attr('iid');
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe-info")
+                });
+            });
+
+            //点击Update按钮更新信息
+            $("#btn-updateinfo").on("click", function () {
+                var container = $("#input-updatecontainer").val();
+                var inboundDate = $("#input-date").val();
+
+                url = "/api/fba/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&container=" + container + "&inboundDate=" + inboundDate;
+                var obj = {};
+                SendAjaxMethod("PUT", url, obj);
+            });
+
             function GetAjaxTable(methodType, url) {
                 $.ajax({
                     type: methodType,
@@ -191,37 +222,40 @@
                                 {
                                     data: "totalCBM",
                                     render: function (data) {
-                                        return "<text>" + data + "</text>";
+                                        return "<font color='green'>" + data + "</font>";
                                     }
                                 },
                                 {
                                     data: "totalCtns",
                                     render: function (data) {
-                                        return "<text>" + data + "</text>";
+                                        return "<font color='green'>" + data + "</font>";
                                     }
                                 },
                                 {
                                     data: "actualCBM",
                                     render: function (data) {
-                                        return "<text>" + data + "</text>";
+                                        return "<font color='red'>" + data + "</font>";
                                     }
                                 },
                                 {
                                     data: "actualCtns",
                                     render: function (data) {
-                                        return "<font>" + data + "</font>";
+                                        return "<font color='red'>" + data + "</font>";
                                     }
                                 },
                                 {
                                     data: "actualPlts",
                                     render: function (data) {
-                                        return "<font>" + data + "</font>";
+                                        return "<font color='red'>" + data + "</font>";
                                     }
                                 },
                                 {
                                     data: "inboundDate",
                                     render: function (data) {
-                                        return "<font>" + data + "</font>";
+                                        if (data == "1969-12-31T16:00:00")
+                                            return "<font color='red'>Unreceived</font>"
+                                        else
+                                            return "<font>" + data.substring(0, 10) + "</font>";
                                     }
                                 },
                                 {
