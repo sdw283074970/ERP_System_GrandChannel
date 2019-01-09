@@ -21,9 +21,11 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 
         public float ActualGrossWeight { get; set; }
 
-        public float ActualQuantity { get; set; }
+        public int ActualQuantity { get; set; }
 
         public string Comment { get; set; }
+
+        public string HowToDeliver { get; set; }
 
         public BaseFBAOrderDetail()
         {
@@ -41,6 +43,13 @@ namespace ClothResorting.Models.FBAModels.BaseClass
             ShipmentId = shipmentId ?? string.Empty;
             AmzRefId = amzRefId ?? string.Empty;
             WarehouseCode = warehouseCode ?? string.Empty;
+        }
+
+        public void AssembleActualDetails(float actualGrossWight, float actualCBM, int actualQuantity)
+        {
+            ActualCBM = actualCBM;
+            ActualGrossWeight = actualGrossWight;
+            ActualQuantity = actualQuantity;
         }
     }
 }

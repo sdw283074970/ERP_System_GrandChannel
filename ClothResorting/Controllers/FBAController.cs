@@ -43,5 +43,17 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //Pallet/Carton库存分配页面
+        public ActionResult FBAAllocating()
+        {
+            return View();
+        }
+
+        //库存查看页面
+        public ActionResult Inventory()
+        {
+            return View("FBAInventory");
+        }
     }
 }

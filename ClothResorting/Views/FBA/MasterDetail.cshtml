@@ -163,6 +163,11 @@
                 SendAjaxMethod("PUT", url, obj);
             });
 
+            //点击库内操作，转到库内操作页面
+            $("#btn-operation").on("click", function () {
+                $(window.location).attr('href', '/fba/warehouseOperation/?masterOrderId=' + masterOrderId);
+            });
+
             function GetAjaxTable(methodType, url) {
                 $.ajax({
                     type: methodType,

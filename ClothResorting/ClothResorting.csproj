@@ -353,6 +353,7 @@
     <Compile Include="Controllers\Api\Fba\FBAIndexController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAMasterOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\MasterDetailController.cs" />
+    <Compile Include="Controllers\Api\Fba\WarehouseOperationController.cs" />
     <Compile Include="Controllers\Api\InventoryReportDownloadController.cs" />
     <Compile Include="Controllers\Api\InvoiceDetailController.cs" />
     <Compile Include="Controllers\Api\InvoiceManagementController.cs" />
@@ -415,8 +416,10 @@
     <Compile Include="Dtos\ContainerDto.cs" />
     <Compile Include="Dtos\Fba\ChargeMethodDto.cs" />
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
+    <Compile Include="Dtos\Fba\FBACartonLocationDto.cs" />
     <Compile Include="Dtos\Fba\FBAMasterOrderDto.cs" />
     <Compile Include="Dtos\Fba\FBAOrderDetailDto.cs" />
+    <Compile Include="Dtos\Fba\FBAPalletDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
     <Compile Include="Dtos\InvoiceDetailDto.cs" />
@@ -1285,6 +1288,26 @@
     <Compile Include="Migrations\201901071839462_MappedFBAOrderdetailsWithFBAMasterOrder.Designer.cs">
       <DependentUpon>201901071839462_MappedFBAOrderdetailsWithFBAMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901082330424_AddedFBACartonLocationAndFBAPalletLocationModel.cs" />
+    <Compile Include="Migrations\201901082330424_AddedFBACartonLocationAndFBAPalletLocationModel.Designer.cs">
+      <DependentUpon>201901082330424_AddedFBACartonLocationAndFBAPalletLocationModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901082344537_AddedPalletSizeInFBAPalletLocationModel.cs" />
+    <Compile Include="Migrations\201901082344537_AddedPalletSizeInFBAPalletLocationModel.Designer.cs">
+      <DependentUpon>201901082344537_AddedPalletSizeInFBAPalletLocationModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901090044438_ModifiedDataTypeInBaseOrderDetail.cs" />
+    <Compile Include="Migrations\201901090044438_ModifiedDataTypeInBaseOrderDetail.Designer.cs">
+      <DependentUpon>201901090044438_ModifiedDataTypeInBaseOrderDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901090139362_AddedHowToDeliverInLocationModels.cs" />
+    <Compile Include="Migrations\201901090139362_AddedHowToDeliverInLocationModels.Designer.cs">
+      <DependentUpon>201901090139362_AddedHowToDeliverInLocationModels.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901090158556_RenamedFBAPalletLocationToFBAPallet.cs" />
+    <Compile Include="Migrations\201901090158556_RenamedFBAPalletLocationToFBAPallet.Designer.cs">
+      <DependentUpon>201901090158556_RenamedFBAPalletLocationToFBAPallet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1347,7 +1370,9 @@
     <Compile Include="Models\FBAModels\BaseClass\BaseFBAOrderDetail.cs" />
     <Compile Include="Models\FBAModels\ChargeMethod.cs" />
     <Compile Include="Models\FBAModels\ChargeTemplate.cs" />
+    <Compile Include="Models\FBAModels\FBACartonLocation.cs" />
     <Compile Include="Models\FBAModels\FBAOrderDetail.cs" />
+    <Compile Include="Models\FBAModels\FBAPallet.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IMasterOrder.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IPackingList.cs" />
     <Compile Include="Models\FBAModels\FBAMasterOrder.cs" />
@@ -1804,6 +1829,8 @@
     <Content Include="Views\FBA\MasterOrder.cshtml" />
     <Content Include="Views\FBA\MasterDetail.cshtml" />
     <Content Include="Views\FBA\WarehouseOperation.cshtml" />
+    <Content Include="Views\FBA\FBAInventory.cshtml" />
+    <Content Include="Views\FBA\FBAAllocating.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2434,6 +2461,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901071839462_MappedFBAOrderdetailsWithFBAMasterOrder.resx">
       <DependentUpon>201901071839462_MappedFBAOrderdetailsWithFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901082330424_AddedFBACartonLocationAndFBAPalletLocationModel.resx">
+      <DependentUpon>201901082330424_AddedFBACartonLocationAndFBAPalletLocationModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901082344537_AddedPalletSizeInFBAPalletLocationModel.resx">
+      <DependentUpon>201901082344537_AddedPalletSizeInFBAPalletLocationModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901090044438_ModifiedDataTypeInBaseOrderDetail.resx">
+      <DependentUpon>201901090044438_ModifiedDataTypeInBaseOrderDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901090139362_AddedHowToDeliverInLocationModels.resx">
+      <DependentUpon>201901090139362_AddedHowToDeliverInLocationModels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901090158556_RenamedFBAPalletLocationToFBAPallet.resx">
+      <DependentUpon>201901090158556_RenamedFBAPalletLocationToFBAPallet.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

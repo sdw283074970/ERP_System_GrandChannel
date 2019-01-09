@@ -32,6 +32,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
+        //public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
+
         public FBAMasterOrder()
         {
             GrandNumber = string.Empty;

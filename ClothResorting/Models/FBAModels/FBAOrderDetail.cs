@@ -10,8 +10,6 @@ namespace ClothResorting.Models.FBAModels
     {
         public string LotSize { get; set; }
 
-        public string HowToDeliver { get; set; }
-
         public float GrossWeight { get; set; }
 
         public float CBM { get; set; }
@@ -23,6 +21,8 @@ namespace ClothResorting.Models.FBAModels
         public int ComsumedQuantity { get; set; }
 
         public FBAMasterOrder FBAMasterOrder { get; set; }
+
+        public ICollection<FBACartonLocation> FBACartonLocations { get; set; }
 
         public FBAOrderDetail()
         {

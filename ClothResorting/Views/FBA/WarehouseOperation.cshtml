@@ -13,27 +13,265 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
-    </div>
-    <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
                     <th>Id</th>
                     <th>Container</th>
-                    <th>FBA shmt ID.</th>
+                    <th>FBA shmt ID./SKU</th>
                     <th>Amz Ref ID.</th>
                     <th>Lot Size</th>
                     <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
                     <th>Actual GW(KG)</th>
                     <th>Actual CBM</th>
                     <th>Actual Quantity</th>
                     <th>Unlaied Quantity</th>
                     <th><input id="select-all" type="checkbox" value="12345" /></th>
-                    <th>Cartons</th>
+                    <th>Ctns/Plt</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
+        <div style="text-align:right">
+            <input id="btn-packoption" type="button" class="btn btn-primary" value="Pack selected objects" />
+        </div>
     </div>
 </div>
+<div class="iframe">
+    <div style="margin-top:20px">
+        <text>Packed Plt Quantity: <input id="input-pltquantity" class="input-sm" style="margin-top:20px"/></text><br />
+        <text>Packed Plt Size: <input id="input-pltsize" class="input-sm" style="margin-top:20px" /></text><br />
+        <input id="btn-pack" type="button" class="btn btn-primary" style="margin-top:20px" value="Pack" />
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+
+            var table;
+            var index;
+            var masterOrderId = getUrlParameter('masterOrderId');
+            var url;
+            var actualQuantity;
+
+            url = "/api/fba/WarehouseOperation/" + masterOrderId;
+            GetAjaxTable("GET", url);
+
+            //点击全选，勾选所有Checkbox
+            $("#select-all").on("click", function () {
+                if ($("#select-all").is(":checked")) {
+                    $(".cb-selected").prop("checked", true);
+                }
+                else {
+                    $(".cb-selected").prop("checked", false);
+                }
+            });
+
+            //点击打包所选对象按钮，打开打包详细内容弹窗
+            $("#btn-packoption").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe")
+                });
+            });
+
+            //点击打包按钮，将所选中的对象打包成一个托盘对象
+            $("#btn-pack").on("click", function () {
+                var objArr = new Array();
+                var pltQuantity = $("#input-pltquantity").val();
+                var pltSize = $("#input-pltsize").val();
+
+                //将所有被选中的CheckBox的对象的id与每托盘分配箱数做成obj放在数列中
+                $("input:checkbox[name='selected']:checked").each(function (i) {
+                    var id = $(this).val();
+                    var ctnsPerPlt = $(this).parent().parent("tr").children('td').eq(12).children('input').val();
+
+                    var obj = {
+                        "id": id,
+                        "ctnsPerPlt": ctnsPerPlt
+                    }
+
+                    objArr.push(obj);
+                });
+
+                url = "/api/fba/warehouseoperation/?masterOrderId=" + masterOrderId + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize;
+
+                SendAjaxMethod("POST", url, objArr);
+            });
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            function GetAjaxTable(methodType, url) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shipmentId",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "amzRefId",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "lotSize",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "warehouseCode",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "howToDeliver",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualGrossWeight",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualCBM",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualQuantity",
+                                    render: function (data) {
+                                        actualQuantity = data;
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "comsumedQuantity",
+                                    render: function (data) {
+                                        return "<font color='blue'>" + (actualQuantity - data) + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<input style='width:50px' iid='" + data + "' />";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}
