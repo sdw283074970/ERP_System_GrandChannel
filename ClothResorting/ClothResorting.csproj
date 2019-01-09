@@ -1308,6 +1308,14 @@
     <Compile Include="Migrations\201901090158556_RenamedFBAPalletLocationToFBAPallet.Designer.cs">
       <DependentUpon>201901090158556_RenamedFBAPalletLocationToFBAPallet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901091911189_ModifiedFBAPalletModel.cs" />
+    <Compile Include="Migrations\201901091911189_ModifiedFBAPalletModel.Designer.cs">
+      <DependentUpon>201901091911189_ModifiedFBAPalletModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901091946342_ModifiedFBACartonLocationModel.cs" />
+    <Compile Include="Migrations\201901091946342_ModifiedFBACartonLocationModel.Designer.cs">
+      <DependentUpon>201901091946342_ModifiedFBACartonLocationModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2476,6 +2484,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901090158556_RenamedFBAPalletLocationToFBAPallet.resx">
       <DependentUpon>201901090158556_RenamedFBAPalletLocationToFBAPallet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901091911189_ModifiedFBAPalletModel.resx">
+      <DependentUpon>201901091911189_ModifiedFBAPalletModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901091946342_ModifiedFBACartonLocationModel.resx">
+      <DependentUpon>201901091946342_ModifiedFBACartonLocationModel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

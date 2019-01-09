@@ -10,12 +10,14 @@ namespace ClothResorting.Dtos.Fba
     {
         public string PltSize { get; set; }
 
-        public int OriginalPallets { get; set; }
+        public bool DoesAppliedLabel { get; set; }
 
-        public int AvailablePalltes { get; set; }
+        public bool HasSortingMarking { get; set; }
 
-        public int PickingPallets { get; set; }
+        public bool IsOverSizeOrOverwidth { get; set; }
 
-        public int ShippedPallets { get; set; }
+        public int ActualPallets { get; set; }
+
+        public int ComsumedPallets { get; set; }
     }
 }

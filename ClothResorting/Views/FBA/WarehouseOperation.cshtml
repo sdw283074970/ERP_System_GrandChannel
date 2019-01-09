@@ -40,8 +40,23 @@
 </div>
 <div class="iframe">
     <div style="margin-top:20px">
-        <text>Packed Plt Quantity: <input id="input-pltquantity" class="input-sm" style="margin-top:20px"/></text><br />
+        <text>Packed Plt Quantity: <input id="input-pltquantity" class="input-sm" style="margin-top:20px" /></text><br />
         <text>Packed Plt Size: <input id="input-pltsize" class="input-sm" style="margin-top:20px" /></text><br />
+        <text>
+            FBA Label As Applicable: <select id="select-label" style="height:30px;width:170px;margin-top:20px">
+                <option value="true">YES</option>
+                <option value="false">NO</option>
+            </select></text><br />
+        <text>
+            Sorting Marking: <select id="select-sort" style="height:30px;width:170px;margin-top:20px">
+                <option value="true">YES</option>
+                <option value="false">NO</option>
+            </select></text><br />
+        <text>
+            Oversize Or Overwidth: <select id="select-oversize" style="height:30px;width:170px;margin-top:20px">
+                <option value="true">YES</option>
+                <option value="false">NO</option>
+            </select></text><br />
         <input id="btn-pack" type="button" class="btn btn-primary" style="margin-top:20px" value="Pack" />
     </div>
 </div>
@@ -77,7 +92,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["400px", "200px"],
+                    area: ["400px", "400px"],
                     content: $(".iframe")
                 });
             });
@@ -87,6 +102,9 @@
                 var objArr = new Array();
                 var pltQuantity = $("#input-pltquantity").val();
                 var pltSize = $("#input-pltsize").val();
+                var doesAppliedLabel = $("#select-label option:selected").val();
+                var hasSortingMarking = $("#select-sort option:selected").val();
+                var isOversizeOrOverWidth = $("#select-oversize option:selected").val();
 
                 //将所有被选中的CheckBox的对象的id与每托盘分配箱数做成obj放在数列中
                 $("input:checkbox[name='selected']:checked").each(function (i) {
@@ -101,7 +119,7 @@
                     objArr.push(obj);
                 });
 
-                url = "/api/fba/warehouseoperation/?masterOrderId=" + masterOrderId + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize;
+                url = "/api/fba/warehouseoperation/?masterOrderId=" + masterOrderId + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth;
 
                 SendAjaxMethod("POST", url, objArr);
             });

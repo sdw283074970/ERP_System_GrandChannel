@@ -10,16 +10,25 @@ namespace ClothResorting.Models.FBAModels
     {
         public string PltSize { get; set; }
 
-        public int OriginalPallets { get; set; }
+        public bool DoesAppliedLabel { get; set; }
 
-        public int AvailablePalltes { get; set; }
+        public bool HasSortingMarking { get; set; }
 
-        public int PickingPallets { get; set; }
+        public bool IsOverSizeOrOverwidth { get; set; }
 
-        public int ShippedPallets { get; set; }
+        public int ActualPallets { get; set; }
+
+        public int ComsumedPallets { get; set; }
 
         //public FBAMasterOrder FBAMasterOrder { get; set; }
 
         public ICollection<FBACartonLocation> FBACartonLocations { get; set; }
+
+        public void AssembleBoolValue(bool doesAppliedLabel, bool hasSortingMarking, bool isOversizeOrOverwidth)
+        {
+            DoesAppliedLabel = doesAppliedLabel;
+            HasSortingMarking = hasSortingMarking;
+            IsOverSizeOrOverwidth = isOversizeOrOverwidth;
+        }
     }
 }

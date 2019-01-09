@@ -8,6 +8,12 @@ namespace ClothResorting.Dtos.Fba
 {
     public class FBACartonLocationDto : BaseFBAOrderDetail
     {
+        public float GrossWeightPerCtn { get; set; }
+
+        public float CBMPerCtn { get; set; }
+
+        public int ctnsPerPlt { get; set; }
+
         public int AvaliableCtns { get; set; }
 
         public int PickingCtns { get; set; }
