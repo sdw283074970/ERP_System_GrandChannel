@@ -350,6 +350,7 @@
     <Compile Include="Controllers\Api\Fba\ChargeMethodController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeTemplateController.cs" />
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBAAllocatingController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAIndexController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAMasterOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\MasterDetailController.cs" />
@@ -1315,6 +1316,10 @@
     <Compile Include="Migrations\201901091946342_ModifiedFBACartonLocationModel.cs" />
     <Compile Include="Migrations\201901091946342_ModifiedFBACartonLocationModel.Designer.cs">
       <DependentUpon>201901091946342_ModifiedFBACartonLocationModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901092357164_AddedGrandNumberInBaseFBAOrderDetail.cs" />
+    <Compile Include="Migrations\201901092357164_AddedGrandNumberInBaseFBAOrderDetail.Designer.cs">
+      <DependentUpon>201901092357164_AddedGrandNumberInBaseFBAOrderDetail.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -2490,6 +2495,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901091946342_ModifiedFBACartonLocationModel.resx">
       <DependentUpon>201901091946342_ModifiedFBACartonLocationModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901092357164_AddedGrandNumberInBaseFBAOrderDetail.resx">
+      <DependentUpon>201901092357164_AddedGrandNumberInBaseFBAOrderDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

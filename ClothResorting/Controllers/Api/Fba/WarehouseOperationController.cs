@@ -21,26 +21,24 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/warehouseoperation/{id}
+        // GET /api/warehouseoperation/?grandNumber={grandNumber}
         [HttpGet]
-        public IHttpActionResult GetUnlaiedObjects([FromUri]int id)
+        public IHttpActionResult GetUnlaiedObjects([FromUri]string grandNumber)
         {
             return Ok(_context.FBAOrderDetails
-                .Include(x => x.FBAMasterOrder)
-                .Where(x => x.FBAMasterOrder.Id == id
+                .Where(x => x.GrandNumber == grandNumber
                     && x.ComsumedQuantity != x.ActualQuantity)
                 .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
         }
 
         // POST /api/warehouseoperation/?masterOrderId={masterOrderId}&pltQuantity={pltQuantity}&pltSize={pltSize}
         [HttpPost]
-        public void CreatePallet([FromUri]int masterOrderId, [FromUri]int pltQUantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromBody]IEnumerable<PalletInfoDto> objArray)
+        public void CreatePallet([FromUri]string grandNumber, [FromUri]int pltQUantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromBody]IEnumerable<PalletInfoDto> objArray)
         {
             var cartonLocationList = new List<FBACartonLocation>();
-            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber);
             var orderDetailsInDb = _context.FBAOrderDetails
-                .Include(x => x.FBAMasterOrder)
-                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+                .Where(x => x.GrandNumber == grandNumber);
 
             foreach(var obj in objArray)
             {
@@ -65,6 +63,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 //cartonLocation.AvaliableCtns = cartonLocation.ActualQuantity;
                 cartonLocation.Location = "Pallet";
                 cartonLocation.HowToDeliver = orderDetailInDb.HowToDeliver;
+                cartonLocation.GrandNumber = grandNumber;
                 cartonLocation.FBAOrderDetail = orderDetailInDb;
 
                 cartonLocationList.Add(cartonLocation);
@@ -82,6 +81,7 @@ namespace ClothResorting.Controllers.Api.Fba
             pallet.Container = firstOrderDetail.Container;
             pallet.HowToDeliver = firstOrderDetail.HowToDeliver;
             pallet.PltSize = pltSize;
+            pallet.GrandNumber = grandNumber;
             pallet.ActualPallets = pltQUantity;
 
             _context.FBAPallets.Add(pallet);

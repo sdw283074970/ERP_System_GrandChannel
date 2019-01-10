@@ -6,13 +6,13 @@
 
 <h1>FBA System</h1>
 <h2>FBA Inventory Page</h2>
-<h2>Grand ID: GRANDID123456</h2>
 
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
+    <div style="margin-top:20px;border:double">
+        <h2>Pallets Inventory</h2>
         <table id="table-pallet" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -23,13 +23,14 @@
                     <th>Pallet Size</th>
                     <th>FBA whse Code</th>
                     <th>How To Deliver</th>
-                    <th>Actual GW(KG)</th>
-                    <th>Actual CBM</th>
-                    <th>Actual Quantity</th>
+                    <th>GW(KG)/Plt</th>
+                    <th>CBM/Plt</th>
+                    <th>Ctns/Plt</th>
                     <th>Original Plts</th>
                     <th>Available Plts</th>
                     <th>Picking Plts</th>
                     <th>Shipped Plts</th>
+                    @*<th><input id="select-allplts" type="checkbox" value="12345" /></th>*@
                     <th>Location</th>
                     <th>Operation</th>
                 </tr>
@@ -40,11 +41,33 @@
             <input id="btn-packoption" type="button" class="btn btn-primary" value="Pack selected objects" />
         </div>
     </div>
-</div>
-<div class="iframe">
-    <div style="margin-top:20px">
-        <text>Packed Plt Quantity: <input id="input-pltquantity" class="input-sm" style="margin-top:20px" /></text><br />
-        <text>Packed Plt Size: <input id="input-pltsize" class="input-sm" style="margin-top:20px" /></text><br />
-        <input id="btn-pack" type="button" class="btn btn-primary" style="margin-top:20px" value="Pack" />
+    <div style="margin-top:40px;border:double">
+        <h2>Cartons Inventory</h2>
+        <table id="table-carton" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Container</th>
+                    <th>FBA shmt ID./SKU</th>
+                    <th>Amz Ref ID.</th>
+                    <th>Lot Size</th>
+                    <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
+                    <th>GW(KG)/Ctn</th>
+                    <th>CBM/Ctn</th>
+                    <th>Original Ctns</th>
+                    <th>Available Ctns</th>
+                    <th>Picking Ctns</th>
+                    <th>Shipping Ctns</th>
+                    <th>@*<input id="select-allctns" type="checkbox" value="12345" />*@</th>
+                    <th>Location</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div style="text-align:right">
+            <input id="btn-packoption" type="button" class="btn btn-primary" value="Pack selected objects" />
+        </div>
     </div>
 </div>

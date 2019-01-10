@@ -7,6 +7,8 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 {
     public class BaseFBAOrderDetail
     {
+        public string GrandNumber { get; set; }
+
         public int Id { get; set; }
 
         public string Container { get; set; }

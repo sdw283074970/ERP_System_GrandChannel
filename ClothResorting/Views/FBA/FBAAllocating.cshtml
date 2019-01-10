@@ -7,3 +7,375 @@
 <h1>FBA System</h1>
 <h2>Allocating Page</h2>
 
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div style="margin-top:20px;border:double">
+        <h2>Pallets Allocating</h2>
+        <table id="table-pallet" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Container</th>
+                    <th>FBA shmt ID./SKU</th>
+                    <th>Amz Ref ID.</th>
+                    <th>Pallet Size</th>
+                    <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
+                    <th>Has Label</th>
+                    <th>Has Sorting</th>
+                    <th>Is Overscale</th>
+                    <th>Total GW(KG)</th>
+                    <th>Total CBM</th>
+                    <th>Total Ctns</th>
+                    <th>Total Plts</th>
+                    <th>Unallocated Plts</th>
+                    <th><input id="select-allplts" type="checkbox" value="12345" /></th>
+                    <th>Plts/Location</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div style="text-align:right">
+            <input id="btn-packoption" type="button" class="btn btn-primary" value="Pack selected objects" />
+        </div>
+    </div>
+    <div style="margin-top:40px;border:double">
+        <h2>Cartons Allocating</h2>
+        <table id="table-carton" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Container</th>
+                    <th>FBA shmt ID./SKU</th>
+                    <th>Amz Ref ID.</th>
+                    <th>Lot Size</th>
+                    <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
+                    <th>Total GW(KG)</th>
+                    <th>Total CBM</th>
+                    <th>Total Ctns</th>
+                    <th>Unlaid Ctns</th>
+                    <th><input id="select-allctns" type="checkbox" value="12345" /></th>
+                    <th>Ctns/Location</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div style="text-align:right">
+            <input id="btn-packoption" type="button" class="btn btn-primary" value="Pack selected objects" />
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var palletTable;
+            var cartonTable
+            var index;
+            var url;
+            var actualQuantity
+            var grandNumber = getUrlParameter('grandNumber');
+
+            //获取托盘可分配表
+            var palletTableId = "#table-pallet";
+            var palletsColumnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "container",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipmentId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "amzRefId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "pltSize",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "warehouseCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "howToDeliver",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "doesAppliedLabel",
+                    render: function (data) {
+                        if (data == true)
+                            return "<font color='green'>YES</font>";
+                        else
+                            return "<font color='red'>NO</font>";
+                    }
+                },
+                {
+                    data: "hasSortingMarking",
+                    render: function (data) {
+                        if (data == true)
+                            return "<font color='green'>YES</font>";
+                        else
+                            return "<font color='red'>NO</font>";
+                    }
+                },
+                {
+                    data: "isOverSizeOrOverwidth",
+                    render: function (data) {
+                        if (data == true)
+                            return "<font color='green'>YES</font>";
+                        else
+                            return "<font color='red'>NO</font>";
+                    }
+                },
+                {
+                    data: "actualGrossWeight",
+                    render: function (data) {
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualCBM",
+                    render: function (data) {
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualQuantity",
+                    render: function (data) {
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualPallets",
+                    render: function (data) {
+                        actualQuantity = data;
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "comsumedPallets",
+                    render: function (data) {
+                        return "<font color='blue'>" + (actualQuantity - data) + "</font>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input name='selectedplts' type='checkbox' class='plts-selected' value='" + data + "' />";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input class='input-quantity' style='width:50px' iid='" + data + "' />";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input class='input-location' style='width:50px' iid='" + data + "' />";
+                    }
+                }
+            ]
+            url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber;
+            GetAjaxTable("GET", url, palletTableId, palletTable, palletsColumnArray);
+
+            //获取箱数可分配表
+            var cartonTableId = "#table-carton";
+            var cartonsColumnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "container",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipmentId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "amzRefId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "lotSize",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "warehouseCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "howToDeliver",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualGrossWeight",
+                    render: function (data) {
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualCBM",
+                    render: function (data) {
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualQuantity",
+                    render: function (data) {
+                        actualQuantity = data;
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "comsumedQuantity",
+                    render: function (data) {
+                        return "<font color='blue'>" + (actualQuantity - data) + "</font>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input name='selectedctns' type='checkbox' class='ctns-selected' value='" + data + "' />";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input class='input-quantity' style='width:50px' iid='" + data + "' />";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input class='input-location' style='width:50px' iid='" + data + "' />";
+                    }
+                }
+            ]
+            url = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
+            GetAjaxTable("GET", url, cartonTableId, cartonTable, cartonsColumnArray);
+
+            //分别点击托盘和箱数表中的全选，全选各自项目
+            $("#select-allctns").on("click", function () {
+                if ($("#select-allctns").is(":checked")) {
+                    $(".ctns-selected").prop("checked", true);
+                }
+                else {
+                    $(".ctns-selected").prop("checked", false);
+                }
+            });
+
+            $("#select-allplts").on("click", function () {
+                if ($("#select-allplts").is(":checked")) {
+                    $(".plts-selected").prop("checked", true);
+                }
+                else {
+                    $(".plts-selected").prop("checked", false);
+                }
+            });
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

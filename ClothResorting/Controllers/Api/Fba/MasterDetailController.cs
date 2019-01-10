@@ -24,19 +24,19 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/fba/masterdetail/{id}
+        // GET /api/fba/masterdetail/?grandNumber={grandNumber}
         [HttpGet]
-        public IHttpActionResult GetMasterDetails([FromUri]int id)
+        public IHttpActionResult GetMasterDetails([FromUri]string grandNumber)
         {
             return Ok(_context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
-                .Where(x => x.FBAMasterOrder.Id == id)
+                .Where(x => x.GrandNumber == grandNumber)
                 .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
         }
 
-        // POST /api/fbva/masterdetail/?masterOrderId={masterOrderId}
+        // POST /api/fbva/masterdetail/?grandNumber={grandNumber}
         [HttpPost]
-        public void UploadFBATemplate([FromUri]int masterOrderId)
+        public void UploadFBATemplate([FromUri]string grandNumber)
         {
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
@@ -50,7 +50,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var excel = new FBAExcelExtracter(fileSavePath);
 
-            excel.ExtractFBAPackingListTemplate(masterOrderId);
+            excel.ExtractFBAPackingListTemplate(grandNumber);
 
             //强行关闭进程
             var killer = new ExcelKiller();
@@ -72,13 +72,13 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /appi/fba/masterDetail/?masterOrderId={masterOrderId}
+        // PUT /appi/fba/masterDetail/?grandNumber={grandNumber}
         [HttpPut]
-        public void UpdateReceiving([FromUri]int masterOrderId)
+        public void UpdateReceiving([FromUri]string grandNumber)
         {
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
-                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+                .Where(x => x.FBAMasterOrder.GrandNumber == grandNumber);
 
             foreach(var detail in orderDetailsInDb)
             {

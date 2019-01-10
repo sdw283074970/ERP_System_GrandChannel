@@ -42,11 +42,11 @@ namespace ClothResorting.Helpers.FBAHelper
         #endregion
 
         //抽取FBA通用PackingList模板
-        public void ExtractFBAPackingListTemplate(int masterOrderId)
+        public void ExtractFBAPackingListTemplate(string grandNumber)
         {
             var orderDetailsList = new List<FBAOrderDetail>();
             _ws = _wb.Worksheets[1];
-            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber);
 
             var countOfOrderDetail = 0;
             var index = 2;
@@ -87,6 +87,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 orderDetail.AssembleNumberPart(grossWeight, cbm, quantity);
 
                 orderDetail.Container = masterOrderInDb.Container;
+                orderDetail.GrandNumber = grandNumber;
                 orderDetail.FBAMasterOrder = masterOrderInDb;
 
                 orderDetailsList.Add(orderDetail);

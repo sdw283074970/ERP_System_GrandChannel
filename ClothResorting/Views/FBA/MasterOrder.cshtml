@@ -70,7 +70,7 @@
             var index;
             var table;
             var url;
-            var masterOrderId;
+            var grandNumber;
 
             $(".iframe").hide();
             $(".iframe-info").hide();
@@ -147,8 +147,8 @@
 
             //点击管理总单按钮，进入所选总单的细节页面
             $("#table").on("click", ".btn-manage", function () {
-                var masterOrderId = $(this).attr('iid');
-                $(window.location).attr('href', '/fba/MasterDetail/?masterOrderId=' + masterOrderId);
+                var grandNumber = $(this).attr('iid');
+                $(window.location).attr('href', '/fba/MasterDetail/?grandNumber=' + grandNumber);
             });
 
             //点击各个条目的Update Info按钮打开更新信息弹窗
@@ -271,7 +271,7 @@
                                     }
                                 },
                                 {
-                                    data: "id",
+                                    data: "grandNumber",
                                     render: function (data) {
                                         return "<button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
                                     }

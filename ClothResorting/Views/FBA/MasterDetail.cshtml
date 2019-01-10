@@ -94,7 +94,7 @@
                 }
             };
 
-            var masterOrderId = getUrlParameter('masterOrderId');
+            var grandNumber = getUrlParameter('grandNumber');
 
             //点击上传打开上传装箱单类型弹窗
             $("#btn-upload").on("click", function () {
@@ -119,7 +119,7 @@
                 });
             });
 
-            url = '/api/fba/MasterDetail/' + masterOrderId;
+            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
 
             GetAjaxTable("GET", url);
 
@@ -132,7 +132,7 @@
                     formData.append("fileName", files[0]);
                 }
 
-                url = "/api/fba/MasterDetail/?masterOrderId=" + masterOrderId
+                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber;
 
                 SendUploadAjaxMethod("POST", url, formData);
             });
@@ -158,14 +158,24 @@
 
             //点击无问题收取所有货物按钮，收取所有货物
             $("#btn-receive").on("click", function () {
-                url = "/api/fba/masterdetail/?masterOrderId=" + masterOrderId;
+                url = "/api/fba/masterdetail/?grandNumber=" + grandNumber;
                 var obj = {};
                 SendAjaxMethod("PUT", url, obj);
             });
 
             //点击库内操作，转到库内操作页面
             $("#btn-operation").on("click", function () {
-                $(window.location).attr('href', '/fba/warehouseOperation/?masterOrderId=' + masterOrderId);
+                $(window.location).attr('href', '/fba/warehouseOperation/?grandNumber=' + grandNumber);
+            });
+
+            //点击库位分配按钮，转到库位分配页面
+            $("#btn-allocating").on("click", function () {
+                $(window.location).attr('href', '/fba/FBAAllocating/?grandNumber=' + grandNumber);
+            });
+
+            //点击查看库存按钮，转到库存页面
+            $("#btn-inventory").on("click", function () {
+                $(window.location).attr('href', '/fba/Inventory/?grandNumber=' + grandNumber);
             });
 
             function GetAjaxTable(methodType, url) {

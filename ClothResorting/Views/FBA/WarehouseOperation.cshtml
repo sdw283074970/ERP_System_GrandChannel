@@ -69,11 +69,11 @@
 
             var table;
             var index;
-            var masterOrderId = getUrlParameter('masterOrderId');
+            var grandNumber = getUrlParameter('grandNumber');
             var url;
             var actualQuantity;
 
-            url = "/api/fba/WarehouseOperation/" + masterOrderId;
+            url = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
             GetAjaxTable("GET", url);
 
             //点击全选，勾选所有Checkbox
@@ -119,7 +119,7 @@
                     objArr.push(obj);
                 });
 
-                url = "/api/fba/warehouseoperation/?masterOrderId=" + masterOrderId + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth;
+                url = "/api/fba/warehouseoperation/?grandNumber=" + grandNumber + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth;
 
                 SendAjaxMethod("POST", url, objArr);
             });
