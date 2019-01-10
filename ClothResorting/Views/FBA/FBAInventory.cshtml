@@ -17,6 +17,7 @@
             <thead>
                 <tr>
                     <th>Id</th>
+                    <th>Status</th>
                     <th>Container</th>
                     <th>FBA shmt ID./SKU</th>
                     <th>Amz Ref ID.</th>
@@ -47,6 +48,7 @@
             <thead>
                 <tr>
                     <th>Id</th>
+                    <th>Status</th>
                     <th>Container</th>
                     <th>FBA shmt ID./SKU</th>
                     <th>Amz Ref ID.</th>
@@ -59,7 +61,7 @@
                     <th>Available Ctns</th>
                     <th>Picking Ctns</th>
                     <th>Shipping Ctns</th>
-                    <th>@*<input id="select-allctns" type="checkbox" value="12345" />*@</th>
+                    @*<th><input id="select-allctns" type="checkbox" value="12345" /></th>*@
                     <th>Location</th>
                     <th>Operation</th>
                 </tr>
@@ -71,3 +73,284 @@
         </div>
     </div>
 </div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var index;
+            var palletTable;
+            var cartonTable;
+            var grandNumber = getUrlParameter('grandNumber');
+
+            //获取Pallet库存表
+            url = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Pallet";
+            var palletsColumnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "status",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "container",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipmentId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "amzRefId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "pltSize",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "warehouseCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "howToDeliver",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "grossWeightPerPlt",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "cbmPerPlt",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "ctnsPerPlt",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "originalPlts",
+                    render: function (data) {
+                        return "<font color='orange'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "availablePlts",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "pickingPlts",
+                    render: function (data) {
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "shippedPlts",
+                    render: function (data) {
+                        return "<font color='blue'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "location",
+                    render: function (data) {
+                        return "<font color='orange'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' />";
+                    }
+                }
+            ]
+            GetAjaxTable("GET", url, "#table-pallet", palletTable, palletsColumnArray);
+
+            //获取Carton库存表
+            url = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Carton";
+            var cartonsColumnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "status",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "container",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipmentId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "amzRefId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "lotSize",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "warehouseCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "howToDeliver",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "grossWeightPerCtn",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "cbmPerCtn",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualQuantity",
+                    render: function (data) {
+                        return "<font color='orange'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "availableCtns",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "pickingCtns",
+                    render: function (data) {
+                        return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "shippedCtns",
+                    render: function (data) {
+                        return "<font color='blue'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "location",
+                    render: function (data) {
+                        return "<font color='orange'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' />";
+                    }
+                }
+            ]
+            GetAjaxTable("GET", url, "#table-carton", cartonTable, cartonsColumnArray);
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

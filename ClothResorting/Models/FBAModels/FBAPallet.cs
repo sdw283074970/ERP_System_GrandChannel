@@ -24,6 +24,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<FBACartonLocation> FBACartonLocations { get; set; }
 
+        public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
+
         public void AssembleBoolValue(bool doesAppliedLabel, bool hasSortingMarking, bool isOversizeOrOverwidth)
         {
             DoesAppliedLabel = doesAppliedLabel;

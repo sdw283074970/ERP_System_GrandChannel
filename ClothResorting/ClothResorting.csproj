@@ -352,6 +352,7 @@
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAAllocatingController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAIndexController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBAInventoryController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAMasterOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\MasterDetailController.cs" />
     <Compile Include="Controllers\Api\Fba\WarehouseOperationController.cs" />
@@ -421,6 +422,7 @@
     <Compile Include="Dtos\Fba\FBAMasterOrderDto.cs" />
     <Compile Include="Dtos\Fba\FBAOrderDetailDto.cs" />
     <Compile Include="Dtos\Fba\FBAPalletDto.cs" />
+    <Compile Include="Dtos\Fba\FBAPalletLocationDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
     <Compile Include="Dtos\InvoiceDetailDto.cs" />
@@ -1321,6 +1323,14 @@
     <Compile Include="Migrations\201901092357164_AddedGrandNumberInBaseFBAOrderDetail.Designer.cs">
       <DependentUpon>201901092357164_AddedGrandNumberInBaseFBAOrderDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901100048157_AddedFBAPAlletLocationModel.cs" />
+    <Compile Include="Migrations\201901100048157_AddedFBAPAlletLocationModel.Designer.cs">
+      <DependentUpon>201901100048157_AddedFBAPAlletLocationModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901100110558_AddedStatusInBaseFBAOrderDetailModel.cs" />
+    <Compile Include="Migrations\201901100110558_AddedStatusInBaseFBAOrderDetailModel.Designer.cs">
+      <DependentUpon>201901100110558_AddedStatusInBaseFBAOrderDetailModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1386,9 +1396,12 @@
     <Compile Include="Models\FBAModels\FBACartonLocation.cs" />
     <Compile Include="Models\FBAModels\FBAOrderDetail.cs" />
     <Compile Include="Models\FBAModels\FBAPallet.cs" />
+    <Compile Include="Models\FBAModels\FBAPalletLocation.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IMasterOrder.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IPackingList.cs" />
     <Compile Include="Models\FBAModels\FBAMasterOrder.cs" />
+    <Compile Include="Models\FBAModels\StaticModels\FBAInventoryType.cs" />
+    <Compile Include="Models\FBAModels\StaticModels\FBAStatus.cs" />
     <Compile Include="Models\FBAModels\StaticModels\TimeUnit.cs" />
     <Compile Include="Models\FCRegularLocationDetail.cs" />
     <Compile Include="Models\GeneralLocationSummary.cs" />
@@ -2498,6 +2511,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901092357164_AddedGrandNumberInBaseFBAOrderDetail.resx">
       <DependentUpon>201901092357164_AddedGrandNumberInBaseFBAOrderDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901100048157_AddedFBAPAlletLocationModel.resx">
+      <DependentUpon>201901100048157_AddedFBAPAlletLocationModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901100110558_AddedStatusInBaseFBAOrderDetailModel.resx">
+      <DependentUpon>201901100110558_AddedStatusInBaseFBAOrderDetailModel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

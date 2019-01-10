@@ -7,9 +7,9 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 {
     public class BaseFBAOrderDetail
     {
-        public string GrandNumber { get; set; }
-
         public int Id { get; set; }
+
+        public string GrandNumber { get; set; }
 
         public string Container { get; set; }
 
@@ -29,6 +29,8 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 
         public string HowToDeliver { get; set; }
 
+        public string Status { get; set; }
+
         public BaseFBAOrderDetail()
         {
             Container = string.Empty;
@@ -38,6 +40,7 @@ namespace ClothResorting.Models.FBAModels.BaseClass
             ActualCBM = 0f;
             ActualGrossWeight = 0f;
             ActualQuantity = 0;
+            Status = string.Empty;
         }
 
         public void AssembleFirstStringPart(string shipmentId, string amzRefId, string warehouseCode)
@@ -52,6 +55,12 @@ namespace ClothResorting.Models.FBAModels.BaseClass
             ActualCBM = actualCBM;
             ActualGrossWeight = actualGrossWight;
             ActualQuantity = actualQuantity;
+        }
+
+        public void AssembleUniqueIndex(string container, string grandNumber)
+        {
+            Container = container;
+            GrandNumber = grandNumber;
         }
     }
 }
