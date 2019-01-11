@@ -9,6 +9,7 @@ using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Dtos.Fba;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -27,7 +28,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             return Ok(_context.FBAOrderDetails
                 .Where(x => x.GrandNumber == grandNumber
-                    && x.ComsumedQuantity != x.ActualQuantity)
+                    && x.ComsumedQuantity < x.ActualQuantity)
                 .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
         }
 
@@ -36,7 +37,6 @@ namespace ClothResorting.Controllers.Api.Fba
         public void CreatePallet([FromUri]string grandNumber, [FromUri]int pltQUantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromBody]IEnumerable<PalletInfoDto> objArray)
         {
             var cartonLocationList = new List<FBACartonLocation>();
-            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber);
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Where(x => x.GrandNumber == grandNumber);
 
@@ -52,6 +52,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
 
                 var cartonLocation = new FBACartonLocation();
+                cartonLocation.Status = FBAStatus.InPallet;
                 var ctnsPerPlt = obj.CtnsPerPlt;
                 var grossWeightPerCtn = (float)Math.Round((orderDetailInDb.ActualGrossWeight / orderDetailInDb.ActualQuantity), 2);
                 var cbmPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
@@ -80,7 +81,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             pallet.Container = firstOrderDetail.Container;
             pallet.HowToDeliver = firstOrderDetail.HowToDeliver;
-            pallet.PltSize = pltSize;
+            pallet.PalletSize = pltSize;
             pallet.GrandNumber = grandNumber;
             pallet.ActualPallets = pltQUantity;
 

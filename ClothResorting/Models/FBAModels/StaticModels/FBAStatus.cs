@@ -15,6 +15,8 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Shipped = "Shipped";
 
+        public const string InPallet = "InPallet";
+
         public const string Unassigned = "Unassigned";
     }
 }

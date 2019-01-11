@@ -8,7 +8,7 @@ namespace ClothResorting.Models.FBAModels
 {
     public class FBAPallet : BaseFBAOrderDetail
     {
-        public string PltSize { get; set; }
+        public string PalletSize { get; set; }
 
         public bool DoesAppliedLabel { get; set; }
 

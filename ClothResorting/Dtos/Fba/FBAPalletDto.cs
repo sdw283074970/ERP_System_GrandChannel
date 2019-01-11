@@ -8,7 +8,7 @@ namespace ClothResorting.Dtos.Fba
 {
     public class FBAPalletDto : BaseFBAOrderDetail
     {
-        public string PltSize { get; set; }
+        public string PalletSize { get; set; }
 
         public bool DoesAppliedLabel { get; set; }
 

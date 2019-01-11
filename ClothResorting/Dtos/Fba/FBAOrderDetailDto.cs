@@ -10,8 +10,6 @@ namespace ClothResorting.Dtos.Fba
     {
         public string LotSize { get; set; }
 
-        public string HowToDeliver { get; set; }
-
         public float GrossWeight { get; set; }
 
         public float CBM { get; set; }
@@ -21,7 +19,5 @@ namespace ClothResorting.Dtos.Fba
         public string Remark { get; set; }
 
         public int ComsumedQuantity { get; set; }
-
-        public string Comment { get; set; }
     }
 }

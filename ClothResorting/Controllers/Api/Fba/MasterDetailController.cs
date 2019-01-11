@@ -82,9 +82,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
             foreach(var detail in orderDetailsInDb)
             {
-                detail.ActualCBM = detail.CBM;
-                detail.ActualGrossWeight = detail.GrossWeight;
-                detail.ActualQuantity = detail.Quantity;
+                if (detail.ActualQuantity == 0)
+                {
+                    detail.ActualCBM = detail.CBM;
+                    detail.ActualGrossWeight = detail.GrossWeight;
+                    detail.ActualQuantity = detail.Quantity;
+                }
             }
 
             _context.SaveChanges();

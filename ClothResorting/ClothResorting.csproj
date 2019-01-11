@@ -1331,6 +1331,22 @@
     <Compile Include="Migrations\201901100110558_AddedStatusInBaseFBAOrderDetailModel.Designer.cs">
       <DependentUpon>201901100110558_AddedStatusInBaseFBAOrderDetailModel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901102144281_AddedPalletSizeInFBAPalletLocation.cs" />
+    <Compile Include="Migrations\201901102144281_AddedPalletSizeInFBAPalletLocation.Designer.cs">
+      <DependentUpon>201901102144281_AddedPalletSizeInFBAPalletLocation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901102242354_RemoveOriginalPltsInFBAPalletLocationModel.cs" />
+    <Compile Include="Migrations\201901102242354_RemoveOriginalPltsInFBAPalletLocationModel.Designer.cs">
+      <DependentUpon>201901102242354_RemoveOriginalPltsInFBAPalletLocationModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901102254136_CorrectedNameOfFBACartonLocationModel.cs" />
+    <Compile Include="Migrations\201901102254136_CorrectedNameOfFBACartonLocationModel.Designer.cs">
+      <DependentUpon>201901102254136_CorrectedNameOfFBACartonLocationModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901110057195_RenamedPltSizeToPalletSize.cs" />
+    <Compile Include="Migrations\201901110057195_RenamedPltSizeToPalletSize.Designer.cs">
+      <DependentUpon>201901110057195_RenamedPltSizeToPalletSize.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2517,6 +2533,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901100110558_AddedStatusInBaseFBAOrderDetailModel.resx">
       <DependentUpon>201901100110558_AddedStatusInBaseFBAOrderDetailModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901102144281_AddedPalletSizeInFBAPalletLocation.resx">
+      <DependentUpon>201901102144281_AddedPalletSizeInFBAPalletLocation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901102242354_RemoveOriginalPltsInFBAPalletLocationModel.resx">
+      <DependentUpon>201901102242354_RemoveOriginalPltsInFBAPalletLocationModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901102254136_CorrectedNameOfFBACartonLocationModel.resx">
+      <DependentUpon>201901102254136_CorrectedNameOfFBACartonLocationModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901110057195_RenamedPltSizeToPalletSize.resx">
+      <DependentUpon>201901110057195_RenamedPltSizeToPalletSize.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

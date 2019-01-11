@@ -6,7 +6,7 @@
 
 <h1>FBA System</h1>
 <h2>Warehouse Operation Page</h2>
-<h2>Grand ID: GRANDID123456</h2>
+<h2 id="h2"></h2>
 
 <div class="maincontainer">
     <div>
@@ -72,6 +72,8 @@
             var grandNumber = getUrlParameter('grandNumber');
             var url;
             var actualQuantity;
+
+            $("#h2").html("Grand Number: " + grandNumber);
 
             url = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
             GetAjaxTable("GET", url);

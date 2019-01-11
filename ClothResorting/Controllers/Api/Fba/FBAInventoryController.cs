@@ -22,6 +22,17 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
         }
 
+        // GET /api/fba/fbainventory/?palletLocationId={palletLocationId}
+        [HttpGet]
+        public IHttpActionResult GetCartonsDetailInPalletLocation([FromUri]int palletLocationId)
+        {
+            return Ok(Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(_context.FBAPalletLocations
+                .Include(x => x.FBAPallet.FBACartonLocations)
+                .SingleOrDefault(x => x.Id == palletLocationId)
+                .FBAPallet
+                .FBACartonLocations));
+        }
+
         // GET /api/fba/fbaiventory/?grandNumber={grandNumber}&inventoryType={inventoryType}
         [HttpGet]
         public IHttpActionResult GetFBAInventory([FromUri]string grandNumber, [FromUri]string inventoryType)

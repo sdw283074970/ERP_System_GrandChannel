@@ -6,6 +6,7 @@
 
 <h1>FBA System</h1>
 <h2>Allocating Page</h2>
+<h2 id="h2"></h2>
 
 <div class="maincontainer">
     <div>
@@ -39,7 +40,8 @@
             <tbody></tbody>
         </table>
         <div style="text-align:right">
-            <input id="btn-packoption" type="button" class="btn btn-primary" value="Pack selected objects" />
+            <input type="button" class="btn btn-primary btn-selected" value="Allocate All Selected Items" />
+            <input id="btn-filledpallet" type="button" class="btn btn-primary" value="Allocate All Filled Plts" />
         </div>
     </div>
     <div style="margin-top:40px;border:double">
@@ -66,8 +68,16 @@
             <tbody></tbody>
         </table>
         <div style="text-align:right">
-            <input id="btn-packoption" type="button" class="btn btn-primary" value="Pack selected objects" />
+            <input type="button" class="btn btn-primary btn-selected" value="Allocate All Selected Items" />
+            <input id="btn-filledcarton" type="button" class="btn btn-primary" value="Allocate All Filled Ctns" />
         </div>
+    </div>
+</div>
+<div class="iframe">
+    <div style="text-align:center">
+        <input id="input-location" class="input-sm" placeholder="Input location here..." style="margin-bottom:20px;margin-top:20px" /><br />
+        <button id="btn-selectedpallet" class="btn btn-primary" style="margin-bottom:20px">Allocate sellected pallets</button><br />
+        <button id="btn-selectedcarton" class="btn btn-primary">Allocate sellected cartons</button>
     </div>
 </div>
 @section scripts
@@ -75,12 +85,16 @@
     <script>
         $(document).ready(function () {
 
+            $(".iframe").hide();
+
             var palletTable;
             var cartonTable
             var index;
             var url;
             var actualQuantity
             var grandNumber = getUrlParameter('grandNumber');
+
+            $("#h2").html("Grand Number: " + grandNumber);
 
             //获取托盘可分配表
             var palletTableId = "#table-pallet";
@@ -194,13 +208,13 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input class='input-quantity' style='width:50px' iid='" + data + "' />";
+                        return "<input class='input-palletquantity' type='number' style='width:80px' iid='" + data + "' />";
                     }
                 },
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input class='input-location' style='width:50px' iid='" + data + "' />";
+                        return "<input class='input-palletlocation' style='width:80px' iid='" + data + "' />";
                     }
                 }
             ]
@@ -286,18 +300,69 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input class='input-quantity' style='width:50px' iid='" + data + "' />";
+                        return "<input class='input-cartonquantity' type='number' style='width:80px' iid='" + data + "' />";
                     }
                 },
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input class='input-location' style='width:50px' iid='" + data + "' />";
+                        return "<input class='input-cartonlocation' style='width:80px' iid='" + data + "' />";
                     }
                 }
             ]
             url = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
             GetAjaxTable("GET", url, cartonTableId, cartonTable, cartonsColumnArray);
+
+            //点击分配所有已填写托盘数按钮，将已填写的托盘数量分配到指定库位
+            $("#btn-filledpallet").on("click", function () {
+                var objArray = new Array();
+
+                //遍历所有待分配托盘列表，找出已填写的对象，放在obj中
+                $(".input-palletlocation").each(function (i) {
+                    var id = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                    var plts = $(this).parent().parent("tr").children('td').eq(16).children('input').val();
+                    var location = $(this).val();
+
+                    if (location != "") {
+                        var obj = {
+                            "id": id,
+                            "quantity": plts,
+                            "location": location
+                        };
+
+                        objArray.push(obj);
+                    }
+                });
+
+                url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber + "&inventoryType=Pallet";
+                SendAjaxMethod("POST", url, objArray);
+            });
+
+            //点击分配所有已填写箱数按钮，将已填写的箱数分配到指定库位
+            $("#btn-filledcarton").on("click", function () {
+                var objArray = new Array();
+
+                //遍历所有待分配箱数列表，找出已填写的对象，放在obj中
+                $(".input-cartonlocation").each(function (i) {
+                    var id = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                    var ctns = $(this).parent().parent("tr").children('td').eq(12).children('input').val();
+                    var location = $(this).val();
+
+                    if (location != "")
+                    {
+                        var obj = {
+                            "id": id,
+                            "quantity": ctns,
+                            "location": location
+                        };
+
+                        objArray.push(obj);
+                    }
+                });
+
+                url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber + "&inventoryType=Carton";
+                SendAjaxMethod("POST", url, objArray);
+            });
 
             //分别点击托盘和箱数表中的全选，全选各自项目
             $("#select-allctns").on("click", function () {
@@ -316,6 +381,61 @@
                 else {
                     $(".plts-selected").prop("checked", false);
                 }
+            });
+
+            //点击分配所选按钮，打开输入库位对话框
+            $(".btn-selected").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "220px"],
+                    content: $(".iframe")
+                });
+            });
+
+            //点击输入库位对话框中的分配托盘按钮，分配全部选中的托盘库位
+            $("#btn-selectedpallet").on("click", function () {
+                var objArray = new Array();
+
+                $("input:checkbox[name='selectedplts']:checked").each(function (i) {
+                    var id = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                    var quantity = $(this).parent().parent("tr").children('td').eq(14).children('font').html();
+                    var location = $("#input-location").val();
+
+                    var obj = {
+                        "id": id,
+                        "quantity": quantity,
+                        "location": location
+                    };
+
+                    objArray.push(obj);
+                });
+
+                url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber + "&inventoryType=Pallet";
+                SendAjaxMethod("POST", url, objArray);
+            });
+
+            //点击输入库位对话框中的分配箱数按钮，分配全部选中的箱数库位
+            $("#btn-selectedcarton").on("click", function () {
+                var objArray = new Array();
+
+                $("input:checkbox[name='selectedctns']:checked").each(function (i) {
+                    var id = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                    var quantity = $(this).parent().parent("tr").children('td').eq(10).children('font').html();
+                    var location = $("#input-location").val();
+
+                    var obj = {
+                        "id": id,
+                        "quantity": quantity,
+                        "location": location
+                    };
+
+                    objArray.push(obj);
+                });
+
+                url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber + "&inventoryType=Carton";
+                SendAjaxMethod("POST", url, objArray);
             });
 
             //解析url中的参数函数
@@ -364,6 +484,34 @@
                             iDisplayLength: 100,
                             columns: columsArray
                         });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
