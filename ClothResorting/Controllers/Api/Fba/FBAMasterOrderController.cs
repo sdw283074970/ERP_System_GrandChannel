@@ -42,6 +42,11 @@ namespace ClothResorting.Controllers.Api.Fba
             //Unix时间戳加客户代码组成独一无二的GrandNumber
             var grandNumber = customerCode + ((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000000).ToString();
 
+            if(_context.FBAMasterOrders.Where(x => x.GrandNumber == grandNumber).Count() > 0)
+            {
+                throw new Exception("Grand Number " + grandNumber + " has been taken. Please try agian. The system will allocate another number for this order.");
+            }
+
             var masterOrder = new FBAMasterOrder();
 
             masterOrder.AssembleFirstPart(obj.ETA, obj.Carrier, obj.Vessel, obj.Voy, obj.ETD);

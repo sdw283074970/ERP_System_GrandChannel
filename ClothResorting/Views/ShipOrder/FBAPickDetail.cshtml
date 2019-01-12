@@ -1,0 +1,278 @@
+﻿
+@{
+    ViewBag.Title = "FBAPickDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA System</h1>
+<h2>Pick Detail Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+
+    <div id="div-create">
+        <input type="button" class="btn btn-group btn-create1" value="Upload transfer list" />
+        <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
+        <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
+    </div>
+    <div>
+        <input style="width:140px" id="input-grandnumber" class="input-sm" placeholder="Grand #" />
+        <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
+        <input style="width:140px" id="input-customer" class="input-sm" placeholder="CustomerCode" />
+        <input style="width:140px" id="input-shipmenid" class="input-sm" placeholder="Shipment Id/SKU" />
+        <input style="width:140px" id="input-amzref" class="input-sm" placeholder="Amz Ref Id" />
+        <input style="width:140px" id="input-delivery" class="input-sm" placeholder="How to deliver" />
+        <input style="width:140px" id="input-warehouse" class="input-sm" placeholder="Warehouse Code" />
+        <button id="btn-pick" class="btn btn-info">Pick</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Status</th>
+                    <th>Grand #</th>
+                    <th>Container #</th>
+                    <th>Customer Code</th>
+                    <th>Shpment Id/SKU</th>
+                    <th>Amz Ref Id</th>
+                    <th>Size</th>
+                    <th>Delivery</th>
+                    <th>Warehouse Code</th>
+                    <th>Gross Weight</th>
+                    <th>CBM</th>
+                    <th>Ctns/Plt</th>
+                    <th>Ttl Ctns</th>
+                    <th>Ttl Plts</th>
+                    <th>Location</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="iframe">
+    <div>
+        <input id="upload2" type="file" accept="xls/xlsx" />
+    </div>
+    <div>
+        <input id="uploadfile" type="button" class="btn btn-default" value="Upload" />
+    </div>
+</div>
+<div class="iframe-update">
+    <div style="text-align:center">
+        <text>Pick man: </text><input id="input-pickman" class="input-sm" style="width:170px;margin-top:20px" /><br />
+        <text>Pick date: </text><input id="input-pickdate" type="date" style="width:170px;margin-top:20px" /><br />
+    </div>
+    <div style="text-align:right">
+        <button id="btn-update" class="btn btn-primary" style="margin-top:20px;margin-right:20px">Update</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe,.iframe-update").hide();
+
+            var index;
+            var table;
+            var url;
+            var shipOrderId = getUrlParameter('shipOrderId');
+            var orderType = getUrlParameter('orderType');
+
+            //获取该订单的拣货列表
+            url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType;
+            var columnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "status",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "grandNumber",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "container",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "customerCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipmentId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "amzRefId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "size",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "howToDeliver",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "warehouseCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "actualGrossWeight",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualCBM",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "ctnsPerPlt",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualQuantity",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "actualPlts",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "location",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+            ];
+            GetAjaxTable("GET", url, "#table", table, columnArray);
+
+            //点击上传出货清单按钮，弹出上传文件对话框
+            $("#div-create").on("click", ".btn-create1", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe")
+                });
+            });
+
+            //点击更新拣货信息按钮，弹出更新拣货信息对话框
+            $(".btn-updatepickinfo").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe-update")
+                });
+            });
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

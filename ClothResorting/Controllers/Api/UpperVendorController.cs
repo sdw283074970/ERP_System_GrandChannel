@@ -25,9 +25,19 @@ namespace ClothResorting.Controllers.Api
 
             var vendors = _context.UpperVendors.Where(x => x.DepartmentCode == departmentCode);
 
-            foreach(var vendor in vendors)
+            if (departmentCode == "CD")
             {
-                list.Add(vendor.Name);
+                foreach (var vendor in vendors)
+                {
+                    list.Add(vendor.Name);
+                }
+            }
+            else if (departmentCode == "FBA")
+            {
+                foreach (var vendor in vendors)
+                {
+                    list.Add(vendor.CustomerCode);
+                }
             }
 
             return Ok(list.ToArray());

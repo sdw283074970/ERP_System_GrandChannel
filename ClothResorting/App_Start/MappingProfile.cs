@@ -48,6 +48,8 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<FBACartonLocation, FBACartonLocationDto>();
             Mapper.CreateMap<FBAPallet, FBAPalletDto>();
             Mapper.CreateMap<FBAPalletLocation, FBAPalletLocationDto>();
+            Mapper.CreateMap<FBAShipOrder, FBAShipOrderDto>();
+            Mapper.CreateMap<FBAPickDetail, FBAPickDetailsDto>();
 
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();

@@ -64,6 +64,8 @@ namespace ClothResorting.Models
         public DbSet<FBAPallet> FBAPallets { get; set; }
         public DbSet<FBACartonLocation> FBACartonLocations { get; set; }
         public DbSet<FBAPalletLocation> FBAPalletLocations { get; set; }
+        public DbSet<FBAShipOrder> FBAShipOrders { get; set; }
+        public DbSet<FBAPickDetail> FBAPickDetails { get; set; }
 
         public static ApplicationDbContext Create()
         {

@@ -135,6 +135,11 @@
                 $(window.location).attr('href', '/customer');
             });
 
+            //点击管理运单，跳转至运单管理页面
+            $("#btn-ship").on("click", function () {
+                $(window.location).attr('href', '/shiporder/fbaShipOrder/');
+            });
+
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });

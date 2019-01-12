@@ -28,6 +28,8 @@ namespace ClothResorting.Models.FBAModels
 
         public FBAPallet FBAPallet { get; set; }
 
+        public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
+
         public FBAPalletLocation()
         {
             Location = FBAStatus.Unassigned;

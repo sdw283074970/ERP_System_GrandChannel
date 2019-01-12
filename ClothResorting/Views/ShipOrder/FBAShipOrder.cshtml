@@ -1,0 +1,280 @@
+﻿
+@{
+    ViewBag.Title = "FBAShipOrder";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA Sytem</h1>
+<h2>Ship Order Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div id="div-create">
+        <button id="btn-create" class="btn btn-primary">Created a new ship order</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:39px">Id</th>
+                    <th>Ship Order #</th>
+                    <th>Customer Code</th>
+                    <th>Order Type</th>
+                    <th>Destination</th>
+                    <th>Pick Ref.</th>
+                    <th>Create date</th>
+                    <th>Create By</th>
+                    <th>Pick date</th>
+                    <th>Pick man</th>
+                    <th>Status</th>
+                    <th>Shipped By</th>
+                    <th style="width:250px">Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Ship Order Number: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Ship Order Number' /><br />
+        <text>Customer Code: </text><select id='select-customercode' class='select-vendor' style='width:170px;height:30px;margin-top:20px' required='required'></select><br />
+        <text>Select Order Type: </text><select id='select-ordertype' style='width:170px;height:30px;margin-top:20px' required='required'>
+            <option value='Standard'>Standard</option>
+            <option value='Ecommerce'>Ecommerce</option>
+        </select><br />
+        <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='Destination' /><br />
+        <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='Pick Ref.' /><br />
+        <button id="btn-add" class='btn btn-primary' style="margin-top:20px">New ship order</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var index;
+            var table;
+            var url;
+
+            $(".iframe").hide();
+
+            //动态获取Customer数据
+            $.ajax({
+                type: "GET",
+                url: "/api/uppervendor/?departmentCode=FBA",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#select-customercode").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            //获取订单列表
+            url = "/api/fba/fbashiporder/"
+            var columnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipOrderNumber",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "customerCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "orderType",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "destination",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "pickReference",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "createDate",
+                    render: function (data) {
+                        return "<font>" + data.substring(0, 10) + "</font>";
+                    }
+                },
+                {
+                    data: "createBy",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "pickDate",
+                    render: function (data) {
+                        if (data == "1969-12-31T16:00:00")
+                            return "<font color='red'>Unpicked</font>"
+                        else
+                            return "<font>" + data.substring(0, 10) + "</font>";
+                    }
+                },
+                {
+                    data: "pickMan",
+                    render: function (data) {
+                        if (data == "Unassigned")
+                            return "<font color='red'>" + data + "</font>";
+                        else
+                            return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "status",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "shippedBy",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-download' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                    }
+                }
+            ]
+            GetAjaxTable("GET", url, "#table", table, columnArray);
+
+            //点击Pick按钮，转到该运单的拣货页面
+            $("#table").on("click", ".btn-pick", function () {
+                var shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                var orderType = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
+
+                $(window.location).attr('href', "/shiporder/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType);
+            });
+
+            //点击创建新运单按钮，打开新建运单弹窗
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "400px"],
+                    content: $(".iframe")
+                });
+            })
+
+            //点击添加按钮，新建一个新的运单
+            $("#btn-add").on("click", function () {
+                var shipOrderNumber = $("#input-shipordernumber").val();
+                var customerCode = $("#select-customercode option:selected").val();
+                var orderType = $("#select-ordertype option:selected").val();
+                var destination = $("#input-destination").val();
+                var pickReference = $("#input-reference").val();
+
+                if (shipOrderNumber == "" || destination == "" || pickReference == "") {
+                    alert("All fields are required.");
+                }
+
+                else {
+                    alert(orderType);
+                    var obj = {
+                        "shipOrderNumber": shipOrderNumber.toString(),
+                        "customerCode": customerCode.toString(),
+                        "destination": destination.toString(),
+                        "pickReference": pickReference.toString(),
+                        "orderType": orderType.toString()
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/fba/fbashiporder/",
+                        data: JSON.stringify(obj),
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            alert("Success!");
+                            window.location.reload();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+
+            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function ReturnDownableMenu(id)
+            {
+                return "<div class='downablemenu'><ul><li>Operation Menu<ul><li><input type='button' class='btn btn-link btn-pick' iid='" + id + "' value='Pick' /></li><li><input type='button' class='btn btn-link btn-download' iid='" + id + "' value='Download BOL' /></li></ul></li></ul></div>"
+            }
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}
