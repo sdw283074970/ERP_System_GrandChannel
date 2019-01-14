@@ -1,13 +1,17 @@
 # Grand Channel Inc. Enterprise Resource Planning system
 
 ### Version & Update Date
+beta v0.3.0 01/14/2019
 Beta v0.1.1 09/05/2018
 
 ### Introduction
 Currently, this system is a solution designed to automatize clothes refine business management in the warehouse of Grand Channel. Due to the particularity of the business, there is currently no software on the market that fits the business perfectly as far as we known. Therefore, the system is specially designed by software developers within the company for suiting the clothes refine business.
 
+01/14/2019 updates: Added FBA system.
+
 ### About the release version
 After 2 weeks test(08/20~08/31), the first released version Beta v0.1.1 is released on September 5th, 2018
+After 3 months further test(09/01/2018~12/31/2018), the second released version Beta v0.3.0 released on 01/02/2019
 
 ### Features
 This system now has the ability to:
