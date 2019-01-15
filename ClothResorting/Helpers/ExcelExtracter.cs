@@ -1840,9 +1840,10 @@ namespace ClothResorting.Helpers
                                 break;
                             }
 
-                            //与pool在同一集装箱的相同箱号且相同批次号的所有对象，用来作为区分是否有寄生对象的依据
+                            //与pool在同一集装箱的相同箱号且同颜色相同批次号的所有对象，用来作为区分是否有寄生对象的依据
                             var parasiticPoolLocations = cartonLocationPool.Where(x => x.Container == pool.Container
                                     && x.CartonRange == pool.CartonRange
+                                    && x.Color == pool.Color
                                     && x.Batch == pool.Batch);
 
                             //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail

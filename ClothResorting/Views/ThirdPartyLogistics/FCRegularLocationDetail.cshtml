@@ -151,7 +151,16 @@
                     url: "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
                     success: function (data) {
+                        layer.close(index);
                         GetInventoryTable(data, table)
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -207,7 +216,16 @@
                         url: "/api/FCRegularLocationDetail/" + id,
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
+                        beforeSend: function () {
+                            layer.close(index);
+                            index = layer.msg('Processing...', {
+                                icon: 1,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
                         success: function () {
+                            layer.close(index);
                             alert("Success!");
 
                             $.ajax({
@@ -262,7 +280,16 @@
                         url: "/api/FCRegularLocationDetail/",
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
+                        beforeSend: function () {
+                            layer.close(index);
+                            index = layer.msg('Processing...', {
+                                icon: 1,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
                         success: function () {
+                            layer.close(index);
 
                             alert("Success!");
 
@@ -363,8 +390,16 @@
                         url: "/api/FCRegularLocationDetail/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
+                        beforeSend: function () {
+                            layer.close(index);
+                            index = layer.msg('Processing...', {
+                                icon: 1,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
                         success: function (data) {
-
+                            layer.close(index);
                             alert("Filer applied.");
                             GetInventoryTable(data, table)
                         },

@@ -66,6 +66,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 cartonLocation.HowToDeliver = orderDetailInDb.HowToDeliver;
                 cartonLocation.GrandNumber = grandNumber;
                 cartonLocation.FBAOrderDetail = orderDetailInDb;
+                cartonLocation.ActualQuantity = ctnsPerPlt;
 
                 cartonLocationList.Add(cartonLocation);
             }
