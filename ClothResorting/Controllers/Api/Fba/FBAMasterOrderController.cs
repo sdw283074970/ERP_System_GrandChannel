@@ -64,12 +64,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbamasterOrder/?masterOrderId={masterOrderId}&container={container}&inboundDate={inboundDate}
         [HttpPut]
-        public void UpdateMasterOrderInfo([FromUri]int masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
+        public void UpdateMasterOrderInfo([FromUri]string masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
         {
             var inboundDateTime = new DateTime();
             inboundDateTime = ParseStringToDateTime(inboundDateTime, inboundDate);
 
-            var masterOrderInDb = _context.FBAMasterOrders.Include(x => x.FBAOrderDetails).SingleOrDefault(x => x.Id == masterOrderId);
+            var masterOrderInDb = _context.FBAMasterOrders.Include(x => x.FBAOrderDetails).SingleOrDefault(x => x.GrandNumber == masterOrderId);
 
             masterOrderInDb.Container = container;
             masterOrderInDb.InboundDate = inboundDateTime;

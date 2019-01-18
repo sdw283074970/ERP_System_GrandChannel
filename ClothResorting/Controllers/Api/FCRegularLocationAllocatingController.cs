@@ -112,8 +112,10 @@ namespace ClothResorting.Controllers.Api
 
                 if (index == 1)
                 {
+                    //当理论入库数量小于实际可用数量的时候，入库实际数量
+                    var allocatedPcs = obj.Cartons * cartonDetailInDb.PcsPerCarton < cartonDetailInDb.ToBeAllocatedPcs ? obj.Cartons * cartonDetailInDb.PcsPerCarton : cartonDetailInDb.ToBeAllocatedPcs;
                     cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
-                    cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
+                    cartonDetailInDb.ToBeAllocatedPcs -= allocatedPcs;
 
                     _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
                     {
@@ -125,14 +127,14 @@ namespace ClothResorting.Controllers.Api
                         SizeBundle = cartonDetailInDb.SizeBundle,
                         PcsBundle = cartonDetailInDb.PcsBundle,
                         Cartons = obj.Cartons,
-                        Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                        Quantity = allocatedPcs,
                         Location = obj.Location,
                         PcsPerCaron = cartonDetailInDb.PcsPerCarton,
                         Status = "In Stock",
                         AvailableCtns = obj.Cartons,
                         PickingCtns = 0,
                         ShippedCtns = 0,
-                        AvailablePcs = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                        AvailablePcs = allocatedPcs,
                         PickingPcs = 0,
                         ShippedPcs = 0,
                         InboundDate = DateTime.Now,

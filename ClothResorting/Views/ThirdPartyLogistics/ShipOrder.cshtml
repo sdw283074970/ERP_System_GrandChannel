@@ -219,7 +219,7 @@
                                 render: function (data) {
                                     if (orderType == "Regular") {
                                         if (status == "Shipped") {
-                                            return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
+                                            return "<button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
                                         }
                                         else if (status == "Picking" || status == "Ready") {
                                             return "<button id='" + data + "'class='btn btn-link btn-regularpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"
@@ -230,7 +230,7 @@
                                     }
                                     else{
                                         if (status == "Shipped") {
-                                            return "<button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
+                                            return "<button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button>";
                                         }
                                         else if (status == "Picking" || status == "Ready") {
                                             return "<button id='" + data + "'class='btn btn-link btn-replenishmentpick'>Pick</button><button value='" + data + "'class='btn btn-link btn-diag'>Diagnostic</button><button class='btn btn-link btn-cancel' value='" + data + "'>Cancel</button><button class='btn btn-link btn-download' value='" + data + "' >Download</button><button value='" + data + "'class='btn btn-link btn-summary'>Summary</button><button class='btn btn-link btn-ready' value='" + data + "'>Ready</button><button class='btn btn-link btn-ship' value='" + data + "'>Ship</button>"

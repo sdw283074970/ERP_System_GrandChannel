@@ -60,7 +60,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     palletLocation.HowToDeliver = palletInDb.HowToDeliver;
                     palletLocation.GrossWeightPerPlt = palletInDb.ActualGrossWeight / palletInDb.ActualPallets;
                     palletLocation.CBMPerPlt = palletInDb.ActualCBM / palletInDb.ActualPallets;
-                    palletLocation.CtnsPerPlt = palletInDb.ActualQuantity / palletInDb.ActualPallets;
+                    palletLocation.CtnsPerPlt = palletLocation.CBMPerPlt == 0 ? 0 : palletInDb.ActualQuantity / palletInDb.ActualPallets;
                     palletLocation.AvailablePlts = obj.Quantity;
                     palletLocation.Location = obj.Location;
                     palletLocation.PalletSize = palletInDb.PalletSize;

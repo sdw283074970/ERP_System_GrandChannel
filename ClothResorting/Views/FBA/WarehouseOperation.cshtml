@@ -57,7 +57,8 @@
                 <option value="true">YES</option>
                 <option value="false">NO</option>
             </select></text><br />
-        <input id="btn-pack" type="button" class="btn btn-primary" style="margin-top:20px" value="Pack" />
+        <input packtype="DetailPack" type="button" class="btn btn-primary btn-pack" style="margin-top:20px" value="Detail Pack" />
+        <input packtype="RoughPack" type="button" class="btn btn-primary btn-pack" style="margin-top:20px" value="Rough Pack" />
     </div>
 </div>
 @section scripts
@@ -100,7 +101,8 @@
             });
 
             //点击打包按钮，将所选中的对象打包成一个托盘对象
-            $("#btn-pack").on("click", function () {
+            $(".btn-pack").on("click", function () {
+                var packType = $(this).attr('packtype');
                 var objArr = new Array();
                 var pltQuantity = $("#input-pltquantity").val();
                 var pltSize = $("#input-pltsize").val();
@@ -111,17 +113,17 @@
                 //将所有被选中的CheckBox的对象的id与每托盘分配箱数做成obj放在数列中
                 $("input:checkbox[name='selected']:checked").each(function (i) {
                     var id = $(this).val();
-                    var ctnsPerPlt = $(this).parent().parent("tr").children('td').eq(12).children('input').val();
+                    var quantity = $(this).parent().parent("tr").children('td').eq(12).children('input').val();
 
                     var obj = {
                         "id": id,
-                        "ctnsPerPlt": ctnsPerPlt
+                        "quantity": quantity
                     }
 
                     objArr.push(obj);
                 });
 
-                url = "/api/fba/warehouseoperation/?grandNumber=" + grandNumber + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth;
+                url = "/api/fba/warehouseoperation/?grandNumber=" + grandNumber + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth + "&packType=" + packType;
 
                 SendAjaxMethod("POST", url, objArr);
             });

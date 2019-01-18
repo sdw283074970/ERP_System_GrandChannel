@@ -10,6 +10,7 @@ using AutoMapper;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Dtos.Fba;
 using ClothResorting.Models.FBAModels.StaticModels;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -32,68 +33,128 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
         }
 
-        // POST /api/warehouseoperation/?masterOrderId={masterOrderId}&pltQuantity={pltQuantity}&pltSize={pltSize}
+        // POST /api/warehouseoperation/?masterOrderId={masterOrderId}&pltQuantity={pltQuantity}&pltSize={pltSize}&packType={packType}
         [HttpPost]
-        public void CreatePallet([FromUri]string grandNumber, [FromUri]int pltQUantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromBody]IEnumerable<PalletInfoDto> objArray)
+        public void CreatePallet([FromUri]string grandNumber, [FromUri]int pltQuantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromUri]string packType, [FromBody]IEnumerable<PalletInfoDto> objArray)
         {
+            //进入库存的carton对象都按GW/ctn，CBM/ctn记录
             var cartonLocationList = new List<FBACartonLocation>();
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Where(x => x.GrandNumber == grandNumber);
 
-            foreach(var obj in objArray)
+            if (packType == FBAPackType.DetailPack)
             {
-                var orderDetailInDb = orderDetailsInDb.SingleOrDefault(x => x.Id == obj.Id);
-
-                orderDetailInDb.ComsumedQuantity += obj.CtnsPerPlt * pltQUantity;
-
-                if (orderDetailInDb.ComsumedQuantity > orderDetailInDb.ActualQuantity)
+                foreach (var obj in objArray)
                 {
-                    throw new Exception("Not enough quantity for comsuming. Check Id:" + obj.Id);
+                    var orderDetailInDb = orderDetailsInDb.SingleOrDefault(x => x.Id == obj.Id);
+
+                    orderDetailInDb.ComsumedQuantity += obj.Quantity * pltQuantity;
+
+                    if (orderDetailInDb.ComsumedQuantity > orderDetailInDb.ActualQuantity)
+                    {
+                        throw new Exception("Not enough quantity for comsuming. Check Id:" + obj.Id);
+                    }
+
+                    var cartonLocation = new FBACartonLocation();
+                    cartonLocation.Status = FBAStatus.InPallet;
+                    var ctnsPerPlt = obj.Quantity;
+                    var grossWeightPerCtn = (float)Math.Round((orderDetailInDb.ActualGrossWeight / orderDetailInDb.ActualQuantity), 2);
+                    var cbmPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
+
+                    cartonLocation.AssembleFirstStringPart(orderDetailInDb.ShipmentId, orderDetailInDb.AmzRefId, orderDetailInDb.WarehouseCode);
+                    cartonLocation.AssemblePltInfo(grossWeightPerCtn, cbmPerCtn, ctnsPerPlt);
+
+                    cartonLocation.Container = orderDetailInDb.Container;
+                    //cartonLocation.AvaliableCtns = cartonLocation.ActualQuantity;
+                    cartonLocation.Location = "Pallet";
+                    cartonLocation.HowToDeliver = orderDetailInDb.HowToDeliver;
+                    cartonLocation.GrandNumber = grandNumber;
+                    cartonLocation.FBAOrderDetail = orderDetailInDb;
+                    cartonLocation.ActualQuantity = ctnsPerPlt;
+
+                    cartonLocationList.Add(cartonLocation);
                 }
 
-                var cartonLocation = new FBACartonLocation();
-                cartonLocation.Status = FBAStatus.InPallet;
-                var ctnsPerPlt = obj.CtnsPerPlt;
-                var grossWeightPerCtn = (float)Math.Round((orderDetailInDb.ActualGrossWeight / orderDetailInDb.ActualQuantity), 2);
-                var cbmPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
+                //建立FBAPallet对象
+                var pallet = new FBAPallet();
+                var firstId = objArray.First().Id;
+                var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
 
-                cartonLocation.AssembleFirstStringPart(orderDetailInDb.ShipmentId, orderDetailInDb.AmzRefId, orderDetailInDb.WarehouseCode);
-                cartonLocation.AssemblePltInfo(grossWeightPerCtn, cbmPerCtn, ctnsPerPlt);
+                pallet.AssembleFirstStringPart(firstOrderDetail.ShipmentId, firstOrderDetail.AmzRefId, firstOrderDetail.WarehouseCode);
+                pallet.AssembleActualDetails(cartonLocationList.Sum(x => x.GrossWeightPerCtn * x.CtnsPerPlt * pltQuantity), cartonLocationList.Sum(x => x.CBMPerCtn * x.CtnsPerPlt * pltQuantity), cartonLocationList.Sum(x => x.CtnsPerPlt * pltQuantity));
+                pallet.AssembleBoolValue(doesAppliedLabel, hasSortingMarking, isOverSizeOrOverwidth);
 
-                cartonLocation.Container = orderDetailInDb.Container;
-                //cartonLocation.AvaliableCtns = cartonLocation.ActualQuantity;
-                cartonLocation.Location = "Pallet";
-                cartonLocation.HowToDeliver = orderDetailInDb.HowToDeliver;
-                cartonLocation.GrandNumber = grandNumber;
-                cartonLocation.FBAOrderDetail = orderDetailInDb;
-                cartonLocation.ActualQuantity = ctnsPerPlt;
+                pallet.Container = firstOrderDetail.Container;
+                pallet.HowToDeliver = firstOrderDetail.HowToDeliver;
+                pallet.PalletSize = pltSize;
+                pallet.GrandNumber = grandNumber;
+                pallet.ActualPallets = pltQuantity;
 
-                cartonLocationList.Add(cartonLocation);
+                _context.FBAPallets.Add(pallet);
+
+                foreach (var cartonLocation in cartonLocationList)
+                {
+                    cartonLocation.FBAPallet = pallet;
+                }
+
+                _context.FBACartonLocations.AddRange(cartonLocationList);
             }
-
-            //建立FBAPallet对象
-            var pallet = new FBAPallet();
-            var firstId = objArray.First().Id;
-            var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
-
-            pallet.AssembleFirstStringPart(firstOrderDetail.ShipmentId, firstOrderDetail.AmzRefId, firstOrderDetail.WarehouseCode);
-            pallet.AssembleActualDetails(cartonLocationList.Sum(x => x.GrossWeightPerCtn * x.CtnsPerPlt * pltQUantity), cartonLocationList.Sum(x => x.CBMPerCtn * x.CtnsPerPlt * pltQUantity), cartonLocationList.Sum(x => x.CtnsPerPlt * pltQUantity));
-            pallet.AssembleBoolValue(doesAppliedLabel, hasSortingMarking, isOverSizeOrOverwidth);
-
-            pallet.Container = firstOrderDetail.Container;
-            pallet.HowToDeliver = firstOrderDetail.HowToDeliver;
-            pallet.PalletSize = pltSize;
-            pallet.GrandNumber = grandNumber;
-            pallet.ActualPallets = pltQUantity;
-
-            _context.FBAPallets.Add(pallet);
-
-            foreach(var cartonLocation in cartonLocationList)
+            else
             {
-                cartonLocation.FBAPallet = pallet;
+                foreach (var obj in objArray)
+                {
+                    var orderDetailInDb = orderDetailsInDb.SingleOrDefault(x => x.Id == obj.Id);
+
+                    orderDetailInDb.ComsumedQuantity += obj.Quantity;
+
+                    if (orderDetailInDb.ComsumedQuantity > orderDetailInDb.ActualQuantity)
+                    {
+                        throw new Exception("Not enough quantity for comsuming. Check Id:" + obj.Id);
+                    }
+
+                    var cartonLocation = new FBACartonLocation();
+                    cartonLocation.Status = FBAStatus.InPallet;
+                    var grossWeightPerCtn = (float)Math.Round((orderDetailInDb.ActualGrossWeight / orderDetailInDb.ActualQuantity), 2);
+                    var cbmPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
+
+                    cartonLocation.AssembleFirstStringPart(orderDetailInDb.ShipmentId, orderDetailInDb.AmzRefId, orderDetailInDb.WarehouseCode);
+                    cartonLocation.AssemblePltInfo(grossWeightPerCtn, cbmPerCtn, 0);
+
+                    cartonLocation.Container = orderDetailInDb.Container;
+                    cartonLocation.Location = "Pallet";
+                    cartonLocation.HowToDeliver = orderDetailInDb.HowToDeliver;
+                    cartonLocation.GrandNumber = grandNumber;
+                    cartonLocation.FBAOrderDetail = orderDetailInDb;
+                    cartonLocation.ActualQuantity = obj.Quantity;
+
+                    cartonLocationList.Add(cartonLocation);
+                }
+
+                //建立FBAPallet对象
+                var pallet = new FBAPallet();
+                var firstId = objArray.First().Id;
+                var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
+
+                pallet.AssembleFirstStringPart(firstOrderDetail.ShipmentId, firstOrderDetail.AmzRefId, firstOrderDetail.WarehouseCode);
+                pallet.ActualQuantity = cartonLocationList.Sum(x => x.ActualQuantity);
+                pallet.AssembleBoolValue(doesAppliedLabel, hasSortingMarking, isOverSizeOrOverwidth);
+
+                pallet.Container = firstOrderDetail.Container;
+                pallet.HowToDeliver = firstOrderDetail.HowToDeliver;
+                pallet.PalletSize = pltSize;
+                pallet.GrandNumber = grandNumber;
+                pallet.ActualPallets = pltQuantity;
+
+                _context.FBAPallets.Add(pallet);
+
+                foreach (var cartonLocation in cartonLocationList)
+                {
+                    cartonLocation.FBAPallet = pallet;
+                }
+
+                _context.FBACartonLocations.AddRange(cartonLocationList);
             }
 
-            _context.FBACartonLocations.AddRange(cartonLocationList);
             _context.SaveChanges();
         }
     }
@@ -102,6 +163,6 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         public int Id { get; set; }
 
-        public int CtnsPerPlt { get; set; }
+        public int Quantity { get; set; }
     }
 }
