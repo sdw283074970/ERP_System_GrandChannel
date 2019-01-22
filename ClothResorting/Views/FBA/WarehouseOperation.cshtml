@@ -27,7 +27,7 @@
                     <th>Actual CBM</th>
                     <th>Actual Quantity</th>
                     <th>Unlaied Quantity</th>
-                    <th><input id="select-all" type="checkbox" value="12345" /></th>
+                    @*<th><input id="select-all" type="checkbox" value="12345" /></th>*@
                     <th>Ctns/Plt</th>
                 </tr>
             </thead>
@@ -80,14 +80,14 @@
             GetAjaxTable("GET", url);
 
             //点击全选，勾选所有Checkbox
-            $("#select-all").on("click", function () {
-                if ($("#select-all").is(":checked")) {
-                    $(".cb-selected").prop("checked", true);
-                }
-                else {
-                    $(".cb-selected").prop("checked", false);
-                }
-            });
+            //$("#select-all").on("click", function () {
+            //    if ($("#select-all").is(":checked")) {
+            //        $(".cb-selected").prop("checked", true);
+            //    }
+            //    else {
+            //        $(".cb-selected").prop("checked", false);
+            //    }
+            //});
 
             //点击打包所选对象按钮，打开打包详细内容弹窗
             $("#btn-packoption").on("click", function () {
@@ -111,16 +111,19 @@
                 var isOversizeOrOverWidth = $("#select-oversize option:selected").val();
 
                 //将所有被选中的CheckBox的对象的id与每托盘分配箱数做成obj放在数列中
-                $("input:checkbox[name='selected']:checked").each(function (i) {
-                    var id = $(this).val();
-                    var quantity = $(this).parent().parent("tr").children('td').eq(12).children('input').val();
+                $(".input-quantity").each(function (i) {
+                    if ($(this).val() != "")
+                    {
+                        var id = $(this).attr('iid');
+                        var quantity = $(this).val();
 
-                    var obj = {
-                        "id": id,
-                        "quantity": quantity
+                        var obj = {
+                            "id": id,
+                            "quantity": quantity
+                        }
+
+                        objArr.push(obj);
                     }
-
-                    objArr.push(obj);
                 });
 
                 url = "/api/fba/warehouseoperation/?grandNumber=" + grandNumber + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth + "&packType=" + packType;
@@ -240,16 +243,16 @@
                                         return "<font color='blue'>" + (actualQuantity - data) + "</font>";
                                     }
                                 },
+                                //{
+                                //    data: "id",
+                                //    render: function (data) {
+                                //        return "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
+                                //    }
+                                //},
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        return "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<input style='width:50px' iid='" + data + "' />";
+                                        return "<input style='width:50px' class='input-quantity' iid='" + data + "' />";
                                     }
                                 }
                             ]

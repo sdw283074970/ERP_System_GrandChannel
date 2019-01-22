@@ -11,4 +11,11 @@ namespace ClothResorting.Models.StaticClass
 
         public const string RoughPack = "RoughPack";
     }
+
+    public static class FBAOrderType
+    {
+        public const string Standard = "Standard";
+
+        public const string ECommerce = "ECommerce";
+    }
 }

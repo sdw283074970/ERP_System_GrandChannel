@@ -1,4 +1,5 @@
 ﻿using ClothResorting.Models.FBAModels.BaseClass;
+using ClothResorting.Models.FBAModels.Interfaces;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.StaticClass;
 using System;
@@ -8,7 +9,7 @@ using System.Web;
 
 namespace ClothResorting.Models.FBAModels
 {
-    public class FBAPalletLocation : BaseFBAOrderDetail
+    public class FBAPalletLocation : BaseFBAOrderDetail, IFBALocation
     {
         public string PalletSize { get; set; }
 

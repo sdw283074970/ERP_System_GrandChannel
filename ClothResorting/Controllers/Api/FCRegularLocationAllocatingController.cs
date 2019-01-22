@@ -76,120 +76,124 @@ namespace ClothResorting.Controllers.Api
 
         // POST /api/fcregularlocationallocating/?container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size} 根据传入数据分解已收货对象，obj.id为cartondetail的id，cartondetail在此处用作记录待分配箱数及件数
         [HttpPost]
-        public IHttpActionResult CreateRegularStock([FromBody]FCRegularLocationAllocatingJsonObj obj, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
+        public IHttpActionResult CreateRegularStock([FromBody]IEnumerable<FCRegularLocationAllocatingJsonObj> objArray, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
-            var cartonRange = _context.RegularCartonDetails
-                .Include(c => c.POSummary.PreReceiveOrder)
-                .SingleOrDefault(c => c.Id == obj.Id)
-                .CartonRange;
-
-            var poSummaryId = _context.RegularCartonDetails
-                .Include(c => c.POSummary.PreReceiveOrder)
-                .SingleOrDefault(c => c.Id == obj.Id)
-                .POSummary
-                .Id;
-
-            var regularCartonDetail = _context.RegularCartonDetails.Find(obj.Id);
-
-            var inOneBoxSKUs = _context.RegularCartonDetails
-                .Include(c => c.POSummary.PreReceiveOrder)
-                .Where(c => c.CartonRange == cartonRange 
-                    && c.POSummary.Id == poSummaryId
-                    && c.Batch == regularCartonDetail.Batch);
-
-            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(obj.PreId);
-
-            var index = 1;      //用来甄别多种SKU在同一箱的情况
-
-            foreach (var cartonDetailInDb in inOneBoxSKUs)
+            foreach(var obj in objArray)
             {
-                cartonDetailInDb.Status = "Allocating";
+                var cartonRange = _context.RegularCartonDetails
+                    .Include(c => c.POSummary.PreReceiveOrder)
+                    .SingleOrDefault(c => c.Id == obj.Id)
+                    .CartonRange;
 
-                if (cartonDetailInDb.Container == null || cartonDetailInDb.Container == "Unknown")
+                var poSummaryId = _context.RegularCartonDetails
+                    .Include(c => c.POSummary.PreReceiveOrder)
+                    .SingleOrDefault(c => c.Id == obj.Id)
+                    .POSummary
+                    .Id;
+
+                var regularCartonDetail = _context.RegularCartonDetails.Find(obj.Id);
+
+                var inOneBoxSKUs = _context.RegularCartonDetails
+                    .Include(c => c.POSummary.PreReceiveOrder)
+                    .Where(c => c.CartonRange == cartonRange
+                        && c.POSummary.Id == poSummaryId
+                        && c.Batch == regularCartonDetail.Batch);
+
+                var preReceiveOrderInDb = _context.PreReceiveOrders.Find(obj.PreId);
+
+                var index = 1;      //用来甄别多种SKU在同一箱的情况
+
+                foreach (var cartonDetailInDb in inOneBoxSKUs)
                 {
-                    throw new Exception("Invalid contaier number. Container must be assigned first.");
-                }
+                    cartonDetailInDb.Status = "Allocating";
 
-                if (index == 1)
-                {
-                    //当理论入库数量小于实际可用数量的时候，入库实际数量
-                    var allocatedPcs = obj.Cartons * cartonDetailInDb.PcsPerCarton < cartonDetailInDb.ToBeAllocatedPcs ? obj.Cartons * cartonDetailInDb.PcsPerCarton : cartonDetailInDb.ToBeAllocatedPcs;
-                    cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
-                    cartonDetailInDb.ToBeAllocatedPcs -= allocatedPcs;
-
-                    _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    if (cartonDetailInDb.Container == null || cartonDetailInDb.Container == "Unknown")
                     {
-                        Container = cartonDetailInDb.POSummary.Container,
-                        PurchaseOrder = cartonDetailInDb.PurchaseOrder,
-                        Style = cartonDetailInDb.Style,
-                        Color = cartonDetailInDb.Color,
-                        CustomerCode = cartonDetailInDb.Customer,
-                        SizeBundle = cartonDetailInDb.SizeBundle,
-                        PcsBundle = cartonDetailInDb.PcsBundle,
-                        Cartons = obj.Cartons,
-                        Quantity = allocatedPcs,
-                        Location = obj.Location,
-                        PcsPerCaron = cartonDetailInDb.PcsPerCarton,
-                        Status = "In Stock",
-                        AvailableCtns = obj.Cartons,
-                        PickingCtns = 0,
-                        ShippedCtns = 0,
-                        AvailablePcs = allocatedPcs,
-                        PickingPcs = 0,
-                        ShippedPcs = 0,
-                        InboundDate = DateTime.Now,
-                        PreReceiveOrder = preReceiveOrderInDb,
-                        RegularCaronDetail = cartonDetailInDb,
-                        CartonRange = cartonRange,
-                        Allocator = _userName,
-                        Batch = cartonDetailInDb.Batch,
-                        Vendor = cartonDetailInDb.Vendor
-                    });
+                        throw new Exception("Invalid contaier number. Container must be assigned first.");
+                    }
 
-                    index++;
-                }
-                else
-                {
-                    cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
-
-                    _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    if (index == 1)
                     {
-                        Container = cartonDetailInDb.POSummary.Container,
-                        PurchaseOrder = cartonDetailInDb.PurchaseOrder,
-                        Style = cartonDetailInDb.Style,
-                        Color = cartonDetailInDb.Color,
-                        CustomerCode = cartonDetailInDb.Customer,
-                        SizeBundle = cartonDetailInDb.SizeBundle,
-                        PcsBundle = cartonDetailInDb.PcsBundle,
-                        Cartons = 0,
-                        Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
-                        Location = obj.Location,
-                        PcsPerCaron = cartonDetailInDb.PcsPerCarton,
-                        Status = "In Stock",
-                        AvailableCtns = 0,
-                        PickingCtns = 0,
-                        ShippedCtns = 0,
-                        AvailablePcs = obj.Cartons * cartonDetailInDb.PcsPerCarton,
-                        PickingPcs = 0,
-                        ShippedPcs = 0,
-                        InboundDate = DateTime.Now,
-                        PreReceiveOrder = preReceiveOrderInDb,
-                        RegularCaronDetail = cartonDetailInDb,
-                        CartonRange = cartonRange,
-                        Allocator = _userName,
-                        Batch = cartonDetailInDb.Batch,
-                        Vendor = cartonDetailInDb.Vendor
-                    });
+                        //当理论入库数量小于实际可用数量的时候，入库实际数量
+                        var allocatedPcs = obj.Cartons * cartonDetailInDb.PcsPerCarton < cartonDetailInDb.ToBeAllocatedPcs ? obj.Cartons * cartonDetailInDb.PcsPerCarton : cartonDetailInDb.ToBeAllocatedPcs;
+                        cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
+                        cartonDetailInDb.ToBeAllocatedPcs -= allocatedPcs;
+
+                        _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                        {
+                            Container = cartonDetailInDb.POSummary.Container,
+                            PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                            Style = cartonDetailInDb.Style,
+                            Color = cartonDetailInDb.Color,
+                            CustomerCode = cartonDetailInDb.Customer,
+                            SizeBundle = cartonDetailInDb.SizeBundle,
+                            PcsBundle = cartonDetailInDb.PcsBundle,
+                            Cartons = obj.Cartons,
+                            Quantity = allocatedPcs,
+                            Location = obj.Location,
+                            PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                            Status = "In Stock",
+                            AvailableCtns = obj.Cartons,
+                            PickingCtns = 0,
+                            ShippedCtns = 0,
+                            AvailablePcs = allocatedPcs,
+                            PickingPcs = 0,
+                            ShippedPcs = 0,
+                            InboundDate = DateTime.Now,
+                            PreReceiveOrder = preReceiveOrderInDb,
+                            RegularCaronDetail = cartonDetailInDb,
+                            CartonRange = cartonRange,
+                            Allocator = _userName,
+                            Batch = cartonDetailInDb.Batch,
+                            Vendor = cartonDetailInDb.Vendor
+                        });
+
+                        index++;
+                    }
+                    else
+                    {
+                        cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
+
+                        _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                        {
+                            Container = cartonDetailInDb.POSummary.Container,
+                            PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                            Style = cartonDetailInDb.Style,
+                            Color = cartonDetailInDb.Color,
+                            CustomerCode = cartonDetailInDb.Customer,
+                            SizeBundle = cartonDetailInDb.SizeBundle,
+                            PcsBundle = cartonDetailInDb.PcsBundle,
+                            Cartons = 0,
+                            Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                            Location = obj.Location,
+                            PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                            Status = "In Stock",
+                            AvailableCtns = 0,
+                            PickingCtns = 0,
+                            ShippedCtns = 0,
+                            AvailablePcs = obj.Cartons * cartonDetailInDb.PcsPerCarton,
+                            PickingPcs = 0,
+                            ShippedPcs = 0,
+                            InboundDate = DateTime.Now,
+                            PreReceiveOrder = preReceiveOrderInDb,
+                            RegularCaronDetail = cartonDetailInDb,
+                            CartonRange = cartonRange,
+                            Allocator = _userName,
+                            Batch = cartonDetailInDb.Batch,
+                            Vendor = cartonDetailInDb.Vendor
+                        });
+                    }
+
+                    if (cartonDetailInDb.ToBeAllocatedCtns == 0)
+                    {
+                        cartonDetailInDb.Status = "Allocated";
+                    }
+
                 }
 
-                if(cartonDetailInDb.ToBeAllocatedCtns == 0)
-                {
-                    cartonDetailInDb.Status = "Allocated";
-                }
-
+                _context.SaveChanges();
             }
 
-            _context.SaveChanges();
 
             var latestRecord = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).First();
 
@@ -201,9 +205,10 @@ namespace ClothResorting.Controllers.Api
             var latestRecordDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(latestRecord);
 
             //返回剩下仍然未分配的结果
+            var preId = objArray.First().PreId;
             var resultDto = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
-                .Where(c => c.POSummary.PreReceiveOrder.Id == obj.PreId
+                .Where(c => c.POSummary.PreReceiveOrder.Id == preId
                     && (c.ToBeAllocatedPcs != 0 || c.ToBeAllocatedCtns != 0))
                 .Select(Mapper.Map<RegularCartonDetail, RegularCartonDetailDto>);
 

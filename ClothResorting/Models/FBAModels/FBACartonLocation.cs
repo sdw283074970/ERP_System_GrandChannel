@@ -1,4 +1,5 @@
 ﻿using ClothResorting.Models.FBAModels.BaseClass;
+using ClothResorting.Models.FBAModels.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Web;
 
 namespace ClothResorting.Models.FBAModels
 {
-    public class FBACartonLocation : BaseFBAOrderDetail
+    public class FBACartonLocation : BaseFBAOrderDetail, IFBALocation
     {
         public float GrossWeightPerCtn { get; set; }
 

@@ -43,6 +43,9 @@
             </thead>
             <tbody></tbody>
         </table>
+        <div style="text-align:right">
+            <input type="button" class="btn btn-primary btn-filled" value="Allocate All Filled Items" />
+        </div>
     </div>
     <div>
         <input id="input-batchlocation" type="text" class="input-lg" placeholder="Location" /> <button id="btn-batchupdate" class="btn btn-info">Batch Update</button>
@@ -116,76 +119,76 @@
                 }
             });
 
-            // 获取将要打散入库的箱数、库位
-            $("#table").on("click", ".btn-allocate", function () {
-                var button = $(this);
-                var id = button.attr("id");
-                var cartons = $("#ctns-" + id.toString()).val();
-                var locator = $("#loc-" + id.toString()).val();
-                tbaCtns = button.parent().parent("tr").children('td').eq(9).children('font').html();
-                var container = button.parent().parent("tr").children('td').eq(1).children('text').html();
+            // 获取将要打散入库的箱数、库位集合
+            $(".btn-filled").on("click", function () {
 
-                lastCartonValue = cartons;
-                lastLocation = locator;
+                var objArray = new Array();
 
-                //alert(cartons);
-                //alert(tbaCtns);
+                //为每一个填了库位的对象分配库位
+                $(".input-location").each(function (i) {
+                    if ($(this).val() != "")
+                    {
 
-                if (cartons == "" || locator == "")
-                {
-                    alert("Cartons and Location cannot be empty.");
-                }
-                else if (parseInt(cartons) > parseInt(tbaCtns))
-                {
+                        var location = $(this).val();
+                        var id = $(this).attr('iid');
+                        var tbaCtns = $(this).parent().parent("tr").children('td').eq(10).children('font').html();
+                        var cartons = $(this).parent().parent("tr").children('td').eq(12).children('input').val();
+                        var container = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
 
-                    alert("There is not enough cartons to be allocated!");
-                }
-                else if (cartons <= 0)
-                {
-                    alert("Cartons cannot be negative!");
-                }
-                else if (container == "null")
-                {
-                    alert("Container must be assigned first.");
-                }
-                else
-                {
-                    var obj = {
-                        "preId": preid,
-                        "id": id,
-                        "cartons": cartons,
-                        "location": locator
-                    };
-
-                    //获取搜索条的内容
-                    lastSearchBar = $("#table_filter").children('label').children('input').val();
-
-                    //将obj打包传入后端，根据包中内容分解已收货对象
-                    $.ajax({
-                        type: "POST",
-                        data: JSON.stringify(obj),
-                        url: "/api/FCRegularLocationAllocating/?container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
-                        contentType: 'application/json; charset=utf-8',
-                        dataType: "json",
-                        success: function (data) {
-
-                            alert("Success!");
-
-                            GetTable(data, table);
-
-                            //将之前的搜索信息继续保存到搜索条过滤器中
-                            var searchBar = $("#table_filter").children('label').children('input');
-                            searchBar.val(lastSearchBar);
-
-                            table.search(lastSearchBar).draw();
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
-                            });
+                        if (cartons == "") {
+                            alert("Cartons and Location cannot be empty.");
                         }
-                    });
-                }
+                        else if (parseInt(cartons) > parseInt(tbaCtns)) {
+
+                            alert("There is not enough cartons to be allocated!");
+                        }
+                        else if (cartons <= 0) {
+                            alert("Cartons cannot be negative!");
+                        }
+                        else if (container == "null") {
+                            alert("Container must be assigned first.");
+                        }
+                        else {
+                            var obj = {
+                                "preId": preid,
+                                "id": id,
+                                "cartons": cartons,
+                                "location": location
+                            };
+
+                            objArray.push(obj);
+                        }
+                    }
+                });
+
+                //获取搜索条的内容
+                lastSearchBar = $("#table_filter").children('label').children('input').val();
+
+                //将objArray打包传入后端，根据包中内容分解已收货对象
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify(objArray),
+                    url: "/api/FCRegularLocationAllocating/?container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        alert("Success!");
+
+                        GetTable(data, table);
+
+                        //将之前的搜索信息继续保存到搜索条过滤器中
+                        var searchBar = $("#table_filter").children('label').children('input');
+                        searchBar.val(lastSearchBar);
+
+                        table.search(lastSearchBar).draw();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             //勾选全选选项，则选择所有对象
@@ -476,7 +479,7 @@
                             data: "id",
                             render: function (data) {
                                 if (cartons != 0) {
-                                    return "<input style='width:50px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
+                                    return "<input style='width:70px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
                                 }
                                 else {
                                     return "";
@@ -488,7 +491,7 @@
                             render: function (data) {
                                 if (cartons != 0) {
                                     //return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
-                                    return "<input style='width:50px' id='loc-" + data + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                    return "<input style='width:70px' class='input-location' iid='" + data + "' id='loc-" + data + "' />";
                                 }
                                 else {
                                     return "";

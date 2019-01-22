@@ -13,7 +13,7 @@
     </div>
 
     <div id="div-putback">
-        <input type="button" class="btn btn-group btn-create1" value="Upload Pull Sheet/Load plan" /><button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button><input type="button" class="btn btn-info btn-update" value="Update picking info" /><button class="btn btn-primary btn-putback">Put back items</button>
+        <input type="button" id="btn-upload" class="btn btn-group btn-create1" value="Upload Pull Sheet/Load plan" /><button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button><input type="button" class="btn btn-info btn-update" value="Update picking info" /><button class="btn btn-primary btn-putback">Put back items</button>
     </div>
     <div>
         <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
@@ -41,6 +41,7 @@
                     <th>Pick Ctns</th>
                     <th>Pick Pcs</th>
                     <th>Location</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -184,6 +185,12 @@
                                     return "<text>" + data + "</text>";
                                 }
                             },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-putback'>Put Back</button>";
+                                }
+                            }
                         ]
                     });
                 },
@@ -194,13 +201,34 @@
                 }
             });
 
-            $("#div-putback").on("click", ".btn-create1", function () {
+            $("#btn-upload").on("click", function () {
                 index = layer.open({
                     title: false,
                     type: 1,
                     shadeclose: true,
                     area: ["40%", "40%"],
                     content: $(".iframe")
+                });
+            });
+
+            $("#table").on("click", ".btn-putback", function () {
+                var id = $(this).attr('iid');
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/pickdetail/" + id,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        layer.alert("Item has been put back.", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
                 });
             });
 

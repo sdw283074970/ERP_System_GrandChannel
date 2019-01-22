@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -36,7 +37,9 @@ namespace ClothResorting.Controllers.Api.Fba
             if (inventoryType == FBAInventoryType.Pallet)
             {
                 var palletLocationList = new List<FBAPalletLocation>();
-                var palletsInDb = _context.FBAPallets.Where(x => x.GrandNumber == grandNumber
+                var palletsInDb = _context.FBAPallets
+                    .Include(x => x.FBACartonLocations)
+                    .Where(x => x.GrandNumber == grandNumber
                     && x.ActualPallets - x.ComsumedPallets > 0);
 
                 if (palletsInDb.Count() == 0)
@@ -46,7 +49,10 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 foreach (var obj in objArray)
                 {
-                    var palletInDb = palletsInDb.SingleOrDefault(x => x.Id == obj.Id);
+                    var palletInDb = palletsInDb
+                        .Include(x => x.FBACartonLocations)
+                        .SingleOrDefault(x => x.Id == obj.Id);
+
                     palletInDb.ComsumedPallets += obj.Quantity;
 
                     if (palletInDb.ComsumedPallets > palletInDb.ActualPallets)
@@ -66,7 +72,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     palletLocation.PalletSize = palletInDb.PalletSize;
 
                     palletLocation.AssembleFirstStringPart(palletInDb.ShipmentId, palletInDb.AmzRefId, palletInDb.WarehouseCode);
-                    palletLocation.AssembleActualDetails(palletLocation.GrossWeightPerPlt * obj.Quantity, palletLocation.CBMPerPlt * obj.Quantity, obj.Quantity);
+                    //PalletLocation的Actualquantity指内含cartons的总数量
+                    palletLocation.AssembleActualDetails(palletLocation.GrossWeightPerPlt * obj.Quantity, palletLocation.CBMPerPlt * obj.Quantity, palletInDb.FBACartonLocations.Sum(x => x.ActualQuantity));
                     palletLocation.AssembleUniqueIndex(palletInDb.Container, palletInDb.GrandNumber);
 
                     palletLocation.FBAPallet = palletInDb;
@@ -119,7 +126,6 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             _context.SaveChanges();
         }
-
     }
 
     public class FBALocationDto

@@ -16,16 +16,17 @@
         <input type="button" class="btn btn-group btn-create1" value="Upload transfer list" />
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
+        <input id="btn-pickinventory" type="button" class="btn btn-primary" value="Pick from inventory" />
     </div>
     <div>
-        <input style="width:140px" id="input-grandnumber" class="input-sm" placeholder="Grand #" />
         <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
         <input style="width:140px" id="input-customer" class="input-sm" placeholder="CustomerCode" />
-        <input style="width:140px" id="input-shipmenid" class="input-sm" placeholder="Shipment Id/SKU" />
+        <input style="width:140px" id="input-shipmentid" class="input-sm" placeholder="Shipment Id/SKU" />
         <input style="width:140px" id="input-amzref" class="input-sm" placeholder="Amz Ref Id" />
         <input style="width:140px" id="input-delivery" class="input-sm" placeholder="How to deliver" />
         <input style="width:140px" id="input-warehouse" class="input-sm" placeholder="Warehouse Code" />
-        <button id="btn-pick" class="btn btn-info">Pick</button>
+        <button ordertype="Standard" class="btn btn-info btn-pick">Pick Pallets</button>
+        <button ordertype="ecommerce" class="btn btn-info btn-pick">Pick Cartons</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -84,6 +85,7 @@
             var url;
             var shipOrderId = getUrlParameter('shipOrderId');
             var orderType = getUrlParameter('orderType');
+            var container = getUrlParameter('container');
 
             //获取该订单的拣货列表
             url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType;
@@ -215,6 +217,34 @@
                 });
             });
 
+            //点击拣货按钮，完成一键拣货
+            $(".btn-pick").on("click", function () {
+                var container = $("#input-container").val() == "" ? "NULL" : $("#input-container").val();
+                var customerCode = $("#input-customer").val() == "" ? "NULL" : $("#input-customer").val();
+                var shipmentId = $("#input-shipmentid").val() == "" ? "NULL" : $("#input-shipmentid").val();
+                var amzRefId = $("#input-amzref").val() == "" ? "NULL" : $("#input-amzref").val();
+                var howToDeliver = $("#input-deliver").val() == "" ? "NULL" : $("#input-deliver").val();
+                var warehouseCode = $("#input-warehouse").val() == "" ? "NULL" : $("#input-warehouse").val();
+
+                var obj = {
+                    "container": container,
+                    "customerCode": customerCode,
+                    "shipmentId": shipmentId,
+                    "amzRefId": amzRefId,
+                    "howToDeliver": howToDeliver,
+                    "warehouseCode": warehouseCode
+                };
+
+                url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + $(this).attr('ordertype');
+
+                if (container == "NULL" && customerCode == "NULL" && shipmentId == "NULL" && warehouseCode == "NULL")
+                    layer.alert("Container, Customer Code, Shipment Id, Warehouse Code中至少要有一个不为空。");
+                else
+                    SendAjaxMethod("POST", url, obj);
+            });
+
+            //点击从库存拣货，打开库存拣货界面
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -261,6 +291,34 @@
                             iDisplayLength: 100,
                             columns: columsArray
                         });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

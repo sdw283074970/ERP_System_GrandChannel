@@ -10,6 +10,7 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Helpers;
 using ClothResorting.Models.StaticClass;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -160,6 +161,20 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
+        // DELETE /api/pickdetail/{id}
+        [HttpDelete]
+        public void RemovePickDetail([FromUri]int id)
+        {
+            var pickDetailInDb = _context.PickDetails.Include(x => x.FCRegularLocationDetail).SingleOrDefault(x => x.Id == id);
 
+            pickDetailInDb.FCRegularLocationDetail.AvailableCtns += pickDetailInDb.PickCtns;
+            pickDetailInDb.FCRegularLocationDetail.PickingCtns -= pickDetailInDb.PickCtns;
+
+            pickDetailInDb.FCRegularLocationDetail.AvailablePcs += pickDetailInDb.PickPcs;
+            pickDetailInDb.FCRegularLocationDetail.PickingPcs -= pickDetailInDb.PickPcs;
+
+            _context.PickDetails.Remove(pickDetailInDb);
+            _context.SaveChanges();
+        }
     }
 }
