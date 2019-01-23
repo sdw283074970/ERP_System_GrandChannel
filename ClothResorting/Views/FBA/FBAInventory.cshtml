@@ -28,6 +28,7 @@
                     <th>GW(KG)/Plt</th>
                     <th>CBM/Plt</th>
                     <th>Ctns/Plt</th>
+                    <th>Original Ctns</th>
                     <th>Original Plts</th>
                     <th>Available Plts</th>
                     <th>Picking Plts</th>
@@ -106,6 +107,7 @@
             var palletTable;
             var cartonTable;
             var ctnsInPltTable;
+            var currentPicking;
             var grandNumber = getUrlParameter('grandNumber');
 
             $("#h2").html("Grand Number: " + grandNumber);
@@ -186,6 +188,12 @@
                     }
                 },
                 {
+                    data: "actualPlts",
+                    render: function (data) {
+                        return "<font color='orange'>" + data + "</font>";
+                    }
+                },
+                {
                     data: "availablePlts",
                     render: function (data) {
                         return "<font color='green'>" + data + "</font>";
@@ -194,6 +202,7 @@
                 {
                     data: "pickingPlts",
                     render: function (data) {
+                        currentPicking = data;
                         return "<font color='red'>" + data + "</font>";
                     }
                 },
@@ -212,7 +221,10 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' />";
+                        if (currentPicking == 0)
+                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Pallet' value='Relocate' />";
+                        else
+                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' />";
                     }
                 }
             ]
@@ -290,6 +302,7 @@
                 {
                     data: "pickingCtns",
                     render: function (data) {
+                        currentPicking = data;
                         return "<font color='red'>" + data + "</font>";
                     }
                 },
@@ -308,7 +321,10 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' />";
+                        if (currentPicking == 0)
+                            return "<input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
+                        else
+                            return "";
                     }
                 }
             ]
@@ -386,6 +402,12 @@
                 GetAjaxTable("GET", url, "#table-ctnsinplt", ctnsInPltTable, ctnsInPltColumnArray);
             });
 
+            //点击Relocate按钮，放回物品
+            $("#table-pallet, #table-carton").on("click", ".btn-relocate", function () {
+                url = "/api/fba/fbainventory/?locationId=" + $(this).attr('iid') + "&locationType=" + $(this).attr('locationtype');
+                SendAjaxMethod("DELETE", url, {});
+            });
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -432,6 +454,34 @@
                             iDisplayLength: 100,
                             columns: columsArray
                         });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

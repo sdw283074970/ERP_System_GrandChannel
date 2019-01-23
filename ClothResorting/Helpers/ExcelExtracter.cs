@@ -2024,6 +2024,12 @@ namespace ClothResorting.Helpers
                 //遍历所有查询到的库存对象，计算最小扣除箱数数量
                 foreach (var parasiticLocation in parasiticLocationsInDb)
                 {
+                    //如果当前库存对象每箱件数是0，说明是无效库存对象，跳过本轮筛选
+                    if (parasiticLocation.PcsPerCaron == 0)
+                    {
+                        continue;
+                    }
+
                     //当前库存对象应扣总箱数(包含之前已扣除的箱数)
                     var locationDeductableCtn = (parasiticLocation.Quantity - parasiticLocation.AvailablePcs) / parasiticLocation.PcsPerCaron;
 

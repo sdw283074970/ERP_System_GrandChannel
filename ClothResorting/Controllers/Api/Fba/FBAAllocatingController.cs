@@ -74,6 +74,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     palletLocation.AssembleFirstStringPart(palletInDb.ShipmentId, palletInDb.AmzRefId, palletInDb.WarehouseCode);
                     //PalletLocation的Actualquantity指内含cartons的总数量
                     palletLocation.AssembleActualDetails(palletLocation.GrossWeightPerPlt * obj.Quantity, palletLocation.CBMPerPlt * obj.Quantity, palletInDb.FBACartonLocations.Sum(x => x.ActualQuantity));
+                    palletLocation.ActualPlts = obj.Quantity;
                     palletLocation.AssembleUniqueIndex(palletInDb.Container, palletInDb.GrandNumber);
 
                     palletLocation.FBAPallet = palletInDb;
