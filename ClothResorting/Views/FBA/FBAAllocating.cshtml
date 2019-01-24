@@ -35,6 +35,7 @@
                     <th><input id="select-allplts" type="checkbox" value="12345" /></th>
                     <th>Plts/Location</th>
                     <th>Location</th>
+                    <th style="width:120px">Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -80,15 +81,38 @@
         <button id="btn-selectedcarton" class="btn btn-primary">Allocate sellected cartons</button>
     </div>
 </div>
+<div class="iframe-cartons">
+    <div style="margin-left:20px;margin-right:20px">
+        <h1>Pallet Content</h1>
+        <table id="table-ctnsinplt" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th style="width:20px">Id</th>
+                    <th>Status</th>
+                    <th>FBA ID./SKU</th>
+                    <th>Amz ID.</th>
+                    <th>FBA Code</th>
+                    <th>GW/Ctn</th>
+                    <th>CBM/Ctn</th>
+                    <th>Ctns/Plt</th>
+                    <th>Original Ttl Ctns</th>
+                    <th>Available Ctns</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
-            $(".iframe").hide();
+            $(".iframe, .iframe-cartons").hide();
 
             var palletTable;
             var cartonTable
+            var ctnsInPltTable;
             var index;
             var url;
             var actualQuantity
@@ -215,6 +239,12 @@
                     data: "id",
                     render: function (data) {
                         return "<input class='input-palletlocation' style='width:80px' iid='" + data + "' />";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-relay'>Relay</button>";
                     }
                 }
             ]
@@ -436,6 +466,90 @@
 
                 url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber + "&inventoryType=Carton";
                 SendAjaxMethod("POST", url, objArray);
+            });
+
+            //点击托盘库存列表中的View按钮，查看该托盘内容
+            $("#table-pallet").on("click", ".btn-view", function () {
+                iframeIndex = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["800px", "400px"],
+                    content: $(".iframe-cartons")
+                });
+
+                var id = $(this).attr('iid');
+                url = "/api/fba/fbainventory/?palletId=" + id;
+                var ctnsInPltColumnArray = [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "shipmentId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "amzRefId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "warehouseCode",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "grossWeightPerCtn",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "cbmPerCtn",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "ctnsPerPlt",
+                        render: function (data) {
+                            return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualQuantity",
+                        render: function (data) {
+                            return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "availableCtns",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    }
+                ];
+
+                GetAjaxTable("GET", url, "#table-ctnsinplt", ctnsInPltTable, ctnsInPltColumnArray);
+            });
+
+            //点击Relay按钮将当前对象拆托成箱
+            $("#table-pallet").on("click", ".btn-relay", function () {
+                url = "/api/fba/FBAAllocating/?palletId=" + $(this).attr('iid');
+                SendAjaxMethod("DELETE", url, {});
             });
 
             //解析url中的参数函数

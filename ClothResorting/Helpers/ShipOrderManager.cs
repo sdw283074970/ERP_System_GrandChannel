@@ -33,10 +33,10 @@ namespace ClothResorting.Helpers
             var shipOrderInDb = pickDetailsInDb.First().ShipOrder;
             var createBy = shipOrderInDb.Operator;
 
-            if (_userName != createBy)
-            {
-                throw new Exception("This ship order is created by " + createBy + ". Cannot be shipped by other operator.");
-            }
+            //if (_userName != createBy)
+            //{
+            //    throw new Exception("This ship order is created by " + createBy + ". Cannot be shipped by other operator.");
+            //}
 
             var orderType = shipOrderInDb.OrderType;
 

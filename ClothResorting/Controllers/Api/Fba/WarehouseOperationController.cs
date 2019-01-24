@@ -71,6 +71,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.GrandNumber = grandNumber;
                     cartonLocation.FBAOrderDetail = orderDetailInDb;
                     cartonLocation.ActualQuantity = ctnsPerPlt * pltQuantity;
+                    cartonLocation.AvailableCtns = ctnsPerPlt * pltQuantity;
 
                     cartonLocationList.Add(cartonLocation);
                 }
@@ -80,7 +81,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var firstId = objArray.First().Id;
                 var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
 
-                pallet.AssembleFirstStringPart(DistinctStringList(cartonLocationList.Select(x => x.ShipmentId)), firstOrderDetail.AmzRefId, firstOrderDetail.WarehouseCode);
+                pallet.AssembleFirstStringPart(DistinctStringList(cartonLocationList.Select(x => x.ShipmentId)), DistinctStringList(cartonLocationList.Select(x => x.AmzRefId)), DistinctStringList(cartonLocationList.Select(x => x.WarehouseCode)));
                 pallet.AssembleActualDetails(cartonLocationList.Sum(x => x.GrossWeightPerCtn * x.CtnsPerPlt * pltQuantity), cartonLocationList.Sum(x => x.CBMPerCtn * x.CtnsPerPlt * pltQuantity), cartonLocationList.Sum(x => x.CtnsPerPlt * pltQuantity));
                 pallet.AssembleBoolValue(doesAppliedLabel, hasSortingMarking, isOverSizeOrOverwidth);
 
@@ -117,7 +118,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     var grossWeightPerCtn = (float)Math.Round((orderDetailInDb.ActualGrossWeight / orderDetailInDb.ActualQuantity), 2);
                     var cbmPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
 
-                    cartonLocation.AssembleFirstStringPart(DistinctStringList(cartonLocationList.Select(x => x.ShipmentId)), orderDetailInDb.AmzRefId, orderDetailInDb.WarehouseCode);
+                    cartonLocation.AssembleFirstStringPart(orderDetailInDb.ShipmentId, orderDetailInDb.AmzRefId, orderDetailInDb.WarehouseCode);
                     cartonLocation.AssemblePltInfo(grossWeightPerCtn, cbmPerCtn, 0);
 
                     cartonLocation.Container = orderDetailInDb.Container;
@@ -126,6 +127,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.GrandNumber = grandNumber;
                     cartonLocation.FBAOrderDetail = orderDetailInDb;
                     cartonLocation.ActualQuantity = obj.Quantity;
+                    cartonLocation.AvailableCtns = obj.Quantity;
 
                     cartonLocationList.Add(cartonLocation);
                 }
@@ -135,7 +137,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var firstId = objArray.First().Id;
                 var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
 
-                pallet.AssembleFirstStringPart(firstOrderDetail.ShipmentId, firstOrderDetail.AmzRefId, firstOrderDetail.WarehouseCode);
+                pallet.AssembleFirstStringPart(DistinctStringList(cartonLocationList.Select(x => x.ShipmentId)), DistinctStringList(cartonLocationList.Select(x => x.AmzRefId)), DistinctStringList(cartonLocationList.Select(x => x.WarehouseCode)));
                 pallet.ActualQuantity = cartonLocationList.Sum(x => x.ActualQuantity);
                 pallet.AssembleBoolValue(doesAppliedLabel, hasSortingMarking, isOverSizeOrOverwidth);
 

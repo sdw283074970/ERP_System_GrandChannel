@@ -127,6 +127,40 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             _context.SaveChanges();
         }
+
+        // DELETE /api/fba/fbaallocating/?palletId={palletId}
+        [HttpDelete]
+        public void RemovePalletAndRelatedCartonLocation([FromUri]int palletId)
+        {
+            var palletInDb = _context.FBAPallets
+                .Include(x => x.FBACartonLocations)
+                .SingleOrDefault(x => x.Id == palletId);
+
+            var container = palletInDb.Container;
+            var cartonLocationIds = palletInDb.FBACartonLocations.Select(x => x.Id).ToList();
+
+            var cartonLocationsInDb = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail)
+                .Where(x => x.Container == container && x.Status == FBAStatus.InPallet);
+
+            foreach(var id in cartonLocationIds)
+            {
+                var locationInDb = cartonLocationsInDb.SingleOrDefault(x => x.Id == id);
+                if (locationInDb.CtnsPerPlt == 0)
+                {
+                    locationInDb.FBAOrderDetail.ComsumedQuantity -= locationInDb.AvailableCtns;
+                }
+                else
+                {
+                    locationInDb.FBAOrderDetail.ComsumedQuantity -= locationInDb.CtnsPerPlt * (palletInDb.ActualPallets - palletInDb.ComsumedPallets);
+
+                }
+                _context.FBACartonLocations.Remove(locationInDb);
+            }
+
+            _context.FBAPallets.Remove(palletInDb);
+            _context.SaveChanges();
+        }
     }
 
     public class FBALocationDto

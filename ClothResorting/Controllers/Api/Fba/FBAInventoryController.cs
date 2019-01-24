@@ -51,6 +51,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 .FBACartonLocations));
         }
 
+        // GET /api/fba/fbainventory/?palletId={palletId}
+        [HttpGet]
+        public IHttpActionResult GetCartonsDetailInPallet([FromUri]int palletId)
+        {
+            return Ok(Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(_context.FBAPallets
+                .Include(x => x.FBACartonLocations)
+                .SingleOrDefault(x => x.Id == palletId)
+                .FBACartonLocations));
+        }
+
         // GET /api/fba/fbaiventory/?grandNumber={grandNumber}&inventoryType={inventoryType}
         [HttpGet]
         public IHttpActionResult GetFBAInventory([FromUri]string grandNumber, [FromUri]string inventoryType)

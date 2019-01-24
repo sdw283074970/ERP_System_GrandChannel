@@ -26,6 +26,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime PickDate { get; set; }
 
+        public DateTime ShipDate { get; set; }
+
         public string PickMan { get; set; }
 
         public string Status { get; set; }

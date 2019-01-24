@@ -89,6 +89,7 @@
                     <th>CBM/Ctn</th>
                     <th>Ctns/Plt</th>
                     <th>Original Ttl Ctns</th>
+                    <th>Available Ctns</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -395,6 +396,12 @@
                         data: "actualQuantity",
                         render: function (data) {
                             return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "availableCtns",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
                         }
                     }
                 ];
