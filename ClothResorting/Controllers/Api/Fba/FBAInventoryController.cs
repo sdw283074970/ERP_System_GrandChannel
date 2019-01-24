@@ -75,7 +75,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 return Ok(_context.FBACartonLocations
                     .Include(x => x.FBAPallet)
-                    .Where(x => x.GrandNumber == grandNumber && x.FBAPallet == null)
+                    .Where(x => x.GrandNumber == grandNumber)
                     .Select(Mapper.Map<FBACartonLocation, FBACartonLocationDto>));
             }
         }

@@ -44,7 +44,7 @@ namespace ClothResorting.Controllers.Api.Fba
             if (orderType == FBAOrderType.Standard)
             {
                 var resultsInDb = _context.FBAPalletLocations
-                    .Include(x => x.FBAPallet)
+                    .Include(x => x.FBAPallet.FBACartonLocations)
                     .Where(x => x.AvailablePlts != 0);
 
                 if (obj.Container != "NULL")
@@ -103,6 +103,12 @@ namespace ClothResorting.Controllers.Api.Fba
                     pickDetail.FBAShipOrder = shipOrderInDb;
 
                     pickDetailList.Add(pickDetail);
+
+                    foreach(var cartonLocation in r.FBAPallet.FBACartonLocations)
+                    {
+                        cartonLocation.PickingCtns += cartonLocation.AvailableCtns;
+                        cartonLocation.AvailableCtns = 0;
+                    }
                 }
             }
             else

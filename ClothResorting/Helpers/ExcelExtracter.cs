@@ -151,6 +151,7 @@ namespace ClothResorting.Helpers
             //分别扫描各个POSummary的CartonDetail
             var startIndex = 1;
             var poSummariesInDb = _context.POSummaries.OrderByDescending(x => x.Id).Take(poList.Count);
+            var batch = 1;
 
             foreach (var poSummary in poSummariesInDb)
             {
@@ -231,7 +232,7 @@ namespace ClothResorting.Helpers
                                         Receiver = "",
                                         Adjustor = "",
                                         Vendor = vendor,
-                                        Batch = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                        Batch = batch.ToString(),
                                         ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                     });
                                 }
@@ -276,7 +277,7 @@ namespace ClothResorting.Helpers
                                     Receiver = "",
                                     Adjustor = "",
                                     Vendor = vendor,
-                                    Batch = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                    Batch = batch.ToString(),
                                     ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                 });
                             }
@@ -329,7 +330,7 @@ namespace ClothResorting.Helpers
                                 Receiver = "",
                                 Adjustor = "",
                                 Vendor = vendor,
-                                Batch = _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn - 1].Value2.ToString(),
+                                Batch = batch.ToString(),
                                 ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString()
                             });
                         }
@@ -355,6 +356,8 @@ namespace ClothResorting.Helpers
             //重新统计新建的preReceiveOrder对象的数据
             preReceiveOrderInDb.TotalCartons += cartonList.Sum(x => x.Cartons);
             preReceiveOrderInDb.TotalPcs += cartonList.Sum(x => x.Quantity);
+
+            batch += 1;
 
             _context.RegularCartonDetails.AddRange(cartonList);
             _context.SaveChanges();

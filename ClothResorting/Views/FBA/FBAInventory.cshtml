@@ -103,6 +103,7 @@
 
             $(".iframe-cartons").hide();
 
+            var status;
             var index;
             var iframeIndex;
             var palletTable;
@@ -243,6 +244,7 @@
                 {
                     data: "status",
                     render: function (data) {
+                        status = data;
                         return "<text>" + data + "</text>";
                     }
                 },
@@ -322,7 +324,7 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (currentPicking == 0)
+                        if (currentPicking == 0 && status != "InPallet")
                             return "<input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
                         else
                             return "";

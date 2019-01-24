@@ -31,7 +31,7 @@ namespace ClothResorting.Helpers
                     && x.Status == Status.Picking);
 
             var shipOrderInDb = pickDetailsInDb.First().ShipOrder;
-            var createBy = shipOrderInDb.Operator;
+            //var createBy = shipOrderInDb.Operator;
 
             //if (_userName != createBy)
             //{
@@ -47,9 +47,10 @@ namespace ClothResorting.Helpers
                 {
                     var locationDetailInDb = pickDetail.FCRegularLocationDetail;
 
-                    var parasiticLocationDetail = _context.FCRegularLocationDetails.Where(x => x.Container == locationDetailInDb.Container
-                        && x.CartonRange == locationDetailInDb.CartonRange
-                        && x.Batch == locationDetailInDb.Batch)
+                    var parasiticLocationDetail = _context.FCRegularLocationDetails
+                        .Where(x => x.Container == locationDetailInDb.Container
+                            && x.CartonRange == locationDetailInDb.CartonRange
+                            && x.Batch == locationDetailInDb.Batch)
                         .ToList();
 
                     locationDetailInDb.ShippedPcs += pickDetail.PickPcs;
@@ -232,10 +233,25 @@ namespace ClothResorting.Helpers
             else
             {
                 //查找当前对象的宿主对象
+                try
+                {
+                    var mainLocationInDbtest = context.FCRegularLocationDetails
+                        .SingleOrDefault(x => x.Container == locationDetailInDb.Container
+                            && x.CartonRange == locationDetailInDb.CartonRange
+                            && x.Batch == locationDetailInDb.Batch
+                            && x.Location == locationDetailInDb.Location
+                            && x.Cartons != 0);
+                }
+                catch(Exception e)
+                {
+                    throw new Exception(e.Message + " Container=" + locationDetailInDb.Container + ", Carton Range=" + locationDetailInDb.CartonRange + ", Batch=" + locationDetailInDb.Batch + ", Location=" + locationDetailInDb.Location);
+                }
+
                 var mainLocationInDb = context.FCRegularLocationDetails
                     .SingleOrDefault(x => x.Container == locationDetailInDb.Container
                         && x.CartonRange == locationDetailInDb.CartonRange
                         && x.Batch == locationDetailInDb.Batch
+                        && x.Location == locationDetailInDb.Location
                         && x.Cartons != 0);
 
                 var originaAvailableCtns = mainLocationInDb.AvailableCtns;
@@ -265,18 +281,46 @@ namespace ClothResorting.Helpers
             else
             {
                 //查找当前对象的宿主对象
+                try
+                {
+                    var mainLocationInDbtest = context.FCRegularLocationDetails
+                        .SingleOrDefault(x => x.Container == locationDetailInDb.Container
+                            && x.CartonRange == locationDetailInDb.CartonRange
+                            && x.Batch == locationDetailInDb.Batch
+                            && x.Location == locationDetailInDb.Location
+                            && x.Cartons != 0);
+                }
+                catch(Exception e)
+                {
+                    throw new Exception(e.Message + " Container=" + locationDetailInDb.Container + ", Carton Range=" + locationDetailInDb.CartonRange + ", Batch=" + locationDetailInDb.Batch + ", Location=" + locationDetailInDb.Location);
+                }
+
                 var mainLocationInDb = context.FCRegularLocationDetails
                     .SingleOrDefault(x => x.Container == locationDetailInDb.Container
                         && x.CartonRange == locationDetailInDb.CartonRange
                         && x.Batch == locationDetailInDb.Batch
+                        && x.Location == locationDetailInDb.Location
                         && x.Cartons != 0);
+
+                if (mainLocationInDb == null)
+                {
+                    throw new Exception("Did not find the main object. Please check container=" + locationDetailInDb.Container + ", Carton Range=" + locationDetailInDb.CartonRange + ", Batch=" + locationDetailInDb.Batch);
+                }
 
                 var originaShippedCtns = mainLocationInDb.ShippedCtns;
                 var updatedShippedCtns = mainLocationInDb.Cartons;
 
                 foreach (var location in parasiticLocationDetail)
                 {
-                    updatedShippedCtns = Math.Min(updatedShippedCtns, location.ShippedPcs / location.PcsPerCaron);
+                    //如果当前对象的pcspercarton是0，说明是全为0的无效储存对象，直接跳过
+                    if (location.PcsPerCaron == 0)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        updatedShippedCtns = Math.Min(updatedShippedCtns, location.ShippedPcs / location.PcsPerCaron);
+                    }
                 }
 
                 mainLocationInDb.ShippedCtns = updatedShippedCtns;
