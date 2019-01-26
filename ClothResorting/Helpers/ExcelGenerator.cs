@@ -357,7 +357,7 @@ namespace ClothResorting.Helpers
             cells.Add(1, 1, vendor + " Inventory Report", xfTitle);
 
             //建立列
-            var columnNames = "Container,Status,Cut PO,Style,Color,Size,Pack,Original Ctns,Original Pcs,Available Ctns,Available Pcs";
+            var columnNames = "Container,Status,Cut PO,Style,Color,Size,Pack,Original Ctns,Original Pcs,Available Ctns,Available Pcs,Pallet#";
             var index = 1;
 
             foreach (var columnName in columnNames.Split(','))
@@ -381,6 +381,7 @@ namespace ClothResorting.Helpers
                 cells.Add(4 + index, 9, inventory.Quantity, xf);
                 cells.Add(4 + index, 10, inventory.AvailableCtns, xf);
                 cells.Add(4 + index, 11, inventory.AvailablePcs, xf);
+                cells.Add(4 + index, 12, inventory.Batch, xf);
                 index++;
             }
 

@@ -56,7 +56,7 @@
 </div>
 <div class="iframe-info">
     <div style="text-align:right;margin-right:20px">
-        <text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
+        <text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" placeholder="Optional" /></text><br />
         <text>Inbound Date: <input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
         <button id="btn-updateinfo" class="btn btn-primary" style="margin-top:20px">Update</button>
     </div>
@@ -164,7 +164,7 @@
 
             //点击Update按钮更新信息
             $("#btn-updateinfo").on("click", function () {
-                var container = $("#input-updatecontainer").val();
+                var container = $("#input-updatecontainer").val() == "" ? "NULL" : $("#input-updatecontainer").val();
                 var inboundDate = $("#input-date").val();
 
                 url = "/api/fba/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&container=" + container + "&inboundDate=" + inboundDate;

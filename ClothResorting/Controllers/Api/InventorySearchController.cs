@@ -176,4 +176,6 @@ public class InventoryReportDetail
     public string Vendor { get; set; }
 
     public bool IsHanger { get; set; }
+
+    public string Batch { get; set; }
 }

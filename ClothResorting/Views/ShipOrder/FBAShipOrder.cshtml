@@ -165,7 +165,7 @@
                 {
                     data: "shipDate",
                     render: function (data) {
-                        if (data == "1900-01-01T00:00:00")
+                        if (data == "1970-01-01T00:00:00")
                             return "<font color='red'>Unshipped</font>"
                         else
                             return "<font>" + data.substring(0, 10) + "</font>";

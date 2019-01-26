@@ -39,6 +39,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult CreatePickDetails([FromUri]int shipOrderId, [FromUri]string orderType, [FromBody]PickOrderDto obj)
         {
             var pickDetailList = new List<FBAPickDetail>();
+            var pickDetailCartonList = new List<FBAPickDetailCarton>();
+
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
             if (orderType == FBAOrderType.Standard)
@@ -46,6 +48,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var resultsInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAPallet.FBACartonLocations)
                     .Where(x => x.AvailablePlts != 0);
+
 
                 if (obj.Container != "NULL")
                 {
@@ -79,36 +82,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 foreach (var r in resultsInDb)
                 {
-                    var pickDetail = new FBAPickDetail();
-
-                    pickDetail.AssembleUniqueIndex(obj.Container, r.GrandNumber);
-                    pickDetail.AssembleFirstStringPart(r.ShipmentId, r.AmzRefId, r.WarehouseCode);
-                    pickDetail.AssembleActualDetails(r.ActualGrossWeight, r.ActualCBM, r.FBAPallet.ActualQuantity);
-
-                    pickDetail.Status = FBAStatus.Picking;
-                    pickDetail.Size = r.PalletSize;
-                    pickDetail.ActualPlts = r.AvailablePlts;
-                    pickDetail.CtnsPerPlt = r.CtnsPerPlt;
-                    pickDetail.Location = r.Location;
-
-                    r.PickingPlts += r.AvailablePlts;
-                    r.AvailablePlts = 0;
-                    r.Status = FBAStatus.Picking;
-
-                    pickDetail.HowToDeliver = r.HowToDeliver;
-                    pickDetail.FBAPalletLocation = r;
-                    pickDetail.OrderType = FBAOrderType.Standard;
-                    pickDetail.HowToDeliver = r.HowToDeliver;
-
-                    pickDetail.FBAShipOrder = shipOrderInDb;
-
-                    pickDetailList.Add(pickDetail);
-
-                    foreach(var cartonLocation in r.FBAPallet.FBACartonLocations)
-                    {
-                        cartonLocation.PickingCtns += cartonLocation.AvailableCtns;
-                        cartonLocation.AvailableCtns = 0;
-                    }
+                    pickDetailList.Add(GetFBAPickDetailFromPalletLocation(r, shipOrderInDb, pickDetailCartonList));
                 }
             }
             else
@@ -147,37 +121,50 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 foreach (var r in resultsInDb)
                 {
-                    var pickDetail = new FBAPickDetail();
-
-                    pickDetail.AssembleUniqueIndex(obj.Container, r.GrandNumber);
-                    pickDetail.AssembleFirstStringPart(r.ShipmentId, r.AmzRefId, r.WarehouseCode);
-                    pickDetail.AssembleActualDetails(r.ActualGrossWeight, r.ActualCBM, r.AvailableCtns);
-
-                    pickDetail.Status = FBAStatus.Picking;
-                    pickDetail.Size = string.Empty;
-                    pickDetail.CtnsPerPlt = 0;
-                    pickDetail.Location = r.Location;
-
-                    r.PickingCtns += r.AvailableCtns;
-                    r.AvailableCtns = 0;
-                    r.Status = FBAStatus.Picking;
-
-                    pickDetail.FBACartonLocation = r;
-                    pickDetail.OrderType = FBAOrderType.ECommerce;
-                    pickDetail.HowToDeliver = r.HowToDeliver;
-
-                    pickDetail.FBAShipOrder = shipOrderInDb;
-
-                    pickDetailList.Add(pickDetail);
+                    pickDetailList.Add(GetFBAPickDetailFromCartonLocation(r, shipOrderInDb));
                 }
             }
 
             shipOrderInDb.Status = FBAStatus.Picking;
 
+            _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
             _context.FBAPickDetails.AddRange(pickDetailList);
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/" + pickDetailList.Count, Mapper.Map<IEnumerable<FBAPickDetail>, IEnumerable<FBAPickDetailsDto>>(pickDetailList));
+        }
+
+        // POST /api/fba/fbapickdetail/?shipOrderId={shipOrderId}&inventoryId={inventoryId}&inventoryType={inventoryType}&operation={operation}
+        [HttpPost]
+        public IHttpActionResult CreateSinglePickDetails([FromUri]int shipOrderId, [FromUri]int inventoryId, [FromUri]string inventoryType, [FromUri]string operation)
+        {
+            var pickDetailCartonList = new List<FBAPickDetailCarton>();
+
+            if (operation == "AllPick")
+            {
+                var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+                if (inventoryType == FBAInventoryType.Pallet)
+                {
+                    var palletLocationInDb = _context.FBAPalletLocations
+                        .Include(x => x.FBAPallet.FBACartonLocations)
+                        .SingleOrDefault(x => x.Id == inventoryId);
+
+                    _context.FBAPickDetails.Add(GetFBAPickDetailFromPalletLocation(palletLocationInDb, shipOrderInDb, pickDetailCartonList));
+                    _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
+                }
+                else
+                {
+                    var cartonLocationInDb = _context.FBACartonLocations
+                        .SingleOrDefault(x => x.Id == inventoryId);
+
+                    _context.FBAPickDetails.Add(GetFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb));
+                }
+            }
+
+            _context.SaveChanges();
+
+            return Created(Request.RequestUri + "/CreatedSuccess", "");
         }
 
         // DELETE /api/fba/fbapickdetail/?pickDetailId={pickDetailId}
@@ -192,7 +179,8 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var pickDetailInDb = context.FBAPickDetails
                 .Include(x => x.FBACartonLocation)
-                .Include(x => x.FBAPalletLocation)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .Include(x => x.FBAPickDetailCartons)
                 .SingleOrDefault(x => x.Id == pickDetailId);
 
             //如果palletLocation不为空，则说明是standard类型运单内容，否则是ecommerce运单内容
@@ -201,6 +189,19 @@ namespace ClothResorting.Controllers.Api.Fba
                 pickDetailInDb.FBAPalletLocation.AvailablePlts += pickDetailInDb.ActualPlts;
                 pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.ActualPlts;
                 pickDetailInDb.FBAPalletLocation.Status = FBAStatus.InStock;
+
+                var pickDetailCartonsInDb = _context.FBAPickDetailCartons
+                    .Include(x => x.FBACartonLocation)
+                    .Include(x => x.FBAPickDetail)
+                    .Where(x => x.FBAPickDetail.Id == pickDetailInDb.Id);
+
+                foreach (var c in pickDetailCartonsInDb)
+                {
+                    c.FBACartonLocation.AvailableCtns += c.PickCtns;
+                    c.FBACartonLocation.PickingCtns -= c.PickCtns;
+                }
+
+                _context.FBAPickDetailCartons.RemoveRange(pickDetailCartonsInDb);
             }
             else
             {
@@ -210,6 +211,76 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             context.FBAPickDetails.Remove(pickDetailInDb);
+        }
+
+        public FBAPickDetail GetFBAPickDetailFromPalletLocation(FBAPalletLocation fbaPalletLocationInDb, FBAShipOrder shipOrderInDb, IList<FBAPickDetailCarton> pickDetailCartonList)
+        {
+            var pickDetail = new FBAPickDetail();
+
+            pickDetail.AssembleUniqueIndex(fbaPalletLocationInDb.Container, fbaPalletLocationInDb.GrandNumber);
+            pickDetail.AssembleFirstStringPart(fbaPalletLocationInDb.ShipmentId, fbaPalletLocationInDb.AmzRefId, fbaPalletLocationInDb.WarehouseCode);
+            pickDetail.AssembleActualDetails(fbaPalletLocationInDb.ActualGrossWeight, fbaPalletLocationInDb.ActualCBM, fbaPalletLocationInDb.FBAPallet.ActualQuantity);
+
+            pickDetail.Status = FBAStatus.Picking;
+            pickDetail.Size = fbaPalletLocationInDb.PalletSize;
+            pickDetail.ActualPlts = fbaPalletLocationInDb.AvailablePlts;
+            pickDetail.CtnsPerPlt = fbaPalletLocationInDb.CtnsPerPlt;
+            pickDetail.Location = fbaPalletLocationInDb.Location;
+
+            fbaPalletLocationInDb.PickingPlts += fbaPalletLocationInDb.AvailablePlts;
+            fbaPalletLocationInDb.AvailablePlts = 0;
+            fbaPalletLocationInDb.Status = FBAStatus.Picking;
+
+            pickDetail.HowToDeliver = fbaPalletLocationInDb.HowToDeliver;
+            pickDetail.FBAPalletLocation = fbaPalletLocationInDb;
+            pickDetail.OrderType = FBAOrderType.Standard;
+            pickDetail.HowToDeliver = fbaPalletLocationInDb.HowToDeliver;
+
+            pickDetail.FBAShipOrder = shipOrderInDb;
+
+            foreach (var cartonLocation in fbaPalletLocationInDb.FBAPallet.FBACartonLocations)
+            {
+                cartonLocation.PickingCtns += cartonLocation.AvailableCtns;
+
+                var pickDetailCarton = new FBAPickDetailCarton
+                {
+                    PickCtns = cartonLocation.AvailableCtns,
+                    FBAPickDetail = pickDetail,
+                    FBACartonLocation = cartonLocation
+                };
+
+                cartonLocation.AvailableCtns = 0;
+
+                pickDetailCartonList.Add(pickDetailCarton);
+            }
+
+            return pickDetail;
+        }
+
+        public FBAPickDetail GetFBAPickDetailFromCartonLocation(FBACartonLocation fbaCartonLocationInDb, FBAShipOrder shipOrderInDb)
+        {
+            var pickDetail = new FBAPickDetail();
+
+            pickDetail.AssembleUniqueIndex(fbaCartonLocationInDb.Container, fbaCartonLocationInDb.GrandNumber);
+            pickDetail.AssembleFirstStringPart(fbaCartonLocationInDb.ShipmentId, fbaCartonLocationInDb.AmzRefId, fbaCartonLocationInDb.WarehouseCode);
+            pickDetail.AssembleActualDetails(fbaCartonLocationInDb.ActualGrossWeight, fbaCartonLocationInDb.ActualCBM, fbaCartonLocationInDb.AvailableCtns);
+
+            pickDetail.Status = FBAStatus.Picking;
+            pickDetail.Size = string.Empty;
+            pickDetail.CtnsPerPlt = 0;
+            pickDetail.Location = fbaCartonLocationInDb.Location;
+
+            fbaCartonLocationInDb.PickingCtns += fbaCartonLocationInDb.AvailableCtns;
+            fbaCartonLocationInDb.AvailableCtns = 0;
+            fbaCartonLocationInDb.Status = FBAStatus.Picking;
+
+            pickDetail.FBACartonLocation = fbaCartonLocationInDb;
+            pickDetail.OrderType = FBAOrderType.ECommerce;
+            pickDetail.HowToDeliver = fbaCartonLocationInDb.HowToDeliver;
+
+            pickDetail.FBAShipOrder = shipOrderInDb;
+
+            return pickDetail;
         }
     }
 

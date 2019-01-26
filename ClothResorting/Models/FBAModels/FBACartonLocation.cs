@@ -29,6 +29,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
 
+        public ICollection<FBAPickDetailCarton> FBAPickDetailCartons { get; set; }
+
         public void AssemblePltInfo(float grossWeightPerCtn, float cbmPerCtn, int ctnsPerPlt)
         {
             GrossWeightPerCtn = grossWeightPerCtn;

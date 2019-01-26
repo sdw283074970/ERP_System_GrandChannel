@@ -23,5 +23,7 @@ namespace ClothResorting.Models.FBAModels
         public FBAPalletLocation FBAPalletLocation { get; set; }
 
         public FBACartonLocation FBACartonLocation { get; set; }
+
+        public ICollection<FBAPickDetailCarton> FBAPickDetailCartons { get; set; }
     }
 }

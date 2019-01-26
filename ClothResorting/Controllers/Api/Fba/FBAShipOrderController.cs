@@ -39,6 +39,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
+            shipOrder.ShipDate = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();

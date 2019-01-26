@@ -80,6 +80,25 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
+        // GET /api/fba/fbaiventory/?container={container}&inventoryType={inventoryType}
+        [HttpGet]
+        public IHttpActionResult GetFBAInventoryViaContainer([FromUri]string container, [FromUri]string inventoryType)
+        {
+            if (inventoryType == FBAInventoryType.Pallet)
+            {
+                return Ok(_context.FBAPalletLocations
+                    .Where(x => x.Container == container && x.AvailablePlts != 0)
+                    .Select(Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>));
+            }
+            else
+            {
+                return Ok(_context.FBACartonLocations
+                    .Include(x => x.FBAPallet)
+                    .Where(x => x.Container == container && x.AvailableCtns != 0)
+                    .Select(Mapper.Map<FBACartonLocation, FBACartonLocationDto>));
+            }
+        }
+
         // DELET /api/fba/fbainventory/?locationId={locationId}&locationType={locationType}
         [HttpDelete]
         public void RelocateLocation([FromUri]int locationId, [FromUri]string locationType)

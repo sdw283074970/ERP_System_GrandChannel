@@ -71,7 +71,11 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var masterOrderInDb = _context.FBAMasterOrders.Include(x => x.FBAOrderDetails).SingleOrDefault(x => x.GrandNumber == masterOrderId);
 
-            masterOrderInDb.Container = container;
+            if (container != "NULL")
+            {
+                masterOrderInDb.Container = container;
+            }
+
             masterOrderInDb.InboundDate = inboundDateTime;
 
             foreach(var detail in masterOrderInDb.FBAOrderDetails)

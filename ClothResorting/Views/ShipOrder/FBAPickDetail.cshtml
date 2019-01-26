@@ -11,19 +11,21 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-
     <div id="div-create">
         <input type="button" class="btn btn-group btn-create1" value="Upload transfer list" />
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
-        <input id="btn-pickinventory" type="button" class="btn btn-primary" value="Pick from inventory" />
+        <input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />
+    </div>
+    <div id="div-partial">
+        @Html.Partial("_FBAInventoryListPartial")
     </div>
     <div>
         <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
         <input style="width:140px" id="input-customer" class="input-sm" placeholder="CustomerCode" />
         <input style="width:140px" id="input-shipmentid" class="input-sm" placeholder="Shipment Id/SKU" />
         <input style="width:140px" id="input-amzref" class="input-sm" placeholder="Amz Ref Id" />
-        <input style="width:140px" id="input-deliver" class="input-sm" placeholder="How to deliver" />
+        @*<input style="width:140px" id="input-deliver" class="input-sm" placeholder="How to deliver" />*@
         <input style="width:140px" id="input-warehouse" class="input-sm" placeholder="Warehouse Code" />
         <button ordertype="Standard" class="btn btn-info btn-pick">Pick Pallets</button>
         <button ordertype="ecommerce" class="btn btn-info btn-pick">Pick Cartons</button>
@@ -102,128 +104,22 @@
         $(document).ready(function () {
 
             $(".iframe,.iframe-update, .iframe-cartons").hide();
-
+            $(".iframe-inventory").hide();
 
             var index;
+            var status;
             var table;
+            var tablePallet;
+            var tableCarton;
             var url;
             var currentType;
             var ctnsInPltTable;
             var shipOrderId = getUrlParameter('shipOrderId');
             var orderType = getUrlParameter('orderType');
-            var container = getUrlParameter('container');
+            var container;
 
             //获取该订单的拣货列表
-            url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType;
-            var columnArray = [
-                {
-                    data: "id",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "status",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "grandNumber",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "container",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "orderType",
-                    render: function (data) {
-                        currentType = data;
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "shipmentId",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "amzRefId",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "size",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "howToDeliver",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "warehouseCode",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "actualGrossWeight",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "actualCBM",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "ctnsPerPlt",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "actualQuantity",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "actualPlts",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "location",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "id",
-                    render: function (data) {
-                        if (currentType == "Standard")
-                            return "<button class='btn btn-link btn-view' iid='" + data + "'>View</button><button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button>";
-                        else
-                            return "<button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button>";
-                    }
-                },
-            ];
-            GetAjaxTable("GET", url, "#table", table, columnArray);
+            GetPickDetailTable(shipOrderId, table, orderType);
 
             //点击上传出货清单按钮，弹出上传文件对话框
             $("#div-create").on("click", ".btn-create1", function () {
@@ -249,11 +145,12 @@
 
             //点击拣货按钮，完成一键拣货
             $(".btn-pick").on("click", function () {
-                var container = $("#input-container").val() == "" ? "NULL" : $("#input-container").val();
+                container = $("#input-container").val() == "" ? "NULL" : $("#input-container").val();
                 var customerCode = $("#input-customer").val() == "" ? "NULL" : $("#input-customer").val();
                 var shipmentId = $("#input-shipmentid").val() == "" ? "NULL" : $("#input-shipmentid").val();
                 var amzRefId = $("#input-amzref").val() == "" ? "NULL" : $("#input-amzref").val();
-                var howToDeliver = $("#input-deliver").val() == "" ? "NULL" : $("#input-deliver").val();
+                //var howToDeliver = $("#input-deliver").val() == "" ? "NULL" : $("#input-deliver").val();
+                var howToDeliver = "NULL";
                 var warehouseCode = $("#input-warehouse").val() == "" ? "NULL" : $("#input-warehouse").val();
 
                 var obj = {
@@ -360,10 +257,62 @@
             //点击拣货列表中的Put Back按钮，将选中对象放回原处
             $("#table").on("click", ".btn-putback", function () {
                 url = "/api/fba/fbapickdetail/?pickDetailId=" + $(this).attr('iid');
-                SendAjaxMethod("DELETE", url, "");
+                SendAjaxMethodWithoutReloadPage("DELETE", url, "");
             });
 
             //点击从库存拣货，打开库存拣货界面
+            $("#btn-inventory").on("click", function () {
+                $(".iframe-inventory").show();
+            });
+
+            //点击库存拣货界面的搜索按钮，获取可被拣货的列表
+            $("#btn-search").on("click", function () {
+                container = $("#input-inventory-container").val();
+                if (container != "")
+                {
+                    GetPickInventoryTable(container, tablePallet, tableCarton);
+                }
+            });
+
+            //点击库存表中的All Pick按钮，将所有货全拣
+            $("#table-pallet, #table-carton").on("click", ".btn-inventory-allpick", function () {
+                var inventoryType = $(this).attr('inventorytype');
+                var inventoryId = $(this).attr('iid');
+
+                url = "/api/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryId=" + inventoryId + "&inventoryType=" + inventoryType + "&operation=AllPick";
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        container = $("#input-inventory-container").val();
+                        if (container != "") {
+                            GetPickInventoryTable(container, tablePallet, tableCarton);
+                            GetPickDetailTable(shipOrderId, table, orderType);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击关闭按钮，关闭库存件货界面
+            $("#div-partial").on("click", ".btn-close", function () {
+                $(".iframe-inventory").hide();
+            });
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -447,6 +396,328 @@
                     }
                 });
             };
+
+            function SendAjaxMethodWithoutReloadPage(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        container = $("#input-inventory-container").val();
+                        if (container != "") {
+                            GetPickInventoryTable(container, tablePallet, tableCarton);
+                            GetPickDetailTable(shipOrderId, table, orderType);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function GetPickInventoryTable(container, tablePallet, tableCarton) {
+                url = "/api/fba/fbainventory/?container=" + container + "&inventoryType=Pallet";
+                var palletsColumnArray = [
+                        {
+                            data: "id",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "status",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "container",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "shipmentId",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "amzRefId",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "palletSize",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "warehouseCode",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "grossWeightPerPlt",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "cbmPerPlt",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "ctnsPerPlt",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "actualQuantity",
+                            render: function (data) {
+                                return "<font color='orange'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "actualPlts",
+                            render: function (data) {
+                                return "<font color='orange'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "availablePlts",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "location",
+                            render: function (data) {
+                                return "<font color='orange'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "id",
+                            render: function (data) {
+                                return "<input type='button' class='btn btn-link btn-inventory-pick' inventorytype='Pallet' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-inventory-allpick' inventorytype='Pallet' iid='" + data + "' value='All Pick' />";
+                            }
+                        }
+                ]
+                GetAjaxTable("GET", url, "#table-pallet", tablePallet, palletsColumnArray);
+
+                url = "/api/fba/fbainventory/?container=" + container + "&inventoryType=Carton";
+                var cartonsColumnArray = [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (data) {
+                            status = data;
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "container",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "shipmentId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "amzRefId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "warehouseCode",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "grossWeightPerCtn",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "cbmPerCtn",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualQuantity",
+                        render: function (data) {
+                            return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "availableCtns",
+                        render: function (data) {
+                            return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "location",
+                        render: function (data) {
+                            return "<font color='orange'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            if (status != "InPallet")
+                                return "<input type='button' class='btn btn-link btn-inventory-pick' inventorytype='Carton' iid='" + data + "' locationtype='Carton' value='Pick' /><input type='button' class='btn btn-link btn-inventory-allpick' inventorytype='Carton' iid='" + data + "' locationtype='Carton' value='All Pick' />";
+                            else
+                                return "";
+                        }
+                    }
+                ]
+                GetAjaxTable("GET", url, "#table-carton", tableCarton, cartonsColumnArray);
+            };
+
+            function GetPickDetailTable(shipOrderId, table, orderType) {
+                url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType;
+                var columnArray = [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "grandNumber",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "container",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "orderType",
+                        render: function (data) {
+                            currentType = data;
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "shipmentId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "amzRefId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "size",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "howToDeliver",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "warehouseCode",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "actualGrossWeight",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualCBM",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "ctnsPerPlt",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualQuantity",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualPlts",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "location",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            if (currentType == "Standard")
+                                return "<button class='btn btn-link btn-view' iid='" + data + "'>View</button><button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button>";
+                            else
+                                return "<button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button>";
+                        }
+                    },
+                ];
+                GetAjaxTable("GET", url, "#table", table, columnArray);
+            }
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

@@ -169,7 +169,8 @@ namespace ClothResorting.Controllers.Api
                             Cartons = loc.Cartons,
                             Quantity = loc.Quantity,
                             AvailableCtns = loc.AvailableCtns,
-                            AvailablePcs = loc.AvailablePcs
+                            AvailablePcs = loc.AvailablePcs,
+                            Batch = loc.Batch
                         });
                     }
                     else
