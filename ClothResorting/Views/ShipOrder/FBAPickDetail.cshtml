@@ -12,13 +12,13 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div id="div-create">
-        <input type="button" class="btn btn-group btn-create1" value="Upload transfer list" />
+        <input type="button" class="btn btn-group btn-create1" value="Upload BOL Templist" />
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />
     </div>
     <div id="div-partial">
-        @Html.Partial("_FBAInventoryListPartial")
+        @Html.Partial("~/Views/shiporder/_FBAInventoryListPartial.cshtml")
     </div>
     <div>
         <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
@@ -91,32 +91,69 @@
                     <th>Ctns/Plt</th>
                     <th>Original Ttl Ctns</th>
                     <th>Available Ttl Ctns</th>
-                    <th>Picking Ttl Ctns</th>
+                    <th>Pick Ctns</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 </div>
+<div class="iframe-pickpallet">
+    <div style="margin-left:20px;margin-right:20px">
+        <h1>Pallet Content</h1>
+        <table id="table-pickpallet" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th style="width:20px">Id</th>
+                    <th>Status</th>
+                    <th>FBA ID./SKU</th>
+                    <th>Amz ID.</th>
+                    <th>FBA Code</th>
+                    <th>GW/Ctn</th>
+                    <th>CBM/Ctn</th>
+                    <th>Ctns/Plt</th>
+                    <th>Original Ttl Ctns</th>
+                    <th>Available Ttl Ctns</th>
+                    <th>Pick Ctns</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div style="text-align:right">
+            <input id="input-pickpallet" class="input-sm" placeholder="Input pallet quantity" />
+            <button id="btn-pickpallet" class="btn btn-primary">Pick</button>
+        </div>
+    </div>
+</div>
+@*<div class="iframe-pickcarton">
+    <div style="text-align:center">
+        <text>Pick cartons: </text><input id="input-carton-ctns" class="input-sm" style="width:170px;margin-top:20px" />
+    </div>
+    <div style="text-align:right">
+        <button id="btn-carton-pick" class="btn btn-primary" style="margin-top:20px;margin-right:20px">Update</button>
+    </div>
+</div>*@
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
             $(".iframe,.iframe-update, .iframe-cartons").hide();
-            $(".iframe-inventory").hide();
+            $(".iframe-inventory, .iframe-pickpallet, .iframe-pickcarton").hide();
 
             var index;
             var status;
             var table;
             var tablePallet;
             var tableCarton;
+            var tablePickPallet
             var url;
             var currentType;
             var ctnsInPltTable;
             var shipOrderId = getUrlParameter('shipOrderId');
             var orderType = getUrlParameter('orderType');
             var container;
+            var palletLocationId;
 
             //获取该订单的拣货列表
             GetPickDetailTable(shipOrderId, table, orderType);
@@ -307,6 +344,141 @@
                         });
                     }
                 });
+            });
+
+            //点击库存表中的Pick按钮，弹出拣货细节对话框
+            $("#table-pallet, #table-carton").on("click", ".btn-inventory-pick", function () {
+                var inventoryType = $(this).attr('inventorytype');
+                var inventoryId = $(this).attr('iid');
+
+                if (inventoryType == "Pallet")
+                {
+                    palletLocationId = inventoryId;
+                    Openiframe(index, ".iframe-pickpallet", "1000px", "500px");
+
+                    url = "/api/fba/fbainventory/?palletLocationId=" + inventoryId;
+                    var ctnsInPltColumnArray = [
+                        {
+                            data: "id",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "status",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "shipmentId",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "amzRefId",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "warehouseCode",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "grossWeightPerCtn",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "cbmPerCtn",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "ctnsPerPlt",
+                            render: function (data) {
+                                return "<font color='orange'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "actualQuantity",
+                            render: function (data) {
+                                return "<font color='orange'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "availableCtns",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "id",
+                            render: function (data) {
+                                return "<input type='number' class='input-sm input-cartons' iid='" + data + "' placeholder='Input ctn #' />";
+                            }
+                        }
+                    ];
+                    GetAjaxTable("GET", url, "#table-pickpallet", tablePickPallet, ctnsInPltColumnArray);
+                }
+            });
+
+            //点击箱数拣货按钮，拣取所填数量不为0的对象到拣货列表中
+            $("#btn-pickcarton").on("click", function () {
+                var objArray = new Array();
+
+                $(".input-pickcarton").each(function (i) {
+                    if ($(this).val() != "")
+                    {
+                        var obj = {
+                            "id": $(this).attr('iid'),
+                            "quantity": $(this).val()
+                        };
+
+                        objArray.push(obj);
+                    }
+                });
+
+                if (objArray.length > 0)
+                {
+                    url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=0&quantity=0&inventoryType=Carton";
+                    SendAjaxMethodWithoutReloadPage("POST", url, objArray);
+                }
+            });
+
+            //点击托盘库存拣货列表中的pick按钮，拣取所输托盘箱数和托数
+            $("#btn-pickpallet").on("click", function () {
+                var pickPlts = $("#input-pickpallet").val();
+                var objArray = new Array();
+
+                if (pickPlts != "")
+                {
+                    $(".input-cartons").each(function (i) {
+                        if ($(this).val() != "")
+                        {
+                            var id = $(this).attr('iid');
+                            var cartons = $(this).val();
+                            var obj = {
+                                "id": id,
+                                "quantity": cartons
+                            };
+
+                            objArray.push(obj);
+                        }
+                    });
+
+                    if (objArray.length > 0)
+                    {
+                        url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=" + palletLocationId + "&quantity=" + pickPlts + "&inventoryType=Pallet";
+                        SendAjaxMethodWithoutReloadPage("POST", url, objArray);
+                    }
+                }
             });
 
             //点击关闭按钮，关闭库存件货界面
@@ -597,11 +769,20 @@
                         data: "id",
                         render: function (data) {
                             if (status != "InPallet")
-                                return "<input type='button' class='btn btn-link btn-inventory-pick' inventorytype='Carton' iid='" + data + "' locationtype='Carton' value='Pick' /><input type='button' class='btn btn-link btn-inventory-allpick' inventorytype='Carton' iid='" + data + "' locationtype='Carton' value='All Pick' />";
+                                return "<input type='button' class='btn btn-link btn-inventory-allpick' inventorytype='Carton' iid='" + data + "' locationtype='Carton' value='All Pick' />";
                             else
                                 return "";
                         }
-                    }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            if (status != "InPallet")
+                                return "<input type='number' class='input-sm input-pickcarton' inventorytype='Carton' iid='" + data + "' locationtype='Carton' placeholder='Input ctn #' />";
+                            else
+                                return "";
+                        }
+                    },
                 ]
                 GetAjaxTable("GET", url, "#table-carton", tableCarton, cartonsColumnArray);
             };
@@ -717,6 +898,17 @@
                     },
                 ];
                 GetAjaxTable("GET", url, "#table", table, columnArray);
+            }
+
+            function Openiframe(index, elementId, width, height)
+            {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: [width, height],
+                    content: $(elementId)
+                });
             }
 
             $(".btn-back").on("click", function () {

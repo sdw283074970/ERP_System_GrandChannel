@@ -27,11 +27,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetCartonsDetailInPalletLocation([FromUri]int palletLocationId)
         {
-            return Ok(Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(_context.FBAPalletLocations
-                .Include(x => x.FBAPallet.FBACartonLocations)
-                .SingleOrDefault(x => x.Id == palletLocationId)
-                .FBAPallet
-                .FBACartonLocations));
+            return Ok(GetCartonLocationDto(palletLocationId));
         }
 
         // GET /api/fba/fbainventory/?pickDetailId={pickDetailId}
@@ -44,11 +40,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 .FBAPalletLocation
                 .Id;
 
-            return Ok(Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(_context.FBAPalletLocations
-                .Include(x => x.FBAPallet.FBACartonLocations)
-                .SingleOrDefault(x => x.Id == palletLocationId)
-                .FBAPallet
-                .FBACartonLocations));
+            return Ok(GetCartonLocationDto(palletLocationId));
         }
 
         // GET /api/fba/fbainventory/?palletId={palletId}
@@ -135,6 +127,15 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             _context.SaveChanges();
+        }
+
+        private IEnumerable<FBACartonLocationDto> GetCartonLocationDto(int palletLocationId)
+        {
+            return Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(_context.FBAPalletLocations
+               .Include(x => x.FBAPallet.FBACartonLocations)
+               .SingleOrDefault(x => x.Id == palletLocationId)
+               .FBAPallet
+               .FBACartonLocations);
         }
     }
 }
