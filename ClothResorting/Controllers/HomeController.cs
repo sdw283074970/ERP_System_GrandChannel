@@ -1,5 +1,6 @@
 ﻿using ClothResorting.Helpers;
 using ClothResorting.Models;
+using ClothResorting.Models.FBAModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Migrations;
@@ -29,38 +30,23 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //try
-            //{
-            //    _context.SilkIconPreReceiveOrders.AddOrUpdate(
-            //        s => s.CustomerName,
-            //        new SilkIconPreReceiveOrder { CustomerName = "SILK-ICON", CreatDate = DateTime.Today }
-            //        );
+            var generator = new PDFGenerator();
+            var bolDetailList = new List<FBABOLDetail>();
 
-            //    _context.SaveChanges();
-            //}
-            //catch (System.Data.Entity.Validation.DbEntityValidationException dbEx)
-            //{
-            //    Exception raise = dbEx;
-            //    foreach (var validationErrors in dbEx.EntityValidationErrors)
-            //    {
-            //        foreach (var validationError in validationErrors.ValidationErrors)
-            //        {
-            //            string message = string.Format("{0}:{1}",
-            //                validationErrors.Entry.Entity.ToString(),
-            //                validationError.ErrorMessage);
-            //            // raise a new exception nesting  
-            //            // the current instance as InnerException  
-            //            raise = new InvalidOperationException(message, raise);
-            //        }
-            //    }
-            //    throw raise;
-            //}
+            bolDetailList.Add(new FBABOLDetail() {
+                CustoerOrderNumber = "SKU12344556678",
+                CartonQuantity = 300,
+                Location = "QQQ",
+                Contianer = "TEST123456789",
+                Weight = 200f,
+                PalletQuantity = 0
+            });
 
-            //var excel = new ExcelExtracter(@"c:\users\downw\desktop\FC\SU85P0035FT-18 PL.xlsx");
+            generator.GenerateFBABOL(3, bolDetailList);
 
             ViewBag.Message = "Your application description page.";
 
-            return View();
+            return View();  
         }
 
         public ActionResult Contact()

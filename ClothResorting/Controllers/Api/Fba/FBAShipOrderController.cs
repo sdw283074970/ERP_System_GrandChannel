@@ -5,6 +5,7 @@ using ClothResorting.Models.FBAModels;
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -33,13 +34,19 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/fba/fbashiporder/
         [HttpPost]
-        public IHttpActionResult CreateNewShipOrder([FromBody]FBAShipOrder obj)
+        public IHttpActionResult CreateNewShipOrder([FromBody]ShipOrderDto obj)
         {
             var shipOrder = new FBAShipOrder();
+            var ets = new DateTime();
+
+            DateTime.TryParseExact(obj.ETS, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out ets);
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
             shipOrder.ShipDate = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            shipOrder.BOLNumber = obj.BOLNumber;
+            shipOrder.Carrier = obj.Carrier;
+            shipOrder.ETS = ets;
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();
@@ -48,5 +55,38 @@ namespace ClothResorting.Controllers.Api.Fba
 
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
         }
+    }
+
+    public class ShipOrderDto
+    {
+        public string ShipOrderNumber { get; set; }
+
+        public string CustomerCode { get; set; }
+
+        public string OrderType { get; set; }
+
+        public string Destination { get; set; }
+
+        public string PickReference { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public string CreateBy { get; set; }
+
+        public DateTime PickDate { get; set; }
+
+        public DateTime ShipDate { get; set; }
+
+        public string PickMan { get; set; }
+
+        public string Status { get; set; }
+
+        public string ShippedBy { get; set; }
+
+        public string BOLNumber { get; set; }
+
+        public string Carrier { get; set; }
+
+        public string ETS { get; set; }
     }
 }

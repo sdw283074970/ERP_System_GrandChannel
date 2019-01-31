@@ -48,6 +48,9 @@
         </select><br />
         <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='Destination' /><br />
         <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='Container #' /><br />
+        <text>BOL Number: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Bill of landing #' /><br />
+        <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='Carrier Name' /><br />
+        <text>ETS: </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
         <button id="btn-add" class='btn btn-primary' style="margin-top:20px">New ship order</button>
     </div>
 </div>
@@ -197,13 +200,7 @@
 
             //点击创建新运单按钮，打开新建运单弹窗
             $("#btn-create").click(function () {
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["400px", "400px"],
-                    content: $(".iframe")
-                });
+                Openiframe(index, ".iframe", "400px", "550px");
             })
 
             //点击添加按钮，新建一个新的运单
@@ -213,8 +210,11 @@
                 var orderType = $("#select-ordertype option:selected").val();
                 var destination = $("#input-destination").val();
                 var pickReference = $("#input-reference").val();
+                var bol = $("#input-bol").val();
+                var carrier = $("#inpupt-carrier").val();
+                var ets = $("#input-ets").val();
 
-                if (shipOrderNumber == "" || destination == "" || pickReference == "") {
+                if (shipOrderNumber == "" || destination == "" || pickReference == "" || bol == "" || carrier == "" || ets == "") {
                     alert("All fields are required.");
                 }
 
@@ -225,7 +225,10 @@
                         "customerCode": customerCode.toString(),
                         "destination": destination.toString(),
                         "pickReference": pickReference.toString(),
-                        "orderType": orderType.toString()
+                        "orderType": orderType.toString(),
+                        "bolNumber": bol.toString(),
+                        "carrier": carrier.toString(),
+                        "ets": ets.toString()
                     }
                     $.ajax({
                         type: "POST",
@@ -289,6 +292,17 @@
             {
                 return "<div class='downablemenu'><ul><li>Operation Menu<ul><li><input type='button' class='btn btn-link btn-pick' iid='" + id + "' value='Pick' /></li><li><input type='button' class='btn btn-link btn-download' iid='" + id + "' value='Download BOL' /></li></ul></li></ul></div>"
             }
+
+            function Openiframe(index, elementId, width, height) {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: [width, height],
+                    content: $(elementId)
+                });
+            };
+
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

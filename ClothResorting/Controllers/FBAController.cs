@@ -55,5 +55,11 @@ namespace ClothResorting.Controllers
         {
             return View("FBAInventory");
         }
+
+        //地址簿管理页面
+        public ActionResult FBAAddressManagement()
+        {
+            return View();
+        }
     }
 }

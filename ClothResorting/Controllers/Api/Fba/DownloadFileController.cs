@@ -12,6 +12,26 @@ namespace ClothResorting.Controllers.Api.Fba
 {
     public class DownloadFileController : ApiController
     {
+        // GET /api/fba/downloadfile/?fileName={fileName}
+        [HttpGet]
+        public IHttpActionResult DownloadFileWithinOperation([FromUri]string fileName)
+        {
+                var response = HttpContext.Current.Response;
+                var downloadFile = new FileInfo(@"D:\BOL\" + fileName);
+                response.ClearHeaders();
+                response.Buffer = false;
+                response.ContentType = "application/pdf";
+                response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8));
+                response.Clear();
+                response.AppendHeader("Content-Length", downloadFile.Length.ToString());
+                response.WriteFile(downloadFile.FullName);
+                response.Flush();
+                response.Close();
+                response.End();
+
+            return Ok();
+        }
+
         // GET /api/fba/downloadfile/
         [HttpGet]
         public IHttpActionResult DownloadFile()

@@ -32,5 +32,11 @@ namespace ClothResorting.Dtos.Fba
         public string Status { get; set; }
 
         public string ShippedBy { get; set; }
+
+        public string BOLNumber { get; set; }
+
+        public string Carrier { get; set; }
+
+        public DateTime ETS { get; set; }
     }
 }

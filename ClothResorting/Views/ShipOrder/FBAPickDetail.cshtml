@@ -60,10 +60,10 @@
 
 <div class="iframe">
     <div>
-        <input id="upload2" type="file" accept="xls/xlsx" />
+        <input id="input-upload" type="file" accept="xls/xlsx" />
     </div>
     <div>
-        <input id="uploadfile" type="button" class="btn btn-default" value="Upload" />
+        <input id="btn-uploadfile" type="button" class="btn btn-default" value="Upload" />
     </div>
 </div>
 <div class="iframe-update">
@@ -486,6 +486,22 @@
                 $(".iframe-inventory").hide();
             });
 
+            //点击上传，上传BOL Template文件
+            $("#btn-uploadfile").on("click", function () {
+                var formData = new FormData();
+                var files = $("#input-upload").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                    url = "/api/fba/FBAPickDetail/?shipOrderId=" + shipOrderId;
+                    SendUploadAjaxMethodAndDownloadFile("POST", url, formData);
+                }
+                else
+                {
+                    alert("Please choose file first.");
+                }
+            });
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -900,8 +916,7 @@
                 GetAjaxTable("GET", url, "#table", table, columnArray);
             }
 
-            function Openiframe(index, elementId, width, height)
-            {
+            function Openiframe(index, elementId, width, height) {
                 index = layer.open({
                     title: false,
                     type: 1,
@@ -909,7 +924,35 @@
                     area: [width, height],
                     content: $(elementId)
                 });
-            }
+            };
+
+            function SendUploadAjaxMethodAndDownloadFile(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success! The BOL will be downloaded automatically.");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fileName=' + data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

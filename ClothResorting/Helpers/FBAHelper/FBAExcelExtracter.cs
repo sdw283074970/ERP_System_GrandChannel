@@ -96,5 +96,37 @@ namespace ClothResorting.Helpers.FBAHelper
             _context.FBAOrderDetails.AddRange(orderDetailsList);
             _context.SaveChanges();
         }
+
+        //抽取BOL模板
+        public IList<FBABOLDetail> ExtractBOLTemplate()
+        {
+            var bolDetailList = new List<FBABOLDetail>();
+            _ws = _wb.Worksheets[1];
+
+            var count = 0;
+            var index = 2;
+
+            while(_ws.Cells[index, 1].Value2 != null)
+            {
+                count += 1;
+                index += 1;
+            }
+
+            for(int i = 0; i < count; i++)
+            {
+                var bol = new FBABOLDetail {
+                    CustoerOrderNumber = _ws.Cells[count + 1, 1].Value2.ToString(),
+                    Contianer = _ws.Cells[count + 1, 2].Value2.ToString(),
+                    CartonQuantity = (int)(_ws.Cells[count + 1, 3].Value2 ?? 0),
+                    Weight = (float)(_ws.Cells[count + 1, 4].Value2 ?? 0),
+                    PalletQuantity = (int)(_ws.Cells[count + 1, 5].Value2 ?? 0),
+                    Location = ""
+                };
+
+                bolDetailList.Add(bol);
+            }
+
+            return bolDetailList;
+        }
     }
 }

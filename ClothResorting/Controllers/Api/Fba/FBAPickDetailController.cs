@@ -12,6 +12,8 @@ using ClothResorting.Dtos.Fba;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.FBAModels.Interfaces;
+using ClothResorting.Helpers;
+using ClothResorting.Helpers.FBAHelper;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -226,6 +228,39 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/CreatedSuccess", "");
+        }
+
+        // POST /api/fba/fbapickdetail/?shipOrderId={shipOderId}
+        [HttpPost]
+        public IHttpActionResult UploadAndDownloadBOL([FromUri]int shipOrderId)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            var fileGetter = new FilesGetter();
+            var path = fileGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+
+            if (path == "")
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            var extracter = new FBAExcelExtracter(path);
+
+            var bolDetailList = extracter.ExtractBOLTemplate();
+
+            var generator = new PDFGenerator();
+
+            var fileName = generator.GenerateFBABOL(shipOrderId, bolDetailList);
+
+            //var downloader = new Downloader();
+
+            //downloader.DownloadPdfFromServer(fileName, @"D:\BOL\");
+
+            return Ok(fileName);
+
+            ////在静态变量中记录下载信息
+            //DownloadRecord.FileName = fileGetter.FileName;
+            //DownloadRecord.FilePath = path;
         }
 
         // DELETE /api/fba/fbapickdetail/?pickDetailId={pickDetailId}

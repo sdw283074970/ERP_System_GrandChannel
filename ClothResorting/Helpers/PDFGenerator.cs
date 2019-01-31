@@ -7,6 +7,8 @@ using iTextSharp.text.pdf;
 using System.IO;
 using ClothResorting.Models;
 using System.Data.Entity;
+using Spire.Pdf.Tables;
+using ClothResorting.Models.FBAModels;
 
 namespace ClothResorting.Helpers
 {
@@ -183,6 +185,225 @@ namespace ClothResorting.Helpers
                 response.Close();
                 response.End();
             }
+        }
+
+        //基于PDF模板生成FBA系统中的BOL
+        //读取并编辑PDF文件思路为：读取PDF模板内容，将模板内容添加到新PDF对象中，再对新PDF对象进行编辑而不是直接编辑原PDF本身
+        public string GenerateFBABOL(int shipOrderId, IList<FBABOLDetail> bolDetailList)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var addressBookInDb = _context.FBAAddressBooks.SingleOrDefault(x => x.WarehouseCode == shipOrderInDb.Destination);
+            var address = " ";
+
+            if (addressBookInDb != null)
+            {
+                address = addressBookInDb.Address;
+            }
+
+            //读取原pdf模板文件
+            PdfReader reader = new PdfReader(@"D:\Template\BOL-Origin.pdf");
+
+            //获取首页的大小
+            Rectangle psize = reader.GetPageSize(1);
+
+            float width = psize.Width;
+            float heright = psize.Height;
+
+            //定义字体
+            var BF_light = BaseFont.CreateFont(@"C:\Windows\Fonts\simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
+            var fileName = DateTime.Now.ToString("MMddyyhhmmss") + " - BOL.pdf";
+
+            //以上也可写为如下
+            //using (var ms = new MemoryStream())
+            using (var fs = new FileStream(@"D:\BOL\" + fileName, FileMode.OpenOrCreate))
+            using (var doc = new Document(psize))
+            using (var pw = PdfWriter.GetInstance(doc, fs))
+            {
+
+                //打开新建的pdf文档对象
+                doc.Open();
+
+                //定义新建pdf文件内容，默认为空
+                PdfContentByte cb = pw.DirectContent;
+
+                //将读取的pdf模板内容添加到新pdf文件cb中
+                PdfImportedPage importedPage = pw.GetImportedPage(reader, 1);
+                cb.AddTemplate(importedPage, 0, 0);     //不调节旋转
+
+                #region 其他单项表
+                //日期
+                AttachBordlessSingleCellTable(BF_light, cb, shipOrderInDb.ETS.ToString("MM/dd/yyyy"), 20f, 100f, 36.5f, 805f);
+
+                //仓库代码
+                AttachBordlessSingleCellTable(BF_light, cb, shipOrderInDb.Destination, 20f, 100f, 95f, 713.5f);
+
+                //仓库地址
+                AttachBordlessSingleCellTable(BF_light, cb, address, 20f, 250f, 40f, 690f);
+
+                //BOL号
+                AttachBordlessSingleCellTable(BF_light, cb, shipOrderInDb.CustomerCode + shipOrderInDb.ETS.ToString("yyyyMMdd"), 20f, 160f, 390f, 789f);
+
+                //承运方
+                AttachBordlessSingleCellTable(BF_light, cb, shipOrderInDb.Carrier, 20f, 200f, 355f, 741f);
+
+                //出货单编号
+                AttachBordlessSingleCellTable(BF_light, cb, "Ship Order Id: " + shipOrderId.ToString(), 20f, 200f, 50f, 500f);
+                #endregion
+
+                #region 内容表
+                var detailCount = bolDetailList.Count();
+                var minHeight = 173f / detailCount;     //总高度211f, 表头12f, 列名12f, 表脚12f
+
+                //添加表头
+                AttachSingleCellTable(BF_light, cb, "CUSTOMER ORDER INFORMATION", 12f, 521.3f, 36.5f, 466f);
+
+                //添加内容
+                AttachTable(psize, BF_light, cb, bolDetailList, minHeight, 36.5f, 454f);
+
+                //添加表脚
+                AttachTableFoot(psize, BF_light, cb, bolDetailList, 36.5f, 268f);
+
+                ////添加拣货/出货表格到doc中
+                //var table = new PdfPTable(1);
+                //var content = new Paragraph("TEST", new Font(BF_light, 30));
+                //var cell = new PdfPCell(content);
+
+                //content.Alignment = Element.ALIGN_CENTER;
+                //cell.BorderColor = BaseColor.GRAY;
+                //cell.HorizontalAlignment = 1;    //0靠左，1居中，2靠右
+                //cell.MinimumHeight = 211f;
+
+                ////添加cell到表中
+                //table.AddCell(cell);
+
+                ////添加表到页面中
+                //table.TotalWidth = 521.3f;
+                //table.WriteSelectedRows(0, -1, 36.5f, 466f, cb);
+                #endregion
+
+                doc.Close();
+                pw.Close();
+                fs.Close();
+                //ms.Close();
+
+                ////输出到客户端
+                //var response = HttpContext.Current.Response;
+
+                //response.ClearContent();
+                //response.ContentType = "Application/pdf";
+                //response.AddHeader("Content-Disposition", "attachment; filename=" + shipOrderInDb.CustomerCode + shipOrderInDb.ETS.ToString("yyyyMMdd") + ".pdf");
+                //response.BinaryWrite(ms.ToArray());
+                ////ms.WriteTo(response.OutputStream);    //这样也行
+                //response.Flush();
+                //response.Close();
+                //response.End();
+            }
+
+            return fileName;
+        }
+
+        private void AttachBordlessSingleCellTable(BaseFont font, PdfContentByte cb, string contentText, float tableHight, float tableWidth, float xPosition, float yPosition)
+        {
+            //添加拣货/出货表格到doc中
+            var table = new PdfPTable(1);
+            var content = new Paragraph(contentText, new Font(font, 8));
+            var cell = new PdfPCell(content);
+
+            content.Alignment = Element.ALIGN_CENTER;
+            cell.Border = Rectangle.NO_BORDER;
+            cell.HorizontalAlignment = 0;    //0靠左，1居中，2靠右
+            cell.MinimumHeight = tableHight;
+
+            //添加cell到表中
+            table.AddCell(cell);
+
+            //添加表到页面中
+            table.TotalWidth = tableWidth;
+            table.WriteSelectedRows(0, -1, xPosition, yPosition, cb);
+        }
+
+        private void AttachSingleCellTable(BaseFont font, PdfContentByte cb, string contentText, float tableHight, float tableWidth, float xPosition, float yPosition)
+        {
+            //添加拣货/出货表格到doc中
+            var table = new PdfPTable(1);
+            var content = new Paragraph(contentText, new Font(font, 8));
+            var cell = new PdfPCell(content);
+
+            content.Alignment = Element.ALIGN_CENTER;
+            cell.BorderColor = BaseColor.GRAY;
+            cell.HorizontalAlignment = 1;    //0靠左，1居中，2靠右
+            cell.MinimumHeight = tableHight;
+
+            //添加cell到表中
+            table.AddCell(cell);
+
+            //添加表到页面中
+            table.TotalWidth = tableWidth;
+            table.WriteSelectedRows(0, -1, xPosition, yPosition, cb);
+        }
+
+        private void AttachTable(Rectangle size, BaseFont font, PdfContentByte cb, IList<FBABOLDetail> list, float minHeight, float xPosition, float yPosition)
+        {
+            var tableContent = new PdfPTable(7);
+            float[] columnWidth = { 30f, 14f, 14f, 10f, 10f, 10f, 12f };
+            tableContent.SetWidthPercentage(columnWidth, size);
+            tableContent.TotalWidth = 521.3f;
+
+            //表列名部分
+            var headString = "Customer Order No.,Container#,Pallet/Slip,Weight,Pkg Qty,Plt Qty,Location";
+            foreach (var head in headString.Split(','))
+            {
+                var cell = new PdfPCell(new Paragraph(head, new Font(font, 9)));
+                cell.MinimumHeight = 12f;
+                cell.HorizontalAlignment = 1;
+                cell.BorderColor = BaseColor.GRAY;
+                tableContent.AddCell(cell);
+            }
+
+            //表内容部分
+            for(int i = 0; i < list.Count; i++)
+            {
+                AddNewCell(tableContent, list[i].CustoerOrderNumber, minHeight, font);
+                AddNewCell(tableContent, list[i].Contianer, minHeight, font);
+                AddNewCell(tableContent, "Y     N", minHeight, font);
+                AddNewCell(tableContent, list[i].Weight.ToString(), minHeight, font);
+                AddNewCell(tableContent, list[i].CartonQuantity.ToString(), minHeight, font);
+                AddNewCell(tableContent, list[i].PalletQuantity.ToString(), minHeight, font);
+                AddNewCell(tableContent, list[i].Location, minHeight, font);
+            }
+
+            tableContent.WriteSelectedRows(0, -1, xPosition, yPosition, cb);
+        }
+
+        private void AttachTableFoot(Rectangle size, BaseFont font, PdfContentByte cb, IList<FBABOLDetail> list, float xPosition, float yPosition)
+        {
+            var tableFoot = new PdfPTable(7);
+            float[] columnWidth = { 30f, 14f, 14f, 10f, 10f, 10f, 12f };
+            tableFoot.SetWidthPercentage(columnWidth, size);
+            tableFoot.TotalWidth = 521.3f;
+
+            //表脚部分
+
+            AddNewCell(tableFoot, "Grand Total", 10f, font);
+            AddNewCell(tableFoot, " ", 10f, font);
+            AddNewCell(tableFoot, " ", 10f, font);
+            AddNewCell(tableFoot, list.Sum(x => x.Weight).ToString(), 10f, font);
+            AddNewCell(tableFoot, list.Sum(x => x.CartonQuantity).ToString(), 10f, font);
+            AddNewCell(tableFoot, list.Sum(x => x.PalletQuantity).ToString(), 10f, font);
+            AddNewCell(tableFoot, " ", 10f, font);
+
+            tableFoot.WriteSelectedRows(0, -1, xPosition, yPosition, cb);
+        }
+
+        private void AddNewCell(PdfPTable table, string content, float minHeight, BaseFont font)
+        {
+            var cell = new PdfPCell(new PdfPCell(new Paragraph(content, new Font(font, 9))));
+            cell.HorizontalAlignment = 1;
+            cell.VerticalAlignment = Element.ALIGN_MIDDLE;
+            cell.MinimumHeight = minHeight;
+            cell.BorderColor = BaseColor.GRAY;
+            table.AddCell(cell);
         }
     }
 

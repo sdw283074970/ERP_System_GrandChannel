@@ -34,6 +34,12 @@ namespace ClothResorting.Models.FBAModels
 
         public string ShippedBy { get; set; }
 
+        public string BOLNumber { get; set; }
+
+        public string Carrier { get; set; }
+
+        public DateTime ETS { get; set; }
+
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
 
         public FBAShipOrder()
