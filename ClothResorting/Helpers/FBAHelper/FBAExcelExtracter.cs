@@ -115,11 +115,11 @@ namespace ClothResorting.Helpers.FBAHelper
             for(int i = 0; i < count; i++)
             {
                 var bol = new FBABOLDetail {
-                    CustoerOrderNumber = _ws.Cells[count + 1, 1].Value2.ToString(),
-                    Contianer = _ws.Cells[count + 1, 2].Value2.ToString(),
-                    CartonQuantity = (int)(_ws.Cells[count + 1, 3].Value2 ?? 0),
-                    Weight = (float)(_ws.Cells[count + 1, 4].Value2 ?? 0),
-                    PalletQuantity = (int)(_ws.Cells[count + 1, 5].Value2 ?? 0),
+                    CustoerOrderNumber = _ws.Cells[i + 2, 1].Value2.ToString(),
+                    Contianer = _ws.Cells[i + 2, 2].Value2.ToString(),
+                    CartonQuantity = (int)(_ws.Cells[i + 2, 3].Value2 ?? 0),
+                    Weight = (float)(_ws.Cells[i + 2, 4].Value2 ?? 0),
+                    PalletQuantity = (int)(_ws.Cells[i + 2, 5].Value2 ?? 0),
                     Location = ""
                 };
 

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ClothResorting.Dtos.Fba;
+using ClothResorting.Helpers;
 using ClothResorting.Models;
 using ClothResorting.Models.FBAModels;
 using Microsoft.Office.Interop.Excel;
@@ -11,6 +12,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -30,6 +32,35 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult GetAllFBAShipOrder()
         {
             return Ok(_context.FBAShipOrders.Select(Mapper.Map<FBAShipOrder, FBAShipOrderDto>));
+        }
+
+        // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        [HttpGet]
+        public IHttpActionResult GetBolFileName([FromUri]int shipOrderId)
+        {
+            var bolList = new List<FBABOLDetail>();
+
+            var pickDetailsInDb = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
+            foreach(var pickDetail in pickDetailsInDb)
+            {
+                bolList.Add(new FBABOLDetail {
+                    CustoerOrderNumber = pickDetail.ShipmentId,
+                    Contianer = pickDetail.Container,
+                    CartonQuantity = pickDetail.ActualQuantity,
+                    PalletQuantity = pickDetail.ActualPlts,
+                    Weight = pickDetail.ActualGrossWeight,
+                    Location = pickDetail.Location
+                });
+            }
+
+            var generator = new PDFGenerator();
+
+            var fileName = generator.GenerateFBABOL(shipOrderId, bolList);
+
+            return Ok(fileName);
         }
 
         // POST /api/fba/fbashiporder/

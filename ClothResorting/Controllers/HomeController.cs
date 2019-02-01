@@ -30,19 +30,19 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var generator = new PDFGenerator();
-            var bolDetailList = new List<FBABOLDetail>();
+            //var generator = new PDFGenerator();
+            //var bolDetailList = new List<FBABOLDetail>();
 
-            bolDetailList.Add(new FBABOLDetail() {
-                CustoerOrderNumber = "SKU12344556678",
-                CartonQuantity = 300,
-                Location = "QQQ",
-                Contianer = "TEST123456789",
-                Weight = 200f,
-                PalletQuantity = 0
-            });
+            //bolDetailList.Add(new FBABOLDetail() {
+            //    CustoerOrderNumber = "SKU12344556678",
+            //    CartonQuantity = 300,
+            //    Location = "QQQ",
+            //    Contianer = "TEST123456789",
+            //    Weight = 200f,
+            //    PalletQuantity = 0
+            //});
 
-            generator.GenerateFBABOL(3, bolDetailList);
+            //generator.GenerateFBABOL(3, bolDetailList);
 
             ViewBag.Message = "Your application description page.";
 

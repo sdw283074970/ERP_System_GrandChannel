@@ -185,11 +185,19 @@ namespace ClothResorting.Helpers
 
                     for (int k = 0; k < countOfSize; k++)
                     {
-                        sizeList.Add(new SizeRatio
+                        try
                         {
-                            SizeName = _ws.Cells[startIndex, 11 + k].Value2.ToString(),
-                            Count = _ws.Cells[startIndex + 1 + j, 11 + k].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 11 + k].Value2
-                        });
+                            sizeList.Add(new SizeRatio
+                            {
+                                SizeName = _ws.Cells[startIndex, 11 + k].Value2.ToString(),
+                                Count = _ws.Cells[startIndex + 1 + j, 11 + k].Value2 == null ? 0 : (int)_ws.Cells[startIndex + 1 + j, 11 + k].Value2
+                            });
+                        }
+                        catch(Exception e)
+                        {
+                            throw new Exception("Please check formate of cell [" + (startIndex + 1 + j).ToString() + ", " + (11 + k).ToString() + "].");
+                        }
+
                     }
 
                     if (poType == OrderType.SolidPack || poType == OrderType.Replenishment)       //类型为Solid和Replenishment的po，最小入库计量单位为件(pcs)

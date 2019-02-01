@@ -183,7 +183,7 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-download' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                        return "<input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                     }
                 }
             ]
@@ -211,7 +211,7 @@
                 var destination = $("#input-destination").val();
                 var pickReference = $("#input-reference").val();
                 var bol = $("#input-bol").val();
-                var carrier = $("#inpupt-carrier").val();
+                var carrier = $("#input-carrier").val();
                 var ets = $("#input-ets").val();
 
                 if (shipOrderNumber == "" || destination == "" || pickReference == "" || bol == "" || carrier == "" || ets == "") {
@@ -247,6 +247,13 @@
                         }
                     });
                 }
+            });
+
+            //点击BOL按钮，下载有内容的BOL
+            $("#table").on("click", ".btn-bol", function () {
+                var shipOrderId = $(this).attr('iid');
+                url = "/api/fba/fbashipOrder/?shipOrderId=" + shipOrderId;
+                SendUploadAjaxMethodAndDownloadFile("GET", url, {});
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
@@ -303,6 +310,33 @@
                 });
             };
 
+            function SendUploadAjaxMethodAndDownloadFile(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success! The BOL will be downloaded automatically.");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fileName=' + data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
