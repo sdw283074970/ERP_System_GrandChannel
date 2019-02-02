@@ -165,8 +165,8 @@ namespace ClothResorting.Controllers.Api.Fba
                         .SingleOrDefault(x => x.Id == inventoryId);
 
                     var objArray = new List<PickCartonDto>();
-                    
-                    foreach(var carton in palletLocationInDb.FBAPallet.FBACartonLocations)
+
+                    foreach (var carton in palletLocationInDb.FBAPallet.FBACartonLocations)
                     {
                         objArray.Add(new PickCartonDto {
                             Id = carton.Id,
@@ -184,8 +184,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
                     _context.FBAPickDetails.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, cartonLocationInDb.AvailableCtns));
                 }
-            }
 
+                shipOrderInDb.Status = FBAStatus.Picking;
+            }
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/CreatedSuccess", "");
@@ -225,6 +226,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 _context.FBAPickDetails.AddRange(pickDetailList);
             }
 
+            shipOrderInDb.Status = FBAStatus.Picking;
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/CreatedSuccess", "");

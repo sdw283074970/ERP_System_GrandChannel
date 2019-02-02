@@ -20,5 +20,7 @@ namespace ClothResorting.Models.FBAModels.StaticModels
         public const string Unassigned = "Unassigned";
 
         public const string Relocated = "Relocated";
+
+        public const string Ready = "Ready";
     }
 }

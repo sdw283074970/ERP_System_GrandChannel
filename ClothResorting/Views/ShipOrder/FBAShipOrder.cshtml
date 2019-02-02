@@ -256,6 +256,14 @@
                 SendUploadAjaxMethodAndDownloadFile("GET", url, {});
             });
 
+            //点击Ready按钮，将运单标记为准备
+            $("#table").on("click", ".btn-ready", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id;
+                SendAjaxMethod("PUT", url, {});
+            });
+
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
                 $.ajax({
                     type: methodType,
@@ -286,6 +294,34 @@
                             iDisplayLength: 100,
                             columns: columsArray
                         });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

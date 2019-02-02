@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -85,6 +86,24 @@ namespace ClothResorting.Controllers.Api.Fba
             var sampleDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.OrderByDescending(x => x.Id).First());
 
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+        }
+
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        [HttpPut]
+        public void ChangeShipOrderStatus([FromUri]int shipOrderId)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            if (shipOrderInDb.Status == FBAStatus.Picking)
+            {
+                shipOrderInDb.Status = FBAStatus.Ready;
+            }
+            else if (shipOrderInDb.Status == FBAStatus.Ready)
+            {
+                shipOrderInDb.Status = FBAStatus.Picking;
+            }
+
+            _context.SaveChanges();
         }
     }
 

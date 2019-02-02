@@ -607,6 +607,7 @@
                             GetPickInventoryTable(container, tablePallet, tableCarton);
                             GetPickDetailTable(shipOrderId, table, orderType);
                         }
+                        GetPickDetailTable(shipOrderId, table, orderType);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

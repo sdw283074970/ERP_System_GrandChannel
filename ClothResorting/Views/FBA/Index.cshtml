@@ -85,18 +85,24 @@
                             {
                                 data: "telNumber",
                                 render: function (data) {
+                                    if (data == "null")
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "emailAddress",
                                 render: function (data) {
+                                    if (data == null)
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "contactPerson",
                                 render: function (data) {
+                                    if (data == null)
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },

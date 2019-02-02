@@ -1706,11 +1706,18 @@ namespace ClothResorting.Helpers
                 //扫描每一种需求的Size名称和件数
                 for (int j = 0; j < sizeCount; j++)
                 {
-                    sizeList.Add(new SizeRatio
+                    try
                     {
-                        SizeName = _ws.Cells[startRow, 4 + j].Value2.ToString(),
-                        Count = (int)_ws.Cells[startRow + 1, 4 + j].Value2
-                    });
+                        sizeList.Add(new SizeRatio
+                        {
+                            SizeName = _ws.Cells[startRow, 4 + j].Value2.ToString(),
+                            Count = (int)_ws.Cells[startRow + 1, 4 + j].Value2
+                        });
+                    }
+                    catch(Exception e)
+                    {
+                        throw new Exception(e.Message + " Please check Cell[" + startRow.ToString() + ", " + (4 + j).ToString() + "] and Cell[" + (startRow + 1).ToString() + ", " + (4 + j).ToString() + "]");
+                    }
                 }
 
                 //确定拣货对象(Cut PO)的种类
@@ -2026,6 +2033,10 @@ namespace ClothResorting.Helpers
         //辅助方法：检验当前的sku是否是该库位箱子中最后的物品，返回寄生物品总共应扣除的箱数
         private int GetDeductableCartons(IEnumerable<FCRegularLocationDetail> parasiticLocationsInDb)
         {
+            if (parasiticLocationsInDb.Where(x => x.Cartons != 0).Count() > 1)
+            {
+                throw new Exception("Wrong batch number detected. Please check batch " + parasiticLocationsInDb.First().Batch + ". Each batch is allowed assign to only one batch of carton range. E.g. The batch number '345' of carton range '1~5' cannot be assigned to another carton range '1~5'");
+            }
             //查询宿主对象
             var mainLocation = parasiticLocationsInDb.SingleOrDefault(x => x.Cartons != 0);
             var currentDeductableCtn = mainLocation.Cartons;      //当前最大可扣除箱数
