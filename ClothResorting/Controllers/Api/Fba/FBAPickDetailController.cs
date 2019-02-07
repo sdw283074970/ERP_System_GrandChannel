@@ -273,7 +273,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        private void RemovePickDetail(ApplicationDbContext context, int pickDetailId)
+        public void RemovePickDetail(ApplicationDbContext context, int pickDetailId)
         {
             var pickDetailInDb = context.FBAPickDetails
                 .Include(x => x.FBACartonLocation)
@@ -288,7 +288,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.ActualPlts;
                 pickDetailInDb.FBAPalletLocation.Status = FBAStatus.InStock;
 
-                var pickDetailCartonsInDb = _context.FBAPickDetailCartons
+                var pickDetailCartonsInDb = context.FBAPickDetailCartons
                     .Include(x => x.FBACartonLocation)
                     .Include(x => x.FBAPickDetail)
                     .Where(x => x.FBAPickDetail.Id == pickDetailInDb.Id);
@@ -299,16 +299,16 @@ namespace ClothResorting.Controllers.Api.Fba
                     c.FBACartonLocation.PickingCtns -= c.PickCtns;
                 }
 
-                _context.FBAPickDetailCartons.RemoveRange(pickDetailCartonsInDb);
+                context.FBAPickDetailCartons.RemoveRange(pickDetailCartonsInDb);
+                context.FBAPickDetails.Remove(pickDetailInDb);
             }
-            else
+            else if (pickDetailInDb.FBAPalletLocation == null)
             {
                 pickDetailInDb.FBACartonLocation.AvailableCtns += pickDetailInDb.ActualQuantity;
                 pickDetailInDb.FBACartonLocation.PickingCtns -= pickDetailInDb.ActualQuantity;
                 pickDetailInDb.FBACartonLocation.Status = FBAStatus.InStock;
+                context.FBAPickDetails.Remove(pickDetailInDb);
             }
-
-            context.FBAPickDetails.Remove(pickDetailInDb);
         }
 
         private FBAPickDetail CreateFBAPickDetailFromPalletLocation(FBAPalletLocation fbaPalletLocationInDb, FBAShipOrder shipOrderInDb, int pltQuantity, IList<FBAPickDetailCarton> pickDetailCartonList, IEnumerable<PickCartonDto> objArray)

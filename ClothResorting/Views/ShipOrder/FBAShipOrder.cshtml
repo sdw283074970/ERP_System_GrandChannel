@@ -260,8 +260,24 @@
             $("#table").on("click", ".btn-ready", function () {
                 var id = $(this).attr('iid');
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id;
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operation=ChangeStatus";
                 SendAjaxMethod("PUT", url, {});
+            });
+
+            //点击Ship按钮，将运单标记为shipped
+            $("#table").on("click", ".btn-ship", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operation=ShipOrder";
+                SendAjaxMethod("PUT", url, {});
+            });
+
+            //Remove Ship Order
+            $("#table").on("click", ".btn-delete", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id; 
+                SendAjaxMethod("DELETE", url, {});
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {

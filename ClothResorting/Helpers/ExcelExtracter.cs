@@ -2035,6 +2035,7 @@ namespace ClothResorting.Helpers
         {
             if (parasiticLocationsInDb.Where(x => x.Cartons != 0).Count() > 1)
             {
+
                 throw new Exception("Wrong batch number detected. Please check batch " + parasiticLocationsInDb.First().Batch + ". Each batch is allowed assign to only one batch of carton range. E.g. The batch number '345' of carton range '1~5' cannot be assigned to another carton range '1~5'");
             }
             //查询宿主对象

@@ -88,22 +88,137 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
         [HttpPut]
-        public void ChangeShipOrderStatus([FromUri]int shipOrderId)
+        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]string operation)
         {
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.FBAPickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
 
-            if (shipOrderInDb.Status == FBAStatus.Picking)
+            if (shipOrderInDb.FBAPickDetails.Count() == 0)
             {
-                shipOrderInDb.Status = FBAStatus.Ready;
+                throw new Exception("Cannot operate an empty ship order.");
             }
-            else if (shipOrderInDb.Status == FBAStatus.Ready)
+
+            if (operation == FBAOperation.ChangeStatus)
             {
-                shipOrderInDb.Status = FBAStatus.Picking;
+                if (shipOrderInDb.Status == FBAStatus.Picking)
+                {
+                    shipOrderInDb.Status = FBAStatus.Ready;
+                }
+                else if (shipOrderInDb.Status == FBAStatus.Ready)
+                {
+                    shipOrderInDb.Status = FBAStatus.Picking;
+                }
+            }
+            else if (operation == FBAOperation.ShipOrder)
+            {
+                foreach(var pickDetailInDb in shipOrderInDb.FBAPickDetails)
+                {
+                    ShipPickDetail(_context, pickDetailInDb.Id);
+                }
+
+                shipOrderInDb.Status = FBAStatus.Shipped;
             }
 
             _context.SaveChanges();
+        }
+
+        // DELETE /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        [HttpDelete]
+        public void DeleteShipOrder([FromUri]int shipOrderId)
+        {
+            var pickDetailsInDb = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            var fbaPickDetailAPI = new FBAPickDetailController();
+
+            foreach(var detail in pickDetailsInDb)
+            {
+                fbaPickDetailAPI.RemovePickDetail(_context, detail.Id);
+            }
+
+            _context.FBAShipOrders.Remove(shipOrderInDb);
+            _context.SaveChanges();
+        }
+
+        private void ShipPickDetail(ApplicationDbContext context, int pickDetailId)
+        {
+            var pickDetailInDb = context.FBAPickDetails
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .Include(x => x.FBACartonLocation)
+                .Include(x => x.FBAPickDetailCartons)
+                .SingleOrDefault(x => x.Id == pickDetailId);
+
+            if (pickDetailInDb.FBAPalletLocation != null)       //pickDetail是拣货pallet的情况
+            {
+                //将库存中的该pallet标记发货
+                pickDetailInDb.FBAPalletLocation.ShippedPlts += pickDetailInDb.ActualPlts;
+                pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.ActualPlts;
+
+                //将pallet中的carton也标记发货
+                foreach(var cartonLocationInDb in pickDetailInDb.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                {
+                    ShipCartonsInPallet(context, pickDetailInDb);
+                }
+
+                //更新在库状态
+                if (pickDetailInDb.FBAPalletLocation.PickingPlts == 0 && pickDetailInDb.FBAPalletLocation.AvailablePlts != 0)
+                {
+                    pickDetailInDb.FBAPalletLocation.Status = FBAStatus.InStock;
+                }
+                else if (pickDetailInDb.FBAPalletLocation.PickingPlts == 0 && pickDetailInDb.FBAPalletLocation.AvailablePlts == 0)
+                {
+                    pickDetailInDb.FBAPalletLocation.Status = FBAStatus.Shipped;
+                }
+            }
+            else if (pickDetailInDb.FBACartonLocation != null)      //pickDetail是直接拣货carton的情况
+            {
+                //直接将carton发货
+                ShipPickDetailCartons(pickDetailInDb.FBACartonLocation, pickDetailInDb);
+            }
+        }
+
+        private void ShipPickDetailCartons(FBACartonLocation cartonLocationInDb, FBAPickDetail pickDetailInDb)
+        {
+            cartonLocationInDb.ShippedCtns += pickDetailInDb.ActualQuantity;
+            cartonLocationInDb.PickingCtns -= pickDetailInDb.ActualQuantity;
+
+            if (cartonLocationInDb.PickingCtns == 0 && cartonLocationInDb.AvailableCtns != 0)
+            {
+                cartonLocationInDb.Status = FBAStatus.InStock;
+            }
+            else if (cartonLocationInDb.PickingCtns == 0 && cartonLocationInDb.AvailableCtns == 0)
+            {
+                cartonLocationInDb.Status = FBAStatus.Shipped;
+            }
+        }
+
+        private void ShipCartonsInPallet(ApplicationDbContext context, FBAPickDetail pickDetailInDb)
+        {
+            var cartonsInPalletInDb = context.FBAPickDetailCartons
+                .Include(x => x.FBAPickDetail)
+                .Include(x => x.FBACartonLocation)
+                .Where(x => x.FBAPickDetail.Id == pickDetailInDb.Id);
+
+            foreach(var carton in cartonsInPalletInDb)
+            {
+                carton.FBACartonLocation.ShippedCtns += carton.PickCtns;
+                carton.FBACartonLocation.PickingCtns -= carton.PickCtns;
+
+                if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns != 0)
+                {
+                    carton.FBACartonLocation.Status = FBAStatus.InStock;
+                }
+                else if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns == 0)
+                {
+                    carton.FBACartonLocation.Status = FBAStatus.Shipped;
+                }
+            }
         }
     }
 

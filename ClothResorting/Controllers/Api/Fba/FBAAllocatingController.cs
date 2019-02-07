@@ -145,17 +145,17 @@ namespace ClothResorting.Controllers.Api.Fba
 
             foreach(var id in cartonLocationIds)
             {
-                var locationInDb = cartonLocationsInDb.SingleOrDefault(x => x.Id == id);
-                if (locationInDb.CtnsPerPlt == 0)
+                var cartonLocationInDb = cartonLocationsInDb.SingleOrDefault(x => x.Id == id);
+                if (cartonLocationInDb.CtnsPerPlt == 0)    //如果ccp为0，说明是rough打托
                 {
-                    locationInDb.FBAOrderDetail.ComsumedQuantity -= locationInDb.AvailableCtns;
+                    cartonLocationInDb.FBAOrderDetail.ComsumedQuantity -= cartonLocationInDb.AvailableCtns;
                 }
-                else
+                else    //否则是精细打托
                 {
-                    locationInDb.FBAOrderDetail.ComsumedQuantity -= locationInDb.CtnsPerPlt * (palletInDb.ActualPallets - palletInDb.ComsumedPallets);
+                    cartonLocationInDb.FBAOrderDetail.ComsumedQuantity -= cartonLocationInDb.CtnsPerPlt * (palletInDb.ActualPallets - palletInDb.ComsumedPallets);
 
                 }
-                _context.FBACartonLocations.Remove(locationInDb);
+                _context.FBACartonLocations.Remove(cartonLocationInDb);
             }
 
             _context.FBAPallets.Remove(palletInDb);
