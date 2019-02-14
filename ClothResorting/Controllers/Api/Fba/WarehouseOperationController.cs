@@ -33,17 +33,27 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
         }
 
-        // POST /api/warehouseoperation/?masterOrderId={masterOrderId}&pltQuantity={pltQuantity}&pltSize={pltSize}&packType={packType}
+        // POST /api/warehouseoperation/?grandNumber={grandNumber}&pltQuantity={pltQuantity}&pltSize={pltSize}&packType={packType}&isSelectedByCheckBox={isSelectedByCheckBox}
         [HttpPost]
-        public void CreatePallet([FromUri]string grandNumber, [FromUri]int pltQuantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromUri]string packType, [FromBody]IEnumerable<PalletInfoDto> objArray)
+        public void CreatePallet([FromUri]string grandNumber, [FromUri]int pltQuantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromUri]string packType, [FromUri]bool isSelectedByCheckBox, [FromBody]IEnumerable<PalletInfoDto> objArray)
         {
             //进入库存的carton对象都按GW/ctn，CBM/ctn记录
             var cartonLocationList = new List<FBACartonLocation>();
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Where(x => x.GrandNumber == grandNumber);
 
+            if (objArray.Count() == 0)
+            {
+                throw new Exception("No items or cartons were selected.");
+            }
+
             if (packType == FBAPackType.DetailPack)
             {
+                if (isSelectedByCheckBox == true)
+                {
+                    throw new Exception("Detail pack does not support selecting items by check-boxes.");
+                }
+
                 foreach (var obj in objArray)
                 {
                     var orderDetailInDb = orderDetailsInDb.SingleOrDefault(x => x.Id == obj.Id);
@@ -105,8 +115,19 @@ namespace ClothResorting.Controllers.Api.Fba
                 foreach (var obj in objArray)
                 {
                     var orderDetailInDb = orderDetailsInDb.SingleOrDefault(x => x.Id == obj.Id);
+                    var packedCtn = 0;
 
-                    orderDetailInDb.ComsumedQuantity += obj.Quantity;
+                    //如果是处理复选框对象，则默认分配所有剩下的箱数，否则按照数组中的数量分配
+                    if (isSelectedByCheckBox == true)
+                    {
+                        packedCtn = orderDetailInDb.ActualQuantity - orderDetailInDb.ComsumedQuantity;
+                        orderDetailInDb.ComsumedQuantity = orderDetailInDb.ActualQuantity;
+                    }
+                    else
+                    {
+                        packedCtn = obj.Quantity;
+                        orderDetailInDb.ComsumedQuantity += obj.Quantity;
+                    }
 
                     if (orderDetailInDb.ComsumedQuantity > orderDetailInDb.ActualQuantity)
                     {
@@ -126,14 +147,15 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.HowToDeliver = orderDetailInDb.HowToDeliver;
                     cartonLocation.GrandNumber = grandNumber;
                     cartonLocation.FBAOrderDetail = orderDetailInDb;
-                    cartonLocation.ActualQuantity = obj.Quantity;
-                    cartonLocation.AvailableCtns = obj.Quantity;
+                    cartonLocation.ActualQuantity = packedCtn;
+                    cartonLocation.AvailableCtns = packedCtn;
 
                     cartonLocationList.Add(cartonLocation);
                 }
 
                 //建立FBAPallet对象
                 var pallet = new FBAPallet();
+
                 var firstId = objArray.First().Id;
                 var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
 
@@ -160,7 +182,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
         
-        public string DistinctStringList(IEnumerable<string> list)
+        private string DistinctStringList(IEnumerable<string> list)
         {
             var distinctString = string.Empty;
 

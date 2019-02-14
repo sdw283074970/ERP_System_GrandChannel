@@ -27,7 +27,7 @@
                     <th>Actual CBM</th>
                     <th>Actual Quantity</th>
                     <th>Unlaied Quantity</th>
-                    @*<th><input id="select-all" type="checkbox" value="12345" /></th>*@
+                    <th><input id="select-all" type="checkbox" value="12345" /></th>
                     <th>Ctns/Plt</th>
                 </tr>
             </thead>
@@ -80,14 +80,14 @@
             GetAjaxTable("GET", url);
 
             //点击全选，勾选所有Checkbox
-            //$("#select-all").on("click", function () {
-            //    if ($("#select-all").is(":checked")) {
-            //        $(".cb-selected").prop("checked", true);
-            //    }
-            //    else {
-            //        $(".cb-selected").prop("checked", false);
-            //    }
-            //});
+            $("#select-all").on("click", function () {
+                if ($("#select-all").is(":checked")) {
+                    $(".cb-selected").prop("checked", true);
+                }
+                else {
+                    $(".cb-selected").prop("checked", false);
+                }
+            });
 
             //点击打包所选对象按钮，打开打包详细内容弹窗
             $("#btn-packoption").on("click", function () {
@@ -104,6 +104,7 @@
             $(".btn-pack").on("click", function () {
                 var packType = $(this).attr('packtype');
                 var objArr = new Array();
+                var arr = new Array();
                 var pltQuantity = $("#input-pltquantity").val();
                 var pltSize = $("#input-pltsize").val();
                 var doesAppliedLabel = $("#select-label option:selected").val();
@@ -126,9 +127,29 @@
                     }
                 });
 
-                url = "/api/fba/warehouseoperation/?grandNumber=" + grandNumber + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth + "&packType=" + packType;
+                //将所有被选中的CheckBox的对象的id与每托盘分配箱数做成obj放在另一个数列中
+                $("input:checkbox[name='selected']:checked").each(function (i) {
+                    var id = $(this).val();
 
-                SendAjaxMethod("POST", url, objArr);
+                    var obj = {
+                        "id": id,
+                        "quantity": 0
+                    }
+
+                    arr.push(obj);
+                });
+
+                if (arr.length != 0)
+                {
+                    url = "/api/fba/warehouseoperation/?grandNumber=" + grandNumber + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth + "&packType=" + packType + "&isSelectedByCheckBox=true";
+                    SendAjaxMethod("POST", url, arr);
+                }
+                else
+                {
+                    url = "/api/fba/warehouseoperation/?grandNumber=" + grandNumber + "&pltQuantity=" + pltQuantity + "&pltSize=" + pltSize + "&doesAppliedLabel=" + doesAppliedLabel + "&hasSortingMarking=" + hasSortingMarking + "&isOversizeOrOverwidth=" + isOversizeOrOverWidth + "&packType=" + packType + "&isSelectedByCheckBox=false";
+                    SendAjaxMethod("POST", url, objArr);
+                }
+
             });
 
             //解析url中的参数函数
@@ -243,12 +264,12 @@
                                         return "<font color='blue'>" + (actualQuantity - data) + "</font>";
                                     }
                                 },
-                                //{
-                                //    data: "id",
-                                //    render: function (data) {
-                                //        return "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
-                                //    }
-                                //},
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<input name='selected' type='checkbox' class='cb-selected' value='" + data + "' />";
+                                    }
+                                },
                                 {
                                     data: "id",
                                     render: function (data) {

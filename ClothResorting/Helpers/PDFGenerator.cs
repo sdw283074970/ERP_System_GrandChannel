@@ -248,7 +248,7 @@ namespace ClothResorting.Helpers
                 AttachBordlessSingleCellTable(BF_light, cb, shipOrderInDb.Carrier, 20f, 200f, 355f, 741f);
 
                 //出货单编号
-                AttachBordlessSingleCellTable(BF_light, cb, "Ship Order Id: " + shipOrderId.ToString(), 20f, 200f, 50f, 500f);
+                AttachBordlessSingleCellTable(BF_light, cb, "Ship Order #: " + shipOrderInDb.ShipOrderNumber, 20f, 200f, 50f, 500f);
                 #endregion
 
                 #region 内容表
@@ -368,8 +368,40 @@ namespace ClothResorting.Helpers
                 AddNewCell(tableContent, list[i].Contianer, minHeight, font);
                 AddNewCell(tableContent, "Y     N", minHeight, font);
                 AddNewCell(tableContent, list[i].Weight.ToString(), minHeight, font);
-                AddNewCell(tableContent, list[i].CartonQuantity.ToString(), minHeight, font);
-                AddNewCell(tableContent, list[i].PalletQuantity.ToString(), minHeight, font);
+                AddNewCell(tableContent, list[i].CartonQuantity == 0 ? " " : list[i].CartonQuantity.ToString(), minHeight, font);
+
+                //判定是否手动合并同一托盘的单元格
+                if (list[i].PalletQuantity == 99999)
+                {
+                    var tableCell = new PdfPCell(new Paragraph(" "));
+                    tableCell.UseVariableBorders = true;
+                    tableCell.BorderColorTop = BaseColor.WHITE;
+                    tableCell.BorderColorRight = BaseColor.GRAY;
+                    tableCell.BorderColorBottom = BaseColor.GRAY;
+                    tableCell.BorderColorLeft = BaseColor.GRAY;
+                    tableContent.AddCell(tableCell);
+                }
+                else
+                {
+                    if (i != list.Count - 1 && list[i + 1].PalletQuantity == 99999)
+                    {
+                        var p = new Paragraph(list[i].PalletQuantity.ToString(), new Font(font, 9f));
+                        var tableCell = new PdfPCell(p);
+                        tableCell.UseVariableBorders = true;
+                        tableCell.BorderColorTop = BaseColor.GRAY;
+                        tableCell.BorderColorRight = BaseColor.GRAY;
+                        tableCell.BorderColorBottom = BaseColor.WHITE;
+                        tableCell.BorderColorLeft = BaseColor.GRAY;
+                        tableCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        tableCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        tableContent.AddCell(tableCell);
+                    }
+                    else
+                    {
+                        AddNewCell(tableContent, list[i].PalletQuantity == 0 ? " " : list[i].PalletQuantity.ToString(), minHeight, font);
+                    }
+                }
+
                 AddNewCell(tableContent, list[i].Location, minHeight, font);
             }
 
@@ -390,7 +422,7 @@ namespace ClothResorting.Helpers
             AddNewCell(tableFoot, " ", 10f, font);
             AddNewCell(tableFoot, list.Sum(x => x.Weight).ToString(), 10f, font);
             AddNewCell(tableFoot, list.Sum(x => x.CartonQuantity).ToString(), 10f, font);
-            AddNewCell(tableFoot, list.Sum(x => x.PalletQuantity).ToString(), 10f, font);
+            AddNewCell(tableFoot, list.Where(x => x.PalletQuantity != 99999).Sum(x => x.PalletQuantity).ToString(), 10f, font);
             AddNewCell(tableFoot, " ", 10f, font);
 
             tableFoot.WriteSelectedRows(0, -1, xPosition, yPosition, cb);

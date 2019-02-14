@@ -39,23 +39,14 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetBolFileName([FromUri]int shipOrderId)
         {
-            var bolList = new List<FBABOLDetail>();
-
             var pickDetailsInDb = _context.FBAPickDetails
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+                .Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId)
+                .ToList();
 
-            foreach(var pickDetail in pickDetailsInDb)
-            {
-                bolList.Add(new FBABOLDetail {
-                    CustoerOrderNumber = pickDetail.ShipmentId,
-                    Contianer = pickDetail.Container,
-                    CartonQuantity = pickDetail.ActualQuantity,
-                    PalletQuantity = pickDetail.ActualPlts,
-                    Weight = pickDetail.ActualGrossWeight,
-                    Location = pickDetail.Location
-                });
-            }
+            var bolList = GenerateFBABOLList(pickDetailsInDb);
 
             var generator = new PDFGenerator();
 
@@ -219,6 +210,57 @@ namespace ClothResorting.Controllers.Api.Fba
                     carton.FBACartonLocation.Status = FBAStatus.Shipped;
                 }
             }
+        }
+
+        private IList<FBABOLDetail> GenerateFBABOLList(IEnumerable<FBAPickDetail> pickDetailsInDb)
+        {
+            var bolList = new List<FBABOLDetail>();
+
+            foreach (var pickDetail in pickDetailsInDb)
+            {
+                if (pickDetail.FBAPalletLocation != null)
+                {
+                    var cartonInPickList = pickDetail.FBAPickDetailCartons.ToList();
+                    for (int i = 0; i < cartonInPickList.Count; i++)
+                    {
+                        var plt = 0;
+
+                        //只有托盘中的第一项物品显示托盘数，其他物品不显示并在生成PDF的时候取消表格顶线，99999用于区分是否是同一托盘的非首项
+                        if (i == 0)
+                        {
+                            plt = pickDetail.ActualPlts;
+                        }
+                        else
+                        {
+                            plt = 99999;
+                        }
+
+                        bolList.Add(new FBABOLDetail
+                        {
+                            CustoerOrderNumber = cartonInPickList[i].FBACartonLocation.ShipmentId,
+                            Contianer = pickDetail.Container,
+                            CartonQuantity = cartonInPickList[i].PickCtns,
+                            PalletQuantity = plt,
+                            Weight = cartonInPickList[i].FBACartonLocation.GrossWeightPerCtn * cartonInPickList[i].PickCtns,
+                            Location = pickDetail.Location
+                        });
+                    }
+                }
+                else
+                {
+                    bolList.Add(new FBABOLDetail
+                    {
+                        CustoerOrderNumber = pickDetail.ShipmentId,
+                        Contianer = pickDetail.Container,
+                        CartonQuantity = pickDetail.ActualQuantity,
+                        PalletQuantity = 0,
+                        Weight = pickDetail.ActualGrossWeight,
+                        Location = pickDetail.Location
+                    });
+                }
+            }
+
+            return bolList;
         }
     }
 

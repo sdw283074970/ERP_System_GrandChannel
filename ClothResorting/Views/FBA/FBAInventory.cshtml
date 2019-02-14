@@ -20,8 +20,8 @@
                     <th>Id</th>
                     <th>Status</th>
                     <th>Container</th>
-                    <th>FBA shmt ID./SKU</th>
-                    <th>Amz Ref ID.</th>
+                    <th style="width:103px">FBA shmt ID./SKU</th>
+                    <th style="width:64px">Amz Ref ID.</th>
                     <th>Pallet Size</th>
                     <th>FBA whse Code</th>
                     <th>How To Deliver</th>
@@ -103,6 +103,7 @@
             var palletTable;
             var cartonTable;
             var ctnsInPltTable;
+            var currentAvailable;
             var currentPicking;
             var grandNumber = getUrlParameter('grandNumber');
 
@@ -192,6 +193,7 @@
                 {
                     data: "availablePlts",
                     render: function (data) {
+                        currentAvailable = data;
                         return "<font color='green'>" + data + "</font>";
                     }
                 },
@@ -217,7 +219,7 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (currentPicking == 0)
+                        if (currentPicking == 0 && currentAvailable != 0)
                             return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Pallet' value='Relocate' />";
                         else
                             return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' />";
@@ -293,6 +295,7 @@
                 {
                     data: "availableCtns",
                     render: function (data) {
+                        currentAvailable = data;
                         return "<font color='green'>" + data + "</font>";
                     }
                 },
@@ -318,7 +321,7 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (currentPicking == 0 && status != "InPallet")
+                        if (currentPicking == 0 && status != "InPallet" && currentAvailable != 0)
                             return "<input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
                         else
                             return "";
