@@ -75,8 +75,8 @@ namespace ClothResorting.Helpers
                 if (itemResponseBody.QueryResponse.Item.Where(x => x.Name == item.Name).Count() == 0)
                 {
                     var itemCreateRequestModel = new ItemCreateRequestModel {
-                        //IncomeAccountRef = new IncomeAccountRef { Value = "26"},    //默认关联账户是1 Services账户
-                        IncomeAccountRef = new IncomeAccountRef { Value = "1" },    //默认关联账户是1 Services账户
+                        IncomeAccountRef = new IncomeAccountRef { Value = "26" },    //默认关联账户是26 Services账户
+                        //IncomeAccountRef = new IncomeAccountRef { Value = "1" },    //默认关联账户是1 Services账户
                         Name = item.Name,
                         Type = "Service"
                     };

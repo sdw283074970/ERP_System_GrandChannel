@@ -105,6 +105,11 @@ namespace ClothResorting.Controllers.Api.Fba
                         throw new Exception("Not enough quantity for comsuming. Check Id:" + obj.Id);
                     }
 
+                    if (orderDetailInDb.Container == "NULL" || orderDetailInDb.Container == "")
+                    {
+                        throw new Exception("Please assign container number first.");
+                    }
+
                     var cartonLocation = new FBACartonLocation();
 
                     cartonLocation.Status = FBAStatus.InStock;

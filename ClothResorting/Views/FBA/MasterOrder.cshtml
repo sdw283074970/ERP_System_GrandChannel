@@ -172,6 +172,15 @@
                 SendAjaxMethod("PUT", url, obj);
             });
 
+            //点击删除按钮，删除所选的master order
+            $("#table").on("click", ".btn-delete", function () {
+                var masterOrderId = $(this).attr('grandnumber');
+
+                url = "/api/fba/fbamasterorder/?grandNumber=" + masterOrderId;
+
+                SendAjaxMethod("DELETE", url, {});
+            });
+
             function GetAjaxTable(methodType, url) {
                 $.ajax({
                     type: methodType,
@@ -272,7 +281,7 @@
                                 {
                                     data: "grandNumber",
                                     render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
+                                        return "<button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
                                     }
                                 }
                             ]

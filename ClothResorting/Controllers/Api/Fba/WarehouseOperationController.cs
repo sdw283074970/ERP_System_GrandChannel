@@ -43,7 +43,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Where(x => x.GrandNumber == grandNumber);
             var masterOrderInDb = _context.FBAMasterOrders.First(x => x.GrandNumber == grandNumber);
 
-            if(masterOrderInDb.Container == "NULL")
+            if(masterOrderInDb.Container == "NULL" || masterOrderInDb.Container == "")
             {
                 throw new Exception("Must assign container number befroe operation.");
             }

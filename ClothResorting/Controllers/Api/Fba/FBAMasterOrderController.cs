@@ -86,7 +86,52 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        public DateTime ParseStringToDateTime(DateTime dateTime, string stringTime)
+        // DELETE /api/fba/fbamasterorder/?grandNumber={grandNumber}
+        [HttpDelete]
+        public void DeleteMasterOrder([FromUri]string grandNumber)
+        {
+            var masterOrderId = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber).Id;
+
+            var cartonLocationsInDb = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId);
+
+            _context.FBACartonLocations.RemoveRange(cartonLocationsInDb);
+
+            var palletLocationsInDb = _context.FBAPalletLocations
+                .Include(x => x.FBAPallet.FBACartonLocations)
+                .Where(x => x.FBAPallet.FBACartonLocations.Count == 0);
+
+            _context.FBAPalletLocations.RemoveRange(palletLocationsInDb);
+
+            var palletsInDb = _context.FBAPallets
+                .Include(x => x.FBAPalletLocations)
+                .Include(x => x.FBACartonLocations)
+                .Where(x => x.FBACartonLocations.Count == 0);
+
+            _context.FBAPallets.RemoveRange(palletsInDb);
+
+            var orderDetailsInDb = _context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.FBAOrderDetails.RemoveRange(orderDetailsInDb);
+
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            _context.FBAMasterOrders.Remove(masterOrderInDb);
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Cannot delete this master order. Please delete related ship order first then try again.");
+            }
+        }
+
+        private DateTime ParseStringToDateTime(DateTime dateTime, string stringTime)
         {
             DateTime.TryParseExact(stringTime, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
             return dateTime;
