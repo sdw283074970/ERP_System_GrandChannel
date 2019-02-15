@@ -34,6 +34,13 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
         }
 
+        // GET /api/fba/masterdetail/?orderDetailId={orderDetailId}
+        [HttpGet]
+        public IHttpActionResult GetOrderDetail([FromUri]int orderDetailId)
+        {
+            return Ok(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(_context.FBAOrderDetails.Find(orderDetailId)));
+        }
+
         // POST /api/fbva/masterdetail/?grandNumber={grandNumber}
         [HttpPost]
         public void UploadFBATemplate([FromUri]string grandNumber)
@@ -63,10 +70,19 @@ namespace ClothResorting.Controllers.Api.Fba
         public void UpdateInfo([FromUri]int orderDetailId, [FromBody]BaseFBAOrderDetail obj)
         {
             var orderDetailInDb = _context.FBAOrderDetails.Find(orderDetailId);
+            
+            //如果该detail被分配，则禁止更改实收数据
+            if (orderDetailInDb.ComsumedQuantity != 0)
+            {
+                throw new Exception("Cannot update info because this item has been comsumed.");
+            }
 
             orderDetailInDb.ActualQuantity = obj.ActualQuantity;
+            
             orderDetailInDb.ActualGrossWeight = obj.ActualGrossWeight;
+            
             orderDetailInDb.ActualCBM = obj.ActualCBM;
+            
             orderDetailInDb.Comment = obj.Comment;
 
             _context.SaveChanges();

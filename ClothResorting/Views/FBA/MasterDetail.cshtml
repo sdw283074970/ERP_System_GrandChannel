@@ -75,6 +75,7 @@
 
             var table;
             var index;
+            var index2;
             var url;
             var orderDetailId;
 
@@ -109,12 +110,19 @@
 
             //点击各个条目的Update按钮打开更新信息弹窗
             $("#table").on("click", ".btn-update", function () {
+
+                var model;
                 orderDetailId = $(this).attr('iid');
+
+                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+
+                SendAjaxMethodOverrideObj("GET", url, {});
+
                 index = layer.open({
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "50%"],
+                    area: ["400px", "500px"],
                     content: $(".iframe-info")
                 });
             });
@@ -139,6 +147,7 @@
 
             //点击Update按钮，更新信息
             $("#btn-updateinfo").on("click", function () {
+
                 var actualGrossWeight = $("#input-gw").val();
                 var actualCBM = $("#input-cbm").val();
                 var actualQuantity = $("#input-quantity").val();
@@ -150,8 +159,6 @@
                     "actualQuantity": actualQuantity,
                     "comment": comment
                 }
-
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
 
                 SendAjaxMethod("PUT", url, obj);
             });
@@ -356,6 +363,38 @@
                         layer.alert("Success!", function () {
                             window.location.reload();
                         })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethodOverrideObj(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index2 = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (model) {
+                        layer.close(index2);
+
+                        $("#input-gw").val(model.actualGrossWeight);
+                        $("#input-cbm").val(model.actualCBM);
+                        $("#input-quantity").val(model.actualQuantity);
+                        $("#textarea-comment").val(model.comment);
+                        $("#font-comsumed").html(model.comsumedQuantity);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

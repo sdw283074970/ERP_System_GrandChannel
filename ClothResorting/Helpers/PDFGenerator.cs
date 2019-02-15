@@ -212,7 +212,7 @@ namespace ClothResorting.Helpers
             //定义字体
             var BF_light = BaseFont.CreateFont(@"C:\Windows\Fonts\simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 
-            var fileName = DateTime.Now.ToString("MMddyyhhmmss") + " - BOL.pdf";
+            var fileName = shipOrderInDb.ShipOrderNumber + "-" + DateTime.Now.ToString("MMddyyhhmmss") + "-BOL.pdf";
 
             //以上也可写为如下
             //using (var ms = new MemoryStream())

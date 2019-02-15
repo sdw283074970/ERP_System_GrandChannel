@@ -47,7 +47,7 @@
             <option value='Ecommerce'>Ecommerce</option>
         </select><br />
         <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='Destination' /><br />
-        <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='Container #' /><br />
+        <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='Container # (optional)' /><br />
         <text>BOL Number: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Bill of landing #' /><br />
         <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='Carrier Name' /><br />
         <text>ETS: </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
@@ -214,8 +214,8 @@
                 var carrier = $("#input-carrier").val();
                 var ets = $("#input-ets").val();
 
-                if (shipOrderNumber == "" || destination == "" || pickReference == "" || bol == "" || carrier == "" || ets == "") {
-                    alert("All fields are required.");
+                if (shipOrderNumber == "" || destination == "" || bol == "" || carrier == "" || ets == "") {
+                    alert("All required fields are required.");
                 }
 
                 else {

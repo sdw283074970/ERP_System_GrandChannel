@@ -41,6 +41,12 @@ namespace ClothResorting.Controllers.Api.Fba
             var cartonLocationList = new List<FBACartonLocation>();
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Where(x => x.GrandNumber == grandNumber);
+            var masterOrderInDb = _context.FBAMasterOrders.First(x => x.GrandNumber == grandNumber);
+
+            if(masterOrderInDb.Container == "NULL")
+            {
+                throw new Exception("Must assign container number befroe operation.");
+            }
 
             if (objArray.Count() == 0)
             {
