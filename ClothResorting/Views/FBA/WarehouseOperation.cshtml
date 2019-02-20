@@ -41,22 +41,32 @@
 <div class="iframe">
     <div style="margin-top:20px">
         <text>Packed Plt Quantity: <input id="input-pltquantity" class="input-sm" style="margin-top:20px" /></text><br />
-        <text>Packed Plt Size: <input id="input-pltsize" class="input-sm" style="margin-top:20px" /></text><br />
+        <text>
+            Packed Plt Size: <select id="select-pltsize" style="height:30px;width:170px;margin-top:20px">
+                <option value="P1">Size 1 (≤50")</option>
+                <option value="P2">Size 2 (≤72")</option>
+                <option value="P3">Size 3 (≤80")</option>
+                <option value="P4">Size 4 (Other)</option>
+            </select>
+        </text><br />
         <text>
             FBA Label As Applicable: <select id="select-label" style="height:30px;width:170px;margin-top:20px">
                 <option value="true">YES</option>
                 <option value="false">NO</option>
-            </select></text><br />
+            </select>
+        </text><br />
         <text>
             Sorting Marking: <select id="select-sort" style="height:30px;width:170px;margin-top:20px">
                 <option value="true">YES</option>
                 <option value="false">NO</option>
-            </select></text><br />
+            </select>
+        </text><br />
         <text>
             Oversize Or Overwidth: <select id="select-oversize" style="height:30px;width:170px;margin-top:20px">
                 <option value="false">NO</option>
                 <option value="true">YES</option>
-            </select></text><br />
+            </select>
+        </text><br />
         <input packtype="DetailPack" type="button" class="btn btn-primary btn-pack" style="margin-top:20px" value="Detail Pack" />
         <input packtype="RoughPack" type="button" class="btn btn-primary btn-pack" style="margin-top:20px" value="Rough Pack" />
     </div>
@@ -106,7 +116,7 @@
                 var objArr = new Array();
                 var arr = new Array();
                 var pltQuantity = $("#input-pltquantity").val();
-                var pltSize = $("#input-pltsize").val();
+                var pltSize = $("#select-pltsize option:selected").val();
                 var doesAppliedLabel = $("#select-label option:selected").val();
                 var hasSortingMarking = $("#select-sort option:selected").val();
                 var isOversizeOrOverWidth = $("#select-oversize option:selected").val();

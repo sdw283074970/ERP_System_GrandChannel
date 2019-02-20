@@ -1,0 +1,70 @@
+﻿
+@{
+    ViewBag.Title = "FBAInventorySearch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA System</h1>
+<h2>FBA Inventory Search Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <select id="select-vendor" style="width:170px;height:30px"></select>
+        <input style="width:140px" id="input-grandnumber" class="input-sm" placeholder="Grand#" />
+        <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
+        <input style="width:140px" id="input-sku" class="input-sm" placeholder="Shipment Id/SKU" />
+        <input style="width:140px" id="input-customer" class="input-sm" placeholder="Customer Code" />
+        <input style="width:140px" id="input-location" class="input-sm" placeholder="Location" />
+        <input type="checkbox" id="check-isshipped" class="cb-selected" /> Display Picking&Shipped Items
+        <button id="btn-search" class="btn btn-info">Search</button>
+        <button id="btn-export" class="btn btn-primary">Export Results as Excel File</button><br />
+    </div>
+    <div style="margin-top:20px;border:double">
+        <h2>Pallets Inventory</h2>
+        <table id="table-pallet" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Grand#</th>
+                    <th>Container</th>
+                    <th>Inbound Date</th>
+                    <th style="width:206px">FBA shmt ID./SKU</th>
+                    <th>Original Ctns</th>
+                    <th>Current Ctns</th>
+                    <th>Location</th>
+                    <th>More Option</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div style="margin-top:40px;border:double">
+        <h2>Cartons Inventory</h2>
+        <table id="table-carton" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Grand#</th>
+                    <th>Container</th>
+                    <th>Inbound Date</th>
+                    <th style="width:206px">FBA shmt ID./SKU</th>
+                    <th>Original Ctns</th>
+                    <th>Current Ctns</th>
+                    <th>Location</th>
+                    <th>More Option</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+}
