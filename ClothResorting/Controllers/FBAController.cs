@@ -67,5 +67,17 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //库存主页
+        public ActionResult FBAInventoryIndex()
+        {
+            return View();
+        }
+
+        //库存报告页面
+        public ActionResult FBAInventoryReport()
+        {
+            return View();
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Dtos.Fba;
 using ClothResorting.Models;
+using ClothResorting.Models.FBAModels;
 using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,16 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(_context.UpperVendors
                 .Where(x => x.Status == Status.Active && x.DepartmentCode == DepartmentCode.FBA)
                 .Select(Mapper.Map<UpperVendor, UpperVendorDto>));
+        }
+
+        // POST /api/fba/index/?requestId={requestId}
+        [HttpPost]
+        public IHttpActionResult PushDataFromFrontierSystem([FromUri]string requestId, [FromBody]FBAMasterOrderAPIDto order)
+        {
+            if (ModelState.IsValid)
+                return Ok();
+            else
+                throw new Exception("Invalid!");
         }
     }
 }

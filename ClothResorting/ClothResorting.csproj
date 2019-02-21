@@ -39,6 +39,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\ClothResorting.XML</DocumentationFile>
+    <NoWarn>1591;0168;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -251,6 +253,10 @@
       <HintPath>..\packages\Spire.PDF.4.10.3\lib\net40\Spire.Pdf.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -320,6 +326,10 @@
       <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebActivatorEx.2.0\lib\net40\WebActivatorEx.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
       <Private>True</Private>
@@ -337,6 +347,7 @@
     <Compile Include="App_Start\MappingProfile.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\Api\AdjustedHistoryController.cs" />
@@ -354,6 +365,7 @@
     <Compile Include="Controllers\Api\Fba\FBAAllocatingController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAIndexController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAInventoryController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBAInventoryIndexController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAMasterOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAPickDetailController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAShipOrderController.cs" />
@@ -424,6 +436,7 @@
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
     <Compile Include="Dtos\Fba\FBAAddressBookDto.cs" />
     <Compile Include="Dtos\Fba\FBACartonLocationDto.cs" />
+    <Compile Include="Dtos\Fba\FBAMasterOrderAPIDto.cs" />
     <Compile Include="Dtos\Fba\FBAMasterOrderDto.cs" />
     <Compile Include="Dtos\Fba\FBAOrderDetailDto.cs" />
     <Compile Include="Dtos\Fba\FBAPalletDto.cs" />
@@ -454,6 +467,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\FBAHelper\FBAExcelExtracter.cs" />
+    <Compile Include="Helpers\FBAHelper\InventoryHelper.cs" />
     <Compile Include="Helpers\GuidGenerator.cs" />
     <Compile Include="Helpers\IntuitOAuthor.cs" />
     <Compile Include="Helpers\QBOServiceManager.cs" />
@@ -1931,6 +1945,8 @@
     <Content Include="Views\ShipOrder\FBAPickDetail.cshtml" />
     <Content Include="Views\ShipOrder\_FBAInventoryListPartial.cshtml" />
     <Content Include="Views\FBA\FBAInventorySearch.cshtml" />
+    <Content Include="Views\FBA\FBAInventoryReport.cshtml" />
+    <Content Include="Views\FBA\FBAInventoryIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -373,7 +373,6 @@ namespace ClothResorting.Helpers
 
         private bool IsAllSizeEmpty(IList<SizeRatio> sizeList)
         {
-            var result = false;
             var emptyCount = 0;
 
             foreach (var size in sizeList)
