@@ -195,7 +195,7 @@
                     });
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                         location.reload();
                     });
                 }
@@ -262,7 +262,7 @@
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             location.reload();
                         });
                     }
@@ -326,7 +326,7 @@
                             window.location.reload();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                                 window.location.reload();
                             });
                         }

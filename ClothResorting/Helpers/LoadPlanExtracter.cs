@@ -147,9 +147,15 @@ namespace ClothResorting.Helpers
                     var locationsInDb = replenishmentInventoryInDb
                         .Include(x => x.PurchaseOrderInventory)
                         .Include(x => x.SpeciesInventory)
-                        .Where(x => x.PurchaseOrder == purchaseOrder
-                            && x.Style == style && x.Color == color && x.Size == size.SizeName)
+                        .Where(x => x.Style == style 
+                            && x.Color == color && x.Size == size.SizeName)
                         .OrderByDescending(x => x.InboundDate);
+
+                    if (purchaseOrder != "N/A")
+                    {
+                        locationsInDb = locationsInDb.Where(x => x.PurchaseOrder == purchaseOrder)
+                        .OrderByDescending(x => x.InboundDate);
+                    }
 
                     var targetPcs = size.Count;
 
@@ -237,7 +243,7 @@ namespace ClothResorting.Helpers
                         _context.PullSheetDiagnostics.Add(new PullSheetDiagnostic {
                             Type = Status.Missing,
                             DiagnosticDate = DateTime.Now.ToString("dd/MM/yyyy"),
-                            Description = "<font color='red'>" + targetPcs + "</font> PCS shortage of Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style: <font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "<font>, Size: <font color='red'>" + size.SizeName + "</font> has been detected. Please advise.",
+                            Description = "<font color='red'>" + targetPcs + "</font> PCS shortage of Cut PO: <font color='red'>" + purchaseOrder + "</font>, Style: <font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "<font>, Size: </font color='red'>" + size.SizeName + "</font> has been detected. Please advise.",
                             ShipOrder = _context.ShipOrders.Find(shipOrderId)
                         });
                     }
