@@ -22,5 +22,7 @@ namespace ClothResorting.Models.FBAModels.StaticModels
         public const string Relocated = "Relocated";
 
         public const string Ready = "Ready";
+
+        public const string LossCtn = "LossCtn";
     }
 }

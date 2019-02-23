@@ -19,12 +19,10 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Id</th>
                     <th>Customer Code</th>
-                    <th>Customer Name</th>
-                    <th>Remain CBM</th>
-                    <th>Remain Plts</th>
-                    <th>Remain Ctns</th>
+                    <th>Residual CBM</th>
+                    <th>Residual Plts</th>
+                    <th>Residual Ctns</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -32,3 +30,139 @@
         </table>
     </div>
 </div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var index;
+            var url;
+            var table;
+            var closeDate;
+
+            $("#btn-inspect").on("click", function () {
+                closeDate = $("#input-date").val();
+
+                if (closeDate != "")
+                {
+                    url = "/api/fba/fbainventoryindex/?closeDate=" + closeDate;
+                    var columsArray = [
+                        {
+                            data: "customerCode",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "residualCBM",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "residualplts",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "residualCtns",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "customerCode",
+                            render: function (data) {
+                                return "<button customercode='" + data + "' class='btn btn-link btn-view'>View</button><button customercode='" + data + "'class='btn btn-link btn-download'>Download Report</button>";
+                            }
+                        },
+                    ];
+
+                    GetAjaxTable("GET", url, "#table", columsArray);
+                }
+                else
+                {
+                    alert("Need close date.");
+                }
+            });
+
+            //点击查看按钮,查看剩余库存报告
+            $("#table").on("click", ".btn-view", function () {
+                $(window).attr('href', '~/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
+            });
+
+            //点击下载按钮,下载Excel库存报告
+            $("#table").on("click", ".btn-view", function () {
+                $(window).attr('href', '~/api/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
+            });
+
+            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+        });
+    </script>
+}

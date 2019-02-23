@@ -1404,6 +1404,10 @@
     <Compile Include="Migrations\201901292341286_AddedThreeNewPropertiesInFBAShipOrder.Designer.cs">
       <DependentUpon>201901292341286_AddedThreeNewPropertiesInFBAShipOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.cs" />
+    <Compile Include="Migrations\201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.Designer.cs">
+      <DependentUpon>201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2646,6 +2650,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901292341286_AddedThreeNewPropertiesInFBAShipOrder.resx">
       <DependentUpon>201901292341286_AddedThreeNewPropertiesInFBAShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.resx">
+      <DependentUpon>201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

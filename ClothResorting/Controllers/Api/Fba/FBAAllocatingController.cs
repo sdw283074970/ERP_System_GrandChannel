@@ -34,6 +34,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPost]
         public void CreateLocationObjects([FromUri]string grandNumber, [FromUri]string inventoryType, [FromBody]IEnumerable<FBALocationDto> objArray)
         {
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber);
             if (inventoryType == FBAInventoryType.Pallet)
             {
                 var palletLocationList = new List<FBAPalletLocation>();
@@ -79,6 +80,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     palletLocation.ActualPlts = obj.Quantity;
                     palletLocation.AssembleUniqueIndex(palletInDb.Container, palletInDb.GrandNumber);
 
+                    palletLocation.FBAMasterOrder = masterOrderInDb;
                     palletLocation.FBAPallet = palletInDb;
 
                     palletLocationList.Add(palletLocation);
