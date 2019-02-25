@@ -24,6 +24,7 @@
                     <th>Id</th>
                     <th>Container</th>
                     <th>Vendor</th>
+                    <th>Batch</th>
                     <th>Created By</th>
                     <th>PO</th>
                     <th>Style</th>
@@ -160,6 +161,12 @@
                     },
                     {
                         data: "vendor",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "batch",
                         render: function (data) {
                             return "<text>" + data + "</text>";
                         }

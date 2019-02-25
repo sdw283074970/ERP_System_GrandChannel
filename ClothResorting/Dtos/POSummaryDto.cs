@@ -41,5 +41,6 @@ namespace ClothResorting.Dtos
 
         public string Vendor { get; set; }
 
+        public string Batch { get; set; }
     }
 }

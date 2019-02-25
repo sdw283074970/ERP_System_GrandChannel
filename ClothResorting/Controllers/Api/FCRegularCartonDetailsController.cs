@@ -72,6 +72,7 @@ namespace ClothResorting.Controllers.Api
                 Receiver = "",
                 Adjustor = "system",
                 Vendor = poSummaryInDb.Vendor,
+                Batch = poSummaryInDb.Batch,
                 POSummary = poSummaryInDb
             };
 

@@ -115,6 +115,7 @@ namespace ClothResorting.Helpers
             _ws = _wb.Worksheets[1];
             _countOfPo = 0;
             var index = 1;
+            var batch = preReceiveOrderInDb.LastBatch + 1;
 
             //扫描POSummary的数量
             do
@@ -140,18 +141,21 @@ namespace ClothResorting.Helpers
                     Operator = _userName,
                     Vendor = preReceiveOrderInDb.CustomerName,
                     Container = Status.Unknown,
-                    Customer = ""
+                    Customer = "",
+                    Batch = batch.ToString()
                 });
+
+                batch += 1;
             }
 
             //先写入数据库一次
+            preReceiveOrderInDb.LastBatch = batch - 1;
             _context.POSummaries.AddRange(poList);
             _context.SaveChanges();
 
             //分别扫描各个POSummary的CartonDetail
             var startIndex = 1;
             var poSummariesInDb = _context.POSummaries.OrderByDescending(x => x.Id).Take(poList.Count);
-            var batch = 1;
 
             foreach (var poSummary in poSummariesInDb)
             {
@@ -240,7 +244,7 @@ namespace ClothResorting.Helpers
                                         Receiver = "",
                                         Adjustor = "",
                                         Vendor = vendor,
-                                        Batch = batch.ToString(),
+                                        Batch = poSummary.Batch,
                                         ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                     });
                                 }
@@ -285,7 +289,7 @@ namespace ClothResorting.Helpers
                                     Receiver = "",
                                     Adjustor = "",
                                     Vendor = vendor,
-                                    Batch = batch.ToString(),
+                                    Batch = poSummary.Batch,
                                     ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString(),
                                 });
                             }
@@ -338,7 +342,7 @@ namespace ClothResorting.Helpers
                                 Receiver = "",
                                 Adjustor = "",
                                 Vendor = vendor,
-                                Batch = batch.ToString(),
+                                Batch = poSummary.Batch,
                                 ColorCode = _ws.Cells[startIndex + 1 + j, countOfColumn].Value2 == null ? "" : _ws.Cells[startIndex + 1 + j, countOfColumn].Value2.ToString()
                             });
                         }
@@ -364,8 +368,6 @@ namespace ClothResorting.Helpers
             //重新统计新建的preReceiveOrder对象的数据
             preReceiveOrderInDb.TotalCartons += cartonList.Sum(x => x.Cartons);
             preReceiveOrderInDb.TotalPcs += cartonList.Sum(x => x.Quantity);
-
-            batch += 1;
 
             _context.RegularCartonDetails.AddRange(cartonList);
             _context.SaveChanges();
@@ -1054,6 +1056,7 @@ namespace ClothResorting.Helpers
                 TotalGrossWeight = 0,
                 TotalNetWeight = 0,
                 TotalVol = 0,
+                LastBatch = 0,
                 Operator = _userName
             });
 
@@ -1065,8 +1068,10 @@ namespace ClothResorting.Helpers
         {
             _ws = _wb.Worksheets[1];
             var packingList = new List<POSummary>();
-            var index = 2;
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(id);
+            var batch = preReceiveOrderInDb.LastBatch + 1;
+            var index = 2;
+
             _countOfPo = 0;
 
             while (index > 0)
@@ -1104,14 +1109,17 @@ namespace ClothResorting.Helpers
                     Container = Status.Unknown,
                     PreReceiveOrder = preReceiveOrderInDb,
                     Operator = _userName,
+                    Batch= batch.ToString(),
                     Vendor = Vendor.FreeCountry
                 });
 
                 index += 2;
+                batch += 1;
             }
 
             //可以在本页面获取packingList的总量
             preReceiveOrderInDb.CustomerName = Vendor.FreeCountry;
+            preReceiveOrderInDb.LastBatch = batch - 1;
 
             _context.POSummaries.AddRange(packingList);
             _context.SaveChanges();
@@ -1124,8 +1132,6 @@ namespace ClothResorting.Helpers
             var rowIndex = 1;
             //id = _context.PreReceiveOrders.OrderByDescending(c => c.Id).First().Id;
             var regularCartonDetailList = new List<RegularCartonDetail>();
-
-            var batch = 1;
 
             //扫描Detail页面中有多少个RegularCartonDetail对象
             for (int i = 0; i < _countOfPo; i++)
@@ -1270,7 +1276,7 @@ namespace ClothResorting.Helpers
                                     Operator = _userName,
                                     Adjustor = "",
                                     Receiver = "",
-                                    Batch = batch.ToString(),
+                                    Batch = poSummaryInDb.Batch,
                                     Vendor = Vendor.FreeCountry
                                 };
 
@@ -1304,7 +1310,7 @@ namespace ClothResorting.Helpers
                                     Operator = _userName,
                                     Adjustor = "",
                                     Receiver = "",
-                                    Batch = batch.ToString(),
+                                    Batch = poSummaryInDb.Batch,
                                     Vendor = Vendor.FreeCountry
                                 };
 
@@ -1362,7 +1368,7 @@ namespace ClothResorting.Helpers
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = "",
-                                Batch = batch.ToString(),
+                                Batch = poSummaryInDb.Batch,
                                 Vendor = Vendor.FreeCountry
                             };
 
@@ -1396,7 +1402,6 @@ namespace ClothResorting.Helpers
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = "",
-                                Batch = batch.ToString(),
                                 Vendor = Vendor.FreeCountry
                             };
 
@@ -1412,6 +1417,7 @@ namespace ClothResorting.Helpers
                                         && c.POSummary == poSummaryIndb) == null)
                                 {
                                     regularCartonDetail.POSummary = poSummaryIndb;
+                                    regularCartonDetail.Batch = poSummaryIndb.Batch;
                                     regularCartonDetailList.Add(regularCartonDetail);
                                     poSummaryIndb.OrderType = OrderType.Prepack;
                                     break;
@@ -1427,8 +1433,6 @@ namespace ClothResorting.Helpers
                     countOfSpace += 1;
                     rowIndex += 1;
                 }
-
-                batch++;        //FC的每一个PO视为一个批次，作为入库过程中相同箱号的区分
             }
 
             _context.RegularCartonDetails.AddRange(regularCartonDetailList);

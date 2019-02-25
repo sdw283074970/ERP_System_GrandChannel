@@ -37,6 +37,8 @@ namespace ClothResorting.Models
 
         public UpperVendor UpperVendor { get; set; }
 
+        public int LastBatch { get; set; }
+
         public ICollection<PurchaseOrderSummary> PurchaseOrderSummaries { get; set; }
 
         public ICollection<POSummary> POSummaries { get; set; }

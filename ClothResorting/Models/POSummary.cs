@@ -41,6 +41,8 @@ namespace ClothResorting.Models
 
         public string Vendor { get; set; }
 
+        public string Batch { get; set; }
+
         public PreReceiveOrder PreReceiveOrder { get; set; }
 
         public ICollection<RegularCartonDetail> RegularCartonDetails { get; set; }

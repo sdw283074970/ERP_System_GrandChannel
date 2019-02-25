@@ -1408,6 +1408,14 @@
     <Compile Include="Migrations\201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.Designer.cs">
       <DependentUpon>201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201902252213405_AddedLastBatchInPrereceiveOrder.cs" />
+    <Compile Include="Migrations\201902252213405_AddedLastBatchInPrereceiveOrder.Designer.cs">
+      <DependentUpon>201902252213405_AddedLastBatchInPrereceiveOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201902252216207_AddedLastBatchInPOSummary.cs" />
+    <Compile Include="Migrations\201902252216207_AddedLastBatchInPOSummary.Designer.cs">
+      <DependentUpon>201902252216207_AddedLastBatchInPOSummary.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2653,6 +2661,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.resx">
       <DependentUpon>201902230034122_ConnectFBAPalletLocationWithFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902252213405_AddedLastBatchInPrereceiveOrder.resx">
+      <DependentUpon>201902252213405_AddedLastBatchInPrereceiveOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902252216207_AddedLastBatchInPOSummary.resx">
+      <DependentUpon>201902252216207_AddedLastBatchInPOSummary.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
