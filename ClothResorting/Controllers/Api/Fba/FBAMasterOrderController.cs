@@ -99,13 +99,12 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.FBACartonLocations.RemoveRange(cartonLocationsInDb);
 
             var palletLocationsInDb = _context.FBAPalletLocations
-                .Include(x => x.FBAPallet.FBACartonLocations)
-                .Where(x => x.FBAPallet.FBACartonLocations.Count == 0);
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
 
             _context.FBAPalletLocations.RemoveRange(palletLocationsInDb);
 
             var palletsInDb = _context.FBAPallets
-                .Include(x => x.FBAPalletLocations)
                 .Include(x => x.FBACartonLocations)
                 .Where(x => x.FBACartonLocations.Count == 0);
 

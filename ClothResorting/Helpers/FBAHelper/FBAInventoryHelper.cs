@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
-    public class InventoryHelper
+    public class FBAInventoryHelper
     {
         private ApplicationDbContext _context;
         private string _path = "";
@@ -19,12 +19,12 @@ namespace ClothResorting.Helpers.FBAHelper
         private Workbook _wb;
         private Worksheet _ws;
 
-        public InventoryHelper()
+        public FBAInventoryHelper()
         {
             _context = new ApplicationDbContext();
         }
 
-        public InventoryHelper(string templatePath)
+        public FBAInventoryHelper(string templatePath)
         {
             _context = new ApplicationDbContext();
             _path = templatePath;
@@ -47,6 +47,8 @@ namespace ClothResorting.Helpers.FBAHelper
             var cartonLocationsInDb = _context.FBACartonLocations
                 .Include(x => x.FBAPallet.FBAPalletLocations)
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
+                .Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAPickDetails)
                 .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             //获取在指定日期前入库的托盘库存列表
@@ -55,7 +57,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAPickDetails)
                 .Where(x => x.FBAMasterOrder.InboundDate <= closeDate && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
-            var originalPlts = palletLocationsInDb.Sum(x => x.ActualPlts);
+            var palletLocationsList = palletLocationsInDb.ToList();
+
+            var originalPlts = palletLocationsList.Sum(x => x.ActualPlts);
 
             //计算原有箱数减去每次发出的箱数并放到列表中
             foreach (var cartonLocation in cartonLocationsInDb)
@@ -110,7 +114,7 @@ namespace ClothResorting.Helpers.FBAHelper
             info.FBAResidualInventories = residualInventoryList;
             info.Customer = customerCode;
             info.OriginalPlts = originalPlts;
-            info.CurrentPlts = palletLocationsInDb.Sum(x => x.ActualPlts);
+            info.CurrentPlts = palletLocationsList.Sum(x => x.ActualPlts);
             info.OriginalLossCtns = residualInventoryList.Sum(x => x.OriginalQuantity);
             info.CurrentLossCtns = residualInventoryList.Sum(x => x.ResidualQuantity);
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);

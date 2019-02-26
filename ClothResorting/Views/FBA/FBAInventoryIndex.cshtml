@@ -21,8 +21,9 @@
                 <tr>
                     <th>Customer Code</th>
                     <th>Residual CBM</th>
-                    <th>Residual Plts</th>
-                    <th>Residual Ctns</th>
+                    <th>Residual Total Plts</th>
+                    <th>Residual Loss Ctns</th>
+                    <th>Residual Total Ctns</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -48,25 +49,31 @@
                     url = "/api/fba/fbainventoryindex/?closeDate=" + closeDate;
                     var columsArray = [
                         {
-                            data: "customerCode",
+                            data: "customer",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
                             }
                         },
                         {
-                            data: "residualCBM",
+                            data: "totalResidualCBM",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
                             }
                         },
                         {
-                            data: "residualplts",
+                            data: "currentPlts",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
                             }
                         },
                         {
-                            data: "residualCtns",
+                            data: "currentLossCtns",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "totalResidualQuantity",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
                             }
@@ -79,7 +86,7 @@
                         },
                     ];
 
-                    GetAjaxTable("GET", url, "#table", columsArray);
+                    GetAjaxTable("GET", url, "#table", table, columsArray);
                 }
                 else
                 {
@@ -89,12 +96,12 @@
 
             //点击查看按钮,查看剩余库存报告
             $("#table").on("click", ".btn-view", function () {
-                $(window).attr('href', '~/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
+                $(window.location).attr('href', '~/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
             });
 
             //点击下载按钮,下载Excel库存报告
-            $("#table").on("click", ".btn-view", function () {
-                $(window).attr('href', '~/api/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
+            $("#table").on("click", ".btn-download", function () {
+                $(window.location).attr('href', '~/api/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {

@@ -1810,7 +1810,8 @@ namespace ClothResorting.Helpers
                     foreach (var size in sizeList)
                     {
                         //依照出货规则从待选池中所有符合拣货条件的对象
-                        var poolLocations = cartonLocationPool.Where(x => x.SizeBundle == size.SizeName && x.AvailablePcs != 0);
+                        var poolLocations = cartonLocationPool
+                            .Where(x => x.SizeBundle == size.SizeName && x.AvailablePcs != 0);
 
                         if (purchaseOrder != "N/A")
                         {
@@ -1876,8 +1877,8 @@ namespace ClothResorting.Helpers
                                 pool.PickingPcs += pool.AvailablePcs;
                                 pool.AvailablePcs = 0;
 
-                                //如果相同箱号批次号的对象数量为1，则说明没有寄生对象, 正常操调节箱数
-                                if (parasiticPoolLocations.Count() == 1)
+                                //如果没有寄生对象, 正常操作
+                                if (!HasParasticItems(parasiticPoolLocations))
                                 {
                                     pickDetail.PickCtns = pool.AvailableCtns;
 
@@ -1911,8 +1912,8 @@ namespace ClothResorting.Helpers
 
                                 targetPcs = 0;
 
-                                //如果同类型数量为1，则说明没有寄生对象, 正常操作
-                                if (parasiticPoolLocations.Count() == 1)
+                                //如果没有寄生对象, 正常操作
+                                if (!HasParasticItems(parasiticPoolLocations))
                                 {
                                     var deductableCtns = (pool.Quantity - pool.AvailablePcs) / pool.PcsPerCaron;
                                     var originalCtns = pool.AvailableCtns;
@@ -2073,6 +2074,20 @@ namespace ClothResorting.Helpers
             }
 
             return 0;
+        }
+
+        //辅助方法：用来检测集合中是否存在寄生对象。判断依据为：如果集合中的每一个对象的原始箱数都不为0，则没有寄生对象，否则就有寄生对象
+        private bool HasParasticItems(IEnumerable<FCRegularLocationDetail> parasiticLocationsInDb)
+        {
+            foreach(var item in parasiticLocationsInDb)
+            {
+                if (item.Cartons == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         //辅助方法：基于cartionLocation对象的现有属性和总应减箱数，计算并调节其可用箱数及在拣箱数

@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Helpers.FBAHelper;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -20,11 +21,15 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/fbainventoryindex/?closeDate={closeDate}
         [HttpGet]
-        public IHttpActionResult GetRemainCustomerList([FromUri]DateTime closeDate)
+        public IHttpActionResult GetRemainCustomerList([FromUri]string closeDate)
         {
+            var templatePath = @"D:\Template\FBA-Inventory-Template.xls";
 
+            var helper = new FBAInventoryHelper(templatePath);
 
-            return Ok();
+            var customerInventoryList = helper.ReturnNonZeroCBMInventoryInfo(closeDate);
+
+            return Ok(customerInventoryList);
         }
     }
 }
