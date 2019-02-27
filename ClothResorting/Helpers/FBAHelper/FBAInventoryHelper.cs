@@ -8,6 +8,8 @@ using System.Data.Entity;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Models.FBAModels.StaticModels;
 using System.Globalization;
+using System.IO;
+using System.Threading;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -18,6 +20,8 @@ namespace ClothResorting.Helpers.FBAHelper
         private _Application _excel;
         private Workbook _wb;
         private Worksheet _ws;
+        private delegate void QuitHandler();
+        //private delegate void SaveAsHandler(object Filename, object FileFormat, object Password, object WriteResPassword, object ReadOnlyRecommended, object CreateBackup, XlSaveAsAccessMode AccessMode = XlSaveAsAccessMode.xlNoChange, object ConflictResolution = null, object AddToMru = null, object TextCodepage = null, object TextVisualLayout = null, object Local = null);
 
         public FBAInventoryHelper()
         {
@@ -58,8 +62,11 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Where(x => x.FBAMasterOrder.InboundDate <= closeDate && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             var palletLocationsList = palletLocationsInDb.ToList();
+            var cartonLocationList = cartonLocationsInDb.ToList();
 
             var originalPlts = palletLocationsList.Sum(x => x.ActualPlts);
+            var originalLossCtns = cartonLocationList.Where(x => x.Status == FBAStatus.InPallet).Sum(x => x.ActualQuantity);
+            var currentLossCtns = originalLossCtns;
 
             //计算原有箱数减去每次发出的箱数并放到列表中
             foreach (var cartonLocation in cartonLocationsInDb)
@@ -71,6 +78,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     foreach(var pickCarton in cartonLocation.FBAPickDetailCartons)
                     {
                         cartonLocation.ActualQuantity -= pickCarton.PickCtns;
+                        currentLossCtns -= pickCarton.PickCtns;
                     }
                 }
                 else
@@ -86,7 +94,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     residualInventoryList.Add(new FBAResidualInventory {
                         Id = cartonLocation.Id,
                         Container = cartonLocation.Container,
-                        Type = cartonLocation.Location == FBAStatus.InPallet ? FBAStatus.InPallet : FBAStatus.LossCtn,
+                        Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
                         ShipmentId = cartonLocation.ShipmentId,
                         AmzRefId = cartonLocation.AmzRefId,
                         WarehouseCode = cartonLocation.WarehouseCode,
@@ -113,10 +121,12 @@ namespace ClothResorting.Helpers.FBAHelper
 
             info.FBAResidualInventories = residualInventoryList;
             info.Customer = customerCode;
+
             info.OriginalPlts = originalPlts;
             info.CurrentPlts = palletLocationsList.Sum(x => x.ActualPlts);
-            info.OriginalLossCtns = residualInventoryList.Sum(x => x.OriginalQuantity);
-            info.CurrentLossCtns = residualInventoryList.Sum(x => x.ResidualQuantity);
+            info.OriginalLossCtns = originalLossCtns;
+            info.CurrentLooseCtns = currentLossCtns;
+
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
             info.TotalResidualQuantity = residualInventoryList.Sum(x => x.ResidualQuantity);
             info.CloseDate = closeDate;
@@ -125,17 +135,17 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //读取库存报告模板并另存报告,返回完整储存路径
-        public string GenerateFBAInventoryReport(FBAInventoryInfo info)
+        public void GenerateFBAInventoryReport(FBAInventoryInfo info)
         {
             _ws = _wb.Worksheets[1];
 
             _ws.Cells[4, 2] = info.Customer;
             _ws.Cells[4, 4] = info.CloseDate.ToString("yyyy-MM-dd");
 
-            _ws.Cells[6, 2] = info.OriginalPlts;
-            _ws.Cells[6, 4] = info.CurrentPlts;
-            _ws.Cells[6, 6] = info.OriginalLossCtns;
-            _ws.Cells[6, 8] = info.CurrentLossCtns;
+            _ws.Cells[6, 2] = info.CurrentPlts;
+            _ws.Cells[6, 4] = info.TotalResidualQuantity;
+            _ws.Cells[6, 6] = info.CurrentLooseCtns;
+            _ws.Cells[6, 8] = info.TotalResidualQuantity - info.CurrentLooseCtns;
 
             var startRow = 9;
 
@@ -146,20 +156,41 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 3] = i.ShipmentId;
                 _ws.Cells[startRow, 4] = i.AmzRefId;
                 _ws.Cells[startRow, 5] = i.WarehouseCode;
-                _ws.Cells[startRow, 6] = i.GrossWeightPerCtn;
-                _ws.Cells[startRow, 7] = i.CBMPerCtn;
-                _ws.Cells[startRow, 8] = i.ResidualCBM;
-                _ws.Cells[startRow, 9] = i.ResidualQuantity;
+                _ws.Cells[startRow, 6] = Math.Round(i.GrossWeightPerCtn, 2);
+                _ws.Cells[startRow, 7] = Math.Round(i.CBMPerCtn, 2);
+                _ws.Cells[startRow, 8] = Math.Round(i.ResidualCBM, 2);
+                _ws.Cells[startRow, 9] = Math.Round((double)i.ResidualQuantity, 2);
                 _ws.Cells[startRow, 10] = i.Location;
+
+                startRow += 1;
             }
 
-            var path = @"D:\InventoryReport\FBA- " + info.Customer + " -InventoryReport- " + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            var fullPath = @"D:\InventoryReport\FBA- " + info.Customer + " -InventoryReport- " + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
-            _wb.SaveAs(path, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
 
-            return path;
+            //使用主线程调用委托，等于用主线程调用Quick()方法，以达到阻塞线程的目的
+            var handler = new QuitHandler(_excel.Quit);
+            handler.Invoke();
+
+            var response = HttpContext.Current.Response;
+            var downloadFile = new FileInfo(fullPath);
+            response.ClearHeaders();
+            response.Buffer = false;
+            response.ContentType = "application/octet-stream";
+            response.AppendHeader("Content-Disposition", "attachment; filename=" + info.Customer + " Inventory Report - " + HttpUtility.UrlEncode(DateTime.Now.ToString("yyyyMMddhhmmss") + ".xls", System.Text.Encoding.UTF8));
+            response.Clear();
+            response.AppendHeader("Content-Length", downloadFile.Length.ToString());
+            response.WriteFile(downloadFile.FullName);
+            response.Flush();
+            response.Close();
+            response.End();
+
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
         }
 
         //返回库存CBM不为0的FBA客户列表
@@ -233,7 +264,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public int OriginalLossCtns { get; set; }
 
-        public int CurrentLossCtns { get; set; }
+        public int CurrentLooseCtns { get; set; }
 
         public float TotalResidualCBM { get; set; }
 

@@ -42,7 +42,7 @@ namespace ClothResorting.Helpers
             response.End();
         }
 
-        public void DownloadFromServer(string fullPath)
+        public void DownloadBOLFromServer(string fullPath)
         {
             var response = HttpContext.Current.Response;
             var downloadFile = new FileInfo(fullPath);
@@ -50,6 +50,22 @@ namespace ClothResorting.Helpers
             response.Buffer = false;
             response.ContentType = "application/octet-stream";
             response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(DateTime.Now.ToString("yyyyMMddhhmmss") + " - BOL.pdf", System.Text.Encoding.UTF8));
+            response.Clear();
+            response.AppendHeader("Content-Length", downloadFile.Length.ToString());
+            response.WriteFile(downloadFile.FullName);
+            response.Flush();
+            response.Close();
+            response.End();
+        }
+
+        public void DownloadGeneralFileFromServer(string fullPath, string prefix, string suffix)
+        {
+            var response = HttpContext.Current.Response;
+            var downloadFile = new FileInfo(fullPath);
+            response.ClearHeaders();
+            response.Buffer = false;
+            response.ContentType = "application/octet-stream";
+            response.AppendHeader("Content-Disposition", "attachment; filename=" + prefix + " - " + HttpUtility.UrlEncode(DateTime.Now.ToString("yyyyMMddhhmmss") + suffix, System.Text.Encoding.UTF8));
             response.Clear();
             response.AppendHeader("Content-Length", downloadFile.Length.ToString());
             response.WriteFile(downloadFile.FullName);

@@ -79,9 +79,9 @@
                             }
                         },
                         {
-                            data: "customerCode",
+                            data: "customer",
                             render: function (data) {
-                                return "<button customercode='" + data + "' class='btn btn-link btn-view'>View</button><button customercode='" + data + "'class='btn btn-link btn-download'>Download Report</button>";
+                                return "<button customercode='" + data + "' class='btn btn-link btn-view'>View</button><button customercode='" + data + "' class='btn btn-link btn-download'>Download Report</button>";
                             }
                         },
                     ];
@@ -96,12 +96,12 @@
 
             //点击查看按钮,查看剩余库存报告
             $("#table").on("click", ".btn-view", function () {
-                $(window.location).attr('href', '~/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
+                $(window.location).attr('href', '/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
             });
 
             //点击下载按钮,下载Excel库存报告
             $("#table").on("click", ".btn-download", function () {
-                $(window.location).attr('href', '~/api/fba/FBAInventoryReport/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate);
+                $(window.location).attr('href', '/api/fba/FBAInventoryIndex/?customerCode=' + $(this).attr('customercode') + "&closeDate=" + closeDate + "&operation=Download");
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
@@ -170,6 +170,10 @@
                     }
                 });
             };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
         });
     </script>
 }
