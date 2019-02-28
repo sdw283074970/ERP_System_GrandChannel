@@ -1865,7 +1865,8 @@ namespace ClothResorting.Helpers
                             //与pool在同一集装箱的相同箱号且同批次号的所有对象，用来作为区分是否有寄生对象的依据
                             var parasiticPoolLocations = cartonLocationPool.Where(x => x.Container == pool.Container
                                     && x.CartonRange == pool.CartonRange
-                                    && x.Batch == pool.Batch);
+                                    && x.Batch == pool.Batch
+                                    && x.Location == pool.Location);
 
                             //当当前的待选对象件数小于等于目标件数时，全部拿走，并生成对应的PickDetail
                             if (pool.AvailablePcs <= targetPcs && pool.AvailablePcs != 0 && targetPcs != 0)
@@ -2039,7 +2040,6 @@ namespace ClothResorting.Helpers
         {
             if (parasiticLocationsInDb.Where(x => x.Cartons != 0).Count() > 1)
             {
-
                 throw new Exception("Wrong batch number detected. Please check batch " + parasiticLocationsInDb.First().Batch + ". Each batch is allowed assign to only one batch of carton range. E.g. The batch number '345' of carton range '1~5' cannot be assigned to another carton range '1~5'");
             }
             //查询宿主对象
@@ -2115,6 +2115,7 @@ namespace ClothResorting.Helpers
                 var mainLocation = cartonLocationPool.SingleOrDefault(x => x.Container == pool.Container
                     && x.CartonRange == pool.CartonRange
                     && x.Batch == pool.Batch
+                    && x.Location == pool.Location
                     && x.Cartons != 0);
 
                 var mainPickDetail = pickDetailList

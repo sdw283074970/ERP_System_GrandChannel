@@ -103,7 +103,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
                         ResidualQuantity = cartonLocation.ActualQuantity,
                         OriginalQuantity = originalQuantity,
-                        Location = cartonLocation.Location == FBAStatus.InPallet ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
+                        Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
                     });
                 }
             }
