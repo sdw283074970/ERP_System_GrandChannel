@@ -58,11 +58,6 @@ namespace ClothResorting.Controllers.Api.Fba
             var excel = new FBAExcelExtracter(fileSavePath);
 
             excel.ExtractFBAPackingListTemplate(grandNumber);
-
-            //强行关闭进程
-            var killer = new ExcelKiller();
-
-            killer.Dispose();
         }
 
         // PUT /api/fba/masterdetail/?orderDetailId={orderDetailId}

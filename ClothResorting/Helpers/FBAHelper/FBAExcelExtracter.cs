@@ -86,7 +86,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 orderDetail.AssembleSecontStringPart(lotSize, howToDeliver, remark);
                 orderDetail.AssembleNumberPart(grossWeight, cbm, quantity);
 
-                orderDetail.Container = masterOrderInDb.Container;
+                orderDetail.Container = masterOrderInDb.Container == "" ? "NULL" : masterOrderInDb.Container;
                 orderDetail.GrandNumber = grandNumber;
                 orderDetail.FBAMasterOrder = masterOrderInDb;
 
@@ -95,6 +95,11 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _context.FBAOrderDetails.AddRange(orderDetailsList);
             _context.SaveChanges();
+
+            //强行关闭进程
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
         }
 
         //抽取BOL模板

@@ -72,7 +72,6 @@ namespace ClothResorting.Controllers.Api.Fba
                     }
 
                     var cartonLocation = new FBACartonLocation();
-                    cartonLocation.Status = FBAStatus.InPallet;
                     var ctnsPerPlt = obj.Quantity;
                     var grossWeightPerCtn = (float)Math.Round((orderDetailInDb.ActualGrossWeight / orderDetailInDb.ActualQuantity), 2);
                     var cbmPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
@@ -88,6 +87,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.FBAOrderDetail = orderDetailInDb;
                     cartonLocation.ActualQuantity = ctnsPerPlt * pltQuantity;
                     cartonLocation.AvailableCtns = ctnsPerPlt * pltQuantity;
+                    cartonLocation.Status = FBAStatus.InPallet;
 
                     cartonLocationList.Add(cartonLocation);
                 }
