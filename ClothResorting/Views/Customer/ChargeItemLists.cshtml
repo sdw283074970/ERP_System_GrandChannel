@@ -1,0 +1,236 @@
+﻿
+@{
+    ViewBag.Title = "ChargeItemLists";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Accounting System</h1>
+<h2>FBA Charging Item Management Page</h2>
+<h2 id="h2-customercode"></h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div id="div-create">
+        <button id="btn-create" class="btn btn-primary">Add new charging item</button>
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:66px">Id</th>
+                    <th>TYPE</th>
+                    <th>NAME</th>
+                    <th>RATE</th>
+                    <th>UOM</th>
+                    <th>DESCRIPTION</th>
+                    <th style="width:180px">OPERATION</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Charging Type: </text>
+        <select id='select-type' style='width:170px;height:30px' required='required'>
+            <option value='Receiving'>Receiving</option>
+            <option value='Operation'>Operation</option>
+            <option value='Storage'>Storage</option>
+            <option value='Shipping'>Shipping</option>
+            <option value='Other'>Other</option>
+        </select><br />
+        <text>Charging Item Name: </text><input id='input-name' style='width:170px' class='input-sm' placeholder='Name' /><br />
+        <text>Rate: </text><input id='input-rate' style='width:170px' class='input-sm' placeholder='Rate' /><br />
+        <text>UOM:</text>
+        <select id='select-unit' style='width:170px;height:30px' required='required'>
+            <option value='CBM'>CBM</option>
+            <option value='CONTAINER'>CONTAINER</option>
+            <option value='CTN'>CTN</option>
+            <option value='HR'>WORK HR</option>
+            <option value='LABEL'>LABEL</option>
+            <option value='PC'>PC</option>
+            <option value='PLT'>PLT</option>
+            <option value='ORDER'>ORDER</option>
+            <option value='OTHER'>OTHER</option>
+            <option value='SHIPMENT'>SHIPMENT</option>
+            <option value='SKU'>SKU</option>
+            <option value='STORAGE'>STORAGE</option>
+        </select><br />
+        <text>Description: </text><textarea id='input-description' style='width:170px;height:75px' class='input-sm' placeholder="(Optional)"></textarea><br />
+        <button style="margin-top:20px" id="btn-add" class='btn btn-primary'>New Charging Template</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+            var table;
+            var url;
+            var index;
+
+            var customerId = getUrlParameter('customerId');
+            var customerCode = getUrlParameter('customerCode');
+
+            $("#h2-customercode").html("Customer Code:" + customerCode);
+
+            url = "/api/chargingitemmanagement/?customerId=" + customerId;
+            var columns = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "chargingType",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "name",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "rate",
+                    render: function (data) {
+                        return "<text>$" + data + "</text>";
+                    }
+                },
+                {
+                    data: "unit",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "description",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button cid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button cid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                    }
+                }
+            ];
+            GetAjaxTable("GET", url, "#table", table, columns);
+
+            //点击创建新收费项目，打开新建弹窗
+            $("#btn-create").click(function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "500px"],
+                    content: $(".iframe")
+                });
+            })
+
+            //点击新收费项目按钮，生成新的收费项目
+            $("#div-iframe").on("click", "#btn-add", function () {
+                var chargingType = $("#select-type option:selected").val();
+                var name = $("#input-name").val().toString();
+                var rate = $("#input-rate").val();
+                var unit = $("#select-unit option:selected").val();
+                var description = $("#input-description").val().toString();
+
+                var obj = {
+                    "customerId": customerId,
+                    "chargingType": chargingType,
+                    "name": name,
+                    "rate": rate,
+                    "unit": unit,
+                    "description": description
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/chargingitemmanagement/",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function () {
+                        layer.alert("Create success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+
+        });
+    </script>
+}

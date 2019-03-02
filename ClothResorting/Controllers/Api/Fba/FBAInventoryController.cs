@@ -72,22 +72,61 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
-        // GET /api/fba/fbaiventory/?container={container}&inventoryType={inventoryType}
+        // GET /api/fba/fbaiventory/?container={container}&sku={sku}&amzRef={amzRef}&warehouseCode={warehouseCode}&inventoryType={inventoryType} 搜索获取可拣货列表
         [HttpGet]
-        public IHttpActionResult GetFBAInventoryViaContainer([FromUri]string container, [FromUri]string inventoryType)
+        public IHttpActionResult GetFBAInventoryViaContainer([FromUri]string container, [FromUri]string sku, [FromUri]string amzRef, [FromUri]string warehouseCode, [FromUri]string inventoryType)
         {
             if (inventoryType == FBAInventoryType.Pallet)
             {
-                return Ok(_context.FBAPalletLocations
-                    .Where(x => x.Container == container && x.AvailablePlts != 0)
-                    .Select(Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>));
+                var palletInventoryInDb = _context.FBAPalletLocations.Where(x => x.AvailablePlts != 0);
+
+                if (container != null)
+                {
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.Container.Contains(container));
+                }
+                
+                if (sku != null)
+                {
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.ShipmentId.Contains(sku));
+                }
+
+                if (amzRef != null)
+                {
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.AmzRefId.Contains(amzRef));
+                }
+
+                if (warehouseCode != null)
+                {
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.WarehouseCode.Contains(warehouseCode));
+                }
+
+                return Ok(Mapper.Map<IEnumerable<FBAPalletLocation>, IEnumerable<FBAPalletLocationDto>>(palletInventoryInDb));
             }
             else
             {
-                return Ok(_context.FBACartonLocations
-                    .Include(x => x.FBAPallet)
-                    .Where(x => x.Container == container && x.AvailableCtns != 0)
-                    .Select(Mapper.Map<FBACartonLocation, FBACartonLocationDto>));
+                var cartonInventoryInDb = _context.FBACartonLocations.Where(x => x.AvailableCtns != 0);
+
+                if (container != null)
+                {
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.Container.Contains(container));
+                }
+
+                if (sku != null)
+                {
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.ShipmentId.Contains(sku));
+                }
+
+                if (amzRef != null)
+                {
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.AmzRefId.Contains(amzRef));
+                }
+
+                if (warehouseCode != null)
+                {
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.WarehouseCode.Contains(warehouseCode));
+                }
+
+                return Ok(Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(cartonInventoryInDb));
             }
         }
 

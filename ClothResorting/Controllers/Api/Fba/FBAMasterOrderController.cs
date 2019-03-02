@@ -104,12 +104,6 @@ namespace ClothResorting.Controllers.Api.Fba
 
             _context.FBAPalletLocations.RemoveRange(palletLocationsInDb);
 
-            var palletsInDb = _context.FBAPallets
-                .Include(x => x.FBACartonLocations)
-                .Where(x => x.FBACartonLocations.Count == 0);
-
-            _context.FBAPallets.RemoveRange(palletsInDb);
-
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
                 .Where(x => x.FBAMasterOrder.Id == masterOrderId);
@@ -123,8 +117,16 @@ namespace ClothResorting.Controllers.Api.Fba
             try
             {
                 _context.SaveChanges();
+
+                var palletsInDb = _context.FBAPallets
+                    .Include(x => x.FBACartonLocations)
+                    .Where(x => x.FBACartonLocations.Count == 0);
+
+                _context.FBAPallets.RemoveRange(palletsInDb);
+
+                _context.SaveChanges();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception("Cannot delete this master order. Please delete related ship order first then try again.");
             }

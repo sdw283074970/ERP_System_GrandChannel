@@ -63,6 +63,7 @@
         $(document).ready(function () {
         
             $(".iframe").hide();
+            var customerCode;
 
             $.ajax({
                 type: "GET",
@@ -96,6 +97,9 @@
                                 render: function (data) {
                                     if (data == null)
                                         return "";
+
+                                    customerCode = data;
+
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -159,7 +163,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-charge'>Mange Charge Items</button><button iid='" + data + "' class='btn btn-deactive btn-link'>Active/Deactive</button><button iid='" + data + "' class='btn btn-delete btn-link'>Delete</button>";
+                                    return "<button iid='" + data + "' customercode='" + customerCode + "' class='btn btn-link btn-charge'>Mange Charge Items</button><button iid='" + data + "' class='btn btn-deactive btn-link'>Active/Deactive</button><button iid='" + data + "' class='btn btn-delete btn-link'>Delete</button>";
                                 }
                             },
                         ]
@@ -218,6 +222,11 @@
             //点击Edit按钮，编辑客户信息(暂时弹出暂未开放功能)
             $("#table").on("click", ".btn-edit", function () {
                 layer.alert("Comming soon!");
+            });
+
+            //点击管理收费项目按钮，打开对应客户的收费项目
+            $("#table").on("click", ".btn-charge", function () {
+                $(window.location).attr('href', '/Customer/ChargeItemLists/?customerId=' + $(this).attr('iid') + "&customerCode=" + $(this).attr('customercode'));
             });
 
             //点击删除按钮，删除客户

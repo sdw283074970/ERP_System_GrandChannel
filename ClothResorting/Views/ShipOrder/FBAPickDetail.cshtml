@@ -305,9 +305,13 @@
             //点击库存拣货界面的搜索按钮，获取可被拣货的列表
             $("#btn-search").on("click", function () {
                 container = $("#input-inventory-container").val();
-                if (container != "")
+                var sku = $("#input-inventory-sku").val();
+                var amzRef = $("#input-inventory-amzref").val();
+                var warehouseCode = $("#input-inventory-warehousecode").val();
+
+                if (container != "" || sku != "" || amzRef != "" || warehouseCode != "")
                 {
-                    GetPickInventoryTable(container, tablePallet, tableCarton);
+                    GetPickInventoryTable(container, sku, amzRef, warehouseCode, tablePallet, tableCarton);
                 }
             });
 
@@ -617,8 +621,9 @@
                 });
             };
 
-            function GetPickInventoryTable(container, tablePallet, tableCarton) {
-                url = "/api/fba/fbainventory/?container=" + container + "&inventoryType=Pallet";
+            function GetPickInventoryTable(container, sku, amzRef, warehouseCode, tablePallet, tableCarton) {
+
+                url = "/api/fba/fbainventory/?container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode +"&inventoryType=Pallet";
                 var palletsColumnArray = [
                         {
                             data: "id",
@@ -713,7 +718,7 @@
                 ]
                 GetAjaxTable("GET", url, "#table-pallet", tablePallet, palletsColumnArray);
 
-                url = "/api/fba/fbainventory/?container=" + container + "&inventoryType=Carton";
+                url = "/api/fba/fbainventory/?container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode + "&inventoryType=Carton";
                 var cartonsColumnArray = [
                     {
                         data: "id",

@@ -33,14 +33,35 @@ namespace ClothResorting.Controllers.Api
             return Ok(chargingItemsDto);
         }
 
+        // GET /api/chargingitemmanagement/?customerId={customerId}
+        [HttpGet]
+        public IHttpActionResult GetChargingItemsFromCustomerId([FromUri]int customerId)
+        {
+            var chargingItemsDto = _context.ChargingItems
+                .Include(x => x.UpperVendor)
+                .Where(x => x.UpperVendor.Id == customerId)
+                .Select(Mapper.Map<ChargingItem, ChargingItemDto>);
+
+            return Ok(chargingItemsDto);
+        }
+
         // POST /api/chargingitemmanagement/
         [HttpPost]
         public IHttpActionResult CreateNewChargingItem([FromBody]ChargingItemJsonObj obj)
         {
-            var vendorInDb = _context.UpperVendors
-                .SingleOrDefault(x => x.Name == obj.Vendor && x.DepartmentCode == obj.DepartmentCode);
+            UpperVendor vendorInDb = null;
+            if (obj.CustomerId == 0)
+            {
+                vendorInDb = _context.UpperVendors
+                    .SingleOrDefault(x => x.Name == obj.Vendor && x.DepartmentCode == obj.DepartmentCode);
+            }
+            else
+            {
+                vendorInDb = _context.UpperVendors.Find(obj.CustomerId);
+            }
 
-            var newItem = new ChargingItem {
+            var newItem = new ChargingItem
+            {
                 ChargingType = obj.ChargingType,
                 Name = obj.Name,
                 Rate = obj.Rate,

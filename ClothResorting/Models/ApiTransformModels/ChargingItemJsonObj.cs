@@ -7,6 +7,8 @@ namespace ClothResorting.Models.ApiTransformModels
 {
     public class ChargingItemJsonObj
     {
+        public int CustomerId { get; set; }
+
         public string Vendor { get; set; }
 
         public string DepartmentCode { get; set; }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Helpers;
 using ClothResorting.Models;
 using ClothResorting.Models.StaticClass;
 using System;
@@ -31,7 +32,8 @@ namespace ClothResorting.Controllers.Api
         //POST /api/customer/?name={name}&customerCode={customerCode}&departmentCode={departmentCode}
         public IHttpActionResult CreateNewCustomer([FromUri]string name, [FromUri]string customerCode, [FromUri]string departmentCode, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson)
         {
-            _context.UpperVendors.Add(new UpperVendor {
+            var customer = new UpperVendor
+            {
                 CustomerCode = customerCode,
                 DepartmentCode = departmentCode,
                 Name = name,
@@ -41,7 +43,13 @@ namespace ClothResorting.Controllers.Api
                 EmailAddress = emailAddress,
                 ContactPerson = contactPerson,
                 Status = Status.Active
-            });
+            };
+
+            _context.UpperVendors.Add(customer);
+
+            var generator = new ChargingItemGenerator();
+
+            generator.GenerateChargingItems(_context, customer);
 
             _context.SaveChanges();
 

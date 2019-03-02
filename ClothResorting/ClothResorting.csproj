@@ -466,6 +466,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ChargingItemGenerator.cs" />
     <Compile Include="Helpers\FBAHelper\FBAExcelExtracter.cs" />
     <Compile Include="Helpers\FBAHelper\FBAInventoryHelper.cs" />
     <Compile Include="Helpers\GuidGenerator.cs" />
@@ -1959,6 +1960,7 @@
     <Content Include="Views\FBA\FBAInventorySearch.cshtml" />
     <Content Include="Views\FBA\FBAInventoryReport.cshtml" />
     <Content Include="Views\FBA\FBAInventoryIndex.cshtml" />
+    <Content Include="Views\Customer\ChargeItemLists.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

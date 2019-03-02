@@ -13,5 +13,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // GET: ChargeItems
+        public ActionResult ChargeItemLists()
+        {
+            return View();
+        }
     }
 }
