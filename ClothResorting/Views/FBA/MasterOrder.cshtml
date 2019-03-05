@@ -13,6 +13,7 @@
     </div>
     <div>
         <input id="btn-master" type="button" class="btn btn-primary" value="Creat new master order" />
+        <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -70,6 +71,8 @@
             var table;
             var url;
             var grandNumber;
+            var customerCode;
+            var container;
 
             $(".iframe").hide();
             $(".iframe-info").hide();
@@ -105,6 +108,11 @@
                     area: ["450px", "750px"],
                     content: $(".iframe")
                 });
+            });
+
+            //点击管理运单，跳转至运单管理页面
+            $("#btn-ship").on("click", function () {
+                $(window.location).attr('href', '/shiporder/fbaShipOrder/?customerId=' + customerId);
             });
 
             //点击新建按钮，为当前客户新建一个主单
@@ -149,6 +157,11 @@
                 var grandNumber = $(this).attr('iid');
                 $(window.location).attr('href', '/fba/MasterDetail/?grandNumber=' + grandNumber);
             });
+
+            //点击费用按钮，进入收费项目登记页面
+            $("#table").on("click", ".btn-fee", function () {
+                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?customerId=' + $(this).attr('customerid') + "&reference=" + $(this).attr('reference') + "&invoiceType=MasterOrder");
+            })
 
             //点击各个条目的Update Info按钮打开更新信息弹窗
             $("#table").on("click", ".btn-update", function () {
@@ -224,6 +237,7 @@
                                 {
                                     data: "container",
                                     render: function (data) {
+                                        container = data;
                                         return "<text>" + data + "</text>";
                                     }
                                 },
@@ -281,7 +295,7 @@
                                 {
                                     data: "grandNumber",
                                     render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
                                     }
                                 }
                             ]

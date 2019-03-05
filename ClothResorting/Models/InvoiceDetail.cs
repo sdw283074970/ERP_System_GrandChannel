@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClothResorting.Models.FBAModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +12,8 @@ namespace ClothResorting.Models
 
         public string Activity { get; set; }
 
+        public string OrderType { get; set; }
+
         public string ChargingType { get; set; }
 
         public string Unit { get; set; }
@@ -21,7 +24,13 @@ namespace ClothResorting.Models
 
         public double Amount { get; set; }
 
+        public DateTime DateOfCost { get; set; }
+
         public string Memo { get; set; }
+
+        public FBAMasterOrder FBAMasterOrder { get; set; }
+
+        public FBAShipOrder FBAShipOrder { get; set; }
 
         public Invoice Invoice { get; set; }
     }

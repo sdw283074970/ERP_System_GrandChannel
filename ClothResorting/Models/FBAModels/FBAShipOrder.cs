@@ -42,6 +42,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
 
+        public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
+
         public FBAShipOrder()
         {
             CreateDate = DateTime.Now;

@@ -62,6 +62,8 @@
             var index;
             var table;
             var url;
+            var shipOrder;
+            var customerId = getUrlParameter('customerId');
 
             $(".iframe").hide();
 
@@ -84,7 +86,7 @@
             });
 
             //获取订单列表
-            url = "/api/fba/fbashiporder/"
+            url = "/api/fba/fbashiporder/?customerId=" + customerId;
             var columnArray = [
                 {
                     data: "id",
@@ -95,6 +97,7 @@
                 {
                     data: "shipOrderNumber",
                     render: function (data) {
+                        shipOrder = data;
                         return "<text>" + data + "</text>";
                     }
                 },
@@ -183,7 +186,7 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                        return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                     }
                 }
             ]
@@ -248,6 +251,11 @@
                     });
                 }
             });
+
+            //点击费用按钮，进入收费项目登记页面
+            $("#table").on("click", ".btn-fee", function () {
+                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?customerId=' + $(this).attr('customerid') + "&reference=" + $(this).attr('reference') + "&invoiceType=ShipOrder");
+            })
 
             //点击BOL按钮，下载有内容的BOL
             $("#table").on("click", ".btn-bol", function () {
@@ -388,6 +396,22 @@
                         });
                     }
                 });
+            };
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
             };
 
             $(".btn-back").on("click", function () {

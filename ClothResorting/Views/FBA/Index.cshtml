@@ -13,7 +13,6 @@
     </div>
     <div>
         <input id="btn-customer" type="button" class="btn btn-primary" value="Manage customer" />
-        <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
         <a href="~/fba/FBAInventoryIndex"><input type="button" class="btn btn-primary" value="Inventory Report" /></a>
         <a href="~/fba/FBAAddressManagement"><input id="btn-address" type="button" class="btn btn-primary" value="Manage Address Book" /></a>
         <a href="~/fba/storagecharge"><input id="btn-storage" type="button" class="btn btn-primary" value="Calculate storage" /></a>
@@ -141,11 +140,6 @@
             //点击管理客户，跳转到客户管理页面
             $("#btn-customer").on("click", function () {
                 $(window.location).attr('href', '/customer');
-            });
-
-            //点击管理运单，跳转至运单管理页面
-            $("#btn-ship").on("click", function () {
-                $(window.location).attr('href', '/shiporder/fbaShipOrder/');
             });
 
             $(".btn-back").on("click", function () {

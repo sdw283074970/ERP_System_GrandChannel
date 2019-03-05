@@ -28,11 +28,15 @@ namespace ClothResorting.Controllers.Api.Fba
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
-        // GET /api/fba/fbashiporder/
+        // GET /api/fba/fbashiporder/?customerId={customerId}
         [HttpGet]
-        public IHttpActionResult GetAllFBAShipOrder()
+        public IHttpActionResult GetAllFBAShipOrder([FromUri]int customerId)
         {
-            return Ok(_context.FBAShipOrders.Select(Mapper.Map<FBAShipOrder, FBAShipOrderDto>));
+            var customerCode = _context.UpperVendors.Find(customerId).CustomerCode;
+
+            return Ok(_context.FBAShipOrders
+                .Where(x => x.CustomerCode == customerCode)
+                .Select(Mapper.Map<FBAShipOrder, FBAShipOrderDto>));
         }
 
         // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}

@@ -79,5 +79,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //收费细节页面
+        public ActionResult FBAInvoiceDetail()
+        {
+            return View();
+        }
     }
 }
