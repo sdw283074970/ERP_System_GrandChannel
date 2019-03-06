@@ -23,6 +23,14 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
         }
 
+        //GET /api/fba/fbamasterorder/
+        [HttpGet]
+        public IHttpActionResult GetAllMasterOrders()
+        {
+            return Ok(_context.FBAMasterOrders
+                .Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>));
+        }
+
         //GET /api/fba/fbamasterorder/{id}
         [HttpGet]
         public IHttpActionResult GetMasterOrders([FromUri]int id)

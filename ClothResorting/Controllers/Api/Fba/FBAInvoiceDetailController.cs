@@ -8,6 +8,8 @@ using System.Web.Http;
 using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Models.StaticClass;
+using ClothResorting.Models.ApiTransformModels;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -44,7 +46,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
-        // GET /api/FBAInvoiceDetail/?customerId={customerId}&reference={reference}&invoiceType={invoiceType}ajaxStep={ajaxStep}
+        // GET /api/FBAInvoiceDetail/?customerId={customerId}&reference={reference}&invoiceType={invoiceType}&ajaxStep={ajaxStep}
         [HttpGet]
         public IHttpActionResult GetCtnsAndPlts([FromUri]int customerId, [FromUri]string reference, [FromUri]string invoiceType, [FromUri]int ajaxStep)
         {
@@ -54,27 +56,24 @@ namespace ClothResorting.Controllers.Api.Fba
                     {
                         if (invoiceType == "MasterOrder")
                         {
-                            var plts = _context.FBAPallets
+                            var masterOrder = _context.FBAPallets
                                 .Where(x => x.Container == reference)
-                                .Sum(x => x.ActualPallets);
+                                .ToList();
 
-                            var ctns = _context.FBAOrderDetails
-                                .Where(x => x.Container == reference)
-                                .Sum(x => x.ActualQuantity);
+                            var plts = masterOrder.Sum(x => x.ActualPallets);
+                            var ctns = masterOrder.Sum(x => x.ActualQuantity);
 
                             return Ok(new { Pallets = plts, Cartons = ctns});
                         }
                         else if (invoiceType == "ShipOrder")
                         {
-                            var plts = _context.FBAPickDetails
+                            var shipOrder = _context.FBAPickDetails
                                 .Include(x => x.FBAShipOrder)
                                 .Where(x => x.FBAShipOrder.ShipOrderNumber == reference)
-                                .Sum(x => x.ActualPlts);
+                                .ToList();
 
-                            var ctns = _context.FBAPickDetails
-                                .Include(x => x.FBAShipOrder)
-                                .Where(x => x.FBAShipOrder.ShipOrderNumber == reference)
-                                .Sum(x => x.ActualQuantity);
+                            var plts = shipOrder.Sum(x => x.ActualPlts);
+                            var ctns = shipOrder.Sum(x => x.ActualQuantity);
 
                             return Ok(new { Pallets = plts, Cartons = ctns });
                         }
@@ -126,7 +125,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(nameList);
         }
 
-        // GET /api/FBAInvoiceDetail/?customerId={customerId}&itemName={itemName}
+        // GET /api/FBAInvoiceDetail/?customerId={customerId}&itemName={itemName}    ajax3，获取所选择项目的费率和计价单位
         //名称可能包含特殊符号，只能走body
         [HttpGet]
         public IHttpActionResult GetRate([FromUri]int customerId, [FromUri]string itemName)
@@ -144,6 +143,59 @@ namespace ClothResorting.Controllers.Api.Fba
             };
 
             return Ok(annoyObj);
+        }
+
+        // POST /api/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}
+        [HttpPost]
+        public IHttpActionResult GreateChargingItem([FromUri]string reference, [FromUri]string invoiceType, [FromBody]InvoiceDetailJsonObj obj)
+        {
+            var invoice = new InvoiceDetail();
+
+            if (invoiceType == FBAInvoiceType.MasterOrder)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == reference);
+
+                var invoiceDetail = new InvoiceDetail {
+                    Activity = obj.Activity,
+                    ChargingType = obj.ChargingType,
+                    DateOfCost = obj.DateOfCost,
+                    Memo = obj.Memo,
+                    Unit = obj.Unit,
+                    Rate = obj.Rate,
+                    Quantity = obj.Quantity,
+                    InvoiceType = invoiceType,
+                    Amount = obj.Amount,
+                    FBAMasterOrder = masterOrderInDb
+                };
+
+                invoice = invoiceDetail;
+                _context.InvoiceDetails.Add(invoiceDetail);
+            }
+            else if (invoiceType == FBAInvoiceType.ShipOrder)
+            {
+                var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference);
+
+                var invoiceDetail = new InvoiceDetail
+                {
+                    Activity = obj.Activity,
+                    ChargingType = obj.ChargingType,
+                    DateOfCost = obj.DateOfCost,
+                    Memo = obj.Memo,
+                    Unit = obj.Unit,
+                    Rate = obj.Rate,
+                    Quantity = obj.Quantity,
+                    InvoiceType = invoiceType,
+                    Amount = obj.Amount,
+                    FBAShipOrder = shipOrderInDb
+                };
+
+                invoice = invoiceDetail;
+                _context.InvoiceDetails.Add(invoiceDetail);
+            }
+
+            _context.SaveChanges();
+
+            return Created(Request.RequestUri + "/", Mapper.Map<InvoiceDetail, InvoiceDetailDto>(invoice));
         }
     }
 }

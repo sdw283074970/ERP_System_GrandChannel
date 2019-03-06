@@ -6,6 +6,7 @@
 
 <h1>FBA System</h1>
 <h2>FBA Invoice Detail Page</h2>
+<h2 id="h2-reference">Reference:</h2>
 
 <div class="maincontainer">
     <div>
@@ -59,6 +60,9 @@
         </div>
         <div id="div-quantity" style="margin-top:20px">
             <text>CTNS: <button id="text-ctns" class="btn btn-link">Cartons</button></text><text style="margin-left:20px">PLTS: <button id="text-plts" class="btn btn-link">PLTS</button></text>
+        </div>
+        <div id="div-date" style="margin-top:20px">
+            <text>Date of Cost: <input id="input-date" type="date" /></text>
         </div>
         <div id="div-type" style="margin-top:20px">
             <text>Select a charging type: </text><select id='select-type' style='width:170px;height:30px' required='required'>
@@ -118,6 +122,8 @@
             var customerId = getUrlParameter('customerId');
             var reference = getUrlParameter('reference');
             var invoiceType = getUrlParameter('invoiceType');
+
+            $("#h2-reference").html("Reference: " + reference);
 
             $.ajax({
                 type: "GET",
@@ -239,7 +245,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["500px", "600px"],
+                    area: ["500px", "650px"],
                     content: $(".iframe")
                 });
             })
@@ -361,155 +367,173 @@
                 }
             });
 
-            ////Ajax4, 保存添加该收费项目
-            //$("#btn-charge").on("click", function () {
+            //Ajax4, 保存添加该收费项目
+            $("#btn-charge").on("click", function () {
 
-            //    var chargingType = $("#select-type option:selected").val();
-            //    var activity = $("#select-name option:selected").val();
+                var chargingType = $("#select-type option:selected").val();
+                var activity = $("#select-name option:selected").val();
+                var dateOfCost = $("#input-date").val();
 
-            //    if (chargingType != "empty" && activity != "empty")
-            //    {
-            //        var unit = $("#text-unit").html();
-            //        var rate = $("#input-rate").val();
-            //        var amount = $("#text-amount").html();
-            //        var quantity = $("#input-quantity").val();
-            //        var memo = $("#input-memo").val();
+                if (dateOfCost == "")
+                {
+                    alert("Date cannot be empty.");
+                }
+                else if (chargingType != "empty" && activity != "empty")
+                {
+                    var unit = $("#text-unit").html();
+                    var rate = $("#input-rate").val();
+                    var amount = $("#text-amount").html();
+                    var quantity = $("#input-quantity").val();
+                    var memo = $("#input-memo").val();
 
-            //        var obj = {
-            //            "invoiceId": invoiceId,
-            //            "activity": activity,
-            //            "chargingType": chargingType,
-            //            "unit": unit,
-            //            "rate": rate,
-            //            "amount": amount,
-            //            "quantity": quantity,
-            //            "memo": memo
-            //        };
+                    alert(dateOfCost);
 
-            //        $.ajax({
-            //            type: "POST",
-            //            contentType: 'application/json; charset=utf-8',
-            //            dataType: "json",
-            //            url: "/api/invoicedetail/",
-            //            data: JSON.stringify(obj),
-            //            success: function () {
-            //                layer.alert("Add success!", function () {
+                    var obj = {
+                        "activity": activity,
+                        "chargingType": chargingType,
+                        "dateOfCost": dateOfCost,
+                        "unit": unit,
+                        "rate": rate,
+                        "amount": amount,
+                        "quantity": quantity,
+                        "memo": memo
+                    };
 
-            //                    layer.close(layer.index);
-            //                    layer.close(index);
+                    $.ajax({
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType,
+                        data: JSON.stringify(obj),
+                        success: function () {
+                            layer.alert("Add success!", function () {
 
-            //                    $.ajax({
-            //                        type: "GET",
-            //                        contentType: 'application/json, charset=utf-8',
-            //                        dataType: "json",
-            //                        url: "/api/invoicedetail/?invoiceId=" + invoiceId,
-            //                        success: function (data) {
-            //                            if (table) {
-            //                                table.destroy();
-            //                            }
+                                layer.close(layer.index);
+                                layer.close(index);
 
-            //                            table = $("#table").DataTable({
-            //                                data: data,
-            //                                order: [[0, "desc"]],
-            //                                destroy: true,
-            //                                scrollCollapse: true,
-            //                                scrollY: "600px",
-            //                                iDisplayLength: 100,
-            //                                columns: [
-            //                                    {
-            //                                        data: "id",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "activity",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "chargingType",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "unit",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "quantity",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "rate",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "amount",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "memo",
-            //                                        render: function (data) {
-            //                                            return "<text>" + data + "</text>";
-            //                                        }
-            //                                    },
-            //                                    {
-            //                                        data: "id",
-            //                                        render: function (data) {
-            //                                            return "<button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
-            //                                        }
-            //                                    }
-            //                                ],
-            //                                footerCallback: function (row, data, start, end, display) {
+                                $.ajax({
+                                    type: "GET",
+                                    contentType: 'application/json, charset=utf-8',
+                                    dataType: "json",
+                                    url: "/api/fbainvoicedetail/?customerId=" + customerId + "&reference=" + reference + "&invoiceType=" + invoiceType,
+                                    success: function (data) {
+                                        if (table) {
+                                            table.destroy();
+                                        }
 
-            //                                    var api = this.api(), data;
+                                        table = $("#table").DataTable({
+                                            data: data,
+                                            order: [[0, "desc"]],
+                                            destroy: true,
+                                            scrollCollapse: true,
+                                            scrollY: "600px",
+                                            iDisplayLength: 100,
+                                            columns: [
+                                                {
+                                                    data: "id",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "activity",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "chargingType",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "unit",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "quantity",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "rate",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "amount",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "orderType",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "dateOfCost",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "memo",
+                                                    render: function (data) {
+                                                        return "<text>" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "id",
+                                                    render: function (data) {
+                                                        return "<button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                                    }
+                                                }
+                                            ],
+                                            footerCallback: function (row, data, start, end, display) {
 
-            //                                    var intVal = function (i) {
-            //                                        return typeof i === 'string' ?
-            //                                            i.replace(/[\$,]/g, '') * 1 :
-            //                                            typeof i === 'number' ?
-            //                                            i : 0;
-            //                                    };
+                                                var api = this.api(), data;
 
-            //                                    var totalAmount = api
-            //                                        .column(6)
-            //                                        .data()
-            //                                        .reduce(function (a, b) {
-            //                                            return intVal(a) + intVal(b);
-            //                                        }, 0);
+                                                var intVal = function (i) {
+                                                    return typeof i === 'string' ?
+                                                        i.replace(/[\$,]/g, '') * 1 :
+                                                        typeof i === 'number' ?
+                                                        i : 0;
+                                                };
 
-            //                                    $(api.column(6).footer()).html("<font color='blue'>" + totalAmount + "</font>");
-            //                                }
-            //                            });
-            //                        },
-            //                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            //                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-            //                                window.location.reload();
-            //                            });
-            //                        }
-            //                    });
-            //                });
-            //            },
-            //            error: function (XMLHttpRequest, textStatus, errorThrown) {
-            //                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-            //                    window.location.reload();
-            //                });
-            //            }
-            //        });
-            //    }
+                                                var totalAmount = api
+                                                    .column(6)
+                                                    .data()
+                                                    .reduce(function (a, b) {
+                                                        return intVal(a) + intVal(b);
+                                                    }, 0);
 
-            //});
+                                                $(api.column(6).footer()).html("<font color='red'>" + totalAmount + "</font>");
+                                            }
+                                        });
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                            window.location.reload();
+                                        });
+                                    }
+                                });
+                            });
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+            });
 
             //监控输入的费率和数量，当这两个input变化时改变Amount的值
             $(".input-calculator").on("change", function () {
@@ -523,27 +547,27 @@
                 $("#text-amount").html(amount);
             });
 
-            ////Ajax5, 点击删除按钮，删除所选收费项目并自动重新计算总数
-            //$("#table").on("click", ".btn-delete", function () {
-            //    var id = $(this).attr('iid');
+            //Ajax5, 点击删除按钮，删除所选收费项目并自动重新计算总数
+            $("#table").on("click", ".btn-delete", function () {
+                var id = $(this).attr('iid');
 
-            //    $.ajax({
-            //        type: "DELETE",
-            //        contentType: 'application/json; charset=utf-8',
-            //        dataType: "json",
-            //        url: "/api/invoicedetail/" + id,
-            //        success: function () {
-            //            layer.alert("Delete success!", function () {
-            //                window.location.reload();
-            //            });
-            //        },
-            //        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            //            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-            //                window.location.reload();
-            //            });
-            //        }
-            //    });
-            //});
+                $.ajax({
+                    type: "DELETE",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    url: "/api/invoicedetail/" + id,
+                    success: function () {
+                        layer.alert("Delete success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

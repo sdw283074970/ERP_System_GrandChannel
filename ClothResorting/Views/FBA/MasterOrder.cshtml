@@ -73,6 +73,7 @@
             var grandNumber;
             var customerCode;
             var container;
+            var customerId;
 
             $(".iframe").hide();
             $(".iframe-info").hide();
@@ -93,10 +94,19 @@
                 }
             };
 
-            var customerId = getUrlParameter('customerId');
+            customerId = getUrlParameter('customerId');
 
-            //获取客户Id对应的所有总单
-            url = "/api/fba/fbamasterorder/" + customerId;
+            if (customerId != undefined)
+            {
+                //获取客户Id对应的所有总单
+                url = "/api/fba/fbamasterorder/" + customerId;
+            }
+            else
+            {
+                //获取所有总单
+                url = "/api/fba/fbamasterorder/";
+            }
+
             GetAjaxTable("GET", url);
 
             //点击新建主单按钮，打开新建主单弹窗
@@ -217,7 +227,7 @@
                             data: data,
                             destroy: true,
                             //scrollX: true,
-                            order: [[1, "asc"]],
+                            order: [[0, "desc"]],
                             scrollCollapse: true,
                             scrollY: "600px",
                             iDisplayLength: 100,

@@ -85,8 +85,16 @@
                 }
             });
 
-            //获取订单列表
-            url = "/api/fba/fbashiporder/?customerId=" + customerId;
+            if (customerId != undefined)
+            {
+                //获取订单列表
+                url = "/api/fba/fbashiporder/?customerId=" + customerId;
+            }
+            else
+            {
+                url = "/api/fba/fbashiporder/";
+            }
+
             var columnArray = [
                 {
                     data: "id",
@@ -312,7 +320,7 @@
                             data: data,
                             destroy: true,
                             //scrollX: true,
-                            order: [[1, "asc"]],
+                            order: [[0, "desc"]],
                             scrollCollapse: true,
                             scrollY: "600px",
                             iDisplayLength: 100,
