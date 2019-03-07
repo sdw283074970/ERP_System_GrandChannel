@@ -116,9 +116,6 @@
                 }
             };
 
-            var vendor = getUrlParameter('customerCode');
-            var departmentCode = getUrlParameter('departmentCode');
-
             var customerId = getUrlParameter('customerId');
             var reference = getUrlParameter('reference');
             var invoiceType = getUrlParameter('invoiceType');
@@ -129,7 +126,7 @@
                 type: "GET",
                 contentType: 'application/json, charset=utf-8',
                 dataType: "json",
-                url: "/api/fbainvoicedetail/?customerId=" + customerId + "&reference=" + reference + "&invoiceType=" + invoiceType,
+                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType,
                 success: function (data) {
                     if (table) {
                         table.destroy();
@@ -186,7 +183,7 @@
                                 }
                             },
                             {
-                                data: "orderType",
+                                data: "invoiceType",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
@@ -255,7 +252,7 @@
                 type: "GET",
                 contentType: "application/json, charset=8-utf",
                 dataType: "json",
-                url: "/api/FBAInvoiceDetail/?customerId=" + customerId + "&reference=" + reference + "&invoiceType=" + invoiceType + "&ajaxStep=0",
+                url: "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&ajaxStep=0",
                 success: function (data) {
                     $("#text-number").html("Reference: " + reference);
                     $("#text-ordertype").html("Invoice from: " + invoiceType);
@@ -274,7 +271,7 @@
             // Ajax1, 获取该部门该Vendor适用的收费类型
             $.ajax({
                 type: "GET",
-                url: "/api/FBAinvoiceDetail/?customerId=" + customerId,
+                url: "/api/FBAinvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&ajaxStep=1",
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -302,7 +299,7 @@
                 {
                     $.ajax({
                         type: "GET",
-                        url: "/api/FBAInvoiceDetail/?customerId=" + customerId + "&chargingType=" + chargingType,
+                        url: "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&chargingType=" + chargingType,
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
                         success: function (data) {
@@ -332,7 +329,7 @@
                 {
                     $.ajax({
                         type: "GET",
-                        url: "/api/FBAinvoiceDetail/?customerId=" + customerId + "&itemName=" + encodeURIComponent(itemName),
+                        url: "/api/FBAinvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&itemName=" + encodeURIComponent(itemName),
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
                         success: function (data) {
@@ -415,7 +412,7 @@
                                     type: "GET",
                                     contentType: 'application/json, charset=utf-8',
                                     dataType: "json",
-                                    url: "/api/fbainvoicedetail/?customerId=" + customerId + "&reference=" + reference + "&invoiceType=" + invoiceType,
+                                    url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType,
                                     success: function (data) {
                                         if (table) {
                                             table.destroy();
@@ -472,7 +469,7 @@
                                                     }
                                                 },
                                                 {
-                                                    data: "orderType",
+                                                    data: "invoiceType",
                                                     render: function (data) {
                                                         return "<text>" + data + "</text>";
                                                     }

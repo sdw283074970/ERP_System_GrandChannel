@@ -216,14 +216,22 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public string CombineLocation(IList<string> locationList)
         {
-            var result = locationList.First();
-
-            for(int i = 1; i < locationList.Count; i++)
+            if (locationList.Count != 0)
             {
-                result = result + "/" + locationList[i];
+                var result = locationList.First();
+
+                for (int i = 1; i < locationList.Count; i++)
+                {
+                    result = result + "/" + locationList[i];
+                }
+
+                return result;
+            }
+            else
+            {
+                return "未分配库位";
             }
 
-            return result;
         }
     }
 

@@ -170,7 +170,7 @@
 
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
-                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?customerId=' + $(this).attr('customerid') + "&reference=" + $(this).attr('reference') + "&invoiceType=MasterOrder");
+                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder");
             })
 
             //点击各个条目的Update Info按钮打开更新信息弹窗

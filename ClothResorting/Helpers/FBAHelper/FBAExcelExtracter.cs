@@ -75,8 +75,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 lotSize = _ws.Cells[i + 2, 3].Value2 == null ? "NA" : _ws.Cells[i + 2, 3].Value2.ToString();
                 warehouseCode = _ws.Cells[i + 2, 4].Value2 == null ? "NA" : _ws.Cells[i + 2, 4].Value2.ToString();
                 howToDeliver = _ws.Cells[i + 2, 5].Value2 == null ? "NA" : _ws.Cells[i + 2, 5].Value2.ToString();
-                grossWeight = (float)_ws.Cells[i + 2, 6].Value2;
-                cbm = (float)_ws.Cells[i + 2, 7].Value2;
+                grossWeight = _ws.Cells[i + 2, 6].Value2 == null ? 0 : (float)_ws.Cells[i + 2, 6].Value2;
+                cbm = _ws.Cells[i + 2, 7].Value2 == null ? 0 : (float)_ws.Cells[i + 2, 7].Value2;
                 quantity = (int)_ws.Cells[i + 2, 8].Value2;
                 remark = _ws.Cells[i + 2, 9].Value2 == null ? "NA" : _ws.Cells[i + 2, 9].Value2.ToString();
 
@@ -95,11 +95,6 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _context.FBAOrderDetails.AddRange(orderDetailsList);
             _context.SaveChanges();
-
-            //强行关闭进程
-            var killer = new ExcelKiller();
-
-            killer.Dispose();
         }
 
         //抽取BOL模板

@@ -105,6 +105,7 @@
             var ctnsInPltTable;
             var currentAvailable;
             var currentPicking;
+            var currentShipped;
             var grandNumber = getUrlParameter('grandNumber');
 
             $("#h2").html("Grand Number: " + grandNumber);
@@ -207,6 +208,7 @@
                 {
                     data: "shippedPlts",
                     render: function (data) {
+                        currentShipped = data;
                         return "<font color='blue'>" + data + "</font>";
                     }
                 },
@@ -219,10 +221,10 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (currentPicking == 0 && currentAvailable != 0)
-                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Pallet' value='Relocate' />";
+                        if (currentPicking == 0 && currentShipped == 0 && currentAvailable != 0)
+                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Pallet' value='Relocate' />";
                         else
-                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' />";
+                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' />";
                     }
                 }
             ]
@@ -322,9 +324,9 @@
                     data: "id",
                     render: function (data) {
                         if (currentPicking == 0 && status != "InPallet" && currentAvailable != 0)
-                            return "<input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
+                            return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
                         else
-                            return "";
+                            return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' />";
                     }
                 }
             ]

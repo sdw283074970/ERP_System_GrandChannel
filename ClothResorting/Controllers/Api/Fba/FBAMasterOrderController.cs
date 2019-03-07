@@ -100,6 +100,12 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var masterOrderId = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber).Id;
 
+            var invoiceDetails = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.InvoiceDetails.RemoveRange(invoiceDetails);
+
             var cartonLocationsInDb = _context.FBACartonLocations
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder)
                 .Where(x => x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId);

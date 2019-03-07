@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Data.Entity;
 using System.Web.Http;
 
 namespace ClothResorting.Controllers.Api
@@ -62,10 +63,13 @@ namespace ClothResorting.Controllers.Api
         //DELETE /api/customer/{id}
         public void DeleteCustomer([FromUri]int id)
         {
-            var customerInDb = _context.UpperVendors.Find(id);
+            var customerInDb = _context.UpperVendors
+                .Include(x => x.ChargingItems)
+                .SingleOrDefault(x => x.Id == id);
 
             try
             {
+                _context.ChargingItems.RemoveRange(customerInDb.ChargingItems);
                 _context.UpperVendors.Remove(customerInDb);
                 _context.SaveChanges();
             }
