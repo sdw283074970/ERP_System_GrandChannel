@@ -204,9 +204,9 @@
             $("#table").on("click", ".btn-pick", function () {
                 var shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
                 var orderType = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
-                var container = $(this).parent().parent("tr").children('td').eq(5).children('font').html();
+                //var container = $(this).parent().parent("tr").children('td').eq(5).children('font').html();
 
-                $(window.location).attr('href', "/shiporder/fbapickdetail/?container=" + container + "&shipOrderId=" + shipOrderId + "&orderType=" + orderType);
+                $(window.location).attr('href', "/shiporder/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType);
             });
 
             //点击创建新运单按钮，打开新建运单弹窗

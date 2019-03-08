@@ -222,9 +222,9 @@
                     data: "id",
                     render: function (data) {
                         if (currentPicking == 0 && currentShipped == 0 && currentAvailable != 0)
-                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Pallet' value='Relocate' />";
+                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input iid='" + data + "' type='button' class='btn btn-link btn-history' locationtype='Pallet' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Pallet' value='Relocate' />";
                         else
-                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' />";
+                            return "<input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input iid='" + data + "' type='button' class='btn btn-link btn-history' locationtype='Pallet' value='History' />";
                     }
                 }
             ]
@@ -324,9 +324,9 @@
                     data: "id",
                     render: function (data) {
                         if (currentPicking == 0 && status != "InPallet" && currentAvailable != 0)
-                            return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
+                            return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' locationtype='Carton' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
                         else
-                            return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' value='History' />";
+                            return "";
                     }
                 }
             ]
@@ -414,6 +414,11 @@
             $("#table-pallet, #table-carton").on("click", ".btn-relocate", function () {
                 url = "/api/fba/fbainventory/?locationId=" + $(this).attr('iid') + "&locationType=" + $(this).attr('locationtype');
                 SendAjaxMethod("DELETE", url, {});
+            });
+
+            //点击History按钮，打开历史追踪功能
+            $("#table-pallet, #table-carton").on("click", ".btn-history", function () {
+                $(window.location).attr('href', "/fba/fbaoutboundHistory/?locationId=" + $(this).attr('iid') + "&locationType=" + $(this).attr('locationtype'));
             });
 
             //解析url中的参数函数

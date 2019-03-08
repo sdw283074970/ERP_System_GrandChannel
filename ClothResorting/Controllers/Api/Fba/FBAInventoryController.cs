@@ -130,11 +130,69 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
+        // GET /api/FBAinventory/?locationId={locationId}}&locationType={locationType}
+        [HttpGet]
+        public IHttpActionResult GetInventoryRelatedPickDetails([FromUri]int locationId, [FromUri]string locationType)
+        {
+            if (locationType == FBALocationType.Pallet)
+            {
+                var pickDetailsList = _context.FBAPickDetails
+                    .Include(x => x.FBAShipOrder)
+                    .Include(x => x.FBAPalletLocation)
+                    .Where(x => x.FBAPalletLocation.Id == locationId)
+                    .Select(x => new {
+                        Id = x.Id,
+                        ShipOrderNumber = x.FBAShipOrder.ShipOrderNumber,
+                        Container = x.Container,
+                        OrderType = x.OrderType,
+                        CustomerCode= x.FBAShipOrder.CustomerCode,
+                        ShipmentId = x.ShipmentId,
+                        AmzRefId = x.AmzRefId,
+                        WarehouseCode = x.WarehouseCode,
+                        GrossWeight = x.ActualGrossWeight,
+                        CBM = x.ActualCBM,
+                        PickQuantity = x.ActualPlts,
+                        Location = x.Location,
+                        ShipOrderId = x.FBAShipOrder.Id
+                    })
+                    .ToList();
+
+                return Ok(pickDetailsList);
+            }
+            else if (locationType == FBALocationType.Carton)
+            {
+                var pickDetailsList = _context.FBAPickDetails
+                    .Include(x => x.FBAShipOrder)
+                    .Include(x => x.FBAPalletLocation)
+                    .Where(x => x.FBACartonLocation.Id == locationId)
+                    .Select(x => new {
+                        Id = x.Id,
+                        ShipOrderNumber = x.FBAShipOrder.ShipOrderNumber,
+                        Container = x.Container,
+                        OrderType = x.OrderType,
+                        CustomerCode = x.FBAShipOrder.CustomerCode,
+                        ShipmentId = x.ShipmentId,
+                        AmzRefId = x.AmzRefId,
+                        WarehouseCode = x.WarehouseCode,
+                        GrossWeight = x.ActualGrossWeight,
+                        CBM = x.ActualCBM,
+                        PickQuantity = x.ActualQuantity,
+                        Location = x.Location,
+                        ShipOrderId = x.FBAShipOrder.Id
+                    })
+                    .ToList();
+
+                return Ok(pickDetailsList);
+            }
+
+            return Ok();
+        }
+
         // DELET /api/fba/fbainventory/?locationId={locationId}&locationType={locationType}
         [HttpDelete]
         public void RelocateLocation([FromUri]int locationId, [FromUri]string locationType)
         {
-            if (locationType == "Pallet")
+            if (locationType == FBALocationType.Pallet)
             {
                 var locationInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAPallet)

@@ -85,5 +85,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //库存追踪页面
+        public ActionResult FBAOutboundHistory()
+        {
+            return View();
+        }
     }
 }

@@ -1499,6 +1499,7 @@
     <Compile Include="Models\FBAModels\FBAAddressBook.cs" />
     <Compile Include="Models\FBAModels\FBABOLDetail.cs" />
     <Compile Include="Models\FBAModels\FBACartonLocation.cs" />
+    <Compile Include="Models\FBAModels\FBAInventoryAdjustment.cs" />
     <Compile Include="Models\FBAModels\FBAOrderDetail.cs" />
     <Compile Include="Models\FBAModels\FBAPallet.cs" />
     <Compile Include="Models\FBAModels\FBAPalletLocation.cs" />
@@ -1510,6 +1511,7 @@
     <Compile Include="Models\FBAModels\Interfaces\IPackingList.cs" />
     <Compile Include="Models\FBAModels\FBAMasterOrder.cs" />
     <Compile Include="Models\FBAModels\StaticModels\FBAInventoryType.cs" />
+    <Compile Include="Models\FBAModels\StaticModels\FBALocationType.cs" />
     <Compile Include="Models\FBAModels\StaticModels\FBAOperation.cs" />
     <Compile Include="Models\FBAModels\StaticModels\FBAStatus.cs" />
     <Compile Include="Models\FBAModels\StaticModels\TimeUnit.cs" />
@@ -1980,6 +1982,7 @@
     <Content Include="Views\FBA\FBAInventoryIndex.cshtml" />
     <Content Include="Views\Customer\ChargeItemLists.cshtml" />
     <Content Include="Views\FBA\FBAInvoiceDetail.cshtml" />
+    <Content Include="Views\FBA\FBAOutboundHistory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

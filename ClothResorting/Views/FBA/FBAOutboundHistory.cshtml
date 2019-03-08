@@ -1,0 +1,238 @@
+﻿
+@{
+    ViewBag.Title = "FBAOutboundHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA System</h1>
+<h2>Outbound History Page</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div id="div-button">
+        <input type="button" class="btn btn-primary btn-expand" value="Add A New Charge Method" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Ship Order #</th>
+                    <th>Order Type</th>
+                    <th>Container</th>
+                    <th>CustomerCode</th>
+                    <th style="width:206px">FBA shmt ID./SKU</th>
+                    <th style="width:64px">Amz Ref ID.</th>
+                    <th>Wahs Code</th>
+                    <th>GW</th>
+                    <th>CBM</th>
+                    <th id="th-type">Ttl Pick Quantity</th>
+                    <th>Location</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section scripts 
+{
+    <script>
+        $(document).ready(function () {
+
+            var index;
+            var table;
+            var url;
+            var orderType;
+
+            var locationId = getUrlParameter('locationId');
+            var locationType = getUrlParameter('locationType');
+
+            if (locationType == "Pallet")
+                $("#th-type").html("Ttle Pick Plts");
+            else
+                $("#th-type").html("Ttle Pick Ctns");
+
+            url = "/api/fba/FBAinventory/?locationId=" + locationId + "&locationType=" + locationType;
+            var columnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipOrderNumber",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "orderType",
+                    render: function (data) {
+                        orderType = data;
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "container",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "customerCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipmentId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "amzRefId",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "warehouseCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "grossWeight",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "cbm",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "pickQuantity",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "location",
+                    render: function (data) {
+                        return "<font  >" + data + "</font>";
+                    }
+                },
+                {
+                    data: "shipOrderId",
+                    render: function (data) {
+                        return "<button class='btn btn-link btn-view' ordertype='" + orderType + "' iid='" + data + "'>View Ship Order</button>";
+                    }
+                },
+            ];
+            GetAjaxTable("GET", url, "#table", table, columnArray);
+
+            //点击View Ship Order按钮，跳转到对应的SHIP Order中去
+            $("#table").on("click", ".btn-view", function () {
+                var shipOrderId = $(this).attr('iid');
+                orderType = $(this).attr('ordertype');
+
+                $(window.location).attr('href', "/shiporder/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType);
+            });
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}
