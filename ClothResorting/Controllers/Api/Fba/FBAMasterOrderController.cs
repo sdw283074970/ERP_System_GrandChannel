@@ -43,7 +43,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         //POST /api/fba/fbamasterorder/{id}
         [HttpPost]
-        public IHttpActionResult CreateMasterOrder([FromBody]BaseFBAMasterOrder obj, [FromUri]int id)
+        public IHttpActionResult CreateMasterOrder([FromBody]FBAMasterOrder obj, [FromUri]int id)
         {
             var customer = _context.UpperVendors.Find(id);
             var customerCode = customer.CustomerCode;
@@ -62,6 +62,8 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.AssembeThirdPart(obj.SealNumber, obj.ContainerSize, obj.Container);
             masterOrder.GrandNumber = grandNumber;
             masterOrder.Customer = customer;
+            masterOrder.InboundType = obj.InboundType;
+            masterOrder.InvoiceStatus = "Await";
 
             _context.FBAMasterOrders.Add(masterOrder);
             _context.SaveChanges();

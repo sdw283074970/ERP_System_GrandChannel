@@ -20,6 +20,7 @@
     </div>*@
     <div id="div-create">
         <button id="btn-create" class="btn btn-primary">Add charging item</button>
+        <button id="btn-download" class="btn btn-primary">Export Excel File</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
@@ -191,7 +192,7 @@
                             {
                                 data: "dateOfCost",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<text>" + data.toString().substring(0, 10) + "</text>";
                                 }
                             },
                             {
@@ -383,8 +384,6 @@
                     var quantity = $("#input-quantity").val();
                     var memo = $("#input-memo").val();
 
-                    alert(dateOfCost);
-
                     var obj = {
                         "activity": activity,
                         "chargingType": chargingType,
@@ -565,6 +564,59 @@
                     }
                 });
             });
+
+            //点击下载按钮，下载当前单的所有条目到Excel文件
+            $("#btn-download").on("click", function () {
+                $.ajax({
+                    type: "GET",
+                    url: "/api/fba/FBAReportDonwload/?reference=" + reference + "&invoicetype=" + invoiceType,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success! File will download automatically.");
+                        $(window.location).attr('href', "/api/fba/FBAReportDonwload/?fullPath=" + encodeURIComponent(data).toString() + "&prefix=InvoiceReport&suffix=" + encodeURIComponent(".xls"));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

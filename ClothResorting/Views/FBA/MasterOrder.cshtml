@@ -21,6 +21,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Grand No.</th>
+                    <th>Inbound Type</th>
                     <th>Container No.</th>
                     <th>Total CBM</th>
                     <th>Total Ctns</th>
@@ -29,7 +30,7 @@
                     <th>Actual Plts</th>
                     <th>Inbound Date</th>
                     <th>ETA</th>
-                    <th>Status</th>
+                    <th>Invoice Status</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -49,8 +50,9 @@
         <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
         <text>PORT OF DISCHARGE: <input id='input-pod' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
         <text>PLACE OF DELIVERY: <input id='input-delivery' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>CONTAINER NO.: <input id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+        <text>CONTAINER NO.: <input id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
         <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+        <text>INBOUND TYPE: <input id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
         <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
         <button id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
     </div>
@@ -132,6 +134,7 @@
                 var voy = $("#input-voy").val().toString();
                 var eta = $("#input-eta").val().toString();
                 var etd = $("#input-etd").val().toString();
+                var inboundType = $("#input-inboundtype").val().toString();
                 var etaPort = $("#input-etaPort").val().toString();
                 var placeOfReceipt = $("#input-receipt").val().toString();
                 var portOfLoading = $("#input-pol").val().toString();
@@ -154,7 +157,8 @@
                     "placeOfDelivery": placeOfDelivery,
                     "container": container,
                     "sealNumber": sealNumber,
-                    "containerSize": containerSize
+                    "containerSize": containerSize,
+                    "inboundType": inboundType
                 };
 
                 url = "/api/fba/fbamasterorder/" + customerId;
@@ -245,6 +249,12 @@
                                     }
                                 },
                                 {
+                                    data: "inboundType",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
                                     data: "container",
                                     render: function (data) {
                                         container = data;
@@ -297,7 +307,7 @@
                                     }
                                 },
                                 {
-                                    data: "status",
+                                    data: "invoiceStatus",
                                     render: function (data) {
                                         return "<font>" + data + "</font>";
                                     }

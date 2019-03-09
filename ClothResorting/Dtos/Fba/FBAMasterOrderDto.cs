@@ -14,6 +14,10 @@ namespace ClothResorting.Dtos.Fba
 
         public float TotalCBM { get; set; }
 
+        public string InboundType { get; set; }
+
+        public string InvoiceStatus { get; set; }
+
         public int TotalCtns { get; set; }
 
         public float ActualCBM { get; set; }

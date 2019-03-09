@@ -26,11 +26,9 @@
                     <th>Pick Ref.</th>
                     <th>Create date</th>
                     <th>Create By</th>
-                    <th>Pick date</th>
-                    <th>Pick man</th>
                     <th>Status</th>
+                    <th>Invoice Status</th>
                     <th>Shipp Date</th>
-                    <th>Shipped By</th>
                     <th style="width:250px">Operation</th>
                 </tr>
             </thead>
@@ -145,24 +143,24 @@
                         return "<font>" + data + "</font>";
                     }
                 },
-                {
-                    data: "pickDate",
-                    render: function (data) {
-                        if (data == "1969-12-31T16:00:00")
-                            return "<font color='red'>Unpicked</font>"
-                        else
-                            return "<font>" + data.substring(0, 10) + "</font>";
-                    }
-                },
-                {
-                    data: "pickMan",
-                    render: function (data) {
-                        if (data == "Unassigned")
-                            return "<font color='red'>" + data + "</font>";
-                        else
-                            return "<font>" + data + "</font>";
-                    }
-                },
+                //{
+                //    data: "pickDate",
+                //    render: function (data) {
+                //        if (data == "1969-12-31T16:00:00")
+                //            return "<font color='red'>Unpicked</font>"
+                //        else
+                //            return "<font>" + data.substring(0, 10) + "</font>";
+                //    }
+                //},
+                //{
+                //    data: "pickMan",
+                //    render: function (data) {
+                //        if (data == "Unassigned")
+                //            return "<font color='red'>" + data + "</font>";
+                //        else
+                //            return "<font>" + data + "</font>";
+                //    }
+                //},
                 {
                     data: "status",
                     render: function (data) {
@@ -177,6 +175,12 @@
                     }
                 },
                 {
+                    data: "invoiceStatus",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
                     data: "shipDate",
                     render: function (data) {
                         if (data == "1970-01-01T00:00:00")
@@ -185,12 +189,12 @@
                             return "<font>" + data.substring(0, 10) + "</font>";
                     }
                 },
-                {
-                    data: "shippedBy",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
+                //{
+                //    data: "shippedBy",
+                //    render: function (data) {
+                //        return "<font>" + data + "</font>";
+                //    }
+                //},
                 {
                     data: "id",
                     render: function (data) {

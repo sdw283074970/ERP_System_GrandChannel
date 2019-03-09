@@ -17,6 +17,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string Destination { get; set; }
 
+        public string InvoiceStatus { get; set; }
+
         public string PickReference { get; set; }
 
         public DateTime CreateDate { get; set; }

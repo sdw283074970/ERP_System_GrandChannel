@@ -20,6 +20,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string PickReference { get; set; }
 
+        public string InvoiceStatus { get; set; }
+
         public DateTime CreateDate { get; set; }
 
         public string CreateBy { get; set; }

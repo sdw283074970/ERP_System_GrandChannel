@@ -24,6 +24,10 @@ namespace ClothResorting.Models.FBAModels
 
         public int ActualPlts { get; set; }
 
+        public string InboundType { get; set; }
+
+        public string InvoiceStatus { get; set; }
+
         public DateTime InboundDate { get; set; }
 
         public string Status { get; set; }

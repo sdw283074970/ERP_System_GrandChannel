@@ -26,14 +26,14 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetInvoiceDetails([FromUri]string reference, [FromUri]string invoiceType)
         {
-            if (invoiceType == "MasterOrder")
+            if (invoiceType == FBAInvoiceType.MasterOrder)
             {
                 return Ok(_context.InvoiceDetails
                     .Include(x => x.FBAMasterOrder)
                     .Where(x => x.FBAMasterOrder.Container == reference)
                     .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>));
             }
-            else if (invoiceType == "ShipOrder")
+            else if (invoiceType == FBAInvoiceType.ShipOrder)
             {
                 return Ok(_context.InvoiceDetails
                     .Include(x => x.FBAShipOrder)
@@ -45,7 +45,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Ok();
             }
         }
-
+              
         // GET /api/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&ajaxStep={ajaxStep}
         [HttpGet]
         public IHttpActionResult GetInformation([FromUri]string reference, [FromUri]string invoiceType, [FromUri]int ajaxStep)

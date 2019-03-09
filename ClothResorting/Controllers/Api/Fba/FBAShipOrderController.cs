@@ -82,6 +82,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.BOLNumber = obj.BOLNumber;
             shipOrder.Carrier = obj.Carrier;
             shipOrder.ETS = ets;
+            shipOrder.InvoiceStatus = "Await";
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();

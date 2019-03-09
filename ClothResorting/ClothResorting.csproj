@@ -369,6 +369,7 @@
     <Compile Include="Controllers\Api\Fba\FBAInvoiceDetailController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAMasterOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAPickDetailController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBAReportDonwloadController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAShipOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\MasterDetailController.cs" />
     <Compile Include="Controllers\Api\Fba\WarehouseOperationController.cs" />
@@ -470,6 +471,7 @@
     <Compile Include="Helpers\ChargingItemGenerator.cs" />
     <Compile Include="Helpers\FBAHelper\FBAExcelExtracter.cs" />
     <Compile Include="Helpers\FBAHelper\FBAInventoryHelper.cs" />
+    <Compile Include="Helpers\FBAHelper\FBAInvoiceHelper.cs" />
     <Compile Include="Helpers\GuidGenerator.cs" />
     <Compile Include="Helpers\IntuitOAuthor.cs" />
     <Compile Include="Helpers\QBOServiceManager.cs" />
@@ -1433,6 +1435,10 @@
     <Compile Include="Migrations\201903052228112_ModifiedInvoiceDetail.cs" />
     <Compile Include="Migrations\201903052228112_ModifiedInvoiceDetail.Designer.cs">
       <DependentUpon>201903052228112_ModifiedInvoiceDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903082220072_AddedInvoiceStatusInFBAMasterOrderAnFBAShipOrder.cs" />
+    <Compile Include="Migrations\201903082220072_AddedInvoiceStatusInFBAMasterOrderAnFBAShipOrder.Designer.cs">
+      <DependentUpon>201903082220072_AddedInvoiceStatusInFBAMasterOrderAnFBAShipOrder.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -2703,6 +2709,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903052228112_ModifiedInvoiceDetail.resx">
       <DependentUpon>201903052228112_ModifiedInvoiceDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903082220072_AddedInvoiceStatusInFBAMasterOrderAnFBAShipOrder.resx">
+      <DependentUpon>201903082220072_AddedInvoiceStatusInFBAMasterOrderAnFBAShipOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
