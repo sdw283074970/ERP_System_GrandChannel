@@ -33,6 +33,14 @@ namespace ClothResorting.Controllers.Api
             return Ok(chargingItemsDto);
         }
 
+        // GET /api/chargingitemmanagement/?itemId={itemId}
+        [HttpGet]
+        public IHttpActionResult GetChargingItemsFromItemId([FromUri]int itemId)
+        {
+            var chargingItemsDto = Mapper.Map < ChargingItem, ChargingItemDto>(_context.ChargingItems.Find(itemId));
+            return Ok(chargingItemsDto);
+        }
+
         // GET /api/chargingitemmanagement/?customerId={customerId}
         [HttpGet]
         public IHttpActionResult GetChargingItemsFromCustomerId([FromUri]int customerId)
@@ -50,6 +58,8 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult CreateNewChargingItem([FromBody]ChargingItemJsonObj obj)
         {
             UpperVendor vendorInDb = null;
+
+            //如果customerId等于0，就通过名字和部门代码来找到customer
             if (obj.CustomerId == 0)
             {
                 vendorInDb = _context.UpperVendors
@@ -85,6 +95,42 @@ namespace ClothResorting.Controllers.Api
             var sampleDto = Mapper.Map<ChargingItem, ChargingItemDto>(_context.ChargingItems.OrderByDescending(x => x.Id).First());
 
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+        }
+
+        // PUT /api/chargingitemmanagement/?itemId={itemId}
+        [HttpPut]
+        public IHttpActionResult UpdateChargingItem([FromUri]int itemId, [FromBody]ChargingItemJsonObj obj)
+        {
+            var itemInDb = _context.ChargingItems.Find(itemId);
+
+            itemInDb.ChargingType = obj.ChargingType;
+            itemInDb.Name = obj.Name;
+            itemInDb.Rate = obj.Rate;
+            itemInDb.Unit = obj.Unit;
+            itemInDb.Description = obj.Description;
+
+            var sameNameItem = _context.ChargingItems
+                .Include(x => x.UpperVendor)
+                .Where(x => x.UpperVendor.Name == obj.Vendor && x.UpperVendor.DepartmentCode == obj.DepartmentCode && x.Name == obj.Name);
+
+            if (sameNameItem.Count() != 0)
+            {
+                throw new Exception("The name: " + obj.Name + " has already been taken. Please change it and try again.");
+            }
+
+            _context.SaveChanges();
+
+            var sampleDto = Mapper.Map<ChargingItem, ChargingItemDto>(_context.ChargingItems.Find(itemId));
+
+            return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+        }
+
+        // DELETE /api/chargingitemmanagement/?itemId={itemId}
+        [HttpDelete]
+        public void DeleteItem([FromUri]int itemId)
+        {
+            var itemInDb = _context.ChargingItems.Find(itemId);
+            _context.SaveChanges();
         }
     }
 }

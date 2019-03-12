@@ -96,7 +96,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         });
                     }
 
-                    pickDetailList.Add(CreateFBAPickDetailFromPalletLocation(r, shipOrderInDb, r.AvailablePlts, pickDetailCartonList, objArray));
+                    pickDetailList.Add(CreateFBAPickDetailFromPalletLocation(r, shipOrderInDb, r.AvailablePlts, 0, pickDetailCartonList, objArray));
                 }
             }
             else
@@ -174,7 +174,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         });
                     }
 
-                    _context.FBAPickDetails.Add(CreateFBAPickDetailFromPalletLocation(palletLocationInDb, shipOrderInDb, palletLocationInDb.AvailablePlts, pickDetailCartonList, objArray));
+                    _context.FBAPickDetails.Add(CreateFBAPickDetailFromPalletLocation(palletLocationInDb, shipOrderInDb, palletLocationInDb.AvailablePlts, 0, pickDetailCartonList, objArray));
                     _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
                 }
                 else
@@ -192,9 +192,9 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/CreatedSuccess", "");
         }
 
-        // POST /api/fba/fbapickdetail/?shipOrderId={shipOrderId}&quantity={quantity}&inventoryType={inventoryType}
+        // POST /api/fba/fbapickdetail/?shipOrderId={shipOrderId}&quantity={quantity}&newQuantity={newQuantity}&inventoryType={inventoryType}
         [HttpPost]
-        public IHttpActionResult CreateBatchPickDetail([FromUri]int shipOrderId, [FromUri]int inventoryLocationId, [FromUri]int quantity, [FromUri]string inventoryType, [FromBody]IEnumerable<PickCartonDto> objArray)
+        public IHttpActionResult CreateBatchPickDetail([FromUri]int shipOrderId, [FromUri]int inventoryLocationId, [FromUri]int quantity, [FromUri]int newQuantity, [FromUri]string inventoryType, [FromBody]IEnumerable<PickCartonDto> objArray)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
             var pickDetailCartonList = new List<FBAPickDetailCarton>();
@@ -205,7 +205,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Include(x => x.FBAPallet.FBACartonLocations)
                     .SingleOrDefault(x => x.Id == inventoryLocationId);
 
-                _context.FBAPickDetails.Add(CreateFBAPickDetailFromPalletLocation(palletLocationInDb, shipOrderInDb, quantity, pickDetailCartonList, objArray));
+                _context.FBAPickDetails.Add(CreateFBAPickDetailFromPalletLocation(palletLocationInDb, shipOrderInDb, quantity, newQuantity, pickDetailCartonList, objArray));
                 _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
             }
             else
@@ -311,7 +311,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
-        private FBAPickDetail CreateFBAPickDetailFromPalletLocation(FBAPalletLocation fbaPalletLocationInDb, FBAShipOrder shipOrderInDb, int pltQuantity, IList<FBAPickDetailCarton> pickDetailCartonList, IEnumerable<PickCartonDto> objArray)
+        private FBAPickDetail CreateFBAPickDetailFromPalletLocation(FBAPalletLocation fbaPalletLocationInDb, FBAShipOrder shipOrderInDb, int pltQuantity, int newPltQuantity, IList<FBAPickDetailCarton> pickDetailCartonList, IEnumerable<PickCartonDto> objArray)
         {
             var pickDetail = new FBAPickDetail();
 
@@ -321,11 +321,14 @@ namespace ClothResorting.Controllers.Api.Fba
 
             pickDetail.Status = FBAStatus.Picking;
             pickDetail.Size = fbaPalletLocationInDb.PalletSize;
-            pickDetail.ActualPlts = pltQuantity;
+            pickDetail.ActualPlts = pltQuantity + newPltQuantity;
             pickDetail.CtnsPerPlt = fbaPalletLocationInDb.CtnsPerPlt;
             pickDetail.Location = fbaPalletLocationInDb.Location;
 
             fbaPalletLocationInDb.PickingPlts += pltQuantity;
+            //如果需要在库存中体现新打的托盘数量，禁用上面一行，启用下面一行
+            //fbaPalletLocationInDb.PickingPlts += pltQuantity + newPltQuantity;
+
             fbaPalletLocationInDb.AvailablePlts -= pltQuantity;
             fbaPalletLocationInDb.Status = FBAStatus.Picking;
 

@@ -120,7 +120,8 @@
             <tbody></tbody>
         </table>
         <div style="text-align:right">
-            <input id="input-pickpallet" class="input-sm" placeholder="Input pallet quantity" />
+            <text>Number of Plts from Inventory: </text><input id="input-pickpallet" class="input-sm" placeholder="Inventory pallet quantity" value="0" /><br />
+            <text>Number of new Plts: </text><input id="input-newpallet" class="input-sm" placeholder="New pallet quantity" value="0" /><br />
             <button id="btn-pickpallet" class="btn btn-primary">Pick</button>
         </div>
     </div>
@@ -458,10 +459,11 @@
 
             //点击托盘库存拣货列表中的pick按钮，拣取所输托盘箱数和托数
             $("#btn-pickpallet").on("click", function () {
-                var pickPlts = $("#input-pickpallet").val();
+                var pickPlts = $("#input-pickpallet").val() == "" ? 0 : $("#input-pickpallet").val();
+                var newPlts = $("#input-newpallet").val() == "" ? 0 : $("#input-newpallet").val();
                 var objArray = new Array();
 
-                if (pickPlts != "")
+                if (pickPlts != 0 || newPlts != 0)
                 {
                     $(".input-cartons").each(function (i) {
                         if ($(this).val() != "")
@@ -479,7 +481,7 @@
 
                     if (objArray.length > 0)
                     {
-                        url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=" + palletLocationId + "&quantity=" + pickPlts + "&inventoryType=Pallet";
+                        url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=" + palletLocationId + "&quantity=" + pickPlts + "&newQuantity=" + newPlts +"&inventoryType=Pallet";
                         SendAjaxMethodWithoutReloadPage("POST", url, objArray);
                     }
                 }

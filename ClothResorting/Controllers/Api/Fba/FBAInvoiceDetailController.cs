@@ -58,12 +58,17 @@ namespace ClothResorting.Controllers.Api.Fba
                     {
                         if (invoiceType == "MasterOrder")
                         {
-                            var masterOrder = _context.FBAPallets
+                            var masterOrderPallets = _context.FBAPallets
                                 .Where(x => x.Container == reference)
                                 .ToList();
 
-                            var plts = masterOrder.Sum(x => x.ActualPallets);
-                            var ctns = masterOrder.Sum(x => x.ActualQuantity);
+                            var orderDetsils = _context.FBAOrderDetails
+                                .Include(x => x.FBAMasterOrder)
+                                .Where(x => x.FBAMasterOrder.Container == reference)
+                                .ToList();
+
+                            var plts = masterOrderPallets.Sum(x => x.ActualPallets);
+                            var ctns = orderDetsils.Sum(x => x.ActualQuantity);
 
                             return Ok(new { Pallets = plts, Cartons = ctns});
                         }

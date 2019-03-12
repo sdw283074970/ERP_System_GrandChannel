@@ -63,6 +63,37 @@
         <button style="margin-top:20px" id="btn-add" class='btn btn-primary'>New Charging Template</button>
     </div>
 </div>
+<div class="iframe-edit">
+    <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Charging Type: </text>
+        <select id='edit-select-type' style='width:170px;height:30px' required='required'>
+            <option value='Receiving'>Receiving</option>
+            <option value='Operation'>Operation</option>
+            <option value='Storage'>Storage</option>
+            <option value='Shipping'>Shipping</option>
+            <option value='Other'>Other</option>
+        </select><br />
+        <text>Charging Item Name: </text><input id='edit-input-name' style='width:170px' class='input-sm' placeholder='Name' /><br />
+        <text>Rate: </text><input id='edit-input-rate' style='width:170px' class='input-sm' placeholder='Rate' /><br />
+        <text>UOM:</text>
+        <select id='edit-select-unit' style='width:170px;height:30px' required='required'>
+            <option value='CBM'>CBM</option>
+            <option value='CONTAINER'>CONTAINER</option>
+            <option value='CTN'>CTN</option>
+            <option value='HR'>WORK HR</option>
+            <option value='LABEL'>LABEL</option>
+            <option value='PC'>PC</option>
+            <option value='PLT'>PLT</option>
+            <option value='ORDER'>ORDER</option>
+            <option value='OTHER'>OTHER</option>
+            <option value='SHIPMENT'>SHIPMENT</option>
+            <option value='SKU'>SKU</option>
+            <option value='STORAGE'>STORAGE</option>
+        </select><br />
+        <text>Description: </text><textarea id='edit-input-description' style='width:170px;height:75px' class='input-sm' placeholder="(Optional)"></textarea><br />
+        <button style="margin-top:20px" id="btn-update" class='btn btn-primary'>Update</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -72,6 +103,7 @@
             var table;
             var url;
             var index;
+            var itemId;
 
             var customerId = getUrlParameter('customerId');
             var customerCode = getUrlParameter('customerCode');
@@ -172,6 +204,87 @@
                 });
             });
 
+            //点击编辑收费按钮，打开编辑收费项目弹窗，更改里面的各个字段
+            $("#table").on("click", ".btn-edit", function () {
+
+                //首先打开弹窗
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "500px"],
+                    content: $(".iframe-edit")
+                });
+
+                //然后获取该项目内容
+                itemId = $(this).attr('cid');
+                url = "/api/chargingitemmanagement/?itemId=" + itemId;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#edit-select-type").val(data.chargingType);
+                        $("#edit-input-name").val(data.name);
+                        $("#edit-input-rate").val(data.rate);
+                        $("#edit-select-unit").val(data.unit);
+                        $("#edit-input-description").val(data.description);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击更新按钮，更新收费项目
+            $("#btn-update").on("click", function () {
+                var chargingType = $("#edit-select-type option:selected").val();
+                var name = $("#edit-input-name").val().toString();
+                var rate = $("#edit-input-rate").val();
+                var unit = $("#edit-select-unit option:selected").val();
+                var description = $("#edit-input-description").val().toString();
+
+                var obj = {
+                    "customerId": customerId,
+                    "chargingType": chargingType,
+                    "name": name,
+                    "rate": rate,
+                    "unit": unit,
+                    "description": description
+                };
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/chargingitemmanagement/?itemId=" + itemId,
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function () {
+                        layer.alert("Update success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击删除按钮，删除收费项目
+            $("#table").on("click", ".btn-delete", function () {
+                var itemId = $(this).attr('cid');
+
+                url = "/api/chargingitemmanagement/?itemId=" + itemId;
+
+                SendAjaxMethod("DELETE", url, {});
+            });
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -218,6 +331,34 @@
                             iDisplayLength: 100,
                             columns: columsArray
                         });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
