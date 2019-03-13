@@ -225,5 +225,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //发货历史查询页面
+        public ActionResult ShipDetailHistory()
+        {
+            return View();
+        }
     }
 }

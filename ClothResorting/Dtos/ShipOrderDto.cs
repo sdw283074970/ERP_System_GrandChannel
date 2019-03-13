@@ -34,5 +34,7 @@ namespace ClothResorting.Dtos
         public string OrderType { get; set; }
 
         public string DepartmentCode { get; set; }
+
+        public DateTime ShipDate { get; set; }
     }
 }

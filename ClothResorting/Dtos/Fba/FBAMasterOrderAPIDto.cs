@@ -40,6 +40,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string ContainerSize { get; set; }
 
+        public float TotalAmount { get; set; }
+
         [Required]
         public FBACustomerAPIDto Customer { get; set; }
 

@@ -35,6 +35,8 @@ namespace ClothResorting.Models
 
         public string DepartmentCode { get; set; }
 
+        public DateTime ShipDate { get; set; }
+
         public ICollection<PickDetail> PickDetails { get; set; }
 
         public ICollection<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }

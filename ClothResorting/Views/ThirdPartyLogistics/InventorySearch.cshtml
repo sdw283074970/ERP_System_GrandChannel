@@ -184,7 +184,7 @@
 
             var url = "/api/inventorysearch/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment;
 
-            alert(url);
+            //alert(url);
 
             $.ajax({
                 type: "GET",
@@ -485,8 +485,9 @@
                     });
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);
-                    window.location.reload();
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
                 }
             });
         });

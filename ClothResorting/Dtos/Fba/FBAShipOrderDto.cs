@@ -33,6 +33,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string Status { get; set; }
 
+        public float TotalAmount { get; set; }
+
         public string ShippedBy { get; set; }
 
         public string BOLNumber { get; set; }

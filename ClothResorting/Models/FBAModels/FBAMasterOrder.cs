@@ -34,6 +34,8 @@ namespace ClothResorting.Models.FBAModels
 
         public UpperVendor Customer { get; set; }
 
+        public float TotalAmount { get; set; }
+
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
         public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; } 

@@ -26,11 +26,11 @@
                     <th style="width:63px">Dpt.</th>
                     <th @*style="width:254px"*@>Address</th>
                     <th style="width:141px">Pick tickets range</th>
-                    <th style="width:83px">Create date</th>
                     <th style="width:73px">Create By</th>
                     <th style="width:63px">Pick date</th>
                     <th style="width:63px">Pick man</th>
                     <th style="width:83px">Status</th>
+                    <th style="width:83px">Ship date</th>
                     <th style="width:83px">Shipped By</th>
                     <th>Operation</th>
                 </tr>
@@ -53,6 +53,13 @@
         <button id="btn-add" class='btn btn-primary'>New ship order</button>
     </div>
 </div>
+<div class="iframe-ship">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select ShipDate: </text><input type="date" id='input-shipdate' style='width:170px' class='input-sm' /><br />
+        <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
+    </div>
+</div>
+
 @section scripts
 {
     <script>
@@ -62,6 +69,7 @@
             var orderType;
             var index;
             var vendor;
+            var shipOrderId;
             $(".iframe").hide();
 
             //解析url中的参数函数
@@ -166,12 +174,6 @@
                                 }
                             },
                             {
-                                data: "createDate",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
                                 data: "operator",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
@@ -206,6 +208,15 @@
                                     else {
                                         return "<text style='color:blue'>" + data + "</text>";
                                     }
+                                }
+                            },
+                            {
+                                data: "shipDate",
+                                render: function (data) {
+                                    if (data == "1900-01-01T00:00:00")
+                                        return "<text> </text>";
+                                    else
+                                        return "<text>" + data.toString().substring(0, 10) + "</text>";
                                 }
                             },
                             {
@@ -279,7 +290,7 @@
             //点击准备按钮改变状态
             $("#table").on("click", ".btn-ready", function () {
                 var button = $(this);
-                var shipOrderId = button.attr('value');
+                shipOrderId = button.attr('value');
 
                 $.ajax({
                     type: "PUT",
@@ -299,42 +310,61 @@
                 });
             });
 
-            //点击ship发货
+            //点击表中的ship按钮，打开ship日期菜单
             $("#table").on("click", ".btn-ship", function () {
-
                 var button = $(this);
-                var shipOrderId = button.attr('value');
-                alert(shipOrderId);
+                shipOrderId = button.attr('value');
 
-                bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
-                    if (result) {
-
-                        $.ajax({
-                            type: "PUT",
-                            url: "/api/shiporder/?shipOrderId=" + shipOrderId,
-                            contentType: 'application/json; charset=utf-8',
-                            dataType: "json",
-                            beforeSend: function () {
-                                index = layer.msg('Processing...', {
-                                    icon: 1,
-                                    shade: 0.01,
-                                    time: 99 * 1000
-                                });
-                            },
-                            success: function () {
-                                layer.close(index);
-                                layer.alert("Selected pull sheet has been shipped.", function () {
-                                    window.location.reload();
-                                });
-                            },
-                            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                    window.location.reload();
-                                });
-                            }
-                        });
-                    }
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "150px"],
+                    content: $(".iframe-ship")
                 });
+            });
+
+            //填好ship日期后，点击确认发货按钮
+            $("#btn-ship").on("click", function () {
+
+                layer.close(index);
+                var shipDate = $("#input-shipdate").val();
+
+                if (shipDate != "")
+                {
+                    bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
+                        if (result) {
+                            $.ajax({
+                                type: "PUT",
+                                url: "/api/shiporder/?shipOrderId=" + shipOrderId + "&shipDate=" + shipDate,
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: "json",
+                                beforeSend: function () {
+                                    index = layer.msg('Processing...', {
+                                        icon: 1,
+                                        shade: 0.01,
+                                        time: 99 * 1000
+                                    });
+                                },
+                                success: function () {
+                                    layer.close(index);
+                                    layer.alert("Selected pull sheet has been shipped.", function () {
+                                        window.location.reload();
+                                    });
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                        window.location.reload();
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    alert("Ship Date cannot be empty.");
+                }
             });
 
             //点击取消按钮，取消所选运单

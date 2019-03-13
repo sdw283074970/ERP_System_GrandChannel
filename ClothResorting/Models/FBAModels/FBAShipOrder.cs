@@ -38,6 +38,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string BOLNumber { get; set; }
 
+        public float TotalAmount { get; set; }
+
         public string Carrier { get; set; }
 
         public DateTime ETS { get; set; }

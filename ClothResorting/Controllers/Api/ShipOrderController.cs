@@ -67,10 +67,16 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + result.Id, resultDto);
         }
 
-        // PUT /api/ShipOrder/?shipOrderId={ishipOrderId} 发货订单
+        // PUT /api/ShipOrder/?shipOrderId={ishipOrderId}&shipDate={shipDate} 发货订单
         [HttpPut]
-        public void ShipShipOrder([FromUri]int shipOrderId)
+        public void ShipShipOrder([FromUri]int shipOrderId, [FromUri]DateTime shipDate)
         {
+            var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
+
+            shipOrderInDb.ShipDate = shipDate;
+
+            _context.SaveChanges();
+
             _manager.ConfirmAndShip(shipOrderId);
         }
         
