@@ -71,6 +71,7 @@
             var vendor;
             var shipOrderId;
             $(".iframe").hide();
+            $(".iframe-ship").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -461,6 +462,7 @@
                             window.location.reload();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.close(index);
                             bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                                 window.location.reload();
                             });

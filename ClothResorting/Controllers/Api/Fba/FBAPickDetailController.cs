@@ -284,8 +284,8 @@ namespace ClothResorting.Controllers.Api.Fba
             //如果palletLocation不为空，则说明是standard类型运单内容，否则是ecommerce运单内容
             if (pickDetailInDb.FBAPalletLocation != null)
             {
-                pickDetailInDb.FBAPalletLocation.AvailablePlts += pickDetailInDb.ActualPlts;
-                pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.ActualPlts;
+                pickDetailInDb.FBAPalletLocation.AvailablePlts += pickDetailInDb.PltsFromInventory;
+                pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.PltsFromInventory;
                 pickDetailInDb.FBAPalletLocation.Status = FBAStatus.InStock;
 
                 var pickDetailCartonsInDb = context.FBAPickDetailCartons
@@ -321,6 +321,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
             pickDetail.Status = FBAStatus.Picking;
             pickDetail.Size = fbaPalletLocationInDb.PalletSize;
+            pickDetail.NewPlts = newPltQuantity;
+            pickDetail.PltsFromInventory = pltQuantity;
             pickDetail.ActualPlts = pltQuantity + newPltQuantity;
             pickDetail.CtnsPerPlt = fbaPalletLocationInDb.CtnsPerPlt;
             pickDetail.Location = fbaPalletLocationInDb.Location;

@@ -17,5 +17,9 @@ namespace ClothResorting.Dtos.Fba
         public int ActualPlts { get; set; }
 
         public string OrderType { get; set; }
+
+        public int PltsFromInventory { get; set; }
+
+        public int NewPlts { get; set; }
     }
 }

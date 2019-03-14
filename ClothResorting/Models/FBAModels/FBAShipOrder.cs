@@ -44,6 +44,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime ETS { get; set; }
 
+        public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
+
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }

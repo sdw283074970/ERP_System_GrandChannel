@@ -26,6 +26,8 @@ namespace ClothResorting.Dtos.Fba
 
         public int ActualPlts { get; set; }
 
+        public float TotalAmount { get; set; }
+
         public DateTime InboundDate { get; set; }
 
         public string Status { get; set; }

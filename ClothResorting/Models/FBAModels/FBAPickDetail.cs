@@ -18,6 +18,10 @@ namespace ClothResorting.Models.FBAModels
 
         public string OrderType { get; set; }
 
+        public int PltsFromInventory { get; set; }
+
+        public int NewPlts { get; set; }
+
         public FBAShipOrder FBAShipOrder { get; set; }
 
         public FBAPalletLocation FBAPalletLocation { get; set; }

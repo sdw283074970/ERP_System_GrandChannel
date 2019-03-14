@@ -27,18 +27,44 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetAllMasterOrders()
         {
-            return Ok(_context.FBAMasterOrders
-                .Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>));
+            var masterOrders = _context.FBAMasterOrders
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAOrderDetails)
+                .ToList();
+
+            foreach(var m in masterOrders)
+            {
+                m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
+                m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
+                m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
+                m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
+                m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+            }
+
+            return Ok(Mapper.Map<IEnumerable<FBAMasterOrder>, IEnumerable<FBAMasterOrderDto>>(masterOrders));
         }
 
         //GET /api/fba/fbamasterorder/{id}
         [HttpGet]
         public IHttpActionResult GetMasterOrders([FromUri]int id)
         {
-            return Ok(_context.FBAMasterOrders
+            var masterOrders = _context.FBAMasterOrders
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAOrderDetails)
                 .Include(x => x.Customer)
                 .Where(x => x.Customer.Id == id)
-                .Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>));
+                .ToList();
+
+            foreach (var m in masterOrders)
+            {
+                m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
+                m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
+                m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
+                m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
+                m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+            }
+
+            return Ok(Mapper.Map<IEnumerable<FBAMasterOrder>, IEnumerable<FBAMasterOrderDto>>(masterOrders));
         }
 
         //POST /api/fba/fbamasterorder/{id}
@@ -107,6 +133,12 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Where(x => x.FBAMasterOrder.Id == masterOrderId);
 
             _context.InvoiceDetails.RemoveRange(invoiceDetails);
+
+            var chargingItemDetails = _context.ChargingItemDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.GrandNumber == grandNumber);
+
+            _context.ChargingItemDetails.RemoveRange(chargingItemDetails);
 
             var cartonLocationsInDb = _context.FBACartonLocations
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder)

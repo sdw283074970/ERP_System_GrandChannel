@@ -32,8 +32,16 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetAllFBAShipOrder()
         {
-            return Ok(_context.FBAShipOrders
-                .Select(Mapper.Map<FBAShipOrder, FBAShipOrderDto>));
+            var shipOrders = _context.FBAShipOrders
+                .Include(x => x.InvoiceDetails)
+                .ToList();
+
+            foreach(var s in shipOrders)
+            {
+                s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+            }
+
+            return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
         }
 
         // GET /api/fba/fbashiporder/?customerId={customerId}
@@ -42,9 +50,17 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var customerCode = _context.UpperVendors.Find(customerId).CustomerCode;
 
-            return Ok(_context.FBAShipOrders
+            var shipOrders = _context.FBAShipOrders
+                .Include(x => x.InvoiceDetails)
                 .Where(x => x.CustomerCode == customerCode)
-                .Select(Mapper.Map<FBAShipOrder, FBAShipOrderDto>));
+                .ToList();
+
+            foreach (var s in shipOrders)
+            {
+                s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+            }
+
+            return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
         }
 
         // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}
@@ -92,9 +108,9 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&operation={operation}
         [HttpPut]
-        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]string operation)
+        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime shipDate,[FromUri]string operation)
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
@@ -124,6 +140,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
 
                 shipOrderInDb.Status = FBAStatus.Shipped;
+                shipOrderInDb.ShipDate = shipDate;
             }
 
             _context.SaveChanges();
@@ -146,6 +163,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 fbaPickDetailAPI.RemovePickDetail(_context, detail.Id);
             }
 
+            var chargingItemDetailsInDb = _context.ChargingItemDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
+            var invoiceDetailsInDb = _context.InvoiceDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
+            _context.ChargingItemDetails.RemoveRange(chargingItemDetailsInDb);
+            _context.InvoiceDetails.RemoveRange(invoiceDetailsInDb);
             _context.FBAShipOrders.Remove(shipOrderInDb);
             _context.SaveChanges();
         }

@@ -437,6 +437,7 @@
     <Compile Include="Dtos\ContainerDto.cs" />
     <Compile Include="Dtos\Fba\ChargeMethodDto.cs" />
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
+    <Compile Include="Dtos\Fba\ChargingItemDetailDto.cs" />
     <Compile Include="Dtos\Fba\FBAAddressBookDto.cs" />
     <Compile Include="Dtos\Fba\FBACartonLocationDto.cs" />
     <Compile Include="Dtos\Fba\FBAMasterOrderAPIDto.cs" />
@@ -1449,6 +1450,18 @@
     <Compile Include="Migrations\201903122131381_AddedTotalAmountForFBAMAsterOrderAndShipOrder.Designer.cs">
       <DependentUpon>201903122131381_AddedTotalAmountForFBAMAsterOrderAndShipOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201903132105058_AddedPltsInInventoryAndNewPlts.cs" />
+    <Compile Include="Migrations\201903132105058_AddedPltsInInventoryAndNewPlts.Designer.cs">
+      <DependentUpon>201903132105058_AddedPltsInInventoryAndNewPlts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903132225192_AddedChargingItemDetailsTable.cs" />
+    <Compile Include="Migrations\201903132225192_AddedChargingItemDetailsTable.Designer.cs">
+      <DependentUpon>201903132225192_AddedChargingItemDetailsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.cs" />
+    <Compile Include="Migrations\201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.Designer.cs">
+      <DependentUpon>201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1511,6 +1524,7 @@
     <Compile Include="Models\FBAModels\BaseClass\BaseFBAOrderDetail.cs" />
     <Compile Include="Models\FBAModels\ChargeMethod.cs" />
     <Compile Include="Models\FBAModels\ChargeTemplate.cs" />
+    <Compile Include="Models\FBAModels\ChargingItemDetail.cs" />
     <Compile Include="Models\FBAModels\FBAAddressBook.cs" />
     <Compile Include="Models\FBAModels\FBABOLDetail.cs" />
     <Compile Include="Models\FBAModels\FBACartonLocation.cs" />
@@ -2728,6 +2742,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903122131381_AddedTotalAmountForFBAMAsterOrderAndShipOrder.resx">
       <DependentUpon>201903122131381_AddedTotalAmountForFBAMAsterOrderAndShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903132105058_AddedPltsInInventoryAndNewPlts.resx">
+      <DependentUpon>201903132105058_AddedPltsInInventoryAndNewPlts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903132225192_AddedChargingItemDetailsTable.resx">
+      <DependentUpon>201903132225192_AddedChargingItemDetailsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.resx">
+      <DependentUpon>201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

@@ -28,6 +28,7 @@
                     <th>Create By</th>
                     <th>Status</th>
                     <th>Invoice Status</th>
+                    <th>Total Amount</th>
                     <th>Shipp Date</th>
                     <th style="width:250px">Operation</th>
                 </tr>
@@ -52,6 +53,12 @@
         <button id="btn-add" class='btn btn-primary' style="margin-top:20px">New ship order</button>
     </div>
 </div>
+<div class="iframe-ship">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select ShipDate: </text><input type="date" id='input-shipdate' style='width:170px' class='input-sm' /><br />
+        <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -61,9 +68,11 @@
             var table;
             var url;
             var shipOrder;
+            var shipOrderId;
             var customerId = getUrlParameter('customerId');
 
             $(".iframe").hide();
+            $(".iframe-ship").hide();
 
             //动态获取Customer数据
             $.ajax({
@@ -181,6 +190,12 @@
                     }
                 },
                 {
+                    data: "totalAmount",
+                    render: function (data) {
+                        return "<font>$" + data + "</font>";
+                    }
+                },
+                {
                     data: "shipDate",
                     render: function (data) {
                         if (data == "1970-01-01T00:00:00")
@@ -286,10 +301,35 @@
 
             //点击Ship按钮，将运单标记为shipped
             $("#table").on("click", ".btn-ship", function () {
-                var id = $(this).attr('iid');
+                var button = $(this);
+                shipOrderId = button.attr('iid');
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operation=ShipOrder";
-                SendAjaxMethod("PUT", url, {});
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "150px"],
+                    content: $(".iframe-ship")
+                });
+            });
+
+            //填好ship日期后，点击确认发货按钮
+            $("#btn-ship").on("click", function () {
+
+                layer.close(index);
+                var shipDate = $("#input-shipdate").val();
+
+                if (shipDate != "") {
+                    bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
+                        if (result) {
+                            url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&shipDate=" + shipDate + "&operation=ShipOrder";
+                            SendAjaxMethod("PUT", url, {});
+                        }
+                    });
+                }
+                else {
+                    alert("Ship Date cannot be empty.");
+                }
             });
 
             //Remove Ship Order

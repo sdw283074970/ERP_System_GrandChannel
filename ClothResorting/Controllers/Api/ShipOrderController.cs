@@ -43,6 +43,13 @@ namespace ClothResorting.Controllers.Api
         [HttpPost]
         public IHttpActionResult CreateNewShipOrder([FromBody]PickTiketsRangeJsonObj obj)
         {
+            var ordersInDb = _context.ShipOrders.Where(x => x.OrderPurchaseOrder == obj.OrderPurchaseOrder).ToList();
+
+            if (ordersInDb.Count > 0)
+            {
+                throw new Exception("Actual PO " + obj.OrderPurchaseOrder + " has been taken. Please try another one.");
+            }
+
             _context.ShipOrders.Add(new ShipOrder {
                 OrderPurchaseOrder = obj.OrderPurchaseOrder,
                 Customer = obj.Customer,
@@ -56,6 +63,8 @@ namespace ClothResorting.Controllers.Api
                 Vendor = obj.Vendor,
                 ShippingMan = Status.Unassigned,
                 OrderType = obj.OrderType,
+                //ShipDate = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime(),
+                ShipDate = new DateTime(1970, 1, 1, 0, 0, 0, 0),
                 DepartmentCode = obj.DepartmentCode
             });
 

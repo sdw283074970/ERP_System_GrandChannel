@@ -24,13 +24,14 @@
                     <th>Inbound Type</th>
                     <th>Container No.</th>
                     <th>Total CBM</th>
-                    <th>Total Ctns</th>
                     <th>Actual CBM</th>
+                    <th>Total Ctns</th>
                     <th>Actual Ctns</th>
-                    <th>Actual Plts</th>
+                    @*<th>Actual Plts</th>*@
                     <th>Inbound Date</th>
                     <th>ETA</th>
                     <th>Invoice Status</th>
+                    <th>Total Amount</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -268,29 +269,30 @@
                                     }
                                 },
                                 {
-                                    data: "totalCtns",
+                                    data: "actualCBM",
                                     render: function (data) {
                                         return "<font color='green'>" + data + "</font>";
                                     }
                                 },
                                 {
-                                    data: "actualCBM",
+                                    data: "totalCtns",
                                     render: function (data) {
                                         return "<font color='red'>" + data + "</font>";
                                     }
                                 },
+
                                 {
                                     data: "actualCtns",
                                     render: function (data) {
                                         return "<font color='red'>" + data + "</font>";
                                     }
                                 },
-                                {
-                                    data: "actualPlts",
-                                    render: function (data) {
-                                        return "<font color='red'>" + data + "</font>";
-                                    }
-                                },
+                                //{
+                                //    data: "actualPlts",
+                                //    render: function (data) {
+                                //        return "<font color='red'>" + data + "</font>";
+                                //    }
+                                //},
                                 {
                                     data: "inboundDate",
                                     render: function (data) {
@@ -310,6 +312,12 @@
                                     data: "invoiceStatus",
                                     render: function (data) {
                                         return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "totalAmount",
+                                    render: function (data) {
+                                        return "<font>$" + data + "</font>";
                                     }
                                 },
                                 {

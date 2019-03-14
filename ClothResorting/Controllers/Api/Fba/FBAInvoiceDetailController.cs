@@ -10,19 +10,65 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Models.ApiTransformModels;
+using ClothResorting.Models.FBAModels;
+using ClothResorting.Dtos.Fba;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
     public class FBAInvoiceDetailController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public FBAInvoiceDetailController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
-        // GET /api/FBAInvoiceDetail/?customerId={customerId}&reference={reference}&invoiceType={invoiceType}
+        // GET /api/fba/FBAInvoiceDetail/?customerId={customerId}&reference={reference}&invoiceType={invoiceType}  获取收费项目草表
+        [HttpGet]
+        public IHttpActionResult GetCharginItemDetails([FromUri]string reference, [FromUri]string invoiceType, [FromUri]bool isChargingItemDetail)
+        {
+            if (isChargingItemDetail)
+            {
+                if (invoiceType == FBAInvoiceType.MasterOrder)
+                {
+                    return Ok(_context.ChargingItemDetails
+                        .Include(x => x.FBAMasterOrder)
+                        .Where(x => x.FBAMasterOrder.Container == reference)
+                        .Select(Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>));
+                }
+                else if (invoiceType == FBAInvoiceType.ShipOrder)
+                {
+                    return Ok(_context.ChargingItemDetails
+                        .Include(x => x.FBAShipOrder)
+                        .Where(x => x.FBAShipOrder.ShipOrderNumber == reference)
+                        .Select(Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>));
+                }
+            }
+            else
+            {
+                if (invoiceType == FBAInvoiceType.MasterOrder)
+                {
+                    return Ok(_context.FBAMasterOrders
+                        .Include(x => x.Customer)
+                        .SingleOrDefault(x => x.Container == reference)
+                        .Customer.CustomerCode);
+                }
+                else if (invoiceType == FBAInvoiceType.ShipOrder)
+                {
+                    return Ok(_context.FBAShipOrders
+                        .SingleOrDefault(x => x.ShipOrderNumber == reference)
+                        .CustomerCode);
+                }
+            }
+
+            return Ok();
+        }
+
+        // GET /api/fba/FBAInvoiceDetail/?customerId={customerId}&reference={reference}&invoiceType={invoiceType}
         [HttpGet]
         public IHttpActionResult GetInvoiceDetails([FromUri]string reference, [FromUri]string invoiceType)
         {
@@ -45,8 +91,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Ok();
             }
         }
-              
-        // GET /api/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&ajaxStep={ajaxStep}
+
+        // GET /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&ajaxStep={ajaxStep}
         [HttpGet]
         public IHttpActionResult GetInformation([FromUri]string reference, [FromUri]string invoiceType, [FromUri]int ajaxStep)
         {
@@ -150,7 +196,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(nameList);
         }
 
-        // GET /api/FBAInvoiceDetail/?customerId={customerId}&itemName={itemName}    ajax3，获取所选择项目的费率和计价单位
+        // GET /api/fba/FBAInvoiceDetail/?customerId={customerId}&itemName={itemName}    ajax3，获取所选择项目的费率和计价单位
         [HttpGet]
         public IHttpActionResult GetRate([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string itemName)
         {
@@ -171,7 +217,50 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(annoyObj);
         }
 
-        // POST /api/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}
+        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}
+        [HttpPost]
+        public IHttpActionResult GreateChargingItem([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
+        {
+            var detail = new ChargingItemDetail();
+
+            if (invoiceType == FBAInvoiceType.MasterOrder)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == reference);
+
+                var newDetail = new ChargingItemDetail {
+                    Status = "Waiting for charging",
+                    CreateBy = _userName,
+                    CreateDate = DateTime.Now,
+                    Description = description,
+                    FBAMasterOrder = masterOrderInDb
+                };
+
+                detail = newDetail;
+                _context.ChargingItemDetails.Add(detail);
+            }
+            else if (invoiceType == FBAInvoiceType.ShipOrder)
+            {
+                var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference);
+
+                var newDetail = new ChargingItemDetail
+                {
+                    Status = "Waiting for charging",
+                    CreateBy = _userName,
+                    CreateDate = DateTime.Now,
+                    Description = description,
+                    FBAShipOrder = shipOrderInDb
+                };
+
+                detail = newDetail;
+                _context.ChargingItemDetails.Add(detail);
+            }
+
+            _context.SaveChanges();
+
+            return Created(Request.RequestUri + "/", Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(detail));
+        }
+
+        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}
         [HttpPost]
         public IHttpActionResult GreateChargingItem([FromUri]string reference, [FromUri]string invoiceType, [FromBody]InvoiceDetailJsonObj obj)
         {
@@ -222,6 +311,34 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/", Mapper.Map<InvoiceDetail, InvoiceDetailDto>(invoice));
+        }
+
+        // PUT /api/fba/fbainvoicedetail/?chargingItemDetailId={chargingItemDetailId}
+        [HttpPut]
+        public void ChangeStatus([FromUri]int chargingItemDetailId)
+        {
+            var detailInDb = _context.ChargingItemDetails.Find(chargingItemDetailId);
+
+            if (detailInDb.Status == "Waiting for charging")
+            {
+                detailInDb.Status = "Charged";
+            }
+            else
+            {
+                detailInDb.Status = "Waiting for charging";
+            }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fba/fbainvoicedetail/?chargingItemDetailId={chargingItemDetailId}
+        [HttpDelete]
+        public void DeleteChargingItemDetail([FromUri]int chargingItemDetailId)
+        {
+            var detailInDb = _context.ChargingItemDetails.Find(chargingItemDetailId);
+
+            _context.ChargingItemDetails.Remove(detailInDb);
+            _context.SaveChanges();
         }
 
         private int GetCustomerId(string reference, string invoiceType)

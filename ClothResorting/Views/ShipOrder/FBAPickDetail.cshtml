@@ -48,6 +48,8 @@
                     <th>CBM</th>
                     <th>Ctns/Plt</th>
                     <th>Ttl Pick Ctns</th>
+                    <th>Inventory Plts</th>
+                    <th>New Plts</th>
                     <th>Ttl Pick Plts</th>
                     <th>Location</th>
                     <th>Operation</th>
@@ -463,27 +465,24 @@
                 var newPlts = $("#input-newpallet").val() == "" ? 0 : $("#input-newpallet").val();
                 var objArray = new Array();
 
-                if (pickPlts != 0 || newPlts != 0)
-                {
-                    $(".input-cartons").each(function (i) {
-                        if ($(this).val() != "")
-                        {
-                            var id = $(this).attr('iid');
-                            var cartons = $(this).val();
-                            var obj = {
-                                "id": id,
-                                "quantity": cartons
-                            };
-
-                            objArray.push(obj);
-                        }
-                    });
-
-                    if (objArray.length > 0)
+                $(".input-cartons").each(function (i) {
+                    if ($(this).val() != "")
                     {
-                        url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=" + palletLocationId + "&quantity=" + pickPlts + "&newQuantity=" + newPlts +"&inventoryType=Pallet";
-                        SendAjaxMethodWithoutReloadPage("POST", url, objArray);
+                        var id = $(this).attr('iid');
+                        var cartons = $(this).val();
+                        var obj = {
+                            "id": id,
+                            "quantity": cartons
+                        };
+
+                        objArray.push(obj);
                     }
+                });
+
+                if (objArray.length > 0)
+                {
+                    url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=" + palletLocationId + "&quantity=" + pickPlts + "&newQuantity=" + newPlts +"&inventoryType=Pallet";
+                    SendAjaxMethodWithoutReloadPage("POST", url, objArray);
                 }
             });
 
@@ -895,6 +894,18 @@
                     },
                     {
                         data: "actualQuantity",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "pltsFromInventory",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "newPlts",
                         render: function (data) {
                             return "<font>" + data + "</font>";
                         }

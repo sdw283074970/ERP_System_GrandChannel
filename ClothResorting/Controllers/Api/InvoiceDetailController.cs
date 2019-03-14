@@ -181,18 +181,21 @@ namespace ClothResorting.Controllers.Api
                 .Include(x => x.Invoice)
                 .SingleOrDefault(x => x.Id == id);
 
-            var invoiceId = invoiceDetailInDb.Invoice.Id;
 
             _context.InvoiceDetails.Remove(invoiceDetailInDb);
             _context.SaveChanges();
 
-            var invoiceInDb = _context.Invoices
-                .Include(x => x.InvoiceDetails)
-                .SingleOrDefault(x => x.Id == invoiceId);
+            if (invoiceDetailInDb.Invoice != null)
+            {
+                var invoiceId = invoiceDetailInDb.Invoice.Id;
+                var invoiceInDb = _context.Invoices
+                    .Include(x => x.InvoiceDetails)
+                    .SingleOrDefault(x => x.Id == invoiceId);
 
-            invoiceInDb.TotalDue = invoiceInDb.InvoiceDetails.Sum(x => x.Amount);
+                invoiceInDb.TotalDue = invoiceInDb.InvoiceDetails.Sum(x => x.Amount);
 
-            _context.SaveChanges();
+                _context.SaveChanges();
+            }
         }
     }
 }

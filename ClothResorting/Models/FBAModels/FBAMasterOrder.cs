@@ -42,6 +42,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
 
+        public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
+
         //public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
 
         public FBAMasterOrder()

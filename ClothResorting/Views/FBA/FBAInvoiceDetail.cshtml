@@ -7,6 +7,7 @@
 <h1>FBA System</h1>
 <h2>FBA Invoice Detail Page</h2>
 <h2 id="h2-reference">Reference:</h2>
+<h2 id="h2-customer">Customer:</h2>
 
 <div class="maincontainer">
     <div>
@@ -18,11 +19,32 @@
         <text id="text-shipdate">SHIP DATE:</text><br />
         <text id="text-shipvia">SHIP VIA:</text>
     </div>*@
-    <div id="div-create">
-        <button id="btn-create" class="btn btn-primary">Add charging item</button>
-        <button id="btn-download" class="btn btn-primary">Export Excel File</button>
+    <div style="margin-top:20px;border:double">
+        <h2>Charging Item Board</h2>
+        <button id="btn-detail-create" class="btn btn-primary">Add charging detail</button>
+        <div>
+            <table id="table-detail" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:66px">Id</th>
+                        <th>Descriptiono</th>
+                        <th style="width:180px">Status</th>
+                        <th style="width:180px">Create Date</th>
+                        <th style="width:180px">Create By</th>
+                        <th style="width:180px">OPERATION</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
-    <div>
+
+    <div style="margin-top:20px;border:double">
+        <h2>Invoice Detail</h2>
+        <div id="div-create">
+            <button id="btn-create" class="btn btn-primary">Add charging item</button>
+            <button id="btn-download" class="btn btn-primary">Export Excel File</button>
+        </div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
                 <tr>
@@ -90,16 +112,26 @@
         <button style="margin-top:20px" id="btn-charge" class='btn btn-primary'>Charge</button>
     </div>
 </div>
+<div class="iframe-detail">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
+        <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">create</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
             $(".iframe").hide();
+            $(".iframe-detail").hide();
+
             var index;
             var table;
+            var tableDetail;
             var chargingType;
             var quantity;
+            var customerCode;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -123,6 +155,91 @@
 
             $("#h2-reference").html("Reference: " + reference);
 
+            //获取客户代码
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json, charset=utf-8',
+                dataType: "json",
+                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=false",
+                success: function (data) {
+                    customerCode = data;
+                    $("#h2-customer").html("Customer: " +customerCode);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            //获取收费项目草表
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json, charset=utf-8',
+                dataType: "json",
+                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
+                success: function (data) {
+                    if (tableDetail) {
+                        tableDetail.destroy();
+                    }
+                    tableDetail = $("#table-detail").DataTable({
+                        data: data,
+                        order: [[0, "desc"]],
+                        destroy: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    if (data == "Waiting for charging")
+                                        return "<font color='red'>" + data + "</font>";
+                                    else
+                                        return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "createDate",
+                                render: function (data) {
+                                    return "<text>" + data.toString().substring(0, 10) + "</text>";
+                                }
+                            },
+                            {
+                                data: "createBy",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-mark'>Mark</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            //获取收费项目细节
             $.ajax({
                 type: "GET",
                 contentType: 'application/json, charset=utf-8',
@@ -174,13 +291,13 @@
                             {
                                 data: "rate",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<text>$" + data + "</text>";
                                 }
                             },
                             {
                                 data: "amount",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<text>$" + data + "</text>";
                                 }
                             },
                             {
@@ -226,7 +343,7 @@
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            $(api.column(6).footer()).html("<font color='red'>" + totalAmount + "</font>");
+                            $(api.column(6).footer()).html("<font color='red'>$" + totalAmount + "</font>");
                         }
                     });
                 },
@@ -592,6 +709,47 @@
                 });
             });
 
+            //点击添加收费草表项目按钮，打开一个简易填写界面
+            $("#btn-detail-create").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+            });
+
+            //点击添加草表按钮，添加草表
+            $("#btn-detail-add").on("click", function () {
+                var description = $("#input-detail-description").val();
+
+                if (description != "")
+                {
+                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&description=" + encodeURIComponent(description);
+
+                    SendAjaxMethod("POST", url, {});
+                }
+            });
+
+            //点击收费草表中的Mark按钮，切换选中对象的收费状态
+            $("#table-detail").on("click", ".btn-detail-mark", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
+
+                SendAjaxMethod("PUT", url, {});
+            });
+
+            //点击收费草表中的删除按钮，删除选中对象的收费状态
+            $("#table-detail").on("click", ".btn-detail-delete", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
+
+                SendAjaxMethod("DELETE", url, {});
+            });
+
             function SendAjaxMethod(methodType, url, obj) {
                 $.ajax({
                     type: methodType,
@@ -608,7 +766,9 @@
                         });
                     },
                     success: function (data) {
-                        layer.alert("Success!");
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
