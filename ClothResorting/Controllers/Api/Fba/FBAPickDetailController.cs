@@ -26,9 +26,9 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/fba/fbapickdetail/?shipOrderId={shipOrderId}&orderType={orderType}
+        // GET /api/fba/fbapickdetail/?shipOrderId={shipOrderId}
         [HttpGet]
-        public IHttpActionResult GetPickDetail([FromUri]int shipOrderId, [FromUri]string orderType)
+        public IHttpActionResult GetPickDetail([FromUri]int shipOrderId)
         {
             return Ok(_context.FBAPickDetails
                 .Include(x => x.FBAShipOrder)

@@ -104,7 +104,7 @@ namespace ClothResorting.Controllers.Api
         }
 
         // PUT /api/invoiceDetail/
-        //GET方法中的URL无法传带&符号的参数，只能通过POST中的Body传参
+        //GET方法中的URL如果不重新编码，无法传带&符号的参数，只能通过POST中的Body传参
         [HttpPut]
         public IHttpActionResult GetChargingNames([FromBody]VendorDepartmentCodeTypeJsonObj obj)
         {

@@ -280,7 +280,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     Quantity = obj.Quantity,
                     InvoiceType = invoiceType,
                     Amount = obj.Amount,
-                    FBAMasterOrder = masterOrderInDb
+                    FBAMasterOrder = masterOrderInDb,
+                    Operator = _userName
                 };
 
                 invoice = invoiceDetail;
@@ -301,7 +302,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     Quantity = obj.Quantity,
                     InvoiceType = invoiceType,
                     Amount = obj.Amount,
-                    FBAShipOrder = shipOrderInDb
+                    FBAShipOrder = shipOrderInDb,
+                    Operator = _userName
                 };
 
                 invoice = invoiceDetail;

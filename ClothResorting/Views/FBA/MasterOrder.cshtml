@@ -32,6 +32,7 @@
                     <th>ETA</th>
                     <th>Invoice Status</th>
                     <th>Total Amount</th>
+                    <th>Confirmed By</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -77,6 +78,7 @@
             var customerCode;
             var container;
             var customerId;
+            var invoiceStatuts;
 
             $(".iframe").hide();
             $(".iframe-info").hide();
@@ -175,7 +177,7 @@
 
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
-                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder");
+                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder&invoiceStatus=" + $(this).attr('invoicestatus'));
             })
 
             //点击各个条目的Update Info按钮打开更新信息弹窗
@@ -311,6 +313,7 @@
                                 {
                                     data: "invoiceStatus",
                                     render: function (data) {
+                                        invoiceStatuts = data;
                                         return "<font>" + data + "</font>";
                                     }
                                 },
@@ -321,9 +324,18 @@
                                     }
                                 },
                                 {
+                                    data: "confirmedBy",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        else
+                                            return "<font>$" + data + "</font>";
+                                    }
+                                },
+                                {
                                     data: "grandNumber",
                                     render: function (data) {
-                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
                                     }
                                 }
                             ]

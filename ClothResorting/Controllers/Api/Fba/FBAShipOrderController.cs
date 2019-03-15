@@ -99,6 +99,8 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.Carrier = obj.Carrier;
             shipOrder.ETS = ets;
             shipOrder.InvoiceStatus = "Await";
+            shipOrder.ConfirmedBy = "";
+            shipOrder.ShippedBy = "";
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();
@@ -118,29 +120,34 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (shipOrderInDb.FBAPickDetails.Count() == 0)
             {
-                throw new Exception("Cannot operate an empty ship order.");
-            }
-
-            if (operation == FBAOperation.ChangeStatus)
-            {
-                if (shipOrderInDb.Status == FBAStatus.Picking)
-                {
-                    shipOrderInDb.Status = FBAStatus.Ready;
-                }
-                else if (shipOrderInDb.Status == FBAStatus.Ready)
-                {
-                    shipOrderInDb.Status = FBAStatus.Picking;
-                }
-            }
-            else if (operation == FBAOperation.ShipOrder)
-            {
-                foreach(var pickDetailInDb in shipOrderInDb.FBAPickDetails)
-                {
-                    ShipPickDetail(_context, pickDetailInDb.Id);
-                }
-
                 shipOrderInDb.Status = FBAStatus.Shipped;
                 shipOrderInDb.ShipDate = shipDate;
+                shipOrderInDb.ShippedBy = _userName;
+            }
+            else
+            {
+                if (operation == FBAOperation.ChangeStatus)
+                {
+                    if (shipOrderInDb.Status == FBAStatus.Picking)
+                    {
+                        shipOrderInDb.Status = FBAStatus.Ready;
+                    }
+                    else if (shipOrderInDb.Status == FBAStatus.Ready)
+                    {
+                        shipOrderInDb.Status = FBAStatus.Picking;
+                    }
+                }
+                else if (operation == FBAOperation.ShipOrder)
+                {
+                    foreach (var pickDetailInDb in shipOrderInDb.FBAPickDetails)
+                    {
+                        ShipPickDetail(_context, pickDetailInDb.Id);
+                    }
+
+                    shipOrderInDb.ShippedBy = _userName;
+                    shipOrderInDb.Status = FBAStatus.Shipped;
+                    shipOrderInDb.ShipDate = shipDate;
+                }
             }
 
             _context.SaveChanges();
@@ -241,13 +248,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 carton.FBACartonLocation.ShippedCtns += carton.PickCtns;
                 carton.FBACartonLocation.PickingCtns -= carton.PickCtns;
 
-                if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns != 0)
+                if (carton.FBACartonLocation.Status != FBAStatus.InPallet)
                 {
-                    carton.FBACartonLocation.Status = FBAStatus.InStock;
-                }
-                else if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns == 0)
-                {
-                    carton.FBACartonLocation.Status = FBAStatus.Shipped;
+                    if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns != 0)
+                    {
+                        carton.FBACartonLocation.Status = FBAStatus.InStock;
+                    }
+                    else if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns == 0)
+                    {
+                        carton.FBACartonLocation.Status = FBAStatus.Shipped;
+                    }
                 }
             }
         }

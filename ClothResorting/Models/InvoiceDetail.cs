@@ -24,6 +24,10 @@ namespace ClothResorting.Models
 
         public double Amount { get; set; }
 
+        public string Operator { get; set; }
+
+        public string Cost { get; set; }
+
         public DateTime DateOfCost { get; set; }
 
         public string Memo { get; set; }

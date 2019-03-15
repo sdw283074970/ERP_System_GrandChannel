@@ -36,6 +36,8 @@ namespace ClothResorting.Models.FBAModels
 
         public float TotalAmount { get; set; }
 
+        public string ConfirmedBy { get; set; }
+
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
         public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; } 

@@ -27,9 +27,11 @@
                     <th>Create date</th>
                     <th>Create By</th>
                     <th>Status</th>
+                    <th>Shipped Date</th>
+                    <th>Shipped By</th>
                     <th>Invoice Status</th>
                     <th>Total Amount</th>
-                    <th>Shipp Date</th>
+                    <th>Confirmed By</th>
                     <th style="width:250px">Operation</th>
                 </tr>
             </thead>
@@ -40,7 +42,9 @@
 <div class="iframe">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Ship Order Number: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Ship Order Number' /><br />
-        <text>Customer Code: </text><select id='select-customercode' class='select-vendor' style='width:170px;height:30px;margin-top:20px' required='required'></select><br />
+        <text>Customer Code: </text><select id='select-customercode' class='select-vendor' style='width:170px;height:30px;margin-top:20px' required='required'>
+            <option value='NULL'>Please select a code</option>
+        </select><br />
         <text>Select Order Type: </text><select id='select-ordertype' style='width:170px;height:30px;margin-top:20px' required='required'>
             <option value='Standard'>Standard</option>
             <option value='Ecommerce'>Ecommerce</option>
@@ -67,8 +71,10 @@
             var index;
             var table;
             var url;
+            var status;
             var shipOrder;
             var shipOrderId;
+            var invoiceStatus;
             var customerId = getUrlParameter('customerId');
 
             $(".iframe").hide();
@@ -173,6 +179,7 @@
                 {
                     data: "status",
                     render: function (data) {
+                        status = data;
                         if (data == "Picking")
                             return "<font color='red'>" + data + "</font>";
                         else if (data == "Shipped")
@@ -184,8 +191,27 @@
                     }
                 },
                 {
+                    data: "shipDate",
+                    render: function (data) {
+                        if (data == "1970-01-01T00:00:00")
+                            return "<font color='red'>Unshipped</font>"
+                        else
+                            return "<font>" + data.substring(0, 10) + "</font>";
+                    }
+                },
+                {
+                    data: "shippedBy",
+                    render: function (data) {
+                        if (data == "Unassigned")
+                            return "";
+                        else
+                            return "<font>" + data + "</font>";
+                    }
+                },
+                {
                     data: "invoiceStatus",
                     render: function (data) {
+                        invoiceStatus = data;
                         return "<font>" + data + "</font>";
                     }
                 },
@@ -196,12 +222,12 @@
                     }
                 },
                 {
-                    data: "shipDate",
+                    data: "confirmedBy",
                     render: function (data) {
-                        if (data == "1970-01-01T00:00:00")
-                            return "<font color='red'>Unshipped</font>"
+                        if (data == null)
+                            return "";
                         else
-                            return "<font>" + data.substring(0, 10) + "</font>";
+                            return "<font>" + data + "</font>";
                     }
                 },
                 //{
@@ -213,7 +239,12 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                        if (status == "Shipped")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        else if (status == "Ready")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
+                        else
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                     }
                 }
             ]
@@ -222,10 +253,18 @@
             //点击Pick按钮，转到该运单的拣货页面
             $("#table").on("click", ".btn-pick", function () {
                 var shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
-                var orderType = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
+                //var orderType = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
                 //var container = $(this).parent().parent("tr").children('td').eq(5).children('font').html();
 
-                $(window.location).attr('href', "/shiporder/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType);
+                $(window.location).attr('href', "/shiporder/fbapickdetail/?shipOrderId=" + shipOrderId);
+            });
+
+            $("#table").on("click", ".btn-view", function () {
+                var shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                //var orderType = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
+                //var container = $(this).parent().parent("tr").children('td').eq(5).children('font').html();
+
+                $(window.location).attr('href', "/shiporder/viewfbapickdetail/?shipOrderId=" + shipOrderId);
             });
 
             //点击创建新运单按钮，打开新建运单弹窗
@@ -244,12 +283,11 @@
                 var carrier = $("#input-carrier").val();
                 var ets = $("#input-ets").val();
 
-                if (shipOrderNumber == "" || destination == "" || bol == "" || carrier == "" || ets == "") {
+                if (shipOrderNumber == "" || destination == "" || bol == "" || carrier == "" || ets == "" || customerCode == "NULL") {
                     alert("All required fields are required.");
                 }
 
                 else {
-                    alert(orderType);
                     var obj = {
                         "shipOrderNumber": shipOrderNumber.toString(),
                         "customerCode": customerCode.toString(),
@@ -281,7 +319,7 @@
 
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
-                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder");
+                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
             })
 
             //点击BOL按钮，下载有内容的BOL
@@ -295,7 +333,7 @@
             $("#table").on("click", ".btn-ready", function () {
                 var id = $(this).attr('iid');
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operation=ChangeStatus";
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&shipDate=1992-11-17&operation=ChangeStatus";
                 SendAjaxMethod("PUT", url, {});
             });
 

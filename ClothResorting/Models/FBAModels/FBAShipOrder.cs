@@ -40,6 +40,8 @@ namespace ClothResorting.Models.FBAModels
 
         public float TotalAmount { get; set; }
 
+        public string ConfirmedBy { get; set; } 
+
         public string Carrier { get; set; }
 
         public DateTime ETS { get; set; }

@@ -1462,6 +1462,22 @@
     <Compile Include="Migrations\201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.Designer.cs">
       <DependentUpon>201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201903142330378_AddedOperatorInInvoiceDetail.cs" />
+    <Compile Include="Migrations\201903142330378_AddedOperatorInInvoiceDetail.Designer.cs">
+      <DependentUpon>201903142330378_AddedOperatorInInvoiceDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903142345465_AddedConfirmedByInShipOrder.cs" />
+    <Compile Include="Migrations\201903142345465_AddedConfirmedByInShipOrder.Designer.cs">
+      <DependentUpon>201903142345465_AddedConfirmedByInShipOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903150014149_AddedConfirmedByInMasterOrder.cs" />
+    <Compile Include="Migrations\201903150014149_AddedConfirmedByInMasterOrder.Designer.cs">
+      <DependentUpon>201903150014149_AddedConfirmedByInMasterOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903150159571_AddedCostInInvoiceDetail.cs" />
+    <Compile Include="Migrations\201903150159571_AddedCostInInvoiceDetail.Designer.cs">
+      <DependentUpon>201903150159571_AddedCostInInvoiceDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2013,10 +2029,10 @@
     <Content Include="Views\FBA\FBAInvoiceDetail.cshtml" />
     <Content Include="Views\FBA\FBAOutboundHistory.cshtml" />
     <Content Include="Views\ThirdPartyLogistics\ShipDetailHistory.cshtml" />
+    <Content Include="Views\ShipOrder\ViewFBAPickDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="ReceivingReport\" />
     <Folder Include="UploadedFiles\" />
   </ItemGroup>
   <ItemGroup>
@@ -2751,6 +2767,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.resx">
       <DependentUpon>201903132327480_AddedCreateDateAndCreateByInChargingItemDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903142330378_AddedOperatorInInvoiceDetail.resx">
+      <DependentUpon>201903142330378_AddedOperatorInInvoiceDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903142345465_AddedConfirmedByInShipOrder.resx">
+      <DependentUpon>201903142345465_AddedConfirmedByInShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903150014149_AddedConfirmedByInMasterOrder.resx">
+      <DependentUpon>201903150014149_AddedConfirmedByInMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903150159571_AddedCostInInvoiceDetail.resx">
+      <DependentUpon>201903150159571_AddedCostInInvoiceDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

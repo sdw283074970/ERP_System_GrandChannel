@@ -42,5 +42,7 @@ namespace ClothResorting.Dtos.Fba
         public string Carrier { get; set; }
 
         public DateTime ETS { get; set; }
+
+        public string ConfirmedBy { get; set; }
     }
 }
