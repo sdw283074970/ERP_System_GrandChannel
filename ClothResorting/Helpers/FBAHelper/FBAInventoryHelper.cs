@@ -40,12 +40,15 @@ namespace ClothResorting.Helpers.FBAHelper
         public FBAInventoryInfo GetFBAInventoryResidualInfo(string customerCode, DateTime closeDate)
         {
             var residualInventoryList = new List<FBAResidualInventory>();
+            var minDate = new DateTime(1992, 11, 17);
 
             //获取在指定日期前已发出的拣货列表
             var pickDetailList = _context.FBAPickDetails
                 .Include(x => x.FBAPickDetailCartons)
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.ShipDate <= closeDate);
+                .Where(x => x.FBAShipOrder.ShipDate <= closeDate && x.FBAShipOrder.ShipDate >= minDate);
+
+            var t = pickDetailList.ToList();
 
             //获取在指定日期之前入库的总箱数库存列表
             var cartonLocationsInDb = _context.FBACartonLocations
@@ -53,39 +56,43 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
                 .Include(x => x.FBAPickDetailCartons)
                 .Include(x => x.FBAPickDetails)
-                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate
+                    && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= minDate
+                    && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             //获取在指定日期前入库的托盘库存列表
             var palletLocationsInDb = _context.FBAPalletLocations
-                .Include(x => x.FBAMasterOrder)
+                .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAPickDetails)
-                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
+                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate 
+                    && x.FBAMasterOrder.InboundDate >= minDate
+                    && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             var palletLocationsList = palletLocationsInDb.ToList();
             var cartonLocationList = cartonLocationsInDb.ToList();
 
             var originalPlts = palletLocationsList.Sum(x => x.ActualPlts);
-            var originalLossCtns = cartonLocationList.Where(x => x.Status == FBAStatus.InPallet).Sum(x => x.ActualQuantity);
-            var currentLossCtns = originalLossCtns;
+            var originalLooseCtns = cartonLocationList.Where(x => x.Status != FBAStatus.InPallet).Sum(x => x.ActualQuantity);
+            var currentLooseCtns = originalLooseCtns;
 
             //计算原有箱数减去每次发出的箱数并放到列表中
             foreach (var cartonLocation in cartonLocationsInDb)
             {
                 var originalQuantity = cartonLocation.ActualQuantity;
 
-                if (cartonLocation.Location == FBAStatus.InPallet)
+                if (cartonLocation.Location == FBAInventoryType.Pallet)
                 {
                     foreach(var pickCarton in cartonLocation.FBAPickDetailCartons)
                     {
                         cartonLocation.ActualQuantity -= pickCarton.PickCtns;
-                        currentLossCtns -= pickCarton.PickCtns;
                     }
                 }
-                else
+                else    //直接与拣货单
                 {
-                    foreach(var pickcarton in cartonLocation.FBAPickDetails)
+                    foreach(var pickCarton in cartonLocation.FBAPickDetails)
                     {
-                        cartonLocation.ActualQuantity -= pickcarton.ActualQuantity;
+                        cartonLocation.ActualQuantity -= pickCarton.ActualQuantity;
+                        currentLooseCtns -= pickCarton.ActualQuantity;
                     }
                 }
 
@@ -113,7 +120,7 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 foreach(var pick in plt.FBAPickDetails)
                 {
-                    plt.ActualPlts -= pick.ActualPlts;
+                    plt.ActualPlts -= pick.PltsFromInventory;
                 }
             }
 
@@ -124,8 +131,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
             info.OriginalPlts = originalPlts;
             info.CurrentPlts = palletLocationsList.Sum(x => x.ActualPlts);
-            info.OriginalLossCtns = originalLossCtns;
-            info.CurrentLooseCtns = currentLossCtns;
+            info.OriginalLooseCtns = originalLooseCtns;
+            info.CurrentLooseCtns = currentLooseCtns;
 
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
             info.TotalResidualQuantity = residualInventoryList.Sum(x => x.ResidualQuantity);
@@ -158,7 +165,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 5] = i.WarehouseCode;
                 _ws.Cells[startRow, 6] = Math.Round(i.GrossWeightPerCtn, 2);
                 _ws.Cells[startRow, 7] = Math.Round(i.CBMPerCtn, 2);
-                _ws.Cells[startRow, 8] = Math.Round(i.ResidualCBM, 2);
+                _ws.Cells[startRow, 8] = i.OriginalQuantity;
                 _ws.Cells[startRow, 9] = Math.Round((double)i.ResidualQuantity, 2);
                 _ws.Cells[startRow, 10] = i.Location;
 
@@ -270,7 +277,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public int CurrentPlts { get; set; }
 
-        public int OriginalLossCtns { get; set; }
+        public int OriginalLooseCtns { get; set; }
 
         public int CurrentLooseCtns { get; set; }
 

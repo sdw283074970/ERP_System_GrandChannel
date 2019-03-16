@@ -64,10 +64,28 @@ namespace ClothResorting.Controllers.Api
             {
                 vendorInDb = _context.UpperVendors
                     .SingleOrDefault(x => x.Name == obj.Vendor && x.DepartmentCode == obj.DepartmentCode);
+
+                var sameNameItem = _context.ChargingItems
+                    .Include(x => x.UpperVendor)
+                    .Where(x => x.UpperVendor.Name == obj.Vendor && x.UpperVendor.DepartmentCode == obj.DepartmentCode && x.Name == obj.Name);
+
+                if (sameNameItem.Count() != 0)
+                {
+                    throw new Exception("The name: " + obj.Name + " has already been taken. Please change it and try again.");
+                }
             }
             else
             {
                 vendorInDb = _context.UpperVendors.Find(obj.CustomerId);
+
+                var sameNameItem = _context.ChargingItems
+                    .Include(x => x.UpperVendor)
+                    .Where(x => x.UpperVendor.Id == obj.CustomerId && x.Name == obj.Name);
+
+                if (sameNameItem.Count() != 0)
+                {
+                    throw new Exception("The name: " + obj.Name + " has already been taken. Please change it and try again.");
+                }
             }
 
             var newItem = new ChargingItem
@@ -80,14 +98,7 @@ namespace ClothResorting.Controllers.Api
                 UpperVendor = vendorInDb
             };
 
-            var sameNameItem = _context.ChargingItems
-                .Include(x => x.UpperVendor)
-                .Where(x => x.UpperVendor.Name == obj.Vendor && x.UpperVendor.DepartmentCode == obj.DepartmentCode && x.Name == obj.Name);
 
-            if (sameNameItem.Count() != 0)
-            {
-                throw new Exception("The name: " + obj.Name + " has already been taken. Please change it and try again.");
-            }
 
             _context.ChargingItems.Add(newItem);
             _context.SaveChanges();
@@ -130,6 +141,7 @@ namespace ClothResorting.Controllers.Api
         public void DeleteItem([FromUri]int itemId)
         {
             var itemInDb = _context.ChargingItems.Find(itemId);
+            _context.ChargingItems.Remove(itemInDb);
             _context.SaveChanges();
         }
     }

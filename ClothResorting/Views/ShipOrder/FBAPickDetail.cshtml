@@ -454,7 +454,7 @@
 
                 if (objArray.length > 0)
                 {
-                    url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=0&quantity=0&inventoryType=Carton";
+                    url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=0&quantity=0&newQuantity=0&inventoryType=Carton";
                     SendAjaxMethodWithoutReloadPage("POST", url, objArray);
                 }
             });

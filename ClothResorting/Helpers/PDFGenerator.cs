@@ -361,20 +361,64 @@ namespace ClothResorting.Helpers
                 tableContent.AddCell(cell);
             }
 
-            //表内容部分
-            for(int i = 0; i < list.Count; i++)
+            //根据行数调整字体大小
+            float fontSize = 9f;
+            if (list.Count > 8 || list.Count < 10)
             {
-                AddNewCell(tableContent, list[i].CustoerOrderNumber, minHeight, font);
-                AddNewCell(tableContent, list[i].Contianer, minHeight, font);
-                AddNewCell(tableContent, "Y     N", minHeight, font);
-                AddNewCell(tableContent, list[i].Weight.ToString(), minHeight, font);
-                AddNewCell(tableContent, list[i].CartonQuantity == 0 ? " " : list[i].CartonQuantity.ToString(), minHeight, font);
+                fontSize = 7f;
+            }
+            else if (list.Count >= 10 || list.Count < 13)
+            {
+                fontSize = 5f;
+            }
+            else if (list.Count >= 13 || list.Count < 15)
+            {
+                fontSize = 3f;
+            }
+            else if (list.Count >= 15)
+            {
+                fontSize = 1f;
+            }
+
+            //表内容部分
+            for (int i = 0; i < list.Count; i++)
+            {
+                var orderNumberCell = new PdfPCell(new Paragraph(list[i].CustoerOrderNumber, new Font(font , fontSize)));
+                var containerCell = new PdfPCell(new Paragraph(list[i].Contianer, new Font(font , fontSize)));
+                var palletSlipCell = new PdfPCell(new Paragraph("Y     N", new Font(font, fontSize)));
+                var weightCell = new PdfPCell(new Paragraph(list[i].Weight.ToString(), new Font(font, fontSize)));
+                var quantityCell = new PdfPCell(new Paragraph(list[i].CartonQuantity == 0 ? " " : list[i].CartonQuantity.ToString(), new Font(font, fontSize)));
+
+                orderNumberCell.MinimumHeight = minHeight;
+                orderNumberCell.HorizontalAlignment = 1;
+                containerCell.MinimumHeight = minHeight;
+                containerCell.HorizontalAlignment = 1;
+                palletSlipCell.MinimumHeight = minHeight;
+                palletSlipCell.HorizontalAlignment = 1;
+                weightCell.MinimumHeight = minHeight;
+                weightCell.HorizontalAlignment = 1;
+                quantityCell.MinimumHeight = minHeight;
+                quantityCell.HorizontalAlignment = 1;
+
+                tableContent.AddCell(orderNumberCell);
+                tableContent.AddCell(containerCell);
+                tableContent.AddCell(palletSlipCell);
+                tableContent.AddCell(weightCell);
+                tableContent.AddCell(quantityCell);
+
+
+                //AddNewCell(tableContent, list[i].CustoerOrderNumber, minHeight, font);
+                //AddNewCell(tableContent, list[i].Contianer, minHeight, font);
+                //AddNewCell(tableContent, "Y     N", minHeight, font);
+                //AddNewCell(tableContent, list[i].Weight.ToString(), minHeight, font);
+                //AddNewCell(tableContent, list[i].CartonQuantity == 0 ? " " : list[i].CartonQuantity.ToString(), minHeight, font);
 
                 //判定是否手动合并同一托盘的单元格
                 if (list[i].PalletQuantity == 99999)
                 {
-                    var tableCell = new PdfPCell(new Paragraph(" "));
+                    var tableCell = new PdfPCell(new Paragraph(" ", new Font(font, fontSize)));
                     tableCell.UseVariableBorders = true;
+                    tableCell.MinimumHeight = minHeight;
                     tableCell.BorderColorTop = BaseColor.WHITE;
                     tableCell.BorderColorRight = BaseColor.GRAY;
                     tableCell.BorderColorBottom = BaseColor.GRAY;
@@ -385,10 +429,11 @@ namespace ClothResorting.Helpers
                 {
                     if (i != list.Count - 1 && list[i + 1].PalletQuantity == 99999)
                     {
-                        var p = new Paragraph(list[i].PalletQuantity.ToString(), new Font(font, 9f));
+                        var p = new Paragraph(list[i].PalletQuantity.ToString(), new Font(font, fontSize));
                         var tableCell = new PdfPCell(p);
                         tableCell.UseVariableBorders = true;
                         tableCell.BorderColorTop = BaseColor.GRAY;
+                        tableCell.MinimumHeight = minHeight;
                         tableCell.BorderColorRight = BaseColor.GRAY;
                         tableCell.BorderColorBottom = BaseColor.WHITE;
                         tableCell.BorderColorLeft = BaseColor.GRAY;
@@ -401,8 +446,12 @@ namespace ClothResorting.Helpers
                         AddNewCell(tableContent, list[i].PalletQuantity == 0 ? " " : list[i].PalletQuantity.ToString(), minHeight, font);
                     }
                 }
+                var locationrCell = new PdfPCell(new Paragraph(list[i].Location, new Font(font, fontSize)));
+                locationrCell.MinimumHeight = minHeight;
+                locationrCell.HorizontalAlignment = 1;
+                tableContent.AddCell(locationrCell);
 
-                AddNewCell(tableContent, list[i].Location, minHeight, font);
+                //AddNewCell(tableContent, list[i].Location, minHeight, font);
             }
 
             tableContent.WriteSelectedRows(0, -1, xPosition, yPosition, cb);

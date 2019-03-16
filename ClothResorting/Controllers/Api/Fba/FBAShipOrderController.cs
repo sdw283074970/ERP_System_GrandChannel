@@ -118,32 +118,33 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
-            if (shipOrderInDb.FBAPickDetails.Count() == 0)
+
+
+            if (operation == FBAOperation.ChangeStatus)
             {
-                shipOrderInDb.Status = FBAStatus.Shipped;
-                shipOrderInDb.ShipDate = shipDate;
-                shipOrderInDb.ShippedBy = _userName;
-            }
-            else
-            {
-                if (operation == FBAOperation.ChangeStatus)
+                if (shipOrderInDb.Status == FBAStatus.Picking)
                 {
-                    if (shipOrderInDb.Status == FBAStatus.Picking)
-                    {
-                        shipOrderInDb.Status = FBAStatus.Ready;
-                    }
-                    else if (shipOrderInDb.Status == FBAStatus.Ready)
-                    {
-                        shipOrderInDb.Status = FBAStatus.Picking;
-                    }
+                    shipOrderInDb.Status = FBAStatus.Ready;
                 }
-                else if (operation == FBAOperation.ShipOrder)
+                else if (shipOrderInDb.Status == FBAStatus.Ready)
+                {
+                    shipOrderInDb.Status = FBAStatus.Picking;
+                }
+            }
+            else if (operation == FBAOperation.ShipOrder)
+            {
+                if (shipOrderInDb.FBAPickDetails.Count() == 0)
+                {
+                    shipOrderInDb.Status = FBAStatus.Shipped;
+                    shipOrderInDb.ShipDate = shipDate;
+                    shipOrderInDb.ShippedBy = _userName;
+                }
+                else
                 {
                     foreach (var pickDetailInDb in shipOrderInDb.FBAPickDetails)
                     {
                         ShipPickDetail(_context, pickDetailInDb.Id);
                     }
-
                     shipOrderInDb.ShippedBy = _userName;
                     shipOrderInDb.Status = FBAStatus.Shipped;
                     shipOrderInDb.ShipDate = shipDate;
