@@ -55,6 +55,7 @@
                     <th>QTY</th>
                     <th>RATE</th>
                     <th>AMOUNT</th>
+                    <th>COST</th>
                     <th>InvoiceType</th>
                     <th>Date of Cost</th>
                     <th>MEMO</th>
@@ -66,6 +67,7 @@
             <tfoot>
                 <tr>
                     <th colspan="6" style="text-align:right">BALANCE DUE:</th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -99,7 +101,8 @@
             </select>
         </div>
         <div id="div-rate" style="margin-top:20px">
-            <text>Rate: </text><input type="number" id="input-rate" class="input-sm input-calculator" style='width:80px;height:30px' placeholder="Rate" /><text>/</text><text id="text-unit">CTN</text><text style="margin-left:20px">Quantity: <input type="number" id="input-quantity" class="input-sm input-calculator" style='width:80px;height:30px' placeholder="QTY" /></text><br />
+            <text>Cost: </text><input type="number" id="input-cost" class="input-sm input-calculator" style='width:80px;height:30px' placeholder="Cost" value="0" />
+            <text style="margin-left:20px">Rate: </text><input type="number" id="input-rate" class="input-sm input-calculator" style='width:80px;height:30px' placeholder="Rate" /><text>/</text><text id="text-unit">CTN</text><text style="margin-left:20px">Quantity: <input type="number" id="input-quantity" class="input-sm input-calculator" style='width:80px;height:30px' placeholder="QTY" /></text><br />
         </div>
         <div id="div-description" style="margin-top:20px">
             <text id="text-description">Description:: </text><br />
@@ -154,7 +157,10 @@
             var reference = getUrlParameter('reference');
             var invoiceType = getUrlParameter('invoiceType');
 
-            $("#h2-reference").html("Reference: " + reference);
+            if (invoiceType == "MasterOrder")
+                $("#h2-reference").html("Master Order #: " + reference);
+            else if (invoiceType == "ShipOrder")
+                $("#h2-reference").html("Ship Order #: " + reference);
 
             //获取客户代码
             $.ajax({
@@ -302,6 +308,12 @@
                                 }
                             },
                             {
+                                data: "cost",
+                                render: function (data) {
+                                    return "<text>$" + data + "</text>";
+                                }
+                            },
+                            {
                                 data: "invoiceType",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
@@ -370,7 +382,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["500px", "650px"],
+                    area: ["550px", "650px"],
                     content: $(".iframe")
                 });
             })
@@ -498,6 +510,7 @@
                 var chargingType = $("#select-type option:selected").val();
                 var activity = $("#select-name option:selected").val();
                 var dateOfCost = $("#input-date").val();
+                var cost = $("#input-cost").val();
 
                 if (dateOfCost == "")
                 {
@@ -519,7 +532,8 @@
                         "rate": rate,
                         "amount": amount,
                         "quantity": quantity,
-                        "memo": memo
+                        "memo": memo,
+                        "cost": cost
                     };
 
                     $.ajax({
@@ -585,11 +599,17 @@
                                                 {
                                                     data: "rate",
                                                     render: function (data) {
-                                                        return "<text>" + data + "</text>";
+                                                        return "<text>$" + data + "</text>";
                                                     }
                                                 },
                                                 {
                                                     data: "amount",
+                                                    render: function (data) {
+                                                        return "<text>$" + data + "</text>";
+                                                    }
+                                                },
+                                                {
+                                                    data: "cost",
                                                     render: function (data) {
                                                         return "<text>$" + data + "</text>";
                                                     }

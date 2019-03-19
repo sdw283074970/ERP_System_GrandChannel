@@ -1,10 +1,12 @@
 ﻿using ClothResorting.Models;
+using ClothResorting.Models.StaticClass;
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Data.Entity;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -72,6 +74,156 @@ namespace ClothResorting.Helpers.FBAHelper
 
             return fullPath;
         }
+
+        public FBAInvoiceInfo GetChargingReportFormOrder(string reference, string invoiceType)
+        {
+            var customer = GetCustomer(reference, invoiceType);
+
+            var invoiceReportList = new List<InvoiceReportDetail>();
+
+            var info = new FBAInvoiceInfo
+            {
+                FromDate = null,
+                ToDate = null,
+                CustomerCode = customer.CustomerCode
+            };
+
+            if (invoiceType == FBAInvoiceType.MasterOrder)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders
+                    .Include(x => x.InvoiceDetails)
+                    .SingleOrDefault(x => x.Container == reference);
+
+                var invoiceDetailList = masterOrderInDb.InvoiceDetails.ToList();
+
+                foreach (var i in invoiceDetailList)
+                {
+                    invoiceReportList.Add(new InvoiceReportDetail
+                    {
+                        InvoiceType = i.InvoiceType,
+                        Reference = reference,
+                        Activity = i.Activity,
+                        ChargingType = i.ChargingType,
+                        Unit = i.Unit,
+                        Quantity = i.Quantity,
+                        Rate = i.Rate,
+                        Amount = i.Amount,
+                        DateOfCost = i.DateOfCost,
+                        Memo = i.Memo
+                    });
+                }
+
+                info.InvoiceReportDetails = invoiceReportList;
+
+                masterOrderInDb.InvoiceStatus = "Exported";
+            }
+            else if (invoiceType == FBAInvoiceType.ShipOrder)
+            {
+                var shipOrderInDb = _context.FBAShipOrders
+                    .Include(x => x.InvoiceDetails)
+                    .SingleOrDefault(x => x.ShipOrderNumber == reference);
+
+                var invoiceDetailList = shipOrderInDb.InvoiceDetails.ToList();
+
+                foreach (var i in invoiceDetailList)
+                {
+                    invoiceReportList.Add(new InvoiceReportDetail
+                    {
+                        InvoiceType = i.InvoiceType,
+                        Reference = reference,
+                        Activity = i.Activity,
+                        ChargingType = i.ChargingType,
+                        Unit = i.Unit,
+                        Quantity = i.Quantity,
+                        Rate = i.Rate,
+                        Amount = i.Amount,
+                        DateOfCost = i.DateOfCost,
+                        Memo = i.Memo
+                    });
+                }
+
+                shipOrderInDb.InvoiceStatus = "Exported";
+                info.InvoiceReportDetails = invoiceReportList;
+            }
+
+            _context.SaveChanges();
+
+            return info;
+        }
+
+        public FBAInvoiceInfo GetChargingReportFormDateRangeAndCustomerId(int customerId, DateTime startDate, DateTime closeDate)
+        {
+            var customer = _context.UpperVendors.Find(customerId);
+
+            var invoiceReportList = new List<InvoiceReportDetail>();
+
+            var info = new FBAInvoiceInfo
+            {
+                FromDate = startDate,
+                ToDate = closeDate,
+                CustomerCode = customer.CustomerCode
+            };
+
+            var invoiceDetails = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder.Customer)
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAMasterOrder.Customer.Id == customerId || x.FBAShipOrder.CustomerCode == customer.CustomerCode)
+                .Where(x => x.DateOfCost >= startDate && x.DateOfCost <= closeDate)
+                .ToList();
+
+            foreach(var i in invoiceDetails)
+            {
+                var newInvoiceDetail = new InvoiceReportDetail
+                {
+                    InvoiceType = i.InvoiceType,
+                    Activity = i.Activity,
+                    ChargingType = i.ChargingType,
+                    Unit = i.Unit,
+                    Quantity = i.Quantity,
+                    Rate = i.Rate,
+                    Amount = i.Amount,
+                    DateOfCost = i.DateOfCost,
+                    Memo = i.Memo
+                };
+
+                if (i.FBAMasterOrder == null)
+                {
+                    newInvoiceDetail.Reference = i.FBAShipOrder.ShipOrderNumber;
+                }
+                else if (i.FBAShipOrder == null)
+                {
+                    newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
+                }
+
+                invoiceReportList.Add(newInvoiceDetail);
+            }
+
+            info.InvoiceReportDetails = invoiceReportList;
+
+            return info;
+        }
+
+        public UpperVendor GetCustomer(string reference, string invoiceType)
+        {
+            UpperVendor customer = null;
+
+            if (invoiceType == FBAInvoiceType.MasterOrder)
+            {
+                customer = _context.FBAMasterOrders
+                    .Include(x => x.Customer)
+                    .FirstOrDefault(x => x.Container == reference)
+                    .Customer;
+            }
+            else if (invoiceType == FBAInvoiceType.ShipOrder)
+            {
+                var customerCode = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference).CustomerCode;
+
+                customer = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode);
+            }
+
+            return customer;
+        }
+
     }
 
     public class FBAInvoiceInfo

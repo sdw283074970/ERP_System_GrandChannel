@@ -19,6 +19,8 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public double Amount { get; set; }
 
+        public double Cost { get; set; }
+
         public DateTime DateOfCost { get; set; }
 
         public double Quantity { get; set; }

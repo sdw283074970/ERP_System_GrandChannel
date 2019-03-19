@@ -23,7 +23,7 @@ namespace ClothResorting.Dtos
 
         public double Rate { get; set; }
 
-        public string Cost { get; set; }
+        public double Cost { get; set; }
 
         public double Amount { get; set; }
 

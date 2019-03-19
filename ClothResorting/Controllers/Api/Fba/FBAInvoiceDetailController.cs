@@ -219,7 +219,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}
         [HttpPost]
-        public IHttpActionResult GreateChargingItem([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
+        public IHttpActionResult GreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
         {
             var detail = new ChargingItemDetail();
 
@@ -277,6 +277,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     Memo = obj.Memo,
                     Unit = obj.Unit,
                     Rate = obj.Rate,
+                    Cost = obj.Cost,
                     Quantity = obj.Quantity,
                     InvoiceType = invoiceType,
                     Amount = obj.Amount,

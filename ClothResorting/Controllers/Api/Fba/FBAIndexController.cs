@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Dtos.Fba;
+using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Models.StaticClass;
@@ -31,6 +32,21 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<UpperVendor, UpperVendorDto>));
         }
 
+        // GET /api/fba/fbaindex/?customerId={customerId}&startDate={startDate}&closeDate={closeDate}
+        [HttpGet]
+        public IHttpActionResult GetExportedFilePath([FromUri]int customerId, [FromUri]DateTime startDate, [FromUri]DateTime closeDate)
+        {
+            var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
+
+            var excelGenerator = new FBAInvoiceHelper(templatePath);
+
+            var info = excelGenerator.GetChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+
+            var path = excelGenerator.GenerateExcelPath(info);
+
+            return Ok(path);
+        }
+
         // POST /api/fba/index/?requestId={requestId}
         [HttpPost]
         public IHttpActionResult PushDataFromFrontierSystem([FromUri]string requestId, [FromBody]FBAMasterOrderAPIDto order)
@@ -40,5 +56,6 @@ namespace ClothResorting.Controllers.Api.Fba
             else
                 throw new Exception("Invalid!");
         }
+
     }
 }

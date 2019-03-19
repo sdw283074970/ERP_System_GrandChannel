@@ -38,106 +38,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
-            var info = GetChargingReportFormOrder(reference, invoiceType);
+            var info = excelGenerator.GetChargingReportFormOrder(reference, invoiceType);
 
             var path = excelGenerator.GenerateExcelPath(info);
 
             return Ok(path);
         }
 
-        private FBAInvoiceInfo GetChargingReportFormOrder(string reference, string invoiceType)
-        {
-            var customer = GetCustomer(reference, invoiceType);
-            var invoiceReportList = new List<InvoiceReportDetail>();
-            var info = new FBAInvoiceInfo
-            {
-                FromDate = null,
-                ToDate = null,
-                CustomerCode = customer.CustomerCode
-            };
-
-            if (invoiceType == FBAInvoiceType.MasterOrder)
-            {
-                var masterOrderInDb = _context.FBAMasterOrders
-                    .Include(x => x.InvoiceDetails)
-                    .SingleOrDefault(x => x.Container == reference);
-
-                var invoiceDetailList = masterOrderInDb.InvoiceDetails.ToList();
-
-                foreach (var i in invoiceDetailList)
-                {
-                    invoiceReportList.Add(new InvoiceReportDetail
-                    {
-                        InvoiceType = i.InvoiceType,
-                        Reference = reference,
-                        Activity = i.Activity,
-                        ChargingType = i.ChargingType,
-                        Unit = i.Unit,
-                        Quantity = i.Quantity,
-                        Rate = i.Rate,
-                        Amount = i.Amount,
-                        DateOfCost = i.DateOfCost,
-                        Memo = i.Memo
-                    });
-                }
-
-                info.InvoiceReportDetails = invoiceReportList;
-
-                masterOrderInDb.InvoiceStatus = "Exported";
-            }
-            else if (invoiceType == FBAInvoiceType.ShipOrder)
-            {
-                var shipOrderInDb = _context.FBAShipOrders
-                    .Include(x => x.InvoiceDetails)
-                    .SingleOrDefault(x => x.ShipOrderNumber == reference);
-
-                var invoiceDetailList = shipOrderInDb.InvoiceDetails.ToList();
-
-                foreach (var i in invoiceDetailList)
-                {
-                    invoiceReportList.Add(new InvoiceReportDetail
-                    {
-                        InvoiceType = i.InvoiceType,
-                        Reference = reference,
-                        Activity = i.Activity,
-                        ChargingType = i.ChargingType,
-                        Unit = i.Unit,
-                        Quantity = i.Quantity,
-                        Rate = i.Rate,
-                        Amount = i.Amount,
-                        DateOfCost = i.DateOfCost,
-                        Memo = i.Memo
-                    });
-                }
-
-                shipOrderInDb.InvoiceStatus = "Exported";
-                info.InvoiceReportDetails = invoiceReportList;
-            }
-
-            _context.SaveChanges();
-
-            return info;
-        }
-
-        private UpperVendor GetCustomer(string reference, string invoiceType)
-        {
-            UpperVendor customer = null;
-
-            if (invoiceType == FBAInvoiceType.MasterOrder)
-            {
-                customer = _context.FBAMasterOrders
-                    .Include(x => x.Customer)
-                    .FirstOrDefault(x => x.Container == reference)
-                    .Customer;
-            }
-            else if (invoiceType == FBAInvoiceType.ShipOrder)
-            {
-                var customerCode = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference).CustomerCode;
-
-                customer = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode);
-            }
-
-            return customer;
-        }
     }
 }

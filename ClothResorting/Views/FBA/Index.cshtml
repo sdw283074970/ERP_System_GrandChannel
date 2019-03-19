@@ -37,12 +37,24 @@
         </table>
     </div>
 </div>
+<div class="iframe-export">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Start Date: </text><input id='input-date-start' type="date" style='width:170px' class='input-sm' /><br />
+        <text>Close Date: </text><input id='input-date-close' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
+        <button id="btn-download" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Download</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
+            $(".iframe-export").hide();
+
             var index;
+            var customerId;
+            var table;
+            var url;
 
             $.ajax({
                 type: "GET",
@@ -121,7 +133,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Orders</button>";
+                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Orders</button><button iid='" + data + "' class='btn btn-info btn-export' style='margin-left:20px'>导出收费汇总表</button>";
                                 }
                             },
                         ]
@@ -143,6 +155,54 @@
             //点击管理客户，跳转到客户管理页面
             $("#btn-customer").on("click", function () {
                 $(window.location).attr('href', '/customer');
+            });
+
+            //点击导出收费汇总表按钮，弹出选择导出日期界面
+            $("#table").on("click", ".btn-export", function () {
+                customerId = $(this).attr('iid');
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "250px"],
+                    content: $(".iframe-export")
+                });
+            });
+
+            //点击导出收费总表弹窗的下载按钮，下载Excel表格
+            $("#btn-download").on("click", function () {
+                var startDate = $("#input-date-start").val();
+                var closeDate = $("#input-date-close").val();
+
+                if (startDate != "" && closeDate != "")
+                {
+                    url = "/api/fba/fbaindex/?customerId=" + customerId + "&startDate=" + startDate + "&closeDate=" + closeDate;
+
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        beforeSend: function () {
+                            layer.close(index);
+                            index = layer.msg('Processing...', {
+                                icon: 3,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
+                        success: function (data) {
+                            layer.alert("Success! File will download automatically.");
+                            $(window.location).attr('href', "/api/fba/FBAReportDonwload/?fullPath=" + encodeURIComponent(data).toString() + "&prefix=InvoiceReport&suffix=" + encodeURIComponent(".xls"));
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
             });
 
             $(".btn-back").on("click", function () {
