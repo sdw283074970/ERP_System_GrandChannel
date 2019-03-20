@@ -115,7 +115,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 info.InvoiceReportDetails = invoiceReportList;
 
-                masterOrderInDb.InvoiceStatus = "Exported";
+                if (masterOrderInDb.InvoiceStatus != "Closed")
+                    masterOrderInDb.InvoiceStatus = "Exported";
             }
             else if (invoiceType == FBAInvoiceType.ShipOrder)
             {
@@ -142,7 +143,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     });
                 }
 
-                shipOrderInDb.InvoiceStatus = "Exported";
+                if (shipOrderInDb.InvoiceStatus != "Closed")
+                    shipOrderInDb.InvoiceStatus = "Exported";
                 info.InvoiceReportDetails = invoiceReportList;
             }
 

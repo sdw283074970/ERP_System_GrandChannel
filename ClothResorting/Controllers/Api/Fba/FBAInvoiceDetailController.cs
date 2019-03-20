@@ -334,6 +334,28 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
+        // PUT /api/fba/fbainvoicedetail/?reference{reference}&invoiceType={invoiceType}
+        [HttpPut]
+        public void CloseChargeOrder([FromUri]string reference, [FromUri]string invoiceType)
+        {
+            if (invoiceType == FBAInvoiceType.ShipOrder)
+            {
+                var shipOrderInDb = _context.FBAShipOrders
+                    .SingleOrDefault(x => x.ShipOrderNumber == reference);
+
+                shipOrderInDb.InvoiceStatus = "Closed";
+            }
+            else if (invoiceType == FBAInvoiceType.MasterOrder)
+            {
+                var masterOrder = _context.FBAMasterOrders
+                    .SingleOrDefault(x => x.Container == reference);
+
+                masterOrder.InvoiceStatus = "Closed";
+            }
+
+            _context.SaveChanges();
+        }
+
         // PUT /api/fba/fbainvoicedetail/?chargingItemDetailId={chargingItemDetailId}
         [HttpDelete]
         public void DeleteChargingItemDetail([FromUri]int chargingItemDetailId)

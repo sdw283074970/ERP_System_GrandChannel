@@ -1,0 +1,399 @@
+﻿
+@{
+    ViewBag.Title = "FBAInvoiceDetailReadOnly";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>FBA System</h1>
+<h2>FBA Invoice Detail Page</h2>
+<h2 id="h2-reference">Reference:</h2>
+<h2 id="h2-customer">Customer:</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div style="margin-top:20px;border:double">
+        <h2>Charging Item Board</h2>
+        <div>
+            <table id="table-detail" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:66px">Id</th>
+                        <th>Descriptiono</th>
+                        <th style="width:180px">Status</th>
+                        <th style="width:180px">Create Date</th>
+                        <th style="width:180px">Create By</th>
+                        <th style="width:180px">OPERATION</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top:20px;border:double">
+        <h2>Invoice Detail</h2>
+        <div id="div-create">
+            <button id="btn-download" class="btn btn-primary">Export Excel File</button>
+        </div>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:66px">Id</th>
+                    <th>ACTIVITY</th>
+                    <th>CHARGING TYPE</th>
+                    <th>UOM</th>
+                    <th>QTY</th>
+                    <th>RATE</th>
+                    <th>AMOUNT</th>
+                    <th>COST</th>
+                    <th>InvoiceType</th>
+                    <th>Date of Cost</th>
+                    <th>MEMO</th>
+                    <th>LAST OPERATOR</th>
+                    <th style="width:180px">OPERATION</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="6" style="text-align:right">BALANCE DUE:</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+            $(".iframe-detail").hide();
+
+            var index;
+            var table;
+            var tableDetail;
+            var chargingType;
+            var quantity;
+            var customerCode;
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var customerId = getUrlParameter('customerId');
+            var reference = getUrlParameter('reference');
+            var invoiceType = getUrlParameter('invoiceType');
+
+            if (invoiceType == "MasterOrder")
+                $("#h2-reference").html("Master Order #: " + reference);
+            else if (invoiceType == "ShipOrder")
+                $("#h2-reference").html("Ship Order #: " + reference);
+
+            //获取收费项目草表
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json, charset=utf-8',
+                dataType: "json",
+                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
+                success: function (data) {
+                    if (tableDetail) {
+                        tableDetail.destroy();
+                    }
+                    tableDetail = $("#table-detail").DataTable({
+                        data: data,
+                        order: [[0, "desc"]],
+                        destroy: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    if (data == "Waiting for charging")
+                                        return "<font color='red'>" + data + "</font>";
+                                    else
+                                        return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "createDate",
+                                render: function (data) {
+                                    return "<text>" + data.toString().substring(0, 10) + "</text>";
+                                }
+                            },
+                            {
+                                data: "createBy",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "";
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            //获取收费项目细节
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json, charset=utf-8',
+                dataType: "json",
+                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType,
+                success: function (data) {
+                    if (table) {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
+                        data: data,
+                        order: [[0, "desc"]],
+                        destroy: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "activity",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "chargingType",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "unit",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "rate",
+                                render: function (data) {
+                                    return "<text>$" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "amount",
+                                render: function (data) {
+                                    return "<text>$" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "cost",
+                                render: function (data) {
+                                    return "<text>$" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "invoiceType",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "dateOfCost",
+                                render: function (data) {
+                                    return "<text>" + data.toString().substring(0, 10) + "</text>";
+                                }
+                            },
+                            {
+                                data: "memo",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    else
+                                        return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "";
+                                }
+                            }
+                        ],
+                        footerCallback: function (row, data, start, end, display) {
+
+                            var api = this.api(), data;
+
+                            var intVal = function (i) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '') * 1 :
+                                    typeof i === 'number' ?
+                                    i : 0;
+                            };
+
+                            var totalAmount = api
+                                .column(6)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            $(api.column(6).footer()).html("<font color='red'>$" + totalAmount + "</font>");
+                        }
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            //点击下载按钮，下载当前单的所有条目到Excel文件
+            $("#btn-download").on("click", function () {
+                $.ajax({
+                    type: "GET",
+                    url: "/api/fba/FBAReportDonwload/?reference=" + reference + "&invoicetype=" + invoiceType,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success! File will download automatically.");
+                        $(window.location).attr('href', "/api/fba/FBAReportDonwload/?fullPath=" + encodeURIComponent(data).toString() + "&prefix=InvoiceReport&suffix=" + encodeURIComponent(".xls"));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethodAndBack(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.history.back(-1);
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+
+        });
+    </script>
+}

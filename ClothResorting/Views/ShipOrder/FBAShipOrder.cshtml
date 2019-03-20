@@ -74,8 +74,8 @@
             var status;
             var shipOrder;
             var shipOrderId;
-            var invoiceStatus;
             var customerId = getUrlParameter('customerId');
+            var invoiceStatus;
 
             $(".iframe").hide();
             $(".iframe-ship").hide();
@@ -319,7 +319,11 @@
 
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
-                $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+
+                if ($(this).attr('invoicestatus') == "Closed")
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+                else
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
             })
 
             //点击BOL按钮，下载有内容的BOL

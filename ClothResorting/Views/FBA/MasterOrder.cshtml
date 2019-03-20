@@ -357,6 +357,15 @@
                 });
             };
 
+            //点击费用按钮，进入收费项目登记页面
+            $("#table").on("click", ".btn-fee", function () {
+
+                if ($(this).attr('invoicestatus') == "Closed")
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+                else
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+            })
+
             function SendAjaxMethod(methodType, url, obj) {
                 $.ajax({
                     type: methodType,

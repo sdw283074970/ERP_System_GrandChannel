@@ -9,6 +9,7 @@ using ClothResorting.Models;
 using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.StaticClass;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -66,6 +67,15 @@ namespace ClothResorting.Controllers.Api
             }
 
             return Ok(resultDto);
+        }
+
+        // PUT /api/FCRegularLocationDetail/?locationId={locationId}
+        [HttpPut]
+        public void BreakPrePack([FromUri]int locationId)
+        {
+            var breaker = new CartonBreaker();
+
+            breaker.BreakPrePack(locationId);
         }
 
         // DELETE /api/FCRegularLocationDetail/{id} 删除库存记录，将记录的箱数件数移回SKU待分配

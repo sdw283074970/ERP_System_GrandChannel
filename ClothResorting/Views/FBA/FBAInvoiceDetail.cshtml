@@ -12,6 +12,7 @@
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
+        <button style="margin-left:20px" class="btn btn-danger" id="btn-save">Save&Close</button>
     </div>
     @*<div>
         <text id="text-billto">BILL TO:</text><br />
@@ -789,6 +790,12 @@
                 SendAjaxMethod("DELETE", url, {});
             });
 
+            //点击保存并退出按钮，将此单关闭，不可再更改
+            $("#btn-save").on("click", function () {
+                url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
+                SendAjaxMethod("PUT", url, {});
+            });
+
             function SendAjaxMethod(methodType, url, obj) {
                 $.ajax({
                     type: methodType,
@@ -807,6 +814,34 @@
                     success: function (data) {
                         layer.alert("Success!", function () {
                             window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethodAndBack(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.history.back(-1);
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {

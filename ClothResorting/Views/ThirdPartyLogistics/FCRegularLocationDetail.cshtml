@@ -103,6 +103,8 @@
                 var orgPcs;
                 var isPutBack = false;
 
+                var sizeBundle = "";
+
                 var filter = {
                     container: "NULL",
                     batch: "NULL",
@@ -449,6 +451,14 @@
                     });
                 });
 
+                //点击Break按钮，将Pre-pack对象打散
+                $("#table").on("click", ".btn-break", function () {
+                    var locationId = $(this).attr('iid');
+                    var url = "/api/FCRegularLocationDetail/?locationId=" + locationId;
+
+                    SendAjaxMethod("PUT", url, {});
+                });
+
                 function GetInventoryTable(data, table) {
                     if (table) {
                         table.destroy();
@@ -527,6 +537,7 @@
                             {
                                 data: "sizeBundle",
                                 render: function (data) {
+                                    sizeBundle = data;
                                     return "<font>" + data + "</font>";
                                 }
                             },
@@ -647,12 +658,19 @@
                                 render: function (data) {
                                     //当库存剩余为0且没有在拣货，或有在拣货的情况下，隐藏移库按钮
                                     //if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0)
-                                    if (originalCtns == 0 || pickingPcs != 0 || isPutBack)
-                                        return "";
-                                    else if (isPutBack)
-                                        return "<button style='width:40px' locationid='" + data + "'class='btn btn-link btn-edit'>Edit</button><button style='width:30px' locationid='" + data + "'class='btn btn-link btn-delete'>X</button>";
+                                    if (sizeBundle.split(' ').length > 1 && availablePcs != 0)
+                                    {
+                                        return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button><button class='btn btn-link btn-break' iid='" + data + "'>Break</button>"
+                                    }
                                     else
-                                        return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                    {
+                                        if (originalCtns == 0 || pickingPcs != 0 || isPutBack)
+                                            return "";
+                                        else if (isPutBack)
+                                            return "<button style='width:40px' locationid='" + data + "'class='btn btn-link btn-edit'>Edit</button><button style='width:30px' locationid='" + data + "'class='btn btn-link btn-delete'>X</button>";
+                                        else
+                                            return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                    }
                                 }
                             }
                         ],
@@ -739,6 +757,34 @@
                             $("#pickingPcs").html("Picking Units: " + totalPickingPcs);
                             $("#shippedCtns").html("Shipped Cartons:" + totalShippedCtns);
                             $("#shippedPcs").html("Shipped Units:" + totalShippedPcs);
+                        }
+                    });
+                };
+
+                function SendAjaxMethod(methodType, url, obj) {
+                    $.ajax({
+                        type: methodType,
+                        url: url,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        beforeSend: function () {
+                            layer.close(index);
+                            index = layer.msg('Processing...', {
+                                icon: 3,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
+                        success: function (data) {
+                            layer.alert("Success!", function () {
+                                window.location.reload();
+                            })
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
                         }
                     });
                 };

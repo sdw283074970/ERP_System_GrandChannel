@@ -91,5 +91,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //只读Fee页面
+        public ActionResult FBAInvoiceDetailReadOnly()
+        {
+            return View();
+        }
     }
 }
