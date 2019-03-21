@@ -31,15 +31,19 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var customerList = _context.UpperVendors
-                .Include(x => x.ChargingItems)
-                .Where(x => x.DepartmentCode == "FBA" && x.ChargingItems.Count == 0);
+            var palletsInDb = _context.FBAPallets
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.Id > 0);
 
-            var generator = new ChargingItemGenerator();
-
-            foreach(var customer in customerList)
+            foreach(var p in palletsInDb)
             {
-                generator.GenerateChargingItems(_context, customer);
+                if (p.FBAMasterOrder == null)
+                {
+                    var masterInDb = _context.FBAMasterOrders
+                        .SingleOrDefault(x => x.Container == p.Container);
+
+                    p.FBAMasterOrder = masterInDb;
+                }
             }
 
             _context.SaveChanges();

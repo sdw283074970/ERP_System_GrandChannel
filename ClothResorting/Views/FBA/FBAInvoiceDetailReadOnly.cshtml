@@ -110,6 +110,23 @@
             else if (invoiceType == "ShipOrder")
                 $("#h2-reference").html("Ship Order #: " + reference);
 
+            //获取客户代码
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json, charset=utf-8',
+                dataType: "json",
+                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=false",
+                success: function (data) {
+                    customerCode = data;
+                    $("#h2-customer").html("Customer: " + customerCode);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
             //获取收费项目草表
             $.ajax({
                 type: "GET",

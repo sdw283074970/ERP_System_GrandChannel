@@ -18,7 +18,7 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Id</th>
+                    <th>Pick Id</th>
                     <th>Ship Order #</th>
                     <th>Order Type</th>
                     <th>Container</th>
@@ -119,7 +119,7 @@
                     }
                 },
                 {
-                    data: "pickQuantity",
+                    data: "quantity",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
@@ -144,7 +144,7 @@
                 var shipOrderId = $(this).attr('iid');
                 orderType = $(this).attr('ordertype');
 
-                $(window.location).attr('href', "/shiporder/fbapickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType);
+                $(window.location).attr('href', "/shiporder/ViewFBAPickDetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType);
             });
 
             //解析url中的参数函数

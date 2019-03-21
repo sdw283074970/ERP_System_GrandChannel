@@ -361,9 +361,9 @@
             $("#table").on("click", ".btn-fee", function () {
 
                 if ($(this).attr('invoicestatus') == "Closed")
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
                 else
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
             })
 
             function SendAjaxMethod(methodType, url, obj) {

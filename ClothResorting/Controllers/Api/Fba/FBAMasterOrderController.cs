@@ -30,6 +30,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var masterOrders = _context.FBAMasterOrders
                 .Include(x => x.InvoiceDetails)
                 .Include(x => x.FBAOrderDetails)
+                .Include(x => x.FBAPallets)
                 .ToList();
 
             foreach(var m in masterOrders)
@@ -39,6 +40,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
                 m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
                 m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
             }
 
             return Ok(Mapper.Map<IEnumerable<FBAMasterOrder>, IEnumerable<FBAMasterOrderDto>>(masterOrders));
@@ -52,6 +54,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.InvoiceDetails)
                 .Include(x => x.FBAOrderDetails)
                 .Include(x => x.Customer)
+                .Include(x => x.FBAPallets)
                 .Where(x => x.Customer.Id == id)
                 .ToList();
 
@@ -62,6 +65,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
                 m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
                 m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
             }
 
             return Ok(Mapper.Map<IEnumerable<FBAMasterOrder>, IEnumerable<FBAMasterOrderDto>>(masterOrders));

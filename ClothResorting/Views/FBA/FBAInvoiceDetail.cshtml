@@ -793,7 +793,7 @@
             //点击保存并退出按钮，将此单关闭，不可再更改
             $("#btn-save").on("click", function () {
                 url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
-                SendAjaxMethod("PUT", url, {});
+                SendAjaxMethodAndBack("PUT", url, {});
             });
 
             function SendAjaxMethod(methodType, url, obj) {
@@ -841,7 +841,7 @@
                     },
                     success: function (data) {
                         layer.alert("Success!", function () {
-                            window.history.back(-1);
+                            $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + reference + "&invoiceType=" + invoiceType + "&invoiceStatus=Closed");
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {

@@ -20,7 +20,7 @@ namespace ClothResorting.Models.FBAModels
 
         public int ComsumedPallets { get; set; }
 
-        //public FBAMasterOrder FBAMasterOrder { get; set; }
+        public FBAMasterOrder FBAMasterOrder { get; set; }
 
         public ICollection<FBACartonLocation> FBACartonLocations { get; set; }
 

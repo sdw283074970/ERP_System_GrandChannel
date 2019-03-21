@@ -52,6 +52,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
 
+        public ICollection<EFile> Efiles { get; set; }
+
         public FBAShipOrder()
         {
             CreateDate = DateTime.Now;

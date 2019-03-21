@@ -40,11 +40,15 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
-        public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; } 
+        public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
 
         public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
+
+        public ICollection<FBAPallet> FBAPallets { get; set; }
+
+        public ICollection<EFile> Efiles { get; set; }
 
         //public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
 

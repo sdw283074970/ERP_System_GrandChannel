@@ -95,7 +95,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 //建立FBAPallet对象
                 var pallet = new FBAPallet();
                 var firstId = objArray.First().Id;
-                var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
+                var firstOrderDetail = orderDetailsInDb
+                    .Include(x => x.FBAMasterOrder)
+                    .SingleOrDefault(x => x.Id == firstId);
 
                 pallet.AssembleFirstStringPart(DistinctStringList(cartonLocationList.Select(x => x.ShipmentId)), DistinctStringList(cartonLocationList.Select(x => x.AmzRefId)), DistinctStringList(cartonLocationList.Select(x => x.WarehouseCode)));
                 pallet.AssembleActualDetails(cartonLocationList.Sum(x => x.GrossWeightPerCtn * x.CtnsPerPlt * pltQuantity), cartonLocationList.Sum(x => x.CBMPerCtn * x.CtnsPerPlt * pltQuantity), cartonLocationList.Sum(x => x.CtnsPerPlt * pltQuantity));
@@ -105,6 +107,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 pallet.HowToDeliver = firstOrderDetail.HowToDeliver;
                 pallet.PalletSize = pltSize;
                 pallet.GrandNumber = grandNumber;
+                pallet.FBAMasterOrder = firstOrderDetail.FBAMasterOrder;
                 pallet.ActualPallets = pltQuantity;
 
                 _context.FBAPallets.Add(pallet);
@@ -163,7 +166,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 var pallet = new FBAPallet();
 
                 var firstId = objArray.First().Id;
-                var firstOrderDetail = orderDetailsInDb.SingleOrDefault(x => x.Id == firstId);
+                var firstOrderDetail = orderDetailsInDb
+                    .Include(x => x.FBAMasterOrder)
+                    .SingleOrDefault(x => x.Id == firstId);
 
                 pallet.AssembleFirstStringPart(DistinctStringList(cartonLocationList.Select(x => x.ShipmentId)), DistinctStringList(cartonLocationList.Select(x => x.AmzRefId)), DistinctStringList(cartonLocationList.Select(x => x.WarehouseCode)));
                 pallet.ActualQuantity = cartonLocationList.Sum(x => x.ActualQuantity);
@@ -172,6 +177,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 pallet.Container = firstOrderDetail.Container;
                 pallet.HowToDeliver = firstOrderDetail.HowToDeliver;
                 pallet.PalletSize = pltSize;
+                pallet.FBAMasterOrder = firstOrderDetail.FBAMasterOrder;
                 pallet.GrandNumber = grandNumber;
                 pallet.ActualPallets = pltQuantity;
 

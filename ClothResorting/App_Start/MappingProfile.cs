@@ -56,6 +56,9 @@ namespace ClothResorting.App_Start
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();
             Mapper.CreateMap<ChargeMethod, ChargeMethodDto>();
+
+            //General
+            Mapper.CreateMap<EFile, EFileDto>();
         }
     }
 }

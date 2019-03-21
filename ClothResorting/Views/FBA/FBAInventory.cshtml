@@ -323,10 +323,10 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (currentPicking == 0 && status != "InPallet" && currentAvailable != 0)
+                        if (currentPicking == 0 && currentAvailable != 0)
                             return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' locationtype='Carton' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
                         else
-                            return "";
+                            return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' locationtype='Carton' value='History' />";
                     }
                 }
             ]

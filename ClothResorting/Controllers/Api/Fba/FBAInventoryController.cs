@@ -151,7 +151,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         WarehouseCode = x.WarehouseCode,
                         GrossWeight = x.ActualGrossWeight,
                         CBM = x.ActualCBM,
-                        PickQuantity = x.ActualPlts,
+                        Quantity = x.ActualPlts,
                         Location = x.Location,
                         ShipOrderId = x.FBAShipOrder.Id
                     })
@@ -161,28 +161,71 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (locationType == FBALocationType.Carton)
             {
-                var pickDetailsList = _context.FBAPickDetails
-                    .Include(x => x.FBAShipOrder)
-                    .Include(x => x.FBAPalletLocation)
-                    .Where(x => x.FBACartonLocation.Id == locationId)
-                    .Select(x => new {
-                        Id = x.Id,
-                        ShipOrderNumber = x.FBAShipOrder.ShipOrderNumber,
-                        Container = x.Container,
-                        OrderType = x.OrderType,
-                        CustomerCode = x.FBAShipOrder.CustomerCode,
-                        ShipmentId = x.ShipmentId,
-                        AmzRefId = x.AmzRefId,
-                        WarehouseCode = x.WarehouseCode,
-                        GrossWeight = x.ActualGrossWeight,
-                        CBM = x.ActualCBM,
-                        PickQuantity = x.ActualQuantity,
-                        Location = x.Location,
-                        ShipOrderId = x.FBAShipOrder.Id
-                    })
-                    .ToList();
+                var cartonLocationInDb = _context.FBACartonLocations
+                    .SingleOrDefault(x => x.Id == locationId);
 
-                return Ok(pickDetailsList);
+                var historyList = new List<FBAOutboundHistory>();
+
+                if (cartonLocationInDb.Location == "Pallet")
+                {
+                    var pickDetailCartonsInDb = _context.FBAPickDetailCartons
+                        .Include(x => x.FBAPickDetail.FBAShipOrder)
+                        .Include(x => x.FBACartonLocation)
+                        .Where(x => x.FBACartonLocation.Id == locationId);
+
+                    foreach(var p in pickDetailCartonsInDb)
+                    {
+                        var history = new FBAOutboundHistory
+                        {
+                            Id = p.FBAPickDetail.Id,
+                            ShipOrderNumber = p.FBAPickDetail.FBAShipOrder.ShipOrderNumber,
+                            OrderType = p.FBAPickDetail.OrderType,
+                            Container = p.FBAPickDetail.Container,
+                            CustomerCode = p.FBAPickDetail.FBAShipOrder.CustomerCode,
+                            ShipmentId = p.FBACartonLocation.ShipmentId,
+                            AmzRefId = p.FBACartonLocation.AmzRefId,
+                            WarehouseCode = p.FBACartonLocation.WarehouseCode,
+                            GrossWeight = p.FBACartonLocation.GrossWeightPerCtn * p.PickCtns,
+                            CBM = p.FBACartonLocation.CBMPerCtn * p.PickCtns,
+                            Quantity = p.PickCtns,
+                            Location = p.FBACartonLocation.Location,
+                            ShipOrderId = p.FBAPickDetail.FBAShipOrder.Id
+                        };
+
+                        historyList.Add(history);
+                    }
+                }
+                else
+                {
+                    var pickDetailInDb = _context.FBAPickDetails
+                        .Include(x => x.FBAShipOrder)
+                        .Include(x => x.FBACartonLocation)
+                        .Where(x => x.FBACartonLocation.Id == locationId);
+
+                    foreach(var p in pickDetailInDb)
+                    {
+                        var history = new FBAOutboundHistory
+                        {
+                            Id = p.Id,
+                            ShipOrderNumber = p.FBAShipOrder.ShipOrderNumber,
+                            OrderType = p.OrderType,
+                            Container = p.Container,
+                            CustomerCode = p.FBAShipOrder.CustomerCode,
+                            ShipmentId = p.ShipmentId,
+                            AmzRefId = p.AmzRefId,
+                            WarehouseCode = p.WarehouseCode,
+                            GrossWeight = p.FBACartonLocation.GrossWeightPerCtn * p.ActualQuantity,
+                            CBM = p.FBACartonLocation.CBMPerCtn * p.ActualQuantity,
+                            Quantity = p.ActualQuantity,
+                            Location = p.FBACartonLocation.Location,
+                            ShipOrderId = p.FBAShipOrder.Id
+                        };
+
+                        historyList.Add(history);
+                    }
+                }
+
+                return Ok(historyList);
             }
 
             return Ok();
@@ -234,5 +277,34 @@ namespace ClothResorting.Controllers.Api.Fba
                .FBAPallet
                .FBACartonLocations);
         }
+    }
+
+    public class FBAOutboundHistory
+    {
+        public int Id { get; set; }
+
+        public string ShipOrderNumber { get; set; }
+
+        public string OrderType { get; set; }
+
+        public string Container { get; set; }
+
+        public string CustomerCode { get; set; }
+
+        public string ShipmentId { get; set; }
+
+        public string AmzRefId { get; set; }
+
+        public string WarehouseCode { get; set; }
+
+        public float GrossWeight { get; set; }
+
+        public float CBM { get; set; }
+
+        public int Quantity { get; set; }
+
+        public string Location { get; set; }
+
+        public int ShipOrderId { get; set; }
     }
 }

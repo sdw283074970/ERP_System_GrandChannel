@@ -1226,121 +1226,29 @@ namespace ClothResorting.Helpers
                     var cartons = (int)_ws.Cells[startIndex + 3 + j, 11].Value2;
 
                     //Solid pack中也可能出现多种Size混一箱，不能当作pre-pack订单处理
-                    if (countOfSKU > 1)    //Solid订单的情况
-                    {
-                        var sizeArr = sizeBD.Split(' ');
-                        var pcsArr = pcsBD.Split(' ');
-                        var firstValidIndex = FindFirstUnZeroIndex(pcsArr);        //找到第一个pcs数量不为0的size
+                    //if (countOfSKU > 1)    //Solid订单的情况
+                    //{
+                    var sizeArr = sizeBD.Split(' ');
+                    var pcsArr = pcsBD.Split(' ');
+                    var firstValidIndex = FindFirstUnZeroIndex(pcsArr);        //找到第一个pcs数量不为0的size
 
-                        for (int s = 0; s < sizeArr.Length; s++)
+                    for (int s = 0; s < sizeArr.Length; s++)
+                    {
+                        var size = sizeArr[s];
+                        var pcs = pcsArr[s];
+
+                        //如4 0 0 0 12的pcs bundle，中间的三个0情况不做记录，跳过
+                        if (int.Parse(pcs) == 0)
                         {
-                            var size = sizeArr[s];
-                            var pcs = pcsArr[s];
-
-                            //如4 0 0 0 12的pcs bundle，中间的三个0情况不做记录，跳过
-                            if (int.Parse(pcs) == 0)
-                            {
-                                continue;
-                            }
-
-                            var poSummaryInDb = poSummaryInDbs.FirstOrDefault();
-                            poSummaryInDb.OrderType = OrderType.SolidPack;
-
-                            //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
-                            if (poSummaryList.Count() == 1)
-                            {
-                                var regularCartonDetail = new RegularCartonDetail
-                                {
-                                    CartonRange = cartonRange,
-                                    PurchaseOrder = purchaseOrder,
-                                    Style = style,
-                                    Customer = customer,
-                                    Dimension = dimension,
-                                    GrossWeight = 0,
-                                    NetWeight = 0,
-                                    Color = color,
-                                    Cartons = s == firstValidIndex ? cartons : 0,
-                                    SizeBundle = size,
-                                    PcsBundle = pcs,
-                                    PcsPerCarton = int.Parse(pcs),
-                                    Quantity = int.Parse(pcs) * cartons,
-                                    ActualCtns = 0,
-                                    ActualPcs = 0,
-                                    InboundDate = null,
-                                    Status = Status.NewCreated,
-                                    ToBeAllocatedCtns = 0,
-                                    ToBeAllocatedPcs = 0,
-                                    POSummary = poSummaryInDb,
-                                    Comment = "",
-                                    OrderType = OrderType.SolidPack,
-                                    Operator = _userName,
-                                    Adjustor = "",
-                                    Receiver = "",
-                                    Batch = poSummaryInDb.Batch,
-                                    Vendor = Vendor.FreeCountry
-                                };
-
-                                regularCartonDetailList.Add(regularCartonDetail);
-                            }
-                            else if (poSummaryList.Count() > 1)
-                            {
-                                var regularCartonDetail = new RegularCartonDetail
-                                {
-                                    CartonRange = cartonRange,
-                                    PurchaseOrder = purchaseOrder,
-                                    Style = style,
-                                    Customer = customer,
-                                    Dimension = dimension,
-                                    GrossWeight = 0,
-                                    NetWeight = 0,
-                                    Color = color,
-                                    Cartons = s == firstValidIndex ? cartons : 0,
-                                    SizeBundle = size,
-                                    PcsBundle = pcs,
-                                    PcsPerCarton = int.Parse(pcs),
-                                    Quantity = int.Parse(pcs) * cartons,
-                                    ActualCtns = 0,
-                                    ActualPcs = 0,
-                                    InboundDate = null,
-                                    Status = Status.NewCreated,
-                                    ToBeAllocatedCtns = 0,
-                                    ToBeAllocatedPcs = 0,
-                                    Comment = "",
-                                    OrderType = OrderType.SolidPack,
-                                    Operator = _userName,
-                                    Adjustor = "",
-                                    Receiver = "",
-                                    Batch = poSummaryInDb.Batch,
-                                    Vendor = Vendor.FreeCountry
-                                };
-
-                                foreach (var poSummaryIndb in poSummaryInDbs)
-                                {
-                                    if (regularCartonDetailList
-                                        .SingleOrDefault(c => c.PurchaseOrder == regularCartonDetail.PurchaseOrder
-                                            && c.Style == regularCartonDetail.Style
-                                            && c.Customer == regularCartonDetail.Customer
-                                            && c.Color == regularCartonDetail.Color
-                                            && c.PcsBundle == regularCartonDetail.PcsBundle
-                                            && c.SizeBundle == regularCartonDetail.SizeBundle
-                                            && c.POSummary == poSummaryIndb) == null)
-                                    {
-                                        regularCartonDetail.POSummary = poSummaryIndb;
-                                        regularCartonDetailList.Add(regularCartonDetail);
-                                        break;
-                                    }
-                                }
-                            }
+                            continue;
                         }
-                    }
-                    else    //Pre-pack订单PO的情况
-                    {
+
+                        var poSummaryInDb = poSummaryInDbs.FirstOrDefault();
+                        poSummaryInDb.OrderType = OrderType.SolidPack;
+
                         //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
                         if (poSummaryList.Count() == 1)
                         {
-                            var poSummaryInDb = poSummaryInDbs.First();
-                            poSummaryInDb.OrderType = OrderType.Prepack;
-
                             var regularCartonDetail = new RegularCartonDetail
                             {
                                 CartonRange = cartonRange,
@@ -1351,11 +1259,11 @@ namespace ClothResorting.Helpers
                                 GrossWeight = 0,
                                 NetWeight = 0,
                                 Color = color,
-                                Cartons = cartons,
-                                SizeBundle = sizeBD,
-                                PcsBundle = pcsBD,
-                                PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
-                                Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
+                                Cartons = s == firstValidIndex ? cartons : 0,
+                                SizeBundle = size,
+                                PcsBundle = pcs,
+                                PcsPerCarton = int.Parse(pcs),
+                                Quantity = int.Parse(pcs) * cartons,
                                 ActualCtns = 0,
                                 ActualPcs = 0,
                                 InboundDate = null,
@@ -1364,7 +1272,7 @@ namespace ClothResorting.Helpers
                                 ToBeAllocatedPcs = 0,
                                 POSummary = poSummaryInDb,
                                 Comment = "",
-                                OrderType = OrderType.Prepack,
+                                OrderType = OrderType.SolidPack,
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = "",
@@ -1386,11 +1294,11 @@ namespace ClothResorting.Helpers
                                 GrossWeight = 0,
                                 NetWeight = 0,
                                 Color = color,
-                                Cartons = cartons,
-                                SizeBundle = sizeBD,
-                                PcsBundle = pcsBD,
-                                PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
-                                Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
+                                Cartons = s == firstValidIndex ? cartons : 0,
+                                SizeBundle = size,
+                                PcsBundle = pcs,
+                                PcsPerCarton = int.Parse(pcs),
+                                Quantity = int.Parse(pcs) * cartons,
                                 ActualCtns = 0,
                                 ActualPcs = 0,
                                 InboundDate = null,
@@ -1398,10 +1306,11 @@ namespace ClothResorting.Helpers
                                 ToBeAllocatedCtns = 0,
                                 ToBeAllocatedPcs = 0,
                                 Comment = "",
-                                OrderType = OrderType.Prepack,
+                                OrderType = OrderType.SolidPack,
                                 Operator = _userName,
                                 Adjustor = "",
                                 Receiver = "",
+                                Batch = poSummaryInDb.Batch,
                                 Vendor = Vendor.FreeCountry
                             };
 
@@ -1417,14 +1326,106 @@ namespace ClothResorting.Helpers
                                         && c.POSummary == poSummaryIndb) == null)
                                 {
                                     regularCartonDetail.POSummary = poSummaryIndb;
-                                    regularCartonDetail.Batch = poSummaryIndb.Batch;
                                     regularCartonDetailList.Add(regularCartonDetail);
-                                    poSummaryIndb.OrderType = OrderType.Prepack;
                                     break;
                                 }
                             }
                         }
                     }
+                    //}
+                    //现在所有订单类型包括solid pack类型也都视为solid pack
+                    //else    //Pre-pack订单PO的情况
+                    //{
+                    //    //判断是否有相同的poSummary,相同的poSummary就意味着有相同的CartionDetail,必须一对一连接他们之间的关系
+                    //    if (poSummaryList.Count() == 1)
+                    //    {
+                    //        var poSummaryInDb = poSummaryInDbs.First();
+                    //        poSummaryInDb.OrderType = OrderType.Prepack;
+
+                    //        var regularCartonDetail = new RegularCartonDetail
+                    //        {
+                    //            CartonRange = cartonRange,
+                    //            PurchaseOrder = purchaseOrder,
+                    //            Style = style,
+                    //            Customer = customer,
+                    //            Dimension = dimension,
+                    //            GrossWeight = 0,
+                    //            NetWeight = 0,
+                    //            Color = color,
+                    //            Cartons = cartons,
+                    //            SizeBundle = sizeBD,
+                    //            PcsBundle = pcsBD,
+                    //            PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
+                    //            Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
+                    //            ActualCtns = 0,
+                    //            ActualPcs = 0,
+                    //            InboundDate = null,
+                    //            Status = Status.NewCreated,
+                    //            ToBeAllocatedCtns = 0,
+                    //            ToBeAllocatedPcs = 0,
+                    //            POSummary = poSummaryInDb,
+                    //            Comment = "",
+                    //            OrderType = OrderType.Prepack,
+                    //            Operator = _userName,
+                    //            Adjustor = "",
+                    //            Receiver = "",
+                    //            Batch = poSummaryInDb.Batch,
+                    //            Vendor = Vendor.FreeCountry
+                    //        };
+
+                    //        regularCartonDetailList.Add(regularCartonDetail);
+                    //    }
+                    //    else if (poSummaryList.Count() > 1)
+                    //    {
+                    //        var regularCartonDetail = new RegularCartonDetail
+                    //        {
+                    //            CartonRange = cartonRange,
+                    //            PurchaseOrder = purchaseOrder,
+                    //            Style = style,
+                    //            Customer = customer,
+                    //            Dimension = dimension,
+                    //            GrossWeight = 0,
+                    //            NetWeight = 0,
+                    //            Color = color,
+                    //            Cartons = cartons,
+                    //            SizeBundle = sizeBD,
+                    //            PcsBundle = pcsBD,
+                    //            PcsPerCarton = (int)_ws.Cells[startIndex + 3 + j, countOfColumn - 1].Value2,
+                    //            Quantity = (int)_ws.Cells[startIndex + 3 + j, countOfColumn].Value2,
+                    //            ActualCtns = 0,
+                    //            ActualPcs = 0,
+                    //            InboundDate = null,
+                    //            Status = Status.NewCreated,
+                    //            ToBeAllocatedCtns = 0,
+                    //            ToBeAllocatedPcs = 0,
+                    //            Comment = "",
+                    //            OrderType = OrderType.Prepack,
+                    //            Operator = _userName,
+                    //            Adjustor = "",
+                    //            Receiver = "",
+                    //            Vendor = Vendor.FreeCountry
+                    //        };
+
+                    //        foreach (var poSummaryIndb in poSummaryInDbs)
+                    //        {
+                    //            if (regularCartonDetailList
+                    //                .SingleOrDefault(c => c.PurchaseOrder == regularCartonDetail.PurchaseOrder
+                    //                    && c.Style == regularCartonDetail.Style
+                    //                    && c.Customer == regularCartonDetail.Customer
+                    //                    && c.Color == regularCartonDetail.Color
+                    //                    && c.PcsBundle == regularCartonDetail.PcsBundle
+                    //                    && c.SizeBundle == regularCartonDetail.SizeBundle
+                    //                    && c.POSummary == poSummaryIndb) == null)
+                    //            {
+                    //                regularCartonDetail.POSummary = poSummaryIndb;
+                    //                regularCartonDetail.Batch = poSummaryIndb.Batch;
+                    //                regularCartonDetailList.Add(regularCartonDetail);
+                    //                poSummaryIndb.OrderType = OrderType.Prepack;
+                    //                break;
+                    //            }
+                    //        }
+                    //    }
+                    //}
                 }
 
                 //扫描该PoSummary对象与下一个对象之间的间隔行数

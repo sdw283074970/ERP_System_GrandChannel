@@ -425,6 +425,7 @@
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
+    <Compile Include="Controllers\EFolderController.cs" />
     <Compile Include="Controllers\FBAController.cs" />
     <Compile Include="Controllers\Api\GeneralLocManagementController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -435,6 +436,7 @@
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
     <Compile Include="Dtos\ChargingItemDto.cs" />
     <Compile Include="Dtos\ContainerDto.cs" />
+    <Compile Include="Dtos\EFileDto.cs" />
     <Compile Include="Dtos\Fba\ChargeMethodDto.cs" />
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
     <Compile Include="Dtos\Fba\ChargingItemDetailDto.cs" />
@@ -1486,6 +1488,18 @@
     <Compile Include="Migrations\201903182300215_AddedCostInInvoiceDetail1.Designer.cs">
       <DependentUpon>201903182300215_AddedCostInInvoiceDetail1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201903202110038_CoonnectedFBAMasterOrdersAndFBAPaleets.cs" />
+    <Compile Include="Migrations\201903202110038_CoonnectedFBAMasterOrdersAndFBAPaleets.Designer.cs">
+      <DependentUpon>201903202110038_CoonnectedFBAMasterOrdersAndFBAPaleets.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903202344289_AddedEFilesDbSet.cs" />
+    <Compile Include="Migrations\201903202344289_AddedEFilesDbSet.Designer.cs">
+      <DependentUpon>201903202344289_AddedEFilesDbSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903210006012_AddedUploadDateAndUploadByInEFile.cs" />
+    <Compile Include="Migrations\201903210006012_AddedUploadDateAndUploadByInEFile.Designer.cs">
+      <DependentUpon>201903210006012_AddedUploadDateAndUploadByInEFile.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1543,6 +1557,7 @@
     <Compile Include="Models\DataTransferModels\PSIModel.cs" />
     <Compile Include="Models\DataTransferModels\PullSheetSummary.cs" />
     <Compile Include="Models\DataTransferModels\RelocationHistoryRecord.cs" />
+    <Compile Include="Models\EFile.cs" />
     <Compile Include="Models\Factory\FBAModelFactory.cs" />
     <Compile Include="Models\FBAModels\BaseClass\BaseFBAMasterOrder.cs" />
     <Compile Include="Models\FBAModels\BaseClass\BaseFBAOrderDetail.cs" />
@@ -1890,6 +1905,7 @@
     <Content Include="Scripts\DataTables\responsive.jqueryui.min.js" />
     <Content Include="Scripts\DataTables\responsive.semanticui.js" />
     <Content Include="Scripts\DataTables\responsive.semanticui.min.js" />
+    <Content Include="Scripts\dropzone.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />
@@ -2039,9 +2055,11 @@
     <Content Include="Views\ThirdPartyLogistics\ShipDetailHistory.cshtml" />
     <Content Include="Views\ShipOrder\ViewFBAPickDetail.cshtml" />
     <Content Include="Views\FBA\FBAInvoiceDetailReadOnly.cshtml" />
+    <Content Include="Views\EFolder\FBAEFolder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Scripts\dist\" />
     <Folder Include="UploadedFiles\" />
   </ItemGroup>
   <ItemGroup>
@@ -2794,6 +2812,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903182300215_AddedCostInInvoiceDetail1.resx">
       <DependentUpon>201903182300215_AddedCostInInvoiceDetail1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903202110038_CoonnectedFBAMasterOrdersAndFBAPaleets.resx">
+      <DependentUpon>201903202110038_CoonnectedFBAMasterOrdersAndFBAPaleets.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903202344289_AddedEFilesDbSet.resx">
+      <DependentUpon>201903202344289_AddedEFilesDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903210006012_AddedUploadDateAndUploadByInEFile.resx">
+      <DependentUpon>201903210006012_AddedUploadDateAndUploadByInEFile.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
