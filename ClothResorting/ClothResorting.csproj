@@ -363,6 +363,7 @@
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAAddressManagementController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAAllocatingController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBAEFolderController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAIndexController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAInventoryController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAInventoryIndexController.cs" />
@@ -1499,6 +1500,10 @@
     <Compile Include="Migrations\201903210006012_AddedUploadDateAndUploadByInEFile.cs" />
     <Compile Include="Migrations\201903210006012_AddedUploadDateAndUploadByInEFile.Designer.cs">
       <DependentUpon>201903210006012_AddedUploadDateAndUploadByInEFile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903220127176_AddedThreeStatusInInvoiceDetail.cs" />
+    <Compile Include="Migrations\201903220127176_AddedThreeStatusInInvoiceDetail.Designer.cs">
+      <DependentUpon>201903220127176_AddedThreeStatusInInvoiceDetail.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -2821,6 +2826,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903210006012_AddedUploadDateAndUploadByInEFile.resx">
       <DependentUpon>201903210006012_AddedUploadDateAndUploadByInEFile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903220127176_AddedThreeStatusInInvoiceDetail.resx">
+      <DependentUpon>201903220127176_AddedThreeStatusInInvoiceDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

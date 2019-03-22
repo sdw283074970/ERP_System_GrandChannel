@@ -17,5 +17,9 @@ namespace ClothResorting.Models.StaticClass
         public const string Standard = "Standard";
 
         public const string ECommerce = "ECommerce";
+
+        public const string MasterOrder = "MasterOrder";
+
+        public const string ShipOrder = "ShipOrder";
     }
 }

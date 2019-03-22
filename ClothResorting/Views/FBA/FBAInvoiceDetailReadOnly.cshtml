@@ -280,6 +280,33 @@
                                 }
                             },
                             {
+                                data: "costConfirm",
+                                render: function (data) {
+                                    if (data == true)
+                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Confirmed</button>";
+                                    else
+                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unconfirmed</button>"
+                                }
+                            },
+                            {
+                                data: "paymentStatus",
+                                render: function (data) {
+                                    if (data == true)
+                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Paid</button>";
+                                    else
+                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unpaid</button>"
+                                }
+                            },
+                            {
+                                data: "collectionStatus",
+                                render: function (data) {
+                                    if (data == true)
+                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Collected</button>";
+                                    else
+                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Uncollected</button>"
+                                }
+                            },
+                            {
                                 data: "operator",
                                 render: function (data) {
                                     if (data == null)
@@ -408,6 +435,7 @@
             };
 
             $(".btn-back").on("click", function () {
+                window.history.back(-1);
                 window.history.back(-1);
             });
 

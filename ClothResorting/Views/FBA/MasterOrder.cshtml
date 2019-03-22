@@ -35,6 +35,7 @@
                     <th>Invoice Status</th>
                     <th>Total Amount</th>
                     <th>Confirmed By</th>
+                    <th>eFolder</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -213,6 +214,20 @@
                 SendAjaxMethod("DELETE", url, {});
             });
 
+            //点击文件按钮，打开订单相关文件管理页面
+            $("#table").on("click", ".btn-file", function () {
+                $(window.location).attr('href', "/EFolder/FBAEfolder/?referene=" + $(this).attr('reference') + "&orderType=MasterOrder");
+            });
+
+            //点击费用按钮，进入收费项目登记页面
+            $("#table").on("click", ".btn-fee", function () {
+
+                if ($(this).attr('invoicestatus') == "Closed")
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+                else
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+            });
+
             function GetAjaxTable(methodType, url) {
                 $.ajax({
                     type: methodType,
@@ -341,6 +356,12 @@
                                     }
                                 },
                                 {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
+                                    }
+                                },
+                                {
                                     data: "grandNumber",
                                     render: function (data) {
                                         return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
@@ -356,15 +377,6 @@
                     }
                 });
             };
-
-            //点击费用按钮，进入收费项目登记页面
-            $("#table").on("click", ".btn-fee", function () {
-
-                if ($(this).attr('invoicestatus') == "Closed")
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
-                else
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
-            })
 
             function SendAjaxMethod(methodType, url, obj) {
                 $.ajax({

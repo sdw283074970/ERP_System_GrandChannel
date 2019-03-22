@@ -49,7 +49,7 @@
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
                 <tr>
-                    <th style="width:66px">Id</th>
+                    <th style="width:45px">Id</th>
                     <th>ACTIVITY</th>
                     <th>CHARGING TYPE</th>
                     <th>UOM</th>
@@ -60,14 +60,20 @@
                     <th>InvoiceType</th>
                     <th>Date of Cost</th>
                     <th>MEMO</th>
+                    <th>COST CONFIRM</th>
+                    <th>PAYMENT</th>
+                    <th>COLLECTION</th>
                     <th>LAST OPERATOR</th>
-                    <th style="width:180px">OPERATION</th>
+                    <th style="width:150px">OPERATION</th>
                 </tr>
             </thead>
             <tbody></tbody>
             <tfoot>
                 <tr>
                     <th colspan="6" style="text-align:right">BALANCE DUE:</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -97,7 +103,7 @@
             </select>
         </div>
         <div id="div-name" style="margin-top:20px">
-            <text>Charging item name: </text><select id='select-name' style='width:170px;height:30px' required='required'>
+            <text>Charging item name: </text><select id="select-name" style='width:170px;height:30px' required='required'>
                 <option>Select a charging type</option>
             </select>
         </div>
@@ -114,7 +120,8 @@
         <div id="div-amount" style="margin-top:20px">
             <text>Amount: <font id="text-amount" color="red"></font></text><br />
         </div>
-        <button style="margin-top:20px" id="btn-charge" class='btn btn-primary'>Charge</button>
+            <button style="margin-top:20px" id="btn-charge" class='btn btn-primary'>Charge</button>
+            <button style="margin-top:20px" id="btn-update" class='btn btn-primary'>Update</button>
     </div>
 </div>
 <div class="iframe-detail">
@@ -137,6 +144,7 @@
             var chargingType;
             var quantity;
             var customerCode;
+            var invoiceDetailId;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -333,6 +341,33 @@
                                 }
                             },
                             {
+                                data: "costConfirm",
+                                render: function (data) {
+                                    if (data == true)
+                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Confirmed</button>";
+                                    else
+                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unconfirmed</button>"
+                                }
+                            },
+                            {
+                                data: "paymentStatus",
+                                render: function (data) {
+                                    if (data == true)
+                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Paid</button>";
+                                    else
+                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unpaid</button>"
+                                }
+                            },
+                            {
+                                data: "collectionStatus",
+                                render: function (data) {
+                                    if (data == true)
+                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Collected</button>";
+                                    else
+                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Uncollected</button>"
+                                }
+                            },
+                            {
                                 data: "operator",
                                 render: function (data) {
                                     if (data == null)
@@ -344,7 +379,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                    return "<button class='btn btn-link btn-edit' iid='" + data + "'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
                                 }
                             }
                         ],
@@ -379,6 +414,10 @@
 
             //添加收费项目，打开新建弹窗
             $("#btn-create").click(function () {
+
+                $("#btn-charge").show();
+                $("#btn-update").hide();
+
                 index = layer.open({
                     title: false,
                     type: 1,
@@ -634,6 +673,33 @@
                                                     }
                                                 },
                                                 {
+                                                    data: "costConfirm",
+                                                    render: function (data) {
+                                                        if (data == true)
+                                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Confirmed</button>";
+                                                        else
+                                                            return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unconfirmed</button>"
+                                                    }
+                                                },
+                                                {
+                                                    data: "paymentStatus",
+                                                    render: function (data) {
+                                                        if (data == true)
+                                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Paid</button>";
+                                                        else
+                                                            return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unpaid</button>"
+                                                    }
+                                                },
+                                                {
+                                                    data: "collectionStatus",
+                                                    render: function (data) {
+                                                        if (data == true)
+                                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Collected</button>";
+                                                        else
+                                                            return "<button class='btn btn-default btn-status' style='background-color:indianred'>Uncollected</button>"
+                                                    }
+                                                },
+                                                {
                                                     data: "operator",
                                                     render: function (data) {
                                                         if (data == null)
@@ -794,6 +860,119 @@
             $("#btn-save").on("click", function () {
                 url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
                 SendAjaxMethodAndBack("PUT", url, {});
+            });
+
+            //点击编辑按钮，编辑收费项目
+            $("#table").on("click", ".btn-edit", function () {
+
+                $("#btn-update").show();
+                $("#btn-charge").hide();
+
+                invoiceDetailId = $(this).attr('iid');
+
+                url = "/api/fbainvoicedetail/?invoiceDetailId=" + invoiceDetailId;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index2 = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index2);
+
+                        $("#select-type").val(data.chargingType);
+                        $("#input-date").val(data.dateOfCost.toString().substring(0, 10));
+                        $("#input-cost").val(data.cost);
+                        $("#text-unit").html(data.unit);
+                        $("#input-rate").val(data.rate);
+                        $("#text-amount").html(data.amount);
+                        $("#input-quantity").val(data.quantity);
+                        $("#input-memo").val(data.memo);
+
+                        //重新获取收费项目名称列表
+                        $.ajax({
+                            type: "GET",
+                            url: "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&chargingType=" + data.chargingType,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function (data2) {
+
+                                $("#select-name").find("option:selected").text("");
+                                $("#select-name").empty();
+                                $("#select-name").append("<option value='empty'>Select a charging item</option>");
+
+                                for (var i = 0; i < data2.length; i++) {
+                                    $("#select-name").append("<option value='" + data2[i] + "'>" + data2[i] + "</option>");
+                                }
+
+                                $("#select-name").val(data.activity);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
+                            }
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["550px", "650px"],
+                    content: $(".iframe")
+                });
+            });
+
+            //点击Update按钮，更新收费项目
+            $("#btn-update").on("click", function () {
+
+                url = "/api/fbainvoicedetail/?invoiceDetailId=" + invoiceDetailId;
+
+                var chargingType = $("#select-type option:selected").val();
+                var activity = $("#select-name option:selected").val();
+                var dateOfCost = $("#input-date").val();
+                var cost = $("#input-cost").val();
+
+                if (dateOfCost == "")
+                {
+                    alert("Date cannot be empty.");
+                }
+                else if (chargingType != "empty" && activity != "empty") {
+                    var unit = $("#text-unit").html();
+                    var rate = $("#input-rate").val();
+                    var amount = $("#text-amount").html();
+                    var quantity = $("#input-quantity").val();
+                    var memo = $("#input-memo").val();
+
+                    var obj = {
+                        "activity": activity,
+                        "chargingType": chargingType,
+                        "dateOfCost": dateOfCost,
+                        "unit": unit,
+                        "rate": rate,
+                        "amount": amount,
+                        "quantity": quantity,
+                        "memo": memo,
+                        "cost": cost
+                    };
+                }
+
+                SendAjaxMethod("PUT", url, obj);
             });
 
             function SendAjaxMethod(methodType, url, obj) {

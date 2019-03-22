@@ -266,7 +266,14 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
             }
 
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Cannot relocate this one becasuse some of cartons haven been shipped.");
+            }
         }
 
         private IEnumerable<FBACartonLocationDto> GetCartonLocationDto(int palletLocationId)

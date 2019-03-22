@@ -32,6 +32,7 @@
                     <th>Invoice Status</th>
                     <th>Total Amount</th>
                     <th>Confirmed By</th>
+                    <th>eFolder</th>
                     <th style="width:250px">Operation</th>
                 </tr>
             </thead>
@@ -237,6 +238,12 @@
                 //    }
                 //},
                 {
+                    data: "shipOrderNumber",
+                    render: function (data) {
+                        return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
+                    }
+                },
+                {
                     data: "id",
                     render: function (data) {
                         if (status == "Shipped")
@@ -381,6 +388,12 @@
                 url = "/api/fba/fbashiporder/?shipOrderId=" + id; 
                 SendAjaxMethod("DELETE", url, {});
             });
+
+            //点击文件按钮，打开订单相关文件管理页面
+            $("#table").on("click", ".btn-file", function () {
+                $(window.location).attr('href', "/EFolder/FBAEfolder/?referene=" + $(this).attr('reference') + "&orderType=ShipOrder");
+            });
+
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
                 $.ajax({

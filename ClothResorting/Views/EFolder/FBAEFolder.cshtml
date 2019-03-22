@@ -37,19 +37,47 @@
         $(document).ready(function () {
 
             var index;
-            var status;
             var table;
-            var tablePallet;
-            var tableCarton;
-            var tablePickPallet
             var url;
-            var currentType;
-            var ctnsInPltTable;
-            var shipOrderId = getUrlParameter('shipOrderId');
-            var container;
-            var palletLocationId;
 
-            $("#file").pekeUpload();
+            var reference = getUrlParameter('reference');
+            var orderType = getUrlParameter('orderType');
+
+            url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType;
+            var columsArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "fileName",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "uploadDate",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "uploadBy",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button class='btn btn-link btn-download' iid='" + id + "'>Download</button><button class='btn btn-link btn-delete' iid='" + id + "'>Delete</button>"
+                    }
+                }
+            ];
+
+            GetAjaxTable("GET", url, "#table", table, columsArray);
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {

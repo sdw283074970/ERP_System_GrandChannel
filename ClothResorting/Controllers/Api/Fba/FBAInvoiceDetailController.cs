@@ -217,6 +217,28 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(annoyObj);
         }
 
+        // GET /api/fba/FBAInvoiceDetail/?invoiceDetailId={invoiceDetailId}
+        [HttpGet]
+        public IHttpActionResult GetInvoiceDetail([FromUri]int invoiceDetailId)
+        {
+            var invoiceDetailIdInDb = _context.InvoiceDetails.Find(invoiceDetailId);
+
+            var invoiceDetailDto = new InvoiceDetailDto
+            {
+                DateOfCost = invoiceDetailIdInDb.DateOfCost,
+                Activity = invoiceDetailIdInDb.Activity,
+                ChargingType = invoiceDetailIdInDb.ChargingType,
+                Cost = invoiceDetailIdInDb.Cost,
+                Rate = invoiceDetailIdInDb.Rate,
+                Quantity = invoiceDetailIdInDb.Quantity,
+                Memo = invoiceDetailIdInDb.Memo,
+                Amount = invoiceDetailIdInDb.Amount,
+                Unit = invoiceDetailIdInDb.Unit
+            };
+
+            return Ok(invoiceDetailDto);
+        }
+
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}
         [HttpPost]
         public IHttpActionResult GreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
@@ -300,6 +322,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     Memo = obj.Memo,
                     Unit = obj.Unit,
                     Rate = obj.Rate,
+                    Cost = obj.Cost,
                     Quantity = obj.Quantity,
                     InvoiceType = invoiceType,
                     Amount = obj.Amount,
@@ -330,6 +353,26 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 detailInDb.Status = "Waiting for charging";
             }
+
+            _context.SaveChanges();
+        }
+
+        //PUT /api/fba/fbainvoicedetail/?invoiceDetailId={invoiceDetailId}
+        [HttpPut]
+        public void UpdateInvoiceDetail([FromUri]int invoiceDetailId, [FromBody]InvoiceDetailJsonObj obj)
+        {
+            var invoiceDetailInDb = _context.InvoiceDetails.Find(invoiceDetailId);
+
+            invoiceDetailInDb.Activity = obj.Activity;
+            invoiceDetailInDb.Amount = obj.Amount;
+            invoiceDetailInDb.ChargingType = obj.ChargingType;
+            invoiceDetailInDb.Cost = obj.Cost;
+            invoiceDetailInDb.DateOfCost = obj.DateOfCost;
+            invoiceDetailInDb.Memo = obj.Memo;
+            invoiceDetailInDb.Operator = _userName;
+            invoiceDetailInDb.Quantity = obj.Quantity;
+            invoiceDetailInDb.Rate = obj.Rate;
+            invoiceDetailInDb.Unit = obj.Unit;
 
             _context.SaveChanges();
         }

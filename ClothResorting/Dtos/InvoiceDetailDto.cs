@@ -27,6 +27,12 @@ namespace ClothResorting.Dtos
 
         public double Amount { get; set; }
 
+        public bool CostConfirm { get; set; }
+
+        public bool CollectionStatus { get; set; }
+
+        public bool PaymentStatus { get; set; }
+
         public DateTime DateOfCost { get; set; }
 
         public string Memo { get; set; }
