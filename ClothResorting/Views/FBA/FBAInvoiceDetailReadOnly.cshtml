@@ -13,6 +13,34 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
+    <div id="div-summary" style="margin-top:20px;border:double">
+        <h2>Pick Summary</h2>
+        <table id="table-summary" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Status</th>
+                    <th>Grand #</th>
+                    <th>Container #</th>
+                    <th>Type</th>
+                    <th style="width:206px">FBA shmt ID./SKU</th>
+                    <th style="width:64px">Amz Ref ID.</th>
+                    <th>Size</th>
+                    <th>Delivery</th>
+                    <th>Warehouse Code</th>
+                    <th>Gross Weight</th>
+                    <th>CBM</th>
+                    <th>Ctns/Plt</th>
+                    <th>Ttl Pick Ctns</th>
+                    <th>Inventory Plts</th>
+                    <th>New Plts</th>
+                    <th>Ttl Pick Plts</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
     <div style="margin-top:20px;border:double">
         <h2>Charging Item Board</h2>
         <div>
@@ -51,6 +79,9 @@
                     <th>InvoiceType</th>
                     <th>Date of Cost</th>
                     <th>MEMO</th>
+                    <th>COST CONFIRM</th>
+                    <th>PAYMENT</th>
+                    <th>COLLECTION</th>
                     <th>LAST OPERATOR</th>
                     <th style="width:180px">OPERATION</th>
                 </tr>
@@ -59,6 +90,9 @@
             <tfoot>
                 <tr>
                     <th colspan="6" style="text-align:right">BALANCE DUE:</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -84,6 +118,7 @@
             var chargingType;
             var quantity;
             var customerCode;
+            var url;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -104,6 +139,11 @@
             var customerId = getUrlParameter('customerId');
             var reference = getUrlParameter('reference');
             var invoiceType = getUrlParameter('invoiceType');
+            var shipOrderId = getUrlParameter('shipOrderId');
+
+            if (shipOrderId == "undefined" || shipOrderId == undefined) {
+                $("#div-summary").hide();
+            }
 
             if (invoiceType == "MasterOrder")
                 $("#h2-reference").html("Master Order #: " + reference);
@@ -195,161 +235,14 @@
             });
 
             //获取收费项目细节
-            $.ajax({
-                type: "GET",
-                contentType: 'application/json, charset=utf-8',
-                dataType: "json",
-                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType,
-                success: function (data) {
-                    if (table) {
-                        table.destroy();
-                    }
+            url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
+            GetAjaxTable(url);
 
-                    table = $("#table").DataTable({
-                        data: data,
-                        order: [[0, "desc"]],
-                        destroy: true,
-                        scrollCollapse: true,
-                        scrollY: "600px",
-                        iDisplayLength: 100,
-                        columns: [
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "activity",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "chargingType",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "unit",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "quantity",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "rate",
-                                render: function (data) {
-                                    return "<text>$" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "amount",
-                                render: function (data) {
-                                    return "<text>$" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "cost",
-                                render: function (data) {
-                                    return "<text>$" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "invoiceType",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "dateOfCost",
-                                render: function (data) {
-                                    return "<text>" + data.toString().substring(0, 10) + "</text>";
-                                }
-                            },
-                            {
-                                data: "memo",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "costConfirm",
-                                render: function (data) {
-                                    if (data == true)
-                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Confirmed</button>";
-                                    else
-                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unconfirmed</button>"
-                                }
-                            },
-                            {
-                                data: "paymentStatus",
-                                render: function (data) {
-                                    if (data == true)
-                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Paid</button>";
-                                    else
-                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Unpaid</button>"
-                                }
-                            },
-                            {
-                                data: "collectionStatus",
-                                render: function (data) {
-                                    if (data == true)
-                                        return "<button class='btn btn-default btn-status' style='background-color:darkseagreen'>Collected</button>";
-                                    else
-                                        return "<button class='btn btn-default btn-status' style='background-color:indianred'>Uncollected</button>"
-                                }
-                            },
-                            {
-                                data: "operator",
-                                render: function (data) {
-                                    if (data == null)
-                                        return "";
-                                    else
-                                        return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    return "";
-                                }
-                            }
-                        ],
-                        footerCallback: function (row, data, start, end, display) {
-
-                            var api = this.api(), data;
-
-                            var intVal = function (i) {
-                                return typeof i === 'string' ?
-                                    i.replace(/[\$,]/g, '') * 1 :
-                                    typeof i === 'number' ?
-                                    i : 0;
-                            };
-
-                            var totalAmount = api
-                                .column(6)
-                                .data()
-                                .reduce(function (a, b) {
-                                    return intVal(a) + intVal(b);
-                                }, 0);
-
-                            $(api.column(6).footer()).html("<font color='red'>$" + totalAmount + "</font>");
-                        }
-                    });
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                        window.location.reload();
-                    });
-                }
-            });
+            if (shipOrderId != "undefined" && shipOrderId != undefined) {
+                alert(shipOrderId);
+                //获取pickdetailsummary
+                GetPickDetailTable(shipOrderId, table);
+            }
 
             //点击下载按钮，下载当前单的所有条目到Excel文件
             $("#btn-download").on("click", function () {
@@ -424,6 +317,320 @@
                     success: function (data) {
                         layer.alert("Success!", function () {
                             window.history.back(-1);
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function GetAjaxTable(url) {
+                $.ajax({
+                    type: "GET",
+                    contentType: 'application/json, charset=utf-8',
+                    dataType: "json",
+                    url: url,
+                    success: function (data) {
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            data: data,
+                            order: [[0, "desc"]],
+                            destroy: true,
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "activity",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "chargingType",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "unit",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "quantity",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "rate",
+                                    render: function (data) {
+                                        return "<text>$" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "amount",
+                                    render: function (data) {
+                                        return "<text>$" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "cost",
+                                    render: function (data) {
+                                        return "<text>$" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "invoiceType",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "dateOfCost",
+                                    render: function (data) {
+                                        return "<text>" + data.toString().substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "memo",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "costConfirm",
+                                    render: function (data) {
+                                        if (data == true)
+                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Confirmed</button>";
+                                        else
+                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unconfirmed</button>"
+                                    }
+                                },
+                                {
+                                    data: "paymentStatus",
+                                    render: function (data) {
+                                        if (data == true)
+                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Paid</button>";
+                                        else
+                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unpaid</button>"
+                                    }
+                                },
+                                {
+                                    data: "collectionStatus",
+                                    render: function (data) {
+                                        if (data == true)
+                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Collected</button>";
+                                        else
+                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Uncollected</button>"
+                                    }
+                                },
+                                {
+                                    data: "operator",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        else
+                                            return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "";
+                                    }
+                                }
+                            ],
+                            footerCallback: function (row, data, start, end, display) {
+
+                                var api = this.api(), data;
+
+                                var intVal = function (i) {
+                                    return typeof i === 'string' ?
+                                        i.replace(/[\$,]/g, '') * 1 :
+                                        typeof i === 'number' ?
+                                        i : 0;
+                                };
+
+                                var totalAmount = api
+                                    .column(6)
+                                    .data()
+                                    .reduce(function (a, b) {
+                                        return intVal(a) + intVal(b);
+                                    }, 0);
+
+                                $(api.column(6).footer()).html("<font color='red'>$" + totalAmount + "</font>");
+                            }
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function GetPickDetailTable(shipOrderId, table) {
+                url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId;
+                var columnArray = [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "grandNumber",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "container",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "orderType",
+                        render: function (data) {
+                            currentType = data;
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "shipmentId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "amzRefId",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "size",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "howToDeliver",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "warehouseCode",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "actualGrossWeight",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualCBM",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "ctnsPerPlt",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualQuantity",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "pltsFromInventory",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "newPlts",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "actualPlts",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "location",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    }
+                ];
+
+                GetPickDetailSummary("GET", url, "#table-summary", table, columnArray);
+            }
+
+            function GetPickDetailSummary(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {

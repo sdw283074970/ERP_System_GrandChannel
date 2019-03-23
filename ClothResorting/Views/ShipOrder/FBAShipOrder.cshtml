@@ -259,7 +259,7 @@
 
             //点击Pick按钮，转到该运单的拣货页面
             $("#table").on("click", ".btn-pick", function () {
-                var shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
                 //var orderType = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
                 //var container = $(this).parent().parent("tr").children('td').eq(5).children('font').html();
 
@@ -327,10 +327,12 @@
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
 
+                shipOrderId = shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+
                 if ($(this).attr('invoicestatus') == "Closed")
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
                 else
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
             })
 
             //点击BOL按钮，下载有内容的BOL

@@ -28,9 +28,15 @@
         </table>
     </div>
 </div>
-<form action="/file-upload"
-      class="dropzone"
-      id="my-awesome-dropzone"></form>
+<div class="iframe">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <input id="input-upload" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
+        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Regular Packing List" /><br />
+    </div>
+</div>
+<div>
+    <input type="file" class="btn btn-primary" id="input-file" style="width:200px;align-content:center" />
+</div>
 @section scripts
 {
     <script>

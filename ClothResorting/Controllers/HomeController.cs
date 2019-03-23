@@ -31,19 +31,14 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var palletsInDb = _context.FBAPallets
-                .Include(x => x.FBAMasterOrder)
+            var cartonLocationsInDb = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail)
                 .Where(x => x.Id > 0);
 
-            foreach(var p in palletsInDb)
+            foreach(var c in cartonLocationsInDb)
             {
-                if (p.FBAMasterOrder == null)
-                {
-                    var masterInDb = _context.FBAMasterOrders
-                        .SingleOrDefault(x => x.Container == p.Container);
-
-                    p.FBAMasterOrder = masterInDb;
-                }
+                c.ActualQuantity = c.FBAOrderDetail.ActualQuantity;
+                c.AvailableCtns = c.FBAOrderDetail.ActualQuantity - c.PickingCtns - c.ShippedCtns;
             }
 
             _context.SaveChanges();
