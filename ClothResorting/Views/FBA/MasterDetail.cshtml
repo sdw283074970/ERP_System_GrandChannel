@@ -65,6 +65,13 @@
         <button id="btn-updateinfo" class="btn btn-primary" style="margin-top:20px">Update</button>
     </div>
 </div>
+<div class="iframe-receive">
+    <div style="text-align:right;margin-right:20px">
+        <text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" placeholder="Required" /></text><br />
+        <text>Inbound Date: <input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
+        <button id="btn-updatereceiving" class="btn btn-primary" style="margin-top:20px">Confirm</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -72,6 +79,7 @@
 
             $(".iframe").hide();
             $(".iframe-info").hide();
+            $(".iframe-receive").hide();
 
             var table;
             var index;
@@ -105,25 +113,6 @@
                     shadeclose: true,
                     area: ["20%", "20%"],
                     content: $(".iframe")
-                });
-            });
-
-            //点击各个条目的Update按钮打开更新信息弹窗
-            $("#table").on("click", ".btn-update", function () {
-
-                var model;
-                orderDetailId = $(this).attr('iid');
-
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
-
-                SendAjaxMethodOverrideObj("GET", url, {});
-
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["400px", "500px"],
-                    content: $(".iframe-info")
                 });
             });
 
@@ -164,10 +153,19 @@
             });
 
             //点击无问题收取所有货物按钮，收取所有货物
-            $("#btn-receive").on("click", function () {
-                url = "/api/fba/masterdetail/?grandNumber=" + grandNumber;
-                var obj = {};
-                SendAjaxMethod("PUT", url, obj);
+            $("#btn-updatereceiving").on("click", function () {
+                var inboundDate = $("#input-date").val();
+                var container = $("#input-updatecontainer").val();
+
+                if (inboundDate != "" && container != "")
+                {
+                    url = "/api/fba/masterdetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
+                    SendAjaxMethod("PUT", url, {});
+                }
+                else
+                {
+                    alert("Please select inbound date and container #.");
+                }
             });
 
             //点击库内操作，转到库内操作页面
@@ -183,6 +181,36 @@
             //点击查看库存按钮，转到库存页面
             $("#btn-inventory").on("click", function () {
                 $(window.location).attr('href', '/fba/Inventory/?grandNumber=' + grandNumber);
+            });
+
+            //点击各个条目的Update按钮打开更新信息弹窗
+            $("#table").on("click", ".btn-update", function () {
+
+                var model;
+                orderDetailId = $(this).attr('iid');
+
+                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+
+                SendAjaxMethodOverrideObj("GET", url, {});
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "500px"],
+                    content: $(".iframe-info")
+                });
+            });
+
+            //点击确认收货按钮，打开收货弹窗，要求输入并确认柜号和入库时间
+            $("#btn-receive").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe-receive")
+                });
             });
 
             function GetAjaxTable(methodType, url) {

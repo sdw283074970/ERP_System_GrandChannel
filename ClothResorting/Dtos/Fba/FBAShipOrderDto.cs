@@ -43,6 +43,8 @@ namespace ClothResorting.Dtos.Fba
 
         public DateTime ETS { get; set; }
 
+        public DateTime CloseDate { get; set; }
+
         public string ConfirmedBy { get; set; }
     }
 }

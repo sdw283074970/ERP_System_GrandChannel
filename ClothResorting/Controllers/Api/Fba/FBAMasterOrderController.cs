@@ -162,6 +162,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
             _context.FBAOrderDetails.RemoveRange(orderDetailsInDb);
 
+            var palletsInDb = _context.FBAPallets
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.FBAPallets.RemoveRange(palletsInDb);
+
             var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
 
             _context.FBAMasterOrders.Remove(masterOrderInDb);
@@ -170,13 +176,6 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 _context.SaveChanges();
 
-                var palletsInDb = _context.FBAPallets
-                    .Include(x => x.FBACartonLocations)
-                    .Where(x => x.FBACartonLocations.Count == 0);
-
-                _context.FBAPallets.RemoveRange(palletsInDb);
-
-                _context.SaveChanges();
             }
             catch (Exception e)
             {

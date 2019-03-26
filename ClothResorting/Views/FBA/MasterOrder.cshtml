@@ -32,11 +32,12 @@
                     @*<th>Actual Plts</th>*@
                     <th>Inbound Date</th>
                     <th>ETA</th>
-                    <th>Invoice Status</th>
                     <th>Total Amount</th>
-                    <th>Confirmed By</th>
+                    <th>Invoice Status</th>
+                    <th>Close Date</th>
+                    <th>Closed By</th>
                     <th>eFolder</th>
-                    <th>Operation</th>
+                    <th style="width:200px">Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -62,13 +63,6 @@
         <button id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
     </div>
 </div>
-<div class="iframe-info">
-    <div style="text-align:right;margin-right:20px">
-        <text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" placeholder="Optional" /></text><br />
-        <text>Inbound Date: <input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
-        <button id="btn-updateinfo" class="btn btn-primary" style="margin-top:20px">Update</button>
-    </div>
-</div>
 @section scripts
 {
     <script>
@@ -84,7 +78,6 @@
             var invoiceStatuts;
 
             $(".iframe").hide();
-            $(".iframe-info").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -183,18 +176,6 @@
                 $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder&invoiceStatus=" + $(this).attr('invoicestatus'));
             })
 
-            //点击各个条目的Update Info按钮打开更新信息弹窗
-            $("#table").on("click", ".btn-update", function () {
-                masterOrderId = $(this).attr('iid');
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["400px", "200px"],
-                    content: $(".iframe-info")
-                });
-            });
-
             //点击Update按钮更新信息
             $("#btn-updateinfo").on("click", function () {
                 var container = $("#input-updatecontainer").val() == "" ? "NULL" : $("#input-updatecontainer").val();
@@ -216,7 +197,7 @@
 
             //点击文件按钮，打开订单相关文件管理页面
             $("#table").on("click", ".btn-file", function () {
-                $(window.location).attr('href', "/EFolder/FBAEfolder/?referene=" + $(this).attr('reference') + "&orderType=MasterOrder");
+                $(window.location).attr('href', "/EFolder/FBAEfolder/?reference=" + $(this).attr('reference') + "&orderType=MasterOrder");
             });
 
             //点击费用按钮，进入收费项目登记页面
@@ -321,7 +302,7 @@
                                 {
                                     data: "inboundDate",
                                     render: function (data) {
-                                        if (data == "1969-12-31T16:00:00")
+                                        if (data == "1900-01-01T00:00:00")
                                             return "<font color='red'>Unreceived</font>"
                                         else
                                             return "<font>" + data.substring(0, 10) + "</font>";
@@ -334,6 +315,12 @@
                                     }
                                 },
                                 {
+                                    data: "totalAmount",
+                                    render: function (data) {
+                                        return "<font>$" + data + "</font>";
+                                    }
+                                },
+                                {
                                     data: "invoiceStatus",
                                     render: function (data) {
                                         invoiceStatuts = data;
@@ -341,9 +328,12 @@
                                     }
                                 },
                                 {
-                                    data: "totalAmount",
+                                    data: "closeDate",
                                     render: function (data) {
-                                        return "<font>$" + data + "</font>";
+                                        if (data == "1900-01-01T00:00:00")
+                                            return "<font color='red'>Open</font>"
+                                        else
+                                            return "<font>" + data.substring(0, 10) + "</font>";
                                     }
                                 },
                                 {
@@ -352,7 +342,7 @@
                                         if (data == null)
                                             return "";
                                         else
-                                            return "<font>$" + data + "</font>";
+                                            return "<font>" + data + "</font>";
                                     }
                                 },
                                 {
@@ -364,7 +354,8 @@
                                 {
                                     data: "grandNumber",
                                     render: function (data) {
-                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-update'>Update Info</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
                                     }
                                 }
                             ]

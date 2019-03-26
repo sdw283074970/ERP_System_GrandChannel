@@ -239,6 +239,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
             var fileGetter = new FilesGetter();
+
             var path = fileGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
 
             if (path == "")
@@ -254,15 +255,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var fileName = generator.GenerateFBABOL(shipOrderId, bolDetailList);
 
-            //var downloader = new Downloader();
-
-            //downloader.DownloadPdfFromServer(fileName, @"D:\BOL\");
-
             return Ok(fileName);
-
-            ////在静态变量中记录下载信息
-            //DownloadRecord.FileName = fileGetter.FileName;
-            //DownloadRecord.FilePath = path;
         }
 
         // DELETE /api/fba/fbapickdetail/?pickDetailId={pickDetailId}

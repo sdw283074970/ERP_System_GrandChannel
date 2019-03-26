@@ -377,9 +377,9 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/fbainvoicedetail/?reference{reference}&invoiceType={invoiceType}
+        // PUT /api/fba/fbainvoicedetail/?reference{reference}&invoiceType={invoiceType}&closeDate={closeDate}
         [HttpPut]
-        public void CloseChargeOrder([FromUri]string reference, [FromUri]string invoiceType)
+        public void CloseChargeOrder([FromUri]string reference, [FromUri]string invoiceType, [FromUri]DateTime closeDate)
         {
             if (invoiceType == FBAInvoiceType.ShipOrder)
             {
@@ -387,6 +387,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     .SingleOrDefault(x => x.ShipOrderNumber == reference);
 
                 shipOrderInDb.InvoiceStatus = "Closed";
+                shipOrderInDb.CloseDate = closeDate;
+                shipOrderInDb.ConfirmedBy = _userName;
             }
             else if (invoiceType == FBAInvoiceType.MasterOrder)
             {
@@ -394,12 +396,14 @@ namespace ClothResorting.Controllers.Api.Fba
                     .SingleOrDefault(x => x.Container == reference);
 
                 masterOrder.InvoiceStatus = "Closed";
+                masterOrder.CloseDate = closeDate;
+                masterOrder.ConfirmedBy = _userName;
             }
 
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/fbainvoicedetail/?chargingItemDetailId={chargingItemDetailId}
+        // DELETE /api/fba/fbainvoicedetail/?chargingItemDetailId={chargingItemDetailId}
         [HttpDelete]
         public void DeleteChargingItemDetail([FromUri]int chargingItemDetailId)
         {

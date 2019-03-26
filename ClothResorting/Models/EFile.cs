@@ -12,7 +12,7 @@ namespace ClothResorting.Models
 
         public string FileName { get; set; }
 
-        public string Path { get; set; }
+        public string RootPath { get; set; }
 
         public DateTime UploadDate { get; set; }
 

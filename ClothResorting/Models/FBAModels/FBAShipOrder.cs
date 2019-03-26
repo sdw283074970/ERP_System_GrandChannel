@@ -46,6 +46,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime ETS { get; set; }
 
+        public DateTime CloseDate { get; set; }
+
         public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
 
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
@@ -58,7 +60,8 @@ namespace ClothResorting.Models.FBAModels
         {
             CreateDate = DateTime.Now;
             Status = FBAStatus.NewCreated;
-            PickDate = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
+            PickDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             PickMan = FBAStatus.Unassigned;
             ShippedBy = FBAStatus.Unassigned;
         }

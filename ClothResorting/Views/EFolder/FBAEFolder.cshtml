@@ -6,6 +6,8 @@
 
 <h1>EFolder System</h1>
 <h2>FBA EFolder</h2>
+<h2 id="h2-reference">Reference:</h2>
+<h2 id="h2-customer">Customer:</h2>
 
 <script src="~/Scripts/dropzone.js"></script>
 
@@ -13,7 +15,10 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
+    <div style="margin-top:20px">
+        <input type="button" class="btn btn-default btn-upload" value="Upload File" />
+    </div>
+    <div style="margin-top:20px">
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -28,19 +33,16 @@
         </table>
     </div>
 </div>
-<div class="iframe">
-    <div style="margin-top:20px;margin-right:20px;text-align:right">
-        <input id="input-upload" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
-        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Regular Packing List" /><br />
-    </div>
-</div>
-<div>
-    <input type="file" class="btn btn-primary" id="input-file" style="width:200px;align-content:center" />
+<div class="iframe-upload" style="text-align:right">
+    <input type="file" id="input-file" style="width:200px;margin-top:20px;margin-left:150px" />
+    <button style="margin-top:20px;margin-right:20px" class="btn btn-primary" id="btn-upload">Upload</button>
 </div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
+
+            $(".iframe-upload").hide();
 
             var index;
             var table;
@@ -48,6 +50,28 @@
 
             var reference = getUrlParameter('reference');
             var orderType = getUrlParameter('orderType');
+
+            if (orderType == "MasterOrder")
+                $("#h2-reference").html("Master Order #: " + reference);
+            else if (orderType == "ShipOrder")
+                $("#h2-reference").html("Ship Order #: " + reference);
+
+            //获取客户代码
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json, charset=utf-8',
+                dataType: "json",
+                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + orderType + "&isChargingItemDetail=false",
+                success: function (data) {
+                    customerCode = data;
+                    $("#h2-customer").html("Customer: " + customerCode);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
 
             url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType;
             var columsArray = [
@@ -78,12 +102,38 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<button class='btn btn-link btn-download' iid='" + id + "'>Download</button><button class='btn btn-link btn-delete' iid='" + id + "'>Delete</button>"
+                        return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button>"
                     }
                 }
             ];
 
+            //获取当前单的所有相关文件列表
             GetAjaxTable("GET", url, "#table", table, columsArray);
+
+            //点击上传文件按钮，打开上传文件弹窗
+            $(".btn-upload").on("click", function () {
+                Openiframe(index, ".iframe-upload", "400px", "150px");
+            });
+
+            //点击上传按钮，上传文件到服务器
+            $("#btn-upload").on("click", function () {
+                var formData = new FormData();
+                var files = $("#input-file").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                    url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType + "&version=V1";
+                    SendUploadAjaxMethod("POST", url, formData);
+                }
+                else {
+                    alert("Please choose file first.");
+                }
+            });
+
+            //点击下载按钮，下载选中的文件
+            $("#table").on("click", ".btn-download", function () {
+                $(window.location).attr('href', "/api/fba/FBAEfolder/?fileId=" + $(this).attr('iid'));
+            });
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -202,7 +252,7 @@
 
             function GetPickInventoryTable(container, sku, amzRef, warehouseCode, tablePallet, tableCarton) {
 
-                url = "/api/fba/fbainventory/?container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode +"&inventoryType=Pallet";
+                url = "/api/fba/fbainventory/?container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode + "&inventoryType=Pallet";
                 var palletsColumnArray = [
                         {
                             data: "id",
@@ -523,7 +573,7 @@
                 });
             };
 
-            function SendUploadAjaxMethodAndDownloadFile(methodType, url, obj) {
+            function SendUploadAjaxMethod(methodType, url, obj) {
                 $.ajax({
                     type: methodType,
                     url: url,
@@ -540,8 +590,9 @@
                         });
                     },
                     success: function (data) {
-                        layer.alert("Success! The BOL will be downloaded automatically.");
-                        $(window.location).attr('href', '/api/fba/downloadfile/?fileName=' + data);
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

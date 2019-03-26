@@ -1505,6 +1505,14 @@
     <Compile Include="Migrations\201903220127176_AddedThreeStatusInInvoiceDetail.Designer.cs">
       <DependentUpon>201903220127176_AddedThreeStatusInInvoiceDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201903252123085_AddedCloseDateInFBAMasterOrderAndFBAShipOrder.cs" />
+    <Compile Include="Migrations\201903252123085_AddedCloseDateInFBAMasterOrderAndFBAShipOrder.Designer.cs">
+      <DependentUpon>201903252123085_AddedCloseDateInFBAMasterOrderAndFBAShipOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903252135345_AddedCloseDate.cs" />
+    <Compile Include="Migrations\201903252135345_AddedCloseDate.Designer.cs">
+      <DependentUpon>201903252135345_AddedCloseDate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1833,7 +1841,7 @@
     </None>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\Customized\GetUrlParamete.js" />
+    <Content Include="Scripts\Customized\GrandChannel.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap.min.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap4.js" />
@@ -2829,6 +2837,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903220127176_AddedThreeStatusInInvoiceDetail.resx">
       <DependentUpon>201903220127176_AddedThreeStatusInInvoiceDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903252123085_AddedCloseDateInFBAMasterOrderAndFBAShipOrder.resx">
+      <DependentUpon>201903252123085_AddedCloseDateInFBAMasterOrderAndFBAShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903252135345_AddedCloseDate.resx">
+      <DependentUpon>201903252135345_AddedCloseDate.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

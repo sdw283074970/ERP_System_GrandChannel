@@ -12,7 +12,7 @@
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
-        <button style="margin-left:20px" class="btn btn-danger" id="btn-save">Save&Close</button>
+        <button style="margin-left:20px" class="btn btn-danger btn-save">Save</button>
     </div>
     @*<div>
         <text id="text-billto">BILL TO:</text><br />
@@ -158,6 +158,12 @@
         <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">create</button>
     </div>
 </div>
+<div class="iframe-save">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Close Date: </text><input type="date" id='input-closedate' style='width:170px' class='input-sm' /><br />
+        <button id="btn-save" class='btn btn-danger' style="margin-top:20px;margin-right:20px;text-align:right">Save&Close</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -165,6 +171,7 @@
 
             $(".iframe").hide();
             $(".iframe-detail").hide();
+            $(".iframe-save").hide();
 
             var index;
             var table;
@@ -591,10 +598,30 @@
                 SendAjaxMethod("DELETE", url, {});
             });
 
+            //点击保存按钮，弹出选择结单日期弹窗
+            $(".btn-save").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "150px"],
+                    content: $(".iframe-save")
+                });
+            });
+
             //点击保存并退出按钮，将此单关闭，不可再更改
             $("#btn-save").on("click", function () {
-                url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
-                SendAjaxMethodAndBack("PUT", url, {});
+                var closeDate = $("#input-closedate").val();
+
+                if (closeDate != "")
+                {
+                    url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&closeDate=" + closeDate;
+                    SendAjaxMethodAndBack("PUT", url, {});
+                }
+                else
+                {
+                    alert("Please select close date.");
+                }
             });
 
             //点击编辑按钮，编辑收费项目
@@ -755,7 +782,8 @@
                     },
                     success: function (data) {
                         layer.alert("Success!", function () {
-                            $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + reference + "&invoiceType=" + invoiceType + "&invoiceStatus=Closed" + "&shipOrderId=" + shipOrderId);
+                            window.history.back(-1);
+                            //$(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + reference + "&invoiceType=" + invoiceType + "&invoiceStatus=Closed" + "&shipOrderId=" + shipOrderId);
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -1083,7 +1111,6 @@
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });
-
         });
     </script>
 }

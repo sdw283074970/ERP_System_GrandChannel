@@ -30,6 +30,8 @@ namespace ClothResorting.Dtos.Fba
 
         public DateTime InboundDate { get; set; }
 
+        public DateTime CloseDate { get; set; }
+
         public string ConfirmedBy { get; set; }
 
         public string Status { get; set; }

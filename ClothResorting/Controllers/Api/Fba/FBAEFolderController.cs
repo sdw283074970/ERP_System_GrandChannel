@@ -9,16 +9,20 @@ using System.Web.Http;
 using System.Data.Entity;
 using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Helpers;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
     public class FBAEFolderController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public FBAEFolderController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/fba/fbaefolder/?reference={reference}&orderType={orderType}
@@ -45,6 +49,59 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return Ok();
+        }
+
+        // GET /api/fba/fbaefolder/?fileId={fileId}
+        [HttpGet]
+        public void DownloadFile([FromUri]int fileId)
+        {
+            var downloader = new Downloader();
+            var fileInfoInDb = _context.EFiles.Find(fileId);
+
+            downloader.DownloadFromServer(fileInfoInDb.FileName, fileInfoInDb.RootPath);
+        }
+
+        // POST /api/fba/fbaefolder/?reference={reference}&orderType={orderType}&version={version}
+        [HttpPost]
+        public IHttpActionResult UploadFiles([FromUri]string reference, [FromUri]string orderType, [FromUri]string version)
+        {
+            var fileGetter = new FilesGetter();
+
+            var path = fileGetter.GetAndSaveFileFromHttpRequest(@"D:\eFolder\");
+
+            var newFileRecord = new EFile();
+
+            if (version == "V1")
+            {
+                newFileRecord.FileName = path.Split('\\').Last();
+                newFileRecord.RootPath = @"D:\eFolder\";
+                newFileRecord.UploadBy = _userName;
+                newFileRecord.UploadDate = DateTime.Now;
+            }
+            else
+            {
+                throw new Exception("The system does not support version:" + version + ".");
+            }
+
+            if (orderType == FBAOrderType.MasterOrder)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == reference);
+                newFileRecord.FBAMasterOrder = masterOrderInDb;
+            }
+            else if (orderType == FBAOrderType.ShipOrder)
+            {
+                var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference);
+                newFileRecord.FBAShipOrder = shipOrderInDb;
+            }
+            else
+            {
+                throw new Exception("The system does not support order type:" + orderType + ".");
+            }
+
+            _context.EFiles.Add(newFileRecord);
+            _context.SaveChanges();
+
+            return Ok("File has been uploaded successfully.");
         }
     }
 }

@@ -85,16 +85,26 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /appi/fba/masterDetail/?grandNumber={grandNumber}
+        // PUT /appi/fba/masterDetail/?grandNumber={grandNumber}&inboundDate={inboundDate}&container={container}
         [HttpPut]
-        public void UpdateReceiving([FromUri]string grandNumber)
+        public void UpdateReceiving([FromUri]string grandNumber, [FromUri]DateTime inboundDate, [FromUri]string container)
         {
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
                 .Where(x => x.FBAMasterOrder.GrandNumber == grandNumber);
 
+            var masterInDb = orderDetailsInDb.First().FBAMasterOrder;
+
+            //如果已经分配库位了，就不能使用这个批量收货的功能
+            if (_context.FBACartonLocations.Where(x => x.Container == masterInDb.Container).Count() > 0)
+            {
+                throw new Exception("Cannot using this batch receving function because there were some items allocated.");
+            }
+
             foreach(var detail in orderDetailsInDb)
             {
+                detail.Container = container;
+
                 if (detail.ActualQuantity == 0)
                 {
                     detail.ActualCBM = detail.CBM;
@@ -102,6 +112,9 @@ namespace ClothResorting.Controllers.Api.Fba
                     detail.ActualQuantity = detail.Quantity;
                 }
             }
+
+            masterInDb.Container = container;
+            masterInDb.InboundDate = inboundDate;
 
             _context.SaveChanges();
         }

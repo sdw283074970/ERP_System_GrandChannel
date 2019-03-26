@@ -29,9 +29,10 @@
                     <th>Status</th>
                     <th>Shipped Date</th>
                     <th>Shipped By</th>
-                    <th>Invoice Status</th>
                     <th>Total Amount</th>
-                    <th>Confirmed By</th>
+                    <th>Invoice Status</th>
+                    <th>Close Date</th>
+                    <th>Closed By</th>
                     <th>eFolder</th>
                     <th style="width:250px">Operation</th>
                 </tr>
@@ -194,7 +195,7 @@
                 {
                     data: "shipDate",
                     render: function (data) {
-                        if (data == "1970-01-01T00:00:00")
+                        if (data == "1900-01-01T00:00:00")
                             return "<font color='red'>Unshipped</font>"
                         else
                             return "<font>" + data.substring(0, 10) + "</font>";
@@ -210,6 +211,12 @@
                     }
                 },
                 {
+                    data: "totalAmount",
+                    render: function (data) {
+                        return "<font>$" + data + "</font>";
+                    }
+                },
+                {
                     data: "invoiceStatus",
                     render: function (data) {
                         invoiceStatus = data;
@@ -217,9 +224,12 @@
                     }
                 },
                 {
-                    data: "totalAmount",
+                    data: "closeDate",
                     render: function (data) {
-                        return "<font>$" + data + "</font>";
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'>Open</font>"
+                        else
+                            return "<font>" + data.substring(0, 10) + "</font>";
                     }
                 },
                 {

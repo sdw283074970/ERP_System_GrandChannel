@@ -30,6 +30,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime InboundDate { get; set; }
 
+        public DateTime CloseDate { get; set; }
+
         public string Status { get; set; }
 
         public UpperVendor Customer { get; set; }
@@ -60,7 +62,8 @@ namespace ClothResorting.Models.FBAModels
             ActualCBM = 0f;
             ActualCtns = 0;
             TotalCtns = 0;
-            InboundDate = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
+            InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             Status = StaticClass.Status.NewCreated;
         }
     }

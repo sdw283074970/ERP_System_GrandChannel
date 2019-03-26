@@ -1,5 +1,5 @@
 ﻿//解析url中的参数函数
-function getUrlParameter(sParam) {
+(function getUrlParameter(sParam) {
 	var sPageURL = decodeURIComponent(window.location.search.substring(1)),
 		sURLVariables = sPageURL.split('&'),
 		sParameterName,
@@ -12,4 +12,4 @@ function getUrlParameter(sParam) {
 			return sParameterName[1] === undefined ? true : sParameterName[1];
 		}
 	}
-};
+})();

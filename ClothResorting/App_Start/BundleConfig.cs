@@ -12,7 +12,7 @@ namespace ClothResorting
                         "~/Scripts/jquery-{version}.js",
                         "~/Scripts/DataTables/jquery.dataTables.js",
                         "~/Scripts/DataTables/dataTables.bootstrap.js",
-                        "~/Scripts/Customized/GetParameter.js",
+                        "~/Scripts/Customized/GrandChannel.js",
                         "~/Scripts/layer/layer.js",
                         "~/Scripts/bootbox.js"));
 
