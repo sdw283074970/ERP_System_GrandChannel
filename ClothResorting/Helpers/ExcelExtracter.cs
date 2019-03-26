@@ -1811,8 +1811,10 @@ namespace ClothResorting.Helpers
                     foreach (var size in sizeList)
                     {
                         //依照出货规则从待选池中所有符合拣货条件的对象
+                        //var poolLocations = cartonLocationPool
+                        //    .Where(x => x.SizeBundle == size.SizeName && x.AvailablePcs != 0);
                         var poolLocations = cartonLocationPool
-                            .Where(x => x.SizeBundle == size.SizeName && x.AvailablePcs != 0);
+                            .Where(x => x.SizeBundle == size.SizeName);
 
                         if (purchaseOrder != "N/A")
                         {
@@ -1835,7 +1837,7 @@ namespace ClothResorting.Helpers
                             {
                                 Type = Status.Missing,
                                 DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                                Description = "Cannot find any record of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.",
+                                Description = "Cannot find any residual item of style:<font color='red'>" + style + "</font>, Color:<font color='red'>" + color + "</font>, Size <font color='red'>" + size.SizeName + "</font>, Cut Po <font color='red'>" + purchaseOrder + "</font> in database. Please check the pull sheet template and PSI if the information is correct.",
                                 ShipOrder = pullSheet
                             });
 

@@ -94,7 +94,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
-            shipOrder.ShipDate = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            shipOrder.ShipDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             shipOrder.BOLNumber = obj.BOLNumber;
             shipOrder.Carrier = obj.Carrier;
             shipOrder.ETS = ets;
