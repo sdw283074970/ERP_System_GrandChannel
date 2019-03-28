@@ -20,7 +20,6 @@ namespace ClothResorting.Controllers
         public HomeController()
         {
             _context = new ApplicationDbContext();
-
         }
 
         public ActionResult Index()
@@ -31,17 +30,15 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var cartonLocationsInDb = _context.FBACartonLocations
-                .Include(x => x.FBAOrderDetail)
-                .Where(x => x.Id > 0);
+            var breaker = new CartonBreaker();
 
-            foreach(var c in cartonLocationsInDb)
+            var prePackLocation = _context.FCRegularLocationDetails
+                .Where(x => x.SizeBundle.Contains(" ") && x.AvailableCtns != 0 && !x.SizeBundle.Contains("SIZE"));
+
+            foreach(var p in prePackLocation)
             {
-                c.ActualQuantity = c.FBAOrderDetail.ActualQuantity;
-                c.AvailableCtns = c.FBAOrderDetail.ActualQuantity - c.PickingCtns - c.ShippedCtns;
+                breaker.BreakPrePack(p.Id);
             }
-
-            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 

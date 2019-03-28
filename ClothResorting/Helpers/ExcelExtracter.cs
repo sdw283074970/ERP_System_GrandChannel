@@ -1733,7 +1733,7 @@ namespace ClothResorting.Helpers
 
                 var skuCount = sku == null ? 0 : sku.RegularCartonDetails.Count;
 
-                if (skuCount == 1 && sku.RegularCartonDetails.First().SizeBundle.Contains(" "))    //如果POSummary下只有一个RegularCartonDetail对象且Size中含有空格就说明是Pre-pack
+                if (skuCount == 1 && sku.RegularCartonDetails.First().SizeBundle.Contains(" ") && sku.RegularCartonDetails.First().Color == color)    //如果POSummary下只有一个RegularCartonDetail对象且Size中含有空格就说明是Pre-pack
                 {
                     //待选池中所有符合拣货条件的对象
                     var poolLocations = cartonLocationPool
