@@ -1,21 +1,39 @@
-﻿using System;
+﻿using ClothResorting.Models;
+using System;
 using System.Collections.Generic;
+using Microsoft.Office.Interop.Excel;
 using System.Linq;
 using System.Web;
-using org.in2bits.MyXls;
-using ClothResorting.Models;
-using ClothResorting.Models.DataTransferModels;
+using System.Data.Entity;
+using ClothResorting.Models.StaticClass;
+using ClothResorting.Models.FBAModels.StaticModels;
+using System.Globalization;
 using System.IO;
+using System.Threading;
+using ClothResorting.Models.DataTransferModels;
+using org.in2bits.MyXls;
 
 namespace ClothResorting.Helpers
 {
     public class ExcelGenerator
     {
         private ApplicationDbContext _context;
+        private string _path = "";
+        private _Application _excel;
+        private Microsoft.Office.Interop.Excel.Workbook _wb;
+        private Microsoft.Office.Interop.Excel.Worksheet _ws;
 
         public ExcelGenerator()
         {
             _context = new ApplicationDbContext();
+        }
+
+        public ExcelGenerator(string templatePath)
+        {
+            _context = new ApplicationDbContext();
+            _path = templatePath;
+            _excel = new Application();
+            _wb = _excel.Workbooks.Open(_path);
         }
 
         public void GenerateRecevingReportExcel(Container container, IList<FCReceivingReport> report)
@@ -408,6 +426,130 @@ namespace ClothResorting.Helpers
             response.Flush();
             response.Close();
             response.End();
+        }
+
+        public string GenerateInventoryReportExcelFileV2(IList<FCRegularLocationDetail> inventoryList, string sizeBundle)
+        {
+            inventoryList = CombineRepeatedInventoryList(inventoryList);
+            var sizeArray = sizeBundle.Split(' ');
+
+            if (sizeArray.Length <= 1)
+            {
+                sizeBundle = "S M L XL 2X 3X 4X XLT 2XLT 3XLT";
+                sizeArray = sizeBundle.Split(' ');
+            }
+
+            _ws = _wb.Worksheets[1];
+
+            for (int s = 0; s < sizeArray.Length; s++)
+            {
+                _ws.Cells[6, 5 + s] = sizeArray[s];
+            }
+
+            var groupByPO = inventoryList.GroupBy(x => x.PurchaseOrder);
+            var currentRow = 7;
+            List<IGrouping<string, FCRegularLocationDetail>> colorGroup = new List<IGrouping<string, FCRegularLocationDetail>>();
+
+            foreach (var p in groupByPO)
+            {
+                var groupByStyle = p.GroupBy(x => x.Style);
+
+                foreach(var s in groupByStyle)
+                {
+                    var groupByColor = p.GroupBy(x => x.Color);
+
+                    foreach(var c in groupByColor)
+                    {
+                        colorGroup.Add(c);
+                    }
+                }
+            }
+
+            foreach(var c in colorGroup)
+            {
+                _ws.Cells[currentRow, 1] = c.First().PurchaseOrder;
+                _ws.Cells[currentRow, 2] = c.First().Style;
+                _ws.Cells[currentRow, 3] = c.First().CustomerCode;
+                _ws.Cells[currentRow, 4] = c.First().Color;
+
+                foreach(var s in c)
+                {
+                    var size = UnifySize(s.SizeBundle);
+                    var columnIndex = 5 + Array.IndexOf(sizeArray, size);
+                    if (columnIndex == 4)
+                    {
+                        _ws.Cells[currentRow, 5] = "Unidentified Size:";
+                        _ws.Cells[currentRow, 6] = size;
+                        continue;
+                    }
+
+                    _ws.Cells[currentRow, columnIndex] = s.AvailablePcs;
+                }
+
+                currentRow += 1;
+            }
+
+            for(int i = 0; i < sizeArray.Length; i++)
+            {
+                var size = sizeArray[i];
+                _ws.Cells[currentRow + 1, i + 5] = inventoryList.Where(x => x.SizeBundle == size).Sum(x => x.AvailablePcs);
+            }
+
+            _ws.Cells[currentRow + 3, 1] = "Total Pcs:";
+            _ws.Cells[currentRow + 3, 2] = inventoryList.Sum(x => x.AvailablePcs);
+
+            var fullPath = @"D:\InventoryReport\InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            return fullPath;
+        }
+
+        private string UnifySize(string size)
+        {
+            if (size == "XXL" || size == "2XL")
+            {
+                return "2X";
+            }
+            else if (size == "XXXL" || size == "3XL")
+            {
+                return "3X";
+            }
+            else if (size == "XXXXL" || size == "4XL")
+            {
+                return "4X";
+            }
+            else
+            {
+                return size;
+            }
+        }
+
+        private List<FCRegularLocationDetail> CombineRepeatedInventoryList(IEnumerable<FCRegularLocationDetail> inventoryList)
+        {
+            var newList = new List<FCRegularLocationDetail>();
+            foreach (var i in inventoryList)
+            {
+                var sameItem = newList.SingleOrDefault(x => x.PurchaseOrder == i.PurchaseOrder && x.Style == i.Style && x.Color == i.Color && x.SizeBundle == i.SizeBundle);
+
+                if ( sameItem == null)
+                {
+                    newList.Add(new FCRegularLocationDetail {
+                        PurchaseOrder = i.PurchaseOrder,
+                        Style = i.Style,
+                        Color = i.Color,
+                        CustomerCode = i.CustomerCode,
+                        SizeBundle = i.SizeBundle,
+                        AvailablePcs = i.AvailablePcs
+                    });
+                }
+                else
+                {
+                    sameItem.AvailablePcs += i.AvailablePcs;
+                }
+            }
+
+            return newList;
         }
     }
 }

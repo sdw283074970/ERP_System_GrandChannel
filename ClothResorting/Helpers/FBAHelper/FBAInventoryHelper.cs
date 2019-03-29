@@ -72,7 +72,7 @@ namespace ClothResorting.Helpers.FBAHelper
             var cartonLocationList = cartonLocationsInDb.ToList();
 
             var originalPlts = palletLocationsList.Sum(x => x.ActualPlts);
-            var originalLooseCtns = cartonLocationList.Where(x => x.Status != FBAStatus.InPallet).Sum(x => x.ActualQuantity);
+            var originalLooseCtns = cartonLocationList.Where(x => x.Location == "Pallet").Sum(x => x.ActualQuantity);
             var currentLooseCtns = originalLooseCtns;
 
             //计算原有箱数减去每次发出的箱数并放到列表中

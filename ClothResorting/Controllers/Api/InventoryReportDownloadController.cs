@@ -102,22 +102,22 @@ namespace ClothResorting.Controllers.Api
 
                 if (container != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.Container == container).ToList();
+                    locationDetails = locationDetails.Where(x => x.Container.Contains(container)).ToList();
                 }
 
                 if (purchaseOrder != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.PurchaseOrder == purchaseOrder).ToList();
+                    locationDetails = locationDetails.Where(x => x.PurchaseOrder.Contains(purchaseOrder)).ToList();
                 }
 
                 if (style != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.Style == style).ToList();
+                    locationDetails = locationDetails.Where(x => x.Style.Contains(style)).ToList();
                 }
 
                 if (color != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.Color == color).ToList();
+                    locationDetails = locationDetails.Where(x => x.Color.Contains(color)).ToList();
                 }
 
                 if (customer != "NULL")
@@ -140,49 +140,55 @@ namespace ClothResorting.Controllers.Api
                     locationDetails = locationDetails.Where(x => x.AvailablePcs != 0).ToList();
                 }
 
+                var templatePath = @"D:\Template\InventoryReportV2.xlsx";
+                var generator2 = new ExcelGenerator(templatePath);
+                generator2.GenerateInventoryReportExcelFileV2(locationDetails, "");
+
                 //将搜索结果中的相同项合并
 
-                foreach (var loc in locationDetails)
-                {
-                    if (loc.AvailablePcs == 0)
-                    {
-                        continue;
-                    }
+                //foreach (var loc in locationDetails)
+                //{
+                //    if (loc.AvailablePcs == 0)
+                //    {
+                //        continue;
+                //    }
 
-                    var inventoryInReport = inventoryList.SingleOrDefault(x => x.PurchaseOrder == loc.PurchaseOrder
-                        && x.Style == loc.Style
-                        && x.Color == loc.Color
-                        && x.SizeBundle == loc.SizeBundle
-                        && x.Pack == loc.PcsBundle);
+                //    var inventoryInReport = inventoryList.SingleOrDefault(x => x.PurchaseOrder == loc.PurchaseOrder
+                //        && x.Style == loc.Style
+                //        && x.Color == loc.Color
+                //        && x.SizeBundle == loc.SizeBundle
+                //        && x.Pack == loc.PcsBundle);
 
-                    if (inventoryInReport == null)
-                    {
-                        inventoryList.Add(new InventoryReportDetail
-                        {
-                            Container = loc.Container,
-                            Status = loc.Status,
-                            PurchaseOrder = loc.PurchaseOrder,
-                            Style = loc.Style,
-                            Color = loc.Color,
-                            SizeBundle = loc.SizeBundle,
-                            Pack = loc.PcsBundle,
-                            Cartons = loc.Cartons,
-                            Quantity = loc.Quantity,
-                            AvailableCtns = loc.AvailableCtns,
-                            AvailablePcs = loc.AvailablePcs,
-                            Batch = loc.Batch
-                        });
-                    }
-                    else
-                    {
-                        inventoryInReport.Cartons += loc.Cartons;
-                        inventoryInReport.Quantity += loc.Quantity;
-                        inventoryInReport.AvailableCtns += loc.AvailableCtns;
-                        inventoryInReport.AvailablePcs += loc.AvailablePcs;
-                    }
-                }
+                //    if (inventoryInReport == null)
+                //    {
+                //        inventoryList.Add(new InventoryReportDetail
+                //        {
+                //            Container = loc.Container,
+                //            Status = loc.Status,
+                //            PurchaseOrder = loc.PurchaseOrder,
+                //            Style = loc.Style,
+                //            Color = loc.Color,
+                //            SizeBundle = loc.SizeBundle,
+                //            Pack = loc.PcsBundle,
+                //            Cartons = loc.Cartons,
+                //            Quantity = loc.Quantity,
+                //            AvailableCtns = loc.AvailableCtns,
+                //            AvailablePcs = loc.AvailablePcs,
+                //            Batch = loc.Batch
+                //        });
+                //    }
+                //    else
+                //    {
+                //        inventoryInReport.Cartons += loc.Cartons;
+                //        inventoryInReport.Quantity += loc.Quantity;
+                //        inventoryInReport.AvailableCtns += loc.AvailableCtns;
+                //        inventoryInReport.AvailablePcs += loc.AvailablePcs;
+                //    }
+                //}
 
-                generator.GenerateInventoryReportExcelFile(inventoryList, vendor);
+                //generator.GenerateInventoryReportExcelFile(inventoryList, vendor);
+
+
             }
         }
     }

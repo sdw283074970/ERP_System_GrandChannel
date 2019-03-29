@@ -220,7 +220,7 @@
                     data: "invoiceStatus",
                     render: function (data) {
                         invoiceStatus = data;
-                        return "<font>" + data + "</font>";
+                        return "<text class='text-status'>" + data + "</text>";
                     }
                 },
                 {
@@ -338,12 +338,15 @@
             $("#table").on("click", ".btn-fee", function () {
 
                 shipOrderId = shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(12).children('text').html();
 
-                if ($(this).attr('invoicestatus') == "Closed")
+                //if ($(this).attr('invoicestatus') == "Closed")
+                if (tpStatus == "Closed")
                     $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
                 else
                     $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
-            })
+
+            });
 
             //点击BOL按钮，下载有内容的BOL
             $("#table").on("click", ".btn-bol", function () {
@@ -406,6 +409,10 @@
                 $(window.location).attr('href', "/EFolder/FBAEfolder/?reference=" + $(this).attr('reference') + "&orderType=ShipOrder");
             });
 
+            //临时机关，点击invoice Status可以将状态临时改成Await开放状态
+            $("#table").on("click", ".text-status", function () {
+                $(this).html("Await");
+            });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
                 $.ajax({

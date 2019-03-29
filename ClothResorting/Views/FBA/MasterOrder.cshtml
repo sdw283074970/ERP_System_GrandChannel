@@ -200,10 +200,18 @@
                 $(window.location).attr('href', "/EFolder/FBAEfolder/?reference=" + $(this).attr('reference') + "&orderType=MasterOrder");
             });
 
+            //临时机关，点击invoice Status可以将状态临时改成Await开放状态
+            $("#table").on("click", ".text-status", function () {
+                $(this).html("Await");
+            });
+
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
 
-                if ($(this).attr('invoicestatus') == "Closed")
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(13).children('text').html();
+
+                //if ($(this).attr('invoicestatus') == "Closed")
+                if (tpStatus == "Closed")
                     $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
                 else
                     $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
@@ -324,7 +332,7 @@
                                     data: "invoiceStatus",
                                     render: function (data) {
                                         invoiceStatuts = data;
-                                        return "<font>" + data + "</font>";
+                                        return "<text class='text-status'>" + data + "</text>";
                                     }
                                 },
                                 {

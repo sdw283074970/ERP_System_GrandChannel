@@ -87,22 +87,22 @@ namespace ClothResorting.Controllers.Api
 
                 if (container != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.Container == container).ToList();
+                    locationDetails = locationDetails.Where(x => x.Container.Contains(container)).ToList();
                 }
 
                 if (purchaseOrder != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.PurchaseOrder == purchaseOrder).ToList();
+                    locationDetails = locationDetails.Where(x => x.PurchaseOrder.Contains(purchaseOrder)).ToList();
                 }
 
                 if (style != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.Style == style).ToList();
+                    locationDetails = locationDetails.Where(x => x.Style.Contains(style)).ToList();
                 }
 
                 if (color != "NULL")
                 {
-                    locationDetails = locationDetails.Where(x => x.Color == color).ToList();
+                    locationDetails = locationDetails.Where(x => x.Color.Contains(color)).ToList();
                 }
 
                 if (customer != "NULL")
@@ -134,6 +134,8 @@ namespace ClothResorting.Controllers.Api
 public class InventoryReportDetail
 {
     public int Id { get; set; }
+
+    public string CustomerCode { get; set; }
 
     public string Container { get; set; }
 
