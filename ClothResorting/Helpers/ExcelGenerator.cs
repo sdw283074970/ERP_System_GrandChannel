@@ -321,7 +321,7 @@ namespace ClothResorting.Helpers
             response.End();
         }
 
-        public void GenerateInventoryReportExcelFile(IList<InventoryReportDetail> inventoryList, string vendor)
+        public string GenerateInventoryReportExcelFile(IList<InventoryReportDetail> inventoryList, string vendor)
         {
             var doc = new XlsDocument();
             doc.FileName = "InventoryReport" + "-" + DateTime.Now.ToString("MMddyyyyhhmmss") + ".xls";
@@ -414,29 +414,19 @@ namespace ClothResorting.Helpers
             doc.Save(@"D:\SearchResults\");
             var fileName = doc.FileName;
             var path = @"D:\SearchResults\" + doc.FileName;
-            var response = HttpContext.Current.Response;
-            var downloadFile = new FileInfo(path);
-            response.ClearHeaders();
-            response.Buffer = false;
-            response.ContentType = "application/octet-stream";
-            response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8));
-            response.Clear();
-            response.AppendHeader("Content-Length", downloadFile.Length.ToString());
-            response.WriteFile(downloadFile.FullName);
-            response.Flush();
-            response.Close();
-            response.End();
+
+            return path;
         }
 
         public string GenerateInventoryReportExcelFileV2(IList<FCRegularLocationDetail> inventoryList, string sizeBundle)
         {
-            inventoryList = CombineRepeatedInventoryList(inventoryList);
-            var sizeArray = sizeBundle.Split(' ');
+            inventoryList = CombineAndUnifyInventoryList(inventoryList);
+            var sizeArray = sizeBundle.Split(',');
 
             if (sizeArray.Length <= 1)
             {
-                sizeBundle = "S M L XL 2X 3X 4X XLT 2XLT 3XLT";
-                sizeArray = sizeBundle.Split(' ');
+                sizeBundle = "S,M,L,1X,2X,3X,4X,2T,3T,4T,PS,PM,PL,PXL,6,7,8,9,10,12,14,16";
+                sizeArray = sizeBundle.Split(',');
             }
 
             _ws = _wb.Worksheets[1];
@@ -446,22 +436,28 @@ namespace ClothResorting.Helpers
                 _ws.Cells[6, 5 + s] = sizeArray[s];
             }
 
-            var groupByPO = inventoryList.GroupBy(x => x.PurchaseOrder);
+            var poGroup = inventoryList.GroupBy(x => x.PurchaseOrder);
             var currentRow = 7;
             List<IGrouping<string, FCRegularLocationDetail>> colorGroup = new List<IGrouping<string, FCRegularLocationDetail>>();
+            List<IGrouping<string, FCRegularLocationDetail>> styleGroup = new List<IGrouping<string, FCRegularLocationDetail>>();
 
-            foreach (var p in groupByPO)
+            foreach (var p in poGroup)
             {
                 var groupByStyle = p.GroupBy(x => x.Style);
 
                 foreach(var s in groupByStyle)
                 {
-                    var groupByColor = p.GroupBy(x => x.Color);
+                    styleGroup.Add(s);
+                }
+            }
 
-                    foreach(var c in groupByColor)
-                    {
-                        colorGroup.Add(c);
-                    }
+            foreach(var s in styleGroup)
+            {
+                var groupByColor = s.GroupBy(x => x.Color);
+
+                foreach(var c in groupByColor)
+                {
+                    colorGroup.Add(c);
                 }
             }
 
@@ -474,7 +470,7 @@ namespace ClothResorting.Helpers
 
                 foreach(var s in c)
                 {
-                    var size = UnifySize(s.SizeBundle);
+                    var size = s.SizeBundle;
                     var columnIndex = 5 + Array.IndexOf(sizeArray, size);
                     if (columnIndex == 4)
                     {
@@ -496,18 +492,25 @@ namespace ClothResorting.Helpers
             }
 
             _ws.Cells[currentRow + 3, 1] = "Total Pcs:";
-            _ws.Cells[currentRow + 3, 2] = inventoryList.Sum(x => x.AvailablePcs);
+            var sum3 = inventoryList.Sum(x => x.AvailablePcs);
+            _ws.Cells[currentRow + 3, 2] = sum3;
 
             var fullPath = @"D:\InventoryReport\InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
 
             return fullPath;
         }
 
         private string UnifySize(string size)
         {
-            if (size == "XXL" || size == "2XL")
+            if (size == "XL" || size == "1XL")
+            {
+                return "1X";
+            }
+            else if (size == "XXL" || size == "2XL")
             {
                 return "2X";
             }
@@ -519,17 +522,50 @@ namespace ClothResorting.Helpers
             {
                 return "4X";
             }
+            else if (size == "SIZE 6")
+            {
+                return "6";
+            }
+            else if (size == "SIZE 7")
+            {
+                return "7";
+            }
+            else if (size == "SIZE 8")
+            {
+                return "8";
+            }
+            else if (size == "SIZE 10")
+            {
+                return "10";
+            }
+            else if (size == "SIZE 12")
+            {
+                return "12";
+            }
+            else if (size == "SIZE 12")
+            {
+                return "12";
+            }
+            else if (size == "SIZE 14")
+            {
+                return "14";
+            }
+            else if (size == "SIZE 16")
+            {
+                return "16";
+            }
             else
             {
                 return size;
             }
         }
 
-        private List<FCRegularLocationDetail> CombineRepeatedInventoryList(IEnumerable<FCRegularLocationDetail> inventoryList)
+        private List<FCRegularLocationDetail> CombineAndUnifyInventoryList(IEnumerable<FCRegularLocationDetail> inventoryList)
         {
             var newList = new List<FCRegularLocationDetail>();
             foreach (var i in inventoryList)
             {
+                i.SizeBundle = UnifySize(i.SizeBundle);
                 var sameItem = newList.SingleOrDefault(x => x.PurchaseOrder == i.PurchaseOrder && x.Style == i.Style && x.Color == i.Color && x.SizeBundle == i.SizeBundle);
 
                 if ( sameItem == null)

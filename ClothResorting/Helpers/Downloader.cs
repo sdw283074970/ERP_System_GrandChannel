@@ -73,5 +73,21 @@ namespace ClothResorting.Helpers
             response.Close();
             response.End();
         }
+
+        public void DownloadByFullPath(string fullPath)
+        {
+            var response = HttpContext.Current.Response;
+            var downloadFile = new FileInfo(fullPath);
+            response.ClearHeaders();
+            response.Buffer = false;
+            response.ContentType = "application/octet-stream";
+            response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(downloadFile.FullName, System.Text.Encoding.UTF8));
+            response.Clear();
+            response.AppendHeader("Content-Length", downloadFile.Length.ToString());
+            response.WriteFile(downloadFile.FullName);
+            response.Flush();
+            response.Close();
+            response.End();
+        }
     }
 }

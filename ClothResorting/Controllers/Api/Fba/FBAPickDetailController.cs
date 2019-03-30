@@ -36,6 +36,26 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<FBAPickDetail, FBAPickDetailsDto>));
         }
 
+        // GET /api/FBAPickDetail/?pickDetailId={pickDetailId}
+        [HttpGet]
+        public IHttpActionResult GetPickedItemsInPallet([FromUri]int pickDetailId)
+        {
+            var pickDetailInDb = _context.FBAPickDetails
+                .Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .SingleOrDefault(x => x.Id == pickDetailId);
+
+            var resultDto = new List<FBACartonLocationDto>();
+
+            foreach(var c in pickDetailInDb.FBAPickDetailCartons)
+            {
+                c.FBACartonLocation.PickingCtns = c.PickCtns;
+                resultDto.Add(Mapper.Map<FBACartonLocation,FBACartonLocationDto>(c.FBACartonLocation));
+            }
+
+            return Ok(resultDto);
+        }
+
         // POST /api/fba/fbapickdetail/?shipOrderId=?shipOrderId={shipOrderId}&orderType={orderType}
         [HttpPost]
         public IHttpActionResult CreatePickDetails([FromUri]int shipOrderId, [FromUri]string orderType, [FromBody]PickOrderDto obj)

@@ -87,6 +87,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPost]
         public IHttpActionResult CreateNewShipOrder([FromBody]ShipOrderDto obj)
         {
+            if (_context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.ShipOrderNumber) != null)
+            {
+                throw new Exception("Ship Order Number " + obj.ShipOrderNumber + " has been taken. Please delete the existed order and try agian.");
+            }
+
             var shipOrder = new FBAShipOrder();
             var ets = new DateTime();
 

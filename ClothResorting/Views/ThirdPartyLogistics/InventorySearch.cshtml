@@ -507,7 +507,29 @@
 
             var url = "/api/inventoryreportdownload/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment;
 
-            $(window.location).attr('href', url);
+            $.ajax({
+                type: "GET",
+                url: url,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                beforeSend: function () {
+                    layer.close(index);
+                    index = layer.msg('Processing...', {
+                        icon: 3,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
+                success: function (data) {
+                    layer.alert("Success! File will download automatically.");
+                    $(window.location).attr('href', "/api/downloadfile/?fullPath=" + encodeURIComponent(data));
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
         });
 
         $(".btn-back").on("click", function () {

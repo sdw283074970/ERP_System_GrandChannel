@@ -20,7 +20,7 @@ namespace ClothResorting.Controllers.Api
 
         // GET /api/inventorysearch/?vendor={vendor}&container={container}&purchaseOrder={po}&style={style}&color={color}&customer={customer}&size={size}&location={location}&isShipped={isShipped}&isReplenishment={isReplenishment}
         [HttpGet]
-        public void DownloadInventoryReport([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment)
+        public IHttpActionResult DownloadInventoryReport([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment)
         {
             var generator = new ExcelGenerator();
             var inventoryList = new List<InventoryReportDetail>();
@@ -94,7 +94,10 @@ namespace ClothResorting.Controllers.Api
                     }
                 }
 
-                generator.GenerateInventoryReportExcelFile(inventoryList, vendor);
+                var path = generator.GenerateInventoryReportExcelFile(inventoryList, vendor);
+
+                return Ok(path);
+
             }
             else
             {
@@ -142,8 +145,9 @@ namespace ClothResorting.Controllers.Api
 
                 var templatePath = @"D:\Template\InventoryReportV2.xlsx";
                 var generator2 = new ExcelGenerator(templatePath);
-                generator2.GenerateInventoryReportExcelFileV2(locationDetails, "");
+                var path = generator2.GenerateInventoryReportExcelFileV2(locationDetails, "");
 
+                return Ok(path);
                 //将搜索结果中的相同项合并
 
                 //foreach (var loc in locationDetails)
@@ -187,8 +191,6 @@ namespace ClothResorting.Controllers.Api
                 //}
 
                 //generator.GenerateInventoryReportExcelFile(inventoryList, vendor);
-
-
             }
         }
     }

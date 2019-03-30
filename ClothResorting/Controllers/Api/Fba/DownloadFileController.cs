@@ -1,4 +1,5 @@
-﻿using ClothResorting.Models.StaticClass;
+﻿using ClothResorting.Helpers;
+using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,6 +52,15 @@ namespace ClothResorting.Controllers.Api.Fba
             response.End();
 
             return Ok();
+        }
+
+        // GET /api/downloadfile/?fullPath={fullPath}
+        [HttpGet]
+        public void DownloadByFullPath([FromUri]string fullPath)
+        {
+            var downloader = new Downloader();
+
+            downloader.DownloadByFullPath(fullPath);
         }
     }
 }

@@ -33,7 +33,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPallets)
                 .ToList();
 
-            foreach(var m in masterOrders)
+            var skuList = new List<int>();
+
+            foreach (var m in masterOrders)
             {
                 m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
                 m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
@@ -41,9 +43,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
                 m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
                 m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
+                skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
             }
 
-            return Ok(Mapper.Map<IEnumerable<FBAMasterOrder>, IEnumerable<FBAMasterOrderDto>>(masterOrders));
+            var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
+
+            for (int i = 0; i < masterOrders.Count; i++)
+            {
+                resultDto[i].SKUNumber = skuList[i];
+            }
+            return Ok(resultDto);
         }
 
         //GET /api/fba/fbamasterorder/{id}
@@ -58,6 +67,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Where(x => x.Customer.Id == id)
                 .ToList();
 
+            var skuList = new List<int>();
+
             foreach (var m in masterOrders)
             {
                 m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
@@ -66,15 +77,27 @@ namespace ClothResorting.Controllers.Api.Fba
                 m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
                 m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
                 m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
+                skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
             }
 
-            return Ok(Mapper.Map<IEnumerable<FBAMasterOrder>, IEnumerable<FBAMasterOrderDto>>(masterOrders));
+            var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList< FBAMasterOrderDto >>(masterOrders);
+
+            for (int i = 0; i < masterOrders.Count; i++)
+            {
+                resultDto[i].SKUNumber = skuList[i];
+            }
+            return Ok(resultDto);
         }
 
         //POST /api/fba/fbamasterorder/{id}
         [HttpPost]
         public IHttpActionResult CreateMasterOrder([FromBody]FBAMasterOrder obj, [FromUri]int id)
         {
+            if (_context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Container) != null)
+            {
+                throw new Exception("Contianer Number " + obj.Container + " has been taken. Please delete the existed order and try agian.");
+            }
+
             var customer = _context.UpperVendors.Find(id);
             var customerCode = customer.CustomerCode;
             //Unix时间戳加客户代码组成独一无二的GrandNumber
@@ -82,7 +105,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if(_context.FBAMasterOrders.Where(x => x.GrandNumber == grandNumber).Count() > 0)
             {
-                throw new Exception("Grand Number " + grandNumber + " has been taken. Please try agian. The system will allocate another number for this order.");
+                throw new Exception("Grand Number " + grandNumber + " has been taken. Please try agian.");
             }
 
             var masterOrder = new FBAMasterOrder();
@@ -92,6 +115,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.AssembeThirdPart(obj.SealNumber, obj.ContainerSize, obj.Container);
             masterOrder.GrandNumber = grandNumber;
             masterOrder.Customer = customer;
+            masterOrder.OriginalPlts = obj.OriginalPlts;
             masterOrder.InboundType = obj.InboundType;
             masterOrder.InvoiceStatus = "Await";
 

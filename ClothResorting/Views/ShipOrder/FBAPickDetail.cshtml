@@ -83,7 +83,7 @@
         <table id="table-ctnsinplt" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th style="width:20px">Id</th>
+                    <th style="width:16px">Id</th>
                     <th>Status</th>
                     <th style="width:103px">FBA shmt ID./SKU</th>
                     <th style="width:64px">Amz Ref ID.</th>
@@ -216,12 +216,12 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["800px", "400px"],
+                    area: ["1000px", "400px"],
                     content: $(".iframe-cartons")
                 });
 
                 var id = $(this).attr('iid');
-                url = "/api/fba/fbainventory/?pickDetailId=" + id;
+                url = "/api/fba/FBAPickDetail/?pickDetailId=" + id;
                 var ctnsInPltColumnArray = [
                     {
                         data: "id",

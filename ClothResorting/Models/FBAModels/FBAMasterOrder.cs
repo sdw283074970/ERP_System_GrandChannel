@@ -40,6 +40,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string ConfirmedBy { get; set; }
 
+        public int OriginalPlts { get; set; }
+
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
         public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
@@ -62,6 +64,7 @@ namespace ClothResorting.Models.FBAModels
             ActualCBM = 0f;
             ActualCtns = 0;
             TotalCtns = 0;
+            OriginalPlts = 0;
             InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             Status = StaticClass.Status.NewCreated;

@@ -35,5 +35,9 @@ namespace ClothResorting.Dtos.Fba
         public string ConfirmedBy { get; set; }
 
         public string Status { get; set; }
+
+        public int OriginalPlts { get; set; }
+
+        public int SKUNumber { get; set; }
     }
 }
