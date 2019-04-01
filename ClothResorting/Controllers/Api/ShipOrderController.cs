@@ -64,7 +64,7 @@ namespace ClothResorting.Controllers.Api
                 ShippingMan = Status.Unassigned,
                 OrderType = obj.OrderType,
                 //ShipDate = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime(),
-                ShipDate = new DateTime(1970, 1, 1, 0, 0, 0, 0),
+                ShipDate = new DateTime(1900, 1, 1, 0, 0, 0, 0),
                 DepartmentCode = obj.DepartmentCode
             });
 

@@ -61,9 +61,9 @@ namespace ClothResorting.Controllers.Api.Fba
             downloader.DownloadFromServer(fileInfoInDb.FileName, fileInfoInDb.RootPath);
         }
 
-        // POST /api/fba/fbaefolder/?reference={reference}&orderType={orderType}&version={version}
+        // POST /api/fba/fbaefolder/?reference={reference}&orderType={orderType}&fileName={fileName}&version={version}
         [HttpPost]
-        public IHttpActionResult UploadFiles([FromUri]string reference, [FromUri]string orderType, [FromUri]string version)
+        public IHttpActionResult UploadFiles([FromUri]string reference, [FromUri]string orderType, [FromUri]string fileName, [FromUri]string version)
         {
             var fileGetter = new FilesGetter();
 
@@ -73,6 +73,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (version == "V1")
             {
+                newFileRecord.CustomizedFileName = fileName + "-" + DateTime.Now.ToString("hhmmss");
                 newFileRecord.FileName = path.Split('\\').Last();
                 newFileRecord.RootPath = @"D:\eFolder\";
                 newFileRecord.UploadBy = _userName;

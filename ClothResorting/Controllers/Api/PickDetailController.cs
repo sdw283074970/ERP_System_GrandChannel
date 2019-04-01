@@ -159,19 +159,30 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
-        // DELETE /api/pickdetail/{id}
+        // DELETE /api/pickdetail/?pickDetailId={pickDetailId}&putBackCtns={putBackCtns}&putBackPcs={putBackPcs}
         [HttpDelete]
-        public void RemovePickDetail([FromUri]int id)
+        public void RemovePickDetail([FromUri]int pickDetailId, [FromUri]int putBackCtns, [FromUri]int putBackPcs)
         {
-            var pickDetailInDb = _context.PickDetails.Include(x => x.FCRegularLocationDetail).SingleOrDefault(x => x.Id == id);
+            var pickDetailInDb = _context.PickDetails.Include(x => x.FCRegularLocationDetail).SingleOrDefault(x => x.Id == pickDetailId);
 
-            pickDetailInDb.FCRegularLocationDetail.AvailableCtns += pickDetailInDb.PickCtns;
-            pickDetailInDb.FCRegularLocationDetail.PickingCtns -= pickDetailInDb.PickCtns;
+            pickDetailInDb.FCRegularLocationDetail.AvailableCtns += putBackCtns;
+            pickDetailInDb.FCRegularLocationDetail.PickingCtns -= putBackCtns;
 
-            pickDetailInDb.FCRegularLocationDetail.AvailablePcs += pickDetailInDb.PickPcs;
-            pickDetailInDb.FCRegularLocationDetail.PickingPcs -= pickDetailInDb.PickPcs;
+            pickDetailInDb.FCRegularLocationDetail.AvailablePcs += putBackPcs;
+            pickDetailInDb.FCRegularLocationDetail.PickingPcs -= putBackPcs;
 
-            _context.PickDetails.Remove(pickDetailInDb);
+            //如果放回的箱数件数刚好等于拣货的箱数件数，那么移除拣货记录
+            if (putBackCtns == pickDetailInDb.PickCtns && putBackPcs == pickDetailInDb.PickPcs)
+            {
+                _context.PickDetails.Remove(pickDetailInDb);
+            }
+            //否则仍然保留拣货记录
+            else
+            {
+                pickDetailInDb.PickCtns -= putBackCtns;
+                pickDetailInDb.PickPcs -= putBackPcs;
+            }
+
             _context.SaveChanges();
         }
     }

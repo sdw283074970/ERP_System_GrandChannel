@@ -1517,6 +1517,10 @@
     <Compile Include="Migrations\201903292352583_AddedOriginalPltsInFBAMasterOrder.Designer.cs">
       <DependentUpon>201903292352583_AddedOriginalPltsInFBAMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201904011750134_AddedCustomerizedFileName.cs" />
+    <Compile Include="Migrations\201904011750134_AddedCustomerizedFileName.Designer.cs">
+      <DependentUpon>201904011750134_AddedCustomerizedFileName.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2850,6 +2854,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903292352583_AddedOriginalPltsInFBAMasterOrder.resx">
       <DependentUpon>201903292352583_AddedOriginalPltsInFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904011750134_AddedCustomerizedFileName.resx">
+      <DependentUpon>201904011750134_AddedCustomerizedFileName.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

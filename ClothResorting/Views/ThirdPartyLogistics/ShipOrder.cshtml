@@ -24,7 +24,6 @@
                     <th style="width:79px">Order Type</th>
                     <th style="width:79px">Customer</th>
                     <th style="width:63px">Dpt.</th>
-                    <th @*style="width:254px"*@>Address</th>
                     <th style="width:141px">Pick tickets range</th>
                     <th style="width:73px">Create By</th>
                     <th style="width:63px">Pick date</th>
@@ -48,7 +47,7 @@
             <option value='Replenishment'>Replenishment</option>
         </select><br />
         <text>Customer: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><br />
-        <text>Address: </text><input id='input-address' style='width:270px' class='input-sm' placeholder='Address' /><br />
+        <text>Address: </text><input id='input-address' style='width:270px' class='input-sm' value="Default" /><br />
         <text>Pick Tickets Range: </text><input id='input-range' style='width:170px' class='input-sm' placeholder='Pick tickets range' /><br />
         <button id="btn-add" class='btn btn-primary'>New ship order</button>
     </div>
@@ -158,12 +157,6 @@
                             },
                             {
                                 data: "departmentCode",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "address",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }

@@ -31,10 +31,18 @@ namespace ClothResorting.Controllers.Api
             }
 
             var purchaseOrderDetails = _context.POSummaries
-                .Where(s => s.PreReceiveOrder.Id == id)
-                .Select(Mapper.Map<POSummary, POSummaryDto>);
+                .Include(x => x.RegularCartonDetails)
+                .Where(s => s.PreReceiveOrder.Id == id);
 
-            return Ok(purchaseOrderDetails);
+            foreach(var p in purchaseOrderDetails)
+            {
+                p.ActualCtns = p.RegularCartonDetails.Sum(x => x.ActualCtns);
+                p.ActualPcs = p.RegularCartonDetails.Sum(x => x.ActualPcs);
+            }
+
+            var purchaseDto = Mapper.Map<IEnumerable<POSummary>, IEnumerable<POSummaryDto>>(purchaseOrderDetails);
+
+            return Ok(purchaseDto);
         }
 
         // GET /api/fcpurchaseorderoverview/?customer={customerName}

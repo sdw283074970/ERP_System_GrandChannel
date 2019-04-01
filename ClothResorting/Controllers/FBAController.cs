@@ -75,6 +75,7 @@ namespace ClothResorting.Controllers
         }
 
         //库存报告页面
+        [AllowAnonymous]
         public ActionResult FBAInventoryReport()
         {
             return View();

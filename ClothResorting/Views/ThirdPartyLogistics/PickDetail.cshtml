@@ -57,6 +57,23 @@
         <input id="uploadfile" type="button" class="btn btn-default" value="Upload" />
     </div>
 </div>
+<div class="iframe-putback" style="text-align:center">
+    <div style="margin-top:20px">
+        <text>Current Picking Ctns: <font id="font-ctns" color="red">10</font></text>
+    </div>
+    <div style="margin-top:20px">
+        <text>Current Picking Pcs: <font id="font-pcs" color="red">10</font></text>
+    </div>
+    <div style="margin-top:20px">
+        <text>Puting Back Ctns: </text><input id="input-ctns" class="input-sm" style="width:50px" />
+    </div>
+    <div style="margin-top:20px">
+        <text>Puting Back Pcs: </text><input id="input-pcs" class="input-sm" style="width:50px" />
+    </div>
+    <div style="margin-top:20px">
+        <button class="btn btn-primary" id="btn-confirmputback">Confirm</button>
+    </div>
+</div>
 
 @section scripts
 {
@@ -64,8 +81,11 @@
         $(document).ready(function () {
 
             var table;
+            var url;
             var index;
+            var pickDetailId;
             $(".iframe").hide();
+            $(".iframe-putback").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -211,25 +231,22 @@
                 });
             });
 
-            $("#table").on("click", ".btn-putback", function () {
-                var id = $(this).attr('iid');
+            $("#btn-confirmputback").on("click", function () {
+                var putBackCtns = $("#input-ctns").val() == "" ? 0 : $("#input-ctns").val();
+                var putBackPcs = $("#input-pcs").val() == "" ? 0 : $("#input-pcs").val();
+                var pickingCtns = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
+                var pickingPcs = $(this).parent().parent("tr").children('td').eq(11).children('text').html();
 
-                $.ajax({
-                    type: "DELETE",
-                    url: "/api/pickdetail/" + id,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function () {
-                        layer.alert("Item has been put back.", function () {
-                            window.location.reload();
-                        });
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
-                        });
-                    }
-                });
+                if (putBackCtns > pickingCtns || putBackPcs > pickingPcs)
+                {
+                    layer.alert("Incorrect putting back numbers.");
+                }
+                else
+                {
+                    url = "/api/pickdetail/?pickDetailId=" + pickDetailId + "&putBackCtns=" + putBackCtns + "&putBackPcs=" + putBackPcs;
+
+                    grandChannel.sendAjaxMethod("DELETE", url, {});
+                }
             });
 
             $("#uploadfile").on("click", function () {
@@ -270,71 +287,6 @@
                 $(".iframe").hide();
             });
 
-            //点击放回物品按钮，出现一系列表单
-            $("#div-putback").on("click", ".btn-putback", function () {
-                var button = $(this);
-                button.prev().remove();
-                button.next().remove();
-                button.replaceWith("<div><input id='input-container' style='width:170px' class='input-sm' placeholder='Container' /><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><input id='input-color' style='width:170px' class='input-sm' placeholder='Color' /><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><input id='input-size' style='width:170px' class='input-sm' placeholder='Size or szie bundle' /><input id='input-pcs' style='width:170px' class='input-sm' placeholder='Pcs or pcs bundle' /><input id='input-pack' style='width:170px' class='input-sm' placeholder='Pcs per carton' /><input id='input-pbctns' style='width:170px' class='input-sm' placeholder='Cartons put back' /><input id='input-pbpcs' style='width:170px' class='input-sm' placeholder='Pcs put back' /><input id='input-location' style='width:170px' class='input-sm' placeholder='Put back location' /><br /><button class='btn btn-primary btn-add'>Put back</button><div>");
-            });
-
-            //点击放回按钮，将表单中的数据通过api生成对象添加到对应库存中
-            $("#div-putback").on("click", ".btn-add", function () {
-                var container = $("#input-container").val();
-                var po = $("#input-po").val();
-                //var range = $("#input-range").val();
-                var color = $("#input-color").val();
-                var style = $("#input-style").val();
-                var customer = $("#input-customer").val();
-                var sizeBundle = $("#input-size").val();
-                var pcsBundle = $("#input-pcs").val();
-                var pack = $("#input-pack").val();
-                var cartons = $("#input-pbctns").val();
-                var pcs = $("#input-pbpcs").val();
-                var pbLocation = $("#input-location").val();
-
-                if (container == "" || po == "" || style == "" || color == ""  || customer == ""  || sizeBundle == ""  || pcsBundle == ""  || pack == ""  || cartons == ""  || pcs == ""  || pbLocation == "")
-                {
-                    alert("All feilds are required.");
-                }
-                else
-                {
-                    var obj = {
-                        "shipOrderId": shipOrderId,
-                        "container": container.toString(),
-                        "purchaseOrder": po.toString(),
-                        //"cartonRange": range.toString(),
-                        "style": style.toString(),
-                        "customer": customer.toString(),
-                        "color": color.toString(),
-                        "sizeBundle": sizeBundle.toString(),
-                        "pcsBundle": pcsBundle.toString(),
-                        "pcsPerCarton": pack.toString(),
-                        "cartons": cartons.toString(),
-                        "quantity": pcs.toString(),
-                        "location": pbLocation.toString()
-                    };
-
-                    $.ajax({
-                        type: "POST",
-                        data: JSON.stringify(obj),
-                        url: "/api/pickdetailputback/",
-                        contentType: 'application/json; charset=utf-8',
-                        dataType: "json",
-                        success: function () {
-                            alert("Items have been put back.");
-                            window.location.reload();
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
-                            });
-                        }
-                    });
-                }
-
-            });
-
             //点击下载模板按钮下载Regular订单的pullsheet/loadplan模板
             $("#div-putback").on("click", ".btn-template", function () {
                 $(window.location).attr('href', '/api/pickdetail/?orderType=' + orderType);
@@ -352,23 +304,8 @@
                 var pickingMan = $("#input-pickingman").val() == "" ? "Unassigned" : $("#input-pickingman").val().toString();
                 var pickDate = $("#input-pickdate").val() == "" ? "Unassigned" : $("#input-pickdate").val().toString();
 
-                var url = "/api/pickdetail/?shipOrderId=" + shipOrderId + "&pickingMan=" + pickingMan + "&pickDate=" + pickDate;
-
-                $.ajax({
-                    type: "PUT",
-                    url: url,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function () {
-                        bootbox.alert("Update success!");
-                        window.location.reload();
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
-                        });
-                    }
-                });
+                url = "/api/pickdetail/?shipOrderId=" + shipOrderId + "&pickingMan=" + pickingMan + "&pickDate=" + pickDate;
+                grandChannel.sendAjaxMethod("PUT", url, {});
             });
 
             //点击拣货按钮，按条件拣货
@@ -400,6 +337,22 @@
                         });
                     }
                 });
+            });
+
+            //点击PutBack按钮，弹出放回对话框
+            $("#table").on("click", ".btn-putback", function () {
+                var pickingCtns = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
+                var pickingPcs = $(this).parent().parent("tr").children('td').eq(11).children('text').html();
+                
+                pickDetailId = $(this).attr("iid");
+
+                $("#font-ctns").html(pickingCtns);
+                $("#font-pcs").html(pickingPcs);
+
+                $("#input-ctns").val(pickingCtns);
+                $("#input-pcs").val(pickingPcs);
+
+                grandChannel.openiframe(index, ".iframe-putback", "300px", "280px");
             });
 
             $(".btn-back").on("click", function () {

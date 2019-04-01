@@ -34,6 +34,10 @@
     </div>
 </div>
 <div class="iframe-upload" style="text-align:right">
+    <div style="margin-top:20px">
+        <text style="width:170px;margin-top:20px;margin-right:20px">File Name and Type: </text><input id="input-name" style="margin-right:20px" class="input-sm" placeholder="e.g. BOL20190401"/><br />
+        <font color="red" style="margin-right:20px">* File name cannot contain any special symbol like ". \ / * ..."</font>
+</div>
     <input type="file" id="input-file" style="width:200px;margin-top:20px;margin-left:150px" />
     <button style="margin-top:20px;margin-right:20px" class="btn btn-primary" id="btn-upload">Upload</button>
 </div>
@@ -82,7 +86,7 @@
                     }
                 },
                 {
-                    data: "fileName",
+                    data: "customizedFileName",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
@@ -112,21 +116,31 @@
 
             //点击上传文件按钮，打开上传文件弹窗
             $(".btn-upload").on("click", function () {
-                Openiframe(index, ".iframe-upload", "400px", "150px");
+                Openiframe(index, ".iframe-upload", "400px", "200px");
             });
 
             //点击上传按钮，上传文件到服务器
             $("#btn-upload").on("click", function () {
-                var formData = new FormData();
-                var files = $("#input-file").get(0).files;
 
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                    url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType + "&version=V1";
-                    SendUploadAjaxMethod("POST", url, formData);
+                var fileName = $("#input-name").val();
+
+                if (fileName == "")
+                {
+                    layer.alert("File name cannot be empty.");
                 }
-                else {
-                    alert("Please choose file first.");
+                else
+                {
+                    var formData = new FormData();
+                    var files = $("#input-file").get(0).files;
+
+                    if (files.length > 0) {
+                        formData.append("fileName", files[0]);
+                        url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType + "&fileName=" + fileName + "&version=V1";
+                        SendUploadAjaxMethod("POST", url, formData);
+                    }
+                    else {
+                        alert("Please choose file first.");
+                    }
                 }
             });
 
