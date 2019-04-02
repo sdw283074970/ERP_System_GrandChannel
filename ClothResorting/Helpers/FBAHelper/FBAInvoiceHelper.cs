@@ -33,7 +33,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //输入Invoice Detail列表，客户CODE，日期范围，生成Excel
-        public string GenerateExcelPath(FBAInvoiceInfo info)
+        public string GenerateExcelFileAndReturnPath(FBAInvoiceInfo info)
         {
             _ws = _wb.Worksheets[1];
 
@@ -63,6 +63,77 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 7] = "Total";
             _ws.Cells[startRow, 8] = info.InvoiceReportDetails.Sum(x => x.Amount);
 
+            //制作第二个表
+            startRow += 4;
+
+            var referenceGroup = info.InvoiceReportDetails.GroupBy(x => x.Reference);
+            var chargeActivityGroup = info.InvoiceReportDetails.GroupBy(x => x.Activity);
+
+            _ws.Cells[startRow, 1] = "Order Type";
+            _ws.Cells[startRow, 2] = "Reference #";
+            _ws.Cells[startRow, 3] = "Destination";
+            _ws.Cells[startRow, 4] = "Total Ctns";
+            _ws.Cells[startRow, 5] = "Total Plts";
+
+            var columnIndex = 6;
+            var activityList = new List<string>();
+
+            foreach(var c in chargeActivityGroup)
+            {
+                _ws.Cells[startRow, columnIndex] = c.First().Activity;
+                activityList.Add(c.First().Activity);
+                columnIndex += 1;
+            }
+
+            _ws.Cells[startRow, columnIndex] = "Date of Close";
+            _ws.Cells[startRow, columnIndex + 1] = "Amount";
+
+            startRow += 1;
+            var countOfActivity = chargeActivityGroup.Count();
+            var totalCtns = 0;
+            var totalPlts = 0;
+
+            foreach (var r in referenceGroup)
+            {
+
+                _ws.Cells[startRow, 1] = r.First().InvoiceType;
+                _ws.Cells[startRow, 2] = r.First().Reference;
+                _ws.Cells[startRow, 3] = r.First().Destination;
+                _ws.Cells[startRow, 4] = r.First().ActualCtnsInThisOrder;
+                _ws.Cells[startRow, 5] = r.First().ActualPltsInThisOrder;
+
+                for (var i = 0; i < countOfActivity; i++)
+                {
+                    _ws.Cells[startRow, 6 + i] = 0.0;
+                }
+
+                _ws.Cells[startRow, columnIndex] = r.First().DateOfClose.ToString("MM/dd/yyyy");
+                _ws.Cells[startRow, columnIndex + 1] = r.Sum(x => x.Amount);
+
+                foreach (var i in r)
+                {
+                    var index = activityList.IndexOf(i.Activity);
+                    _ws.Cells[startRow, index + 6] = _ws.Cells[startRow, index + 6].Value2 + i.Amount;
+                    
+                }
+
+                totalCtns += r.First().ActualCtnsInThisOrder;
+                totalPlts += r.First().ActualPltsInThisOrder;
+
+                startRow += 1;
+            }
+
+            foreach(var c in chargeActivityGroup)
+            {
+                var activity = c.First().Activity;
+                _ws.Cells[startRow, activityList.IndexOf(activity) + 6] = info.InvoiceReportDetails.Where(x => x.Activity == activity).Sum(x => x.Amount);
+            }
+
+            _ws.Cells[startRow, 1] = "Total";
+            _ws.Cells[startRow, 4] = totalCtns;
+            _ws.Cells[startRow, 5] = totalPlts;
+            _ws.Cells[startRow, columnIndex + 1] = info.InvoiceReportDetails.Sum(x => x.Amount);
+
             var fullPath = @"D:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -91,7 +162,9 @@ namespace ClothResorting.Helpers.FBAHelper
             if (invoiceType == FBAInvoiceType.MasterOrder)
             {
                 var masterOrderInDb = _context.FBAMasterOrders
+                    .Include(x => x.FBAOrderDetails)
                     .Include(x => x.InvoiceDetails)
+                    .Include(x => x.FBAPallets)
                     .SingleOrDefault(x => x.Container == reference);
 
                 var invoiceDetailList = masterOrderInDb.InvoiceDetails.ToList();
@@ -109,7 +182,10 @@ namespace ClothResorting.Helpers.FBAHelper
                         Rate = i.Rate,
                         Amount = i.Amount,
                         DateOfCost = i.DateOfCost,
-                        Memo = i.Memo
+                        Memo = i.Memo,
+                        ActualCtnsInThisOrder = masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity),
+                        ActualPltsInThisOrder = masterOrderInDb.FBAPallets.Sum(x => x.ActualPallets),
+                        DateOfClose = masterOrderInDb.CloseDate
                     });
                 }
 
@@ -122,6 +198,7 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 var shipOrderInDb = _context.FBAShipOrders
                     .Include(x => x.InvoiceDetails)
+                    .Include(x => x.FBAPickDetails)
                     .SingleOrDefault(x => x.ShipOrderNumber == reference);
 
                 var invoiceDetailList = shipOrderInDb.InvoiceDetails.ToList();
@@ -139,7 +216,10 @@ namespace ClothResorting.Helpers.FBAHelper
                         Rate = i.Rate,
                         Amount = i.Amount,
                         DateOfCost = i.DateOfCost,
-                        Memo = i.Memo
+                        Memo = i.Memo,
+                        ActualCtnsInThisOrder = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualPlts),
+                        ActualPltsInThisOrder = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualQuantity),
+                        DateOfClose = shipOrderInDb.CloseDate
                     });
                 }
 
@@ -168,7 +248,9 @@ namespace ClothResorting.Helpers.FBAHelper
 
             var invoiceDetails = _context.InvoiceDetails
                 .Include(x => x.FBAMasterOrder.Customer)
-                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAMasterOrder.FBAOrderDetails)
+                .Include(x => x.FBAMasterOrder.FBAPallets)
+                .Include(x => x.FBAShipOrder.FBAPickDetails)
                 .Where(x => x.FBAMasterOrder.Customer.Id == customerId || x.FBAShipOrder.CustomerCode == customer.CustomerCode)
                 .Where(x => x.FBAShipOrder == null ? x.FBAMasterOrder.CloseDate <= closeDate && x.FBAMasterOrder.CloseDate >= startDate : x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate <= closeDate)
                 //.Where(x => x.DateOfCost >= startDate && x.DateOfCost <= closeDate)
@@ -192,10 +274,18 @@ namespace ClothResorting.Helpers.FBAHelper
                 if (i.FBAMasterOrder == null)
                 {
                     newInvoiceDetail.Reference = i.FBAShipOrder.ShipOrderNumber;
+                    newInvoiceDetail.Destination = i.FBAShipOrder.Destination;
+                    newInvoiceDetail.ActualCtnsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
+                    newInvoiceDetail.ActualPltsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
+                    newInvoiceDetail.DateOfClose = i.FBAShipOrder.CloseDate;
                 }
                 else if (i.FBAShipOrder == null)
                 {
                     newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
+                    newInvoiceDetail.Destination = " ";
+                    newInvoiceDetail.ActualCtnsInThisOrder = i.FBAMasterOrder.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                    newInvoiceDetail.ActualPltsInThisOrder = i.FBAMasterOrder.FBAPallets.Sum(x => x.ActualPallets);
+                    newInvoiceDetail.DateOfClose = i.FBAMasterOrder.CloseDate;
                 }
 
                 invoiceReportList.Add(newInvoiceDetail);
@@ -248,15 +338,23 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public string InvoiceType { get; set; }
 
+        public int ActualCtnsInThisOrder { get; set; }
+
+        public int ActualPltsInThisOrder { get; set; }
+
         public string ChargingType { get; set; }
 
         public string Unit { get; set; }
 
         public double Quantity { get; set; }
 
+        public DateTime DateOfClose { get; set; }
+
         public double Rate { get; set; }
 
         public double Amount { get; set; }
+
+        public string Destination { get; set; }
 
         public DateTime DateOfCost { get; set; }
 

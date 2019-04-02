@@ -40,7 +40,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var info = excelGenerator.GetChargingReportFormOrder(reference, invoiceType);
 
-            var path = excelGenerator.GenerateExcelPath(info);
+            var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
 
             return Ok(path);
         }
