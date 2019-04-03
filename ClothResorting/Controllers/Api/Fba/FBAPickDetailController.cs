@@ -252,12 +252,10 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/CreatedSuccess", "");
         }
 
-        // POST /api/fba/fbapickdetail/?shipOrderId={shipOderId}
+        // POST /api/fba/fbapickdetail/?shipOrderId={shipOderId}&operation={operation}
         [HttpPost]
-        public IHttpActionResult UploadAndDownloadBOL([FromUri]int shipOrderId)
+        public IHttpActionResult UploadTemplate([FromUri]int shipOrderId, [FromUri]string operation)
         {
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
-
             var fileGetter = new FilesGetter();
 
             var path = fileGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
@@ -269,13 +267,24 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var extracter = new FBAExcelExtracter(path);
 
-            var bolDetailList = extracter.ExtractBOLTemplate();
+            if (operation == FBAOperation.UploadBOL)
+            {
+                var bolDetailList = extracter.ExtractBOLTemplate();
 
-            var generator = new PDFGenerator();
+                var generator = new PDFGenerator();
 
-            var fileName = generator.GenerateFBABOL(shipOrderId, bolDetailList);
+                var fileName = generator.GenerateFBABOL(shipOrderId, bolDetailList);
 
-            return Ok(fileName);
+                return Ok(fileName);
+            }
+            else if (operation == FBAOperation.UploadShipOrder)
+            {
+                extracter.ExtractFBAPickingListTemplate(shipOrderId);
+
+                return Ok("Create success!");
+            }
+
+            return Ok();
         }
 
         // DELETE /api/fba/fbapickdetail/?pickDetailId={pickDetailId}

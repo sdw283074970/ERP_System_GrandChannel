@@ -12,5 +12,10 @@ namespace ClothResorting.Models.FBAModels.StaticModels
         public const string ShipOrder = "ShipOrder";
 
         public const string Download = "Download";
+
+        public const string UploadShipOrder = "UploadShipOrder";
+
+        public const string UploadBOL = "UploadBOL";
+
     }
 }

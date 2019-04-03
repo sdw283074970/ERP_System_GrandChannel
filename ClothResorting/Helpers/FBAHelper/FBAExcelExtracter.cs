@@ -4,7 +4,10 @@ using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Entity;
 using System.Web;
+using ClothResorting.Models.FBAModels.StaticModels;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -128,5 +131,108 @@ namespace ClothResorting.Helpers.FBAHelper
 
             return bolDetailList;
         }
+
+        //抽取FBA通用拣货模板
+        public void ExtractFBAPickingListTemplate(int shipOrderId)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var pickingList = new List<FBAPickingItem>();
+            var pickDetailList = new List<FBAPickDetail>();
+            _ws = _wb.Worksheets[1];
+
+            var countOfEntries = 0;
+            
+            while(_ws.Cells[2 + countOfEntries, 1].Value2 != null)
+            {
+                countOfEntries += 1;
+            }
+
+            for(int i = 0; i < countOfEntries; i++)
+            {
+                try
+                {
+                    pickingList.Add(new FBAPickingItem
+                    {
+                        CustomerCode = _ws.Cells[i + 2, 1].Value2.ToString(),
+                        ProductSku = _ws.Cells[i + 2, 2].Value2.ToString(),
+                        PickCtns = (int)_ws.Cells[i + 2, 3].Value2
+                    });
+                }
+                catch(Exception e)
+                {
+                    throw new Exception("Check row " + (i + 1) + ". Please make sure there is no empty cell in this line.");
+                }
+            }
+
+            var inventoryInDb = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
+                .Where(x => x.AvailableCtns > 0);
+
+            foreach(var p in pickingList)
+            {
+                var cartonLocationsInDb = inventoryInDb
+                    .Where(x => x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == p.CustomerCode
+                        && x.ShipmentId == p.ProductSku);
+
+                var targetCtns = p.PickCtns;
+
+                foreach(var c in cartonLocationsInDb)
+                {
+                    if (c.AvailableCtns <= targetCtns)
+                    {
+                        var pickDetail = CreateFBAPickDetail(c, c.AvailableCtns);
+                        pickDetail.FBAShipOrder = shipOrderInDb;
+                        pickDetailList.Add(pickDetail);
+                        targetCtns -= c.AvailableCtns;
+                        c.PickingCtns += c.AvailableCtns;
+                        c.AvailableCtns = 0;
+                    }
+                    else
+                    {
+                        var pickDetail = CreateFBAPickDetail(c, targetCtns);
+                        pickDetail.FBAShipOrder = shipOrderInDb;
+                        pickDetailList.Add(pickDetail);
+                        c.AvailableCtns -= targetCtns;
+                        c.PickingCtns += targetCtns;
+                        targetCtns = 0;
+                    }
+
+                    // TO DO: 发货诊断
+                }
+            }
+            shipOrderInDb.Status = FBAStatus.Picking;
+
+            _context.FBAPickDetails.AddRange(pickDetailList);
+            _context.SaveChanges();
+        }
+
+        private FBAPickDetail CreateFBAPickDetail(FBACartonLocation cartonLocation, int ctns)
+        {
+            return new FBAPickDetail {
+                Location = cartonLocation.Location,
+                GrandNumber = cartonLocation.GrandNumber,
+                Container = cartonLocation.Container,
+                ShipmentId = cartonLocation.ShipmentId,
+                AmzRefId = cartonLocation.AmzRefId,
+                WarehouseCode = cartonLocation.WarehouseCode,
+                ActualCBM = cartonLocation.CBMPerCtn * ctns,
+                Size = " ",
+                ActualGrossWeight = cartonLocation.GrossWeightPerCtn * ctns,
+                ActualQuantity = ctns,
+                OrderType = FBAOrderType.Standard,
+                HowToDeliver = cartonLocation.HowToDeliver,
+                Status = FBAStatus.Picking,
+                FBACartonLocation = cartonLocation
+            };
+        }
+    }
+
+    public class FBAPickingItem
+    {
+        public string CustomerCode { get; set; }
+
+        public string ProductSku { get; set; }
+
+        public int PickCtns { get; set; }
     }
 }

@@ -109,6 +109,8 @@
             {
                 //获取所有总单
                 url = "/api/fba/fbamasterorder/";
+                //隐藏建单按钮
+                $("#btn-master").hide();
             }
 
             GetAjaxTable("GET", url);

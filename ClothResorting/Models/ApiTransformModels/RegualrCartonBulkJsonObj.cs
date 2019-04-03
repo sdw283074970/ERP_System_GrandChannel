@@ -11,6 +11,8 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string CartonRange { get; set; }
 
+        public string Style { get; set; }
+
         public string Color { get; set; }
 
         public string Size { get; set; }

@@ -52,7 +52,7 @@ namespace ClothResorting.Controllers.Api
             var newCartonDetail = new RegularCartonDetail
             {
                 PurchaseOrder = poSummaryInDb.PurchaseOrder,
-                Style = poSummaryInDb.Style,
+                Style = obj.Style,
                 Color = obj.Color,
                 Customer = poSummaryInDb.Customer,
                 Container = poSummaryInDb.Container,

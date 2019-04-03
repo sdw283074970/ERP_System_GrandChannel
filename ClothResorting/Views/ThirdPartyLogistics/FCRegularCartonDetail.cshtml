@@ -49,6 +49,7 @@
 </div>
 <div class="iframe" style="text-align:right;margin-top:20px;margin-right:20px">
     <text>Carton Range: <input id='input-range' style='width:170px' class='input-sm' placeholder='Carton range' /></text><br />
+    <text>Style: <input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /></text><br />
     <text>Color: <input id='input-color' style='width:170px' class='input-sm' placeholder='Color' /></text><br />
     <text>Size: <input id='input-size' style='width:170px' class='input-sm' placeholder='Size or size combination' /></text><br />
     <text>Units: <input id='input-units' style='width:170px' class='input-sm' placeholder='Units or units combination' /></text><br />
@@ -341,6 +342,7 @@
 
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
             $(".btn-update").on("click", function () {
+                var style = $("#input-style").val();
                 var color = $("#input-color").val();
                 var size = $("#input-size").val();
                 var units = $("#input-units").val();
@@ -354,6 +356,7 @@
                     var obj = {
                         "id": id,
                         "cartonRange": cartonRange.toString(),
+                        "style": style.toString(),
                         "color": color.toString(),
                         "size": size.toString(),
                         "pcs": units.toString(),

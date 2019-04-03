@@ -12,7 +12,8 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div id="div-create">
-        <input type="button" class="btn btn-group btn-create1" value="Upload BOL Templist" />
+        <input operation="UploadBOL" type="button" class="btn btn-group btn-create1" value="Upload BOL Templist" />
+        <input operation="UploadShipOrder" type="button" class="btn btn-group btn-create1" value="Upload Ship Order Templist" />
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />
@@ -62,7 +63,7 @@
 
 <div class="iframe">
     <div>
-        <input id="input-upload" type="file" accept="xls/xlsx" />
+        <input id="input-upload" type="file" />
     </div>
     <div>
         <input id="btn-uploadfile" type="button" class="btn btn-default" value="Upload" />
@@ -145,6 +146,7 @@
             $(".iframe-inventory, .iframe-pickpallet, .iframe-pickcarton").hide();
 
             var index;
+            var operation;
             var status;
             var table;
             var tablePallet;
@@ -163,6 +165,7 @@
 
             //点击上传出货清单按钮，弹出上传文件对话框
             $("#div-create").on("click", ".btn-create1", function () {
+                operation = $(this).attr("operation");
                 index = layer.open({
                     title: false,
                     type: 1,
@@ -491,15 +494,25 @@
                 $(".iframe-inventory").hide();
             });
 
-            //点击上传，上传BOL Template文件
+            //点击上传，上传Template文件
             $("#btn-uploadfile").on("click", function () {
+
                 var formData = new FormData();
                 var files = $("#input-upload").get(0).files;
 
-                if (files.length > 0) {
+                if (files.length > 0)
+                {
                     formData.append("fileName", files[0]);
-                    url = "/api/fba/FBAPickDetail/?shipOrderId=" + shipOrderId;
-                    SendUploadAjaxMethodAndDownloadFile("POST", url, formData);
+                    url = "/api/fba/FBAPickDetail/?shipOrderId=" + shipOrderId + "&operation=" + operation;
+
+                    if (operation == "UploadBOL")
+                    {
+                        SendUploadAjaxMethodAndDownloadFile("POST", url, formData);
+                    }
+                    else
+                    {
+                        SendUploadAjaxMethod("POST", url, formData);
+                    }
                 }
                 else
                 {
@@ -964,6 +977,35 @@
                     success: function (data) {
                         layer.alert("Success! The BOL will be downloaded automatically.");
                         $(window.location).attr('href', '/api/fba/downloadfile/?fileName=' + data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendUploadAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
