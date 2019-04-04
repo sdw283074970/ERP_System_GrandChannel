@@ -308,7 +308,10 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 pickDetailInDb.FBAPalletLocation.AvailablePlts += pickDetailInDb.PltsFromInventory;
                 pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.PltsFromInventory;
-                pickDetailInDb.FBAPalletLocation.Status = FBAStatus.InStock;
+                if (pickDetailInDb.FBAPalletLocation.PickingPlts == 0)
+                {
+                    pickDetailInDb.FBAPalletLocation.Status = FBAStatus.InStock;
+                }
 
                 var pickDetailCartonsInDb = context.FBAPickDetailCartons
                     .Include(x => x.FBACartonLocation)
@@ -328,7 +331,10 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 pickDetailInDb.FBACartonLocation.AvailableCtns += pickDetailInDb.ActualQuantity;
                 pickDetailInDb.FBACartonLocation.PickingCtns -= pickDetailInDb.ActualQuantity;
-                pickDetailInDb.FBACartonLocation.Status = FBAStatus.InStock;
+                if(pickDetailInDb.FBACartonLocation.PickingCtns == 0)
+                {
+                    pickDetailInDb.FBACartonLocation.Status = FBAStatus.InStock;
+                }
                 context.FBAPickDetails.Remove(pickDetailInDb);
             }
         }
