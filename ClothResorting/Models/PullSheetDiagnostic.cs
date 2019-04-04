@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClothResorting.Models.FBAModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,5 +17,7 @@ namespace ClothResorting.Models
         public string Description { get; set; }
 
         public ShipOrder ShipOrder { get; set; }
+
+        public FBAShipOrder FBAShipOrder { get; set; }
     }
 }

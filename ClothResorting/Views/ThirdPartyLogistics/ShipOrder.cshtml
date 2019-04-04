@@ -278,7 +278,7 @@
             //拣货诊断
             $("#table").on("click", ".btn-diag", function () {
                 var button = $(this);
-                $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?shipOrderId=' + button.attr('value'));
+                $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?shipOrderId=' + button.attr('value') + "&shipOrderType=Garment");
             });
 
             //点击准备按钮改变状态
@@ -366,27 +366,31 @@
                 var button = $(this);
                 var id = button.attr('value');
 
-                $.ajax({
-                    type: "DELETE",
-                    url: "/api/shiporder/?shipOrderId=" + id,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    beforeSend: function () {
-                        layer.msg('Processing...', {
-                            icon: 1,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function () {
-                        layer.close(index);
-                        layer.alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
-                            window.location.reload();
-                        });
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
+                bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/api/shiporder/?shipOrderId=" + id,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            beforeSend: function () {
+                                layer.msg('Processing...', {
+                                    icon: 1,
+                                    shade: 0.01,
+                                    time: 99 * 1000
+                                });
+                            },
+                            success: function () {
+                                layer.close(index);
+                                layer.alert("Selected pull sheet has been cancelled. All units and cartons have been went back to the original location and available now.", function () {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
+                            }
                         });
                     }
                 });

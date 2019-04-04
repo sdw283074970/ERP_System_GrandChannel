@@ -56,6 +56,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<EFile> Efiles { get; set; }
 
+        public ICollection<PullSheetDiagnostic> PullDiagnostics { get; set; }
+
         public FBAShipOrder()
         {
             CreateDate = DateTime.Now;

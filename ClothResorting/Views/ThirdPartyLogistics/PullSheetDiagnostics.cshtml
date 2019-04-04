@@ -32,27 +32,13 @@
     <script>
         $(document).ready(function () {
 
-            //解析url中的参数函数
-            function getUrlParameter(sParam) {
-                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-                    sURLVariables = sPageURL.split('&'),
-                    sParameterName,
-                    i;
-
-                for (i = 0; i < sURLVariables.length; i++) {
-                    sParameterName = sURLVariables[i].split('=');
-
-                    if (sParameterName[0] === sParam) {
-                        return sParameterName[1] === undefined ? true : sParameterName[1];
-                    }
-                }
-            };
-
-            var id = getUrlParameter('shipOrderId');
+            var shipOrderId = grandChannel.getUrlParameter('shipOrderId');
+            var shipOrderType = grandChannel.getUrlParameter('shipOrderType');
+            var url;
 
             $.ajax({
                 type: "GET",
-                url: "/api/pullsheetdiagnostics/" + id,
+                url: "/api/pullsheetdiagnostics/?shipOrderId=" + shipOrderId + "&shipOrderType=" + shipOrderType,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -91,19 +77,9 @@
             });
             
             $("#btn-clean").on("click", function () {
-                $.ajax({
-                    type: "DELETE",
-                    url: "/api/pullsheetdiagnostics/" + id,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function (data) {
-                        alert("Delete success!");
-                        window.location.reload();
-                    },
-                    error: function () {
-                        alert("Error!");
-                    }
-                });
+                url = "/api/pullsheetdiagnostics/?shipOrderId=" + shipOrderId + "&shipOrderType=" + shipOrderType;
+                
+                grandChannel.sendAjaxMethod("DELETE", url, {});
             });
 
             $(".btn-back").on("click", function () {

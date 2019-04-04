@@ -9,6 +9,10 @@ namespace ClothResorting.Models.StaticClass
     {
         public const string Replenishment = "Replenishment";
 
+        public const string Garment = "Garment";
+
+        public const string FBA = "FBA";
+
         public const string Prepack = "Pre-pack";
 
         public const string SolidPack = "Solid Pack";

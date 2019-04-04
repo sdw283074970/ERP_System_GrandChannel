@@ -138,6 +138,8 @@ namespace ClothResorting.Helpers.FBAHelper
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
             var pickingList = new List<FBAPickingItem>();
             var pickDetailList = new List<FBAPickDetail>();
+            var diagnosticsList = new List<PullSheetDiagnostic>();
+
             _ws = _wb.Worksheets[1];
 
             var countOfEntries = 0;
@@ -174,6 +176,18 @@ namespace ClothResorting.Helpers.FBAHelper
                     .Where(x => x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == p.CustomerCode
                         && x.ShipmentId == p.ProductSku);
 
+                //库存缺失诊断
+                if (cartonLocationsInDb.Count() == 0)
+                {
+                    diagnosticsList.Add(new PullSheetDiagnostic {
+                        FBAShipOrder = shipOrderInDb,
+                        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                        Type = "Missing",
+                        Description = "Missing detected. Please check SKU=<font color='red'>" + p.ProductSku + "</font> under Customer Code=<font color='red'>" + p.CustomerCode + "</font>"
+                    });
+                    continue;
+                }
+
                 var targetCtns = p.PickCtns;
 
                 foreach(var c in cartonLocationsInDb)
@@ -197,10 +211,24 @@ namespace ClothResorting.Helpers.FBAHelper
                         targetCtns = 0;
                     }
 
-                    // TO DO: 发货诊断
+                    //缺货诊断
+                    if (targetCtns > 0)
+                    {
+                        diagnosticsList.Add(new PullSheetDiagnostic {
+                            FBAShipOrder = shipOrderInDb,
+                            Type = "Shortage",
+                            DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                            Description = "Shortage detected. Please check SKU=<font color='red'>" + c.ShipmentId + "</font>. Shortage Ctns:<font color='red'>" + targetCtns + "</font>. Collected Ctns:< font color = 'red' > " + (p.PickCtns - targetCtns) + " </ font >."
+                        });
+                    }
                 }
             }
             shipOrderInDb.Status = FBAStatus.Picking;
+
+            if (diagnosticsList.Count != 0)
+            {
+                _context.PullSheetDiagnostics.AddRange(diagnosticsList);
+            }
 
             _context.FBAPickDetails.AddRange(pickDetailList);
             _context.SaveChanges();

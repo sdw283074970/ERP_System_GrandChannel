@@ -8,6 +8,7 @@ using System.Data.Entity;
 using System.Web.Http;
 using AutoMapper;
 using ClothResorting.Dtos;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -20,27 +21,52 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/pullsheetdiagnostics/{id}(pullSheetId)
+        // GET /api/pullsheetdiagnostics/?shipOrderId={shipOrderId}&shipOrderType={shipOrderType}
         [HttpGet]
-        public IHttpActionResult GetRecords([FromUri]int id)
+        public IHttpActionResult GetRecords([FromUri]int shipOrderId, [FromUri]string shipOrderType)
         {
-            var result = _context.PullSheetDiagnostics
-                .Include(x => x.ShipOrder)
-                .Where(x => x.ShipOrder.Id == id)
-                .Select(Mapper.Map<PullSheetDiagnostic, PullSheetDiagnosticDto>);
+            if (shipOrderType == OrderType.Garment)
+            {
+                var result = _context.PullSheetDiagnostics
+                    .Include(x => x.ShipOrder)
+                    .Where(x => x.ShipOrder.Id == shipOrderId)
+                    .Select(Mapper.Map<PullSheetDiagnostic, PullSheetDiagnosticDto>);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            else if (shipOrderType == OrderType.FBA)
+            {
+                var result = _context.PullSheetDiagnostics
+                    .Include(x => x.FBAShipOrder)
+                    .Where(x => x.FBAShipOrder.Id == shipOrderId)
+                    .Select(Mapper.Map<PullSheetDiagnostic, PullSheetDiagnosticDto>);
+
+                return Ok(result);
+            }
+
+            return Ok();
         }
 
-        // DELETE /api/pullsheetdiagnostics/{id}(pullSheetId)
+        // DELETE /api/pullsheetdiagnostics/?shipOrderId={shipOrderId}&shipOrderType={shipOrderType}
         [HttpDelete]
-        public void CleanAllRecord([FromUri]int id)
+        public void CleanAllRecord([FromUri]int shipOrderId, [FromUri]string shipOrderType)
         {
-            var diagnosticsInDb = _context.PullSheetDiagnostics
-                .Include(x => x.ShipOrder)
-                .Where(x => x.ShipOrder.Id == id);
+            if (shipOrderType == OrderType.Garment)
+            {
+                var diagnosticsInDb = _context.PullSheetDiagnostics
+                    .Include(x => x.ShipOrder)
+                    .Where(x => x.ShipOrder.Id == shipOrderId);
 
-            _context.PullSheetDiagnostics.RemoveRange(diagnosticsInDb);
+                _context.PullSheetDiagnostics.RemoveRange(diagnosticsInDb);
+            }
+            else if (shipOrderType == OrderType.FBA)
+            {
+                var diagnosticsInDb = _context.PullSheetDiagnostics
+                    .Include(x => x.FBAShipOrder)
+                    .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
+                _context.PullSheetDiagnostics.RemoveRange(diagnosticsInDb);
+            }
             _context.SaveChanges();
         }
     }

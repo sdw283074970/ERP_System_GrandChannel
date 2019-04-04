@@ -14,6 +14,7 @@
     <div id="div-create">
         <input operation="UploadBOL" type="button" class="btn btn-group btn-create1" value="Upload BOL Templist" />
         <input operation="UploadShipOrder" type="button" class="btn btn-group btn-create1" value="Upload Ship Order Templist" />
+        <input id="btn-diag" type="button" class="btn btn-danger" value="Diagnostic system" />
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />
@@ -159,6 +160,11 @@
             //var orderType = getUrlParameter('orderType');
             var container;
             var palletLocationId;
+
+            //点击诊断系统，查看所有诊断
+            $("#btn-diag").on("click", function () {
+                $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?shipOrderId=' + shipOrderId + "&shipOrderType=FBA");
+            });
 
             //获取该订单的拣货列表
             GetPickDetailTable(shipOrderId, table);

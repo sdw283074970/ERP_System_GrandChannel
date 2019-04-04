@@ -37,7 +37,6 @@
 
 	//发送Ajax方法
 	var sendAjaxMethod = function (method, url, obj) {
-
 		$.ajax({
 			type: method,
 			url: url,
@@ -45,7 +44,7 @@
 			dataType: "json",
 			data: JSON.stringify(obj),
 			success: function () {
-				layer.alert("Item has been put back.", function () {
+				layer.alert("Success!", function () {
 					window.location.reload();
 				});
 			},
