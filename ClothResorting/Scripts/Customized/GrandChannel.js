@@ -43,7 +43,15 @@
 			contentType: 'application/json; charset=utf-8',
 			dataType: "json",
 			data: JSON.stringify(obj),
-			success: function () {
+			beforeSend: function () {
+				layer.close(index);
+				index = layer.msg('Processing...', {
+					icon: 1,
+					shade: 0.01,
+					time: 99 * 1000
+				});
+			},
+			success: function (data) {
 				layer.alert("Success!", function () {
 					window.location.reload();
 				});
@@ -57,4 +65,33 @@
 	};
 
 	grandChannel.sendAjaxMethod = sendAjaxMethod;
+
+	var sendAjaxMethodAndDownloadFileByFullPath = function (method, url, obj, index) {
+		$.ajax({
+			type: method,
+			url: url,
+			contentType: 'application/json; charset=utf-8',
+			dataType: "json",
+			data: JSON.stringify(obj),
+			beforeSend: function () {
+				layer.close(index);
+				index = layer.msg('Processing...', {
+					icon: 1,
+					shade: 0.01,
+					time: 99 * 1000
+				});
+			},
+			success: function (fullPath) {
+				layer.alert("Success! File will be downloaded automaticlly.");
+				$(window.location).attr('href', "/api/fba/downloadfile/?fullPath=" + encodeURIComponent(fullPath).toString());
+			},
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+					window.location.reload();
+				});
+			}
+		});
+	};
+
+	grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath = sendAjaxMethodAndDownloadFileByFullPath;
 })();

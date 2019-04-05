@@ -74,7 +74,7 @@
         <table id="table-ctnsinplt" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th style="width:20px">Id</th>
+                    <th>Id</th>
                     <th>Status</th>
                     <th>FBA ID./SKU</th>
                     <th>Amz ID.</th>
@@ -228,7 +228,7 @@
                     }
                 }
             ]
-            GetAjaxTable("GET", url, "#table-pallet", palletTable, palletsColumnArray);
+            GetAjaxTable("GET", url, "#table-pallet", palletTable, palletsColumnArray, true);
 
             //获取Carton库存表
             url = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Carton";
@@ -330,7 +330,7 @@
                     }
                 }
             ]
-            GetAjaxTable("GET", url, "#table-carton", cartonTable, cartonsColumnArray);
+            GetAjaxTable("GET", url, "#table-carton", cartonTable, cartonsColumnArray, false);
 
             //点击托盘库存列表中的View按钮，查看该托盘内容
             $("#table-pallet").on("click", ".btn-view", function () {
@@ -407,7 +407,7 @@
                     }
                 ];
 
-                GetAjaxTable("GET", url, "#table-ctnsinplt", ctnsInPltTable, ctnsInPltColumnArray);
+                GetAjaxTable("GET", url, "#table-ctnsinplt", ctnsInPltTable, ctnsInPltColumnArray, true);
             });
 
             //点击Relocate按钮，放回物品
@@ -437,7 +437,7 @@
                 }
             };
 
-            function GetAjaxTable(methodType, url, tableId, table, columsArray) {
+            function GetAjaxTable(methodType, url, tableId, table, columsArray, isScrollX) {
                 $.ajax({
                     type: methodType,
                     url: url,
@@ -460,7 +460,7 @@
                         table = $(tableId).DataTable({
                             data: data,
                             destroy: true,
-                            //scrollX: true,
+                            scrollX: isScrollX,
                             order: [[1, "asc"]],
                             scrollCollapse: true,
                             scrollY: "600px",

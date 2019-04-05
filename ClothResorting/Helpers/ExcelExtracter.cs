@@ -1615,67 +1615,73 @@ namespace ClothResorting.Helpers
         {
             var pullSheet = _context.ShipOrders.Find(shipOrderId);
             var diagnosticList = new List<PullSheetDiagnostic>();
-            //首先抽取第一页的PSI信息，将PSI中指定的内容放入一个储存在内存中的“待选对象池”，池中内容不一定都会用完
-            _ws = _wb.Worksheets[1];
+            #region 应用户要求，取消PSI信息页面
+            ////首先抽取第一页的PSI信息，将PSI中指定的内容放入一个储存在内存中的“待选对象池”，池中内容不一定都会用完
+            //_ws = _wb.Worksheets[1];
 
-            var psiRowCount = 0;
-            var index = 2;
-            var psiList = new List<PSIModel>();
+            //var psiRowCount = 0;
+            //var index = 2;
+            //var psiList = new List<PSIModel>();
 
-            while (_ws.Cells[index, 1].Value2 != null)
-            {
-                psiRowCount += 1;
-                index += 1;
-            }
+            //while (_ws.Cells[index, 1].Value2 != null)
+            //{
+            //    psiRowCount += 1;
+            //    index += 1;
+            //}
 
-            //检查是否有重复的pis记录
-            for (int i = 0; i < psiRowCount; i++)
-            {
-                var container = _ws.Cells[i + 2, 1].Value2.ToString();
-                var cutPo = _ws.Cells[i + 2, 2].Value2.ToString();
-                var style = _ws.Cells[i + 2, 3].Value2.ToString();
-                var isExisted = false;
+            ////检查是否有重复的pis记录
+            //for (int i = 0; i < psiRowCount; i++)
+            //{
+            //    var container = _ws.Cells[i + 2, 1].Value2.ToString();
+            //    var cutPo = _ws.Cells[i + 2, 2].Value2.ToString();
+            //    var style = _ws.Cells[i + 2, 3].Value2.ToString();
+            //    var isExisted = false;
 
-                foreach (var psi in psiList)
-                {
-                    //if (psi.Container == container && psi.CutPurchaseOrder == cutPo && psi.Style == style)
-                    if (psi.Container == container)
-                    {
-                        isExisted = true;
-                    }
-                }
+            //    foreach (var psi in psiList)
+            //    {
+            //        //if (psi.Container == container && psi.CutPurchaseOrder == cutPo && psi.Style == style)
+            //        if (psi.Container == container)
+            //        {
+            //            isExisted = true;
+            //        }
+            //    }
 
-                if (isExisted == false)
-                {
-                    psiList.Add(new PSIModel
-                    {
-                        Container = container,
-                        CutPurchaseOrder = cutPo,
-                        Style = style
-                    });
-                }
-            }
+            //    if (isExisted == false)
+            //    {
+            //        psiList.Add(new PSIModel
+            //        {
+            //            Container = container,
+            //            CutPurchaseOrder = cutPo,
+            //            Style = style
+            //        });
+            //    }
+            //}
 
-            //基于PSI信息，查找整个数据库的库存对象，将这些对象放在一个“待选池”列表中
-            var cartonLocationPool = new List<FCRegularLocationDetail>();
+            ////基于PSI信息，查找整个数据库的库存对象，将这些对象放在一个“待选池”列表中
+            //var cartonLocationPool = new List<FCRegularLocationDetail>();
 
-            foreach (var psi in psiList)
-            {
-                var psiResult = _context.FCRegularLocationDetails
-                    .Include(x => x.PreReceiveOrder)
-                    //.Where(c => c.Container == psi.Container
-                    //    && c.PurchaseOrder == psi.CutPurchaseOrder
-                    //    && c.Style == psi.Style)
-                    .Where(x => x.Container == psi.Container)
-                    .ToList();
+            //foreach (var psi in psiList)
+            //{
+            //    var psiResult = _context.FCRegularLocationDetails
+            //        .Include(x => x.PreReceiveOrder)
+            //        //.Where(c => c.Container == psi.Container
+            //        //    && c.PurchaseOrder == psi.CutPurchaseOrder
+            //        //    && c.Style == psi.Style)
+            //        .Where(x => x.Container == psi.Container)
+            //        .ToList();
 
-                cartonLocationPool.AddRange(psiResult);
-            }
-
+            //    cartonLocationPool.AddRange(psiResult);
+            //}
+            #endregion
             //然后抽取第二页的Pull Sheet模板化的信息, 在“待选池”中扣除抽取出来的信息
-            _ws = _wb.Worksheets[2];
+            _ws = _wb.Worksheets[1];
             var pullSheetCount = 0;
-            index = 1;
+            var index = 1;
+
+            //应用户要求，将全部不为0的库存都放进拣货池
+            var cartonLocationPool = _context.FCRegularLocationDetails
+                .Where(x => x.AvailablePcs > 0 || x.AvailableCtns > 0)
+                .ToList();
 
             //扫描有多少种需要拣货的SKU
             while (_ws.Cells[index, 1].Value2 != null)

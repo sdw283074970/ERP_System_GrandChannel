@@ -475,7 +475,8 @@
                 var objArray = new Array();
 
                 $(".input-cartons").each(function (i) {
-                    if ($(this).val() != "")
+                    var availableCtns = $(this).parent().parent("tr").children('td').eq(9).children('font').html();
+                    if ($(this).val() != "" && $(this).val() <= availableCtns)
                     {
                         var id = $(this).attr('iid');
                         var cartons = $(this).val();
@@ -485,6 +486,10 @@
                         };
 
                         objArray.push(obj);
+                    }
+                    else
+                    {
+                        alert("请检查拣货数量是否充足。");
                     }
                 });
 

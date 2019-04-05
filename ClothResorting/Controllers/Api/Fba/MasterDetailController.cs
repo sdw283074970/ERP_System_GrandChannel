@@ -12,6 +12,7 @@ using ClothResorting.Dtos.Fba;
 using ClothResorting.Helpers;
 using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models.FBAModels.BaseClass;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -22,6 +23,25 @@ namespace ClothResorting.Controllers.Api.Fba
         public MasterDetailController()
         {
             _context = new ApplicationDbContext();
+        }
+
+        // GET /api/fba/masterdetail/?grandNumber={grandNumber}&operation={operation}
+        [HttpGet]
+        public IHttpActionResult GetByOperation([FromUri]string grandNumber, [FromUri]string operation)
+        {
+            if (operation == FBAOperation.Download)
+            {
+                var masterOrderId = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber).Id;
+
+                var generator = new FBAExcelGenerator(@"D:\Template\Receipt-template.xlsx");
+
+                var fullPath = generator.GenerateReceipt(masterOrderId);
+
+                return Ok(fullPath);
+            }
+
+            return Ok("Invalid operation.");
+
         }
 
         // GET /api/fba/masterdetail/?grandNumber={grandNumber}
@@ -101,9 +121,18 @@ namespace ClothResorting.Controllers.Api.Fba
                 throw new Exception("Cannot using this batch receving function because there were some items allocated.");
             }
 
-            foreach(var detail in orderDetailsInDb)
+            //Container号查重
+            if (_context.FBAMasterOrders.SingleOrDefault(x => x.Container == container) != null)
             {
-                detail.Container = container;
+                throw new Exception("Contianer Number " + container + " has been taken. Please delete the existed order and try agian.");
+            }
+
+            foreach (var detail in orderDetailsInDb)
+            {
+                if (container != null || container != "")
+                {
+                    detail.Container = container;
+                }
 
                 if (detail.ActualQuantity == 0)
                 {
@@ -113,7 +142,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
             }
 
-            masterInDb.Container = container;
+            if (container != null || container != "")
+            {
+                masterInDb.Container = container;
+            }
+
             masterInDb.InboundDate = inboundDate;
 
             _context.SaveChanges();

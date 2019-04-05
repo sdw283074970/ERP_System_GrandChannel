@@ -76,12 +76,13 @@ namespace ClothResorting.Helpers
 
         public void DownloadByFullPath(string fullPath)
         {
+            var fileName = fullPath.Split('\\').Last();
             var response = HttpContext.Current.Response;
             var downloadFile = new FileInfo(fullPath);
             response.ClearHeaders();
             response.Buffer = false;
             response.ContentType = "application/octet-stream";
-            response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(downloadFile.FullName, System.Text.Encoding.UTF8));
+            response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8));
             response.Clear();
             response.AppendHeader("Content-Length", downloadFile.Length.ToString());
             response.WriteFile(downloadFile.FullName);

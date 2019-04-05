@@ -30,15 +30,17 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var breaker = new CartonBreaker();
+            var cartons = _context.FBACartonLocations
+                .Include(x => x.FBAPallet)
+                .Where(x => x.CtnsPerPlt != 0);
 
-            var prePackLocation = _context.FCRegularLocationDetails
-                .Where(x => x.SizeBundle.Contains(" ") && x.AvailableCtns != 0 && !x.SizeBundle.Contains("SIZE"));
-
-            foreach(var p in prePackLocation)
+            foreach(var c in cartons)
             {
-                breaker.BreakPrePack(p.Id);
+                c.ActualQuantity = c.CtnsPerPlt * c.FBAPallet.ActualPallets;
+                c.AvailableCtns = c.ActualQuantity - c.PickingCtns - c.ShippedCtns;
             }
+
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 
