@@ -1674,7 +1674,7 @@ namespace ClothResorting.Helpers
             //}
             #endregion
             //然后抽取第二页的Pull Sheet模板化的信息, 在“待选池”中扣除抽取出来的信息
-            _ws = _wb.Worksheets[1];
+            _ws = _wb.Worksheets[2];
             var pullSheetCount = 0;
             var index = 1;
 

@@ -122,7 +122,9 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             //Container号查重
-            if (_context.FBAMasterOrders.SingleOrDefault(x => x.Container == container) != null)
+            var currentContainer = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber).Container;
+
+            if (currentContainer != container && _context.FBAMasterOrders.SingleOrDefault(x => x.Container == container) != null)
             {
                 throw new Exception("Contianer Number " + container + " has been taken. Please delete the existed order and try agian.");
             }

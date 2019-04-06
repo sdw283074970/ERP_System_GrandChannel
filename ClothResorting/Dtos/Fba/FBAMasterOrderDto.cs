@@ -39,5 +39,9 @@ namespace ClothResorting.Dtos.Fba
         public int OriginalPlts { get; set; }
 
         public int SKUNumber { get; set; }
+
+        public string UpdateLog { get; set; }
+
+        public string Comment { get; set; }
     }
 }

@@ -11,19 +11,23 @@ using ClothResorting.Models.FBAModels;
 using ClothResorting.Dtos.Fba;
 using ClothResorting.Models.FBAModels.BaseClass;
 using System.Globalization;
+using ClothResorting.Models.FBAModels.StaticModels;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
     public class FBAMasterOrderController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public FBAMasterOrderController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@').First();
         }
 
-        //GET /api/fba/fbamasterorder/
+        // GET /api/fba/fbamasterorder/
         [HttpGet]
         public IHttpActionResult GetAllMasterOrders()
         {
@@ -55,7 +59,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(resultDto);
         }
 
-        //GET /api/fba/fbamasterorder/{id}
+        // GET /api/fba/fbamasterorder/{id}
         [HttpGet]
         public IHttpActionResult GetMasterOrders([FromUri]int id)
         {
@@ -89,6 +93,23 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(resultDto);
         }
 
+        // GET /api/fba/fbamasterorder/?grandNumber={grandNumber}&operation={edit}
+        [HttpGet]
+        public IHttpActionResult GetMasterOrderInfo([FromUri]string grandNumber, [FromUri]string operation)
+        {
+            if (operation == FBAOperation.Edit)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders
+                    .SingleOrDefault(x => x.GrandNumber == grandNumber);
+
+                var resultDto = Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(masterOrderInDb);
+
+                return Ok(resultDto);
+            }
+
+            return Ok();
+        }
+
         //POST /api/fba/fbamasterorder/{id}
         [HttpPost]
         public IHttpActionResult CreateMasterOrder([FromBody]FBAMasterOrder obj, [FromUri]int id)
@@ -118,6 +139,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.OriginalPlts = obj.OriginalPlts;
             masterOrder.InboundType = obj.InboundType;
             masterOrder.InvoiceStatus = "Await";
+            masterOrder.UpdateLog += "Update by " + _userName + " at " + DateTime.Now.ToString() + ". ";
 
             _context.FBAMasterOrders.Add(masterOrder);
             _context.SaveChanges();
@@ -146,6 +168,38 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 detail.Container = container;
             }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fba/fbamasterorder/?grandNumber={grandNumber}&operation={edit}
+        [HttpPut]
+        public void UpdateMasterOrderInfo([FromUri]string grandNumber, [FromBody]FBAMasterOrder obj)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders
+                .SingleOrDefault(x => x.GrandNumber == grandNumber);
+
+            var currentContainer = masterOrderInDb.Container;
+
+            if (currentContainer != obj.Container && _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Container) != null)
+            {
+                throw new Exception("Contianer Number " + obj.Container + " has been taken. Please delete the existed order and try agian.");
+            }
+
+            masterOrderInDb.Carrier = obj.Carrier;
+            masterOrderInDb.Vessel = obj.Vessel;
+            masterOrderInDb.Voy = obj.Voy;
+            masterOrderInDb.ETA = obj.ETA;
+            masterOrderInDb.ETD = obj.ETD;
+            masterOrderInDb.ETAPort = obj.ETAPort;
+            masterOrderInDb.PlaceOfReceipt = obj.PlaceOfReceipt;
+            masterOrderInDb.PortOfLoading = obj.PortOfLoading;
+            masterOrderInDb.PortOfDischarge = obj.PortOfDischarge;
+            masterOrderInDb.PlaceOfDelivery = obj.PlaceOfDelivery;
+            masterOrderInDb.Container = obj.Container;
+            masterOrderInDb.OriginalPlts = obj.OriginalPlts;
+            masterOrderInDb.SealNumber = obj.SealNumber;
+            masterOrderInDb.InboundType = obj.InboundType;
 
             _context.SaveChanges();
         }

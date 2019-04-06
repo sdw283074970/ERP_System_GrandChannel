@@ -18,7 +18,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Template Name</th>
-                    <th>Customer</th>
+                    <th>Customer Code</th>
                     <th>Time Unit</th>
                     <th>Currency</th>
                     <th>Operation</th>
@@ -38,6 +38,7 @@
     </div>
     <div>
         <input id="uploadfile" type="button" class="btn btn-primary" value="Upload & Download Excel File" />
+        <input id="input-download" type="button" class="btn btn-primary" value="Download new report" />
     </div>
     <div>
         <text>Charge method details are shown as below:</text>
@@ -59,7 +60,7 @@
 <div class="iframe-create">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Template Name: </text><input id='input-templatename' style='width:170px' class='input-sm' placeholder='Template Name' /><br />
-        <text>Customer Name: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer Name' /><br />
+        <text>Customer Name: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer Code' /><br />
         <text>Charge Period: </text>
         <select id="select-timeunit" style="width:170px;height:30px">
             <option value="Day">Day</option>
@@ -84,6 +85,7 @@
             $(".iframe-create").hide();
             var index;
             var templateId;
+            var customerCode;
 
             //打开页面出现的默认表格，显示已有模板
             $.ajax({
@@ -211,6 +213,7 @@
             //点击使用按钮，弹出上传文件窗口
             $("#table").on("click", ".btn-use", function () {
                 templateId = $(this).attr('useid');
+                customerCode = $(this).parent().parent("tr").children('td').eq(2).children('text').html();
                 var timeUnit = $(this).parent().parent("tr").children('td').eq(3).children('text').html();
                 var currency = $(this).parent().parent("tr").children('td').eq(4).children('text').html();
                 $("#feepertimeunit").html("Fee/" + timeUnit);
@@ -314,8 +317,6 @@
                 var lastBillingDate = $("#input-lastbillingdate").val();
                 var currentBillingDate = $("#input-currentbillingdate").val();
 
-                alert(lastBillingDate);
-
                 if (lastBillingDate == "" || currentBillingDate == "") {
                     alert("All the dates are required.");
                 }
@@ -355,6 +356,42 @@
                     }
                 }
 
+            });
+
+            //点击下载新报告按钮
+            $("#input-download").on("click", function () {
+                var lastBillingDate = $("#input-lastbillingdate").val();
+                var currentBillingDate = $("#input-currentbillingdate").val();
+
+                if (lastBillingDate == "" || currentBillingDate == "") {
+                    alert("All the dates are required.");
+                }
+                else {
+                    $.ajax({
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        type: "POST",
+                        url: "/api/fba/chargetemplate/?templateId=" + templateId + "&customerCode=" + customerCode + "&lastBillingDate=" + lastBillingDate + "&currentBillingDate=" + currentBillingDate,
+                        beforeSend: function () {
+                            layer.close(index);
+                            layer.msg('Extracting files...', {
+                                icon: 1,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
+                        success: function (data) {
+                            layer.alert("The file will download automatically.");
+                            $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                location.reload();
+                            });
+                        }
+                    });
+                }
             });
 
             $(".btn-back").on("click", function () {

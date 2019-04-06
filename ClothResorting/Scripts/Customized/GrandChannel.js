@@ -36,7 +36,7 @@
 	grandChannel.openiframe = openiframe;
 
 	//发送Ajax方法
-	var sendAjaxMethod = function (method, url, obj) {
+	var sendAjaxMethod = function (method, url, obj, index) {
 		$.ajax({
 			type: method,
 			url: url,
@@ -44,7 +44,6 @@
 			dataType: "json",
 			data: JSON.stringify(obj),
 			beforeSend: function () {
-				layer.close(index);
 				index = layer.msg('Processing...', {
 					icon: 1,
 					shade: 0.01,

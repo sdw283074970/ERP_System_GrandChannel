@@ -64,6 +64,7 @@
         <text>INBOUND TYPE: <input id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
         <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
         <button id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
+        <button id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
     </div>
 </div>
 @section scripts
@@ -72,6 +73,7 @@
         $(document).ready(function () {
 
             var index;
+            var beforeSendingIndex;
             var table;
             var url;
             var grandNumber;
@@ -117,11 +119,13 @@
 
             //点击新建主单按钮，打开新建主单弹窗
             $("#btn-master").on("click", function () {
+                $("#btn-new").show();
+                $("#btn-update").hide();
                 index = layer.open({
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["450px", "750px"],
+                    area: ["450px", "900px"],
                     content: $(".iframe")
                 });
             });
@@ -222,6 +226,95 @@
                     $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
                 else
                     $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
+            });
+
+            //点击编辑按钮，进入主单编辑页面
+            $("#table").on("click", ".btn-edit", function () {
+                $("#btn-new").hide();
+                $("#btn-update").show();
+                grandNumber = $(this).attr('iid');
+                grandChannel.openiframe(index, ".iframe", "450px", "900px");
+
+                url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber + "&operation=Edit";
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        beforeSendingIndex = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(beforeSendingIndex);
+
+                        $("#input-carrier").val(data.carrier);
+                        $("#input-vessel").val(data.vessel);
+                        $("#input-voy").val(data.voy);
+                        $("#input-eta").val(data.eta);
+                        $("#input-etd").val(data.etd);
+                        $("#input-inboundtype").val(data.inboundType);
+                        $("#input-etaPort").val(data.etaPort);
+                        $("#input-receipt").val(data.placeOfReceipt);
+                        $("#input-pol").val(data.portOfLoading);
+                        $("#input-pod").val(data.portOfDischarge);
+                        $("#input-delivery").val(data.placeOfDelivery);
+                        $("#input-container").val(data.container);
+                        $("#input-seal").val(data.sealNumber);
+                        $("#input-size").val(data.containerSize);
+                        $("#input-originalplts").val(data.originalPlts);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击更新按钮，更新主单的所有信息
+            $("#btn-update").on("click", function () {
+                var carrier = $("#input-carrier").val().toString();
+                var vessel = $("#input-vessel").val().toString();
+                var voy = $("#input-voy").val().toString();
+                var eta = $("#input-eta").val().toString();
+                var etd = $("#input-etd").val().toString();
+                var inboundType = $("#input-inboundtype").val().toString();
+                var etaPort = $("#input-etaPort").val().toString();
+                var placeOfReceipt = $("#input-receipt").val().toString();
+                var portOfLoading = $("#input-pol").val().toString();
+                var portOfDischarge = $("#input-pod").val().toString();
+                var placeOfDelivery = $("#input-delivery").val().toString();
+                var container = $("#input-container").val().toString();
+                var sealNumber = $("#input-seal").val().toString();
+                var containerSize = $("#input-size").val().toString();
+                var originalPlts = $("#input-originalplts").val();
+
+                var obj = {
+                    "carrier": carrier,
+                    "vessel": vessel,
+                    "voy": voy,
+                    "eta": eta,
+                    "etd": etd,
+                    "etaPort": etaPort,
+                    "placeOfReceipt": placeOfReceipt,
+                    "portOfLoading": portOfLoading,
+                    "portOfDischarge": portOfDischarge,
+                    "placeOfDelivery": placeOfDelivery,
+                    "container": container,
+                    "sealNumber": sealNumber,
+                    "containerSize": containerSize,
+                    "inboundType": inboundType,
+                    "originalPlts": originalPlts
+                };
+
+                url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber;
+
+                SendAjaxMethod("PUT", url, obj);
             });
 
             function GetAjaxTable(methodType, url) {
@@ -382,7 +475,7 @@
                                     data: "grandNumber",
                                     render: function (data) {
                                         //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
-                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
+                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
                                     }
                                 }
                             ]

@@ -54,6 +54,10 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<EFile> Efiles { get; set; }
 
+        public string UpdateLog { get; set; }
+
+        public string Comment { get; set; }
+
         //public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
 
         public FBAMasterOrder()

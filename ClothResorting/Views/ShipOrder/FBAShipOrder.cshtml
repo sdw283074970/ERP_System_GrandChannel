@@ -326,8 +326,8 @@
                             window.location.reload();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
+                            index = layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                layer.close(index);
                             });
                         }
                     });

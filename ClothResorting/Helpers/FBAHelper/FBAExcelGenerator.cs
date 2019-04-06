@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Data.Entity;
+using ClothResorting.Models.StaticClass;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -29,7 +31,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _wb = _excel.Workbooks.Open(_path);
         }
 
-        //生成Receipt文件完整路径
+        //生成Receipt文件并返回完整路径
         public string GenerateReceipt(int masterOrderId)
         {
             var masterOrderInDb = _context.FBAMasterOrders
@@ -101,5 +103,112 @@ namespace ClothResorting.Helpers.FBAHelper
 
             return fullPath;
         }
+
+        //生成StorageFee报告并返回完整路径
+        public string GenerateStorageReport(int customerId, DateTime closeDate)
+        {
+            var customerInDb = _context.UpperVendors.Find(customerId);
+
+            var pickDetailInDb = _context.FBAPickDetails
+                .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.ShipDate < closeDate
+                    && x.FBAShipOrder.Status == FBAStatus.Shipped
+                    && x.FBAPalletLocation != null
+                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
+                    && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
+                    && x.PltsFromInventory != 0);
+
+            var palletLocationInDb = _context.FBAPalletLocations
+                .Include(x => x.FBAMasterOrder.Customer)
+                .Include(x => x.FBAMasterOrder.FBAPallets)
+                .Include(x => x.FBAPickDetails)
+                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate
+                    && x.FBAMasterOrder.Customer.Id == customerId);
+
+            //var cartonLocationInDb = _context.FBACartonLocations
+            //    .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
+            //    .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate 
+            //        && x.FBAOrderDetail.FBAMasterOrder.Customer.Id == customerId);
+
+            foreach (var p in palletLocationInDb)
+            {
+                foreach(var pick in p.FBAPickDetails)
+                {
+                    p.ActualPlts -= pick.PltsFromInventory;
+                }
+            }
+
+            _ws = _wb.Worksheets[1];
+            var startIndex = 2;
+
+            var palletsInDbGroup = palletLocationInDb.GroupBy(x => x.Container);
+
+            //对仓库剩余托盘进行收费
+            foreach(var p in palletsInDbGroup)
+            {
+                _ws.Cells[startIndex, 1] = FBAOrderType.MasterOrder;
+                _ws.Cells[startIndex, 2] = p.First().Container;
+                _ws.Cells[startIndex, 6] = p.First().FBAMasterOrder.FBAPallets.Sum(x => x.ActualPallets);
+                _ws.Cells[startIndex, 7] = p.Sum(x => x.ActualPlts);
+                _ws.Cells[startIndex, 8] = p.First().FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy");
+
+                startIndex += 1;
+            }
+
+            //对每一运单进行收费
+            var shipList = new List<ShipRecord>();
+            foreach(var s in pickDetailInDb)
+            {
+                var newShipRecord = new ShipRecord {
+                    Reference = s.FBAShipOrder.ShipOrderNumber,
+                    ShippedPlts = s.PltsFromInventory,
+                    InboundDate = s.FBAPalletLocation.FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy"),
+                    OutboundDate = s.FBAShipOrder.ShipDate.ToString("MM/dd/yyyy")
+                };
+
+                var sameShipRecord = shipList.SingleOrDefault(x => x.Reference == newShipRecord.Reference
+                    && x.InboundDate == newShipRecord.InboundDate
+                    && x.OutboundDate == newShipRecord.OutboundDate);
+
+                if (sameShipRecord == null)
+                {
+                    shipList.Add(newShipRecord);
+                }
+                else
+                {
+                    sameShipRecord.ShippedPlts += newShipRecord.ShippedPlts;
+                }
+            }
+
+            foreach(var s in shipList)
+            {
+                _ws.Cells[startIndex, 1] = FBAOrderType.ShipOrder;
+                _ws.Cells[startIndex, 2] = s.Reference;
+                _ws.Cells[startIndex, 7] = s.ShippedPlts;
+                _ws.Cells[startIndex, 8] = s.InboundDate;
+                _ws.Cells[startIndex, 9] = s.OutboundDate;
+
+                startIndex += 1;
+            }
+
+            var fullPath = @"D:\StorageFee\FBA-" + customerInDb.CustomerCode + "-StorageFee-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
+        }
+    }
+
+    public class ShipRecord
+    {
+        public string Reference { get; set; }
+
+        public int ShippedPlts { get; set; }
+
+        public string InboundDate { get; set; }
+
+        public string OutboundDate { get; set; }
     }
 }

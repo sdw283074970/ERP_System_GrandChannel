@@ -8,6 +8,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
+using ClothResorting.Helpers.FBAHelper;
 
 namespace ClothResorting.Controllers
 {
@@ -30,17 +31,11 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var cartons = _context.FBACartonLocations
-                .Include(x => x.FBAPallet)
-                .Where(x => x.CtnsPerPlt != 0);
+            var closeDate = new DateTime(2019, 4, 5, 0, 0, 0, 0);
 
-            foreach(var c in cartons)
-            {
-                c.ActualQuantity = c.CtnsPerPlt * c.FBAPallet.ActualPallets;
-                c.AvailableCtns = c.ActualQuantity - c.PickingCtns - c.ShippedCtns;
-            }
+            var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
 
-            _context.SaveChanges();
+            generator.GenerateStorageReport(8, closeDate);
 
             ViewBag.Message = "Your application description page.";
 
