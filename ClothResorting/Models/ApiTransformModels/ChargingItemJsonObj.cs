@@ -23,5 +23,7 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string Unit { get; set; }
 
+        public bool IsApplyToAll { get; set; }
+
     }
 }

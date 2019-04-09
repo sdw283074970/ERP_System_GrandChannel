@@ -35,17 +35,18 @@
 <div class="iframe">
     <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Select Charging Type: </text>
-        <select id='select-type' style='width:170px;height:30px' required='required'>
+        <select id='select-type' style='width:170px;height:30px;margin-top:20px' required='required'>
             <option value='Receiving'>Receiving</option>
             <option value='Operation'>Operation</option>
             <option value='Storage'>Storage</option>
             <option value='Shipping'>Shipping</option>
             <option value='Other'>Other</option>
         </select><br />
-        <text>Charging Item Name: </text><input id='input-name' style='width:170px' class='input-sm' placeholder='Name' /><br />
-        <text>Rate: </text><input id='input-rate' style='width:170px' class='input-sm' placeholder='Rate' /><br />
+        <text>Charging Item Name: </text><input id='input-name' style='width:170px;margin-top:20px' class='input-sm' placeholder='Name' /><br />
+        <input id="input-addall" type="checkbox" /><text>Add to all customer</text><br />
+        <text>Rate: </text><input id='input-rate' style='width:170px;margin-top:20px' class='input-sm' placeholder='Rate' /><br />
         <text>UOM:</text>
-        <select id='select-unit' style='width:170px;height:30px' required='required'>
+        <select id='select-unit' style='width:170px;height:30px;margin-top:20px' required='required'>
             <option value='CBM'>CBM</option>
             <option value='CONTAINER'>CONTAINER</option>
             <option value='CTN'>CTN</option>
@@ -59,24 +60,25 @@
             <option value='SKU'>SKU</option>
             <option value='STORAGE'>STORAGE</option>
         </select><br />
-        <text>Description: </text><textarea id='input-description' style='width:170px;height:75px' class='input-sm' placeholder="(Optional)"></textarea><br />
+        <text>Description: </text><textarea id='input-description' style='width:250px;height:150px;margin-top:20px' class='input-sm' placeholder="(Optional)"></textarea><br />
         <button style="margin-top:20px" id="btn-add" class='btn btn-primary'>New Charging Template</button>
     </div>
 </div>
 <div class="iframe-edit">
     <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Select Charging Type: </text>
-        <select id='edit-select-type' style='width:170px;height:30px' required='required'>
+        <select id='edit-select-type' style='width:170px;height:30px;margin-top:20px' required='required'>
             <option value='Receiving'>Receiving</option>
             <option value='Operation'>Operation</option>
             <option value='Storage'>Storage</option>
             <option value='Shipping'>Shipping</option>
             <option value='Other'>Other</option>
         </select><br />
-        <text>Charging Item Name: </text><input id='edit-input-name' style='width:170px' class='input-sm' placeholder='Name' /><br />
-        <text>Rate: </text><input id='edit-input-rate' style='width:170px' class='input-sm' placeholder='Rate' /><br />
+        <text>Charging Item Name: </text><input id='edit-input-name' style='width:170px;margin-top:20px' class='input-sm' placeholder='Name' /><br />
+        <input id="input-applied" type="checkbox"/><text>Applied to all records</text><br />
+        <text>Rate: </text><input id='edit-input-rate' style='width:170px;margin-top:20px' class='input-sm' placeholder='Rate' /><br />
         <text>UOM:</text>
-        <select id='edit-select-unit' style='width:170px;height:30px' required='required'>
+        <select id='edit-select-unit' style='width:170px;height:30px;margin-top:20px' required='required'>
             <option value='CBM'>CBM</option>
             <option value='CONTAINER'>CONTAINER</option>
             <option value='CTN'>CTN</option>
@@ -90,7 +92,7 @@
             <option value='SKU'>SKU</option>
             <option value='STORAGE'>STORAGE</option>
         </select><br />
-        <text>Description: </text><textarea id='edit-input-description' style='width:170px;height:75px' class='input-sm' placeholder="(Optional)"></textarea><br />
+        <text style="margin-top:20px">Description: </text><textarea id='edit-input-description' style='width:250px;height:150px;margin-top:20px' class='input-sm' placeholder="(Optional)"></textarea><br />
         <button style="margin-top:20px" id="btn-update" class='btn btn-primary'>Update</button>
     </div>
 </div>
@@ -100,6 +102,7 @@
         $(document).ready(function () {
 
             $(".iframe").hide();
+            $(".iframe-edit").hide();
             var table;
             var url;
             var index;
@@ -175,6 +178,11 @@
                 var rate = $("#input-rate").val();
                 var unit = $("#select-unit option:selected").val();
                 var description = $("#input-description").val().toString();
+                var isApplyToAll = false;
+
+                if ($("#input-addall").is(":checked")) {
+                    isApplyToAll = true;
+                }
 
                 var obj = {
                     "customerId": customerId,
@@ -182,7 +190,8 @@
                     "name": name,
                     "rate": rate,
                     "unit": unit,
-                    "description": description
+                    "description": description,
+                    "isApplyToAll": isApplyToAll
                 };
 
                 $.ajax({
@@ -247,6 +256,11 @@
                 var rate = $("#edit-input-rate").val();
                 var unit = $("#edit-select-unit option:selected").val();
                 var description = $("#edit-input-description").val().toString();
+                var isApplyToAll = false;
+
+                if ($("#input-applied").is(":checked")) {
+                    isApplyToAll = true;
+                }
 
                 var obj = {
                     "customerId": customerId,
@@ -254,7 +268,8 @@
                     "name": name,
                     "rate": rate,
                     "unit": unit,
-                    "description": description
+                    "description": description,
+                    "isApplyToAll": isApplyToAll
                 };
 
                 $.ajax({

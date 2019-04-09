@@ -13,16 +13,20 @@ using ClothResorting.Helpers;
 using System.Web;
 using System.IO;
 using ClothResorting.Models.StaticClass;
+using System.Globalization;
+using ClothResorting.Helpers.FBAHelper;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
     public class ChargeTemplateController : ApiController
     {
         private FBADbContext _context;
+        private ApplicationDbContext _context2;
 
         public ChargeTemplateController()
         {
             _context = new FBADbContext();
+            _context2 = new ApplicationDbContext();
         }
 
         // GET /api/fba/chargetemplate/
@@ -34,6 +38,35 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<ChargeTemplate, ChargeTemplateDto>);
 
             return Ok(templatesDto);
+        }
+
+        // POST /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}
+        [HttpPost]
+        public void DownloadNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate)
+        {
+            DateTime closeDate = currentBillingDate;
+
+            var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
+            var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
+            var fullPath = generator.GenerateStorageReport(customerId, closeDate);
+
+            var chargeMethodsList = _context.ChargeMethods
+                .Include(x => x.ChargeTemplate)
+                .Where(x => x.ChargeTemplate.Id == templateId)
+                .OrderBy(x => x.From)
+                .ToList();
+
+            var calculator = new InventoryFeeCalculator(fullPath);
+
+            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate.ToString("yyyy-MM-dd"), currentBillingDate.ToString("yyyy-MM-dd"));
+
+            //强行关闭Excel进程
+            var killer = new ExcelKiller();
+            killer.Dispose();
+
+            //在静态变量中记录下载信息
+            DownloadRecord.FileName = fullPath.Split('\\').Last();
+            DownloadRecord.FilePath = fullPath;
         }
 
         // POST /api/fba/chargetemplate/?templateName={templateName}&customer={customer}&timeUnit={timeUnit}&currency={currency}
@@ -87,7 +120,6 @@ namespace ClothResorting.Controllers.Api.Fba
             DownloadRecord.FileName = fileGetter.FileName;
             DownloadRecord.FilePath = path;
         }
-
 
         // DELETE /api/fba/chargetemplate/?templateId={templateId}
         [HttpDelete]

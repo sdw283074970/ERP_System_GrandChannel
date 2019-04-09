@@ -31,11 +31,11 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var closeDate = new DateTime(2019, 4, 5, 0, 0, 0, 0);
+            var closeDate = new DateTime(2019, 4, 8, 0, 0, 0, 0);
 
             var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
 
-            generator.GenerateStorageReport(8, closeDate);
+            generator.GenerateStorageReport(10, closeDate);
 
             ViewBag.Message = "Your application description page.";
 

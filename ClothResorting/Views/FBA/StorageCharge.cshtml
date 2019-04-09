@@ -375,7 +375,7 @@
                         url: "/api/fba/chargetemplate/?templateId=" + templateId + "&customerCode=" + customerCode + "&lastBillingDate=" + lastBillingDate + "&currentBillingDate=" + currentBillingDate,
                         beforeSend: function () {
                             layer.close(index);
-                            layer.msg('Extracting files...', {
+                            layer.msg('Processing...', {
                                 icon: 1,
                                 shade: 0.01,
                                 time: 99 * 1000
@@ -383,7 +383,7 @@
                         },
                         success: function (data) {
                             layer.alert("The file will download automatically.");
-                            $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                            $(window.location).attr('href', '/api/fba/downloadfile/');
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
