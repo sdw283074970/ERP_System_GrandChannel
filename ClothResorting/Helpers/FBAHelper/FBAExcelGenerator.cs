@@ -7,6 +7,7 @@ using System.Web;
 using System.Data.Entity;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Models.FBAModels.StaticModels;
+using ClothResorting.Models.FBAModels;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -39,6 +40,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.Customer)
                 .SingleOrDefault(x => x.Id == masterOrderId);
 
+            var unPalletizedSKU = masterOrderInDb.FBAOrderDetails
+                .Where(x => x.ComsumedQuantity < x.ActualQuantity);
+
             var palletsInDb = _context.FBAPallets
                 .Include(x => x.FBAMasterOrder)
                 .Include(x => x.FBACartonLocations)
@@ -61,6 +65,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             var ws = (Worksheet)_wb.ActiveSheet;
 
+            //写入打托的SKU
             foreach (var p in palletsInDb)
             {
                 //合并单元格
@@ -81,6 +86,17 @@ namespace ClothResorting.Helpers.FBAHelper
 
             }
 
+            //写入未打托的SKU
+            foreach(var s in unPalletizedSKU)
+            {
+                _ws.Cells[startRow, 1] = s.ShipmentId;
+                _ws.Cells[startRow, 2] = s.AmzRefId;
+                _ws.Cells[startRow, 3] = s.Quantity;
+                _ws.Cells[startRow, 4] = s.ActualQuantity;
+                startRow += 1;
+            }
+
+            //写入表头信息
             _ws.Cells[2, 2] = masterOrderInDb.Customer.CustomerCode;
             _ws.Cells[2, 4] = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd");
             _ws.Cells[3, 2] = masterOrderInDb.Container;
@@ -91,6 +107,7 @@ namespace ClothResorting.Helpers.FBAHelper
             //_ws.Cells[startRow, 3] = "Total Ctns";
             //_ws.Cells[startRow, 4] = masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
 
+            //写入表脚信息
             _ws.Cells[startRow, 1] = "Total:";
             _ws.Cells[startRow, 3] = masterOrderInDb.FBAOrderDetails.Sum(x => x.Quantity);
             _ws.Cells[startRow, 4] = masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
@@ -147,10 +164,17 @@ namespace ClothResorting.Helpers.FBAHelper
             //对仓库剩余托盘进行收费
             foreach(var p in palletsInDbGroup)
             {
+                var pallets = p.Sum(x => x.ActualPlts);
+
+                if (pallets == 0)
+                {
+                    continue;
+                }
+
                 _ws.Cells[startIndex, 1] = FBAOrderType.MasterOrder;
                 _ws.Cells[startIndex, 2] = p.First().Container;
                 _ws.Cells[startIndex, 6] = p.First().FBAMasterOrder.FBAPallets.Sum(x => x.ActualPallets);
-                _ws.Cells[startIndex, 7] = p.Sum(x => x.ActualPlts);
+                _ws.Cells[startIndex, 7] = pallets;
                 _ws.Cells[startIndex, 8] = p.First().FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy");
 
                 startIndex += 1;
@@ -198,6 +222,89 @@ namespace ClothResorting.Helpers.FBAHelper
             _excel.Quit();
 
             return fullPath;
+        }
+
+        //生成拣货单并返回完整路径
+        public string GeneratePickingList(int shipOrderId)
+        {
+            _ws = _wb.Worksheets[1];
+            var startIndex = 3;
+
+            var pickDetailInDb = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId)
+                .ToList();
+
+            _ws.Cells[1, 2] = pickDetailInDb.First().FBAShipOrder.ShipOrderNumber.ToString();
+            var bolList = GenerateFBABOLList(pickDetailInDb);
+            foreach(var p in bolList)
+            {
+                _ws.Cells[startIndex, 1] = p.CustomerOrderNumber;
+                _ws.Cells[startIndex, 2] = p.Contianer;
+                _ws.Cells[startIndex, 3] = p.CartonQuantity;
+                _ws.Cells[startIndex, 5] = p.Location;
+
+                if (p.PalletQuantity != 0)
+                {
+                    _ws.Cells[startIndex, 4] = p.PalletQuantity;
+                }
+
+                startIndex += 1;
+            }
+
+            _ws.Cells[startIndex + 1, 2] = "Total";
+            _ws.Cells[startIndex + 1, 3] = pickDetailInDb.Sum(x => x.ActualQuantity);
+            _ws.Cells[startIndex + 1, 4] = pickDetailInDb.Sum(x => x.ActualPlts);
+
+            var fullPath = @"D:\PickingList\FBA-" + pickDetailInDb.First().FBAShipOrder.CustomerCode + "-PickingList-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
+        }
+
+        private IList<FBABOLDetail> GenerateFBABOLList(IEnumerable<FBAPickDetail> pickDetailsInDb)
+        {
+            var bolList = new List<FBABOLDetail>();
+
+            foreach (var pickDetail in pickDetailsInDb)
+            {
+                if (pickDetail.FBAPalletLocation != null)
+                {
+                    var cartonInPickList = pickDetail.FBAPickDetailCartons.ToList();
+                    for (int i = 0; i < cartonInPickList.Count; i++)
+                    {
+                        var plt = pickDetail.ActualPlts;
+
+                        bolList.Add(new FBABOLDetail
+                        {
+                            CustomerOrderNumber = cartonInPickList[i].FBACartonLocation.ShipmentId,
+                            Contianer = pickDetail.Container,
+                            CartonQuantity = cartonInPickList[i].PickCtns,
+                            PalletQuantity = plt,
+                            Weight = cartonInPickList[i].FBACartonLocation.GrossWeightPerCtn * cartonInPickList[i].PickCtns,
+                            Location = pickDetail.Location
+                        });
+                    }
+                }
+                else
+                {
+                    bolList.Add(new FBABOLDetail
+                    {
+                        CustomerOrderNumber = pickDetail.ShipmentId,
+                        Contianer = pickDetail.Container,
+                        CartonQuantity = pickDetail.ActualQuantity,
+                        PalletQuantity = 0,
+                        Weight = pickDetail.ActualGrossWeight,
+                        Location = pickDetail.Location
+                    });
+                }
+            }
+
+            return bolList;
         }
     }
 

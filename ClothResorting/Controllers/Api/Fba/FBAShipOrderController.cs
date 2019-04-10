@@ -232,9 +232,13 @@ namespace ClothResorting.Controllers.Api.Fba
             cartonLocationInDb.ShippedCtns += pickDetailInDb.ActualQuantity;
             cartonLocationInDb.PickingCtns -= pickDetailInDb.ActualQuantity;
 
-            if (cartonLocationInDb.PickingCtns == 0 && cartonLocationInDb.AvailableCtns != 0)
+            if (cartonLocationInDb.PickingCtns == 0 && cartonLocationInDb.AvailableCtns != 0 && cartonLocationInDb.Location != "Pallet")
             {
                 cartonLocationInDb.Status = FBAStatus.InStock;
+            }
+            else if (cartonLocationInDb.PickingCtns == 0 && cartonLocationInDb.AvailableCtns != 0 && cartonLocationInDb.Location == "Pallet")
+            {
+                cartonLocationInDb.Status = FBAStatus.InPallet;
             }
             else if (cartonLocationInDb.PickingCtns == 0 && cartonLocationInDb.AvailableCtns == 0)
             {
@@ -256,9 +260,13 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 if (carton.FBACartonLocation.Status != FBAStatus.InPallet)
                 {
-                    if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns != 0)
+                    if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns != 0 && carton.FBACartonLocation.Location != "Pallet")
                     {
                         carton.FBACartonLocation.Status = FBAStatus.InStock;
+                    }
+                    else if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns != 0 && carton.FBACartonLocation.Location == "Pallet")
+                    {
+                        carton.FBACartonLocation.Status = FBAStatus.InPallet;
                     }
                     else if (carton.FBACartonLocation.PickingCtns == 0 && carton.FBACartonLocation.AvailableCtns == 0)
                     {
@@ -293,7 +301,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                         bolList.Add(new FBABOLDetail
                         {
-                            CustoerOrderNumber = cartonInPickList[i].FBACartonLocation.ShipmentId,
+                            CustomerOrderNumber = cartonInPickList[i].FBACartonLocation.ShipmentId,
                             Contianer = pickDetail.Container,
                             CartonQuantity = cartonInPickList[i].PickCtns,
                             PalletQuantity = plt,
@@ -306,7 +314,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     bolList.Add(new FBABOLDetail
                     {
-                        CustoerOrderNumber = pickDetail.ShipmentId,
+                        CustomerOrderNumber = pickDetail.ShipmentId,
                         Contianer = pickDetail.Container,
                         CartonQuantity = pickDetail.ActualQuantity,
                         PalletQuantity = 0,

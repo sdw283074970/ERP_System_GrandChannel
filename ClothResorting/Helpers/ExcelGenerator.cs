@@ -425,7 +425,7 @@ namespace ClothResorting.Helpers
 
             if (sizeArray.Length <= 1)
             {
-                sizeBundle = "S,M,L,1X,2X,3X,4X,2T,3T,4T,PS,PM,PL,PXL,6,7,8,9,10,12,14,16";
+                sizeBundle = "S,M,L,1X,2X,3X,4X,5X,6X,2T,3T,4T,PS,PM,PL,PXL,4,5,5/6,6,7,7/8,8,9,10,10/12,12,14,14/16,16,18/20";
                 sizeArray = sizeBundle.Split(',');
             }
 
@@ -495,7 +495,7 @@ namespace ClothResorting.Helpers
             var sum3 = inventoryList.Sum(x => x.AvailablePcs);
             _ws.Cells[currentRow + 3, 2] = sum3;
 
-            var fullPath = @"D:\InventoryReport\InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            var fullPath = @"D:\InventoryReport\InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -522,6 +522,18 @@ namespace ClothResorting.Helpers
             {
                 return "4X";
             }
+            else if (size == "L(6X)")
+            {
+                return "4X";
+            }
+            else if (size == "S(4)")
+            {
+                return "4";
+            }
+            else if (size == "M(5/6)")
+            {
+                return "5/6";
+            }
             else if (size == "SIZE 6")
             {
                 return "6";
@@ -530,7 +542,11 @@ namespace ClothResorting.Helpers
             {
                 return "7";
             }
-            else if (size == "SIZE 8")
+            else if (size == "S(7/8)")
+            {
+                return "7/8";
+            }
+            else if (size == "SIZE 8" || size == "S(8)")
             {
                 return "8";
             }
@@ -538,21 +554,33 @@ namespace ClothResorting.Helpers
             {
                 return "10";
             }
-            else if (size == "SIZE 12")
+            else if (size == "M(10/12)")
             {
-                return "12";
+                return "10/12";
             }
             else if (size == "SIZE 12")
             {
                 return "12";
             }
-            else if (size == "SIZE 14")
+            else if (size == "M(12/14)" || size == "L(12/14)")
+            {
+                return "12/14";
+            }
+            else if (size == "SIZE 14" || size == "L(14)")
             {
                 return "14";
             }
-            else if (size == "SIZE 16")
+            else if (size == "L(14/16)" )
+            {
+                return "14/16";
+            }
+            else if (size == "SIZE 16" || size == "XL(16)")
             {
                 return "16";
+            }
+            else if (size == "XL(18/20)")
+            {
+                return "18/20";
             }
             else
             {

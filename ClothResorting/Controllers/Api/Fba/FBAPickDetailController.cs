@@ -26,6 +26,16 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
         }
 
+        // GET /api/fba/fbapickdetail/?shipOrderId={shipOrderId}&operation={Download}
+        [HttpGet]
+        public IHttpActionResult DownloadPickingList([FromUri]int shipOrderId, [FromUri]string operation)
+        {
+            var generator = new FBAExcelGenerator(@"D:\Template\PickingList-Template.xlsx");
+            var path = generator.GeneratePickingList(shipOrderId);
+
+            return Ok(path);
+        }
+
         // GET /api/fba/fbapickdetail/?shipOrderId={shipOrderId}
         [HttpGet]
         public IHttpActionResult GetPickDetail([FromUri]int shipOrderId)
@@ -308,7 +318,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 pickDetailInDb.FBAPalletLocation.AvailablePlts += pickDetailInDb.PltsFromInventory;
                 pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.PltsFromInventory;
-                if (pickDetailInDb.FBAPalletLocation.PickingPlts == 0)
+                if (pickDetailInDb.FBAPalletLocation.PickingPlts == 0 )
                 {
                     pickDetailInDb.FBAPalletLocation.Status = FBAStatus.InStock;
                 }
@@ -331,9 +341,13 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 pickDetailInDb.FBACartonLocation.AvailableCtns += pickDetailInDb.ActualQuantity;
                 pickDetailInDb.FBACartonLocation.PickingCtns -= pickDetailInDb.ActualQuantity;
-                if(pickDetailInDb.FBACartonLocation.PickingCtns == 0)
+                if(pickDetailInDb.FBACartonLocation.PickingCtns == 0 && pickDetailInDb.FBACartonLocation.Location != "Pallet")
                 {
                     pickDetailInDb.FBACartonLocation.Status = FBAStatus.InStock;
+                }
+                else if (pickDetailInDb.FBACartonLocation.PickingCtns == 0 && pickDetailInDb.FBACartonLocation.Location == "Pallet")
+                {
+                    pickDetailInDb.FBACartonLocation.Status = FBAStatus.InPallet;
                 }
                 context.FBAPickDetails.Remove(pickDetailInDb);
             }

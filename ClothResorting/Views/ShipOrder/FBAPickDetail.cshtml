@@ -14,6 +14,7 @@
     <div id="div-create">
         <input operation="UploadBOL" type="button" class="btn btn-group btn-create1" value="Upload BOL Templist" />
         <input operation="UploadShipOrder" type="button" class="btn btn-group btn-create1" value="Upload Ship Order Templist" />
+        <input operation="Download" type="button" class="btn btn-group btn-download" value="Download Picking List" />
         <input id="btn-diag" type="button" class="btn btn-danger" value="Diagnostic system" />
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
@@ -538,6 +539,35 @@
                 {
                     alert("Please choose file first.");
                 }
+            });
+
+            //点击下载pickinglist，下载pickinglist
+            $(".btn-download").on("click", function () {
+                url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&operation=Download";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
             });
 
             //解析url中的参数函数

@@ -383,7 +383,7 @@ namespace ClothResorting.Helpers
             //表内容部分
             for (int i = 0; i < list.Count; i++)
             {
-                var orderNumberCell = new PdfPCell(new Paragraph(list[i].CustoerOrderNumber, new Font(font , fontSize)));
+                var orderNumberCell = new PdfPCell(new Paragraph(list[i].CustomerOrderNumber, new Font(font , fontSize)));
                 var containerCell = new PdfPCell(new Paragraph(list[i].Contianer, new Font(font , fontSize)));
                 var palletSlipCell = new PdfPCell(new Paragraph("Y     N", new Font(font, fontSize)));
                 var weightCell = new PdfPCell(new Paragraph(list[i].Weight.ToString(), new Font(font, fontSize)));

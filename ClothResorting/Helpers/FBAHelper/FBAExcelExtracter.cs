@@ -118,7 +118,7 @@ namespace ClothResorting.Helpers.FBAHelper
             for(int i = 0; i < count; i++)
             {
                 var bol = new FBABOLDetail {
-                    CustoerOrderNumber = _ws.Cells[i + 2, 1].Value2.ToString(),
+                    CustomerOrderNumber = _ws.Cells[i + 2, 1].Value2.ToString(),
                     Contianer = _ws.Cells[i + 2, 2].Value2.ToString(),
                     CartonQuantity = (int)(_ws.Cells[i + 2, 3].Value2 ?? 0),
                     Weight = (float)(_ws.Cells[i + 2, 4].Value2 ?? 0),
@@ -168,6 +168,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             var inventoryInDb = _context.FBACartonLocations
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
+                .Include(x => x.FBAPallet.FBAPalletLocations)
                 .Where(x => x.AvailableCtns > 0);
 
             foreach(var p in pickingList)
@@ -185,6 +186,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         Type = "Missing",
                         Description = "Missing detected. Please check SKU=<font color='red'>" + p.ProductSku + "</font> under Customer Code=<font color='red'>" + p.CustomerCode + "</font>"
                     });
+
                     continue;
                 }
 
@@ -192,7 +194,12 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 foreach(var c in cartonLocationsInDb)
                 {
-                    if (c.AvailableCtns <= targetCtns)
+                    if (targetCtns == 0)
+                    {
+                        break;
+                    }
+
+                    if (c.AvailableCtns <= targetCtns && c.AvailableCtns != 0)
                     {
                         var pickDetail = CreateFBAPickDetail(c, c.AvailableCtns);
                         pickDetail.FBAShipOrder = shipOrderInDb;
@@ -201,7 +208,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         c.PickingCtns += c.AvailableCtns;
                         c.AvailableCtns = 0;
                     }
-                    else
+                    else if (c.AvailableCtns > targetCtns)
                     {
                         var pickDetail = CreateFBAPickDetail(c, targetCtns);
                         pickDetail.FBAShipOrder = shipOrderInDb;
@@ -210,17 +217,18 @@ namespace ClothResorting.Helpers.FBAHelper
                         c.PickingCtns += targetCtns;
                         targetCtns = 0;
                     }
+                }
 
-                    //缺货诊断
-                    if (targetCtns > 0)
+                //缺货诊断
+                if (targetCtns > 0)
+                {
+                    diagnosticsList.Add(new PullSheetDiagnostic
                     {
-                        diagnosticsList.Add(new PullSheetDiagnostic {
-                            FBAShipOrder = shipOrderInDb,
-                            Type = "Shortage",
-                            DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                            Description = "Shortage detected. Please check SKU=<font color='red'>" + c.ShipmentId + "</font>. Shortage Ctns:<font color='red'>" + targetCtns + "</font>. Collected Ctns:< font color = 'red' > " + (p.PickCtns - targetCtns) + " </ font >."
-                        });
-                    }
+                        FBAShipOrder = shipOrderInDb,
+                        Type = "Shortage",
+                        DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                        Description = "Shortage detected. Please check SKU=<font color='red'>" + p.ProductSku + "</font>. Shortage Ctns:<font color='red'>" + targetCtns + "</font>. Collected Ctns:< font color = 'red' > " + (p.PickCtns - targetCtns) + " </font >."
+                    });
                 }
             }
             shipOrderInDb.Status = FBAStatus.Picking;
@@ -236,8 +244,10 @@ namespace ClothResorting.Helpers.FBAHelper
 
         private FBAPickDetail CreateFBAPickDetail(FBACartonLocation cartonLocation, int ctns)
         {
+            var location = CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList());
+
             return new FBAPickDetail {
-                Location = cartonLocation.Location,
+                Location = location,
                 GrandNumber = cartonLocation.GrandNumber,
                 Container = cartonLocation.Container,
                 ShipmentId = cartonLocation.ShipmentId,
@@ -252,6 +262,26 @@ namespace ClothResorting.Helpers.FBAHelper
                 Status = FBAStatus.Picking,
                 FBACartonLocation = cartonLocation
             };
+        }
+
+        public string CombineLocation(IList<string> locationList)
+        {
+            if (locationList.Count != 0)
+            {
+                var result = locationList.First();
+
+                for (int i = 1; i < locationList.Count; i++)
+                {
+                    result = result + "/" + locationList[i];
+                }
+
+                return result;
+            }
+            else
+            {
+                return "未分配库位";
+            }
+
         }
     }
 

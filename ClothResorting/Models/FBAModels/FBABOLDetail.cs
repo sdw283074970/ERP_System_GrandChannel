@@ -7,7 +7,7 @@ namespace ClothResorting.Models.FBAModels
 {
     public class FBABOLDetail
     {
-        public string CustoerOrderNumber { get; set; }
+        public string CustomerOrderNumber { get; set; }
 
         public string Contianer { get; set; }
 
