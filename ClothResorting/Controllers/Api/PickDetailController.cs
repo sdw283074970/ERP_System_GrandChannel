@@ -159,31 +159,54 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
-        // DELETE /api/pickdetail/?pickDetailId={pickDetailId}&putBackCtns={putBackCtns}&putBackPcs={putBackPcs}
+        // DELETE /api/pickdetail/?pickDetailId={pickDetailId}&putBackCtns={putBackCtns}&putBackPcs={putBackPcs}&orderType={orderType}
         [HttpDelete]
-        public void RemovePickDetail([FromUri]int pickDetailId, [FromUri]int putBackCtns, [FromUri]int putBackPcs)
+        public void RemovePickDetail([FromUri]int pickDetailId, [FromUri]int putBackCtns, [FromUri]int putBackPcs, [FromUri]string orderType)
         {
-            var pickDetailInDb = _context.PickDetails.Include(x => x.FCRegularLocationDetail).SingleOrDefault(x => x.Id == pickDetailId);
-
-            pickDetailInDb.FCRegularLocationDetail.AvailableCtns += putBackCtns;
-            pickDetailInDb.FCRegularLocationDetail.PickingCtns -= putBackCtns;
-
-            pickDetailInDb.FCRegularLocationDetail.AvailablePcs += putBackPcs;
-            pickDetailInDb.FCRegularLocationDetail.PickingPcs -= putBackPcs;
-
-            //如果放回的箱数件数刚好等于拣货的箱数件数，那么移除拣货记录
-            if (putBackCtns == pickDetailInDb.PickCtns && putBackPcs == pickDetailInDb.PickPcs)
+            if (orderType == OrderType.Regular)
             {
-                _context.PickDetails.Remove(pickDetailInDb);
-            }
-            //否则仍然保留拣货记录
-            else
-            {
-                pickDetailInDb.PickCtns -= putBackCtns;
-                pickDetailInDb.PickPcs -= putBackPcs;
-            }
+                var pickDetailInDb = _context.PickDetails.Include(x => x.FCRegularLocationDetail).SingleOrDefault(x => x.Id == pickDetailId);
 
-            _context.SaveChanges();
+                pickDetailInDb.FCRegularLocationDetail.AvailableCtns += putBackCtns;
+                pickDetailInDb.FCRegularLocationDetail.PickingCtns -= putBackCtns;
+
+                pickDetailInDb.FCRegularLocationDetail.AvailablePcs += putBackPcs;
+                pickDetailInDb.FCRegularLocationDetail.PickingPcs -= putBackPcs;
+
+                //如果放回的箱数件数刚好等于拣货的箱数件数，那么移除拣货记录
+                if (putBackCtns == pickDetailInDb.PickCtns && putBackPcs == pickDetailInDb.PickPcs)
+                {
+                    _context.PickDetails.Remove(pickDetailInDb);
+                }
+                //否则仍然保留拣货记录
+                else
+                {
+                    pickDetailInDb.PickCtns -= putBackCtns;
+                    pickDetailInDb.PickPcs -= putBackPcs;
+                }
+
+                _context.SaveChanges();
+            }
+            else if (orderType == OrderType.Replenishment)
+            {
+                var pickDetailInDb = _context.PickDetails.Include(x => x.ReplenishmentLocationDetail).SingleOrDefault(x => x.Id == pickDetailId);
+
+                pickDetailInDb.ReplenishmentLocationDetail.AvailablePcs += putBackPcs;
+                pickDetailInDb.ReplenishmentLocationDetail.PickingPcs -= putBackPcs;
+
+                //如果放回的件数刚好等于拣货的件数，那么移除拣货记录
+                if (putBackPcs == pickDetailInDb.PickPcs)
+                {
+                    _context.PickDetails.Remove(pickDetailInDb);
+                }
+                //否则仍然保留拣货记录
+                else
+                {
+                    pickDetailInDb.PickPcs -= putBackPcs;
+                }
+
+                _context.SaveChanges();
+            }
         }
     }
 }

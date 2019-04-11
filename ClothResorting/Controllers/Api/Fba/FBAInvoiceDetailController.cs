@@ -13,6 +13,7 @@ using ClothResorting.Models.ApiTransformModels;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Dtos.Fba;
 using System.Web;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -357,7 +358,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        //PUT /api/fba/fbainvoicedetail/?invoiceDetailId={invoiceDetailId}
+        // PUT /api/fba/fbainvoicedetail/?invoiceDetailId={invoiceDetailId}
         [HttpPut]
         public void UpdateInvoiceDetail([FromUri]int invoiceDetailId, [FromBody]InvoiceDetailJsonObj obj)
         {
@@ -398,6 +399,49 @@ namespace ClothResorting.Controllers.Api.Fba
                 masterOrder.InvoiceStatus = "Closed";
                 masterOrder.CloseDate = closeDate;
                 masterOrder.ConfirmedBy = _userName;
+            }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fbainvoicedetail/?buttonType={buttonType}
+        [HttpPut]
+        public void UpdateButtonStatus([FromUri]int invoiceDetailId, [FromUri]string buttonType)
+        {
+            var invoiceDetailInDb = _context.InvoiceDetails.Find(invoiceDetailId);
+
+            if (buttonType == FBAButtonType.Confirm)
+            {
+                if (invoiceDetailInDb.CostConfirm)
+                {
+                    invoiceDetailInDb.CostConfirm = false;
+                }
+                else
+                {
+                    invoiceDetailInDb.CostConfirm = true;
+                }
+            }
+            else if (buttonType == FBAButtonType.Payment)
+            {
+                if (invoiceDetailInDb.PaymentStatus)
+                {
+                    invoiceDetailInDb.PaymentStatus = false;
+                }
+                else
+                {
+                    invoiceDetailInDb.PaymentStatus = true;
+                }
+            }
+            else if (buttonType == FBAButtonType.Collection)
+            {
+                if (invoiceDetailInDb.CollectionStatus)
+                {
+                    invoiceDetailInDb.CollectionStatus = false;
+                }
+                else
+                {
+                    invoiceDetailInDb.CollectionStatus = true;
+                }
             }
 
             _context.SaveChanges();

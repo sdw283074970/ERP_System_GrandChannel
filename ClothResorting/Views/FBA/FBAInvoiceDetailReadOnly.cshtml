@@ -83,7 +83,7 @@
                     <th>PAYMENT</th>
                     <th>COLLECTION</th>
                     <th>LAST OPERATOR</th>
-                    <th style="width:180px">OPERATION</th>
+                    @*<th style="width:150px">OPERATION</th>*@
                 </tr>
             </thead>
             <tbody></tbody>
@@ -447,12 +447,12 @@
                                             return "<text>" + data + "</text>";
                                     }
                                 },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "";
-                                    }
-                                }
+                                //{
+                                //    data: "id",
+                                //    render: function (data) {
+                                //        return "";
+                                //    }
+                                //}
                             ],
                             footerCallback: function (row, data, start, end, display) {
 

@@ -231,6 +231,7 @@
                 });
             });
 
+            //点击确认放回按钮，确认放回
             $("#btn-confirmputback").on("click", function () {
                 var putBackCtns = $("#input-ctns").val() == "" ? 0 : $("#input-ctns").val();
                 var putBackPcs = $("#input-pcs").val() == "" ? 0 : $("#input-pcs").val();
@@ -243,7 +244,7 @@
                 }
                 else
                 {
-                    url = "/api/pickdetail/?pickDetailId=" + pickDetailId + "&putBackCtns=" + putBackCtns + "&putBackPcs=" + putBackPcs;
+                    url = "/api/pickdetail/?pickDetailId=" + pickDetailId + "&putBackCtns=" + putBackCtns + "&putBackPcs=" + putBackPcs + "&orderType=Regular";
 
                     grandChannel.sendAjaxMethod("DELETE", url, {});
                 }

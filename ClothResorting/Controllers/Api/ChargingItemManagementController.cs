@@ -160,6 +160,7 @@ namespace ClothResorting.Controllers.Api
             {
                 itemInDb.ChargingType = obj.ChargingType;
                 itemInDb.Name = obj.Name;
+                itemInDb.Unit = obj.Unit;
             }
             else
             {

@@ -19,18 +19,19 @@
             <thead>
                 <tr>
                     <th>Status</th>
-                    <th>Carton Range</th>
-                    <th>Container</th>
+                    @*<th>Carton Range</th>
+                    <th>Container</th>*@
                     <th>Cut PO</th>
                     <th>Style</th>
                     <th>Color</th>
-                    <th>Customer</th>
+                    @*<th>Customer</th>*@
                     <th>Size</th>
-                    <th>Pcs</th>
+                    @*<th>Pcs</th>
                     <th>Pack</th>
-                    <th>Pick Ctns</th>
+                    <th>Pick Ctns</th>*@
                     <th>Pick Pcs</th>
                     <th>Location</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -46,6 +47,17 @@
         <input id="input-uploadfile" type="button" class="btn btn-default" value="Upload" />
     </div>
 </div>
+<div class="iframe-putback" style="text-align:center">
+    <div style="margin-top:20px">
+        <text>Current Picking Pcs: <font id="font-pcs" color="red">10</font></text>
+    </div>
+    <div style="margin-top:20px">
+        <text>Puting Back Pcs: </text><input id="input-pcs" class="input-sm" style="width:50px" />
+    </div>
+    <div style="margin-top:20px">
+        <button class="btn btn-primary" id="btn-confirmputback">Confirm</button>
+    </div>
+</div>
 
 @section scripts
 {
@@ -54,7 +66,9 @@
 
             var table;
             var index;
+            var pickdeatilId;
             $(".iframe").hide();
+            $(".iframe-putback").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -102,18 +116,18 @@
                                         return "<font color='blue'>" + data + "</font>";
                                 }
                             },
-                            {
-                                data: "cartonRange",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "container",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
+                            //{
+                            //    data: "cartonRange",
+                            //    render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
+                            //{
+                            //    data: "container",
+                            //    render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
                             {
                                 data: "purchaseOrder",
                                 render: function (data) {
@@ -132,48 +146,48 @@
                                     return "<text>" + data + "</text>";
                                 }
                             },
-                            {
-                                data: "customerCode",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
+                            //{
+                            //    data: "customerCode",
+                            //    render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
                             {
                                 data: "sizeBundle",
                                 render: function (data) {
                                     return "<text>" + data + "</text>";
                                 }
                             },
-                            {
-                                data: "pcsBundle",
-                                render: function (data) {
+                            //{
+                            //    data: "pcsBundle",
+                            //    render: function (data) {
 
-                                    if (data == 0)
-                                        return "<text>N/A</text>";
+                            //        if (data == 0)
+                            //            return "<text>N/A</text>";
 
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pcsPerCarton",
-                                render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
+                            //{
+                            //    data: "pcsPerCarton",
+                            //    render: function (data) {
 
-                                    if (data == 0)
-                                        return "<text>N/A</text>";
+                            //        if (data == 0)
+                            //            return "<text>N/A</text>";
 
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pickCtns",
-                                render: function (data) {
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
+                            //{
+                            //    data: "pickCtns",
+                            //    render: function (data) {
 
-                                    if (data == 0)
-                                        return "<text>N/A</text>";
+                            //        if (data == 0)
+                            //            return "<text>N/A</text>";
 
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
                             {
                                 data: "pickPcs",
                                 render: function (data) {
@@ -186,6 +200,12 @@
                                     return "<text>" + data + "</text>";
                                 }
                             },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-putback'>Put Back</button>";
+                                }
+                            }   
                         ]
                     });
                 },
@@ -342,6 +362,35 @@
                         });
                     }
                 });
+            });
+
+            //点击PutBack按钮，弹出放回对话框
+            $("#table").on("click", ".btn-putback", function () {
+                var pickingPcs = $(this).parent().parent("tr").children('td').eq(5).children('text').html();
+
+                pickDetailId = $(this).attr("iid");
+
+                $("#font-pcs").html(pickingPcs);
+
+                $("#input-pcs").val(pickingPcs);
+
+                grandChannel.openiframe(index, ".iframe-putback", "300px", "250px");
+            });
+
+            //点击确认放回按钮，确认放回
+            $("#btn-confirmputback").on("click", function () {
+                var putBackPcs = $("#input-pcs").val() == "" ? 0 : $("#input-pcs").val();
+
+                var pickingPcs = $(this).parent().parent("tr").children('td').eq(11).children('text').html();
+
+                if (putBackPcs > pickingPcs) {
+                    layer.alert("Incorrect putting back numbers.");
+                }
+                else {
+                    url = "/api/pickdetail/?pickDetailId=" + pickDetailId + "&putBackCtns=0" + "&putBackPcs=" + putBackPcs + "&orderType=Replenishment";
+
+                    grandChannel.sendAjaxMethod("DELETE", url, {}, index);
+                }
             });
 
             $(".btn-back").on("click", function () {

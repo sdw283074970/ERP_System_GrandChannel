@@ -737,6 +737,16 @@
                 SendAjaxMethod("PUT", url, obj);
             });
 
+            //点击带颜色的按钮，改变状态
+            $("#table").on("click", ".btn-status", function () {
+                var buttonType = $(this).attr("btntype");
+                var invoiceDetailId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+
+                url = "/api/fbainvoicedetail/?invoiceDetailId=" + invoiceDetailId + "&buttonType=" + buttonType;
+
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
             function SendAjaxMethod(methodType, url, obj) {
                 $.ajax({
                     type: methodType,
@@ -883,27 +893,27 @@
                                     data: "costConfirm",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Confirmed</button>";
+                                            return "<button btntype='Confirm' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Confirmed</button>";
                                         else
-                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unconfirmed</button>"
+                                            return "<button btntype='Confirm' class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unconfirmed</button>"
                                     }
                                 },
                                 {
                                     data: "paymentStatus",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Paid</button>";
+                                            return "<button btntype='Payment' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Paid</button>";
                                         else
-                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unpaid</button>"
+                                            return "<button btntype='Payment' class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unpaid</button>"
                                     }
                                 },
                                 {
                                     data: "collectionStatus",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Collected</button>";
+                                            return "<button btntype='Collection' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Collected</button>";
                                         else
-                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Uncollected</button>"
+                                            return "<button btntype='Collection' class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Uncollected</button>"
                                     }
                                 },
                                 {
