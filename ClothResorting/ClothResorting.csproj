@@ -1530,6 +1530,10 @@
     <Compile Include="Migrations\201904051857550_AddedUpdateLogAndCommentInMasterOrder.Designer.cs">
       <DependentUpon>201904051857550_AddedUpdateLogAndCommentInMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201904111836381_AddedPickableCtnsInFBAPickDetail.cs" />
+    <Compile Include="Migrations\201904111836381_AddedPickableCtnsInFBAPickDetail.Designer.cs">
+      <DependentUpon>201904111836381_AddedPickableCtnsInFBAPickDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2873,6 +2877,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201904051857550_AddedUpdateLogAndCommentInMasterOrder.resx">
       <DependentUpon>201904051857550_AddedUpdateLogAndCommentInMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904111836381_AddedPickableCtnsInFBAPickDetail.resx">
+      <DependentUpon>201904111836381_AddedPickableCtnsInFBAPickDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

@@ -222,12 +222,14 @@ namespace ClothResorting.Helpers.FBAHelper
                 //缺货诊断
                 if (targetCtns > 0)
                 {
+                    pickDetailList.Last().PickableCtns += targetCtns;
+
                     diagnosticsList.Add(new PullSheetDiagnostic
                     {
                         FBAShipOrder = shipOrderInDb,
                         Type = "Shortage",
                         DiagnosticDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                        Description = "Shortage detected. Please check SKU=<font color='red'>" + p.ProductSku + "</font>. Shortage Ctns:<font color='red'>" + targetCtns + "</font>. Collected Ctns:< font color = 'red' > " + (p.PickCtns - targetCtns) + " </font >."
+                        Description = "Shortage detected. Please check SKU=<font color='red'>" + p.ProductSku + "</font>. Shortage Ctns:<font color='red'>" + targetCtns + "</font>. Collected Ctns:< font color = 'red' > " + (p.PickCtns - targetCtns) + " </font>."
                     });
                 }
             }
@@ -260,6 +262,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 OrderType = FBAOrderType.Standard,
                 HowToDeliver = cartonLocation.HowToDeliver,
                 Status = FBAStatus.Picking,
+                PickableCtns = ctns,
                 FBACartonLocation = cartonLocation
             };
         }

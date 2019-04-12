@@ -123,8 +123,6 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
-
-
             if (operation == FBAOperation.ChangeStatus)
             {
                 if (shipOrderInDb.Status == FBAStatus.Picking)
@@ -205,10 +203,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.ActualPlts;
 
                 //将pallet中的carton也标记发货
-                foreach(var cartonLocationInDb in pickDetailInDb.FBAPalletLocation.FBAPallet.FBACartonLocations)
-                {
-                    ShipCartonsInPallet(context, pickDetailInDb);
-                }
+                ShipCartonsInPallet(context, pickDetailInDb);
 
                 //更新在库状态
                 if (pickDetailInDb.FBAPalletLocation.PickingPlts == 0 && pickDetailInDb.FBAPalletLocation.AvailablePlts != 0)

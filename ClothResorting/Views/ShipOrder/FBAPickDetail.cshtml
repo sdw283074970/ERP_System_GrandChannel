@@ -50,6 +50,7 @@
                     <th>Gross Weight</th>
                     <th>CBM</th>
                     <th>Ctns/Plt</th>
+                    <th>Pickable Ctns</th>
                     <th>Ttl Pick Ctns</th>
                     <th>Inventory Plts</th>
                     <th>New Plts</th>
@@ -139,12 +140,26 @@
         <button id="btn-carton-pick" class="btn btn-primary" style="margin-top:20px;margin-right:20px">Update</button>
     </div>
 </div>*@
+<div class="iframe-adjust" style="text-align:right;margin-right:20px">
+    <div style="margin-top:20px">
+        <text>Current Picking Ctns: <font id="font-ctns" color="red">10</font></text><text>Adjust Ctns:</text><input id="input-ctns" class="input-sm" style="width:50px" />
+    </div>
+    <div style="margin-top:20px">
+        <text>Current Picking Plts: <font id="font-plts" color="red">10</font></text><text>Adjust Inventory Plts:</text><input id="input-ctns" class="input-sm" style="width:50px" />
+    </div>
+    <div style="margin-top:20px">
+        <text>Current New Plts: <font id="font-new" color="red">10</font></text><text>Adjust New Plts:</text><input id="input-ctns" class="input-sm" style="width:50px" />
+    </div>
+    <div style="margin-top:20px">
+        <button class="btn btn-primary" id="btn-adjust">Confirm</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
-            $(".iframe,.iframe-update, .iframe-cartons").hide();
+            $(".iframe,.iframe-update, .iframe-cartons， .iframe-adjust").hide();
             $(".iframe-inventory, .iframe-pickpallet, .iframe-pickcarton").hide();
 
             var index;
@@ -477,30 +492,30 @@
 
                 $(".input-cartons").each(function (i) {
                     var availableCtns = $(this).parent().parent("tr").children('td').eq(9).children('font').html();
-                    //if ($(this).val() != "" && parseInt($(this).val()) <= parseInt(availableCtns))
-                    //{
-                    //    var id = $(this).attr('iid');
-                    //    var cartons = $(this).val();
-                    //    var obj = {
-                    //        "id": id,
-                    //        "quantity": cartons
-                    //    };
+                    if ($(this).val() != "" && parseInt($(this).val()) <= parseInt(availableCtns))
+                    {
+                        var id = $(this).attr('iid');
+                        var cartons = $(this).val();
+                        var obj = {
+                            "id": id,
+                            "quantity": cartons
+                        };
 
-                    //    objArray.push(obj);
-                    //}
-                    //else
-                    //{
-                    //    alert("请检查拣货数量是否充足。");
-                    //}
+                        objArray.push(obj);
+                    }
+                    else
+                    {
+                        alert("请检查拣货数量是否充足。");
+                    }
 
-                    var id = $(this).attr('iid');
-                    var cartons = $(this).val();
-                    var obj = {
-                        "id": id,
-                        "quantity": cartons
-                    };
+                    //var id = $(this).attr('iid');
+                    //var cartons = $(this).val();
+                    //var obj = {
+                    //    "id": id,
+                    //    "quantity": cartons
+                    //};
 
-                    objArray.push(obj);
+                    //objArray.push(obj);
                 });
 
                 if (objArray.length > 0)
@@ -609,7 +624,7 @@
                         table = $(tableId).DataTable({
                             data: data,
                             destroy: true,
-                            //scrollX: true,
+                            scrollX: true,
                             order: [[1, "asc"]],
                             scrollCollapse: true,
                             scrollY: "600px",
@@ -956,6 +971,12 @@
                         }
                     },
                     {
+                        data: "pickableCtns",
+                        render: function (data) {
+                            return "<font>" + data + "</font>";
+                        }
+                    },
+                    {
                         data: "actualQuantity",
                         render: function (data) {
                             return "<font>" + data + "</font>";
@@ -989,9 +1010,9 @@
                         data: "id",
                         render: function (data) {
                             if (currentType == "Standard")
-                                return "<button class='btn btn-link btn-view' iid='" + data + "'>View</button><button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button>";
+                                return "<button class='btn btn-link btn-view' iid='" + data + "'>View</button><button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button><button class='btn btn-link btn-adjust'>Adjust</button>";
                             else
-                                return "<button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button>";
+                                return "<button class='btn btn-link btn-putback' iid='" + data + "'>Put Back</button><button class='btn btn-link btn-adjust'>Adjust</button>";
                         }
                     },
                 ];

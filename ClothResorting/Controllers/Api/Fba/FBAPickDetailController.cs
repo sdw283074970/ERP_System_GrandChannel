@@ -363,6 +363,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             pickDetail.Status = FBAStatus.Picking;
             pickDetail.Size = fbaPalletLocationInDb.PalletSize;
+            pickDetail.PickableCtns = objArray.Sum(x => x.Quantity);
             pickDetail.NewPlts = newPltQuantity;
             pickDetail.PltsFromInventory = pltQuantity;
             pickDetail.ActualPlts = pltQuantity + newPltQuantity;
@@ -387,6 +388,11 @@ namespace ClothResorting.Controllers.Api.Fba
 
             foreach (var obj in objArray)
             {
+                if (obj.Quantity == 0)
+                {
+                    continue;
+                }
+
                 var cartonInPalletInDb = cartonLocationInPalletsInDb.SingleOrDefault(x => x.Id == obj.Id);
 
                 cartonInPalletInDb.PickingCtns += obj.Quantity;
@@ -419,6 +425,7 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetail.Status = FBAStatus.Picking;
             pickDetail.Size = string.Empty;
             pickDetail.CtnsPerPlt = 0;
+            pickDetail.PickableCtns = ctnQuantity;
             pickDetail.Location = fbaCartonLocationInDb.Location;
 
             fbaCartonLocationInDb.PickingCtns += ctnQuantity;
