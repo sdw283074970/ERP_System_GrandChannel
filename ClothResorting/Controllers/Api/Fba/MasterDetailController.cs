@@ -124,34 +124,39 @@ namespace ClothResorting.Controllers.Api.Fba
             //Container号查重
             var currentContainer = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber).Container;
 
-            if (currentContainer != container && _context.FBAMasterOrders.SingleOrDefault(x => x.Container == container) != null)
+            var isCurrentContainer = currentContainer == container ? true : false;
+            var isExisted = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == container) == null ? false : true;
+
+            if (isCurrentContainer || !isExisted)
+            {
+                foreach (var detail in orderDetailsInDb)
+                {
+                    if (container != null || container != "")
+                    {
+                        detail.Container = container;
+                    }
+
+                    if (detail.ActualQuantity == 0)
+                    {
+                        detail.ActualCBM = detail.CBM;
+                        detail.ActualGrossWeight = detail.GrossWeight;
+                        detail.ActualQuantity = detail.Quantity;
+                    }
+                }
+
+                if (container != null || container != "")
+                {
+                    masterInDb.Container = container;
+                }
+
+                masterInDb.InboundDate = inboundDate;
+
+                _context.SaveChanges();
+            }
+            else
             {
                 throw new Exception("Contianer Number " + container + " has been taken. Please delete the existed order and try agian.");
             }
-
-            foreach (var detail in orderDetailsInDb)
-            {
-                if (container != null || container != "")
-                {
-                    detail.Container = container;
-                }
-
-                if (detail.ActualQuantity == 0)
-                {
-                    detail.ActualCBM = detail.CBM;
-                    detail.ActualGrossWeight = detail.GrossWeight;
-                    detail.ActualQuantity = detail.Quantity;
-                }
-            }
-
-            if (container != null || container != "")
-            {
-                masterInDb.Container = container;
-            }
-
-            masterInDb.InboundDate = inboundDate;
-
-            _context.SaveChanges();
         }
     }
 }
