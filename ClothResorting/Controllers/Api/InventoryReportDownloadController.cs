@@ -2,6 +2,7 @@
 using ClothResorting.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -143,9 +144,45 @@ namespace ClothResorting.Controllers.Api
                     locationDetails = locationDetails.Where(x => x.AvailablePcs != 0).ToList();
                 }
 
+                //按照收货时间出记录
+                //var containerList = new List<string>();
+
+                //var containerInDb = _context.Containers.Where(x => x.ReceivedDate != null && x.ReceivedDate != " ");
+
+                //var timeLine = new DateTime(2019, 1, 1, 0, 0, 0, 0);
+
+                //foreach (var c in containerInDb)
+                //{
+                //    DateTime receiveDate;
+
+                //    if (c.ReceivedDate.Split('-').First().Length == 4)
+                //    {
+                //        DateTime.TryParseExact(c.ReceivedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out receiveDate);
+                //    }
+                //    else
+                //    {
+                //        throw new Exception(c.ReceivedDate);
+                //    }
+
+                //    if (receiveDate < timeLine)
+                //    {
+                //        containerList.Add(c.ContainerNumber);
+                //    }
+                //}
+
+                //var locationList = new List<FCRegularLocationDetail>();
+
+                //foreach (var l in locationDetails)
+                //{
+                //    if (containerList.Contains(l.Container) && l.Container != "FONTANA TRANSFER SWIMWEAR" && l.Container != "FONTANA TRANSFER")
+                //    {
+                //        locationList.Add(l);
+                //    }
+                //}
+
                 var templatePath = @"D:\Template\InventoryReportV2.xlsx";
                 var generator2 = new ExcelGenerator(templatePath);
-                var path = generator2.GenerateInventoryReportExcelFileV2(locationDetails, "");
+                var path = generator2.GenerateInventoryReportExcelFileV2(locationList, "");
 
                 return Ok(path);
                 //将搜索结果中的相同项合并
@@ -193,5 +230,7 @@ namespace ClothResorting.Controllers.Api
                 //generator.GenerateInventoryReportExcelFile(inventoryList, vendor);
             }
         }
+
+
     }
 }

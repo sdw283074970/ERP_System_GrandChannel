@@ -70,6 +70,7 @@ namespace ClothResorting.Models
         public DbSet<FBAPickDetailCarton> FBAPickDetailCartons { get; set; }
         public DbSet<ChargingItemDetail> ChargingItemDetails { get; set; }
         public DbSet<EFile> EFiles { get; set; }
+        public DbSet<OperationLog> OperationLogs { get; set; }
 
         public static ApplicationDbContext Create()
         {
