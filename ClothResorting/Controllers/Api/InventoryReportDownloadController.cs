@@ -182,7 +182,7 @@ namespace ClothResorting.Controllers.Api
 
                 var templatePath = @"D:\Template\InventoryReportV2.xlsx";
                 var generator2 = new ExcelGenerator(templatePath);
-                var path = generator2.GenerateInventoryReportExcelFileV2(locationList, "");
+                var path = generator2.GenerateInventoryReportExcelFileV2(locationDetails, "");
 
                 return Ok(path);
                 //将搜索结果中的相同项合并

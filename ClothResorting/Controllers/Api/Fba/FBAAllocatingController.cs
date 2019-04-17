@@ -54,6 +54,12 @@ namespace ClothResorting.Controllers.Api.Fba
                         .Include(x => x.FBACartonLocations)
                         .SingleOrDefault(x => x.Id == obj.Id);
 
+                    //如果这是一个rough packed pallets，那么默认分配所有货物
+                    if (palletInDb.FBACartonLocations.Sum(x => x.CtnsPerPlt) == 0)
+                    {
+                        obj.Quantity = palletInDb.ActualPallets;
+                    }
+
                     palletInDb.ComsumedPallets += obj.Quantity;
 
                     if (palletInDb.ComsumedPallets > palletInDb.ActualPallets)

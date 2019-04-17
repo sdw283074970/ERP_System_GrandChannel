@@ -45,10 +45,11 @@ namespace ClothResorting.Controllers.Api.Fba
         public void DownloadNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate)
         {
             DateTime closeDate = currentBillingDate;
+            DateTime startDate = lastBillingDate;
 
             var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
             var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
-            var fullPath = generator.GenerateStorageReport(customerId, closeDate);
+            var fullPath = generator.GenerateStorageReport(customerId, lastBillingDate, closeDate);
 
             var chargeMethodsList = _context.ChargeMethods
                 .Include(x => x.ChargeTemplate)

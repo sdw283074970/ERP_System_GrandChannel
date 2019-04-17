@@ -122,17 +122,18 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成StorageFee报告并返回完整路径
-        public string GenerateStorageReport(int customerId, DateTime closeDate)
+        public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate)
         {
             var customerInDb = _context.UpperVendors.Find(customerId);
 
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.ShipDate < closeDate
+                .Where(x => x.FBAShipOrder.ShipDate <= closeDate
+                    && x.FBAShipOrder.ShipDate >= startDate
                     && x.FBAShipOrder.Status == FBAStatus.Shipped
                     && x.FBAPalletLocation != null
-                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
+                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate <= closeDate
                     && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
                     && x.PltsFromInventory != 0);
 

@@ -297,6 +297,44 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok();
         }
 
+        // POST /api/fba/fbapickdetail/?pickDetailId={pickDetailId}&pltsAdjust={pltsAdjust}&newPltsAdjust={newPltsAdjust}
+        [HttpPut]
+        public void AdjustPickDetail([FromUri]int pickDetailId, [FromUri]int pltsAdjust, [FromUri]int newPltsAdjust)
+        {
+            var pickDetailInDb = _context.FBAPickDetails
+                .Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAPalletLocation)
+                .SingleOrDefault(x => x.Id == pickDetailId);
+
+            //调整托盘数量小于已捡托盘数量的情况
+            if (pltsAdjust + pickDetailInDb.PltsFromInventory < 0)
+            {
+                throw new Exception("There is no enough plts to adjust. You have picked " + pickDetailInDb.PltsFromInventory + " plts from inventory but you want to adjust " + pltsAdjust + " plts.");
+            }
+
+            //调整托盘数量小于库存可用托盘数量的情况
+            if (pickDetailInDb.FBAPalletLocation.AvailablePlts - pltsAdjust < 0)
+            {
+                throw new Exception("There is no enough plts to adjust. There are only " + pickDetailInDb.FBAPalletLocation.AvailablePlts + " plts available right now but you want to adjust " + pltsAdjust + " plts.");
+            }
+
+            //调整新托盘数量小于已捡新托盘数量的情况
+            if (pickDetailInDb.NewPlts + newPltsAdjust < 0)
+            {
+                throw new Exception("There is no enough plts to adjust. There are only " + pickDetailInDb.NewPlts + " new plts but you want to adjust " + newPltsAdjust + " plts.");
+            }
+
+            pickDetailInDb.PltsFromInventory += pltsAdjust;
+            pickDetailInDb.NewPlts += newPltsAdjust;
+
+            pickDetailInDb.FBAPalletLocation.AvailablePlts -= pltsAdjust;
+            pickDetailInDb.FBAPalletLocation.PickingPlts += pltsAdjust;
+
+            pickDetailInDb.ActualPlts = pickDetailInDb.PltsFromInventory + pickDetailInDb.NewPlts;
+
+            _context.SaveChanges();
+        }
+
         // DELETE /api/fba/fbapickdetail/?pickDetailId={pickDetailId}
         [HttpDelete]
         public void PutBackPickDetail([FromUri]int pickDetailId)

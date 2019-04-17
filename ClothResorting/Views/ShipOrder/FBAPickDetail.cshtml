@@ -133,22 +133,25 @@
     </div>
 </div>
 @*<div class="iframe-pickcarton">
-    <div style="text-align:center">
-        <text>Pick cartons: </text><input id="input-carton-ctns" class="input-sm" style="width:170px;margin-top:20px" />
-    </div>
-    <div style="text-align:right">
-        <button id="btn-carton-pick" class="btn btn-primary" style="margin-top:20px;margin-right:20px">Update</button>
-    </div>
-</div>*@
+        <div style="text-align:center">
+            <text>Pick cartons: </text><input id="input-carton-ctns" class="input-sm" style="width:170px;margin-top:20px" />
+        </div>
+        <div style="text-align:right">
+            <button id="btn-carton-pick" class="btn btn-primary" style="margin-top:20px;margin-right:20px">Update</button>
+        </div>
+    </div>*@
 <div class="iframe-adjust" style="text-align:right;margin-right:20px">
+    @*<div style="margin-top:20px">
+        <text>Current Picking Ctns:<font id="font-ctns" color="red">10</font></text><br />
+        <text>Adjust Ctns:</text><input id="input-ctns" type="number" class="input-sm" style="width:50px" value="0" />
+    </div>*@
     <div style="margin-top:20px">
-        <text>Current Picking Ctns: <font id="font-ctns" color="red">10</font></text><text>Adjust Ctns:</text><input id="input-ctns" class="input-sm" style="width:50px" />
+        <text>Current Picking Plts:<font id="font-plts" color="red">10</font></text><br />
+        <text>Adjust Inventory Plts:</text><input id="input-plts" type="number" class="input-sm" style="width:50px" value="0" />
     </div>
     <div style="margin-top:20px">
-        <text>Current Picking Plts: <font id="font-plts" color="red">10</font></text><text>Adjust Inventory Plts:</text><input id="input-ctns" class="input-sm" style="width:50px" />
-    </div>
-    <div style="margin-top:20px">
-        <text>Current New Plts: <font id="font-new" color="red">10</font></text><text>Adjust New Plts:</text><input id="input-ctns" class="input-sm" style="width:50px" />
+        <text>Current New Plts:<font id="font-new" color="red">10</font></text><br />
+        <text>Adjust New Plts:</text><input id="input-new" type="number" class="input-sm" style="width:50px" value="0" />
     </div>
     <div style="margin-top:20px">
         <button class="btn btn-primary" id="btn-adjust">Confirm</button>
@@ -159,10 +162,11 @@
     <script>
         $(document).ready(function () {
 
-            $(".iframe,.iframe-update, .iframe-cartons， .iframe-adjust").hide();
+            $(".iframe,.iframe-update, .iframe-cartons, .iframe-adjust").hide();
             $(".iframe-inventory, .iframe-pickpallet, .iframe-pickcarton").hide();
 
             var index;
+            var pickDetailId;
             var operation;
             var status;
             var table;
@@ -337,8 +341,7 @@
                 var amzRef = $("#input-inventory-amzref").val();
                 var warehouseCode = $("#input-inventory-warehousecode").val();
 
-                if (container != "" || sku != "" || amzRef != "" || warehouseCode != "")
-                {
+                if (container != "" || sku != "" || amzRef != "" || warehouseCode != "") {
                     GetPickInventoryTable(container, sku, amzRef, warehouseCode, tablePallet, tableCarton);
                 }
             });
@@ -383,8 +386,7 @@
                 var inventoryType = $(this).attr('inventorytype');
                 var inventoryId = $(this).attr('iid');
 
-                if (inventoryType == "Pallet")
-                {
+                if (inventoryType == "Pallet") {
                     palletLocationId = inventoryId;
                     Openiframe(index, ".iframe-pickpallet", "1000px", "500px");
 
@@ -466,8 +468,7 @@
                 var objArray = new Array();
 
                 $(".input-pickcarton").each(function (i) {
-                    if ($(this).val() != "")
-                    {
+                    if ($(this).val() != "") {
                         var obj = {
                             "id": $(this).attr('iid'),
                             "quantity": $(this).val()
@@ -477,8 +478,7 @@
                     }
                 });
 
-                if (objArray.length > 0)
-                {
+                if (objArray.length > 0) {
                     url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=0&quantity=0&newQuantity=0&inventoryType=Carton";
                     SendAjaxMethodWithoutReloadPage("POST", url, objArray);
                 }
@@ -492,8 +492,7 @@
 
                 $(".input-cartons").each(function (i) {
                     var availableCtns = $(this).parent().parent("tr").children('td').eq(9).children('font').html();
-                    if ($(this).val() != "" && parseInt($(this).val()) <= parseInt(availableCtns))
-                    {
+                    if ($(this).val() != "" && parseInt($(this).val()) <= parseInt(availableCtns)) {
                         var id = $(this).attr('iid');
                         var cartons = $(this).val();
                         var obj = {
@@ -503,8 +502,7 @@
 
                         objArray.push(obj);
                     }
-                    else
-                    {
+                    else {
                         alert("请检查拣货数量是否充足。");
                     }
 
@@ -518,9 +516,8 @@
                     //objArray.push(obj);
                 });
 
-                if (objArray.length > 0)
-                {
-                    url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=" + palletLocationId + "&quantity=" + pickPlts + "&newQuantity=" + newPlts +"&inventoryType=Pallet";
+                if (objArray.length > 0) {
+                    url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryLocationId=" + palletLocationId + "&quantity=" + pickPlts + "&newQuantity=" + newPlts + "&inventoryType=Pallet";
                     SendAjaxMethodWithoutReloadPage("POST", url, objArray);
                 }
             });
@@ -536,22 +533,18 @@
                 var formData = new FormData();
                 var files = $("#input-upload").get(0).files;
 
-                if (files.length > 0)
-                {
+                if (files.length > 0) {
                     formData.append("fileName", files[0]);
                     url = "/api/fba/FBAPickDetail/?shipOrderId=" + shipOrderId + "&operation=" + operation;
 
-                    if (operation == "UploadBOL")
-                    {
+                    if (operation == "UploadBOL") {
                         SendUploadAjaxMethodAndDownloadFile("POST", url, formData);
                     }
-                    else
-                    {
+                    else {
                         SendUploadAjaxMethod("POST", url, formData);
                     }
                 }
-                else
-                {
+                else {
                     alert("Please choose file first.");
                 }
             });
@@ -583,6 +576,41 @@
                     }
                 });
 
+            });
+
+            //点击Adjust按钮打开Adjust弹窗
+            $("#table").on("click", ".btn-adjust", function () {
+                //var pickingCtns = $(this).parent().parent("tr").children('td').eq(14).children('font').html();
+                var pickingInventoryPlts = $(this).parent().parent("tr").children('td').eq(15).children('font').html();
+                var pickingNewPlts = $(this).parent().parent("tr").children('td').eq(16).children('font').html();
+                pickDetailId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+
+                //$("#font-ctns").html(pickingCtns);
+                $("#font-plts").html(pickingInventoryPlts);
+                $("#font-new").html(pickingNewPlts);
+
+                grandChannel.openiframe(index, ".iframe-adjust", "300px", "320px");
+            });
+
+            //点击确认调整按钮，确认调整
+            $("#btn-adjust").on("click", function () {
+                //var pickingCtns = $(this).parent().parent("tr").children('td').eq(14).children('font').html();
+                var pickingInventoryPlts = $(this).parent().parent("tr").children('td').eq(15).children('font').html();
+                var pickingNewPlts = $(this).parent().parent("tr").children('td').eq(16).children('font').html();
+
+                //var ctnsAdjust = $("#font-ctns").val();
+                var pltsAdjust = $("#input-plts").val();
+                var newPltsAdjust = $("#input-new").val();
+
+                if (pltsAdjust == "" || newPltsAdjust == "")
+                {
+                    alert("Adjust file cannot be empty.");
+                }
+                else
+                {
+                    url = "/api/fba/fbapickdetail/?pickDetailId=" + pickDetailId + "&pltsAdjust=" + pltsAdjust + "&newPltsAdjust=" + newPltsAdjust;
+                    SendAjaxMethod("PUT", url, {});
+                }
             });
 
             //解析url中的参数函数
@@ -702,7 +730,7 @@
 
             function GetPickInventoryTable(container, sku, amzRef, warehouseCode, tablePallet, tableCarton) {
 
-                url = "/api/fba/fbainventory/?container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode +"&inventoryType=Pallet";
+                url = "/api/fba/fbainventory/?container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode + "&inventoryType=Pallet";
                 var palletsColumnArray = [
                         {
                             data: "id",

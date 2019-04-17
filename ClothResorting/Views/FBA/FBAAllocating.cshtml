@@ -14,6 +14,7 @@
     </div>
     <div style="margin-top:20px;border:double">
         <h2>Pallets Allocating</h2>
+        <font color="red">*Attention: Cannot separate rough packed pallets. The system will ignore "Plts/Location" field when allocating rough packed pallets and will set the value as the maximum unallocated pallets number.</font>
         <table id="table-pallet" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -591,7 +592,7 @@
                         table = $(tableId).DataTable({
                             data: data,
                             destroy: true,
-                            //scrollX: true,
+                            scrollX: true,
                             order: [[1, "asc"]],
                             scrollCollapse: true,
                             scrollY: "600px",
