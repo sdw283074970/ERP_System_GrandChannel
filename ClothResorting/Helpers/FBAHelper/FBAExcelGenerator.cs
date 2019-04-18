@@ -267,6 +267,80 @@ namespace ClothResorting.Helpers.FBAHelper
             return fullPath;
         }
 
+        //生成Excel版本的BOL并返回完整路径
+        public string GenerateExcelBol(int shipOrderId, IList<FBABOLDetail> bolDetailList)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var addressBookInDb = _context.FBAAddressBooks.SingleOrDefault(x => x.WarehouseCode == shipOrderInDb.Destination);
+            var address = " ";
+            _ws = _wb.Worksheets[1];
+
+            if (addressBookInDb != null)
+            {
+                address = addressBookInDb.Address;
+            }
+
+            //设置BOL时间
+            _ws.Cells[2, 1] = "Date: " + DateTime.Now.ToString("yyyy-MM-dd");
+
+            //设置BOL#
+            _ws.Cells[3, 8] = shipOrderInDb.BOLNumber;
+
+            //设置地址
+            _ws.Cells[7, 2] = shipOrderInDb.Destination;
+            _ws.Cells[8, 1] = address;
+
+            //设置carrier
+            _ws.Cells[6, 6] = shipOrderInDb.Carrier;
+
+            //设置Ship Order #
+            _ws.Cells[18, 1] = "Ship Order#: " + shipOrderInDb.ShipOrderNumber;
+
+            var startRow = 21;
+
+            foreach(var b in bolDetailList)
+            {
+                _ws.Cells[startRow, 1] = b.CustomerOrderNumber;
+                _ws.Cells[startRow, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+                _ws.Cells[startRow, 2] = b.Contianer;
+                _ws.Cells[startRow, 3] = "Y    N";
+                _ws.Cells[startRow, 4] = b.Weight;
+                _ws.Cells[startRow, 5] = b.CartonQuantity;
+                _ws.Cells[startRow, 6] = b.IsMainItem ? b.PalletQuantity.ToString() : " ";
+                _ws.Cells[startRow, 7] = b.Location;
+
+                startRow += 1;
+            }
+
+            var lastRow = startRow + 2;
+
+            if (lastRow < 37)
+            {
+                lastRow = 37;
+            }
+
+            _ws.Cells[lastRow, 1] = "Total";
+            _ws.Cells[lastRow, 5] = bolDetailList.Sum(x => x.CartonQuantity);
+            _ws.Cells[lastRow, 6] = bolDetailList.Sum(x => x.PalletQuantity);
+
+            for(int i = 21; i <= lastRow; i++)
+            {
+                for(int j = 1; j <= 7; j++)
+                {
+                    _ws.Cells[i, j].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                    _ws.Cells[i, j].HorizontalAlignment = XlVAlign.xlVAlignCenter;
+                }
+            }
+
+            var fullPath = @"D:\BOL\FBA-BOL-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
+        }
+
         private IList<FBABOLDetail> GenerateFBABOLList(IEnumerable<FBAPickDetail> pickDetailsInDb)
         {
             var bolList = new List<FBABOLDetail>();

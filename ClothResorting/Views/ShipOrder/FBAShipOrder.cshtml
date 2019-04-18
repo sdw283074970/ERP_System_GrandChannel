@@ -514,7 +514,7 @@
                     },
                     success: function (data) {
                         layer.alert("Success! The BOL will be downloaded automatically.");
-                        $(window.location).attr('href', '/api/fba/downloadfile/?fileName=' + data);
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

@@ -18,5 +18,8 @@ namespace ClothResorting.Models.FBAModels
         public int PalletQuantity { get; set; }
 
         public string Location { get; set; }
+
+        //用于标记是否是宿主物品
+        public bool IsMainItem { get; set; }
     }
 }

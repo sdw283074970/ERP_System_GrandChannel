@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClothResorting.Models.StaticClass;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +12,11 @@ namespace ClothResorting.Controllers
         // GET: FBA
         public ActionResult Index()
         {
+            if (User.IsInRole(RoleName.CanViewAsClientOnly))
+            {
+                return View("FBAClientIndex");
+            }
+
             return View();
         }
 

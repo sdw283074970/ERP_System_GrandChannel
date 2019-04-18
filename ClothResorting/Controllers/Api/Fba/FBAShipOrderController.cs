@@ -14,6 +14,7 @@ using System.Web;
 using System.Web.Http;
 using System.Data.Entity;
 using ClothResorting.Models.FBAModels.StaticModels;
+using ClothResorting.Helpers.FBAHelper;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -76,9 +77,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var bolList = GenerateFBABOLList(pickDetailsInDb);
 
-            var generator = new PDFGenerator();
+            var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
 
-            var fileName = generator.GenerateFBABOL(shipOrderId, bolList);
+            var fileName = generator.GenerateExcelBol(shipOrderId, bolList);
 
             return Ok(fileName);
         }
@@ -125,7 +126,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (operation == FBAOperation.ChangeStatus)
             {
-                if (shipOrderInDb.Status == FBAStatus.Picking)
+                if (shipOrderInDb.Status == FBAStatus.Picking || shipOrderInDb.Status == FBAStatus.NewCreated)
                 {
                     shipOrderInDb.Status = FBAStatus.Ready;
                 }
@@ -283,7 +284,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     for (int i = 0; i < cartonInPickList.Count; i++)
                     {
                         var plt = 0;
-
+                        var isMainItem = true;
                         //只有托盘中的第一项物品显示托盘数，其他物品不显示并在生成PDF的时候取消表格顶线，99999用于区分是否是同一托盘的非首项
                         if (i == 0)
                         {
@@ -291,7 +292,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         }
                         else
                         {
-                            plt = 99999;
+                            isMainItem = false;
                         }
 
                         bolList.Add(new FBABOLDetail
@@ -301,7 +302,8 @@ namespace ClothResorting.Controllers.Api.Fba
                             CartonQuantity = cartonInPickList[i].PickCtns,
                             PalletQuantity = plt,
                             Weight = cartonInPickList[i].FBACartonLocation.GrossWeightPerCtn * cartonInPickList[i].PickCtns,
-                            Location = pickDetail.Location
+                            Location = pickDetail.Location,
+                            IsMainItem = isMainItem
                         });
                     }
                 }

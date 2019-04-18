@@ -155,6 +155,8 @@ namespace ClothResorting.Controllers
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
+                var userLevel = model.UserLevel;
+
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
@@ -168,8 +170,32 @@ namespace ClothResorting.Controllers
                     ////临时代码，新建一个角色并将改角色分配给刚建立的用户
                     //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());
                     //var roleManager = new RoleManager<IdentityRole>(roleStore);
-                    //await roleManager.CreateAsync(new IdentityRole(RoleName.CanDeleteEverything));
-                    //await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
+                    //  await roleManager.CreateAsync(new IdentityRole(RoleName.CanViewAsClientOnly));
+
+                    if (userLevel == "Client")
+                    {
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanViewAsClientOnly);
+                    }
+                    else if (userLevel == "T1")
+                    {
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT1);
+                    }
+                    else if (userLevel == "T2")
+                    {
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT2);
+                    }
+                    else if (userLevel == "T3")
+                    {
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT3);
+                    }
+                    else if (userLevel == "T4")
+                    {
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT4);
+                    }
+                    else if (userLevel == "T5")
+                    {
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT5);
+                    }
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -180,7 +206,6 @@ namespace ClothResorting.Controllers
             return View(model);
         }
 
-        //
         // GET: /Account/ConfirmEmail
         [AllowAnonymous]
         public async Task<ActionResult> ConfirmEmail(string userId, string code)
@@ -193,7 +218,6 @@ namespace ClothResorting.Controllers
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
-        //
         // GET: /Account/ForgotPassword
         [AllowAnonymous]
         public ActionResult ForgotPassword()

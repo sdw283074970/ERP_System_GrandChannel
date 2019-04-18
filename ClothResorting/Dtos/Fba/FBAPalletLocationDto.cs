@@ -12,6 +12,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float GrossWeightPerPlt { get; set; }
 
+        public DateTime InboundDate { get; set; }
+
         public float CBMPerPlt { get; set; }
 
         public int CtnsPerPlt { get; set; }

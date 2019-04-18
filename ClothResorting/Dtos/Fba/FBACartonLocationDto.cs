@@ -12,6 +12,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float CBMPerCtn { get; set; }
 
+        public DateTime InboundDate { get; set; }
+
         public int ctnsPerPlt { get; set; }
 
         public int AvailableCtns { get; set; }

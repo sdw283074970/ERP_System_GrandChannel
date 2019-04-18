@@ -348,37 +348,38 @@
 
             //点击库存表中的All Pick按钮，将所有货全拣
             $("#table-pallet, #table-carton").on("click", ".btn-inventory-allpick", function () {
-                var inventoryType = $(this).attr('inventorytype');
-                var inventoryId = $(this).attr('iid');
+                alert("This function is temporarily turned off.");
+                //var inventoryType = $(this).attr('inventorytype');
+                //var inventoryId = $(this).attr('iid');
 
-                url = "/api/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryId=" + inventoryId + "&inventoryType=" + inventoryType + "&operation=AllPick";
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    beforeSend: function () {
-                        layer.close(index);
-                        index = layer.msg('Processing...', {
-                            icon: 3,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function (data) {
-                        layer.close(index);
-                        container = $("#input-inventory-container").val();
-                        if (container != "") {
-                            GetPickInventoryTable(container, tablePallet, tableCarton);
-                            GetPickDetailTable(shipOrderId, table);
-                        }
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
-                        });
-                    }
-                });
+                //url = "/api/fbapickdetail/?shipOrderId=" + shipOrderId + "&inventoryId=" + inventoryId + "&inventoryType=" + inventoryType + "&operation=AllPick";
+                //$.ajax({
+                //    type: "POST",
+                //    url: url,
+                //    contentType: 'application/json; charset=utf-8',
+                //    dataType: "json",
+                //    beforeSend: function () {
+                //        layer.close(index);
+                //        index = layer.msg('Processing...', {
+                //            icon: 3,
+                //            shade: 0.01,
+                //            time: 99 * 1000
+                //        });
+                //    },
+                //    success: function (data) {
+                //        layer.close(index);
+                //        container = $("#input-inventory-container").val();
+                //        if (container != "") {
+                //            GetPickInventoryTable(container, tablePallet, tableCarton);
+                //            GetPickDetailTable(shipOrderId, table);
+                //        }
+                //    },
+                //    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                //        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                //            window.location.reload();
+                //        });
+                //    }
+                //});
             });
 
             //点击库存表中的Pick按钮，弹出拣货细节对话框
@@ -745,6 +746,12 @@
                             }
                         },
                         {
+                            data: "inboundDate",
+                            render: function (data) {
+                                return "<text>" + data.substring(0, 10) + "</text>";
+                            }
+                        },
+                        {
                             data: "container",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
@@ -840,6 +847,12 @@
                             return "<text>" + data + "</text>";
                         }
                     },
+                        {
+                            data: "inboundDate",
+                            render: function (data) {
+                                return "<text>" + data.substring(0, 10) + "</text>";
+                            }
+                        },
                     {
                         data: "container",
                         render: function (data) {

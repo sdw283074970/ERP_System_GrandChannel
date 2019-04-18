@@ -78,7 +78,9 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             if (inventoryType == FBAInventoryType.Pallet)
             {
-                var palletInventoryInDb = _context.FBAPalletLocations.Where(x => x.AvailablePlts != 0);
+                var palletInventoryInDb = _context.FBAPalletLocations
+                    .Include(x => x.FBAMasterOrder)
+                    .Where(x => x.AvailablePlts != 0);
 
                 if (container != null)
                 {
@@ -100,11 +102,22 @@ namespace ClothResorting.Controllers.Api.Fba
                     palletInventoryInDb = palletInventoryInDb.Where(x => x.WarehouseCode.Contains(warehouseCode));
                 }
 
-                return Ok(Mapper.Map<IEnumerable<FBAPalletLocation>, IEnumerable<FBAPalletLocationDto>>(palletInventoryInDb));
+                var palletInventoryDto = new List<FBAPalletLocationDto>();
+
+                foreach(var p in palletInventoryInDb)
+                {
+                    var dto = Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>(p);
+                    dto.InboundDate = p.FBAMasterOrder.InboundDate;
+                    palletInventoryDto.Add(dto);
+                }
+
+                return Ok(palletInventoryDto);
             }
             else
             {
-                var cartonInventoryInDb = _context.FBACartonLocations.Where(x => x.AvailableCtns != 0);
+                var cartonInventoryInDb = _context.FBACartonLocations
+                    .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                    .Where(x => x.AvailableCtns != 0);
 
                 if (container != null)
                 {
@@ -126,7 +139,16 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonInventoryInDb = cartonInventoryInDb.Where(x => x.WarehouseCode.Contains(warehouseCode));
                 }
 
-                return Ok(Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(cartonInventoryInDb));
+                var cartonInventoryDto = new List<FBACartonLocationDto>();
+
+                foreach(var c in cartonInventoryInDb)
+                {
+                    var dto = Mapper.Map<FBACartonLocation, FBACartonLocationDto>(c);
+                    dto.InboundDate = c.FBAOrderDetail.FBAMasterOrder.InboundDate;
+                    cartonInventoryDto.Add(dto);
+                }
+
+                return Ok(cartonInventoryDto);
             }
         }
 
