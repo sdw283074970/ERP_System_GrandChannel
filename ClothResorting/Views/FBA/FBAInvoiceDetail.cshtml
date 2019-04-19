@@ -120,7 +120,7 @@
             <text id="text-ordertype">Charging Order Type:</text>
         </div>
         <div id="div-quantity" style="margin-top:20px">
-            <text>CTNS: <button id="text-ctns" class="btn btn-link">Cartons</button></text><text style="margin-left:20px">PLTS: <button id="text-plts" class="btn btn-link">PLTS</button></text>
+            <text style="margin-left:20px">ORG PLTS: <button id="text-org-plts" class="btn btn-link">ORG PLTS</button></text><text style="margin-left:20px">PLTS: <button id="text-plts" class="btn btn-link">PLTS</button></text><text>CTNS: <button id="text-ctns" class="btn btn-link">Cartons</button></text>
         </div>
         <div id="div-date" style="margin-top:20px">
             <text>Date of Cost: <input id="input-date" type="date" /></text>
@@ -333,6 +333,7 @@
                     $("#text-ordertype").html("Invoice from: " + invoiceType);
                     $("#text-ctns").html(data.cartons);
                     $("#text-plts").html(data.pallets);
+                    $("#text-org-plts").html(data.originalPallets);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -950,7 +951,7 @@
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                $(api.column(6).footer()).html("<font color='red'>$" + totalAmount + "</font>");
+                                $(api.column(6).footer()).html("<font color='red'>$" + parseFloat(totalAmount.toFixed(2)) + "</font>");
                             }
                         });
                     },

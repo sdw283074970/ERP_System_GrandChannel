@@ -78,6 +78,7 @@
             var shipOrderId;
             var customerId = getUrlParameter('customerId');
             var invoiceStatus;
+            var searchBar = getUrlParameter('search');
 
             $(".iframe").hide();
             $(".iframe-ship").hide();
@@ -261,7 +262,7 @@
                         else if (status == "Ready")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
                         else
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                     }
                 }
             ]
@@ -414,6 +415,19 @@
                 $(this).html("Await");
             });
 
+            //点击任何按钮，都将searchBar中的内容保存到url中但不刷新页面
+            $("#table").on("click", ".btn", function () {
+                tableSearch = $("#table_filter").children('label').children('input').val();
+                if (customerId != undefined)
+                {
+                    window.history.pushState({}, {}, "/ShipOrder/FBAShipOrder/?customerId=" + customerId + "&search=" + tableSearch);
+                }
+                else
+                {
+                    window.history.pushState({}, {}, "/ShipOrder/FBAShipOrder/?search=" + tableSearch);
+                }
+            });
+
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
                 $.ajax({
                     type: methodType,
@@ -444,6 +458,13 @@
                             iDisplayLength: 100,
                             columns: columsArray
                         });
+
+                        var tableSearch = $("#table_filter").children('label').children('input');
+
+                        if (searchBar != undefined) {
+                            tableSearch.val(searchBar);
+                            table.search(searchBar).draw();
+                        }
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

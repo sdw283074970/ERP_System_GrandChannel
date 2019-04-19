@@ -380,13 +380,13 @@
                                 {
                                     data: "totalCBM",
                                     render: function (data) {
-                                        return "<font color='green'>" + data + "</font>";
+                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
                                     }
                                 },
                                 {
                                     data: "actualCBM",
                                     render: function (data) {
-                                        return "<font color='green'>" + data + "</font>";
+                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
                                     }
                                 },
                                 {

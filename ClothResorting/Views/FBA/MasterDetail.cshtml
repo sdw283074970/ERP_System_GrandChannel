@@ -293,13 +293,13 @@
                                 {
                                     data: "grossWeight",
                                     render: function (data) {
-                                        return "<font color='green'>" + data + "</font>";
+                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
                                     }
                                 },
                                 {
                                     data: "cbm",
                                     render: function (data) {
-                                        return "<font color='green'>" + data + "</font>";
+                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
                                     }
                                 },
                                 {
@@ -311,13 +311,13 @@
                                 {
                                     data: "actualGrossWeight",
                                     render: function (data) {
-                                        return "<font color='red'>" + data + "</font>";
+                                        return "<font color='red'>" + parseFloat(data.toFixed(2)) + "</font>";
                                     }
                                 },
                                 {
                                     data: "actualCBM",
                                     render: function (data) {
-                                        return "<font color='red'>" + data + "</font>";
+                                        return "<font color='red'>" + parseFloat(data.toFixed(2)) + "</font>";
                                     }
                                 },
                                 {

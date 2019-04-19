@@ -472,7 +472,7 @@
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                $(api.column(6).footer()).html("<font color='red'>$" + totalAmount + "</font>");
+                                $(api.column(6).footer()).html("<font color='red'>$" + parseFloat(totalAmount.toFixed(2)) + "</font>");
                             }
                         });
                     },

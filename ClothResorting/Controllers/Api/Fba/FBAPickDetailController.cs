@@ -79,6 +79,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var resultsInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAPallet.FBACartonLocations)
+                    .Include(x => x.FBAPallet.FBAPalletLocations)
                     .Where(x => x.AvailablePlts != 0);
 
                 var objArray = new List<PickCartonDto>();
@@ -192,6 +193,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     var palletLocationInDb = _context.FBAPalletLocations
                         .Include(x => x.FBAPallet.FBACartonLocations)
+                        .Include(x => x.FBAPallet.FBAPalletLocations)
                         .SingleOrDefault(x => x.Id == inventoryId);
 
                     var objArray = new List<PickCartonDto>();
@@ -233,6 +235,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var palletLocationInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAPallet.FBACartonLocations)
+                    .Include(x => x.FBAPallet.FBAPalletLocations)
                     .SingleOrDefault(x => x.Id == inventoryLocationId);
 
                 _context.FBAPickDetails.Add(CreateFBAPickDetailFromPalletLocation(palletLocationInDb, shipOrderInDb, quantity, newQuantity, pickDetailCartonList, objArray));
@@ -303,7 +306,8 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPickDetailCartons)
-                .Include(x => x.FBAPalletLocation)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBAPalletLocations)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
                 .SingleOrDefault(x => x.Id == pickDetailId);
 
             //调整托盘数量小于已捡托盘数量的情况
@@ -331,6 +335,14 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetailInDb.FBAPalletLocation.PickingPlts += pltsAdjust;
 
             pickDetailInDb.ActualPlts = pickDetailInDb.PltsFromInventory + pickDetailInDb.NewPlts;
+
+            //如果捡完了托盘数量但是箱子还有剩余，则报错
+            var availablePlts = pickDetailInDb.FBAPalletLocation.FBAPallet.FBAPalletLocations.Sum(x => x.AvailablePlts);
+            var availableCtns = pickDetailInDb.FBAPalletLocation.FBAPallet.FBACartonLocations.Sum(x => x.AvailableCtns);
+            if (availablePlts <= 0 && availableCtns != 0)
+            {
+                throw new Exception("Cannot adjust because the pallets number of SKU " + pickDetailInDb.FBAPalletLocation.ShipmentId + "will be 0 after this pick but there are still many cartons inside. Please make sure there is no thing left before picking the last pallte.");
+            }
 
             _context.SaveChanges();
         }
@@ -447,6 +459,15 @@ namespace ClothResorting.Controllers.Api.Fba
                 pickDetail.ActualGrossWeight += obj.Quantity * cartonInPalletInDb.GrossWeightPerCtn;
 
                 pickDetailCartonList.Add(pickDetailCarton);
+
+            }
+
+            //如果捡完了托盘数量但是箱子还有剩余，则报错
+            var availablePlts = fbaPalletLocationInDb.FBAPallet.FBAPalletLocations.Sum(x => x.AvailablePlts);
+            var availableCtns = fbaPalletLocationInDb.FBAPallet.FBACartonLocations.Sum(x => x.AvailableCtns);
+            if (availablePlts == 0 && availableCtns != 0)
+            {
+                throw new Exception("Cannot pick because the pallets number of SKU " + fbaPalletLocationInDb.ShipmentId + "will be 0 after this pick but there are still many cartons inside. Please make sure there is no thing left before picking the last pallte.");
             }
 
             return pickDetail;

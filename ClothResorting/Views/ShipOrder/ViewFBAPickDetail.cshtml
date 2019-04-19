@@ -96,12 +96,12 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["800px", "400px"],
+                    area: ["1000px", "400px"],
                     content: $(".iframe-cartons")
                 });
 
                 var id = $(this).attr('iid');
-                url = "/api/fba/fbainventory/?pickDetailId=" + id;
+                url = "/api/fba/FBAPickDetail/?pickDetailId=" + id;
                 var ctnsInPltColumnArray = [
                     {
                         data: "id",

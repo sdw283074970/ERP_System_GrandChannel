@@ -109,6 +109,9 @@ namespace ClothResorting.Controllers.Api.Fba
                                 .Where(x => x.Container == reference)
                                 .ToList();
 
+                            var masterOrderInDb = _context.FBAMasterOrders
+                                .SingleOrDefault(x => x.Container == reference);
+
                             var orderDetsils = _context.FBAOrderDetails
                                 .Include(x => x.FBAMasterOrder)
                                 .Where(x => x.FBAMasterOrder.Container == reference)
@@ -117,7 +120,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             var plts = masterOrderPallets.Sum(x => x.ActualPallets);
                             var ctns = orderDetsils.Sum(x => x.ActualQuantity);
 
-                            return Ok(new { Pallets = plts, Cartons = ctns});
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts});
                         }
                         else if (invoiceType == "ShipOrder")
                         {
@@ -129,7 +132,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             var plts = shipOrder.Sum(x => x.ActualPlts);
                             var ctns = shipOrder.Sum(x => x.ActualQuantity);
 
-                            return Ok(new { Pallets = plts, Cartons = ctns });
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A" });
                         }
                         else
                         {
