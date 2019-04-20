@@ -26,6 +26,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string CreateBy { get; set; }
 
+        public string PlacedBy { get; set; }
+
         public DateTime PickDate { get; set; }
 
         public DateTime ShipDate { get; set; }
@@ -34,17 +36,25 @@ namespace ClothResorting.Models.FBAModels
 
         public string Status { get; set; }
 
+        public string ReadyBy { get; set; }
+
+        public string ReleasedBy { get; set; }
+
         public string ShippedBy { get; set; }
 
         public string BOLNumber { get; set; }
 
         public float TotalAmount { get; set; }
 
-        public string ConfirmedBy { get; set; } 
+        public string ConfirmedBy { get; set; }
 
         public string Carrier { get; set; }
 
+        public string Instruction { get; set; }
+
         public DateTime ETS { get; set; }
+
+        public string ETSTimeRange { get; set; }
 
         public DateTime CloseDate { get; set; }
 

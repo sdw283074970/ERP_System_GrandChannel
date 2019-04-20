@@ -163,6 +163,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             masterOrderInDb.InboundDate = inboundDateTime;
+            masterOrderInDb.ReceivedBy = _userName;
 
             foreach(var detail in masterOrderInDb.FBAOrderDetails)
             {

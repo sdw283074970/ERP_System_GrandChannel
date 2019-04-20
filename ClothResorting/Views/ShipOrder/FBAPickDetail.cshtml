@@ -158,12 +158,18 @@
         <button class="btn btn-primary" id="btn-adjust">Confirm</button>
     </div>
 </div>
+<div class="iframe-ship">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select ShipDate: </text><input type="date" id='input-shipdate' style='width:170px' class='input-sm' /><br />
+        <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Mark Ship</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
-            $(".iframe,.iframe-update, .iframe-cartons, .iframe-adjust").hide();
+            $(".iframe,.iframe-update, .iframe-cartons, .iframe-adjust, .iframe-ship").hide();
             $(".iframe-inventory, .iframe-pickpallet, .iframe-pickcarton").hide();
 
             var index;
@@ -629,10 +635,29 @@
                 }
             });
 
-            //点击Ready按钮，将运单标记为准备
+            //点击Ready按钮，弹出Ready确认对话框
             $("#btn-ready").on("click", function () {
-                url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&shipDate=1992-11-17&operation=ChangeStatus";
-                SendAjaxMethodAndBack("PUT", url, {});
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "150px"],
+                    content: $(".iframe-ship")
+                });
+            });
+
+            //填好ship日期后，点击确认发货按钮
+            $("#btn-ship").on("click", function () {
+                layer.close(index);
+                var shipDate = $("#input-shipdate").val();
+
+                if (shipDate != "") {
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&shipDate=" + shipDate + "&operation=ChangeStatus";
+                    SendAjaxMethodAndBack("PUT", url, {});
+                }
+                else {
+                    alert("Ship Date cannot be empty.");
+                }
             });
 
             //解析url中的参数函数

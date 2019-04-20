@@ -118,29 +118,40 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&operation={operation}
         [HttpPut]
-        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime shipDate,[FromUri]string operation)
+        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]string operation)
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
+            //当操作类型为调整订单状态时
             if (operation == FBAOperation.ChangeStatus)
             {
-                if (shipOrderInDb.Status == FBAStatus.Picking || shipOrderInDb.Status == FBAStatus.NewCreated)
+                //新建的空单和正在被仓库处理的单都能转换成Ready状态
+                if (shipOrderInDb.Status == FBAStatus.NewCreated || shipOrderInDb.Status == FBAStatus.Processing)
                 {
                     shipOrderInDb.Status = FBAStatus.Ready;
+                    shipOrderInDb.ReadyBy = _userName;
                 }
+                //如果订单未在拣状态，则转换为给仓库的新订单状态
+                else if (shipOrderInDb.Status == FBAStatus.Picking)
+                {
+                    shipOrderInDb.Status = FBAStatus.NewOrder;
+                    shipOrderInDb.PlacedBy = _userName;
+                }
+                //如果订单未准备状态，则点准备状态变回Processing状态（如果是空单则不会返回给仓库）
                 else if (shipOrderInDb.Status == FBAStatus.Ready)
                 {
                     shipOrderInDb.Status = FBAStatus.Picking;
+                    shipOrderInDb.ReadyBy = "Cancelled by " + _userName;
                 }
             }
-            else if (operation == FBAOperation.ShipOrder)
+            //当操作类型为发货且状态为Release的情况下才从库存实际扣除
+            else if (operation == FBAOperation.ShipOrder && (shipOrderInDb.Status == FBAStatus.Released || shipOrderInDb.Status == FBAStatus.NewCreated))
             {
                 if (shipOrderInDb.FBAPickDetails.Count() == 0)
                 {
                     shipOrderInDb.Status = FBAStatus.Shipped;
-                    shipOrderInDb.ShipDate = shipDate;
                     shipOrderInDb.ShippedBy = _userName;
                 }
                 else
@@ -151,8 +162,29 @@ namespace ClothResorting.Controllers.Api.Fba
                     }
                     shipOrderInDb.ShippedBy = _userName;
                     shipOrderInDb.Status = FBAStatus.Shipped;
-                    shipOrderInDb.ShipDate = shipDate;
                 }
+            }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&shipHour={shipHour}&shipMinute={shipMinute}
+        [HttpPut]
+        public void MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime shipDate, [FromUri]int shipHour, [FromUri]int shipMinute)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            //如果已经发货了，则报错
+            if (shipOrderInDb.ShipDate.ToString("yyyy-MM-dd") == "1900-01-01")
+            {
+                throw new Exception("Cannot override existed date.");
+            }
+            //只有当订单状态为ready或New Created的时候才能release并填上日期
+            else if (shipOrderInDb.Status == FBAStatus.Ready || shipOrderInDb.Status == FBAStatus.NewCreated)
+            {
+                shipOrderInDb.ShipDate = new DateTime(shipDate.Year, shipDate.Month, shipDate.Day, shipHour, shipMinute, 0, 0);
+                shipOrderInDb.Status = FBAStatus.Released;
+                shipOrderInDb.ReleasedBy = _userName;
             }
 
             _context.SaveChanges();

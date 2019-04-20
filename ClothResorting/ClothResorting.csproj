@@ -1538,6 +1538,18 @@
     <Compile Include="Migrations\201904160044039_AddedOperationLogsDbSet.Designer.cs">
       <DependentUpon>201904160044039_AddedOperationLogsDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201904191756480_AddedReadyByAndReceivedByInFBASystem.cs" />
+    <Compile Include="Migrations\201904191756480_AddedReadyByAndReceivedByInFBASystem.Designer.cs">
+      <DependentUpon>201904191756480_AddedReadyByAndReceivedByInFBASystem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201904192021193_AddedReleasedDateAndReleasedBy.cs" />
+    <Compile Include="Migrations\201904192021193_AddedReleasedDateAndReleasedBy.Designer.cs">
+      <DependentUpon>201904192021193_AddedReleasedDateAndReleasedBy.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201904192359172_AddedESTRangeAndInstructionInFBAShipOrder.cs" />
+    <Compile Include="Migrations\201904192359172_AddedESTRangeAndInstructionInFBAShipOrder.Designer.cs">
+      <DependentUpon>201904192359172_AddedESTRangeAndInstructionInFBAShipOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2889,6 +2901,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201904160044039_AddedOperationLogsDbSet.resx">
       <DependentUpon>201904160044039_AddedOperationLogsDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904191756480_AddedReadyByAndReceivedByInFBASystem.resx">
+      <DependentUpon>201904191756480_AddedReadyByAndReceivedByInFBASystem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904192021193_AddedReleasedDateAndReleasedBy.resx">
+      <DependentUpon>201904192021193_AddedReleasedDateAndReleasedBy.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904192359172_AddedESTRangeAndInstructionInFBAShipOrder.resx">
+      <DependentUpon>201904192359172_AddedESTRangeAndInstructionInFBAShipOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

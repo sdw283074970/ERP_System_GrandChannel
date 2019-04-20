@@ -19,22 +19,25 @@
             <thead>
                 <tr>
                     <th style="width:39px">Id</th>
+                    <th>Status</th>
                     <th>Ship Order #</th>
                     <th>Customer Code</th>
                     <th>Order Type</th>
                     <th>Destination</th>
-                    <th>Pick Ref.</th>
-                    <th>Create date</th>
-                    <th>Create By</th>
-                    <th>Status</th>
-                    <th>Shipped Date</th>
-                    <th>Shipped By</th>
-                    <th>Total Amount</th>
-                    <th>Invoice Status</th>
-                    <th>Close Date</th>
-                    <th>Closed By</th>
+                    @*<th>Pick Ref.</th>*@
+                    <th style="width:80px">Create date</th>
+                    <th style="width:60px">Create By</th>
+                    <th style="width:60px">Edit By</th>
+                    <th style="width:80px">ETS</th>
+                    <th style="width:80px">Shipped Date</th>
+                    <th style="width:60px">Shipped By</th>
+                    <th style="width:200px">Instruction</th>
+                    <th style="width:60px">Total Amount</th>
+                    <th style="width:60px">Invoice Status</th>
+                    <th style="width:60px">Close Date</thstyle="width:60px">
+                    <th style="width:60px">Closed By</th>
                     <th>eFolder</th>
-                    <th style="width:250px">Operation</th>
+                    <th style="width:300px">Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -56,6 +59,7 @@
         <text>BOL Number: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Bill of landing #' /><br />
         <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='Carrier Name' /><br />
         <text>ETS: </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
+        <text>ETS Time Range: </text><input id='input-range' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
         <button id="btn-add" class='btn btn-primary' style="margin-top:20px">New ship order</button>
     </div>
 </div>
@@ -119,6 +123,24 @@
                     }
                 },
                 {
+                    data: "status",
+                    render: function (data) {
+                        status = data;
+                        if (data == "Picking")
+                            return "<font color='red'>" + data + "</font>";
+                        else if (data == "Process")
+                            return "<font color='purple'>" + data + "</font>";
+                        else if (data == "Shipped")
+                            return "<font color='blue'>" + data + "</font>";
+                        else if (data == "Ready")
+                            return "<font color='green'>" + data + "</font>";
+                        else if (data == "Released")
+                            return "<font color='orange'>" + data + "</font>";
+                        else
+                            return "<font>" + data + "</font>";
+                    }
+                },
+                {
                     data: "shipOrderNumber",
                     render: function (data) {
                         shipOrder = data;
@@ -143,12 +165,12 @@
                         return "<text>" + data + "</text>";
                     }
                 },
-                {
-                    data: "pickReference",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
+                //{
+                //    data: "pickReference",
+                //    render: function (data) {
+                //        return "<font>" + data + "</font>";
+                //    }
+                //},
                 {
                     data: "createDate",
                     render: function (data) {
@@ -159,6 +181,22 @@
                     data: "createBy",
                     render: function (data) {
                         return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "editBy",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "etsTimeRange",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
                     }
                 },
                 //{
@@ -180,24 +218,10 @@
                 //    }
                 //},
                 {
-                    data: "status",
-                    render: function (data) {
-                        status = data;
-                        if (data == "Picking")
-                            return "<font color='red'>" + data + "</font>";
-                        else if (data == "Shipped")
-                            return "<font color='blue'>" + data + "</font>";
-                        else if (data == "Ready")
-                            return "<font color='green'>" + data + "</font>";
-                        else
-                            return "<font color='orange'>" + data + "</font>";
-                    }
-                },
-                {
                     data: "shipDate",
                     render: function (data) {
                         if (data == "1900-01-01T00:00:00")
-                            return "<font color='red'>Unshipped</font>"
+                            return "<font color='red'></font>"
                         else
                             return "<font>" + data.substring(0, 10) + "</font>";
                     }
@@ -209,6 +233,14 @@
                             return "";
                         else
                             return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "instruction",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
                     }
                 },
                 {
@@ -257,10 +289,18 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "Shipped")
+                        if (status == "New Created")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                        else if (status == "Picking")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                        else if (status == "New Order" || status == "Processing")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Ready")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' />";
+                        else if (status == "Released")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
+                        else if (status == "Shipped")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                     }
@@ -300,6 +340,7 @@
                 var bol = $("#input-bol").val();
                 var carrier = $("#input-carrier").val();
                 var ets = $("#input-ets").val();
+                var timeRange = $("#input-range").val();
 
                 if (shipOrderNumber == "" || destination == "" || bol == "" || carrier == "" || ets == "" || customerCode == "NULL") {
                     alert("All required fields are required.");
@@ -451,7 +492,7 @@
                         table = $(tableId).DataTable({
                             data: data,
                             destroy: true,
-                            //scrollX: true,
+                            scrollX: true,
                             order: [[0, "desc"]],
                             scrollCollapse: true,
                             scrollY: "600px",

@@ -13,6 +13,7 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <button style="margin-left:20px" class="btn btn-danger btn-save">Save</button>
+        <input id="btn-ready" type="button" class="btn btn-primary" style="color:white;background-color:green" value="Ready" />
     </div>
     @*<div>
         <text id="text-billto">BILL TO:</text><br />
@@ -164,12 +165,18 @@
         <button id="btn-save" class='btn btn-danger' style="margin-top:20px;margin-right:20px;text-align:right">Save&Close</button>
     </div>
 </div>
+<div class="iframe-ship">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select ShipDate: </text><input type="date" id='input-shipdate' style='width:170px' class='input-sm' /><br />
+        <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Mark Ship</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
-            $(".iframe").hide();
+            $(".iframe, .iframe-ship").hide();
             $(".iframe-detail").hide();
             $(".iframe-save").hide();
 
@@ -209,9 +216,14 @@
             }
 
             if (invoiceType == "MasterOrder")
+            {
                 $("#h2-reference").html("Master Order #: " + reference);
+                $("#btn-ready").hide();
+            }
             else if (invoiceType == "ShipOrder")
+            {
                 $("#h2-reference").html("Ship Order #: " + reference);
+            }
 
             //获取客户代码
             $.ajax({

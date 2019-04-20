@@ -13,6 +13,12 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Picking = "Picking";
 
+        public const string NewOrder = "New Order";
+
+        public const string Processing = "Processing";
+
+        public const string Released = "Released";
+
         public const string Shipped = "Shipped";
 
         public const string InPallet = "InPallet";

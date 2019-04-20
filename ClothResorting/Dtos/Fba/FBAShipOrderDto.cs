@@ -21,9 +21,23 @@ namespace ClothResorting.Dtos.Fba
 
         public string PickReference { get; set; }
 
+        public string PlacedBy { get; set; }
+
+        public string ETSTimeRange { get; set; }
+
+        public int TotalPlts { get; set; }
+
+        public int TotalCtns { get; set; }
+
+        public string ReadyBy { get; set; }
+
+        public string ReleasedBy { get; set; }
+
         public DateTime CreateDate { get; set; }
 
         public string CreateBy { get; set; }
+
+        public string EditBy { get; set; }
 
         public DateTime PickDate { get; set; }
 
@@ -46,5 +60,7 @@ namespace ClothResorting.Dtos.Fba
         public DateTime CloseDate { get; set; }
 
         public string ConfirmedBy { get; set; }
+
+        public string Instruction { get; set; }
     }
 }
