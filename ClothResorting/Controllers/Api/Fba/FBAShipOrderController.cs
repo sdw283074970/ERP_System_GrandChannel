@@ -118,7 +118,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&operation={operation}
         [HttpPut]
-        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]string operation)
+        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime shipDate, [FromUri]string operation)
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
@@ -147,11 +147,12 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
             }
             //当操作类型为发货且状态为Release的情况下才从库存实际扣除
-            else if (operation == FBAOperation.ShipOrder && (shipOrderInDb.Status == FBAStatus.Released || shipOrderInDb.Status == FBAStatus.NewCreated))
+            else if (operation == FBAOperation.ShipOrder && shipOrderInDb.Status == FBAStatus.Released)
             {
                 if (shipOrderInDb.FBAPickDetails.Count() == 0)
                 {
                     shipOrderInDb.Status = FBAStatus.Shipped;
+                    shipOrderInDb.ShipDate = shipDate;
                     shipOrderInDb.ShippedBy = _userName;
                 }
                 else
@@ -161,6 +162,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         ShipPickDetail(_context, pickDetailInDb.Id);
                     }
                     shipOrderInDb.ShippedBy = _userName;
+                    shipOrderInDb.ShipDate = shipDate;
                     shipOrderInDb.Status = FBAStatus.Shipped;
                 }
             }
@@ -168,21 +170,21 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&shipHour={shipHour}&shipMinute={shipMinute}
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
         [HttpPut]
-        public void MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime shipDate, [FromUri]int shipHour, [FromUri]int shipMinute)
+        public void MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime shipDate)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
             //如果已经发货了，则报错
-            if (shipOrderInDb.ShipDate.ToString("yyyy-MM-dd") == "1900-01-01")
+            if (shipOrderInDb.ShipDate.ToString("yyyy-MM-dd") != "1900-01-01")
             {
                 throw new Exception("Cannot override existed date.");
             }
             //只有当订单状态为ready或New Created的时候才能release并填上日期
             else if (shipOrderInDb.Status == FBAStatus.Ready || shipOrderInDb.Status == FBAStatus.NewCreated)
             {
-                shipOrderInDb.ShipDate = new DateTime(shipDate.Year, shipDate.Month, shipDate.Day, shipHour, shipMinute, 0, 0);
+                shipOrderInDb.ShipDate = shipDate;
                 shipOrderInDb.Status = FBAStatus.Released;
                 shipOrderInDb.ReleasedBy = _userName;
             }

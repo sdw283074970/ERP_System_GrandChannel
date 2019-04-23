@@ -19,7 +19,7 @@
             <thead>
                 <tr>
                     <th style="width:39px">Id</th>
-                    <th>Status</th>
+                    <th style="width:70px">Status</th>
                     <th>Ship Order #</th>
                     <th>Customer Code</th>
                     <th>Order Type</th>
@@ -65,7 +65,7 @@
 </div>
 <div class="iframe-ship">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
-        <text>Select ShipDate: </text><input type="date" id='input-shipdate' style='width:170px' class='input-sm' /><br />
+        <text>Select ShipDate: </text><input type="datetime-local" id='input-shipdate' style='width:200px' class='input-sm' /><br />
         <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
     </div>
 </div>
@@ -223,7 +223,7 @@
                         if (data == "1900-01-01T00:00:00")
                             return "<font color='red'></font>"
                         else
-                            return "<font>" + data.substring(0, 10) + "</font>";
+                            return "<font>" + data.substring(0, 10) + " " +data.substring(11, 16) + "</font>";
                     }
                 },
                 {
@@ -293,12 +293,14 @@
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "Picking")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
-                        else if (status == "New Order" || status == "Processing")
+                        else if (status == "New Order")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        else if (status == "Processing")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Ready")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' />";
                         else if (status == "Released")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Unrelease' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
                         else if (status == "Shipped")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else

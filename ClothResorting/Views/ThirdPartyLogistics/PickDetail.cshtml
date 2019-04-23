@@ -84,6 +84,7 @@
             var url;
             var index;
             var pickDetailId;
+            var searchBar = getUrlParameter('search');
             $(".iframe").hide();
             $(".iframe-putback").hide();
 
@@ -213,6 +214,13 @@
                             }
                         ]
                     });
+
+                    var tableSearch = $("#table_filter").children('label').children('input');
+
+                    if (searchBar != undefined) {
+                        tableSearch.val(searchBar);
+                        table.search(searchBar).draw();
+                    }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -354,6 +362,12 @@
                 $("#input-pcs").val(pickingPcs);
 
                 grandChannel.openiframe(index, ".iframe-putback", "300px", "280px");
+            });
+
+            //点击任何按钮，都将searchBar中的内容保存到url中但不刷新页面
+            $("#table").on("click", ".btn", function () {
+                tableSearch = $("#table_filter").children('label').children('input').val();
+                window.history.pushState({}, {}, "/thirdpartylogistics/pickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType + "&search=" + tableSearch);
             });
 
             $(".btn-back").on("click", function () {
