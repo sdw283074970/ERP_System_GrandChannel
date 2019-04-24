@@ -32,6 +32,8 @@
                     <th style="width:80px">Shipped Date</th>
                     <th style="width:60px">Shipped By</th>
                     <th style="width:200px">Instruction</th>
+                    <th>Total Ctns</th>
+                    <th>Total Plts</th>
                     <th style="width:60px">Total Amount</th>
                     <th style="width:60px">Invoice Status</th>
                     <th style="width:60px">Close Date</thstyle="width:60px">
@@ -45,8 +47,9 @@
     </div>
 </div>
 <div class="iframe">
-    <div style="margin-top:20px;margin-right:20px;text-align:right">
-        <text>Ship Order Number: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Ship Order Number' /><br />
+    <h2 id="h2-title"></h2>
+    <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
+        <text>Ship Order Number: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Required' /><br />
         <text>Customer Code: </text><select id='select-customercode' class='select-vendor' style='width:170px;height:30px;margin-top:20px' required='required'>
             <option value='NULL'>Please select a code</option>
         </select><br />
@@ -54,13 +57,19 @@
             <option value='Standard'>Standard</option>
             <option value='Ecommerce'>Ecommerce</option>
         </select><br />
-        <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='Destination' /><br />
-        <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='Container # (optional)' /><br />
-        <text>BOL Number: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Bill of landing #' /><br />
-        <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='Carrier Name' /><br />
-        <text>ETS: </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
+        <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
+        <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
+        <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
+    </div>
+    <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
+        <text>BOL #: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text>Pick #: </text><input id='input-pick' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text>PO #: </text><input id='input-po' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text>ETS(Required): </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
         <text>ETS Time Range: </text><input id='input-range' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
-        <button id="btn-add" class='btn btn-primary' style="margin-top:20px">New ship order</button>
+        <text>Instruction: </text><input id='input-instruction' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
+        <button id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
+        <button id="btn-add" class='btn btn-primary' style="margin-top:20px">Create</button>
     </div>
 </div>
 <div class="iframe-ship">
@@ -84,7 +93,7 @@
             var invoiceStatus;
             var searchBar = getUrlParameter('search');
 
-            $(".iframe").hide();
+            $(".iframe, #btn-update").hide();
             $(".iframe-ship").hide();
 
             //动态获取Customer数据
@@ -244,9 +253,21 @@
                     }
                 },
                 {
+                    data: "totalCtns",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "totalPlts",
+                    render: function (data) {
+                        return "<font color='blue'>" + data + "</font>";
+                    }
+                },
+                {
                     data: "totalAmount",
                     render: function (data) {
-                        return "<font>$" + data + "</font>";
+                        return "<font color='gold' style='background-color:black'>$" + data + "</font>";
                     }
                 },
                 {
@@ -290,9 +311,9 @@
                     data: "id",
                     render: function (data) {
                         if (status == "New Created")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "Picking")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "New Order")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Processing")
@@ -329,7 +350,16 @@
 
             //点击创建新运单按钮，打开新建运单弹窗
             $("#btn-create").click(function () {
-                Openiframe(index, ".iframe", "400px", "550px");
+                $("#btn-add").show();
+                $("#btn-update").hide();
+                $("#h2-title").html("Create new ship order");
+
+                //重制表单
+                $(".input-sm").val("");
+                $("#select-customercode option:first").prop("selected", 'selected');
+                $("#select-ordertype option:first").prop("selected", 'selected');
+
+                Openiframe(index, ".iframe", "700px", "500px");
             })
 
             //点击添加按钮，新建一个新的运单
@@ -343,9 +373,12 @@
                 var carrier = $("#input-carrier").val();
                 var ets = $("#input-ets").val();
                 var timeRange = $("#input-range").val();
+                var pickNumber = $("#input-pick").val();
+                var purchaseOrderNumber = $("#input-po").val();
+                var instruction = $("#input-instruction").val();
 
-                if (shipOrderNumber == "" || destination == "" || bol == "" || carrier == "" || ets == "" || customerCode == "NULL") {
-                    alert("All required fields are required.");
+                if (shipOrderNumber == "" || ets == "" || customerCode == "NULL") {
+                    alert("Ship Order #, ETS and Customer Code are required.");
                 }
 
                 else {
@@ -357,7 +390,11 @@
                         "orderType": orderType.toString(),
                         "bolNumber": bol.toString(),
                         "carrier": carrier.toString(),
-                        "ets": ets.toString()
+                        "ets": ets.toString(),
+                        "timeRange": timeRange.toString(),
+                        "pickNumber": pickNumber.toString(),
+                        "purchaseOrderNumber": purchaseOrderNumber.toString(),
+                        "instruction": instruction.toString()
                     }
                     $.ajax({
                         type: "POST",
@@ -395,7 +432,7 @@
             //点击BOL按钮，下载有内容的BOL
             $("#table").on("click", ".btn-bol", function () {
                 var shipOrderId = $(this).attr('iid');
-                url = "/api/fba/fbashipOrder/?shipOrderId=" + shipOrderId;
+                url = "/api/fba/fbashipOrder/?shipOrderId=" + shipOrderId + "&operation=BOL";
                 SendUploadAjaxMethodAndDownloadFile("GET", url, {});
             });
 
@@ -468,6 +505,109 @@
                 else
                 {
                     window.history.pushState({}, {}, "/ShipOrder/FBAShipOrder/?search=" + tableSearch);
+                }
+            });
+
+            //点击编辑按钮，打开订单编辑页面
+            $("#table").on("click", ".btn-edit", function () {
+                shipOrderId = $(this).attr('iid');
+
+                url = "/api/fba/fbashipOrder/?shipOrderId=" + shipOrderId + "&operation=Update";
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+
+                        layer.close(index);
+
+                        $("#btn-add").hide();
+                        $("#btn-update").show();
+
+                        $("#input-shipordernumber").val(data.shipOrderNumber);
+                        $("#select-customercode").val(data.customerCode);
+                        $("#select-ordertype").val(data.orderType);
+                        $("#input-destination").val(data.destination);
+                        $("#input-reference").val(data.pickReference);
+                        $("#input-bol").val(data.bolNumber);
+                        $("#input-carrier").val(data.carrier);
+                        $("#input-ets").val(data.ets.toString().substring(0, 10));
+                        $("#input-range").val(data.etsTimeRange);
+                        $("#input-pick").val(data.pickNumber);
+                        $("#input-po").val(data.purchaseOrderNumber);
+                        $("#input-instruction").val(data.instruction);
+
+                        $("#h2-title").html("Update ship order");
+                        Openiframe(index, ".iframe", "700px", "500px");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击更新按钮，更新ship order的信息
+            $("#btn-update").on("click", function () {
+                var shipOrderNumber = $("#input-shipordernumber").val();
+                var customerCode = $("#select-customercode option:selected").val();
+                var orderType = $("#select-ordertype option:selected").val();
+                var destination = $("#input-destination").val();
+                var pickReference = $("#input-reference").val();
+                var bol = $("#input-bol").val();
+                var carrier = $("#input-carrier").val();
+                var ets = $("#input-ets").val();
+                var timeRange = $("#input-range").val();
+                var pickNumber = $("#input-pick").val();
+                var purchaseOrderNumber = $("#input-po").val();
+                var instruction = $("#input-instruction").val();
+
+                if (shipOrderNumber == "" || ets == "" || customerCode == "NULL") {
+                    alert("Ship Order #, ETS and Customer Code are required.");
+                }
+
+                else {
+                    var obj = {
+                        "shipOrderNumber": shipOrderNumber.toString(),
+                        "customerCode": customerCode.toString(),
+                        "destination": destination.toString(),
+                        "pickReference": pickReference.toString(),
+                        "orderType": orderType.toString(),
+                        "bolNumber": bol.toString(),
+                        "carrier": carrier.toString(),
+                        "ets": ets.toString(),
+                        "timeRange": timeRange.toString(),
+                        "pickNumber": pickNumber.toString(),
+                        "purchaseOrderNumber": purchaseOrderNumber.toString(),
+                        "instruction": instruction.toString()
+                    }
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId,
+                        data: JSON.stringify(obj),
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            alert("Success!");
+                            window.location.reload();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            index = layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                layer.close(index);
+                            });
+                        }
+                    });
                 }
             });
 

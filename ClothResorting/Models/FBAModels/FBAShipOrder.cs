@@ -24,6 +24,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime CreateDate { get; set; }
 
+        public string EditBy { get; set; }
+
         public string CreateBy { get; set; }
 
         public string PlacedBy { get; set; }
@@ -35,6 +37,8 @@ namespace ClothResorting.Models.FBAModels
         public string PickMan { get; set; }
 
         public string Status { get; set; }
+
+        public DateTime ReadyTime { get; set; }
 
         public string ReadyBy { get; set; }
 
@@ -58,6 +62,14 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime CloseDate { get; set; }
 
+        public string PurchaseOrderNumber { get; set; }
+
+        public string PickNumber { get; set; }
+
+        public int TotalCtns { get; set; }
+
+        public int TotalPlts { get; set; }
+
         public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
 
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
@@ -72,10 +84,15 @@ namespace ClothResorting.Models.FBAModels
         {
             CreateDate = DateTime.Now;
             Status = FBAStatus.NewCreated;
-            PickDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
-            CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             PickMan = FBAStatus.Unassigned;
             ShippedBy = FBAStatus.Unassigned;
+            PickDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            ShipDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            ReadyTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            ConfirmedBy = "";
+            ShippedBy = "";
+            InvoiceStatus = "Await";
         }
 
         public void AssembleBaseInfo(string shipOrderNumber, string customerCode, string orderType, string destination, string pickReference)

@@ -35,11 +35,15 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var shipOrders = _context.FBAShipOrders
                 .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAPickDetails)
                 .ToList();
 
             foreach(var s in shipOrders)
             {
                 s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+                s.TotalCtns = s.FBAPickDetails.Sum(x => x.ActualQuantity);
+                s.TotalPlts = s.FBAPickDetails.Sum(x => x.ActualPlts);
+                s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
             }
 
             return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
@@ -64,24 +68,33 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
         }
 
-        // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
         [HttpGet]
-        public IHttpActionResult GetBolFileName([FromUri]int shipOrderId)
+        public IHttpActionResult GetShipOrderInfo([FromUri]int shipOrderId, [FromUri]string operation)
         {
-            var pickDetailsInDb = _context.FBAPickDetails
-                .Include(x => x.FBAShipOrder)
-                .Include(x => x.FBAPickDetailCartons)
-                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
-                .Where(x => x.FBAShipOrder.Id == shipOrderId)
-                .ToList();
+            if (operation == "BOL")
+            {
+                var pickDetailsInDb = _context.FBAPickDetails
+                    .Include(x => x.FBAShipOrder)
+                    .Include(x => x.FBAPickDetailCartons)
+                    .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                    .Where(x => x.FBAShipOrder.Id == shipOrderId)
+                    .ToList();
 
-            var bolList = GenerateFBABOLList(pickDetailsInDb);
+                var bolList = GenerateFBABOLList(pickDetailsInDb);
 
-            var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
+                var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
 
-            var fileName = generator.GenerateExcelBol(shipOrderId, bolList);
+                var fileName = generator.GenerateExcelBol(shipOrderId, bolList);
 
-            return Ok(fileName);
+                return Ok(fileName);
+            }
+            else if (operation == "Update")
+            {
+                return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.Find(shipOrderId)));
+            }
+
+            return Ok();
         }
 
         // POST /api/fba/fbashiporder/
@@ -94,19 +107,16 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             var shipOrder = new FBAShipOrder();
-            var ets = new DateTime();
-
-            DateTime.TryParseExact(obj.ETS, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out ets);
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
-            shipOrder.ShipDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             shipOrder.BOLNumber = obj.BOLNumber;
             shipOrder.Carrier = obj.Carrier;
-            shipOrder.ETS = ets;
-            shipOrder.InvoiceStatus = "Await";
-            shipOrder.ConfirmedBy = "";
-            shipOrder.ShippedBy = "";
+            shipOrder.ETS = obj.ETS;
+            shipOrder.ETSTimeRange = obj.TimeRange;
+            shipOrder.PickNumber = obj.PickNumber;
+            shipOrder.PurchaseOrderNumber = obj.PurchaseOrderNumber;
+            shipOrder.Instruction = obj.Instruction;
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();
@@ -114,6 +124,35 @@ namespace ClothResorting.Controllers.Api.Fba
             var sampleDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.OrderByDescending(x => x.Id).First());
 
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+        }
+
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        [HttpPut]
+        public void UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            //如果更新的运单号不是之前的运单号且在数据库中有重复，则报错
+            if (obj.ShipOrderNumber != shipOrderInDb.ShipOrderNumber && _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.ShipOrderNumber) != null)
+            {
+                throw new Exception("Ship Order Number " + obj.ShipOrderNumber + " has been taken. Please delete the existed order and try agian.");
+            }
+
+            shipOrderInDb.ShipOrderNumber = obj.ShipOrderNumber;
+            shipOrderInDb.CustomerCode = obj.CustomerCode;
+            shipOrderInDb.OrderType = obj.OrderType;
+            shipOrderInDb.Destination = obj.Destination;
+            shipOrderInDb.PickReference = obj.PickReference;
+            shipOrderInDb.Carrier = obj.Carrier;
+            shipOrderInDb.BOLNumber = obj.BOLNumber;
+            shipOrderInDb.ETS = obj.ETS;
+            shipOrderInDb.ETSTimeRange = obj.TimeRange;
+            shipOrderInDb.PickNumber = obj.PickNumber;
+            shipOrderInDb.PurchaseOrderNumber = obj.PurchaseOrderNumber;
+            shipOrderInDb.EditBy = _userName;
+            shipOrderInDb.Instruction = obj.Instruction;
+
+            _context.SaveChanges();
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&operation={operation}
@@ -383,12 +422,20 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public string Status { get; set; }
 
+        public string Instruction { get; set; }
+
         public string ShippedBy { get; set; }
 
         public string BOLNumber { get; set; }
 
         public string Carrier { get; set; }
 
-        public string ETS { get; set; }
+        public DateTime ETS { get; set; }
+
+        public string TimeRange { get; set; }
+
+        public string PickNumber { get; set; }
+
+        public string PurchaseOrderNumber { get; set; }
     }
 }

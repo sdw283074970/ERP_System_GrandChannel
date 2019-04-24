@@ -62,5 +62,11 @@ namespace ClothResorting.Dtos.Fba
         public string ConfirmedBy { get; set; }
 
         public string Instruction { get; set; }
+
+        public string PurchaseOrderNumber { get; set; }
+
+        public string PickNumber { get; set; }
+
+        public DateTime ReadyTime { get; set; }
     }
 }
