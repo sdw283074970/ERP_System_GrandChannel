@@ -101,6 +101,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPost]
         public IHttpActionResult CreateNewShipOrder([FromBody]ShipOrderDto obj)
         {
+            if (Checker.CheckString(obj.ShipOrderNumber))
+            {
+                throw new Exception("Container number cannot contain space.");
+            }
+
             if (_context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.ShipOrderNumber) != null)
             {
                 throw new Exception("Ship Order Number " + obj.ShipOrderNumber + " has been taken. Please delete the existed order and try agian.");
@@ -130,6 +135,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
         {
+            if (Checker.CheckString(obj.ShipOrderNumber))
+            {
+                throw new Exception("Container number cannot contain space.");
+            }
+
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
             //如果更新的运单号不是之前的运单号且在数据库中有重复，则报错
@@ -155,15 +165,15 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&operation={operation}
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operationDate={operationDate}&operation={operation}
         [HttpPut]
-        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime shipDate, [FromUri]string operation)
+        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
-            //当操作类型为调整订单状态时
+            //当操作类型为正向转换订单状态时
             if (operation == FBAOperation.ChangeStatus)
             {
                 //新建的空单和正在被仓库处理的单都能转换成Ready状态
@@ -171,38 +181,74 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     shipOrderInDb.Status = FBAStatus.Ready;
                     shipOrderInDb.ReadyBy = _userName;
+                    shipOrderInDb.ReadyTime = operationDate;
                 }
-                //如果订单未在拣状态，则转换为给仓库的新订单状态
+                //如果订单为在拣状态，则转换为给仓库的新订单状态
                 else if (shipOrderInDb.Status == FBAStatus.Picking)
                 {
                     shipOrderInDb.Status = FBAStatus.NewOrder;
                     shipOrderInDb.PlacedBy = _userName;
+                    shipOrderInDb.PlaceTime = operationDate;
                 }
-                //如果订单未准备状态，则点准备状态变回Processing状态（如果是空单则不会返回给仓库）
+                //如果订单为准备状态，则转换为Released状态（如果是空单则不会返回给仓库）
                 else if (shipOrderInDb.Status == FBAStatus.Ready)
                 {
                     shipOrderInDb.Status = FBAStatus.Picking;
-                    shipOrderInDb.ReadyBy = "Cancelled by " + _userName;
+                    shipOrderInDb.ShipDate = operationDate;
+                    shipOrderInDb.ReleasedBy = _userName;
+                }
+                //当状态为Release的情况下，从库存实际扣除
+                else if (shipOrderInDb.Status == FBAStatus.Released)
+                {
+                    if (shipOrderInDb.FBAPickDetails.Count() == 0)
+                    {
+                        shipOrderInDb.Status = FBAStatus.Shipped;
+                        shipOrderInDb.ShipDate = operationDate;
+                        shipOrderInDb.ShippedBy = _userName;
+                    }
+                    else
+                    {
+                        foreach (var pickDetailInDb in shipOrderInDb.FBAPickDetails)
+                        {
+                            ShipPickDetail(_context, pickDetailInDb.Id);
+                        }
+                        shipOrderInDb.ShippedBy = _userName;
+                        shipOrderInDb.Status = FBAStatus.Shipped;
+                    }
                 }
             }
-            //当操作类型为发货且状态为Release的情况下才从库存实际扣除
-            else if (operation == FBAOperation.ShipOrder && shipOrderInDb.Status == FBAStatus.Released)
+            //当操作类型为逆向转换订单状态时
+            else if (operation == FBAOperation.ReverseStatus)
             {
-                if (shipOrderInDb.FBAPickDetails.Count() == 0)
+                if (shipOrderInDb.Status == FBAStatus.Picking)
                 {
-                    shipOrderInDb.Status = FBAStatus.Shipped;
-                    shipOrderInDb.ShipDate = shipDate;
-                    shipOrderInDb.ShippedBy = _userName;
-                }
-                else
-                {
-                    foreach (var pickDetailInDb in shipOrderInDb.FBAPickDetails)
+                    if (shipOrderInDb.FBAPickDetails.Count != 0)
                     {
-                        ShipPickDetail(_context, pickDetailInDb.Id);
+                        throw new Exception("Cannot reverse status because the pick details is not empty.");
                     }
-                    shipOrderInDb.ShippedBy = _userName;
-                    shipOrderInDb.ShipDate = shipDate;
-                    shipOrderInDb.Status = FBAStatus.Shipped;
+                    else
+                    {
+                        shipOrderInDb.Status = FBAStatus.NewCreated;
+                    }
+                }
+                else if (shipOrderInDb.Status == FBAStatus.NewOrder)
+                {
+                    shipOrderInDb.Status = FBAStatus.Picking;
+                    shipOrderInDb.PlacedBy = "Recalled by " + _userName;
+                }
+                else if (shipOrderInDb.Status == FBAStatus.Processing)
+                {
+                    shipOrderInDb.Status = FBAStatus.NewOrder;
+                }
+                else if (shipOrderInDb.Status == FBAStatus.Ready)
+                {
+                    shipOrderInDb.Status = FBAStatus.Processing;
+                    shipOrderInDb.ReadyBy = "Cancelled by " + _userName;
+                }
+                else if (shipOrderInDb.Status == FBAStatus.Released)
+                {
+                    shipOrderInDb.Status = FBAStatus.Ready;
+                    shipOrderInDb.ReleasedBy = "Cancelled by " + _userName;
                 }
             }
 

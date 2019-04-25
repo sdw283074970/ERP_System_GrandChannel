@@ -109,6 +109,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateReceiving([FromUri]string grandNumber, [FromUri]DateTime inboundDate, [FromUri]string container)
         {
+            if (Checker.CheckString(container))
+            {
+                throw new Exception("Container number cannot contain space.");
+            }
+
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
                 .Where(x => x.FBAMasterOrder.GrandNumber == grandNumber);

@@ -65,6 +65,7 @@
 
 	grandChannel.sendAjaxMethod = sendAjaxMethod;
 
+	//发送Ajax方法并下载
 	var sendAjaxMethodAndDownloadFileByFullPath = function (method, url, obj, index) {
 		$.ajax({
 			type: method,
@@ -93,4 +94,53 @@
 	};
 
 	grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath = sendAjaxMethodAndDownloadFileByFullPath;
+
+	//发送Ajac方法并取得表
+	var getAjaxTable = function (methodType, url, tableId, table, columsArray, index, searchBar) {
+		$.ajax({
+			type: methodType,
+			url: url,
+			contentType: 'application/json; charset=utf-8',
+			dataType: "json",
+			beforeSend: function () {
+				layer.close(index);
+				index = layer.msg('Processing...', {
+					icon: 1,
+					shade: 0.01,
+					time: 99 * 1000
+				});
+			},
+			success: function (data) {
+				layer.close(index);
+				if (table) {
+					table.destroy();
+				}
+
+				table = $(tableId).DataTable({
+					data: data,
+					destroy: true,
+					scrollX: true,
+					order: [[0, "desc"]],
+					scrollCollapse: true,
+					scrollY: "600px",
+					iDisplayLength: 100,
+					columns: columsArray
+				});
+
+				var tableSearch = $("#table_filter").children('label').children('input');
+
+				if (searchBar != undefined) {
+					tableSearch.val(searchBar);
+					table.search(searchBar).draw();
+				}
+			},
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+					window.location.reload();
+				});
+			}
+		});
+	};
+
+	grandChannel.getAjaxTable = getAjaxTable;
 })();

@@ -72,9 +72,10 @@
         <button id="btn-add" class='btn btn-primary' style="margin-top:20px">Create</button>
     </div>
 </div>
-<div class="iframe-ship">
+<div class="iframe-date">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Select ShipDate: </text><input type="datetime-local" id='input-shipdate' style='width:200px' class='input-sm' /><br />
+        <button id="btn-ready" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
         <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
     </div>
 </div>
@@ -93,8 +94,8 @@
             var invoiceStatus;
             var searchBar = getUrlParameter('search');
 
-            $(".iframe, #btn-update").hide();
-            $(".iframe-ship").hide();
+            $(".iframe, #btn-update, #btn-ready, #btn-ship").hide();
+            $(".iframe-date").hide();
 
             //动态获取Customer数据
             $.ajax({
@@ -315,11 +316,11 @@
                         else if (status == "Picking")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "New Order")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-recall' iid='" + data + "' value='Recall' />";
                         else if (status == "Processing")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Ready")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' />";
                         else if (status == "Released")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Unrelease' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
                         else if (status == "Shipped")
@@ -353,6 +354,9 @@
                 $("#btn-add").show();
                 $("#btn-update").hide();
                 $("#h2-title").html("Create new ship order");
+
+                //取消禁用
+                $("#input-shipordernumber").removeAttr("disabled");
 
                 //重制表单
                 $(".input-sm").val("");
@@ -436,25 +440,39 @@
                 SendUploadAjaxMethodAndDownloadFile("GET", url, {});
             });
 
-            //点击Ready按钮，将运单标记为准备
+            //点击Ready状态下的UnReady等正向按钮，将运单往逆向流程转换状态
             $("#table").on("click", ".btn-ready", function () {
                 var id = $(this).attr('iid');
+                var date = new Date();
+                var today = date.getFullYear.toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&shipDate=1992-11-17&operation=ChangeStatus";
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&shipDate=" + today + "&operation=ReverseStatus";
                 SendAjaxMethod("PUT", url, {});
             });
+
+            //点击Recall等逆向按钮，将运单往逆向流程转换状态
+            $("#table").on("click", ".btn-recall", function () {
+                var id = $(this).attr('iid');
+                var date = new Date();
+                var today = date.getFullYear.toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
+
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&shipDate=" + today + "&operation=ReverseStatus";
+                SendAjaxMethod("PUT", url, {});
+            })
 
             //点击Ship按钮，将运单标记为shipped
             $("#table").on("click", ".btn-ship", function () {
                 var button = $(this);
                 shipOrderId = button.attr('iid');
+                $("#btn-ship").show();
+                $("btn-ready").hide();
 
                 index = layer.open({
                     title: false,
                     type: 1,
                     shadeclose: true,
                     area: ["400px", "150px"],
-                    content: $(".iframe-ship")
+                    content: $(".iframe-date")
                 });
             });
 
@@ -467,7 +485,7 @@
                 if (shipDate != "") {
                     bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
                         if (result) {
-                            url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&shipDate=" + shipDate + "&operation=ShipOrder";
+                            url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&shipDate=" + shipDate + "&operation=ChangeStatus";
                             SendAjaxMethod("PUT", url, {});
                         }
                     });
@@ -509,8 +527,11 @@
             });
 
             //点击编辑按钮，打开订单编辑页面
-            $("#table").on("click", ".btn-edit", function () {
+            $("#table").on("click", ".btn-edit, .btn-partialedit", function () {
                 shipOrderId = $(this).attr('iid');
+
+                //取消禁用
+                $("#input-shipordernumber").removeAttr("disabled");
 
                 url = "/api/fba/fbashipOrder/?shipOrderId=" + shipOrderId + "&operation=Update";
 
@@ -556,6 +577,11 @@
                         });
                     }
                 });
+            });
+
+            //对于部分编辑edit的权限，点击edit，锁死shiporderNumber对的输入
+            $("#table").on("click", ".btn-partialedit", function () {
+                $("#input-shipordernumber").attr("disabled", "disabled");
             });
 
             //点击更新按钮，更新ship order的信息

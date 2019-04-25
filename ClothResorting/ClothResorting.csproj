@@ -424,6 +424,7 @@
     <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\RegularPackingListController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
+    <Compile Include="Controllers\Api\Warehouse\WarehouseIndexController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
     <Compile Include="Controllers\EFolderController.cs" />
@@ -433,6 +434,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ShipOrderController.cs" />
     <Compile Include="Controllers\ThirdPartyLogisticsController.cs" />
+    <Compile Include="Controllers\WarehouseController.cs" />
     <Compile Include="Dtos\AdjustmentRecordDto.cs" />
     <Compile Include="Dtos\CartonBreakDownDto.cs" />
     <Compile Include="Dtos\ChargingItemDto.cs" />
@@ -482,6 +484,7 @@
     <Compile Include="Helpers\IntuitOAuthor.cs" />
     <Compile Include="Helpers\QBOServiceManager.cs" />
     <Compile Include="Helpers\QBOUrlGenerator.cs" />
+    <Compile Include="Helpers\Checker.cs" />
     <Compile Include="Helpers\WebServiceManager.cs" />
     <Compile Include="Helpers\ShipOrderManager.cs" />
     <Compile Include="Helpers\CartonBreakdownGetter.cs" />
@@ -1562,6 +1565,10 @@
     <Compile Include="Migrations\201904240027550_AddedTotalCtnsAndPltsInFBAShipOrder.Designer.cs">
       <DependentUpon>201904240027550_AddedTotalCtnsAndPltsInFBAShipOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201904250033139_AddedPlaceTimeInFBAShipOrder.cs" />
+    <Compile Include="Migrations\201904250033139_AddedPlaceTimeInFBAShipOrder.Designer.cs">
+      <DependentUpon>201904250033139_AddedPlaceTimeInFBAShipOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2121,7 +2128,7 @@
     <Content Include="Views\FBA\FBAInvoiceDetailReadOnly.cshtml" />
     <Content Include="Views\EFolder\FBAEFolder.cshtml" />
     <Content Include="Views\FBA\FBAClientIndex.cshtml" />
-    <Content Include="Views\FBA\WarehouseIndex.cshtml" />
+    <Content Include="Views\Warehouse\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2932,6 +2939,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201904240027550_AddedTotalCtnsAndPltsInFBAShipOrder.resx">
       <DependentUpon>201904240027550_AddedTotalCtnsAndPltsInFBAShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904250033139_AddedPlaceTimeInFBAShipOrder.resx">
+      <DependentUpon>201904250033139_AddedPlaceTimeInFBAShipOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

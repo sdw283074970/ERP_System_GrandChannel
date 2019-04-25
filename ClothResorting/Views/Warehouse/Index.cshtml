@@ -1,0 +1,307 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Warehouse Client</h1>
+<h2>Outbound Order Management</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th>ORDER ID</th>
+                    <th>DPT</th>
+                    <th>TYPE</th>
+                    <th style="width:70px">STATUS</th>
+                    <th>ORDER #</th>
+                    <th>BOL #</th>
+                    <th>PICK #</th>
+                    <th>VENDOR</th>
+                    <th>ORDER TYPE</th>
+                    <th>DEST</th>
+                    <th>CARRIER</th>
+                    <th>CREATE DATE</th>
+                    <th>ETS</th>
+                    <th>READY TIME</th>
+                    <th>RELEASED DATE</th>
+                    <th>RELEASED BY</th>
+                    <th>CTN</th>
+                    <th>PLT</th>
+                    <th>INSTRUCTION</th>
+                    <th>OPERATION</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe-date">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Operation Date: </text><input type="datetime-local" id='input-operationdate' style='width:200px' class='input-sm' /><br />
+        <button id="btn-ready" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
+        <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var index;
+            var table;
+            var url;
+            var status;
+            var orderNumber;
+            var orderId;
+            var searchBar = grandChannel.getUrlParameter('search');
+
+            $("#btn-update, #btn-ready, #btn-ship").hide();
+            $(".iframe-date").hide();
+
+            var columnsArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "department",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "warehouseOrderType",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "status",
+                    render: function (data) {
+                        status = data;
+                        if (data == "Process")
+                            return "<font color='purple'>" + data + "</font>";
+                        else if (data == "Shipped")
+                            return "<font color='blue'>" + data + "</font>";
+                        else if (data == "Ready")
+                            return "<font color='green'>" + data + "</font>";
+                        else if (data == "Released")
+                            return "<font color='orange'>" + data + "</font>";
+                        else
+                            return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "orderNumber",
+                    render: function (data) {
+                        orderNumber = data;
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "bolNumber",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "pickNumber",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        else
+                            return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "customerCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "orderType",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "destination",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "carrier",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "createDate",
+                    render: function (data) {
+                        return "<text>" + data.substring(0, 10) + "</text>";
+                    }
+                },
+                {
+                    data: "etsTimeRange",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "readyTime",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'></font>"
+                        else
+                            return "<text>" + data.toString().substring(0, 10) + " " + data.toString().substring(11, 16) + "</text>";
+                    }
+                },
+                {
+                    data: "shipDate",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'></font>"
+                        else
+                            return "<text>" + data.toString().substring(0, 10) + " " + data.toString().substring(11, 16) + "</text>";
+                    }
+                },
+                {
+                    data: "releasedBy",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        else
+                            return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "totalCtns",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "totalPlts",
+                    render: function (data) {
+                        return "<font color='blue'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "instruction",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        if (status == "New Order")
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='WO' />"
+                        else if (status == "Processing")
+                            return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Adjust' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-fbaready' iid='" + data + "' value='Ready' />";
+                        else
+                            return "";
+                    }
+                }
+            ]
+            url = "/api/WarehouseIndex/";
+            getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
+
+            //点击FBA订单下的view按钮，查看FBA的运单（只读状态）
+            $("#table").on("click", ".btn-fbaview", function () {
+                var shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                $(window.location).attr('href', "/shiporder/viewfbapickdetail/?shipOrderId=" + shipOrderId);
+            });
+
+            //点击FBA订单下的Ready按钮，打开填写日期弹窗
+            $("#table").on("click", ".btn-fbaready", function () {
+                var button = $(this);
+                shipOrderId = button.attr('iid');
+                $("#btn-ship").hide();
+                $("btn-ready").show();
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "150px"],
+                    content: $(".iframe-date")
+                });
+            });
+
+            //填好Ready日期后，点击确认Ready按钮
+            $("#btn-ready").on("click", function () {
+                layer.close(index);
+                var operationDate = $("#input-operationdate").val();
+
+                if (shipDate != "") 
+                {
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&shipDate=" + operationDate + "&operation=ChangeStatus";
+                    SendAjaxMethod("PUT", url, {});
+                }
+                else {
+                    alert("Ship Date cannot be empty.");
+                }
+            });
+
+            function getAjaxTable(methodType, url, tableId, table, columsArray, index, searchBar) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            scrollX: true,
+                            order: [[0, "desc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+
+                        var tableSearch = $("#table_filter").children('label').children('input');
+
+                        if (searchBar != undefined) {
+                            tableSearch.val(searchBar);
+                            table.search(searchBar).draw();
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+        });
+    </script>
+}

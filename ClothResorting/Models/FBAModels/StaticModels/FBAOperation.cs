@@ -9,6 +9,8 @@ namespace ClothResorting.Models.FBAModels.StaticModels
     {
         public const string ChangeStatus = "ChangeStatus";
 
+        public const string ReverseStatus = "ReverseStatus";
+
         public const string ShipOrder = "ShipOrder";
 
         public const string Edit = "Edit";

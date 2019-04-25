@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ClothResorting.Controllers.Api.Warehouse;
 using ClothResorting.Dtos;
 using ClothResorting.Dtos.Fba;
 using ClothResorting.Models;
@@ -52,6 +53,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<FBAPickDetail, FBAPickDetailsDto>();
             Mapper.CreateMap<FBAAddressBook, FBAAddressBookDto>();
             Mapper.CreateMap<ChargingItemDetail, ChargingItemDetailDto>();
+            Mapper.CreateMap<FBAShipOrder, WarehouseOrder>();
 
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();

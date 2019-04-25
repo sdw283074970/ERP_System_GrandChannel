@@ -32,6 +32,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime PickDate { get; set; }
 
+        public DateTime PlaceTime { get; set; }
+
         public DateTime ShipDate { get; set; }
 
         public string PickMan { get; set; }
@@ -86,10 +88,13 @@ namespace ClothResorting.Models.FBAModels
             Status = FBAStatus.NewCreated;
             PickMan = FBAStatus.Unassigned;
             ShippedBy = FBAStatus.Unassigned;
+            CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             PickDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            PlaceTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ShipDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ReadyTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            ETS = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ConfirmedBy = "";
             ShippedBy = "";
             InvoiceStatus = "Await";

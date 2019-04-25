@@ -104,11 +104,5 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
-
-        //仓库端主页
-        public ActionResult WarehouseIndex()
-        {
-            return View();
-        }
     }
 }

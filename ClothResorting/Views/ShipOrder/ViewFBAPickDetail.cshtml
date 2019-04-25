@@ -13,6 +13,7 @@
     </div>
     <div>
         <input id="btn-diag" type="button" class="btn btn-danger" value="Diagnostic system" />
+        <input operation="Download" type="button" class="btn btn-group btn-download" value="Download Picking List" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -177,6 +178,35 @@
             //点击诊断系统，查看所有诊断
             $("#btn-diag").on("click", function () {
                 $(window.location).attr('href', '/thirdpartylogistics/pullsheetdiagnostics/?shipOrderId=' + shipOrderId + "&shipOrderType=FBA");
+            });
+
+            //点击下载pickinglist，下载pickinglist
+            $(".btn-download").on("click", function () {
+                url = "/api/fba/fbapickdetail/?shipOrderId=" + shipOrderId + "&operation=Download";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
             });
 
             //解析url中的参数函数

@@ -13,6 +13,7 @@ using ClothResorting.Models.FBAModels.BaseClass;
 using System.Globalization;
 using ClothResorting.Models.FBAModels.StaticModels;
 using System.Web;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -114,6 +115,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPost]
         public IHttpActionResult CreateMasterOrder([FromBody]FBAMasterOrder obj, [FromUri]int id)
         {
+            if (Checker.CheckString(obj.Container))
+            {
+                throw new Exception("Container number cannot contain space.");
+            }
+
             if (_context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Container) != null)
             {
                 throw new Exception("Contianer Number " + obj.Container + " has been taken. Please delete the existed order and try agian.");
@@ -152,6 +158,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateMasterOrderInfo([FromUri]string masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
         {
+            if (Checker.CheckString(container))
+            {
+                throw new Exception("Container number cannot contain space.");
+            }
+
             var inboundDateTime = new DateTime();
             inboundDateTime = ParseStringToDateTime(inboundDateTime, inboundDate);
 
@@ -177,6 +188,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateMasterOrderInfo([FromUri]string grandNumber, [FromBody]FBAMasterOrder obj)
         {
+            if (Checker.CheckString(obj.Container))
+            {
+                throw new Exception("Container number cannot contain space.");
+            }
+
             var masterOrderInDb = _context.FBAMasterOrders
                 .SingleOrDefault(x => x.GrandNumber == grandNumber);
 
