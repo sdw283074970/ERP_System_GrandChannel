@@ -55,10 +55,13 @@ namespace ClothResorting.Controllers.Api.Fba
                         .SingleOrDefault(x => x.Id == obj.Id);
 
                     //如果这是一个rough packed pallets，那么默认分配所有货物
-                    if (palletInDb.FBACartonLocations.Sum(x => x.CtnsPerPlt) == 0)
-                    {
-                        obj.Quantity = palletInDb.ActualPallets;
-                    }
+                    //if (palletInDb.FBACartonLocations.Sum(x => x.CtnsPerPlt) == 0)
+                    //{
+                    //    obj.Quantity = palletInDb.ActualPallets;
+                    //}
+
+                    //所有类型的pallets现在不允许分开入库
+                    obj.Quantity = palletInDb.ActualPallets;
 
                     palletInDb.ComsumedPallets += obj.Quantity;
 

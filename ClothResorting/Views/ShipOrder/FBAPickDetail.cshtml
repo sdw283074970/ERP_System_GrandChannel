@@ -19,7 +19,6 @@
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />
-        <input id="btn-ready" type="button" class="btn btn-primary" style="color:white;background-color:green" value="Ready" />
     </div>
     <div id="div-partial">
         @Html.Partial("~/Views/shiporder/_FBAInventoryListPartial.cshtml", null)
@@ -143,16 +142,16 @@
     </div>*@
 <div class="iframe-adjust" style="text-align:right;margin-right:20px">
     @*<div style="margin-top:20px">
-        <text>Current Picking Ctns:<font id="font-ctns" color="red">10</font></text><br />
-        <text>Adjust Ctns:</text><input id="input-ctns" type="number" class="input-sm" style="width:50px" value="0" />
-    </div>*@
+            <text>Current Picking Ctns:<font id="font-ctns" color="red">10</font></text><br />
+            <text>Adjust Ctns:</text><input id="input-ctns" type="number" class="input-sm" style="width:50px" value="0" />
+        </div>*@
     <div style="margin-top:20px">
         <text>Current Picking Plts:<font id="font-plts" color="red">10</font></text><br />
-        <text>Adjust Inventory Plts:</text><input id="input-plts" type="number" class="input-sm" style="width:50px" value="0" />
+        <text>Adjust Inventory Plts:</text><input id="input-plts" type="number" class="input-sm" style="width:80px" value="0" />
     </div>
     <div style="margin-top:20px">
         <text>Current New Plts:<font id="font-new" color="red">10</font></text><br />
-        <text>Adjust New Plts:</text><input id="input-new" type="number" class="input-sm" style="width:50px" value="0" />
+        <text>Adjust New Plts:</text><input id="input-new" type="number" class="input-sm" style="width:80px" value="0" />
     </div>
     <div style="margin-top:20px">
         <button class="btn btn-primary" id="btn-adjust">Confirm</button>
@@ -978,6 +977,18 @@
                         },
                         {
                             data: "ctnsPerPlt",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "originalTotalCtns",
+                            render: function (data) {
+                                return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "currentAvailableCtns",
                             render: function (data) {
                                 return "<font color='green'>" + data + "</font>";
                             }

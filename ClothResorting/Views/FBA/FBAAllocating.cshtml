@@ -233,7 +233,7 @@
                 {
                     data: "id",
                     render: function (data) {
-                        return "<input class='input-palletquantity' type='number' style='width:80px' iid='" + data + "' />";
+                        return "<input class='input-palletquantity' style='width:80px' iid='" + data + "' disabled='disabled' value='Default(All)' />";
                     }
                 },
                 {
@@ -351,7 +351,9 @@
                 //遍历所有待分配托盘列表，找出已填写的对象，放在obj中
                 $(".input-palletlocation").each(function (i) {
                     var id = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
-                    var plts = $(this).parent().parent("tr").children('td').eq(16).children('input').val();
+                    //var plts = $(this).parent().parent("tr").children('td').eq(16).children('input').val();
+                    var plts = $(this).parent().parent("tr").children('td').eq(13).children('input').val();
+
                     var location = $(this).val();
 
                     if (location != "") {

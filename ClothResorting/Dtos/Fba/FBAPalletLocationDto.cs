@@ -27,5 +27,9 @@ namespace ClothResorting.Dtos.Fba
         public int ShippedPlts { get; set; }
 
         public string Location { get; set; }
+
+        public int OriginalTotalCtns { get; set; }
+
+        public int CurrentAvailableCtns { get; set; }
     }
 }

@@ -24,20 +24,24 @@
                     <th>Customer Code</th>
                     <th>Order Type</th>
                     <th>Destination</th>
-                    @*<th>Pick Ref.</th>*@
                     <th style="width:80px">Create date</th>
                     <th style="width:60px">Create By</th>
-                    <th style="width:60px">Edit By</th>
                     <th style="width:80px">ETS</th>
+                    <th style="width:60px">Edit By</th>
+                    <th style="width:80px">Released Date</th>
+                    <th style="width:60px">Released By</th>
                     <th style="width:80px">Shipped Date</th>
                     <th style="width:60px">Shipped By</th>
                     <th style="width:200px">Instruction</th>
+                    <th style="width:200px">Log</th>
                     <th>Total Ctns</th>
                     <th>Total Plts</th>
                     <th style="width:60px">Total Amount</th>
                     <th style="width:60px">Invoice Status</th>
-                    <th style="width:60px">Close Date</thstyle="width:60px">
+                    <th style="width:60px">Close Date</th>
                     <th style="width:60px">Closed By</th>
+                    <th style="width:70px">Status</th>
+                    <th style="width:150px">Status Control</th>
                     <th>eFolder</th>
                     <th style="width:300px">Operation</th>
                 </tr>
@@ -74,7 +78,7 @@
 </div>
 <div class="iframe-date">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
-        <text>Select ShipDate: </text><input type="datetime-local" id='input-shipdate' style='width:200px' class='input-sm' /><br />
+        <text>Select Operation Date: </text><input type="datetime-local" id='input-shipdate' style='width:200px' class='input-sm' /><br />
         <button id="btn-ready" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
         <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
     </div>
@@ -136,16 +140,20 @@
                     data: "status",
                     render: function (data) {
                         status = data;
-                        if (data == "Picking")
+                        if (data == "New Created")
+                            return "<font color='gray'>" + data + "</font>"
+                        else if (data == "Picking")
+                            return "<font color='vermilion'>" + data + "</font>";
+                        if (data == "New Order")
+                            return "<font color='orange'>" + data + "</font>"
+                        else if (data == "Processing")
                             return "<font color='red'>" + data + "</font>";
-                        else if (data == "Process")
-                            return "<font color='purple'>" + data + "</font>";
-                        else if (data == "Shipped")
-                            return "<font color='blue'>" + data + "</font>";
                         else if (data == "Ready")
                             return "<font color='green'>" + data + "</font>";
                         else if (data == "Released")
-                            return "<font color='orange'>" + data + "</font>";
+                            return "<font color='brown'>" + data + "</font>";
+                        else if (data == "Shipped")
+                            return "<font color='blue'>" + data + "</font>";
                         else
                             return "<font>" + data + "</font>";
                     }
@@ -175,12 +183,6 @@
                         return "<text>" + data + "</text>";
                     }
                 },
-                //{
-                //    data: "pickReference",
-                //    render: function (data) {
-                //        return "<font>" + data + "</font>";
-                //    }
-                //},
                 {
                     data: "createDate",
                     render: function (data) {
@@ -194,6 +196,14 @@
                     }
                 },
                 {
+                    data: "etsTimeRange",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
                     data: "editBy",
                     render: function (data) {
                         if (data == null)
@@ -202,31 +212,22 @@
                     }
                 },
                 {
-                    data: "etsTimeRange",
+                    data: "releasedDate",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'></font>"
+                        else
+                            return "<font>" + data.substring(0, 10) + " " + data.substring(11, 16) + "</font>";
+                    }
+                },
+                {
+                    data: "releasedBy",
                     render: function (data) {
                         if (data == null)
                             return "";
-                        return "<text>" + data + "</text>";
+                        return "<font>" + data + "</font>";
                     }
                 },
-                //{
-                //    data: "pickDate",
-                //    render: function (data) {
-                //        if (data == "1969-12-31T16:00:00")
-                //            return "<font color='red'>Unpicked</font>"
-                //        else
-                //            return "<font>" + data.substring(0, 10) + "</font>";
-                //    }
-                //},
-                //{
-                //    data: "pickMan",
-                //    render: function (data) {
-                //        if (data == "Unassigned")
-                //            return "<font color='red'>" + data + "</font>";
-                //        else
-                //            return "<font>" + data + "</font>";
-                //    }
-                //},
                 {
                     data: "shipDate",
                     render: function (data) {
@@ -247,6 +248,14 @@
                 },
                 {
                     data: "instruction",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "operationLog",
                     render: function (data) {
                         if (data == null)
                             return "";
@@ -303,30 +312,74 @@
                 //    }
                 //},
                 {
-                    data: "shipOrderNumber",
+                    data: "status",
                     render: function (data) {
-                        return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
+                        status = data;
+                        if (data == "New Created")
+                            return "<font color='gray'>" + data + "</font>"
+                        else if (data == "Picking")
+                            return "<font color='vermilion'>" + data + "</font>";
+                        if (data == "New Order")
+                            return "<font color='orange'>" + data + "</font>"
+                        else if (data == "Processing")
+                            return "<font color='red'>" + data + "</font>";
+                        else if (data == "Ready")
+                            return "<font color='green'>" + data + "</font>";
+                        else if (data == "Released")
+                            return "<font color='brown'>" + data + "</font>";
+                        else if (data == "Shipped")
+                            return "<font color='blue'>" + data + "</font>";
+                        else
+                            return "<font>" + data + "</font>";
                     }
                 },
                 {
                     data: "id",
                     render: function (data) {
                         if (status == "New Created")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                            return "<input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' />";
+                        else if (status == "Picking")
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' />";
+                        else if (status == "New Order")
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
+                        else if (status == "Processing")
+                            return "";
+                        else if (status == "Ready")
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unready' />";
+                        else if (status == "Released")
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unrelease' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
+                        else if (status == "Shipped")
+                            return "";
+                        else
+                            return "";
+                    }
+                },
+                {
+                    data: "shipOrderNumber",
+                    render: function (data) {
+                        return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
+                    }
+                },
+
+                {
+                    data: "id",
+                    render: function (data) {
+                        if (status == "New Created")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "Picking")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "New Order")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-recall' iid='" + data + "' value='Recall' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Processing")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Ready")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-ready' iid='" + data + "' value='Unready' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Released")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Unrelease' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Shipped")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                            return "";
                     }
                 }
             ]
@@ -423,7 +476,7 @@
             $("#table").on("click", ".btn-fee", function () {
 
                 shipOrderId = shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
-                var tpStatus = $(this).parent().parent("tr").children('td').eq(12).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(19).children('text').html();
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")
@@ -440,23 +493,23 @@
                 SendUploadAjaxMethodAndDownloadFile("GET", url, {});
             });
 
-            //点击Ready状态下的UnReady等正向按钮，将运单往逆向流程转换状态
-            $("#table").on("click", ".btn-ready", function () {
+            //点击逆向按钮，将运单往逆向流程转换状态
+            $("#table").on("click", ".btn-revert", function () {
                 var id = $(this).attr('iid');
                 var date = new Date();
-                var today = date.getFullYear.toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
+                var today = date.getFullYear().toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&shipDate=" + today + "&operation=ReverseStatus";
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operationDate=" + today + "&operation=ReverseStatus";
                 SendAjaxMethod("PUT", url, {});
-            });
+            })
 
-            //点击Recall等逆向按钮，将运单往逆向流程转换状态
-            $("#table").on("click", ".btn-recall", function () {
+            //点击release按钮，将运单标记为Released
+            $("#table").on("click", ".btn-release", function () {
                 var id = $(this).attr('iid');
                 var date = new Date();
-                var today = date.getFullYear.toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
+                var today = date.getFullYear().toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&shipDate=" + today + "&operation=ReverseStatus";
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operationDate=" + today;
                 SendAjaxMethod("PUT", url, {});
             })
 
@@ -485,13 +538,13 @@
                 if (shipDate != "") {
                     bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
                         if (result) {
-                            url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&shipDate=" + shipDate + "&operation=ChangeStatus";
+                            url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=" + shipDate + "&operation=ChangeStatus";
                             SendAjaxMethod("PUT", url, {});
                         }
                     });
                 }
                 else {
-                    alert("Ship Date cannot be empty.");
+                    alert("Ship Date must be complete.");
                 }
             });
 

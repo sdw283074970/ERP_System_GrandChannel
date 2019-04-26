@@ -60,9 +60,17 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime ETS { get; set; }
 
+        public string OperationLog { get; set; }
+
         public string ETSTimeRange { get; set; }
 
         public DateTime CloseDate { get; set; }
+
+        public string StartedBy { get; set; }
+
+        public DateTime StartedTime { get; set; }
+
+        public DateTime ReleasedDate { get; set; }
 
         public string PurchaseOrderNumber { get; set; }
 
@@ -94,6 +102,7 @@ namespace ClothResorting.Models.FBAModels
             CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ShipDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ReadyTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            ReleasedDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ETS = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ConfirmedBy = "";
             ShippedBy = "";

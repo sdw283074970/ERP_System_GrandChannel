@@ -19,6 +19,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string InvoiceStatus { get; set; }
 
+        public DateTime ReleasedDate { get; set; }
+
         public string PickReference { get; set; }
 
         public string PlacedBy { get; set; }
@@ -49,6 +51,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float TotalAmount { get; set; }
 
+        public string OperationLog { get; set; }
+
         public string ShippedBy { get; set; }
 
         public string BOLNumber { get; set; }
@@ -66,6 +70,10 @@ namespace ClothResorting.Dtos.Fba
         public string PurchaseOrderNumber { get; set; }
 
         public string PickNumber { get; set; }
+
+        public string StartedBy { get; set; }
+
+        public DateTime StartedTime { get; set; }
 
         public DateTime ReadyTime { get; set; }
     }

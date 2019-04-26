@@ -84,6 +84,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string ETS { get; set; }
 
+        public string OperationLog { get; set; }
+
         public DateTime CreateDate { get; set; }
 
         public DateTime ReadyTime { get; set; }

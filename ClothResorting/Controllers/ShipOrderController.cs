@@ -31,5 +31,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // GET FBA拣货页面（调节）
+        public ActionResult FBAPickDetailAdjustOnly()
+        {
+            return View();
+        }
     }
 }

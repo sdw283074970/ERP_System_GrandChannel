@@ -80,6 +80,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var palletInventoryInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAMasterOrder)
+                    .Include(x => x.FBAPallet.FBACartonLocations)
                     .Where(x => x.AvailablePlts != 0);
 
                 if (container != null)
@@ -108,6 +109,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     var dto = Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>(p);
                     dto.InboundDate = p.FBAMasterOrder.InboundDate;
+                    dto.OriginalTotalCtns = p.FBAPallet.FBACartonLocations.Sum(x => x.ActualQuantity);
+                    dto.CurrentAvailableCtns = p.FBAPallet.FBACartonLocations.Sum(x => x.AvailableCtns);
+
                     palletInventoryDto.Add(dto);
                 }
 

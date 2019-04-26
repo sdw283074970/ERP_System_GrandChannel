@@ -173,103 +173,27 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
-            //当操作类型为正向转换订单状态时
-            if (operation == FBAOperation.ChangeStatus)
-            {
-                //新建的空单和正在被仓库处理的单都能转换成Ready状态
-                if (shipOrderInDb.Status == FBAStatus.NewCreated || shipOrderInDb.Status == FBAStatus.Processing)
-                {
-                    shipOrderInDb.Status = FBAStatus.Ready;
-                    shipOrderInDb.ReadyBy = _userName;
-                    shipOrderInDb.ReadyTime = operationDate;
-                }
-                //如果订单为在拣状态，则转换为给仓库的新订单状态
-                else if (shipOrderInDb.Status == FBAStatus.Picking)
-                {
-                    shipOrderInDb.Status = FBAStatus.NewOrder;
-                    shipOrderInDb.PlacedBy = _userName;
-                    shipOrderInDb.PlaceTime = operationDate;
-                }
-                //如果订单为准备状态，则转换为Released状态（如果是空单则不会返回给仓库）
-                else if (shipOrderInDb.Status == FBAStatus.Ready)
-                {
-                    shipOrderInDb.Status = FBAStatus.Picking;
-                    shipOrderInDb.ShipDate = operationDate;
-                    shipOrderInDb.ReleasedBy = _userName;
-                }
-                //当状态为Release的情况下，从库存实际扣除
-                else if (shipOrderInDb.Status == FBAStatus.Released)
-                {
-                    if (shipOrderInDb.FBAPickDetails.Count() == 0)
-                    {
-                        shipOrderInDb.Status = FBAStatus.Shipped;
-                        shipOrderInDb.ShipDate = operationDate;
-                        shipOrderInDb.ShippedBy = _userName;
-                    }
-                    else
-                    {
-                        foreach (var pickDetailInDb in shipOrderInDb.FBAPickDetails)
-                        {
-                            ShipPickDetail(_context, pickDetailInDb.Id);
-                        }
-                        shipOrderInDb.ShippedBy = _userName;
-                        shipOrderInDb.Status = FBAStatus.Shipped;
-                    }
-                }
-            }
-            //当操作类型为逆向转换订单状态时
-            else if (operation == FBAOperation.ReverseStatus)
-            {
-                if (shipOrderInDb.Status == FBAStatus.Picking)
-                {
-                    if (shipOrderInDb.FBAPickDetails.Count != 0)
-                    {
-                        throw new Exception("Cannot reverse status because the pick details is not empty.");
-                    }
-                    else
-                    {
-                        shipOrderInDb.Status = FBAStatus.NewCreated;
-                    }
-                }
-                else if (shipOrderInDb.Status == FBAStatus.NewOrder)
-                {
-                    shipOrderInDb.Status = FBAStatus.Picking;
-                    shipOrderInDb.PlacedBy = "Recalled by " + _userName;
-                }
-                else if (shipOrderInDb.Status == FBAStatus.Processing)
-                {
-                    shipOrderInDb.Status = FBAStatus.NewOrder;
-                }
-                else if (shipOrderInDb.Status == FBAStatus.Ready)
-                {
-                    shipOrderInDb.Status = FBAStatus.Processing;
-                    shipOrderInDb.ReadyBy = "Cancelled by " + _userName;
-                }
-                else if (shipOrderInDb.Status == FBAStatus.Released)
-                {
-                    shipOrderInDb.Status = FBAStatus.Ready;
-                    shipOrderInDb.ReleasedBy = "Cancelled by " + _userName;
-                }
-            }
+            ChangeStatus(shipOrderInDb, operation, operationDate);
 
             _context.SaveChanges();
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
         [HttpPut]
-        public void MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime shipDate)
+        public void MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime operationDate)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
-            //如果已经发货了，则报错
-            if (shipOrderInDb.ShipDate.ToString("yyyy-MM-dd") != "1900-01-01")
+            ////如果已经发货了，则报错
+            //if (shipOrderInDb.ShipDate.ToString("yyyy-MM-dd") != "1900-01-01")
+            //{
+            //    throw new Exception("Cannot override existed date.");
+            //}
+
+            //当订单状态为ready时强行release并印上日期
+            if (shipOrderInDb.Status == FBAStatus.NewCreated)
             {
-                throw new Exception("Cannot override existed date.");
-            }
-            //只有当订单状态为ready或New Created的时候才能release并填上日期
-            else if (shipOrderInDb.Status == FBAStatus.Ready || shipOrderInDb.Status == FBAStatus.NewCreated)
-            {
-                shipOrderInDb.ShipDate = shipDate;
+                shipOrderInDb.ShipDate = operationDate;
                 shipOrderInDb.Status = FBAStatus.Released;
                 shipOrderInDb.ReleasedBy = _userName;
             }
@@ -387,6 +311,97 @@ namespace ClothResorting.Controllers.Api.Fba
                     {
                         carton.FBACartonLocation.Status = FBAStatus.Shipped;
                     }
+                }
+            }
+        }
+
+        private void ChangeStatus(FBAShipOrder shipOrderInDb, string operation, DateTime operationDate)
+        {
+            //当操作类型为正向转换订单状态时
+            if (operation == FBAOperation.ChangeStatus)
+            {
+                //新建的空单和正在被仓库处理的单都能转换成Ready状态
+                if (shipOrderInDb.Status == FBAStatus.NewCreated || shipOrderInDb.Status == FBAStatus.Processing)
+                {
+                    shipOrderInDb.Status = FBAStatus.Ready;
+                    shipOrderInDb.ReadyBy = _userName;
+                    shipOrderInDb.ReadyTime = operationDate;
+                    shipOrderInDb.OperationLog = "Ready By " + _userName;
+                }
+                //如果订单为在拣状态，则转换为给仓库的新订单状态
+                else if (shipOrderInDb.Status == FBAStatus.Picking)
+                {
+                    shipOrderInDb.Status = FBAStatus.NewOrder;
+                    shipOrderInDb.PlacedBy = _userName;
+                    shipOrderInDb.PlaceTime = operationDate;
+                    shipOrderInDb.OperationLog = "Placed by " + _userName;
+                }
+                //如果订单为新的订单状态，则转换为processing状态
+                else if (shipOrderInDb.Status == FBAStatus.NewOrder)
+                {
+                    shipOrderInDb.Status = FBAStatus.Processing;
+                    shipOrderInDb.OperationLog = "Started by " + _userName;
+                }
+                //如果订单为准备状态，则转换为Released状态（如果是空单则不会返回给仓库）
+                else if (shipOrderInDb.Status == FBAStatus.Ready)
+                {
+                    shipOrderInDb.Status = FBAStatus.Released;
+                    shipOrderInDb.ReleasedDate = operationDate;
+                    shipOrderInDb.ReleasedBy = _userName;
+                    shipOrderInDb.OperationLog = "Released by " + _userName;
+                }
+                //当状态为Release的情况下，从库存实际扣除
+                else if (shipOrderInDb.Status == FBAStatus.Released)
+                {
+                    shipOrderInDb.OperationLog = "Shipping confirmed by " + _userName;
+                    shipOrderInDb.Status = FBAStatus.Shipped;
+                    shipOrderInDb.ShippedBy = _userName;
+                    shipOrderInDb.ShipDate = operationDate;
+
+                    if (shipOrderInDb.FBAPickDetails.Count() != 0)
+                    {
+                        foreach (var pickDetailInDb in shipOrderInDb.FBAPickDetails)
+                        {
+                            ShipPickDetail(_context, pickDetailInDb.Id);
+                        }
+
+                    }
+                }
+            }
+            //当操作类型为逆向转换订单状态时
+            else if (operation == FBAOperation.ReverseStatus)
+            {
+                if (shipOrderInDb.Status == FBAStatus.Picking)
+                {
+                    if (shipOrderInDb.FBAPickDetails.Count != 0)
+                    {
+                        throw new Exception("Cannot reverse status because the pick details is not empty.");
+                    }
+                    else
+                    {
+                        shipOrderInDb.Status = FBAStatus.NewCreated;
+                        shipOrderInDb.OperationLog = "Revert by " + _userName;
+                    }
+                }
+                else if (shipOrderInDb.Status == FBAStatus.NewOrder)
+                {
+                    shipOrderInDb.Status = FBAStatus.Picking;
+                    shipOrderInDb.OperationLog = "Recalled by " + _userName;
+                }
+                else if (shipOrderInDb.Status == FBAStatus.Processing)
+                {
+                    shipOrderInDb.Status = FBAStatus.NewOrder;
+                    shipOrderInDb.OperationLog = "Reset by " + _userName;
+                }
+                else if (shipOrderInDb.Status == FBAStatus.Ready)
+                {
+                    shipOrderInDb.Status = FBAStatus.Processing;
+                    shipOrderInDb.OperationLog = "Unready by " + _userName;
+                }
+                else if (shipOrderInDb.Status == FBAStatus.Released)
+                {
+                    shipOrderInDb.Status = FBAStatus.Ready;
+                    shipOrderInDb.ReleasedBy = "Cancelled by " + _userName;
                 }
             }
         }
