@@ -11,7 +11,7 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div id="div-create">
+    <div id="div-create" style="margin-top:20px">
         <input operation="UploadBOL" type="button" class="btn btn-group btn-create1" value="Upload BOL Templist" />
         <input operation="UploadShipOrder" type="button" class="btn btn-group btn-create1" value="Upload Ship Order Templist" />
         <input operation="Download" type="button" class="btn btn-group btn-download" value="Download Picking List" />
@@ -20,7 +20,7 @@
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />
     </div>
-    <div id="div-partial">
+    <div id="div-partial" style="margin-top:20px">
         @Html.Partial("~/Views/shiporder/_FBAInventoryListPartial.cshtml", null)
     </div>
     <div>
@@ -33,7 +33,7 @@
         <button ordertype="Standard" class="btn btn-info btn-pick">Pick Pallets</button>
         <button ordertype="ecommerce" class="btn btn-info btn-pick">Pick Cartons</button>
     </div>
-    <div>
+    <div style="margin-top:20px">
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -984,19 +984,13 @@
                         {
                             data: "originalTotalCtns",
                             render: function (data) {
-                                return "<font color='green'>" + data + "</font>";
+                                return "<font color='orange'>" + data + "</font>";
                             }
                         },
                         {
                             data: "currentAvailableCtns",
                             render: function (data) {
                                 return "<font color='green'>" + data + "</font>";
-                            }
-                        },
-                        {
-                            data: "actualQuantity",
-                            render: function (data) {
-                                return "<font color='orange'>" + data + "</font>";
                             }
                         },
                         {
@@ -1190,13 +1184,13 @@
                     {
                         data: "actualGrossWeight",
                         render: function (data) {
-                            return "<font>" + data + "</font>";
+                            return "<font>" + parseFloat(data.toFixed(2)) + "</font>";
                         }
                     },
                     {
                         data: "actualCBM",
                         render: function (data) {
-                            return "<font>" + data + "</font>";
+                            return "<font>" + parseFloat(data.toFixed(2)) + "</font>";
                         }
                     },
                     {

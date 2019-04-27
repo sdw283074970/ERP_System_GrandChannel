@@ -84,6 +84,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string ETS { get; set; }
 
+        public string PlaceBy { get; set; }
+
         public string OperationLog { get; set; }
 
         public DateTime CreateDate { get; set; }
@@ -91,6 +93,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public DateTime ReadyTime { get; set; }
 
         public DateTime ShipDate { get; set; }
+
+        public DateTime PlaceTime { get; set; }
 
         public string ReleasedBy { get; set; }
 

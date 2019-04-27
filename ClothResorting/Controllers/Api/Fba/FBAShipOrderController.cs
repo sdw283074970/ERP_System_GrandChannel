@@ -115,6 +115,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
+            shipOrder.CreateDate = DateTime.Now;
             shipOrder.BOLNumber = obj.BOLNumber;
             shipOrder.Carrier = obj.Carrier;
             shipOrder.ETS = obj.ETS;
@@ -324,8 +325,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 if (shipOrderInDb.Status == FBAStatus.NewCreated || shipOrderInDb.Status == FBAStatus.Processing)
                 {
                     shipOrderInDb.Status = FBAStatus.Ready;
-                    shipOrderInDb.ReadyBy = _userName;
-                    shipOrderInDb.ReadyTime = operationDate;
+                    shipOrderInDb.ReleasedBy = _userName;
+                    shipOrderInDb.ReleasedDate = operationDate;
                     shipOrderInDb.OperationLog = "Ready By " + _userName;
                 }
                 //如果订单为在拣状态，则转换为给仓库的新订单状态
@@ -340,9 +341,19 @@ namespace ClothResorting.Controllers.Api.Fba
                 else if (shipOrderInDb.Status == FBAStatus.NewOrder)
                 {
                     shipOrderInDb.Status = FBAStatus.Processing;
+                    shipOrderInDb.StartedBy = _userName;
+                    shipOrderInDb.StartedTime = operationDate;
                     shipOrderInDb.OperationLog = "Started by " + _userName;
                 }
-                //如果订单为准备状态，则转换为Released状态（如果是空单则不会返回给仓库）
+                //如果订单为processing状态，则转换为ready状态
+                else if (shipOrderInDb.Status == FBAStatus.Processing)
+                {
+                    shipOrderInDb.Status = FBAStatus.Ready;
+                    shipOrderInDb.StartedBy = _userName;
+                    shipOrderInDb.StartedTime = operationDate;
+                    shipOrderInDb.OperationLog = "Ready by " + _userName;
+                }
+                //如果订单为ready状态，则转换为Released状态（如果是空单则不会返回给仓库）
                 else if (shipOrderInDb.Status == FBAStatus.Ready)
                 {
                     shipOrderInDb.Status = FBAStatus.Released;

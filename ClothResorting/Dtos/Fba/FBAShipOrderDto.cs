@@ -39,6 +39,10 @@ namespace ClothResorting.Dtos.Fba
 
         public string CreateBy { get; set; }
 
+        public string PlaceBy { get; set; }
+
+        public DateTime PlaceTime { get; set; }
+
         public string EditBy { get; set; }
 
         public DateTime PickDate { get; set; }

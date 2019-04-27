@@ -26,7 +26,7 @@
                     <th>ORDER TYPE</th>
                     <th style="width:80px">DEST</th>
                     <th>CARRIER</th>
-                    <th style="width:80px">CREATE DATE</th>
+                    <th style="width:80px">PUSH DATE</th>
                     <th style="width:80px">ETS</th>
                     <th style="width:80px">READY TIME</th>
                     <th style="width:80px">RELEASED DATE</th>
@@ -46,8 +46,7 @@
 <div class="iframe-fbadate">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Select Operation Date: </text><input type="datetime-local" id='input-operationdate' style='width:200px' class='input-sm' /><br />
-        <button id="btn-fbaready" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
-        <button id="btn-fbarelease" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Release</button>
+        <button id="btn-confirm" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
     </div>
 </div>
 @section scripts
@@ -62,8 +61,6 @@
             var shipOrderId;
             var orderId;
             var searchBar = grandChannel.getUrlParameter('search');
-
-            $(".iframe-date, .iframe-release").hide();
 
             var columnsArray = [
                 {
@@ -153,7 +150,7 @@
                     }
                 },
                 {
-                    data: "createDate",
+                    data: "placeTime",
                     render: function (data) {
                         return "<text>" + data.substring(0, 10) + "</text>";
                     }
@@ -239,9 +236,9 @@
                     data: "id",
                     render: function (data) {
                         if (status == "New Order")
-                            return "<input type='button' class='btn btn-link btn-fbachangestatus' iid='" + data + "' value='Start' />";
+                            return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Start' />";
                         else if (status == "Processing")
-                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-fbadate iid='" + data + "' value='Ready' />";
+                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Ready' />";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
                         else if (status == "Released")
@@ -285,31 +282,16 @@
                 $(window.location).attr('href', "/shiporder/FBAPickDetailAdjustOnly/?shipOrderId=" + shipOrderId)
             });
 
-            //点击FBA订单下的Ready或release按钮，打开填写日期弹窗
+            //点击FBA订单下的正向状态转换按钮，打开填写日期弹窗
             $("#table").on("click", ".btn-fbadate", function () {
                 var button = $(this);
                 shipOrderId = button.attr('iid');
 
-                if (button.val() == "Ready")
-                {
-                    $("#btn-fbarelease").hide();
-                    $("#btn-fbaready").show();
-                    grandChannel.openiframe(index, ".iframe-fbadate", "400px", "150px");
-                }
-                else if (button.val() == "Release")
-                {
-                    $("#btn-fbarelease").show();
-                    $("#btn-fbaready").hide();
-                    grandChannel.openiframe(index, ".iframe-fbadate", "400px", "150px");
-                }
-                else
-                {
-                    alert("Unsupported status button.");
-                }
+                grandChannel.openiframe(index, ".iframe-fbadate", "400px", "150px");
             });
 
             //填好日期后，点击确认按钮
-            $("#btn-fbaready, #btn-fbarelease").on("click", function () {
+            $("#btn-confirm").on("click", function () {
                 layer.close(index);
                 var operationDate = $("#input-operationdate").val();
 
@@ -388,6 +370,10 @@
                     }
                 });
             };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
         });
     </script>
 }

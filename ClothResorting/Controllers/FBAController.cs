@@ -12,12 +12,15 @@ namespace ClothResorting.Controllers
         // GET: FBA
         public ActionResult Index()
         {
-            if (User.IsInRole(RoleName.CanViewAsClientOnly))
-            {
-                return View("FBAClientIndex");
-            }
 
-            return View();
+            if (User.IsInRole(RoleName.CanOperationAsT3) || User.IsInRole(RoleName.CanDeleteEverything))
+                return View();
+            else if (User.IsInRole(RoleName.CanOperationAsT2))
+                return View("~/Warehouse/Index");
+            else if (User.IsInRole(RoleName.CanViewAsClientOnly))
+                return View("FBAClientIndex");
+            else
+                throw new Exception("权限不足");
         }
 
         //收费模板页面

@@ -22,18 +22,8 @@
                     <th style="width:70px">Status</th>
                     <th>Ship Order #</th>
                     <th>Customer Code</th>
-                    <th>Order Type</th>
                     <th>Destination</th>
-                    <th style="width:80px">Create date</th>
-                    <th style="width:60px">Create By</th>
                     <th style="width:80px">ETS</th>
-                    <th style="width:60px">Edit By</th>
-                    <th style="width:80px">Released Date</th>
-                    <th style="width:60px">Released By</th>
-                    <th style="width:80px">Shipped Date</th>
-                    <th style="width:60px">Shipped By</th>
-                    <th style="width:200px">Instruction</th>
-                    <th style="width:200px">Log</th>
                     <th>Total Ctns</th>
                     <th>Total Plts</th>
                     <th style="width:60px">Total Amount</th>
@@ -44,6 +34,12 @@
                     <th style="width:150px">Status Control</th>
                     <th>eFolder</th>
                     <th style="width:300px">Operation</th>
+                    <th style="width:200px">Instruction</th>
+                    <th style="width:80px">Create Date</th>
+                    <th style="width:80px">Place Date</th>
+                    <th style="width:80px">Released Date</th>
+                    <th style="width:80px">Shipped Date</th>
+                    <th style="width:200px">Log</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -172,90 +168,13 @@
                     }
                 },
                 {
-                    data: "orderType",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
                     data: "destination",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
                 },
                 {
-                    data: "createDate",
-                    render: function (data) {
-                        return "<font>" + data.substring(0, 10) + "</font>";
-                    }
-                },
-                {
-                    data: "createBy",
-                    render: function (data) {
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
                     data: "etsTimeRange",
-                    render: function (data) {
-                        if (data == null)
-                            return "";
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "editBy",
-                    render: function (data) {
-                        if (data == null)
-                            return "";
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "releasedDate",
-                    render: function (data) {
-                        if (data == "1900-01-01T00:00:00")
-                            return "<font color='red'></font>"
-                        else
-                            return "<font>" + data.substring(0, 10) + " " + data.substring(11, 16) + "</font>";
-                    }
-                },
-                {
-                    data: "releasedBy",
-                    render: function (data) {
-                        if (data == null)
-                            return "";
-                        return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "shipDate",
-                    render: function (data) {
-                        if (data == "1900-01-01T00:00:00")
-                            return "<font color='red'></font>"
-                        else
-                            return "<font>" + data.substring(0, 10) + " " +data.substring(11, 16) + "</font>";
-                    }
-                },
-                {
-                    data: "shippedBy",
-                    render: function (data) {
-                        if (data == "Unassigned")
-                            return "";
-                        else
-                            return "<font>" + data + "</font>";
-                    }
-                },
-                {
-                    data: "instruction",
-                    render: function (data) {
-                        if (data == null)
-                            return "";
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
-                    data: "operationLog",
                     render: function (data) {
                         if (data == null)
                             return "";
@@ -337,9 +256,9 @@
                     data: "id",
                     render: function (data) {
                         if (status == "New Created")
-                            return "<input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' />";
+                            return "<input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Release' />";
                         else if (status == "Picking")
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' />";
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Push' />";
                         else if (status == "New Order")
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
                         else if (status == "Processing")
@@ -380,6 +299,55 @@
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else
                             return "";
+                    }
+                },
+                {
+                    data: "instruction",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "createDate",
+                    render: function (data) {
+                        return "<font>" + data.substring(0, 10) + "</font>";
+                    }
+                },
+                {
+                    data: "placeTime",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'></font>";
+                        else
+                            return "<font>" + data.substring(0, 10) + " " + data.substring(11, 16) + "</font>";
+                    }
+                },
+                {
+                    data: "releasedDate",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'></font>";
+                        else
+                            return "<font>" + data.substring(0, 10) + " " + data.substring(11, 16) + "</font>";
+                    }
+                },
+                {
+                    data: "shipDate",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'></font>"
+                        else
+                            return "<font>" + data.substring(0, 10) + " " + data.substring(11, 16) + "</font>";
+                    }
+                },
+                {
+                    data: "operationLog",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
                     }
                 }
             ]
@@ -503,13 +471,13 @@
                 SendAjaxMethod("PUT", url, {});
             })
 
-            //点击release按钮，将运单标记为Released
-            $("#table").on("click", ".btn-release", function () {
+            //点击changestatus按钮，将运单标记为Released
+            $("#table").on("click", ".btn-changestatus", function () {
                 var id = $(this).attr('iid');
                 var date = new Date();
                 var today = date.getFullYear().toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operationDate=" + today;
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operationDate=" + today + "&operation=ChangeStatus";
                 SendAjaxMethod("PUT", url, {});
             })
 
