@@ -60,7 +60,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string Department { get; set; }
 
-        public string WarehouseOrderType { get; set; }
+        public string WarehouseOrderType { get; set; }  
 
         public string Status { get; set; }
 

@@ -444,7 +444,7 @@
             $("#table").on("click", ".btn-fee", function () {
 
                 shipOrderId = shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
-                var tpStatus = $(this).parent().parent("tr").children('td').eq(19).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(9).children('text').html();
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")

@@ -48,14 +48,15 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 _ws.Cells[startRow, 1] = i.InvoiceType;
                 _ws.Cells[startRow, 2] = i.Reference;
-                _ws.Cells[startRow, 3] = i.Activity;
-                _ws.Cells[startRow, 4] = i.ChargingType;
-                _ws.Cells[startRow, 5] = i.Unit;
-                _ws.Cells[startRow, 6] = i.Quantity;
-                _ws.Cells[startRow, 7] = i.Rate;
-                _ws.Cells[startRow, 8] = i.Amount;
-                _ws.Cells[startRow, 9] = i.DateOfCost.ToString("yyyy-MM-dd");
-                _ws.Cells[startRow, 10] = i.Memo;
+                _ws.Cells[startRow, 3] = i.GrandNumber;
+                _ws.Cells[startRow, 4] = i.Activity;
+                _ws.Cells[startRow, 5] = i.ChargingType;
+                _ws.Cells[startRow, 6] = i.Unit;
+                _ws.Cells[startRow, 7] = i.Quantity;
+                _ws.Cells[startRow, 8] = i.Rate;
+                _ws.Cells[startRow, 9] = i.Amount;
+                _ws.Cells[startRow, 10] = i.DateOfCost.ToString("yyyy-MM-dd");
+                _ws.Cells[startRow, 11] = i.Memo;
 
                 startRow += 1;
             }
@@ -71,11 +72,12 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _ws.Cells[startRow, 1] = "Order Type";
             _ws.Cells[startRow, 2] = "Reference #";
-            _ws.Cells[startRow, 3] = "Destination";
-            _ws.Cells[startRow, 4] = "Total Ctns";
-            _ws.Cells[startRow, 5] = "Total Plts";
+            _ws.Cells[startRow, 3] = "Grand #";
+            _ws.Cells[startRow, 4] = "Destination";
+            _ws.Cells[startRow, 5] = "Total Ctns";
+            _ws.Cells[startRow, 6] = "Total Plts";
 
-            var columnIndex = 6;
+            var columnIndex = 7;
             var activityList = new List<string>();
 
             foreach(var c in chargeActivityGroup)
@@ -98,13 +100,14 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 _ws.Cells[startRow, 1] = r.First().InvoiceType;
                 _ws.Cells[startRow, 2] = r.First().Reference;
-                _ws.Cells[startRow, 3] = r.First().Destination;
-                _ws.Cells[startRow, 4] = r.First().ActualCtnsInThisOrder;
-                _ws.Cells[startRow, 5] = r.First().ActualPltsInThisOrder;
-
+                _ws.Cells[startRow, 3] = r.First().GrandNumber;
+                _ws.Cells[startRow, 4] = r.First().Destination;
+                _ws.Cells[startRow, 5] = r.First().ActualCtnsInThisOrder;
+                _ws.Cells[startRow, 6] = r.First().ActualPltsInThisOrder;
+            
                 for (var i = 0; i < countOfActivity; i++)
                 {
-                    _ws.Cells[startRow, 6 + i] = 0.0;
+                    _ws.Cells[startRow, 7 + i] = 0.0;
                 }
 
                 _ws.Cells[startRow, columnIndex] = r.First().DateOfClose.ToString("MM/dd/yyyy");
@@ -113,7 +116,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 foreach (var i in r)
                 {
                     var index = activityList.IndexOf(i.Activity);
-                    _ws.Cells[startRow, index + 6] = _ws.Cells[startRow, index + 6].Value2 + i.Amount;
+                    _ws.Cells[startRow, index + 7] = _ws.Cells[startRow, index + 7].Value2 + i.Amount;
                     
                 }
 
@@ -126,12 +129,12 @@ namespace ClothResorting.Helpers.FBAHelper
             foreach(var c in chargeActivityGroup)
             {
                 var activity = c.First().Activity;
-                _ws.Cells[startRow, activityList.IndexOf(activity) + 6] = info.InvoiceReportDetails.Where(x => x.Activity == activity).Sum(x => x.Amount);
+                _ws.Cells[startRow, activityList.IndexOf(activity) + 7] = info.InvoiceReportDetails.Where(x => x.Activity == activity).Sum(x => x.Amount);
             }
 
             _ws.Cells[startRow, 1] = "Total";
-            _ws.Cells[startRow, 4] = totalCtns;
-            _ws.Cells[startRow, 5] = totalPlts;
+            _ws.Cells[startRow, 5] = totalCtns;
+            _ws.Cells[startRow, 6] = totalPlts;
             _ws.Cells[startRow, columnIndex + 1] = info.InvoiceReportDetails.Sum(x => x.Amount);
 
             var fullPath = @"D:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
@@ -273,6 +276,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 if (i.FBAMasterOrder == null)
                 {
+                    newInvoiceDetail.GrandNumber = "N/A";
                     newInvoiceDetail.Reference = i.FBAShipOrder.ShipOrderNumber;
                     newInvoiceDetail.Destination = i.FBAShipOrder.Destination;
                     newInvoiceDetail.ActualCtnsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
@@ -281,6 +285,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 }
                 else if (i.FBAShipOrder == null)
                 {
+                    newInvoiceDetail.GrandNumber = i.FBAMasterOrder.GrandNumber;
                     newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
                     newInvoiceDetail.Destination = " ";
                     newInvoiceDetail.ActualCtnsInThisOrder = i.FBAMasterOrder.FBAOrderDetails.Sum(x => x.ActualQuantity);
@@ -335,6 +340,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public string Reference { get; set; }
 
         public string Activity { get; set; }
+
+        public string GrandNumber { get; set; }
 
         public string InvoiceType { get; set; }
 

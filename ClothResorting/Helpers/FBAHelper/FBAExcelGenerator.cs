@@ -129,8 +129,8 @@ namespace ClothResorting.Helpers.FBAHelper
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.ShipDate <= closeDate
-                    && x.FBAShipOrder.ShipDate >= startDate
+                .Where(x => x.FBAShipOrder.ReleasedDate <= closeDate
+                    && x.FBAShipOrder.ReleasedDate >= startDate
                     && x.FBAShipOrder.Status == FBAStatus.Shipped
                     && x.FBAPalletLocation != null
                     && x.FBAPalletLocation.FBAMasterOrder.InboundDate <= closeDate

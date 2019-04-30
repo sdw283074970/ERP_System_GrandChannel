@@ -178,33 +178,33 @@ namespace ClothResorting.Controllers
                     }
                     else if (userLevel == "T1")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT1);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
                     }
                     else if (userLevel == "T2")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT1);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT2);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
                     }
                     else if (userLevel == "T3")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT1);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT2);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT3);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
                     }
                     else if (userLevel == "T4")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT1);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT2);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT3);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT4);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
                     }
                     else if (userLevel == "T5")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT1);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT2);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT3);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT4);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperationAsT5);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
                     }
 
                     return RedirectToAction("Index", "Home");

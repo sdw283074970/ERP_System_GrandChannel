@@ -46,7 +46,8 @@ namespace ClothResorting.Helpers.FBAHelper
             var pickDetailList = _context.FBAPickDetails
                 .Include(x => x.FBAPickDetailCartons)
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.ShipDate <= closeDate && x.FBAShipOrder.ShipDate >= minDate);
+                .Where(x => x.FBAShipOrder.PlaceTime <= closeDate && x.FBAShipOrder.PlaceTime >= minDate);
+            //.Where(x => x.FBAShipOrder.ShipDate <= closeDate && x.FBAShipOrder.ShipDate >= minDate);
 
             var t = pickDetailList.ToList();
 

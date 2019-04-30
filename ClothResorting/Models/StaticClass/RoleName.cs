@@ -13,15 +13,15 @@ namespace ClothResorting.Models.StaticClass
 
         public const string CanViewAsClientOnly = "CanViewAsClientOnly";
 
-        public const string CanOperationAsT1 = "CanOperateAsT1";
+        public const string CanOperateAsT1 = "CanOperateAsT1";
 
-        public const string CanOperationAsT2 = "CanOperateAsT2";
+        public const string CanOperateAsT2 = "CanOperateAsT2";
 
-        public const string CanOperationAsT3 = "CanOperateAsT3";
+        public const string CanOperateAsT3 = "CanOperateAsT3";
 
-        public const string CanOperationAsT4 = "CanOperateAsT4";
+        public const string CanOperateAsT4 = "CanOperateAsT4";
 
-        public const string CanOperationAsT5 = "CanOperateAsT5";
+        public const string CanOperateAsT5 = "CanOperateAsT5";
 
     }
 }

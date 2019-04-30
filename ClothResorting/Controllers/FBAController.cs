@@ -13,14 +13,17 @@ namespace ClothResorting.Controllers
         public ActionResult Index()
         {
 
-            if (User.IsInRole(RoleName.CanOperationAsT3) || User.IsInRole(RoleName.CanDeleteEverything))
+            var test = User.IsInRole(RoleName.CanOperateAsT2);
+
+            if (User.IsInRole(RoleName.CanOperateAsT3) || User.IsInRole(RoleName.CanDeleteEverything))
                 return View();
-            else if (User.IsInRole(RoleName.CanOperationAsT2))
+            else if (User.IsInRole(RoleName.CanOperateAsT2))
                 return View("~/Warehouse/Index");
             else if (User.IsInRole(RoleName.CanViewAsClientOnly))
                 return View("FBAClientIndex");
             else
                 throw new Exception("权限不足");
+            //return View();
         }
 
         //收费模板页面
