@@ -1,4 +1,5 @@
-﻿using ClothResorting.Models.StaticClass;
+﻿using ClothResorting.FilterAttribute;
+using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,23 +8,13 @@ using System.Web.Mvc;
 
 namespace ClothResorting.Controllers
 {
+    [OfficeFilter]
     public class FBAController : Controller
     {
         // GET: FBA
         public ActionResult Index()
         {
-
-            var test = User.IsInRole(RoleName.CanOperateAsT2);
-
-            if (User.IsInRole(RoleName.CanOperateAsT3) || User.IsInRole(RoleName.CanDeleteEverything))
-                return View();
-            else if (User.IsInRole(RoleName.CanOperateAsT2))
-                return View("~/Warehouse/Index");
-            else if (User.IsInRole(RoleName.CanViewAsClientOnly))
-                return View("FBAClientIndex");
-            else
-                throw new Exception("权限不足");
-            //return View();
+            return View();
         }
 
         //收费模板页面

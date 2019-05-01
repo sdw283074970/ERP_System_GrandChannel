@@ -268,10 +268,11 @@ namespace ClothResorting.Controllers.Api.Fba
                     .SingleOrDefault(x => x.Id == locationId);
 
                 locationInDb.FBAPallet.ComsumedPallets -= locationInDb.AvailablePlts;
+                locationInDb.ActualPlts -= locationInDb.AvailablePlts;
                 locationInDb.AvailablePlts = 0;
                 locationInDb.Status = FBAStatus.Relocated;
 
-                if (locationInDb.ShippedPlts == 0)
+                if (locationInDb.ShippedPlts == 0 && locationInDb.PickingPlts == 0)
                 {
                     _context.FBAPalletLocations.Remove(locationInDb);
                 }
@@ -286,7 +287,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 locationInDb.AvailableCtns = 0;
                 locationInDb.Status = FBAStatus.Relocated;
 
-                if (locationInDb.ShippedCtns == 0)
+                if (locationInDb.ShippedCtns == 0 && locationInDb.PickingCtns == 0)
                 {
                     _context.FBACartonLocations.Remove(locationInDb);
                 }

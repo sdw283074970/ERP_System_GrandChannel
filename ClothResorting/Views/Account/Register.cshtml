@@ -32,7 +32,14 @@
     <div class="form-group">
         @Html.LabelFor(m => m.UserLevel, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.DropDownListFor(m => m.UserLevel, new[] { new SelectListItem() { Text = "T1", Value = "T1"}, new SelectListItem() { Text = "T2", Value = "T2" }, new SelectListItem() { Text = "T3", Value = "T3" }, new SelectListItem() { Text = "T4", Value = "T4" }, new SelectListItem() { Text = "T5", Value = "T5" }, new SelectListItem() { Text = "Client", Value = "Client"} }, "Choose an option", new { @class = "col-md-2 control-label" })
+            @Html.DropDownListFor(m => m.UserLevel, new[] {
+                new SelectListItem() { Text = "T1", Value = "T1"},
+                new SelectListItem() { Text = "T2", Value = "T2" },
+                new SelectListItem() { Text = "T3", Value = "T3" },
+                new SelectListItem() { Text = "T4", Value = "T4" },
+                new SelectListItem() { Text = "T5", Value = "T5" },
+                new SelectListItem() { Text = "Admin", Value = "Admin" },
+                new SelectListItem() { Text = "Client", Value = "Client"} }, "Choose an option", new { @class = "col-md-2 control-label" })
         </div>
     </div>
     <div class="form-group">

@@ -472,6 +472,9 @@
     <Compile Include="Dtos\SizeRatioDto.cs" />
     <Compile Include="Dtos\SpeciesInventoryDto.cs" />
     <Compile Include="Dtos\UpperVendorDto.cs" />
+    <Compile Include="FilterAttribute\AdminFilterAttribute.cs" />
+    <Compile Include="FilterAttribute\OfficeFilterAttribute.cs" />
+    <Compile Include="FilterAttribute\WarehouseFilterAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -2142,6 +2145,8 @@
     <Content Include="Views\FBA\FBAClientIndex.cshtml" />
     <Content Include="Views\Warehouse\Index.cshtml" />
     <Content Include="Views\ShipOrder\FBAPickDetailAdjustOnly.cshtml" />
+    <Content Include="Views\Home\Denied.cshtml" />
+    <Content Include="Views\Account\Management.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

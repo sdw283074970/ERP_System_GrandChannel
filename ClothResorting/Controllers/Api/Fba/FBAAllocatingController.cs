@@ -61,7 +61,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     //}
 
                     //所有类型的pallets现在不允许分开入库
-                    obj.Quantity = palletInDb.ActualPallets;
+                    obj.Quantity = palletInDb.ActualPallets - palletInDb.ComsumedPallets;
 
                     palletInDb.ComsumedPallets += obj.Quantity;
 

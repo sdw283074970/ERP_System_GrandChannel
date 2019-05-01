@@ -146,7 +146,7 @@
             <text>Memo: <textarea id="input-memo" style='width:170px;height:75px' placeholder="(Optional)"></textarea></text><br />
         </div>
         <div id="div-amount" style="margin-top:20px">
-            <text>Amount: <font id="text-amount" color="red"></font></text><br />
+            <text>Amount: <input id="input-amount" class="input-sm" type="number" style="width:80px" ></text>
         </div>
             <button style="margin-top:20px" id="btn-charge" class='btn btn-primary'>Charge</button>
             <button style="margin-top:20px" id="btn-update" class='btn btn-primary'>Update</button>
@@ -440,7 +440,7 @@
                                 $("#input-quantity").val(0);
                             }
 
-                            $("#text-amount").html((data.rate * quantity).toFixed(2));
+                            $("#input-amount").val((data.rate * quantity).toFixed(2));
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -458,16 +458,17 @@
                 var activity = $("#select-name option:selected").val();
                 var dateOfCost = $("#input-date").val();
                 var cost = $("#input-cost").val();
+                var amount = $("#input-amount").val();
 
-                if (dateOfCost == "")
+                if (dateOfCost == "" || amount == "")
                 {
-                    alert("Date cannot be empty.");
+                    alert("Date or amount cannot be empty.");
                 }
                 else if (chargingType != "empty" && activity != "empty")
                 {
                     var unit = $("#text-unit").html();
                     var rate = $("#input-rate").val();
-                    var amount = $("#text-amount").html();
+                    var amount = $("#input-amount").val();
                     var quantity = $("#input-quantity").val();
                     var memo = $("#input-memo").val();
 
@@ -517,7 +518,7 @@
 
                 var amount = parseFloat((rate * quantity).toFixed(2));
 
-                $("#text-amount").html(amount);
+                $("#input-amount").val(amount);
             });
 
             //Ajax5, 点击删除按钮，删除所选收费项目并自动重新计算总数
@@ -667,7 +668,7 @@
                         $("#input-cost").val(data.cost);
                         $("#text-unit").html(data.unit);
                         $("#input-rate").val(data.rate);
-                        $("#text-amount").html(data.amount);
+                        $("#input-amount").val(data.amount);
                         $("#input-quantity").val(data.quantity);
                         $("#input-memo").val(data.memo);
 
@@ -721,15 +722,16 @@
                 var activity = $("#select-name option:selected").val();
                 var dateOfCost = $("#input-date").val();
                 var cost = $("#input-cost").val();
+                var amount = $("#input-amount").val();
 
-                if (dateOfCost == "")
+                if (dateOfCost == "" || amount == "")
                 {
-                    alert("Date cannot be empty.");
+                    alert("Date or amount cannot be empty.");
                 }
                 else if (chargingType != "empty" && activity != "empty") {
                     var unit = $("#text-unit").html();
                     var rate = $("#input-rate").val();
-                    var amount = $("#text-amount").html();
+                    var amount = $("#input-amount").val();
                     var quantity = $("#input-quantity").val();
                     var memo = $("#input-memo").val();
 
@@ -744,9 +746,9 @@
                         "memo": memo,
                         "cost": cost
                     };
-                }
 
-                SendAjaxMethod("PUT", url, obj);
+                    SendAjaxMethod("PUT", url, obj);
+                }
             });
 
             //点击带颜色的按钮，改变状态

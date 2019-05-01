@@ -11,6 +11,7 @@ using Microsoft.Owin.Security;
 using ClothResorting.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
 using ClothResorting.Models.StaticClass;
+using ClothResorting.FilterAttribute;
 
 namespace ClothResorting.Controllers
 {
@@ -37,8 +38,8 @@ namespace ClothResorting.Controllers
             {
                 return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
             }
-            private set 
-            { 
+            private set
+            {
                 _signInManager = value; 
             }
         }
@@ -139,6 +140,7 @@ namespace ClothResorting.Controllers
         //
         // GET: /Account/Register
         //[AllowAnonymous]
+        [AdminFilter]
         public ActionResult Register()
         {
             return View();
@@ -182,29 +184,28 @@ namespace ClothResorting.Controllers
                     }
                     else if (userLevel == "T2")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
                     }
                     else if (userLevel == "T3")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
                     }
                     else if (userLevel == "T4")
                     {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
                     }
                     else if (userLevel == "T5")
+                    {
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
+                    }
+                    else if (userLevel == "Admin")
                     {
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
                         await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
+                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
                     }
 
                     return RedirectToAction("Index", "Home");
@@ -441,6 +442,13 @@ namespace ClothResorting.Controllers
         // GET: /Account/ExternalLoginFailure
         [AllowAnonymous]
         public ActionResult ExternalLoginFailure()
+        {
+            return View();
+        }
+
+        // GET /Account/Management
+        [AdminFilter]
+        public ActionResult Management()
         {
             return View();
         }

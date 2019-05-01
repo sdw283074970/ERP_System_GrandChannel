@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using System.Data.Entity;
 using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models.FBAModels.StaticModels;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers
 {
@@ -18,7 +19,6 @@ namespace ClothResorting.Controllers
     {
         private ApplicationDbContext _context;
 
-
         public HomeController()
         {
             _context = new ApplicationDbContext();
@@ -26,35 +26,50 @@ namespace ClothResorting.Controllers
 
         public ActionResult Index()
         {
-
-            return View();
+            if (User.IsInRole(RoleName.CanOperateAsT3) || User.IsInRole(RoleName.CanDeleteEverything))
+                return View();
+            else if (User.IsInRole(RoleName.CanOperateAsT2))
+                return View("~/Views/Warehouse/Index.cshtml");
+            else if (User.IsInRole(RoleName.CanViewAsClientOnly))
+                return View("FBAClientIndex");
+            else
+                return RedirectToAction("Login", "Account");
         }
 
         public ActionResult Test()
         {
-            var list = new List<FBAPickDetailCarton>();
+            //var list = new List<FBAPickDetailCarton>();
 
-            var resultlist = _context.FBACartonLocations
-                .Include(c => c.FBAPickDetails)
-                .Where(c => c.FBAPickDetails.Count != 0 && c.Location == "Pallet");
+            //var resultlist = _context.FBACartonLocations
+            //    .Include(c => c.FBAPickDetails)
+            //    .Where(c => c.FBAPickDetails.Count != 0 && c.Location == "Pallet");
 
-            foreach(var r in resultlist)
-            {
-                foreach(var p in r.FBAPickDetails)
-                {
-                    var newPickDetailCarton = new FBAPickDetailCarton {
-                        PickCtns = p.ActualQuantity,
-                        FBAPickDetail = p,
-                        FBACartonLocation = r
-                    };
+            //foreach(var r in resultlist)
+            //{
+            //    foreach(var p in r.FBAPickDetails)
+            //    {
+            //        var newPickDetailCarton = new FBAPickDetailCarton {
+            //            PickCtns = p.ActualQuantity,
+            //            FBAPickDetail = p,
+            //            FBACartonLocation = r
+            //        };
 
-                    list.Add(newPickDetailCarton);
-                    p.FBACartonLocation = null;
-                }
-            }
+            //        list.Add(newPickDetailCarton);
+            //        p.FBACartonLocation = null;
+            //    }
+            //}
 
-            _context.FBAPickDetailCartons.AddRange(list);
-            _context.SaveChanges();
+            //_context.FBAPickDetailCartons.AddRange(list);
+            //_context.SaveChanges();
+
+            var users = _context.Users
+                .Include(x => x.Roles)
+                .First()
+                .Roles
+                .First();
+
+
+            var roles = _context.Roles.ToList();
 
             ViewBag.Message = "Your application description page.";
 
@@ -65,6 +80,11 @@ namespace ClothResorting.Controllers
         {
             ViewBag.Message = "Your contact page.";
 
+            return View();
+        }
+
+        public ActionResult Denied()
+        {
             return View();
         }
 

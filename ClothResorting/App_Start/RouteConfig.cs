@@ -18,6 +18,13 @@ namespace ClothResorting
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
+
+            routes.MapRoute(
+                "Denied",
+                "Home/Denied",
+                new { controller = "Home", action = "Denied", id = UrlParameter.Optional }
+            );
+
         }
     }
 }
