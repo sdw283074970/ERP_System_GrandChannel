@@ -37,6 +37,7 @@
                     <th style="width:200px">Instruction</th>
                     <th style="width:80px">Create Date</th>
                     <th style="width:80px">Place Date</th>
+                    <th style="width:80px">Ready Time</th>
                     <th style="width:80px">Released Date</th>
                     <th style="width:80px">Shipped Date</th>
                     <th style="width:200px">Log</th>
@@ -317,6 +318,15 @@
                 },
                 {
                     data: "placeTime",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font color='red'></font>";
+                        else
+                            return "<font>" + data.substring(0, 10) + " " + data.substring(11, 16) + "</font>";
+                    }
+                },
+                {
+                    data: "readyTime",
                     render: function (data) {
                         if (data == "1900-01-01T00:00:00")
                             return "<font color='red'></font>";

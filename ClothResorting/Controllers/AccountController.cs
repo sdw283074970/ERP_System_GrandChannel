@@ -159,9 +159,43 @@ namespace ClothResorting.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 var userLevel = model.UserLevel;
 
+                if (userLevel == "Client")
+                {
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanViewAsClientOnly);
+                }
+                else if (userLevel == "T1")
+                {
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+                }
+                else if (userLevel == "T2")
+                {
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
+                }
+                else if (userLevel == "T3")
+                {
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
+                }
+                else if (userLevel == "T4")
+                {
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
+                }
+                else if (userLevel == "T5")
+                {
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
+                }
+                else if (userLevel == "Admin")
+                {
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
+                }
+
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                    //await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
@@ -174,41 +208,7 @@ namespace ClothResorting.Controllers
                     //var roleManager = new RoleManager<IdentityRole>(roleStore);
                     //  await roleManager.CreateAsync(new IdentityRole(RoleName.CanViewAsClientOnly));
 
-                    if (userLevel == "Client")
-                    {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanViewAsClientOnly);
-                    }
-                    else if (userLevel == "T1")
-                    {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
-                    }
-                    else if (userLevel == "T2")
-                    {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
-                    }
-                    else if (userLevel == "T3")
-                    {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
-                    }
-                    else if (userLevel == "T4")
-                    {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
-                    }
-                    else if (userLevel == "T5")
-                    {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
-                    }
-                    else if (userLevel == "Admin")
-                    {
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
-                        await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
-                    }
-
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Management", "Account");
                 }
                 AddErrors(result);
             }

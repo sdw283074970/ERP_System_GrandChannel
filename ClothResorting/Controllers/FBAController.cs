@@ -8,7 +8,7 @@ using System.Web.Mvc;
 
 namespace ClothResorting.Controllers
 {
-    [OfficeFilter]
+    [FBAFilter]
     public class FBAController : Controller
     {
         // GET: FBA

@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace ClothResorting.Controllers
 {
-    [WarehouseFilter]
+    [FBAWHFilter]
     public class WarehouseController : Controller
     {
         // GET: Warehouse

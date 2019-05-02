@@ -424,6 +424,7 @@
     <Compile Include="Controllers\Api\SearchResultController.cs" />
     <Compile Include="Controllers\Api\RegularPackingListController.cs" />
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
+    <Compile Include="Controllers\Api\UsersController.cs" />
     <Compile Include="Controllers\Api\Warehouse\WarehouseIndexController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
@@ -454,6 +455,7 @@
     <Compile Include="Dtos\Fba\FBAShipOrderDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
+    <Compile Include="Dtos\IdentityRoleDto.cs" />
     <Compile Include="Dtos\InvoiceDetailDto.cs" />
     <Compile Include="Dtos\InvoiceDto.cs" />
     <Compile Include="Dtos\OutboundHistoryDto.cs" />
@@ -472,9 +474,8 @@
     <Compile Include="Dtos\SizeRatioDto.cs" />
     <Compile Include="Dtos\SpeciesInventoryDto.cs" />
     <Compile Include="Dtos\UpperVendorDto.cs" />
-    <Compile Include="FilterAttribute\AdminFilterAttribute.cs" />
-    <Compile Include="FilterAttribute\OfficeFilterAttribute.cs" />
-    <Compile Include="FilterAttribute\WarehouseFilterAttribute.cs" />
+    <Compile Include="Dtos\ApplicationUserDto.cs" />
+    <Compile Include="FilterAttributes\FilterAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -2147,6 +2148,7 @@
     <Content Include="Views\ShipOrder\FBAPickDetailAdjustOnly.cshtml" />
     <Content Include="Views\Home\Denied.cshtml" />
     <Content Include="Views\Account\Management.cshtml" />
+    <Content Include="Views\Home\Error.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -4,5 +4,171 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<h1>General Setting</h1>
 <h2>Account Management</h2>
 
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+        <input type="button" class="btn btn-default btn-adduser" value="Add new user" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>User Id</th>
+                    <th>User Name</th>
+                    <th>User Email</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <h3 style="text-align:center">Authority Management</h3>
+    <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
+        <text style="margin-top:20px">Available Roles: </text>
+        <select id='select-role' style='width:300px;height:30px;margin-top:20px' required='required'>
+            <option value='NULL'>Loading...</option>
+        </select>
+        <button id="btn-add" class="btn btn-primary">Add</button>
+    </div>
+    <div>
+        <table id="table-roles" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Role Id</th>
+                    <th>Role Name</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var url;
+            var index;
+            var index2;
+            var table;
+            var table_roles;
+            var searchBar;
+            var userId;
+
+            $(".iframe").hide();
+
+            //获取所有系统用户列表
+            url = "/api/users/";
+            var columnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "userName",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "email",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button iid='" + data + "' class='btn btn-link btn-manage'>Authority</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                    }
+                },
+            ];
+            grandChannel.getAjaxMiniTable("GET", url, "#table", table, columnArray, index);
+
+            //点击authority按钮，编辑目标用户的权限
+            $("#table").on("click", ".btn-manage", function () {
+                userId = $(this).attr('iid');
+                grandChannel.openiframe(index, ".iframe", "800px", "500px");
+
+                //获取该角色已有的角色列表
+                columnArray = [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "name",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<button class='btn btn-link btn-remove' iid='" + data + "'>Remove</button>";
+                        }
+                    }
+                ];
+                url = "/api/users/?userId=" + userId + "&operation=GetAddedRoles";
+                grandChannel.getAjaxMiniTable("GET", url, "#table-roles", table_roles, columnArray, index);
+
+                // 获取可添加的角色选项
+                url = "/api/users/?userId=" + userId + "&operation=GetAddableRoles";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#select-role").find("option:selected").text("");
+                        $("#select-role").empty();
+                        $("#select-role").append("<option value='NULL'>Select a role</option>");
+
+                        for (var i = 0; i < data.length; i++) {
+                            $("#select-role").append("<option value='" + data[i].id + "'>" + data[i].name + "</option>");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击Add按钮，为当前用户添加权限
+            $("#btn-add").on("click", function () {
+                var roleId = $("#select-role option:selected").val();
+                url = "/api/users/?userId=" + userId + "&roleId=" + roleId;
+                grandChannel.sendAjaxMethod("POST", url, {}, index2);
+            });
+
+            //点击移除按钮，移除所选择的角色
+            $("#table-roles").on("click", ".btn-remove", function () {
+                var roleId = $(this).attr('iid');
+                url = "/api/users/?userId=" + userId +"&roleId=" + roleId;
+                grandChannel.sendAjaxMethod("DELETE", url, {}, index2)
+            });
+
+            //点击添加新用户按钮，转到register页面
+            $(".btn-adduser").on("click", function () {
+                $(window.location).attr('href', "register");
+            });
+        });
+    </script>
+}

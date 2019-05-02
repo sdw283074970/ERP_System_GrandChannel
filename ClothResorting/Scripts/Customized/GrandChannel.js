@@ -95,7 +95,7 @@
 
 	grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath = sendAjaxMethodAndDownloadFileByFullPath;
 
-	//发送Ajac方法并取得表
+	//发送Ajax方法并取得表
 	var getAjaxTable = function (methodType, url, tableId, table, columsArray, index, searchBar) {
 		$.ajax({
 			type: methodType,
@@ -143,4 +143,52 @@
 	};
 
 	grandChannel.getAjaxTable = getAjaxTable;
+
+	//发送Ajax方法并取得表，该表不能移动X轴，并且禁用SearBar和分页功能
+	var getAjaxMiniTable = function (methodType, url, tableId, table, columsArray, index) {
+		$.ajax({
+			type: methodType,
+			url: url,
+			contentType: 'application/json; charset=utf-8',
+			dataType: "json",
+			beforeSend: function () {
+				layer.close(index);
+				index = layer.msg('Processing...', {
+					icon: 1,
+					shade: 0.01,
+					time: 99 * 1000
+				});
+			},
+			success: function (data) {
+				layer.close(index);
+				if (table) {
+					table.destroy();
+				}
+
+				table = $(tableId).DataTable({
+					columnDefs: [
+					  {
+					  	targets: -1,
+					  	className: 'dt-left'
+					  }
+					],
+					data: data,
+					destroy: true,
+					//scrollX: true,
+					order: [[0, "desc"]],
+					scrollCollapse: true,
+					scrollY: "600px",
+					iDisplayLength: 100,
+					columns: columsArray
+				});
+			},
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+					window.location.reload();
+				});
+			}
+		});
+	};
+
+	grandChannel.getAjaxMiniTable = getAjaxMiniTable;
 })();

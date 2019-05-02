@@ -4,6 +4,7 @@ using ClothResorting.Dtos;
 using ClothResorting.Dtos.Fba;
 using ClothResorting.Models;
 using ClothResorting.Models.FBAModels;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,6 +62,8 @@ namespace ClothResorting.App_Start
 
             //General
             Mapper.CreateMap<EFile, EFileDto>();
+            Mapper.CreateMap<ApplicationUser, ApplicationUserDto>();
+            Mapper.CreateMap<IdentityRole, IdentityRoleDto>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ClothResorting.Models.StaticClass;
+﻿using ClothResorting.FilterAttribute;
+using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Web.Mvc;
 
 namespace ClothResorting.Controllers
 {
+    [GDFilter]
     public class ThirdPartyLogisticsController : Controller
     {
         // 主页/预收货页面/工作订单页面

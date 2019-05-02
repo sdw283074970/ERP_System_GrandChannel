@@ -11,6 +11,7 @@ using System.Data.Entity;
 using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.StaticClass;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace ClothResorting.Controllers
 {
@@ -33,44 +34,11 @@ namespace ClothResorting.Controllers
             else if (User.IsInRole(RoleName.CanViewAsClientOnly))
                 return View("FBAClientIndex");
             else
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Denied", "Home");
         }
 
         public ActionResult Test()
         {
-            //var list = new List<FBAPickDetailCarton>();
-
-            //var resultlist = _context.FBACartonLocations
-            //    .Include(c => c.FBAPickDetails)
-            //    .Where(c => c.FBAPickDetails.Count != 0 && c.Location == "Pallet");
-
-            //foreach(var r in resultlist)
-            //{
-            //    foreach(var p in r.FBAPickDetails)
-            //    {
-            //        var newPickDetailCarton = new FBAPickDetailCarton {
-            //            PickCtns = p.ActualQuantity,
-            //            FBAPickDetail = p,
-            //            FBACartonLocation = r
-            //        };
-
-            //        list.Add(newPickDetailCarton);
-            //        p.FBACartonLocation = null;
-            //    }
-            //}
-
-            //_context.FBAPickDetailCartons.AddRange(list);
-            //_context.SaveChanges();
-
-            var users = _context.Users
-                .Include(x => x.Roles)
-                .First()
-                .Roles
-                .First();
-
-
-            var roles = _context.Roles.ToList();
-
             ViewBag.Message = "Your application description page.";
 
             return View();

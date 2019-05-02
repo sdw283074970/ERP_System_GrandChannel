@@ -284,6 +284,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     .SingleOrDefault(x => x.Id == locationId);
 
                 locationInDb.FBAOrderDetail.ComsumedQuantity -= locationInDb.AvailableCtns;
+                locationInDb.ActualQuantity -= locationInDb.AvailableCtns;
                 locationInDb.AvailableCtns = 0;
                 locationInDb.Status = FBAStatus.Relocated;
 

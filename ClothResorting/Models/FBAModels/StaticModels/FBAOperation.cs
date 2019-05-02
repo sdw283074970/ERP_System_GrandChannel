@@ -15,6 +15,10 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Edit = "Edit";
 
+        public const string GetAddedRoles = "GetAddedRoles";
+
+        public const string GetAddableRoles = "GetAddableRoles";
+
         public const string Download = "Download";
 
         public const string UploadShipOrder = "UploadShipOrder";

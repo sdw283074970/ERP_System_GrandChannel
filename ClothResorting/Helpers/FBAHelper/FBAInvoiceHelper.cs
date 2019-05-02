@@ -61,8 +61,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 startRow += 1;
             }
 
-            _ws.Cells[startRow, 7] = "Total";
-            _ws.Cells[startRow, 8] = info.InvoiceReportDetails.Sum(x => x.Amount);
+            _ws.Cells[startRow, 8] = "Total";
+            _ws.Cells[startRow, 9] = info.InvoiceReportDetails.Sum(x => x.Amount);
 
             //制作第二个表
             startRow += 4;

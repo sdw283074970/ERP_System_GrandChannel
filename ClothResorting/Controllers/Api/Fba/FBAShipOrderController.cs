@@ -321,8 +321,8 @@ namespace ClothResorting.Controllers.Api.Fba
             //当操作类型为正向转换订单状态时
             if (operation == FBAOperation.ChangeStatus)
             {
-                //新建的空单和正在被仓库处理的单都能转换成Ready状态
-                if (shipOrderInDb.Status == FBAStatus.NewCreated || shipOrderInDb.Status == FBAStatus.Processing)
+                //新建的空单能被直接转换为Release状态
+                if (shipOrderInDb.Status == FBAStatus.NewCreated)
                 {
                     shipOrderInDb.Status = FBAStatus.Ready;
                     shipOrderInDb.ReleasedBy = _userName;
@@ -349,8 +349,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 else if (shipOrderInDb.Status == FBAStatus.Processing)
                 {
                     shipOrderInDb.Status = FBAStatus.Ready;
-                    shipOrderInDb.StartedBy = _userName;
-                    shipOrderInDb.StartedTime = operationDate;
+                    shipOrderInDb.ReadyBy = _userName;
+                    shipOrderInDb.ReadyTime = operationDate;
                     shipOrderInDb.OperationLog = "Ready by " + _userName;
                 }
                 //如果订单为ready状态，则转换为Released状态（如果是空单则不会返回给仓库）
