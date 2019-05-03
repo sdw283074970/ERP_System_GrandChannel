@@ -20,6 +20,7 @@
                 <tr>
                     <th>Pick Id</th>
                     <th>Ship Order #</th>
+                    <th>Place Time</th>
                     <th>Order Type</th>
                     <th>Container</th>
                     <th>CustomerCode</th>
@@ -67,6 +68,12 @@
                     data: "shipOrderNumber",
                     render: function (data) {
                         return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "placeTime",
+                    render: function (data) {
+                        return "<text>" + data.substring(0, 10) + "</text>";
                     }
                 },
                 {

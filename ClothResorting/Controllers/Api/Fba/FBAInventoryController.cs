@@ -158,7 +158,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/FBAinventory/?locationId={locationId}}&locationType={locationType}
         [HttpGet]
-        public IHttpActionResult GetInventoryRelatedPickDetails([FromUri]int locationId, [FromUri]string locationType)
+        public IHttpActionResult GetInventoryHistory([FromUri]int locationId, [FromUri]string locationType)
         {
             if (locationType == FBALocationType.Pallet)
             {
@@ -171,6 +171,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         ShipOrderNumber = x.FBAShipOrder.ShipOrderNumber,
                         Container = x.Container,
                         OrderType = x.OrderType,
+                        PlaceTime = x.FBAShipOrder.PlaceTime,
                         CustomerCode= x.FBAShipOrder.CustomerCode,
                         ShipmentId = x.ShipmentId,
                         AmzRefId = x.AmzRefId,
@@ -204,6 +205,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         var history = new FBAOutboundHistory
                         {
                             Id = p.FBAPickDetail.Id,
+                            PlaceTime = p.FBAPickDetail.FBAShipOrder.PlaceTime,
                             ShipOrderNumber = p.FBAPickDetail.FBAShipOrder.ShipOrderNumber,
                             OrderType = p.FBAPickDetail.OrderType,
                             Container = p.FBAPickDetail.Container,
@@ -235,6 +237,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             Id = p.Id,
                             ShipOrderNumber = p.FBAShipOrder.ShipOrderNumber,
                             OrderType = p.OrderType,
+                            PlaceTime = p.FBAShipOrder.PlaceTime,
                             Container = p.Container,
                             CustomerCode = p.FBAShipOrder.CustomerCode,
                             ShipmentId = p.ShipmentId,
@@ -255,6 +258,25 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return Ok();
+        }
+
+        // PUT /api/fbainventory/?locationId={locationId}&locationValue={locationValue}&locationType={locationType}
+        [HttpPut]
+        public void UpdateLocation([FromUri]int locationId, [FromUri]string locationValue, [FromUri]string locationType)
+        {
+            if (locationType == FBALocationType.Pallet)
+            {
+                var locationInDb = _context.FBAPalletLocations.Find(locationId);
+
+                locationInDb.Location = locationValue;
+            }
+            else if (locationType == FBALocationType.Carton)
+            {
+                var locationInDb = _context.FBACartonLocations.Find(locationId);
+                locationInDb.Location = locationValue;
+            }
+
+            _context.SaveChanges();
         }
 
         // DELET /api/fba/fbainventory/?locationId={locationId}&locationType={locationType}
@@ -335,6 +357,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public float GrossWeight { get; set; }
 
         public float CBM { get; set; }
+
+        public DateTime PlaceTime { get; set; }
 
         public int Quantity { get; set; }
 

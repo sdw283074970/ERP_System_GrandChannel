@@ -27,7 +27,7 @@ namespace ClothResorting.Controllers
 
         public ActionResult Index()
         {
-            if (User.IsInRole(RoleName.CanOperateAsT3) || User.IsInRole(RoleName.CanDeleteEverything))
+            if (User.IsInRole(RoleName.CanOperateAsT3) || User.IsInRole(RoleName.CanOperateAsT4) || User.IsInRole(RoleName.CanOperateAsT5) || User.IsInRole(RoleName.CanDeleteEverything))
                 return View();
             else if (User.IsInRole(RoleName.CanOperateAsT2))
                 return View("~/Views/Warehouse/Index.cshtml");

@@ -105,6 +105,8 @@
             var ctnsInPltTable;
             var currentAvailable;
             var currentPicking;
+            var locationId;
+            var currentLocation;
             var currentShipped;
             var grandNumber = getUrlParameter('grandNumber');
 
@@ -215,7 +217,7 @@
                 {
                     data: "location",
                     render: function (data) {
-                        return "<font color='orange'>" + data + "</font>";
+                        return "<text class='text-location'>" + data + "</text>";
                     }
                 },
                 {
@@ -317,13 +319,13 @@
                 {
                     data: "location",
                     render: function (data) {
-                        return "<font color='orange'>" + data + "</font>";
+                        return "<text class='text-location'>" + data + "</text>";
                     }
                 },
                 {
                     data: "id",
                     render: function (data) {
-                        if (currentPicking == 0 && currentAvailable != 0)
+                        if (currentPicking == 0 && currentAvailable != 0 && status != "InPallet")
                             return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' locationtype='Carton' value='History' /><input type='button' class='btn btn-link btn-relocate' iid='" + data + "' locationtype='Carton' value='Relocate' />";
                         else
                             return "<input iid='" + data + "' type='button' class='btn btn-link btn-history' locationtype='Carton' value='History' />";
@@ -419,6 +421,54 @@
             //点击History按钮，打开历史追踪功能
             $("#table-pallet, #table-carton").on("click", ".btn-history", function () {
                 $(window.location).attr('href', "/fba/fbaoutboundHistory/?locationId=" + $(this).attr('iid') + "&locationType=" + $(this).attr('locationtype'));
+            });
+
+            //点击pallets中的location，将text变成input，实现直接改库存的功能
+            $("#table-pallet").on("click", ".text-location", function () {
+                locationId = $(this).parents().parent("tr").children("td").eq(0).children("text").html();
+                currentLocation = $(this).html();
+                $(this).replaceWith("<input iid='" + locationId + "' class='input-sm input-location' style='width:80px' placeholder='" + currentLocation + "' value='" + currentLocation + "' locationtype='Pallet' />");
+            });
+
+            //点击Carton中的location，将text变成input，实现直接改库存的功能
+            $("#table-carton").on("click", ".text-location", function () {
+                locationId = $(this).parents().parent("tr").children("td").eq(0).children("text").html();
+                currentLocation = $(this).html();
+
+                if (currentLocation == "Pallet")
+                    alert("Cannout update the location of cartons in pallet.");
+                else
+                    $(this).replaceWith("<input iid='" + locationId + "' class='input-sm input-location' style='width:80px' placeholder='" + currentLocation + "' value='" + currentLocation + "' locationtype='Carton' />");
+            });
+
+            //编辑完新库位以后，按下回车确认
+            $("#table-pallet, #table-carton").on("keypress", ".input-location", function () {
+
+                var locationValue = $(this).val();
+                var locationType = $(this).attr('locationtype');
+
+                if (locationValue == "") {
+                    locationValue = currentLocation;
+                }
+
+                //按回车，触发事件
+                if (event.keyCode == "13") {
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/fbainventory/?locationId=" + locationId + "&locationValue=" + locationValue + "&locationtype=" + locationType,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            alert("Success!");
+                            window.location.reload();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                location.reload();
+                            });
+                        }
+                    });
+                }
             });
 
             //解析url中的参数函数
