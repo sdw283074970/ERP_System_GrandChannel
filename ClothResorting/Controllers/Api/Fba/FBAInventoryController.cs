@@ -158,7 +158,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/FBAinventory/?locationId={locationId}}&locationType={locationType}
         [HttpGet]
-        public IHttpActionResult GetInventoryHistory([FromUri]int locationId, [FromUri]string locationType)
+        public IHttpActionResult GetInventoryOutboundHistory([FromUri]int locationId, [FromUri]string locationType)
         {
             if (locationType == FBALocationType.Pallet)
             {
@@ -168,6 +168,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Where(x => x.FBAPalletLocation.Id == locationId)
                     .Select(x => new {
                         Id = x.Id,
+                        Status = x.FBAShipOrder.Status,
                         ShipOrderNumber = x.FBAShipOrder.ShipOrderNumber,
                         Container = x.Container,
                         OrderType = x.OrderType,
@@ -208,6 +209,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             PlaceTime = p.FBAPickDetail.FBAShipOrder.PlaceTime,
                             ShipOrderNumber = p.FBAPickDetail.FBAShipOrder.ShipOrderNumber,
                             OrderType = p.FBAPickDetail.OrderType,
+                            Status = p.FBAPickDetail.FBAShipOrder.Status,
                             Container = p.FBAPickDetail.Container,
                             CustomerCode = p.FBAPickDetail.FBAShipOrder.CustomerCode,
                             ShipmentId = p.FBACartonLocation.ShipmentId,
@@ -241,6 +243,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             Container = p.Container,
                             CustomerCode = p.FBAShipOrder.CustomerCode,
                             ShipmentId = p.ShipmentId,
+                            Status = p.FBAShipOrder.Status,
                             AmzRefId = p.AmzRefId,
                             WarehouseCode = p.WarehouseCode,
                             GrossWeight = p.FBACartonLocation.GrossWeightPerCtn * p.ActualQuantity,
@@ -355,6 +358,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string WarehouseCode { get; set; }
 
         public float GrossWeight { get; set; }
+
+        public string Status { get; set; }
 
         public float CBM { get; set; }
 

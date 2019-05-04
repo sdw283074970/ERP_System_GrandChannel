@@ -11,14 +11,12 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div id="div-button">
-        <input type="button" class="btn btn-primary btn-expand" value="Add A New Charge Method" />
-    </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
                     <th>Pick Id</th>
+                    <th>Ship Order Status</th>
                     <th>Ship Order #</th>
                     <th>Place Time</th>
                     <th>Order Type</th>
@@ -62,6 +60,28 @@
                     data: "id",
                     render: function (data) {
                         return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "status",
+                    render: function (data) {
+                        status = data;
+                        if (data == "New Created")
+                            return "<font color='gray'>" + data + "</font>"
+                        else if (data == "Picking")
+                            return "<font color='vermilion'>" + data + "</font>";
+                        if (data == "New Order")
+                            return "<font color='orange'>" + data + "</font>"
+                        else if (data == "Processing")
+                            return "<font color='red'>" + data + "</font>";
+                        else if (data == "Ready")
+                            return "<font color='green'>" + data + "</font>";
+                        else if (data == "Released")
+                            return "<font color='brown'>" + data + "</font>";
+                        else if (data == "Shipped")
+                            return "<font color='blue'>" + data + "</font>";
+                        else
+                            return "<font>" + data + "</font>";
                     }
                 },
                 {

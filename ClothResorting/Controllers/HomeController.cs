@@ -39,6 +39,15 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
+            //var palletsLocation = _context.FBAPalletLocations
+            //    .Include(x => x.FBAMasterOrder.Customer)
+            //    .Where(x => x.FBAMasterOrder.Customer.CustomerCode == "NK" && x.AvailablePlts != 0)
+            //    .ToList();
+
+            var pickDetail = _context.FBAPickDetails
+                .Where(x => x.ActualPlts != 0 && x.NewPlts == 0 && x.PltsFromInventory == 0)
+                .ToList();
+
             ViewBag.Message = "Your application description page.";
 
             return View();

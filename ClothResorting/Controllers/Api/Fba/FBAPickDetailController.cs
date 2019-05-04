@@ -130,7 +130,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     pickDetailList.Add(CreateFBAPickDetailFromPalletLocation(r, shipOrderInDb, r.AvailablePlts, 0, pickDetailCartonList, objArray));
                 }
             }
-            else
+            else if (orderType == FBAOrderType.ECommerce)
             {
                 var resultsInDb = _context.FBACartonLocations.Where(x => x.AvailableCtns != 0);
 
@@ -300,9 +300,9 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok();
         }
 
-        // POST /api/fba/fbapickdetail/?pickDetailId={pickDetailId}&pltsAdjust={pltsAdjust}&newPltsAdjust={newPltsAdjust}
+        // POST /api/fba/fbapickdetail/?pickDetailId={pickDetailId}&pltsAdjust={pltsAdjust}&newPltsAdjust={newPltsAdjust}&outboundAdjust={outboundAdjust}
         [HttpPut]
-        public void AdjustPickDetail([FromUri]int pickDetailId, [FromUri]int pltsAdjust, [FromUri]int newPltsAdjust)
+        public void AdjustPickDetail([FromUri]int pickDetailId, [FromUri]int pltsAdjust, [FromUri]int newPltsAdjust, [FromUri]int outboundAdjust)
         {
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPickDetailCartons)
@@ -334,7 +334,7 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetailInDb.FBAPalletLocation.AvailablePlts -= pltsAdjust;
             pickDetailInDb.FBAPalletLocation.PickingPlts += pltsAdjust;
 
-            pickDetailInDb.ActualPlts = pickDetailInDb.PltsFromInventory + pickDetailInDb.NewPlts;
+            pickDetailInDb.ActualPlts += outboundAdjust;
 
             //如果捡完了托盘数量但是箱子还有剩余，则报错
             var availablePlts = pickDetailInDb.FBAPalletLocation.FBAPallet.FBAPalletLocations.Sum(x => x.AvailablePlts);
