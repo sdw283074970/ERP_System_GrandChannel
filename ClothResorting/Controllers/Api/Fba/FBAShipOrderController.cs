@@ -112,6 +112,19 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             var shipOrder = new FBAShipOrder();
+            var customerWOInstructions = _context.UpperVendors
+                .Include(x => x.ChargingItemDetails)
+                .SingleOrDefault(x => x.CustomerCode == obj.CustomerCode)
+                .ChargingItemDetails
+                .ToList();
+
+            foreach(var c in customerWOInstructions)
+            {
+                c.CreateBy = _userName;
+                c.CreateDate = DateTime.Now;
+            }
+
+            _context.ChargingItemDetails.AddRange(customerWOInstructions);
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
@@ -123,6 +136,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.PickNumber = obj.PickNumber;
             shipOrder.PurchaseOrderNumber = obj.PurchaseOrderNumber;
             shipOrder.Instruction = obj.Instruction;
+            shipOrder.ChargingItemDetails = customerWOInstructions;
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();

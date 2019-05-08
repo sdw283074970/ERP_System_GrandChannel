@@ -35,5 +35,7 @@ namespace ClothResorting.Models
         public ICollection<Invoice> Invoices { get; set; }
 
         public ICollection<FBAMasterOrder> MasterOrders { get; set; }
+
+        public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
     }
 }

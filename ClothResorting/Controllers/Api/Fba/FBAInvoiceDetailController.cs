@@ -254,7 +254,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == reference);
 
                 var newDetail = new ChargingItemDetail {
-                    Status = "Waiting for charging",
+                    Status = FBAStatus.Unhandled,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
                     Description = description,
@@ -353,9 +353,13 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 detailInDb.Status = "Charged";
             }
-            else
+            else if (detailInDb.Status == "No need for charging")
             {
                 detailInDb.Status = "Waiting for charging";
+            }
+            else
+            {
+                detailInDb.Status = "No need for charging";
             }
 
             _context.SaveChanges();

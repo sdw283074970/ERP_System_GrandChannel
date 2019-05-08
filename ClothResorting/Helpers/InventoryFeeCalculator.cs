@@ -207,7 +207,6 @@ namespace ClothResorting.Helpers
                 {
                     currentDuration = totalDuration;
                 }
-
             }
             else if (timeUnit == TimeUnit.Month)
             {
@@ -226,7 +225,6 @@ namespace ClothResorting.Helpers
                 {
                     currentDuration = totalDuration;
                 }
-
             }
             else if (timeUnit == TimeUnit.Day)
             {
@@ -245,7 +243,6 @@ namespace ClothResorting.Helpers
                 {
                     currentDuration = totalDuration;
                 }
-
             }
 
             startTimeUnit = start;

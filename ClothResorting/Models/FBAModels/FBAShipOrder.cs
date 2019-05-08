@@ -30,8 +30,6 @@ namespace ClothResorting.Models.FBAModels
 
         public string PlacedBy { get; set; }
 
-        public DateTime PickDate { get; set; }
-
         public DateTime PlaceTime { get; set; }
 
         public DateTime ShipDate { get; set; }
@@ -80,6 +78,16 @@ namespace ClothResorting.Models.FBAModels
 
         public int TotalPlts { get; set; }
 
+        public int TotalPltsFromInventory { get; set; }
+
+        public int TotalNewPlts { get; set; }
+
+        public string Instructor { get; set; }
+
+        public string Lot { get; set; }
+
+        public string Comment { get; set; }
+
         public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
 
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
@@ -97,7 +105,6 @@ namespace ClothResorting.Models.FBAModels
             PickMan = FBAStatus.Unassigned;
             ShippedBy = FBAStatus.Unassigned;
             CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
-            PickDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             PlaceTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ShipDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);

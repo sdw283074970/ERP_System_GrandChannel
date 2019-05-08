@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClothResorting.Models.FBAModels.StaticModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -20,5 +21,16 @@ namespace ClothResorting.Models.FBAModels
         public FBAMasterOrder FBAMasterOrder { get; set; }
 
         public FBAShipOrder FBAShipOrder { get; set; }
+
+        public UpperVendor Customer { get; set; }
+
+        public ChargingItemDetail()
+        {
+            Status = FBAStatus.NoNeed;
+
+            CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+
+            CreateBy = FBAStatus.NoNeed;
+        }
     }
 }

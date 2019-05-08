@@ -217,6 +217,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrderInDb.OriginalPlts = obj.OriginalPlts;
             masterOrderInDb.SealNumber = obj.SealNumber;
             masterOrderInDb.InboundType = obj.InboundType;
+            masterOrderInDb.ContainerSize = obj.ContainerSize;
 
             _context.SaveChanges();
         }

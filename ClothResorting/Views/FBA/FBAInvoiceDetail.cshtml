@@ -188,6 +188,50 @@
             var invoiceDetailId;
             var url;
 
+            var chargingItemDetailColumnArray = [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "description",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "status",
+                    render: function (data) {
+                        if (data == "Waiting for charging")
+                            return "<font color='red'>" + data + "</font>";
+                        else if(data == "Unhandled")
+                            return "<font color='blue'>" + data + "</font>";
+                        else
+                            return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "createDate",
+                    render: function (data) {
+                        return "<text>" + data.toString().substring(0, 10) + "</text>";
+                    }
+                },
+                {
+                    data: "createBy",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button iid='" + data + "' class='btn btn-link btn-detail-mark'>Mark</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                    }
+                }
+            ];
+
             //解析url中的参数函数
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -258,47 +302,7 @@
                         scrollCollapse: true,
                         scrollY: "600px",
                         iDisplayLength: 100,
-                        columns: [
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "description",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "status",
-                                render: function (data) {
-                                    if (data == "Waiting for charging")
-                                        return "<font color='red'>" + data + "</font>";
-                                    else
-                                        return "<font color='green'>" + data + "</font>";
-                                }
-                            },
-                            {
-                                data: "createDate",
-                                render: function (data) {
-                                    return "<text>" + data.toString().substring(0, 10) + "</text>";
-                                }
-                            },
-                            {
-                                data: "createBy",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-mark'>Mark</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
-                                }
-                            }
-                        ]
+                        columns: chargingItemDetailColumnArray
                     });
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -599,7 +603,53 @@
 
                 url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
 
-                SendAjaxMethod("PUT", url, {});
+                $.ajax({
+                    type: "PUT",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $.ajax({
+                            type: "GET",
+                            contentType: 'application/json, charset=utf-8',
+                            dataType: "json",
+                            url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
+                            success: function (data) {
+                                if (tableDetail) {
+                                    tableDetail.destroy();
+                                }
+                                tableDetail = $("#table-detail").DataTable({
+                                    data: data,
+                                    order: [[0, "desc"]],
+                                    destroy: true,
+                                    scrollCollapse: true,
+                                    scrollY: "600px",
+                                    iDisplayLength: 100,
+                                    columns: chargingItemDetailColumnArray
+                                });
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
+                            }
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             //点击收费草表中的删除按钮，删除选中对象的收费状态

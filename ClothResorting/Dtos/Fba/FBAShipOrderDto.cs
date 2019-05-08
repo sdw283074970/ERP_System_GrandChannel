@@ -80,5 +80,15 @@ namespace ClothResorting.Dtos.Fba
         public DateTime StartedTime { get; set; }
 
         public DateTime ReadyTime { get; set; }
+
+        public int TotalPltsFromInventory { get; set; }
+
+        public int TotalNewPlts { get; set; }
+
+        public string Instructor { get; set; }
+
+        public string Lot { get; set; }
+
+        public string Comment { get; set; }
     }
 }

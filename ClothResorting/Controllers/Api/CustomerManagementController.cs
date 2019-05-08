@@ -10,16 +10,23 @@ using System.Net;
 using System.Net.Http;
 using System.Data.Entity;
 using System.Web.Http;
+using Microsoft.Office.Interop.Excel;
+using ClothResorting.Models.FBAModels;
+using ClothResorting.Dtos.Fba;
+using System.Web;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Controllers.Api
 {
     public class CustomerManagementController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public CustomerManagementController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         [HttpGet]
@@ -29,10 +36,27 @@ namespace ClothResorting.Controllers.Api
             return Ok(_context.UpperVendors.Select(Mapper.Map<UpperVendor, UpperVendorDto>));
         }
 
+        //GET /api/customermanagement/?customerId={customerId}
+        [HttpGet]
+        public IHttpActionResult GetWOTemplateByCustomerId([FromUri]int customerId)
+        {
+            var woDto = _context.ChargingItemDetails
+                .Include(x => x.Customer)
+                .Where(x => x.Customer.Id == customerId)
+                .Select(Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>);
+
+            return Ok(woDto);
+        }
+
         [HttpPost]
-        //POST /api/customer/?name={name}&customerCode={customerCode}&departmentCode={departmentCode}
+        //POST /api/customermanagement/?name={name}&customerCode={customerCode}&departmentCode={departmentCode}
         public IHttpActionResult CreateNewCustomer([FromUri]string name, [FromUri]string customerCode, [FromUri]string departmentCode, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson)
         {
+            if (_context.UpperVendors.Where(x => x.CustomerCode == customerCode).Count() != 0)
+            {
+                throw new Exception("Customer Code " + customerCode + " has been taken. Please try another one.");
+            }
+
             var customer = new UpperVendor
             {
                 CustomerCode = customerCode,
@@ -59,8 +83,30 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + result.Id, Mapper.Map<UpperVendor, UpperVendorDto>(result));
         }
 
+        //POST /api/customermanagement/?customerId={customerId}&description={description}
+        [HttpPost]
+        public IHttpActionResult CreateNewChargingDetailTemplate([FromUri]int customerId, [FromUri]string description)
+        {
+            var customerInDb = _context.UpperVendors.Find(customerId);
+
+            var newTemplate = new ChargingItemDetail {
+                CreateBy = _userName,
+                Customer = customerInDb,
+                Description = description,
+                Status = FBAStatus.Unhandled,
+                CreateDate = DateTime.Now
+            };
+
+            _context.ChargingItemDetails.Add(newTemplate);
+            _context.SaveChanges();
+
+            var resultDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).First());
+
+            return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
+        }
+
         [HttpDelete]
-        //DELETE /api/customer/{id}
+        //DELETE /api/customermanagement/{id}
         public void DeleteCustomer([FromUri]int id)
         {
             var customerInDb = _context.UpperVendors

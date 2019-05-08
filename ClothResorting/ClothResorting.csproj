@@ -1585,6 +1585,14 @@
     <Compile Include="Migrations\201904260042495_AddedStartedDateInFBAShipOrder.Designer.cs">
       <DependentUpon>201904260042495_AddedStartedDateInFBAShipOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905071829419_ConnectedChargingDetailIntoUpperVendor.cs" />
+    <Compile Include="Migrations\201905071829419_ConnectedChargingDetailIntoUpperVendor.Designer.cs">
+      <DependentUpon>201905071829419_ConnectedChargingDetailIntoUpperVendor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201905080000094_AddedSeveralFieldsInFBAShipOrder.cs" />
+    <Compile Include="Migrations\201905080000094_AddedSeveralFieldsInFBAShipOrder.Designer.cs">
+      <DependentUpon>201905080000094_AddedSeveralFieldsInFBAShipOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2971,6 +2979,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201904260042495_AddedStartedDateInFBAShipOrder.resx">
       <DependentUpon>201904260042495_AddedStartedDateInFBAShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905071829419_ConnectedChargingDetailIntoUpperVendor.resx">
+      <DependentUpon>201905071829419_ConnectedChargingDetailIntoUpperVendor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905080000094_AddedSeveralFieldsInFBAShipOrder.resx">
+      <DependentUpon>201905080000094_AddedSeveralFieldsInFBAShipOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

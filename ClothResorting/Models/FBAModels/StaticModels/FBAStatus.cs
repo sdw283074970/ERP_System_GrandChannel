@@ -7,6 +7,12 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 {
     public static class FBAStatus
     {
+        public const string Unhandled = "Unhandled";
+
+        public const string NoNeed = "No need for charging";
+
+        public const string Template = "Template";
+
         public const string NewCreated = "New Created";
 
         public const string InStock = "In Stock";

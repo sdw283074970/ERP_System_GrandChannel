@@ -52,8 +52,34 @@
         <text style="margin-top:20px">Contact Person: </text><input type="text" id='input-person' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
 
 
-
         <button id="btn-add" class="btn btn-primary" style="margin-top:20px">Add</button>
+    </div>
+</div>
+
+<div class="iframe-wo" style="margin:20px">
+    <h1>WO Instruction Template</h1>
+    <h2 id="h2-customercode"></h2>
+    <button id="btn-detail-create" class="btn btn-primary">Add instruction template</button>
+    <div>
+        <table id="table-detail" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:66px">Id</th>
+                    <th>Descriptiono</th>
+                    <th style="width:180px">Update Date</th>
+                    <th style="width:180px">Create By</th>
+                    <th style="width:180px">OPERATION</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="iframe-detail">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
+        <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">create</button>
     </div>
 </div>
 
@@ -62,8 +88,54 @@
     <script>
         $(document).ready(function () {
         
-            $(".iframe").hide();
+            $(".iframe, .iframe-detail, .iframe-wo").hide();
+
             var customerCode;
+            var index;
+            var index_wo;
+            var index_detail
+            var table;
+            var table_wo;
+            var url;
+            var searchBar;
+            var customerId;
+            var customerCode;
+            var instructionColumnArray = [
+                {
+                    data: "id",
+                    width: "10%",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "description",
+                    width: "80%",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "createDate",
+                    width: "20%",
+                    render: function (data) {
+                        return "<text>" + data.toString().substring(0, 10) + "</text>";
+                    }
+                },
+                {
+                    data: "createBy",
+                    width: "20%",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button iid='" + data + "' class='btn btn-link btn-detail-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                    }
+                }
+            ];
 
             $.ajax({
                 type: "GET",
@@ -163,7 +235,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' customercode='" + customerCode + "' class='btn btn-link btn-charge'>Mange Charge Items</button><button iid='" + data + "' class='btn btn-deactive btn-link'>Active/Deactive</button><button iid='" + data + "' class='btn btn-delete btn-link'>Delete</button>";
+                                    return "<button iid='" + data + "' customercode='" + customerCode + "' class='btn btn-link btn-charge'>Mange Charge Items</button><button iid='" + data + "' class='btn btn-deactive btn-link'>Active/Deactive</button><button iid='" + data + "' customercode='" + customerCode + "' class='btn btn-link btn-wo'>Mange WO Templite</button><button iid='" + data + "' class='btn btn-delete btn-link'>Delete</button>";
                                 }
                             },
                         ]
@@ -176,7 +248,7 @@
                 }
             });
 
-            //打开创建空work order弹窗
+            //打开创建新用户弹窗
             $("#btn-create").click(function () {
                 index = layer.open({
                     title: false,
@@ -241,6 +313,74 @@
                     success: function () {
                         layer.alert("Delete success!", function () {
                             window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击客户的管理WO模板按钮，弹出WO模板页面
+            $("#table").on("click", ".btn-wo", function () {
+                customerId = $(this).attr('iid');
+                customerCode = $(this).parent().parent("tr").children("td").eq(2).children("text").html();
+                $("#h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, ".iframe-wo", "1000px", "800px");
+
+                url = "/api/customermanagement/?customerId=" + customerId;
+                grandChannel.getAjaxMiniTable("GET", url, "#table-detail", table_wo, instructionColumnArray, index_wo);
+            });
+
+            //点击添加项目按钮，打开一个简易填写界面
+            $("#btn-detail-create").on("click", function () {
+                grandChannel.openiframe(index_detail, ".iframe-detail", "500px", "150px");
+            });
+
+            //点击添加按钮，添加WO指示模板
+            $("#btn-detail-add").on("click", function () {
+                var description = $("#input-detail-description").val();
+
+                if (description != "") {
+                    url = "/api/CustomerManagement/?customerId=" + customerId + "&description=" + encodeURIComponent(description);
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function (data) {
+                            url = "/api/customermanagement/?customerId=" + customerId;
+                            grandChannel.getAjaxMiniTable("GET", url, "#table-detail", table_wo, instructionColumnArray, index_wo);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+                else
+                    alert("Description cannot be empty.");
+            });
+
+            //点击指示模板里的删除按钮，删除指定的模板条目
+            $("#table-detail").on("click", ".btn-detail-delete", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
+
+                $.ajax({
+                    type: "DELETE",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        url = "/api/customermanagement/?customerId=" + customerId;
+                        layer.alert("Success!", function () {
+                            grandChannel.getAjaxMiniTable("GET", url, "#table-detail", table_wo, instructionColumnArray, index_wo);
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
