@@ -1,12 +1,34 @@
 ﻿
-<div class="iframe-wo">
+<div class="iframe-wo" style="margin:20px">
     <h1>Work Order</h1>
     <h2 id="h2-customercode"></h2>
-
-    <div>
-
+    <button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>
+    <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
+        <h3>Summary</h3>
+        <div style="float:left;width:33%;border:dotted;border-color:red">
+            <text>Place Time:</text><text id="text-place"> </text><br />
+            <text>Ready Time:</text><text id="text-ready"> </text><br />
+            <text>ETS:</text><text id="text-ets"> </text><br />
+            <text>Pick Man:</text><text id="text-pm"> </text><br />
+            <text>Instructor:</text><text id="text-instructor"> </text><br />
+        </div>
+        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
+            <text>Ship Order #:</text><text id="text-so"> </text><br />
+            <text>Reference #:</text><text id="text-reference"> </text><br />
+            <text>Destination:</text><text id="text-destination"> </text><br />
+            <text>Carrier:</text><text id="text-carrier"> </text><br />
+            <text>Lot:</text><text id="text-lot"> </text><br />
+        </div>
+        <div style="float:right;width:33%;border:dotted;border-color:blue">
+            <text>Pickable Ctns:</text><text id="text-ctns"> </text><br />
+            <text>Pickable Plts:</text><text id="text-plts"> </text><br />
+            <text>Plts From Inventory:</text><text id="text-inventory"> </text><br />
+            <text>New Plts:</text><text id="text-new"> </text><br />
+            <text>Actual Outbound Plts:</text><text id="text-total"> </text><br />
+        </div>
     </div>
-    <div style="margin-top:20px">
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Picking List</h3>
         <table id="table-pickinglist" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -20,14 +42,16 @@
             <tbody></tbody>
         </table>
     </div>
-
-    <div style="margin-top:20px">
-        <button id="btn-detail-create" class="btn btn-primary">Add charging detail</button>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Operation Instruction</h3>
+        @*<button id="btn-detail-create" class="btn btn-primary">Add charging detail</button>*@
         <table id="table-wo" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
                     <th>Id</th>
                     <th>Description</th>
+                    <th>Time</th>
+                    <th>By</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -35,8 +59,10 @@
         </table>
     </div>
 
-    <div>
-        <text>Comment:</Text><br />
-        <textarea id="textarea-comment" style="height:400px;width:600px"></textarea>
+    <div style="margin-top:20px;border:double;padding:20px;text-align:right">
+        <h3>Comment:</h3>
+        <h4>DO this do that</h4>
+        @*<textarea id="textarea-comment" style="height:200px;width:100%"></textarea><br />*@
+        <button class="btn btn-primary btn-push" style="margin-top:20px">Push</button>
     </div>
 </div>

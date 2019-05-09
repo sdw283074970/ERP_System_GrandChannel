@@ -30,7 +30,6 @@
                     <th style="width:60px">Invoice Status</th>
                     <th style="width:60px">Close Date</th>
                     <th style="width:60px">Closed By</th>
-                    <th style="width:70px">Status</th>
                     <th style="width:150px">Status Control</th>
                     <th>eFolder</th>
                     <th style="width:300px">Operation</th>
@@ -80,6 +79,9 @@
         <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
     </div>
 </div>
+
+@Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
+
 @section scripts
 {
     <script>
@@ -91,12 +93,14 @@
             var status;
             var shipOrder;
             var shipOrderId;
+            var customerCode;
             var customerId = getUrlParameter('customerId');
             var invoiceStatus;
             var searchBar = getUrlParameter('search');
 
             $(".iframe, #btn-update, #btn-ready, #btn-ship").hide();
             $(".iframe-date").hide();
+            $(".iframe-wo").hide();
 
             //动态获取Customer数据
             $.ajax({
@@ -225,41 +229,13 @@
                             return "<font>" + data + "</font>";
                     }
                 },
-                //{
-                //    data: "shippedBy",
-                //    render: function (data) {
-                //        return "<font>" + data + "</font>";
-                //    }
-                //},
-                {
-                    data: "status",
-                    render: function (data) {
-                        status = data;
-                        if (data == "New Created")
-                            return "<font color='gray'>" + data + "</font>"
-                        else if (data == "Picking")
-                            return "<font color='vermilion'>" + data + "</font>";
-                        if (data == "New Order")
-                            return "<font color='orange'>" + data + "</font>"
-                        else if (data == "Processing")
-                            return "<font color='red'>" + data + "</font>";
-                        else if (data == "Ready")
-                            return "<font color='green'>" + data + "</font>";
-                        else if (data == "Released")
-                            return "<font color='brown'>" + data + "</font>";
-                        else if (data == "Shipped")
-                            return "<font color='blue'>" + data + "</font>";
-                        else
-                            return "<font>" + data + "</font>";
-                    }
-                },
                 {
                     data: "id",
                     render: function (data) {
                         if (status == "New Created")
                             return "<input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Release' />";
                         else if (status == "Picking")
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Push' />";
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Push' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='WO' />";
                         else if (status == "New Order")
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
                         else if (status == "Processing")
@@ -665,6 +641,140 @@
                         }
                     });
                 }
+            });
+
+            //点击WO按钮，打开Work Order弹窗
+            $("#table").on("click", ".btn-wo", function () {
+                customerCode = $(this).parent().parent("tr").children("td").eq(3).children("text").html();
+                shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+
+                $("#h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, ".iframe-wo", "1000px", "800px");
+                url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO"
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $("#text-place").html(data.placeTime);
+                        $("#text-ready").html(data.readyTime);
+                        $("#text-ets").html(data.ets);
+                        $("#text-pm").html(data.pickMan);
+                        $("#text-instructor").html(data.instructor);
+                        $("#text-so").html(data.shipOrderNumber);
+                        $("#text-reference").html(data.reference);
+                        $("#text-destination").html(data.destination);
+                        $("#text-carrier").html(data.carrier);
+                        $("#text-lot").html(data.lot);
+                        $("#text-ctns").html(data.pickableCtns);
+                        $("#text-plts").html(data.pickablePlts);
+                        $("#text-inventory").html(data.pltsFromInventory);
+                        $("#text-new").html(data.newPlts);
+                        $("#text-total").html(data.outboundPlts);
+
+                        var plColumnArray = [
+                            {
+                                data: "container",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "sku",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickableCtns",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickablePlts",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ];
+                        $("#table-pickinglist").DataTable({
+                            data: data.pickingLists,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "desc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: plColumnArray
+                        });
+
+                        var osColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "placeTime",
+                                render: function (data) {
+                                    return "<text>" + data.substring(0, 10) + "</text>";
+                                }
+                            },
+                            {
+                                data: "placeBy",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ];
+                        $("#table-wo").DataTable({
+                            data: data.operationInstructions,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "desc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: osColumnArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {

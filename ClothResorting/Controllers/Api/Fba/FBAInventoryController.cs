@@ -179,7 +179,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         WarehouseCode = x.WarehouseCode,
                         GrossWeight = x.ActualGrossWeight,
                         CBM = x.ActualCBM,
-                        Quantity = x.ActualPlts,
+                        Quantity = x.PltsFromInventory,
                         Location = x.Location,
                         ShipOrderId = x.FBAShipOrder.Id
                     })

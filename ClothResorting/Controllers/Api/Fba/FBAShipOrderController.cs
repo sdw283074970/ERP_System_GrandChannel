@@ -93,6 +93,15 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.Find(shipOrderId)));
             }
+            else if (operation == "WO")
+            {
+                var shipOrder = _context.FBAShipOrders
+                    .Include(x => x.FBAPickDetails)
+                    .Include(x => x.ChargingItemDetails)
+                    .SingleOrDefault(x => x.Id == shipOrderId);
+
+                return Ok(GenerateWorkOrder(shipOrder));
+            }
 
             return Ok();
         }
@@ -258,8 +267,8 @@ namespace ClothResorting.Controllers.Api.Fba
             if (pickDetailInDb.FBAPalletLocation != null)       //pickDetail是拣货pallet的情况
             {
                 //将库存中的该pallet标记发货
-                pickDetailInDb.FBAPalletLocation.ShippedPlts += pickDetailInDb.ActualPlts;
-                pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.ActualPlts;
+                pickDetailInDb.FBAPalletLocation.ShippedPlts += pickDetailInDb.PltsFromInventory;
+                pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.PltsFromInventory;
 
                 //将pallet中的carton也标记发货
                 ShipCartonsInPallet(context, pickDetailInDb);
@@ -482,6 +491,52 @@ namespace ClothResorting.Controllers.Api.Fba
 
             return bolList;
         }
+
+        private  FBAWorkOrder GenerateWorkOrder(FBAShipOrder shipOrder)
+        {
+            var wo = new FBAWorkOrder();
+
+            wo.PlaceTime = shipOrder.PlaceTime.Year == 1900 ? " " : shipOrder.PlaceTime.ToString("yyyy-MM-dd hh:mm");
+            wo.ReadyTime = shipOrder.ReadyTime.Year == 1900 ? " " : shipOrder.ReadyTime.ToString("yyyy-MM-dd hh:mm");
+            wo.ETS = shipOrder.ETS.ToString("yyyy-MM-dd") + shipOrder.ETSTimeRange;
+            wo.PickMan = shipOrder.PickMan;
+            wo.Instructor = shipOrder.Instructor;
+
+            wo.ShipOrderNumber = shipOrder.ShipOrderNumber;
+            wo.Reference = shipOrder.PickReference;
+            wo.Destination = shipOrder.Destination;
+            wo.Carrier = shipOrder.Carrier;
+            wo.Lot = shipOrder.Lot;
+
+            wo.PickableCtns = shipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
+            wo.PickablePlts = shipOrder.FBAPickDetails.Sum(x => x.PltsFromInventory);
+            wo.PltsFromInventory = shipOrder.FBAPickDetails.Sum(x => x.PltsFromInventory);
+            wo.NewPlts = shipOrder.FBAPickDetails.Sum(x => x.NewPlts);
+            wo.OutboundPlts = shipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
+
+            foreach(var p in shipOrder.FBAPickDetails)
+            {
+                wo.PickingLists.Add(new PickingList {
+                    Container = p.Container,
+                    SKU = p.ShipmentId,
+                    PickableCtns = p.ActualQuantity,
+                    PickablePlts = p.PltsFromInventory,
+                    Location = p.Location
+                });
+            }
+
+            foreach(var c in shipOrder.ChargingItemDetails)
+            {
+                wo.OperationInstructions.Add(new OperationInstruction {
+                    Id = c.Id,
+                    Description = c.Description,
+                    PlaceBy = c.CreateBy,
+                    PlaceTime = c.CreateDate
+                });
+            }
+
+            return wo;
+        }
     }
 
     public class ShipOrderDto
@@ -523,5 +578,73 @@ namespace ClothResorting.Controllers.Api.Fba
         public string PickNumber { get; set; }
 
         public string PurchaseOrderNumber { get; set; }
+    }
+
+    public class FBAWorkOrder
+    {
+        public string PlaceTime { get; set; }
+
+        public string ShipOrderNumber { get; set; }
+
+        public string Reference { get; set; }
+
+        public string ETS { get; set; }
+
+        public int PickableCtns { get; set; }
+
+        public int PickablePlts { get; set; }
+
+        public string Carrier { get; set; }
+
+        public string Destination { get; set; }
+
+        public string ReadyTime { get; set; }
+
+        public string Lot { get; set; }
+
+        public string PickMan { get; set; }
+
+        public string Instructor { get; set; }
+
+        public int PltsFromInventory { get; set; }
+
+        public int NewPlts { get; set; }
+
+        public int OutboundPlts { get; set; }
+
+        public ICollection<PickingList> PickingLists { get; set; }
+
+        public ICollection<OperationInstruction> OperationInstructions { get; set; }
+
+        public FBAWorkOrder()
+        {
+            PickingLists = new List<PickingList>();
+
+            OperationInstructions = new List<OperationInstruction>();
+        }
+    }
+
+    public class PickingList
+    {
+        public string Container { get; set; }
+
+        public string SKU { get; set; }
+
+        public int PickableCtns { get; set; }
+
+        public int PickablePlts { get; set; }
+
+        public string Location { get; set; }
+    }
+
+    public class OperationInstruction
+    {
+        public int Id { get; set; }
+
+        public string Description { get; set; }
+
+        public DateTime PlaceTime { get; set; }
+
+        public string PlaceBy { get; set; }
     }
 }
