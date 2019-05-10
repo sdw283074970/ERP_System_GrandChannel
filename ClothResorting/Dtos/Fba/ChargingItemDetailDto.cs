@@ -16,5 +16,11 @@ namespace ClothResorting.Dtos.Fba
         public DateTime CreateDate { get; set; }
 
         public string CreateBy { get; set; }
+
+        public string Comment { get; set; }
+
+        public string Result { get; set; }
+
+        public bool IsHandledFeedback { get; set; }
     }
 }

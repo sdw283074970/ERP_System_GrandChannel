@@ -47,6 +47,8 @@
         <button id="btn-confirm" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
     </div>
 </div>
+@Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
+
 @section scripts
 {
     <script>
@@ -59,6 +61,9 @@
             var shipOrderId;
             var orderId;
             var searchBar = grandChannel.getUrlParameter('search');
+
+            $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse").hide();
+            $(".iframe-fbadate").hide();
 
             var columnsArray = [
                 {
@@ -95,7 +100,7 @@
                         if (status == "New Order")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Start' />";
                         else if (status == "Processing")
-                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Ready' />";
+                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-wo-warehouse' iid='" + data + "' value='WO' />";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
                         else if (status == "Released")
@@ -110,15 +115,15 @@
                     data: "id",
                     render: function (data) {
                         if (status == "New Order")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
                         else if (status == "Processing")
-                            return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Adjust' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Adjust' />";
                         else if (status == "Ready")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-fbacomment' iid='" + data + "' value='Comment' />";
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
                         else if (status == "Released")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' />";
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
                         else if (status == "Shipped")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' />";
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
                         else
                             return "";
                     }
@@ -246,6 +251,22 @@
                 $(window.location).attr('href', "/shiporder/viewfbapickdetail/?shipOrderId=" + shipOrderId);
             });
 
+            //点击操作栏中的WO按钮，以只读的形式查看WO
+            $("#table").on("click", ".btn-wo-readonly", function () {
+                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
+                shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                reference = $(this).parent().parent("tr").children("td").eq(7).children("text").html();
+                GetWorkOrder(shipOrderId, customerCode, reference, ".iframe-wo-readonly");
+            });
+
+            //点击状态控制栏中的WO按钮，以编辑页面的形式打开WO
+            $("#table").on("click", ".btn-wo-warehouse", function () {
+                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
+                shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                reference = $(this).parent().parent("tr").children("td").eq(7).children("text").html();
+                GetWorkOrder(shipOrderId, customerCode, reference, ".iframe-wo-warehouse");
+            });
+
             //点击FBA订单下的Adjust按钮，打开可以调整的FBA运单（只限调整）
             $("#table").on("click", ".btn-fbaadjust", function () {
                 shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
@@ -340,6 +361,184 @@
                     }
                 });
             };
+
+            function GetWorkOrder(shipOrderId, customerCode, reference, pageId) {
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+                url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO";
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $(".text-place").html(data.placeTime);
+                        $(".text-ready").html(data.readyTime);
+                        $(".text-ets").html(data.ets);
+                        $(".text-pm").html(data.pickMan);
+                        $(".text-instructor").html(data.instructor);
+                        $(".text-so").html(data.shipOrderNumber);
+                        $(".text-reference").html(data.reference);
+                        $(".text-destination").html(data.destination);
+                        $(".text-carrier").html(data.carrier);
+                        $(".text-lot").html(data.lot);
+                        $(".text-ctns").html(data.pickableCtns);
+                        $(".text-plts").html(data.pickablePlts);
+                        $(".text-inventory").html(data.pltsFromInventory);
+                        $(".text-new").html(data.newPlts);
+                        $(".text-total").html(data.outboundPlts);
+
+                        var plColumnArray = [
+                            {
+                                data: "order",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "container",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "sku",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickableCtns",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "pickablePlts",
+                                render: function (data) {
+                                    if (data != 0)
+                                        return "<text>" + data + "</text>";
+                                    else
+                                        return "";
+                                }
+                            },
+                            {
+                                data: "location",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ];
+                        $(".table-pickinglist").DataTable({
+                            data: data.pickingLists,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: plColumnArray
+                        });
+                        var osColumnArray;
+                        if (pageId == ".iframe-wo") {
+                            osColumnArray = [
+                                {
+                                    data: "id",
+                                    width: "10%",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "description",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "placeTime",
+                                    render: function (data) {
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "placeBy",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                    }
+                                }
+                            ];
+                        }
+                        else {
+                            osColumnArray = [
+                                {
+                                    data: "id",
+                                    width: "10%",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "description",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "placeTime",
+                                    render: function (data) {
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "placeBy",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return " ";
+                                    }
+                                }
+                            ];
+                        }
+
+                        table = $(".table-wo").DataTable({
+                            data: data.operationInstructions,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "desc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: osColumnArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            }
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

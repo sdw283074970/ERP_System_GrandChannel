@@ -1,37 +1,38 @@
 ﻿
 <div class="iframe-wo" style="margin:20px">
     <h1>Work Order</h1>
-    <h2 id="h2-customercode"></h2>
+    <h2 class="h2-customercode"></h2>
     <button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>
     <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
         <h3>Summary</h3>
         <div style="float:left;width:33%;border:dotted;border-color:red">
-            <text>Place Time:</text><text id="text-place"> </text><br />
-            <text>Ready Time:</text><text id="text-ready"> </text><br />
-            <text>ETS:</text><text id="text-ets"> </text><br />
-            <text>Pick Man:</text><text id="text-pm"> </text><br />
-            <text>Instructor:</text><text id="text-instructor"> </text><br />
+            <text>Place Time:</text><text class="text-place"> </text><br />
+            <text>Ready Time:</text><text class="text-ready"> </text><br />
+            <text>ETS:</text><text class="text-ets"> </text><br />
+            <text>Pick Man:</text><text class="text-pm"> </text><br />
+            <text>Instructor:</text><text class="text-instructor"> </text><br />
         </div>
         <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
-            <text>Ship Order #:</text><text id="text-so"> </text><br />
-            <text>Reference #:</text><text id="text-reference"> </text><br />
-            <text>Destination:</text><text id="text-destination"> </text><br />
-            <text>Carrier:</text><text id="text-carrier"> </text><br />
-            <text>Lot:</text><text id="text-lot"> </text><br />
+            <text>Ship Order #:</text><text class="text-so"> </text><br />
+            <text>Reference #:</text><text class="text-reference"> </text><br />
+            <text>Destination:</text><text class="text-destination"> </text><br />
+            <text>Carrier:</text><text class="text-carrier"> </text><br />
+            <text>Lot:</text><text class="text-lot"> </text><br />
         </div>
         <div style="float:right;width:33%;border:dotted;border-color:blue">
-            <text>Pickable Ctns:</text><text id="text-ctns"> </text><br />
-            <text>Pickable Plts:</text><text id="text-plts"> </text><br />
-            <text>Plts From Inventory:</text><text id="text-inventory"> </text><br />
-            <text>New Plts:</text><text id="text-new"> </text><br />
-            <text>Actual Outbound Plts:</text><text id="text-total"> </text><br />
+            <text>Pickable Ctns:</text><text class="text-ctns"> </text><br />
+            <text>Pickable Plts:</text><text class="text-plts"> </text><br />
+            <text>Plts From Inventory:</text><text class="text-inventory"> </text><br />
+            <text>New Plts:</text><text class="text-new"> </text><br />
+            <text>Actual Outbound Plts:</text><text class="text-total"> </text><br />
         </div>
     </div>
     <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
         <h3>Picking List</h3>
-        <table id="table-pickinglist" class="table table-condensed table-hover table-striped">
+        <table class="table table-condensed table-hover table-striped table-pickinglist">
             <thead>
                 <tr>
+                    <th>Order</th>
                     <th>Container</th>
                     <th>SKU</th>
                     <th>Pick Ctns</th>
@@ -44,8 +45,8 @@
     </div>
     <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
         <h3>Operation Instruction</h3>
-        @*<button id="btn-detail-create" class="btn btn-primary">Add charging detail</button>*@
-        <table id="table-wo" class="table table-condensed table-hover table-striped">
+        <button id="btn-detail-create" class="btn btn-primary">Add charging detail</button>
+        <table class="table table-condensed table-hover table-striped table-wo">
             <thead>
                 <tr>
                     <th>Id</th>
@@ -58,11 +59,146 @@
             <tbody></tbody>
         </table>
     </div>
+    <div style="text-align:center">
+        <button class="btn btn-primary btn-push" style="margin-top:20px">Push</button>
+    </div>
+</div>
 
-    <div style="margin-top:20px;border:double;padding:20px;text-align:right">
+<div class="iframe-wo-readonly" style="margin:20px">
+    <h1>Work Order</h1>
+    <h2 class="h2-customercode"></h2>
+    <button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>
+    <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
+        <h3>Summary</h3>
+        <div style="float:left;width:33%;border:dotted;border-color:red">
+            <text>Place Time:</text><text class="text-place"> </text><br />
+            <text>Ready Time:</text><text class="text-ready"> </text><br />
+            <text>ETS:</text><text class="text-ets"> </text><br />
+            <text>Pick Man:</text><text class="text-pm"> </text><br />
+            <text>Instructor:</text><text class="text-instructor"> </text><br />
+        </div>
+        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
+            <text>Ship Order #:</text><text class="text-so"> </text><br />
+            <text>Reference #:</text><text class="text-reference"> </text><br />
+            <text>Destination:</text><text class="text-destination"> </text><br />
+            <text>Carrier:</text><text class="text-carrier"> </text><br />
+            <text>Lot:</text><text class="text-lot"> </text><br />
+        </div>
+        <div style="float:right;width:33%;border:dotted;border-color:blue">
+            <text>Pickable Ctns:</text><text class="text-ctns"> </text><br />
+            <text>Pickable Plts:</text><text class="text-plts"> </text><br />
+            <text>Plts From Inventory:</text><text class="text-inventory"> </text><br />
+            <text>New Plts:</text><text class="text-new"> </text><br />
+            <text>Actual Outbound Plts:</text><text class="text-total"> </text><br />
+        </div>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Picking List</h3>
+        <table id="" class="table table-condensed table-hover table-striped table-pickinglist">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Container</th>
+                    <th>SKU</th>
+                    <th>Pick Ctns</th>
+                    <th>Pick Plts</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Operation Instruction</h3>
+        <table class="table table-condensed table-hover table-striped table-wo">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Description</th>
+                    <th>Time</th>
+                    <th>By</th>
+                    <th>Op</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:20px;border:double;padding:20px">
         <h3>Comment:</h3>
         <h4>DO this do that</h4>
-        @*<textarea id="textarea-comment" style="height:200px;width:100%"></textarea><br />*@
-        <button class="btn btn-primary btn-push" style="margin-top:20px">Push</button>
+    </div>
+</div>
+
+<div class="iframe-wo-warehouse" style="margin:20px">
+    <h1>Work Order</h1>
+    <h2 class="h2-customercode"></h2>
+    <button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>
+    <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
+        <h3>Summary</h3>
+        <div style="float:left;width:33%;border:dotted;border-color:red">
+            <text>Place Time:</text><text class="text-place"> </text><br />
+            <text>Ready Time:</text><text class="text-ready"> </text><br />
+            <text>ETS:</text><text class="text-ets"> </text><br />
+            <text>Pick Man:</text><text class="text-pm"> </text><br />
+            <text>Instructor:</text><text class="text-instructor"> </text><br />
+        </div>
+        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
+            <text>Ship Order #:</text><text class="text-so"> </text><br />
+            <text>Reference #:</text><text class="text-reference"> </text><br />
+            <text>Destination:</text><text class="text-destination"> </text><br />
+            <text>Carrier:</text><text class="text-carrier"> </text><br />
+            <text>Lot:</text><text class="text-lot"> </text><br />
+        </div>
+        <div style="float:right;width:33%;border:dotted;border-color:blue">
+            <text>Pickable Ctns:</text><text class="text-ctns"> </text><br />
+            <text>Pickable Plts:</text><text class="text-plts"> </text><br />
+            <text>Plts From Inventory:</text><text class="text-inventory"> </text><br />
+            <text>New Plts:</text><text class="text-new"> </text><br />
+            <text>Actual Outbound Plts:</text><text class="text-total"> </text><br />
+        </div>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Picking List</h3>
+        <table id="" class="table table-condensed table-hover table-striped table-pickinglist">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Container</th>
+                    <th>SKU</th>
+                    <th>Pick Ctns</th>
+                    <th>Pick Plts</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Operation Instruction</h3>
+        <table class="table table-condensed table-hover table-striped table-wo">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Description</th>
+                    <th>Time</th>
+                    <th>By</th>
+                    <th>Op</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Update</h3>
+        <text>Pick Man:</text><input id="input-pickman" class="input-sm" type="text" placeholder="Who did this"/>
+        <text>Instructor:</text><input id="input-instructor" class="input-sm" type="text" placeholder="Superviser" />
+        <text>Location:</text><input id="input-lot" type="text" class="input-sm" placeholder="Prepared Location" /><br />
+        <textarea id="input-comment" type="text" class="input-sm" style="width:100%;height:200px" placeholder="Optional comment"></textarea>
+    </div>
+    <div style="margin:20px;text-align:right">
+        <button id="btn-save" class="btn btn-primary">Save</button>
+        <button id="btn-ready" class="btn btn-danger">Save&Submit</button>
     </div>
 </div>

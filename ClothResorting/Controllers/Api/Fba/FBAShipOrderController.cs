@@ -214,12 +214,30 @@ namespace ClothResorting.Controllers.Api.Fba
             //    throw new Exception("Cannot override existed date.");
             //}
 
-            //当订单状态为ready时强行release并印上日期
+            //当订单状态为picking时强行release并印上日期
             if (shipOrderInDb.Status == FBAStatus.NewCreated)
             {
                 shipOrderInDb.ShipDate = operationDate;
                 shipOrderInDb.Status = FBAStatus.Released;
                 shipOrderInDb.ReleasedBy = _userName;
+            }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
+        [HttpPut]
+        public void MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]string operation)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            //当订单状态为picking时强行release并印上日期
+            if (shipOrderInDb.Status == FBAStatus.Picking)
+            {
+                shipOrderInDb.Status = FBAStatus.Released;
+                shipOrderInDb.ReleasedDate = DateTime.Now;
+                shipOrderInDb.ReleasedBy = _userName;
+                shipOrderInDb.OperationLog = "Released by " + _userName;
             }
 
             _context.SaveChanges();
@@ -495,6 +513,17 @@ namespace ClothResorting.Controllers.Api.Fba
         private  FBAWorkOrder GenerateWorkOrder(FBAShipOrder shipOrder)
         {
             var wo = new FBAWorkOrder();
+            var pickCartonDetails = _context.FBAPickDetailCartons
+                .Include(x => x.FBACartonLocation)
+                .Include(x => x.FBAPickDetail.FBAShipOrder)
+                .Where(x => x.FBAPickDetail.FBAShipOrder.Id == shipOrder.Id)
+                .ToList();
+
+            var pickDetails = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAPickDetailCartons)
+                .Where(x => x.FBAShipOrder.Id == shipOrder.Id)
+                .ToList();
 
             wo.PlaceTime = shipOrder.PlaceTime.Year == 1900 ? " " : shipOrder.PlaceTime.ToString("yyyy-MM-dd hh:mm");
             wo.ReadyTime = shipOrder.ReadyTime.Year == 1900 ? " " : shipOrder.ReadyTime.ToString("yyyy-MM-dd hh:mm");
@@ -514,15 +543,47 @@ namespace ClothResorting.Controllers.Api.Fba
             wo.NewPlts = shipOrder.FBAPickDetails.Sum(x => x.NewPlts);
             wo.OutboundPlts = shipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
 
-            foreach(var p in shipOrder.FBAPickDetails)
+            var order = 1;
+
+            foreach(var p in pickDetails)
             {
-                wo.PickingLists.Add(new PickingList {
-                    Container = p.Container,
-                    SKU = p.ShipmentId,
-                    PickableCtns = p.ActualQuantity,
-                    PickablePlts = p.PltsFromInventory,
-                    Location = p.Location
-                });
+                if (p.FBAPickDetailCartons.Count == 0)
+                {
+                    wo.PickingLists.Add(new PickingList
+                    {
+                        Order = order++,
+                        Container = p.Container,
+                        SKU = p.ShipmentId,
+                        PickableCtns = p.ActualQuantity,
+                        PickablePlts = p.PltsFromInventory,
+                        Location = p.Location
+                    });
+                }
+            }
+
+            if (pickCartonDetails.Count != 0)
+            {
+                var lastSku = " ";
+                foreach(var p in pickCartonDetails)
+                {
+                    var pickList = new PickingList
+                    {
+                        Order = order++,
+                        Container = p.FBAPickDetail.Container,
+                        SKU = p.FBACartonLocation.ShipmentId,
+                        PickableCtns = p.PickCtns,
+                        PickablePlts = 0,
+                        Location = p.FBAPickDetail.Location
+                    };
+
+                    if (p.FBAPickDetail.ShipmentId != lastSku)
+                    {
+                        pickList.PickablePlts = p.FBAPickDetail.PltsFromInventory;
+                        lastSku = p.FBAPickDetail.ShipmentId;
+                    }
+
+                    wo.PickingLists.Add(pickList);
+                }
             }
 
             foreach(var c in shipOrder.ChargingItemDetails)
@@ -626,6 +687,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
     public class PickingList
     {
+        public int Order { get; set; }
+
         public string Container { get; set; }
 
         public string SKU { get; set; }

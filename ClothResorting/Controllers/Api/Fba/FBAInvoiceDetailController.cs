@@ -270,7 +270,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 var newDetail = new ChargingItemDetail
                 {
-                    Status = "Waiting for charging",
+                    Status = FBAStatus.Unhandled,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
                     Description = description,
