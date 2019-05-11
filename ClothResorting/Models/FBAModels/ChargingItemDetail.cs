@@ -28,11 +28,11 @@ namespace ClothResorting.Models.FBAModels
 
         public FBAShipOrder FBAShipOrder { get; set; }
 
-        public UpperVendor Customer { get; set; }
+        //public UpperVendor Customer { get; set; }
 
         public ChargingItemDetail()
         {
-            IsHandledFeedback = true;
+            IsHandledFeedback = false;
 
             Status = FBAStatus.NoNeed;
 

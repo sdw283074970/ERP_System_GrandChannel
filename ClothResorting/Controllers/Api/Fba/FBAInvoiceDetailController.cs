@@ -255,6 +255,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 var newDetail = new ChargingItemDetail {
                     Status = FBAStatus.Unhandled,
+                    IsHandledFeedback = true,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
                     Description = description,
@@ -271,6 +272,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var newDetail = new ChargingItemDetail
                 {
                     Status = FBAStatus.Unhandled,
+                    IsHandledFeedback = true,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
                     Description = description,

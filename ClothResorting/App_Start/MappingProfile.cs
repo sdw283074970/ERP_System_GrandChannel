@@ -64,6 +64,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<EFile, EFileDto>();
             Mapper.CreateMap<ApplicationUser, ApplicationUserDto>();
             Mapper.CreateMap<IdentityRole, IdentityRoleDto>();
+            Mapper.CreateMap<InstructionTemplate, InstructionTemplateDto>();
         }
     }
 }

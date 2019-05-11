@@ -36,6 +36,6 @@ namespace ClothResorting.Models
 
         public ICollection<FBAMasterOrder> MasterOrders { get; set; }
 
-        public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
+        public ICollection<InstructionTemplate> InstructionTemplates { get; set; }
     }
 }

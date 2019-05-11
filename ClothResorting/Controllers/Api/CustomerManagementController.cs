@@ -40,10 +40,10 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetWOTemplateByCustomerId([FromUri]int customerId)
         {
-            var woDto = _context.ChargingItemDetails
+            var woDto = _context.InstructionTemplates
                 .Include(x => x.Customer)
                 .Where(x => x.Customer.Id == customerId)
-                .Select(Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>);
+                .Select(Mapper.Map<InstructionTemplate, InstructionTemplateDto>);
 
             return Ok(woDto);
         }
@@ -83,21 +83,46 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + result.Id, Mapper.Map<UpperVendor, UpperVendorDto>(result));
         }
 
-        //POST /api/customermanagement/?customerId={customerId}&description={description}
+        //POST /api/customermanagement/?customerId={customerId}&description={description}&isAppliedToAll={isAppliedToAll}
         [HttpPost]
-        public IHttpActionResult CreateNewChargingDetailTemplate([FromUri]int customerId, [FromUri]string description)
+        public IHttpActionResult CreateNewChargingDetailTemplate([FromUri]int customerId, [FromUri]string description, [FromUri]bool isAppliedToAll)
         {
-            var customerInDb = _context.UpperVendors.Find(customerId);
+            var fbaCustomers = _context.UpperVendors
+                .Where(x => x.DepartmentCode == "FBA");
 
-            var newTemplate = new ChargingItemDetail {
-                CreateBy = _userName,
-                Customer = customerInDb,
-                Description = description,
-                Status = FBAStatus.Unhandled,
-                CreateDate = DateTime.Now
-            };
+            if (!isAppliedToAll)
+            {
+                var newTemplate = new InstructionTemplate
+                {
+                    CreateBy = _userName,
+                    Description = description,
+                    CreateDate = DateTime.Now
+                };
 
-            _context.ChargingItemDetails.Add(newTemplate);
+                var customerInDb = fbaCustomers.SingleOrDefault(x => x.Id == customerId);
+                newTemplate.Customer = customerInDb;
+                _context.InstructionTemplates.Add(newTemplate);
+            }
+            else
+            {
+                var templateList = new List<InstructionTemplate>();
+
+                foreach(var f in fbaCustomers)
+                {
+                    var newTemplate = new InstructionTemplate
+                    {
+                        CreateBy = _userName,
+                        Description = description,
+                        CreateDate = DateTime.Now
+                    };
+
+                    newTemplate.Customer = f;
+                    templateList.Add(newTemplate);
+                }
+
+                _context.InstructionTemplates.AddRange(templateList);
+            }
+
             _context.SaveChanges();
 
             var resultDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).First());

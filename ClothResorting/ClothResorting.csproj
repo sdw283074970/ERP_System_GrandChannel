@@ -456,6 +456,7 @@
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
     <Compile Include="Dtos\IdentityRoleDto.cs" />
+    <Compile Include="Dtos\InstructionTemplateDto.cs" />
     <Compile Include="Dtos\InvoiceDetailDto.cs" />
     <Compile Include="Dtos\InvoiceDto.cs" />
     <Compile Include="Dtos\OutboundHistoryDto.cs" />
@@ -1597,6 +1598,10 @@
     <Compile Include="Migrations\201905100056095_AddedFeedbackInChargingItemDetails.Designer.cs">
       <DependentUpon>201905100056095_AddedFeedbackInChargingItemDetails.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905102041063_AddedInstructionTemplateDbSet.cs" />
+    <Compile Include="Migrations\201905102041063_AddedInstructionTemplateDbSet.Designer.cs">
+      <DependentUpon>201905102041063_AddedInstructionTemplateDbSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1684,6 +1689,7 @@
     <Compile Include="Models\FCRegularLocationDetail.cs" />
     <Compile Include="Models\GeneralLocationSummary.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
+    <Compile Include="Models\InstructionTemplate.cs" />
     <Compile Include="Models\Invoice.cs" />
     <Compile Include="Models\InvoiceDetail.cs" />
     <Compile Include="Models\OAuthInfo.cs" />
@@ -2993,6 +2999,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905100056095_AddedFeedbackInChargingItemDetails.resx">
       <DependentUpon>201905100056095_AddedFeedbackInChargingItemDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905102041063_AddedInstructionTemplateDbSet.resx">
+      <DependentUpon>201905102041063_AddedInstructionTemplateDbSet.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

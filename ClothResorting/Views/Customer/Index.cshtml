@@ -79,6 +79,7 @@
 <div class="iframe-detail">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
+        <text>Apply to all FBA customer</text><input type="checkbox" id="cb-all" /><br />
         <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">create</button>
     </div>
 </div>
@@ -342,9 +343,10 @@
             //点击添加按钮，添加WO指示模板
             $("#btn-detail-add").on("click", function () {
                 var description = $("#input-detail-description").val();
+                var isAppliedToAll = $("#cb-all").prop("checked");
 
                 if (description != "") {
-                    url = "/api/CustomerManagement/?customerId=" + customerId + "&description=" + encodeURIComponent(description);
+                    url = "/api/CustomerManagement/?customerId=" + customerId + "&description=" + encodeURIComponent(description) + "&isAppliedToAll=" + isAppliedToAll;
 
                     $.ajax({
                         type: "POST",

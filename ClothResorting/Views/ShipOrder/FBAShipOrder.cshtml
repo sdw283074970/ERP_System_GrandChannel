@@ -82,7 +82,8 @@
 <div class="iframe-detail">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
-        <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">create</button>
+        <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Create</button>
+        <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
     </div>
 </div>
 @Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
@@ -98,6 +99,7 @@
             var status;
             var shipOrder;
             var shipOrderId;
+            var chargingDetailId;
             var customerCode;
             var reference;
             var customerId = getUrlParameter('customerId');
@@ -475,7 +477,7 @@
             //点击picking状态下的Release按钮，将运单标记为released
             $("#table").on("click", ".btn-release", function () {
                 var id = $(this).attr('iid');
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operation=SkipToRelease";
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&isRekease=true";
                 SendAjaxMethod("PUT", url, {});
             })
 
@@ -675,6 +677,9 @@
 
             //点击添加指示按钮按钮，打开一个简易填写界面
             $("#btn-detail-create").on("click", function () {
+                $("#input-detail-description").val("");
+                $("#btn-detail-update").hide();
+                $("#btn-detail-add").show();
                 index = layer.open({
                     title: false,
                     type: 1,
@@ -691,97 +696,65 @@
                 if (description != "") {
                     layer.close(index);
                     url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=ShipOrder&description=" + encodeURIComponent(description);
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        contentType: 'application/json; charset=utf-8',
-                        dataType: "json",
-                        beforeSend: function () {
-                            layer.close(index);
-                            index = layer.msg('Processing...', {
-                                icon: 3,
-                                shade: 0.01,
-                                time: 99 * 1000
-                            });
-                        },
-                        success: function (data) {
-                            var osColumnArray = [
-                                {
-                                    data: "id",
-                                    width: "10%",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "description",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "placeTime",
-                                    render: function (data) {
-                                        return "<text>" + data.substring(0, 10) + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "placeBy",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
-                                    }
-                                }
-                            ];
-                            url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO"
-                            $.ajax({
-                                type: "GET",
-                                url: url,
-                                contentType: 'application/json; charset=utf-8',
-                                dataType: "json",
-                                beforeSend: function () {
-                                    layer.close(index);
-                                    index = layer.msg('Processing...', {
-                                        icon: 1,
-                                        shade: 0.01,
-                                        time: 99 * 1000
-                                    });
-                                },
-                                success: function (data) {
-                                    layer.close(index);
-                                    if (table) {
-                                        table.destroy();
-                                    }
+                    SendAjaxMethodAndRefreshWorkOrder("POST", url, {});
+                }
+            });
 
-                                    table = $(".table-wo").DataTable({
-                                        data: data.operationInstructions,
-                                        destroy: true,
-                                        scrollX: true,
-                                        order: [[0, "desc"]],
-                                        scrollCollapse: true,
-                                        scrollY: "600px",
-                                        iDisplayLength: 100,
-                                        columns: osColumnArray
-                                    });
-                                },
-                                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                        window.location.reload();
-                                    });
-                                }
-                            });
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
-                            });
-                        }
-                    });
+            //点击Reset按钮，重制当前WO的指示（与模板同步）
+            $("#btn-detail-reset").on("click", function () {
+                url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=Reset";
+                SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+            });
+
+            //点击操作指示表中的更新按钮，打开更新界面
+            $(".table-wo").on("click", ".btn-detail-update", function () {
+                chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId;
+                var pIndex;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        pIndex = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(pIndex);
+                        $("#input-detail-description").val(data.description);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
+                $("#btn-detail-add").hide();
+                $("#btn-detail-update").show();
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+
+            });
+
+            //点击更新按钮，更新操作指示
+            $("#btn-detail-update").on("click", function () {
+                var description = $("#input-detail-description").val();
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&operation=UpdateInstruction";
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
                 }
             });
 
@@ -791,96 +764,7 @@
 
                 url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
 
-                $.ajax({
-                    type: "DELETE",
-                    url: url,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    beforeSend: function () {
-                        layer.close(index);
-                        index = layer.msg('Processing...', {
-                            icon: 3,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function (data) {
-                        var osColumnArray = [
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "description",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "placeTime",
-                                render: function (data) {
-                                    return "<text>" + data.substring(0, 10) + "</text>";
-                                }
-                            },
-                            {
-                                data: "placeBy",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
-                                }
-                            }
-                        ];
-                        url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO"
-                        $.ajax({
-                            type: "GET",
-                            url: url,
-                            contentType: 'application/json; charset=utf-8',
-                            dataType: "json",
-                            beforeSend: function () {
-                                layer.close(index);
-                                index = layer.msg('Processing...', {
-                                    icon: 1,
-                                    shade: 0.01,
-                                    time: 99 * 1000
-                                });
-                            },
-                            success: function (data) {
-                                layer.close(index);
-                                if (table) {
-                                    table.destroy();
-                                }
-
-                                table = $(".table-wo").DataTable({
-                                    data: data.operationInstructions,
-                                    destroy: true,
-                                    scrollX: true,
-                                    order: [[0, "desc"]],
-                                    scrollCollapse: true,
-                                    scrollY: "600px",
-                                    iDisplayLength: 100,
-                                    columns: osColumnArray
-                                });
-                            },
-                            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                    window.location.reload();
-                                });
-                            }
-                        });
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
-                        });
-                    }
-                });
+                SendAjaxMethodAndRefreshWorkOrder("DELETE", url, {});
             });
 
             //点击WO中的Push按钮，将订单推送到仓库端
@@ -1117,7 +1001,6 @@
                             osColumnArray = [
                                 {
                                     data: "id",
-                                    width: "10%",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
@@ -1129,21 +1012,34 @@
                                     }
                                 },
                                 {
-                                    data: "placeTime",
+                                    data: "comment",
                                     render: function (data) {
-                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
                                     }
                                 },
                                 {
-                                    data: "placeBy",
+                                    data: "result",
                                     render: function (data) {
+                                        if (data == null)
+                                            return "";
                                         return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "isHandledFeedback",
+                                    render: function (data) {
+                                        if (data == false)
+                                            return "<font color='red'>Waiting</font>";
+                                        else
+                                            return "<font color='green'>Normal</font>";
                                     }
                                 },
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                     }
                                 }
                             ];
@@ -1152,7 +1048,6 @@
                             osColumnArray = [
                                 {
                                     data: "id",
-                                    width: "10%",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
@@ -1164,15 +1059,28 @@
                                     }
                                 },
                                 {
-                                    data: "placeTime",
+                                    data: "comment",
                                     render: function (data) {
-                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
                                     }
                                 },
                                 {
-                                    data: "placeBy",
+                                    data: "result",
                                     render: function (data) {
+                                        if (data == null)
+                                            return "";
                                         return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "isHandledFeedback",
+                                    render: function (data) {
+                                        if (data == false)
+                                            return "<font color='red'>Waiting</font>";
+                                        else
+                                            return "<font color='green'>Normal</font>";
                                     }
                                 },
                                 {
@@ -1202,6 +1110,113 @@
                     }
                 });
             }
+
+            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        var osColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "result",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "isHandledFeedback",
+                                render: function (data) {
+                                    if (data == false)
+                                        return "<font color='red'>Waiting</font>";
+                                    else
+                                        return "<font color='green'>Normal</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                }
+                            }
+                        ];
+                        url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO"
+                        $.ajax({
+                            type: "GET",
+                            url: url,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            beforeSend: function () {
+                                layer.close(index);
+                                index = layer.msg('Processing...', {
+                                    icon: 1,
+                                    shade: 0.01,
+                                    time: 99 * 1000
+                                });
+                            },
+                            success: function (data) {
+                                layer.close(index);
+                                if (table) {
+                                    table.destroy();
+                                }
+
+                                table = $(".table-wo").DataTable({
+                                    data: data.operationInstructions,
+                                    destroy: true,
+                                    scrollX: true,
+                                    order: [[0, "desc"]],
+                                    scrollCollapse: true,
+                                    scrollY: "600px",
+                                    iDisplayLength: 100,
+                                    columns: osColumnArray
+                                });
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
+                            }
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

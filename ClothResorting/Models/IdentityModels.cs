@@ -72,6 +72,9 @@ namespace ClothResorting.Models
         public DbSet<EFile> EFiles { get; set; }
         public DbSet<OperationLog> OperationLogs { get; set; }
 
+        //General
+        public DbSet<InstructionTemplate> InstructionTemplates { get; set; }
+
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();

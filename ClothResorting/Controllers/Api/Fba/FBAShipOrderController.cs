@@ -106,6 +106,15 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok();
         }
 
+        // GET /api/fba/shiporder/?chargingDetailId={chargingDetailId}
+        [HttpGet]
+        public IHttpActionResult GetChargingDetail([FromUri]int chargingDetailId)
+        {
+            var chargingDetailInDb = _context.ChargingItemDetails.Find(chargingDetailId);
+
+            return Ok(Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(chargingDetailInDb));
+        }
+
         // POST /api/fba/fbashiporder/
         [HttpPost]
         public IHttpActionResult CreateNewShipOrder([FromBody]ShipOrderDto obj)
@@ -121,19 +130,26 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             var shipOrder = new FBAShipOrder();
+            var chargingItemDetailList = new List<ChargingItemDetail>();
+
             var customerWOInstructions = _context.UpperVendors
-                .Include(x => x.ChargingItemDetails)
+                .Include(x => x.InstructionTemplates)
                 .SingleOrDefault(x => x.CustomerCode == obj.CustomerCode)
-                .ChargingItemDetails
+                .InstructionTemplates
                 .ToList();
 
             foreach(var c in customerWOInstructions)
             {
-                c.CreateBy = _userName;
-                c.CreateDate = DateTime.Now;
+                chargingItemDetailList.Add(new ChargingItemDetail {
+                    Status = FBAStatus.Unhandled,
+                    IsHandledFeedback = true,
+                    Description = c.Description,
+                    CreateBy = _userName,
+                    CreateDate = DateTime.Now
+                });
             }
 
-            _context.ChargingItemDetails.AddRange(customerWOInstructions);
+            _context.ChargingItemDetails.AddRange(chargingItemDetailList);
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
@@ -145,7 +161,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.PickNumber = obj.PickNumber;
             shipOrder.PurchaseOrderNumber = obj.PurchaseOrderNumber;
             shipOrder.Instruction = obj.Instruction;
-            shipOrder.ChargingItemDetails = customerWOInstructions;
+            shipOrder.ChargingItemDetails = chargingItemDetailList;
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();
@@ -225,9 +241,9 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&isRelease={isRelease}
         [HttpPut]
-        public void MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]string operation)
+        public void MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]bool isRelease)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
@@ -238,6 +254,66 @@ namespace ClothResorting.Controllers.Api.Fba
                 shipOrderInDb.ReleasedDate = DateTime.Now;
                 shipOrderInDb.ReleasedBy = _userName;
                 shipOrderInDb.OperationLog = "Released by " + _userName;
+            }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
+        [HttpPut]
+        public void ResetShipOrderDetail([FromUri]int shipOrderId, [FromUri]string operation)
+        {
+            if (operation == "Reset")
+            {
+                var shipOrderInDb = _context.FBAShipOrders
+                    .Include(x => x.ChargingItemDetails)
+                    .SingleOrDefault(x => x.Id == shipOrderId);
+
+                shipOrderInDb.ChargingItemDetails = null;
+
+                var chargingItemDetailList = new List<ChargingItemDetail>();
+
+                var instructionTemplates = _context.InstructionTemplates
+                    .Include(x => x.Customer)
+                    .Where(x => x.Customer.CustomerCode == shipOrderInDb.CustomerCode)
+                    .ToList();
+
+                foreach(var i in instructionTemplates)
+                {
+                    chargingItemDetailList.Add(new ChargingItemDetail {
+                        Status = FBAStatus.Unhandled,
+                        CreateBy = _userName,
+                        Description = i.Description,
+                        CreateDate = DateTime.Now,
+                        IsHandledFeedback = true,
+                        FBAShipOrder = shipOrderInDb
+                    });
+                }
+
+                _context.ChargingItemDetails.AddRange(chargingItemDetailList);
+                _context.SaveChanges();
+            }
+        }
+
+        // PUT /api/fba/fbashiporder/?chargingDetailId={chargingDetailId}&comment={comment}&operation={operation}
+        [HttpPut]
+        public void UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]string operation)
+        {
+            var instructionInDb = _context.ChargingItemDetails.Find(chargingDetailId);
+            
+            if (operation == "UpdateInstruction")
+            {
+                instructionInDb.Description = comment;
+            }
+            else if (operation == "UpdateComment")
+            {
+                instructionInDb.Comment = comment;
+                instructionInDb.IsHandledFeedback = false;
+            }
+            else if (operation == "UpdateResult")
+            {
+                instructionInDb.Result = comment;
+                instructionInDb.IsHandledFeedback = true;
             }
 
             _context.SaveChanges();
@@ -591,8 +667,12 @@ namespace ClothResorting.Controllers.Api.Fba
                 wo.OperationInstructions.Add(new OperationInstruction {
                     Id = c.Id,
                     Description = c.Description,
-                    PlaceBy = c.CreateBy,
-                    PlaceTime = c.CreateDate
+                    Comment = c.Comment,
+                    CreateBy = c.CreateBy,
+                    CreateDate = c.CreateDate,
+                    Result = c.Result,
+                    IsHandledFeedback = c.IsHandledFeedback,
+                    Status =c.Status
                 });
             }
 
@@ -706,8 +786,16 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public string Description { get; set; }
 
-        public DateTime PlaceTime { get; set; }
+        public string Status { get; set; }
 
-        public string PlaceBy { get; set; }
+        public DateTime CreateDate { get; set; }
+
+        public string CreateBy { get; set; }
+
+        public string Comment { get; set; }
+
+        public string Result { get; set; }
+
+        public bool IsHandledFeedback { get; set; }
     }
 }

@@ -46,13 +46,15 @@
     <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
         <h3>Operation Instruction</h3>
         <button id="btn-detail-create" class="btn btn-primary">Add charging detail</button>
+        <button id="btn-detail-reset" class="btn btn-primary">Reset</button>
         <table class="table table-condensed table-hover table-striped table-wo">
             <thead>
                 <tr>
-                    <th>Id</th>
+                    <th style="width:50px">Id</th>
                     <th>Description</th>
-                    <th>Time</th>
-                    <th>By</th>
+                    <th>Comment</th>
+                    <th>Result</th>
+                    <th>Status</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -113,20 +115,16 @@
         <table class="table table-condensed table-hover table-striped table-wo">
             <thead>
                 <tr>
-                    <th>Id</th>
+                    <th style="width:50px">Id</th>
                     <th>Description</th>
-                    <th>Time</th>
-                    <th>By</th>
-                    <th>Op</th>
+                    <th>Comment</th>
+                    <th>Result</th>
+                    <th>Status</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
-    </div>
-
-    <div style="margin-top:20px;border:double;padding:20px">
-        <h3>Comment:</h3>
-        <h4>DO this do that</h4>
     </div>
 </div>
 
@@ -179,11 +177,12 @@
         <table class="table table-condensed table-hover table-striped table-wo">
             <thead>
                 <tr>
-                    <th>Id</th>
+                    <th style="width:50px">Id</th>
                     <th>Description</th>
-                    <th>Time</th>
-                    <th>By</th>
-                    <th>Op</th>
+                    <th>Comment</th>
+                    <th>Result</th>
+                    <th>Status</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -195,10 +194,9 @@
         <text>Pick Man:</text><input id="input-pickman" class="input-sm" type="text" placeholder="Who did this"/>
         <text>Instructor:</text><input id="input-instructor" class="input-sm" type="text" placeholder="Superviser" />
         <text>Location:</text><input id="input-lot" type="text" class="input-sm" placeholder="Prepared Location" /><br />
-        <textarea id="input-comment" type="text" class="input-sm" style="width:100%;height:200px" placeholder="Optional comment"></textarea>
     </div>
     <div style="margin:20px;text-align:right">
-        <button id="btn-save" class="btn btn-primary">Save</button>
-        <button id="btn-ready" class="btn btn-danger">Save&Submit</button>
+        <input type="button" class="btn btn-primary btn-save" value="Save&Close" />
+        <input type="button" class="btn btn-danger btn-save" value="Save&Ready" />
     </div>
 </div>

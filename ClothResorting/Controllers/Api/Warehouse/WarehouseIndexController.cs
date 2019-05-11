@@ -52,6 +52,32 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             return Ok(list);
         }
+
+        // PUT /api/warehouseIndex/?shipOrderId={shipOrderId}&pickMan={pickMan}&instructor={instructor}&location={location}&operation={operation}
+        [HttpPut]
+        public void UpdateAndSave([FromUri]int shipOrderId, [FromUri]string pickMan, [FromUri]string instructor, [FromUri]string location, [FromUri]string operation)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            UpdateWOInfo(shipOrderInDb, pickMan, instructor, location);
+
+            if (operation == "Save&Ready")
+            {
+                shipOrderInDb.Status = FBAStatus.Ready;
+                shipOrderInDb.ReadyTime = DateTime.Now;
+                shipOrderInDb.ReadyBy = _userName;
+                shipOrderInDb.OperationLog = "Ready by " + _userName;
+            }
+
+            _context.SaveChanges();
+        }
+
+        private void UpdateWOInfo(FBAShipOrder shipOrderInDb, string pickMan, string instructor, string location)
+        {
+            shipOrderInDb.PickMan = pickMan;
+            shipOrderInDb.Instructor = instructor;
+            shipOrderInDb.Lot = location;
+        }
     }
 
     public class WarehouseOrder

@@ -47,6 +47,12 @@
         <button id="btn-confirm" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
     </div>
 </div>
+<div class="iframe-detail">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Comment: </text><input id='input-detail-comment' style='width:400px' class='input-sm' /><br />
+        <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
+    </div>
+</div>
 @Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
 
 @section scripts
@@ -63,7 +69,7 @@
             var searchBar = grandChannel.getUrlParameter('search');
 
             $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse").hide();
-            $(".iframe-fbadate").hide();
+            $(".iframe-fbadate, .iframe-detail").hide();
 
             var columnsArray = [
                 {
@@ -100,7 +106,8 @@
                         if (status == "New Order")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Start' />";
                         else if (status == "Processing")
-                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-wo-warehouse' iid='" + data + "' value='WO' />";
+                            //return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-wo-warehouse' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-wo-warehouse' iid='" + data + "' value='WO' />";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
                         else if (status == "Released")
@@ -316,6 +323,78 @@
                 grandChannel.sendAjaxMethod("PUT", url, {}, index);
             })
 
+            //点击操作指示表中的Comment按钮，提出comment
+            $(".table-wo").on("click", ".btn-comment", function () {
+                chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId;
+                var pIndex;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        pIndex = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(pIndex);
+                        $("#input-detail-comment").val(data.comment);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+            });
+
+            //点击更新按钮，更新操作指示
+            $("#btn-detail-update").on("click", function () {
+                var description = $("#input-detail-comment").val();
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&operation=UpdateComment";
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+                }
+            });
+
+            //点击保存按钮，保存三项更新
+            $(".btn-save").on("click", function () {
+                var pickMan = $("#input-pickman").val();
+                var instructor = $("#input-instructor").val();
+                var location = $("#input-lot").val();
+
+                if (pickMan != "" && instructor != "" && location != "")
+                {
+                    var operation;
+
+                    if ($(this).val() == "Save&Close")
+                        operation = encodeURIComponent("Save&Close");
+                    else
+                        operation = encodeURIComponent("Save&Ready")
+
+                    url = "/api/warehouseIndex/?shipOrderId=" + shipOrderId + "&pickMan=" + pickMan + "&instructor=" + instructor + "&location=" + location + "&operation=" + operation;
+                    grandChannel.sendAjaxMethod("PUT", url, {});
+                }
+                else
+                {
+                    alert("Pick Man, Instructor and Location are required.");
+                }
+            });
+
             function getAjaxTable(methodType, url, tableId, table, columsArray, index, searchBar) {
                 $.ajax({
                     type: methodType,
@@ -450,11 +529,10 @@
                             columns: plColumnArray
                         });
                         var osColumnArray;
-                        if (pageId == ".iframe-wo") {
+                        if (pageId == ".iframe-wo-readonly") {
                             osColumnArray = [
                                 {
                                     data: "id",
-                                    width: "10%",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
@@ -466,56 +544,86 @@
                                     }
                                 },
                                 {
-                                    data: "placeTime",
+                                    data: "comment",
                                     render: function (data) {
-                                        return "<text>" + data.substring(0, 10) + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "placeBy",
-                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
                                         return "<text>" + data + "</text>";
                                     }
                                 },
                                 {
-                                    data: "id",
+                                    data: "result",
                                     render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
-                                    }
-                                }
-                            ];
-                        }
-                        else {
-                            osColumnArray = [
-                                {
-                                    data: "id",
-                                    width: "10%",
-                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
                                         return "<text>" + data + "</text>";
                                     }
                                 },
                                 {
-                                    data: "description",
+                                    data: "isHandledFeedback",
                                     render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "placeTime",
-                                    render: function (data) {
-                                        return "<text>" + data.substring(0, 10) + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "placeBy",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
+                                        if (data == true)
+                                            return "<font color='red'>Waiting</font>";
+                                        else
+                                            return "<font color='green'>Normal</font>";
                                     }
                                 },
                                 {
                                     data: "id",
                                     render: function (data) {
                                         return " ";
+                                    }
+                                }
+                            ];
+                        }
+                        else if (pageId == ".iframe-wo-warehouse") {
+
+                            $("#input-pickman").val(data.pickMan);
+                            $("#input-instructor").val(data.instructor);
+                            $("#input-lot").val(data.lot);
+
+                            osColumnArray = [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "description",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "comment",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "result",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "isHandledFeedback",
+                                    render: function (data) {
+                                        if (data == false)
+                                            return "<font color='red'>Waiting</font>";
+                                        else
+                                            return "<font color='green'>Normal</font>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<button class='btn btn-link btn-comment'>Comment</button>";
                                     }
                                 }
                             ];
@@ -539,6 +647,113 @@
                     }
                 });
             }
+
+            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        var osColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "result",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "isHandledFeedback",
+                                render: function (data) {
+                                    if (data == false)
+                                        return "<font color='red'>Waiting</font>";
+                                    else
+                                        return "<font color='green'>Normal</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-comment'>Comment</button>";
+                                }
+                            }
+                        ];
+                        url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO"
+                        $.ajax({
+                            type: "GET",
+                            url: url,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            beforeSend: function () {
+                                layer.close(index);
+                                index = layer.msg('Processing...', {
+                                    icon: 1,
+                                    shade: 0.01,
+                                    time: 99 * 1000
+                                });
+                            },
+                            success: function (data) {
+                                layer.close(index);
+                                if (table) {
+                                    table.destroy();
+                                }
+
+                                table = $(".table-wo").DataTable({
+                                    data: data.operationInstructions,
+                                    destroy: true,
+                                    scrollX: true,
+                                    order: [[0, "desc"]],
+                                    scrollCollapse: true,
+                                    scrollY: "600px",
+                                    iDisplayLength: 100,
+                                    columns: osColumnArray
+                                });
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
+                            }
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
