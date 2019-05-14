@@ -86,6 +86,12 @@
         <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
     </div>
 </div>
+<div class="iframe-detail-result">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Result: </text><input id='input-detail-result' style='width:400px' class='input-sm' /><br />
+        <button id="btn-detail-result" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
+    </div>
+</div>
 @Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
 
 @section scripts
@@ -108,7 +114,7 @@
 
             $(".iframe, #btn-update, #btn-ready, #btn-ship").hide();
             $(".iframe-date").hide();
-            $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse,.iframe-detail").hide();
+            $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse,.iframe-detail, .iframe-wo-result, .iframe-detail-result").hide();
 
             //动态获取Customer数据
             $.ajax({
@@ -155,7 +161,7 @@
                             return "<font color='vermilion'>" + data + "</font>";
                         if (data == "New Order")
                             return "<font color='orange'>" + data + "</font>"
-                        else if (data == "Processing")
+                        else if (data == "Processing" || data == "Pending")
                             return "<font color='red'>" + data + "</font>";
                         else if (data == "Ready")
                             return "<font color='green'>" + data + "</font>";
@@ -248,6 +254,8 @@
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
                         else if (status == "Processing")
                             return "";
+                        else if (status == "Pending")
+                            return "<button class='btn btn-link btn-wo-result'>WO</button>";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unready' />";
                         else if (status == "Released")
@@ -273,7 +281,7 @@
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "New Order")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
-                        else if (status == "Processing")
+                        else if (status == "Processing" || status == "Pending")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Ready")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
@@ -676,7 +684,7 @@
             });
 
             //点击添加指示按钮按钮，打开一个简易填写界面
-            $("#btn-detail-create").on("click", function () {
+            $(".btn-detail-create").on("click", function () {
                 $("#input-detail-description").val("");
                 $("#btn-detail-update").hide();
                 $("#btn-detail-add").show();
@@ -774,6 +782,74 @@
 
                 url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=" + today + "&operation=ChangeStatus";
                 SendAjaxMethod("PUT", url, {});
+            });
+
+            //点击pending状态下的WO按钮，打开返回WO的界面
+            $("#table").on("click", ".btn-wo-result", function () {
+                customerCode = $(this).parent().parent("tr").children("td").eq(3).children("text").html();
+                shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                reference = $(this).parent().parent("tr").children("td").eq(2).children("text").html();
+                GetWorkOrder(shipOrderId, customerCode, reference, ".iframe-wo-result");
+            });
+
+            //点击操作指示表中的更新结果按钮，打开更新结果界面
+            $(".table-wo").on("click", ".btn-result", function () {
+                chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId;
+                var pIndex;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        pIndex = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(pIndex);
+                        $("#input-detail-result").val(data.result);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail-result")
+                });
+
+            });
+
+            //点击更新按钮，更新操作指示
+            $("#btn-detail-result").on("click", function () {
+                var description = $("#input-detail-result").val();
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&operation=UpdateResult";
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+                }
+            });
+
+            //点击Return按钮，将订单退回到仓库端，或将订单Mark成Ready
+            $(".btn-wo-result-status").on("click", function () {
+                if ($(this).val() == "Return")
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=1992-11-17&operation=ChangeStatus";
+                else
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=1992-11-17&operation=Ready";
+
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
@@ -1031,7 +1107,7 @@
                                     data: "isHandledFeedback",
                                     render: function (data) {
                                         if (data == false)
-                                            return "<font color='red'>Waiting</font>";
+                                            return "<font color='red'>Pending</font>";
                                         else
                                             return "<font color='green'>Normal</font>";
                                     }
@@ -1039,7 +1115,55 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                    }
+                                }
+                            ];
+                        }
+                        else if (pageId == ".iframe-wo-result")
+                        {
+                            osColumnArray = [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "description",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "comment",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "result",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "isHandledFeedback",
+                                    render: function (data) {
+                                        if (data == false)
+                                            return "<font color='red'>Pending</font>";
+                                        else
+                                            return "<font color='green'>Normal</font>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                     }
                                 }
                             ];
@@ -1078,7 +1202,7 @@
                                     data: "isHandledFeedback",
                                     render: function (data) {
                                         if (data == false)
-                                            return "<font color='red'>Waiting</font>";
+                                            return "<font color='red'>Pending</font>";
                                         else
                                             return "<font color='green'>Normal</font>";
                                     }
@@ -1160,7 +1284,7 @@
                                 data: "isHandledFeedback",
                                 render: function (data) {
                                     if (data == false)
-                                        return "<font color='red'>Waiting</font>";
+                                        return "<font color='red'>Pending</font>";
                                     else
                                         return "<font color='green'>Normal</font>";
                                 }
@@ -1168,7 +1292,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                 }
                             }
                         ];

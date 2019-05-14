@@ -7,6 +7,8 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 {
     public static class FBAStatus
     {
+        public const string Pending = "Pending";
+
         public const string Unhandled = "Unhandled";
 
         public const string NoNeed = "No need for charging";

@@ -425,7 +425,7 @@ namespace ClothResorting.Helpers
 
             if (sizeArray.Length <= 1)
             {
-                sizeBundle = "S,M,L,1X,2X,3X,4X,5X,6X,2T,3T,4T,PS,PM,PL,PXL,4,5,5/6,6,7,7/8,8,9,10,10/12,12,14,14/16,16,18/20";
+                sizeBundle = "XS,S,M,L,1X,2X,3X,4X,5X,6X,2T,3T,4T,PS,PM,PL,PXL,4,5,5/6,6,7,7/8,8,9,10,10/12,12,14,14/16,16,18/20";
                 sizeArray = sizeBundle.Split(',');
             }
 
@@ -510,15 +510,15 @@ namespace ClothResorting.Helpers
             {
                 return "1X";
             }
-            else if (size == "XXL" || size == "2XL")
+            else if (size == "XXL" || size == "2XL" || size == "2x")
             {
                 return "2X";
             }
-            else if (size == "XXXL" || size == "3XL")
+            else if (size == "XXXL" || size == "3XL" || size == "3x")
             {
                 return "3X";
             }
-            else if (size == "XXXXL" || size == "4XL")
+            else if (size == "XXXXL" || size == "4XL" || size == "4x")
             {
                 return "4X";
             }

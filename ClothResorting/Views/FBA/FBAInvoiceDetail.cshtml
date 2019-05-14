@@ -57,9 +57,10 @@
                     <tr>
                         <th style="width:66px">Id</th>
                         <th>Descriptiono</th>
-                        <th style="width:180px">Status</th>
-                        <th style="width:180px">Create Date</th>
-                        <th style="width:180px">Create By</th>
+                        <th>Comment</th>
+                        <th>Result</th>
+                        <th style="width:180px">Comment Status</th>
+                        <th style="width:180px">Charging Status</th>
                         <th style="width:180px">OPERATION</th>
                     </tr>
                 </thead>
@@ -202,6 +203,31 @@
                     }
                 },
                 {
+                    data: "comment",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "result",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "isHandledFeedback",
+                    render: function (data) {
+                        if (data == true)
+                            return "<font color='green'>Normal</font>";
+                        else
+                            return "<font color='red'>Pending</font>";
+                    }
+                },
+                {
                     data: "status",
                     render: function (data) {
                         if (data == "Waiting for charging")
@@ -213,21 +239,10 @@
                     }
                 },
                 {
-                    data: "createDate",
-                    render: function (data) {
-                        return "<text>" + data.toString().substring(0, 10) + "</text>";
-                    }
-                },
-                {
-                    data: "createBy",
-                    render: function (data) {
-                        return "<text>" + data + "</text>";
-                    }
-                },
-                {
                     data: "id",
                     render: function (data) {
-                        return "<button iid='" + data + "' class='btn btn-link btn-detail-mark'>Mark</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                        //return "<button iid='" + data + "' class='btn btn-link btn-detail-mark'>Mark</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                        return "<button iid='" + data + "' class='btn btn-link btn-detail-mark'>Mark</button>";
                     }
                 }
             ];

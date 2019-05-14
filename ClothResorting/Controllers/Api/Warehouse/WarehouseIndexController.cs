@@ -33,7 +33,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             var ordersInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
-                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking);
+                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking && x.Status != FBAStatus.Shipped);
 
             foreach(var o in ordersInDb)
             {
@@ -57,16 +57,27 @@ namespace ClothResorting.Controllers.Api.Warehouse
         [HttpPut]
         public void UpdateAndSave([FromUri]int shipOrderId, [FromUri]string pickMan, [FromUri]string instructor, [FromUri]string location, [FromUri]string operation)
         {
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.ChargingItemDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
 
             UpdateWOInfo(shipOrderInDb, pickMan, instructor, location);
 
             if (operation == "Save&Ready")
             {
-                shipOrderInDb.Status = FBAStatus.Ready;
                 shipOrderInDb.ReadyTime = DateTime.Now;
                 shipOrderInDb.ReadyBy = _userName;
-                shipOrderInDb.OperationLog = "Ready by " + _userName;
+
+                if (IsPending(shipOrderInDb))
+                {
+                    shipOrderInDb.Status = FBAStatus.Pending;
+                    shipOrderInDb.OperationLog = "Submited by " + _userName;
+                }
+                else
+                {
+                    shipOrderInDb.Status = FBAStatus.Ready;
+                    shipOrderInDb.OperationLog = "Ready by " + _userName;
+                }
             }
 
             _context.SaveChanges();
@@ -77,6 +88,20 @@ namespace ClothResorting.Controllers.Api.Warehouse
             shipOrderInDb.PickMan = pickMan;
             shipOrderInDb.Instructor = instructor;
             shipOrderInDb.Lot = location;
+        }
+
+        private bool IsPending(FBAShipOrder shipOrderInDb)
+        {
+            var result = false;
+            foreach (var s in shipOrderInDb.ChargingItemDetails)
+            {
+                if (!s.IsHandledFeedback)
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
         }
     }
 

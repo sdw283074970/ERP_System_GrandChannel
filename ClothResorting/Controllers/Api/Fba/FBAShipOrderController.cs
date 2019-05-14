@@ -171,6 +171,36 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
         }
 
+        // POST /api/fba/fbashiporder/?shipOrderId={shipOrderId}&comment={comment}&operation={operation}
+        [HttpPost]
+        public IHttpActionResult CreateNewCommentFromWarehouse([FromUri]int shipOrderId, [FromUri]string comment, [FromUri]string operation)
+        {
+            if (operation == "AddNewComment")
+            {
+                var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+                var newComment = new ChargingItemDetail
+                {
+                    CreateBy = _userName,
+                    Comment = comment,
+                    CreateDate = DateTime.Now,
+                    Description = "Extral comment from warehouse",
+                    IsHandledFeedback = false,
+                    Status = FBAStatus.Unhandled,
+                    FBAShipOrder = shipOrderInDb
+                };
+
+                _context.ChargingItemDetails.Add(newComment);
+                _context.SaveChanges();
+
+                var result = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).First());
+                return Created(Request.RequestUri + "/" + result.Id, result);
+            }
+            else
+            {
+                return Ok("Invaild operation.");
+            }
+        }
+
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpPut]
         public void UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
@@ -204,13 +234,14 @@ namespace ClothResorting.Controllers.Api.Fba
 
             _context.SaveChanges();
         }
-
+            
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operationDate={operationDate}&operation={operation}
         [HttpPut]
         public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
+                .Include(x => x.ChargingItemDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
             ChangeStatus(shipOrderInDb, operation, operationDate);
@@ -462,13 +493,27 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.StartedTime = operationDate;
                     shipOrderInDb.OperationLog = "Started by " + _userName;
                 }
-                //如果订单为processing状态，则转换为ready状态
+                //如果订单为processing状态，如果仓库有返回不同的操作，转换为Pending状态,否则转换为ready状态
                 else if (shipOrderInDb.Status == FBAStatus.Processing)
                 {
-                    shipOrderInDb.Status = FBAStatus.Ready;
-                    shipOrderInDb.ReadyBy = _userName;
-                    shipOrderInDb.ReadyTime = operationDate;
-                    shipOrderInDb.OperationLog = "Ready by " + _userName;
+                    if (IsPending(shipOrderInDb))
+                    {
+                        shipOrderInDb.Status = FBAStatus.Pending;
+                        shipOrderInDb.OperationLog = "Submited by " + _userName;
+                    }
+                    else
+                    {
+                        shipOrderInDb.Status = FBAStatus.Ready;
+                        shipOrderInDb.ReadyBy = _userName;
+                        shipOrderInDb.ReadyTime = operationDate;
+                        shipOrderInDb.OperationLog = "Ready by " + _userName;
+                    }
+                }
+                //Pending状态，则转回Processing状态
+                else if (shipOrderInDb.Status == FBAStatus.Pending)
+                {
+                    shipOrderInDb.Status = FBAStatus.Processing;
+                    shipOrderInDb.OperationLog = "Returned by " + _userName;
                 }
                 //如果订单为ready状态，则转换为Released状态（如果是空单则不会返回给仓库）
                 else if (shipOrderInDb.Status == FBAStatus.Ready)
@@ -531,6 +576,17 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.Status = FBAStatus.Ready;
                     shipOrderInDb.ReleasedBy = "Cancelled by " + _userName;
                 }
+            }
+            //点操作直接为ready时，直接将订单mark成ready
+            else if (operation == FBAStatus.Ready)
+            {
+                if (IsPending(shipOrderInDb))
+                {
+                    throw new Exception("Cannot ready because some of the comments are pending.");
+                }
+
+                shipOrderInDb.Status = FBAStatus.Ready;
+                shipOrderInDb.OperationLog = "Approved by " + _userName;
             }
         }
 
@@ -677,6 +733,20 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return wo;
+        }
+
+        private bool IsPending(FBAShipOrder shipOrderInDb)
+        {
+            var result = false;
+            foreach(var s in shipOrderInDb.ChargingItemDetails)
+            {
+                if (!s.IsHandledFeedback)
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
         }
     }
 

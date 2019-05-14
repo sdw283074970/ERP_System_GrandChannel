@@ -50,6 +50,7 @@
 <div class="iframe-detail">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Comment: </text><input id='input-detail-comment' style='width:400px' class='input-sm' /><br />
+        <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Add</button>
         <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
     </div>
 </div>
@@ -68,7 +69,7 @@
             var orderId;
             var searchBar = grandChannel.getUrlParameter('search');
 
-            $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse").hide();
+            $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse, .iframe-wo-result").hide();
             $(".iframe-fbadate, .iframe-detail").hide();
 
             var columnsArray = [
@@ -88,7 +89,7 @@
                             return "<font color='vermilion'>" + data + "</font>";
                         if (data == "New Order")
                             return "<font color='orange'>" + data + "</font>"
-                        else if (data == "Processing")
+                        else if (data == "Processing" || data == "Pending")
                             return "<font color='red'>" + data + "</font>";
                         else if (data == "Ready")
                             return "<font color='green'>" + data + "</font>";
@@ -110,7 +111,7 @@
                             return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-wo-warehouse' iid='" + data + "' value='WO' />";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
-                        else if (status == "Released")
+                        else if (status == "Released" || status == "Pending")
                             return "";
                         else if (status == "Shipped")
                             return "";
@@ -127,7 +128,7 @@
                             return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Adjust' />";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
-                        else if (status == "Released")
+                        else if (status == "Released" || status == "Pending")
                             return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
                         else if (status == "Shipped")
                             return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
@@ -351,6 +352,8 @@
                         });
                     }
                 });
+                $("#btn-detail-update").show();
+                $("#btn-detail-add").hide();
                 index = layer.open({
                     title: false,
                     type: 1,
@@ -392,6 +395,31 @@
                 else
                 {
                     alert("Pick Man, Instructor and Location are required.");
+                }
+            });
+
+            //点击提交新comment按钮，打开一个简易填写界面
+            $("#btn-detail-comment").on("click", function () {
+                $("#input-detail-comment").val("");
+                $("#btn-detail-update").hide();
+                $("#btn-detail-add").show();
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+            });
+
+            //点击Add，建立一个新的仓库报告条目
+            $("#btn-detail-add").on("click", function () {
+                var description = $("#input-detail-comment").val();
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&comment=" + encodeURIComponent(description) + "&operation=AddNewComment";
+                    SendAjaxMethodAndRefreshWorkOrder("POST", url, {});
                 }
             });
 
@@ -563,7 +591,7 @@
                                     data: "isHandledFeedback",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<font color='red'>Waiting</font>";
+                                            return "<font color='red'>Pending</font>";
                                         else
                                             return "<font color='green'>Normal</font>";
                                     }
@@ -615,7 +643,7 @@
                                     data: "isHandledFeedback",
                                     render: function (data) {
                                         if (data == false)
-                                            return "<font color='red'>Waiting</font>";
+                                            return "<font color='red'>Pending</font>";
                                         else
                                             return "<font color='green'>Normal</font>";
                                     }
@@ -697,7 +725,7 @@
                                 data: "isHandledFeedback",
                                 render: function (data) {
                                     if (data == false)
-                                        return "<font color='red'>Waiting</font>";
+                                        return "<font color='red'>Pending</font>";
                                     else
                                         return "<font color='green'>Normal</font>";
                                 }
