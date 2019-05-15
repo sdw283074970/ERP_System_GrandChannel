@@ -45,6 +45,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 order.TotalCtns = o.FBAPickDetails.Sum(x => x.ActualQuantity);
                 order.TotalPlts = o.FBAPickDetails.Sum(x => x.ActualPlts);
                 order.ShipDate = o.ShipDate;
+                order.ReleaseTime = o.ReleasedDate;
                 order.OrderNumber = o.ShipOrderNumber;
 
                 list.Add(order);
@@ -68,7 +69,11 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 shipOrderInDb.ReadyTime = DateTime.Now;
                 shipOrderInDb.ReadyBy = _userName;
 
-                if (IsPending(shipOrderInDb))
+                if (!IsAllowedToReady(shipOrderInDb))
+                {
+                    throw new Exception("Cannot ready for now. There are still some unhandled new or returned instructions in this work order.");
+                }
+                else if (IsPending(shipOrderInDb))
                 {
                     shipOrderInDb.Status = FBAStatus.Pending;
                     shipOrderInDb.OperationLog = "Submited by " + _userName;
@@ -79,6 +84,18 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     shipOrderInDb.OperationLog = "Ready by " + _userName;
                 }
             }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/warehouseIndex/?chargingItemDetailId={chargingItemDetailId}
+        [HttpPut]
+        public void ConfirmInstruction([FromUri]int chargingItemDetailId)
+        {
+            var chargingItemDetailInDb = _context.ChargingItemDetails.Find(chargingItemDetailId);
+
+            chargingItemDetailInDb.HandlingStatus = FBAStatus.Finished;
+            chargingItemDetailInDb.ConfirmedBy = _userName;
 
             _context.SaveChanges();
         }
@@ -95,9 +112,23 @@ namespace ClothResorting.Controllers.Api.Warehouse
             var result = false;
             foreach (var s in shipOrderInDb.ChargingItemDetails)
             {
-                if (!s.IsHandledFeedback)
+                if (s.HandlingStatus == FBAStatus.Pending)
                 {
                     result = true;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        private bool IsAllowedToReady(FBAShipOrder shipOrderInDb)
+        {
+            var result = true;
+            foreach (var s in shipOrderInDb.ChargingItemDetails)
+            {
+                if (s.HandlingStatus == FBAStatus.New || s.HandlingStatus == FBAStatus.Returned)
+                {
+                    result = false;
                     break;
                 }
             }
@@ -146,6 +177,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public DateTime ShipDate { get; set; }
 
         public DateTime PlaceTime { get; set; }
+
+        public DateTime ReleaseTime { get; set; }
 
         public string ReleasedBy { get; set; }
 

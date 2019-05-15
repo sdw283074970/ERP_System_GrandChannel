@@ -243,9 +243,9 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(invoiceDetailDto);
         }
 
-        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}
+        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}&isChargingIte{isChargingItem}
         [HttpPost]
-        public IHttpActionResult GreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
+        public IHttpActionResult CreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description, [FromUri]bool isChargingItem)
         {
             var detail = new ChargingItemDetail();
 
@@ -255,12 +255,21 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 var newDetail = new ChargingItemDetail {
                     Status = FBAStatus.Unhandled,
-                    IsHandledFeedback = true,
+                    HandlingStatus = FBAStatus.New,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
                     Description = description,
                     FBAMasterOrder = masterOrderInDb
                 };
+
+                if (isChargingItem)
+                {
+                    newDetail.Status = FBAStatus.WaitingForCharging;
+                }
+                else
+                {
+                    newDetail.Status = FBAStatus.NoNeedForCharging;
+                }
 
                 detail = newDetail;
                 _context.ChargingItemDetails.Add(detail);
@@ -272,12 +281,21 @@ namespace ClothResorting.Controllers.Api.Fba
                 var newDetail = new ChargingItemDetail
                 {
                     Status = FBAStatus.Unhandled,
-                    IsHandledFeedback = true,
+                    HandlingStatus = FBAStatus.New,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
                     Description = description,
                     FBAShipOrder = shipOrderInDb
                 };
+
+                if (isChargingItem)
+                {
+                    newDetail.Status = FBAStatus.WaitingForCharging;
+                }
+                else
+                {
+                    newDetail.Status = FBAStatus.NoNeedForCharging;
+                }
 
                 detail = newDetail;
                 _context.ChargingItemDetails.Add(detail);
@@ -290,7 +308,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}
         [HttpPost]
-        public IHttpActionResult GreateChargingItem([FromUri]string reference, [FromUri]string invoiceType, [FromBody]InvoiceDetailJsonObj obj)
+        public IHttpActionResult CreateChargingItem([FromUri]string reference, [FromUri]string invoiceType, [FromBody]InvoiceDetailJsonObj obj)
         {
             var invoice = new InvoiceDetail();
 

@@ -141,8 +141,8 @@ namespace ClothResorting.Controllers.Api.Fba
             foreach(var c in customerWOInstructions)
             {
                 chargingItemDetailList.Add(new ChargingItemDetail {
-                    Status = FBAStatus.Unhandled,
-                    IsHandledFeedback = true,
+                    Status = c.Status,
+                    HandlingStatus = FBAStatus.New,
                     Description = c.Description,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now
@@ -184,7 +184,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     Comment = comment,
                     CreateDate = DateTime.Now,
                     Description = "Extral comment from warehouse",
-                    IsHandledFeedback = false,
+                    HandlingStatus = FBAStatus.Pending,
                     Status = FBAStatus.Unhandled,
                     FBAShipOrder = shipOrderInDb
                 };
@@ -312,11 +312,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 foreach(var i in instructionTemplates)
                 {
                     chargingItemDetailList.Add(new ChargingItemDetail {
-                        Status = FBAStatus.Unhandled,
+                        Status = i.Status,
                         CreateBy = _userName,
                         Description = i.Description,
                         CreateDate = DateTime.Now,
-                        IsHandledFeedback = true,
+                        HandlingStatus = FBAStatus.New,
                         FBAShipOrder = shipOrderInDb
                     });
                 }
@@ -328,23 +328,33 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbashiporder/?chargingDetailId={chargingDetailId}&comment={comment}&operation={operation}
         [HttpPut]
-        public void UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]string operation)
+        public void UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]bool isChargingItem, [FromUri]string operation)
         {
             var instructionInDb = _context.ChargingItemDetails.Find(chargingDetailId);
             
             if (operation == "UpdateInstruction")
             {
                 instructionInDb.Description = comment;
+                instructionInDb.HandlingStatus = FBAStatus.New;
+                if (isChargingItem)
+                {
+                    instructionInDb.Status = FBAStatus.WaitingForCharging;
+                }
+                else
+                {
+                    instructionInDb.Status = FBAStatus.NoNeedForCharging;
+                }
             }
             else if (operation == "UpdateComment")
             {
                 instructionInDb.Comment = comment;
-                instructionInDb.IsHandledFeedback = false;
+                instructionInDb.HandlingStatus = FBAStatus.Pending;
+                instructionInDb.ConfirmedBy = _userName;
             }
             else if (operation == "UpdateResult")
             {
                 instructionInDb.Result = comment;
-                instructionInDb.IsHandledFeedback = true;
+                instructionInDb.HandlingStatus = FBAStatus.Returned;
             }
 
             _context.SaveChanges();
@@ -727,7 +737,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     CreateBy = c.CreateBy,
                     CreateDate = c.CreateDate,
                     Result = c.Result,
-                    IsHandledFeedback = c.IsHandledFeedback,
+                    HandlingStatus = c.HandlingStatus,
                     Status =c.Status
                 });
             }
@@ -740,7 +750,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var result = false;
             foreach(var s in shipOrderInDb.ChargingItemDetails)
             {
-                if (!s.IsHandledFeedback)
+                if (s.HandlingStatus == FBAStatus.Pending)
                 {
                     result = true;
                     break;
@@ -866,6 +876,6 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public string Result { get; set; }
 
-        public bool IsHandledFeedback { get; set; }
+        public string HandlingStatus { get; set; }
     }
 }

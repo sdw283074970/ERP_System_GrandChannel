@@ -13,6 +13,8 @@ namespace ClothResorting.Dtos
 
         public DateTime CreateDate { get; set; }
 
+        public string Status { get; set; }
+
         public string CreateBy { get; set; }
     }
 }

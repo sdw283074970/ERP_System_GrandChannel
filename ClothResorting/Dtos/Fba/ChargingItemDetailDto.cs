@@ -21,6 +21,6 @@ namespace ClothResorting.Dtos.Fba
 
         public string Result { get; set; }
 
-        public bool IsHandledFeedback { get; set; }
+        public string HandlingStatus { get; set; }
     }
 }

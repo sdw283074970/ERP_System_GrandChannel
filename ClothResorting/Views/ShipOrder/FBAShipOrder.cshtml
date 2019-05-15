@@ -82,6 +82,7 @@
 <div class="iframe-detail">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
+        <text>Is charging item</text><input type="checkbox" id="cb-charge" /><br />
         <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Create</button>
         <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
     </div>
@@ -485,7 +486,7 @@
             //点击picking状态下的Release按钮，将运单标记为released
             $("#table").on("click", ".btn-release", function () {
                 var id = $(this).attr('iid');
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&isRekease=true";
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&isRelease=true";
                 SendAjaxMethod("PUT", url, {});
             })
 
@@ -685,6 +686,8 @@
 
             //点击添加指示按钮按钮，打开一个简易填写界面
             $(".btn-detail-create").on("click", function () {
+                $("#cb-charge").show();
+
                 $("#input-detail-description").val("");
                 $("#btn-detail-update").hide();
                 $("#btn-detail-add").show();
@@ -700,10 +703,11 @@
             //点击添加按钮，添加操作指示
             $("#btn-detail-add").on("click", function () {
                 var description = $("#input-detail-description").val();
+                var isChargingItem = $("#cb-charge").prop("checked");
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=ShipOrder&description=" + encodeURIComponent(description);
+                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=ShipOrder&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
                     SendAjaxMethodAndRefreshWorkOrder("POST", url, {});
                 }
             });
@@ -716,6 +720,7 @@
 
             //点击操作指示表中的更新按钮，打开更新界面
             $(".table-wo").on("click", ".btn-detail-update", function () {
+                $("#cb-charge").show();
                 chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
                 url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId;
                 var pIndex;
@@ -758,10 +763,12 @@
             //点击更新按钮，更新操作指示
             $("#btn-detail-update").on("click", function () {
                 var description = $("#input-detail-description").val();
+                var isChargingItem = $("#cb-charge").prop("checked");
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&operation=UpdateInstruction";
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&operation=UpdateInstruction";
+
                     SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
                 }
             });
@@ -786,6 +793,7 @@
 
             //点击pending状态下的WO按钮，打开返回WO的界面
             $("#table").on("click", ".btn-wo-result", function () {
+                $("#cb-charge").hide();
                 customerCode = $(this).parent().parent("tr").children("td").eq(3).children("text").html();
                 shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
                 reference = $(this).parent().parent("tr").children("td").eq(2).children("text").html();
@@ -837,7 +845,7 @@
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&operation=UpdateResult";
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&operation=UpdateResult";
                     SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
                 }
             });
@@ -850,6 +858,13 @@
                     url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=1992-11-17&operation=Ready";
 
                 grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
+            //点击confirm按钮，将选中指令标记为处理完成
+            $(".table-wo").on("click", ".btn-confirm", function () {
+                var chargingItemDetailId = $(this).attr('iid');
+                url = "/api/warehouseindex/?chargingItemDetailId=" + chargingItemDetailId + "&operation=Confirm";
+                SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {
@@ -1072,150 +1087,64 @@
                             iDisplayLength: 100,
                             columns: plColumnArray
                         });
-                        var osColumnArray;
-                        if (pageId == ".iframe-wo") {
-                            osColumnArray = [
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "description",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "comment",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "result",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "isHandledFeedback",
-                                    render: function (data) {
-                                        if (data == false)
-                                            return "<font color='red'>Pending</font>";
-                                        else
-                                            return "<font color='green'>Normal</font>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
-                                    }
-                                }
-                            ];
-                        }
-                        else if (pageId == ".iframe-wo-result")
-                        {
-                            osColumnArray = [
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "description",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "comment",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "result",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "isHandledFeedback",
-                                    render: function (data) {
-                                        if (data == false)
-                                            return "<font color='red'>Pending</font>";
-                                        else
-                                            return "<font color='green'>Normal</font>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
-                                    }
-                                }
-                            ];
-                        }
-                        else {
-                            osColumnArray = [
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "description",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "comment",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "result",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "isHandledFeedback",
-                                    render: function (data) {
-                                        if (data == false)
-                                            return "<font color='red'>Pending</font>";
-                                        else
-                                            return "<font color='green'>Normal</font>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return " ";
-                                    }
-                                }
-                            ];
-                        }
 
+                        var osColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "result",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "handlingStatus",
+                                render: function (data) {
+                                    if (data == "New")
+                                        return "<font color='blue'>" + data + "</font>";
+                                    else if (data == "Pending")
+                                        return "<font color='red'>" + data + "</font>";
+                                    else if (data == "Returned")
+                                        return "<font color='Orange'>" + data + "</font>";
+                                    else if (data == "Finished")
+                                        return "<font color='green'>" + data + "</font>";
+                                    else
+                                        return "<font>Invaild Date</font>"
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                }
+                            }
+                        ];
                         table = $(".table-wo").DataTable({
                             data: data.operationInstructions,
                             destroy: true,
@@ -1281,18 +1210,30 @@
                                 }
                             },
                             {
-                                data: "isHandledFeedback",
+                                data: "status",
                                 render: function (data) {
-                                    if (data == false)
-                                        return "<font color='red'>Pending</font>";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "handlingStatus",
+                                render: function (data) {
+                                    if (data == "New")
+                                        return "<font color='blue'>" + data + "</font>";
+                                    else if (data == "Pending")
+                                        return "<font color='red'>" + data + "</font>";
+                                    else if (data == "Returned")
+                                        return "<font color='Orange'>" + data + "</font>";
+                                    else if (data == "Finished")
+                                        return "<font color='green'>" + data + "</font>";
                                     else
-                                        return "<font color='green'>Normal</font>";
+                                        return "<font>Invaild Date</font>"
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "'class='btn btn-confirm btn-link'>Confirm</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                 }
                             }
                         ];

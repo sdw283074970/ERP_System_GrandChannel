@@ -83,9 +83,9 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + result.Id, Mapper.Map<UpperVendor, UpperVendorDto>(result));
         }
 
-        //POST /api/customermanagement/?customerId={customerId}&description={description}&isAppliedToAll={isAppliedToAll}
+        //POST /api/customermanagement/?customerId={customerId}&description={description}&isChargingItem={isChargingItem}&isAppliedToAll={isAppliedToAll}
         [HttpPost]
-        public IHttpActionResult CreateNewChargingDetailTemplate([FromUri]int customerId, [FromUri]string description, [FromUri]bool isAppliedToAll)
+        public IHttpActionResult CreateNewChargingDetailTemplate([FromUri]int customerId, [FromUri]string description, [FromUri]bool isChargingItem, [FromUri]bool isAppliedToAll)
         {
             var fbaCustomers = _context.UpperVendors
                 .Where(x => x.DepartmentCode == "FBA");
@@ -101,6 +101,16 @@ namespace ClothResorting.Controllers.Api
 
                 var customerInDb = fbaCustomers.SingleOrDefault(x => x.Id == customerId);
                 newTemplate.Customer = customerInDb;
+
+                if (isChargingItem)
+                {
+                    newTemplate.Status = FBAStatus.WaitingForCharging;
+                }
+                else
+                {
+                    newTemplate.Status = FBAStatus.NoNeedForCharging;
+                }
+
                 _context.InstructionTemplates.Add(newTemplate);
             }
             else
@@ -117,6 +127,16 @@ namespace ClothResorting.Controllers.Api
                     };
 
                     newTemplate.Customer = f;
+
+                    if (isChargingItem)
+                    {
+                        newTemplate.Status = FBAStatus.WaitingForCharging;
+                    }
+                    else
+                    {
+                        newTemplate.Status = FBAStatus.NoNeedForCharging;
+                    }
+
                     templateList.Add(newTemplate);
                 }
 
@@ -148,6 +168,15 @@ namespace ClothResorting.Controllers.Api
             {
                 throw new Exception("Cannot delete this customer because one or more work orders or ship orders rely on it. Make sure deleting all related work orders and ship orders before deleteing this customer.");
             }
+        }
+
+        //DELET /api/customermanagement/?instructionId={instructionId}
+        [HttpDelete]
+        public void DeleteInstructionTemplate([FromUri]int instructionId)
+        {
+            var instructionInDb = _context.InstructionTemplates.Find(instructionId);
+            _context.InstructionTemplates.Remove(instructionInDb);
+            _context.SaveChanges();
         }
     }
 }

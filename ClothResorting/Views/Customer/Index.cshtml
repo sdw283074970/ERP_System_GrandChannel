@@ -66,6 +66,7 @@
                 <tr>
                     <th style="width:66px">Id</th>
                     <th>Descriptiono</th>
+                    <th>Status</th>
                     <th style="width:180px">Update Date</th>
                     <th style="width:180px">Create By</th>
                     <th style="width:180px">OPERATION</th>
@@ -79,6 +80,7 @@
 <div class="iframe-detail">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
+        <text>Is charging item</text><input type="checkbox" id="cb-charge" /><br />
         <text>Apply to all FBA customer</text><input type="checkbox" id="cb-all" /><br />
         <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">create</button>
     </div>
@@ -112,6 +114,13 @@
                 {
                     data: "description",
                     width: "80%",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "status",
+                    width: "20%",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
@@ -344,9 +353,10 @@
             $("#btn-detail-add").on("click", function () {
                 var description = $("#input-detail-description").val();
                 var isAppliedToAll = $("#cb-all").prop("checked");
+                var isChargingItem = $("#cb-charge").prop("checked");
 
                 if (description != "") {
-                    url = "/api/CustomerManagement/?customerId=" + customerId + "&description=" + encodeURIComponent(description) + "&isAppliedToAll=" + isAppliedToAll;
+                    url = "/api/CustomerManagement/?customerId=" + customerId + "&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&isAppliedToAll=" + isAppliedToAll;
 
                     $.ajax({
                         type: "POST",
@@ -372,7 +382,7 @@
             $("#table-detail").on("click", ".btn-detail-delete", function () {
                 var id = $(this).attr('iid');
 
-                url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
+                url = "/api/fba/customermanagement/?instructionId=" + id;
 
                 $.ajax({
                     type: "DELETE",

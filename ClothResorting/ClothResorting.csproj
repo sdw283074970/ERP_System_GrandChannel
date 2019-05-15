@@ -1602,6 +1602,14 @@
     <Compile Include="Migrations\201905102041063_AddedInstructionTemplateDbSet.Designer.cs">
       <DependentUpon>201905102041063_AddedInstructionTemplateDbSet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905141740532_AddedHandlingStatusInChargingItemDetail.cs" />
+    <Compile Include="Migrations\201905141740532_AddedHandlingStatusInChargingItemDetail.Designer.cs">
+      <DependentUpon>201905141740532_AddedHandlingStatusInChargingItemDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201905142110391_AddedStatusInInstructionTemplate.cs" />
+    <Compile Include="Migrations\201905142110391_AddedStatusInInstructionTemplate.Designer.cs">
+      <DependentUpon>201905142110391_AddedStatusInInstructionTemplate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3002,6 +3010,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905102041063_AddedInstructionTemplateDbSet.resx">
       <DependentUpon>201905102041063_AddedInstructionTemplateDbSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905141740532_AddedHandlingStatusInChargingItemDetail.resx">
+      <DependentUpon>201905141740532_AddedHandlingStatusInChargingItemDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905142110391_AddedStatusInInstructionTemplate.resx">
+      <DependentUpon>201905142110391_AddedStatusInInstructionTemplate.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

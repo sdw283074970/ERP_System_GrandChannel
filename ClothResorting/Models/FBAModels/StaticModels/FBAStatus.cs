@@ -6,12 +6,20 @@ using System.Web;
 namespace ClothResorting.Models.FBAModels.StaticModels
 {
     public static class FBAStatus
-    {
+    { 
+        public const string WaitingForCharging = "Waiting for charging";
+
+        public const string New = "New";
+
+        public const string Returned = "Returned";
+
+        public const string Finished = "Finished";
+
         public const string Pending = "Pending";
 
         public const string Unhandled = "Unhandled";
 
-        public const string NoNeed = "No need for charging";
+        public const string NoNeedForCharging = "No need for charging";
 
         public const string Template = "Template";
 

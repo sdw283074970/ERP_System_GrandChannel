@@ -86,8 +86,16 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateInfo([FromUri]int orderDetailId, [FromBody]BaseFBAOrderDetail obj)
         {
-            var orderDetailInDb = _context.FBAOrderDetails.Find(orderDetailId);
-            
+            var orderDetailInDb = _context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .SingleOrDefault(x => x.Id == orderDetailId);
+
+            //如果该主单还未被确认收货（没有收货日期），则禁止单个调节
+            if (orderDetailInDb.FBAMasterOrder.InboundDate.Year == 1900)
+            {
+                throw new Exception("Cannot update info because this master order is unreceived yet.");
+            }
+
             //如果该detail被分配，则禁止更改实收数据
             if (orderDetailInDb.ComsumedQuantity != 0)
             {

@@ -506,7 +506,11 @@ namespace ClothResorting.Helpers
 
         private string UnifySize(string size)
         {
-            if (size == "XL" || size == "1XL")
+            if (size == "xs")
+            {
+                return "XS";
+            }
+            else if (size == "XL" || size == "1XL")
             {
                 return "1X";
             }

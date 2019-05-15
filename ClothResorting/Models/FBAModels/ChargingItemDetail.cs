@@ -22,7 +22,9 @@ namespace ClothResorting.Models.FBAModels
 
         public string Result { get; set; }
 
-        public bool IsHandledFeedback { get; set; }
+        public string HandlingStatus { get; set; }
+
+        public string ConfirmedBy { get; set; }
 
         public FBAMasterOrder FBAMasterOrder { get; set; }
 
@@ -32,13 +34,13 @@ namespace ClothResorting.Models.FBAModels
 
         public ChargingItemDetail()
         {
-            IsHandledFeedback = false;
+            HandlingStatus = FBAStatus.New;
 
-            Status = FBAStatus.NoNeed;
+            Status = FBAStatus.NoNeedForCharging;
 
             CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
 
-            CreateBy = FBAStatus.NoNeed;
+            CreateBy = FBAStatus.NoNeedForCharging;
         }
     }
 }
