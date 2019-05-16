@@ -487,6 +487,15 @@
                     window.history.pushState({}, {}, "/thirdpartylogistics/FCRegularLocationDetail/?preid=" + preid + "&search=" + tableSearch);
                 });
 
+                //点击历史按钮，进入当前对象的发货历史页面
+                $("#table").on("click", ".btn-history", function () {
+                    var locationId = $(this).attr('iid');
+                    orderType = $(this).attr('ordertype');
+
+                    url = "/ThirdPartyLogistics/shipdetailhistory/?locationId=" + locationId + "&orderType=" + orderType;
+                    $(window.location).attr('href', url);
+                });
+
                 function GetInventoryTable(data, table) {
                     if (table) {
                         table.destroy();
@@ -688,7 +697,7 @@
                                     //if ((availableCtns == 0 && pickingCtns == 0) || pickingCtns != 0)
                                     if (sizeBundle.split(' ').length > 1 && availablePcs != 0)
                                     {
-                                        return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button><button class='btn btn-link btn-break' iid='" + data + "'>Break</button>"
+                                        return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button><button class='btn btn-link btn-break' iid='" + data + "'>Break</button><button iid='" + data + "' class='btn btn-link btn-history' ordertype=Regular' >History</button>"
                                     }
                                     else
                                     {
@@ -697,7 +706,7 @@
                                         else if (isPutBack)
                                             return "<button style='width:40px' locationid='" + data + "'class='btn btn-link btn-edit'>Edit</button><button style='width:30px' locationid='" + data + "'class='btn btn-link btn-delete'>X</button>";
                                         else
-                                            return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button>";
+                                            return "<button id='" + data + "'class='btn btn-link btn-relocate'>Relocate</button><button iid='" + data + "' class='btn btn-link btn-history' ordertype='Regular' >History</button>";
                                     }
                                 }
                             }

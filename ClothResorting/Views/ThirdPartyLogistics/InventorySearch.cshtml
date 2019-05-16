@@ -96,12 +96,14 @@
                             <th>Allocated By</th>
                             <th>Batch</th>
                             <th>Location</th>
+                            <th>Operation</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                     <tfoot>
                         <tr>
                             <th colspan="10" style="text-align:right">Total:</th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -139,6 +141,7 @@
 
         var table;
         var index;
+        var orderType;
 
         //动态获取Vendor数据
         $.ajax({
@@ -208,6 +211,7 @@
                     table = $("#table").DataTable({
                         scrollCollapse: true,
                         scrollY: "600px",
+                        scrollX: true,
                         iDisplayLength: 100,
                         data: data,
                         destroy: true,
@@ -370,7 +374,7 @@
                             {
                                 data: "inboundDate",
                                 render: function (data) {
-                                    return "<font>" + data + "</font>";
+                                    return "<font>" + data.substring(0, 10) + "</font>";
                                 }
                             },
                             {
@@ -385,16 +389,26 @@
                             {
                                 data: "batch",
                                 render: function (data) {
-                                    if (data == undefined)
+                                    if (data == undefined) {
+                                        orderType = "Replenishment";
                                         return "<text>N/A</text>";
-                                    else
+                                    }
+                                    else {
+                                        orderType = "Regular";
                                         return "<text>" + data + "</text>";
+                                    }
                                 }
                             },
                             {
                                 data: "location",
                                 render: function (data) {
                                     return "<font color='orange'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-history' ordertype='" + orderType + "' >History</button>";
                                 }
                             }
                         ],
@@ -530,6 +544,15 @@
                     });
                 }
             });
+        });
+
+        //点击历史按钮，进入当前对象的发货历史页面
+        $("#table").on("click", ".btn-history", function () {
+            var locationId = $(this).attr('iid');
+            orderType = $(this).attr('ordertype');
+
+            url = "/ThirdPartyLogistics/shipdetailhistory/?locationId=" + locationId + "&orderType=" + orderType;
+            $(window.location).attr('href', url);
         });
 
         $(".btn-back").on("click", function () {

@@ -154,6 +154,10 @@
         <text>Adjust New Plts:</text><input id="input-new" type="number" class="input-sm" style="width:80px" value="0" />
     </div>
     <div style="margin-top:20px">
+        <text>Current Outbound Plts:<font id="font-outbound" color="red">10</font></text><br />
+        <text>Adjust Outbound Plts:</text><input id="input-outbound" type="number" class="input-sm" style="width:80px" value="0" />
+    </div>
+    <div style="margin-top:20px">
         <button class="btn btn-primary" id="btn-adjust">Confirm</button>
     </div>
 </div>
@@ -604,32 +608,32 @@
                 //var pickingCtns = $(this).parent().parent("tr").children('td').eq(14).children('font').html();
                 var pickingInventoryPlts = $(this).parent().parent("tr").children('td').eq(15).children('font').html();
                 var pickingNewPlts = $(this).parent().parent("tr").children('td').eq(16).children('font').html();
+                var outboundPlts = $(this).parent().parent("tr").children('td').eq(17).children('font').html();
                 pickDetailId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
 
                 //$("#font-ctns").html(pickingCtns);
                 $("#font-plts").html(pickingInventoryPlts);
                 $("#font-new").html(pickingNewPlts);
+                $("#font-outbound").html(outboundPlts);
 
                 grandChannel.openiframe(index, ".iframe-adjust", "300px", "320px");
             });
 
             //点击确认调整按钮，确认调整
             $("#btn-adjust").on("click", function () {
-                //var pickingCtns = $(this).parent().parent("tr").children('td').eq(14).children('font').html();
                 var pickingInventoryPlts = $(this).parent().parent("tr").children('td').eq(15).children('font').html();
                 var pickingNewPlts = $(this).parent().parent("tr").children('td').eq(16).children('font').html();
+                var outboundPlts = $(this).parent().parent("tr").children('td').eq(17).children('font').html();
 
-                //var ctnsAdjust = $("#font-ctns").val();
                 var pltsAdjust = $("#input-plts").val();
                 var newPltsAdjust = $("#input-new").val();
+                var outboundAjudst = $("#input-outbound").val();
 
-                if (pltsAdjust == "" || newPltsAdjust == "")
-                {
+                if (pltsAdjust == "" || newPltsAdjust == "" || outboundAjudst == "") {
                     alert("Adjust file cannot be empty.");
                 }
-                else
-                {
-                    url = "/api/fba/fbapickdetail/?pickDetailId=" + pickDetailId + "&pltsAdjust=" + pltsAdjust + "&newPltsAdjust=" + newPltsAdjust;
+                else {
+                    url = "/api/fba/fbapickdetail/?pickDetailId=" + pickDetailId + "&pltsAdjust=" + pltsAdjust + "&newPltsAdjust=" + newPltsAdjust + "&outboundAdjust=" + outboundAjudst;
                     SendAjaxMethod("PUT", url, {});
                 }
             });

@@ -185,6 +185,9 @@ namespace ClothResorting.Controllers.Api
                     pickDetailInDb.PickPcs -= putBackPcs;
                 }
 
+                //刷新被放回地点状态
+                pickDetailInDb.Status = RefreshRegularStatus(pickDetailInDb.FCRegularLocationDetail);
+
                 _context.SaveChanges();
             }
             else if (orderType == OrderType.Replenishment)
@@ -205,7 +208,42 @@ namespace ClothResorting.Controllers.Api
                     pickDetailInDb.PickPcs -= putBackPcs;
                 }
 
+                //刷新被放回地点状态
+                pickDetailInDb.Status = RefreshReplenishmentStatus(pickDetailInDb.ReplenishmentLocationDetail);
+
                 _context.SaveChanges();
+            }
+        }
+
+        private string RefreshRegularStatus(FCRegularLocationDetail location)
+        {
+            if (location.PickingCtns != 0 || location.PickingPcs != 0)
+            {
+                return Status.Picking;
+            }
+            else if (location.PickingCtns == 0 && location.PickingPcs == 0 && location.AvailableCtns == 0 && location.AvailablePcs == 0)
+            {
+                return Status.Shipped;
+            }
+            else
+            {
+                return Status.InStock;
+            }
+        }
+
+        private string RefreshReplenishmentStatus(ReplenishmentLocationDetail location)
+        {
+            if (location.PickingPcs != 0)
+            {
+                return Status.Picking;
+            }
+            else if (location.PickingPcs == 0 && location.AvailablePcs == 0)
+            {
+                return Status.Shipped;
+            }
+            else
+            {
+                return Status.InStock;
             }
         }
     }

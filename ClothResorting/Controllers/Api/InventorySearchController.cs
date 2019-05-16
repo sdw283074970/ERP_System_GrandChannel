@@ -60,6 +60,7 @@ namespace ClothResorting.Controllers.Api
                 foreach(var rep in replenishmentLocationDetails)
                 {
                     replenishmentResult.Add(new InventoryReportDetail {
+                        Id = rep.Id,
                         Vendor = rep.Vendor,
                         Status = rep.Status,
                         PurchaseOrder = rep.PurchaseOrder,

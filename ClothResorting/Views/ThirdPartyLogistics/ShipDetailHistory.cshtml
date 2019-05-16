@@ -27,10 +27,11 @@
             <table id="table" class="table table-condensed table-hover table-striped">
                 <thead>
                     <tr>
+                        <th>Status</th>
+                        <th>Ship PO</th>
                         <th>Container</th>
                         <th>Vendor</th>
                         <th>Cut Po</th>
-                        <th>Ship PO</th>
                         <th>Ship Date</th>
                         <th>Customer Code</th>
                         <th>Style</th>
@@ -60,6 +61,150 @@
             var table;
             var index;
             var url;
+            var searchBar
+            var orderType;
+            var orderType = grandChannel.getUrlParameter('orderType');
+            var locationId = grandChannel.getUrlParameter('locationId');
+
+            var columnsArray = [
+                {
+                    data: "status",
+                    render: function (data) {
+                        if (data == "New Created") {
+                            return "<text style='color:Orange'>" + data + "</text>";
+                        }
+                        else if (data == "Picking") {
+                            return "<text style='color:Red'>" + data + "</text>";
+                        }
+                        else if (data == "Ready") {
+                            return "<text style='color:Green'>" + data + "</text>";
+                        }
+                        else {
+                            return "<text style='color:blue'>" + data + "</text>";
+                        }
+                    }
+                },
+                {
+                    data: "shipPO",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "container",
+                    render: function (data) {
+                        if (data == undefined)
+                            return "<text>N/A</text>";
+                        else
+                            return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "vendor",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "cutPO",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "shipDate",
+                    render: function (data) {
+                        return "<text>" + data.toString().substring(0, 10) + "</text>";
+                    }
+                },
+                {
+                    data: "customerCode",
+                    render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "style",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "color",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "size",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "pcs",
+                    render: function (data) {
+                        if (data == undefined)
+                            return "<text>N/A</text>";
+                        else
+                            return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "pickedCtns",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "pickedPcs",
+                    render: function (data) {
+                        return "<font color='green'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "allocator",
+                    render: function (data) {
+                        if (data == undefined)
+                            return "<text>N/A</text>";
+                        else
+                            return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "cartonRange",
+                    render: function (data) {
+                        if (data == undefined)
+                            return "<text>N/A</text>";
+                        else
+                            return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "batch",
+                    render: function (data) {
+                        if (data == undefined) {
+                            return "<text>N/A</text>";
+                        }
+                        else {
+                            return "<text>" + data + "</text>";
+                        }
+                    }
+                },
+                {
+                    data: "location",
+                    render: function (data) {
+                        return "<font color='orange'>" + data + "</font>";
+                    }
+                }
+            ];
+
+            //如果locationId和orderType参数都不是undefined，则获取表
+            if (orderType != undefined && locationId != undefined)
+            {
+                url = "/api/shipdetailhistory/?locationId=" + locationId + "&orderType=" + orderType;
+                grandChannel.getAjaxMiniTable("GET", url, "#table", table, columnsArray, index);
+            }
 
             //动态获取Vendor数据
             $.ajax({
@@ -118,119 +263,7 @@
                             iDisplayLength: 100,
                             data: data,
                             destroy: true,
-                            columns: [
-                                {
-                                    data: "container",
-                                    render: function (data) {
-                                        if (data == undefined)
-                                            return "<text>N/A</text>";
-                                        else
-                                            return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "vendor",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "cutPO",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "shipPO",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "shipDate",
-                                    render: function (data) {
-                                        return "<text>" + data.toString().substring(0, 10) + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "customerCode",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "style",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "color",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "size",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "pcs",
-                                    render: function (data) {
-                                        if (data == undefined)
-                                            return "<text>N/A</text>";
-                                        else
-                                            return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "pickedCtns",
-                                    render: function (data) {
-                                        return "<font color='green'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "pickedPcs",
-                                    render: function (data) {
-                                        return "<font color='green'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "allocator",
-                                    render: function (data) {
-                                        if (data == undefined)
-                                            return "<text>N/A</text>";
-                                        else
-                                            return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "cartonRange",
-                                    render: function (data) {
-                                        if (data == undefined)
-                                            return "<text>N/A</text>";
-                                        else
-                                            return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "batch",
-                                    render: function (data) {
-                                        if (data == undefined)
-                                            return "<text>N/A</text>";
-                                        else
-                                            return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "location",
-                                    render: function (data) {
-                                        return "<font color='orange'>" + data + "</font>";
-                                    }
-                                }
-                            ]
+                            columns: columnsArray,
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {

@@ -28,7 +28,6 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Status</th>
                     <th>Carton Range</th>
                     <th>Container</th>
                     <th>Cut PO</th>
@@ -125,15 +124,6 @@
                         scrollY: "600px",
                         iDisplayLength: 100,
                         columns: [
-                            {
-                                data: "status",
-                                render: function (data) {
-                                    if(data == "Picking")
-                                        return "<font color='red'>" + data + "</font>";
-                                    else
-                                        return "<font color='blue'>" + data + "</font>";
-                                }
-                            },
                             {
                                 data: "cartonRange",
                                 render: function (data) {

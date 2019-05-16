@@ -614,7 +614,7 @@
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=ShipOrder&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
+                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
                     SendAjaxMethod("POST", url, {});
                 }
             });
