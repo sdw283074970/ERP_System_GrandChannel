@@ -1610,6 +1610,10 @@
     <Compile Include="Migrations\201905142110391_AddedStatusInInstructionTemplate.Designer.cs">
       <DependentUpon>201905142110391_AddedStatusInInstructionTemplate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905161758080_AddedInboundDateInPrereceiveOrder.cs" />
+    <Compile Include="Migrations\201905161758080_AddedInboundDateInPrereceiveOrder.Designer.cs">
+      <DependentUpon>201905161758080_AddedInboundDateInPrereceiveOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3016,6 +3020,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905142110391_AddedStatusInInstructionTemplate.resx">
       <DependentUpon>201905142110391_AddedStatusInInstructionTemplate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905161758080_AddedInboundDateInPrereceiveOrder.resx">
+      <DependentUpon>201905161758080_AddedInboundDateInPrereceiveOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

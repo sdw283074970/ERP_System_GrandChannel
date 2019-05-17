@@ -28,6 +28,7 @@
                     <th>Vendor Name</th>
                     <th>Work Order Type</th>
                     <th>Created Date</th>
+                    <th>Inbound Date</th>
                     <th>Created By</th>
                     <th style="width:95px">Container#</th>
                     <th>Fcs Ctns</th>
@@ -35,6 +36,7 @@
                     <th>Fcs Pcs</th>
                     <th>Rcp Pcs</th>
                     <th>Operation</th>
+                    <th>Manage</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -76,6 +78,10 @@
         </a>
     </div>
 </div>
+<div class="iframe iframe-update" style="text-align:right;margin:20px">
+    <text>Inbound Date: </text><input type="date" class="input-sm" id="input-date" /><br />
+    <button id="btn-update" class="btn btn-info" style="margin-top:20px">Update</button>
+</div>
 @section scripts
 {
     <script>
@@ -87,6 +93,7 @@
             var quantity;
             var workOrderType
             var vendor;
+            var url;
 
             $(".iframe").hide();
             $(".iframe-ordertype").hide();
@@ -154,7 +161,15 @@
                     {
                         data: "creatDate",
                         render: function (data) {
-                            return "<text>" + data + "</text>";
+                            return "<text>" + data.substring(0, 10) + "</text>";
+                        }
+                    },
+                    {
+                        data: "inboundDate",
+                        render: function (data) {
+                            if (data.substring(0, 10) == "1900-01-01")
+                                return " ";
+                            return "<text>" + data.substring(0, 10) + "</text>";
                         }
                     },
                     {
@@ -192,6 +207,12 @@
                         data: "actualReceivedPcs",
                         render: function (data) {
                             return "<font color='blue'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<button class='btn btn-info btn-update' iid='" + data + "'>Update</button>";
                         }
                     },
                     {
@@ -298,6 +319,36 @@
                 else
                 {
                     alert("This feature did not finish yet.");
+                }
+            });
+
+            //点击每一条记录后面的update按钮，打开update菜单
+            $("#table").on("click", ".btn-update", function () {
+                preId = $(this).attr('iid');
+                var currentInboundDate = $(this).parent().parent("tr").children("td").eq(4).children("text").html();
+                if (currentInboundDate != "")
+                {
+                    $("#input-date").val(currentInboundDate);
+                }
+                else
+                {
+                    $("#input-date").val("");
+                }
+                grandChannel.openiframe(index, ".iframe-update", "400px", "150px");
+            });
+
+            //点击update菜单中的update按钮，更新信息
+            $("#btn-update").on("click", function () {
+                var date = $("#input-date").val();
+
+                if (date != "")
+                {
+                    url = "/api/index/?preId=" + preId + "&inboundDate=" + date;
+                    grandChannel.sendAjaxMethod("PUT", url, {});
+                }
+                else
+                {
+                    alert("Inbound date cannot be empty!");
                 }
             });
 

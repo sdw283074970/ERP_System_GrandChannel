@@ -50,6 +50,15 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + sample.Id, sampleDto);
         }
 
+        // PUT /api/index/?preId={preId}&inboundDate={inboundDate}
+        [HttpPut]
+        public void UpdatePrereceiveOrder([FromUri]int preId, [FromUri]DateTime inboundDate)
+        {
+            var preInDb = _context.PreReceiveOrders.Find(preId);
+            preInDb.InboundDate = inboundDate;
+            _context.SaveChanges();
+        }
+
         // POST /api/index/{preid} 删除当前preid下的所有空的POSummary对象
         [HttpDelete]
         public void DeleteCurrentPackingList([FromUri]int id)

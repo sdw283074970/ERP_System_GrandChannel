@@ -38,8 +38,8 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws = _wb.Worksheets[1];
 
             _ws.Cells[4, 2] = info.CustomerCode;
-            _ws.Cells[4, 4] = info.FromDate == null ? "" : info.FromDate.ToString().Substring(0, 10);
-            _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.ToString().Substring(0, 10);
+            _ws.Cells[4, 4] = info.FromDate == null ? "" : info.FromDate.ToString("yyyy-MM-dd").Substring(0, 10);
+            _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.ToString("yyyy-MM-dd").Substring(0, 10);
             _ws.Cells[4, 8] = DateTime.Now.ToString("yyyy-MM-dd");
 
             var startRow = 9;
@@ -149,6 +149,72 @@ namespace ClothResorting.Helpers.FBAHelper
             return fullPath;
         }
 
+        public string GenerateExcelFileForAllCustomerAndReturnPath(FBAInvoiceInfo info)
+        {
+            _ws = _wb.Worksheets[1];
+
+            _ws.Cells[4, 2] = info.CustomerCode;
+            _ws.Cells[4, 4] = info.FromDate == null ? "" : info.FromDate.ToString("yyyy-MM-dd").Substring(0, 10);
+            _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.ToString("yyyy-MM-dd").Substring(0, 10);
+            _ws.Cells[4, 8] = DateTime.Now.ToString("yyyy-MM-dd");
+
+            var groupByCustomer = info.InvoiceReportDetails.GroupBy(x => x.CustomerCode);
+            var startRow = 8;
+
+            foreach (var g in groupByCustomer)
+            {
+                _ws.Cells[startRow - 1, 1] = g.First().CustomerCode;
+                _ws.Cells[startRow, 1] = "Order Type";
+                _ws.Cells[startRow, 2] = "Reference #";
+                _ws.Cells[startRow, 3] = "Grand #";
+                _ws.Cells[startRow, 4] = "Activity";
+                _ws.Cells[startRow, 5] = "Charging Type";
+                _ws.Cells[startRow, 6] = "UOM";
+                _ws.Cells[startRow, 7] = "Quantity";
+                _ws.Cells[startRow, 8] = "Rate";
+                _ws.Cells[startRow, 9] = "Amout";
+                _ws.Cells[startRow, 10] = "Date of Cost";
+                _ws.Cells[startRow, 11] = "Memo";
+                _ws.Cells[startRow, 12] = "Cost";
+
+                startRow += 1;
+
+                foreach (var i in g)
+                {
+                    _ws.Cells[startRow, 1] = i.InvoiceType;
+                    _ws.Cells[startRow, 2] = i.Reference;
+                    _ws.Cells[startRow, 3] = i.GrandNumber;
+                    _ws.Cells[startRow, 4] = i.Activity;
+                    _ws.Cells[startRow, 5] = i.ChargingType;
+                    _ws.Cells[startRow, 6] = i.Unit;
+                    _ws.Cells[startRow, 7] = i.Quantity;
+                    _ws.Cells[startRow, 8] = i.Rate;
+                    _ws.Cells[startRow, 9] = i.Amount;
+                    _ws.Cells[startRow, 10] = i.DateOfCost.ToString("yyyy-MM-dd");
+                    _ws.Cells[startRow, 11] = i.Memo;
+                    _ws.Cells[startRow, 12] = i.Cost;
+
+                    startRow += 1;
+                }
+                _ws.Cells[startRow, 8] = "Total";
+                _ws.Cells[startRow, 9] = g.Sum(x => x.Amount);
+                _ws.Cells[startRow, 12] = g.Sum(x => x.Cost);
+
+                startRow += 3;
+            }
+
+            var fullPath = @"D:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
+
+            return fullPath;
+        }
+
         public FBAInvoiceInfo GetChargingReportFormOrder(string reference, string invoiceType)
         {
             var customer = GetCustomer(reference, invoiceType);
@@ -157,8 +223,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
             var info = new FBAInvoiceInfo
             {
-                FromDate = null,
-                ToDate = null,
+                FromDate = new DateTime(1900, 1, 1, 0, 0, 0, 0),
+                ToDate = new DateTime(1900, 1, 1, 0, 0, 0, 0),
                 CustomerCode = customer.CustomerCode
             };
 
@@ -176,6 +242,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     invoiceReportList.Add(new InvoiceReportDetail
                     {
+                        Cost = i.Cost,
                         InvoiceType = i.InvoiceType,
                         Reference = reference,
                         Activity = i.Activity,
@@ -263,6 +330,7 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 var newInvoiceDetail = new InvoiceReportDetail
                 {
+                    Cost = i.Cost,
                     InvoiceType = i.InvoiceType,
                     Activity = i.Activity,
                     ChargingType = i.ChargingType,
@@ -285,6 +353,65 @@ namespace ClothResorting.Helpers.FBAHelper
                 }
                 else if (i.FBAShipOrder == null)
                 {
+                    newInvoiceDetail.GrandNumber = i.FBAMasterOrder.GrandNumber;
+                    newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
+                    newInvoiceDetail.Destination = " ";
+                    newInvoiceDetail.ActualCtnsInThisOrder = i.FBAMasterOrder.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                    newInvoiceDetail.ActualPltsInThisOrder = i.FBAMasterOrder.FBAPallets.Sum(x => x.ActualPallets);
+                    newInvoiceDetail.DateOfClose = i.FBAMasterOrder.CloseDate;
+                }
+
+                invoiceReportList.Add(newInvoiceDetail);
+            }
+
+            info.InvoiceReportDetails = invoiceReportList;
+
+            return info;
+        }
+
+        public FBAInvoiceInfo GetAllFBACustomerChargingReportFromDate(DateTime startDate, DateTime closeDate)
+        {
+            var info = new FBAInvoiceInfo { CustomerCode = "ALL FBA CUSTOMER", FromDate = startDate, ToDate = closeDate };
+            var invoiceReportList = new List<InvoiceReportDetail>();
+
+            var invoiceDetails = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder.Customer)
+                .Include(x => x.FBAMasterOrder.FBAOrderDetails)
+                .Include(x => x.FBAMasterOrder.FBAPallets)
+                .Include(x => x.FBAShipOrder.FBAPickDetails)
+                .Where(x => x.FBAMasterOrder.Customer.DepartmentCode == "FBA" || x.FBAShipOrder.Id > 0)
+                .Where(x => x.FBAShipOrder == null ? x.FBAMasterOrder.CloseDate <= closeDate && x.FBAMasterOrder.CloseDate >= startDate : x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate <= closeDate)
+                .ToList();
+
+            foreach (var i in invoiceDetails)
+            {
+                var newInvoiceDetail = new InvoiceReportDetail
+                {
+                    Cost = i.Cost,
+                    InvoiceType = i.InvoiceType,
+                    Activity = i.Activity,
+                    ChargingType = i.ChargingType,
+                    Unit = i.Unit,
+                    Quantity = i.Quantity,
+                    Rate = i.Rate,
+                    Amount = i.Amount,
+                    DateOfCost = i.DateOfCost,
+                    Memo = i.Memo
+                };
+
+                if (i.FBAMasterOrder == null)
+                {
+                    newInvoiceDetail.CustomerCode = i.FBAShipOrder.CustomerCode;
+                    newInvoiceDetail.GrandNumber = "N/A";
+                    newInvoiceDetail.Reference = i.FBAShipOrder.ShipOrderNumber;
+                    newInvoiceDetail.Destination = i.FBAShipOrder.Destination;
+                    newInvoiceDetail.ActualCtnsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
+                    newInvoiceDetail.ActualPltsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
+                    newInvoiceDetail.DateOfClose = i.FBAShipOrder.CloseDate;
+                }
+                else if (i.FBAShipOrder == null)
+                {
+                    newInvoiceDetail.CustomerCode = i.FBAMasterOrder.Customer.CustomerCode;
                     newInvoiceDetail.GrandNumber = i.FBAMasterOrder.GrandNumber;
                     newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
                     newInvoiceDetail.Destination = " ";
@@ -328,15 +455,19 @@ namespace ClothResorting.Helpers.FBAHelper
     {
         public string CustomerCode { get; set; }
 
-        public DateTime? FromDate { get; set; }
+        public DateTime FromDate { get; set; }
 
-        public DateTime? ToDate { get; set; }
+        public DateTime ToDate { get; set; }
 
         public List<InvoiceReportDetail> InvoiceReportDetails { get; set; }
     }
     
     public class InvoiceReportDetail
     {
+        public string CustomerCode { get; set; }
+
+        public double Cost { get; set; }
+
         public string Reference { get; set; }
 
         public string Activity { get; set; }

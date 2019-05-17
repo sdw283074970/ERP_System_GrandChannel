@@ -127,7 +127,7 @@ namespace ClothResorting.Controllers.Api
                     ContainerNumber = obj.Container,
                     ReceiptNumber = "",
                     Reference = "",
-                    ReceivedDate = DateTime.Now.ToString("MM/dd/yy"),
+                    ReceivedDate = "Unreceived",
                     Remark = ""
                 });
             }

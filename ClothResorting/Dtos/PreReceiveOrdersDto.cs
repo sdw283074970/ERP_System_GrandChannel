@@ -13,6 +13,8 @@ namespace ClothResorting.Dtos
 
         public DateTime? CreatDate { get; set; }
 
+        public DateTime InboundDate { get; set; }
+
         public int? TotalCartons { get; set; }
 
         public double? TotalGrossWeight { get; set; }

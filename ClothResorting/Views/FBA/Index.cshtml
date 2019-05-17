@@ -19,6 +19,7 @@
         <a href="~/fba/FBAAddressManagement"><input id="btn-address" type="button" class="btn btn-primary" value="Manage Address Book" /></a>
         <a href="~/fba/storagecharge"><input id="btn-storage" type="button" class="btn btn-primary" value="Calculate storage" /></a>
         <a href="~/Warehouse/Index"><input id="btn-storage" type="button" class="btn btn-primary" value="Warehouse Client" /></a>
+        <button id="btn-export" iid="0" class="btn btn-info">导出所有收费汇总表</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -160,6 +161,18 @@
 
             //点击导出收费汇总表按钮，弹出选择导出日期界面
             $("#table").on("click", ".btn-export", function () {
+                customerId = $(this).attr('iid');
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "250px"],
+                    content: $(".iframe-export")
+                });
+            });
+
+            $("#btn-export").on("click", function () {
                 customerId = $(this).attr('iid');
 
                 index = layer.open({

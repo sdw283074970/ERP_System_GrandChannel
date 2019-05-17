@@ -13,6 +13,8 @@ namespace ClothResorting.Models
 
         public DateTime? CreatDate { get; set; }
 
+        public DateTime InboundDate { get; set; }
+
         public int? TotalCartons { get; set; }
 
         public double? TotalGrossWeight { get; set; }
@@ -46,5 +48,10 @@ namespace ClothResorting.Models
         public ICollection<FCRegularLocationDetail> FCRegularLocationDetails { get; set; }
 
         public ICollection<GeneralLocationSummary> GeneralLocationSummary { get; set; }
+
+        public PreReceiveOrder()
+        {
+            InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+        }
     }
 }

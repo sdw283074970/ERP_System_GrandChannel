@@ -40,11 +40,23 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
-            var info = excelGenerator.GetChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+            //如果customerId等于0说明是要所有客户的记录
+            if (customerId == 0)
+            {
+                var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate);
 
-            var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
+                var path = excelGenerator.GenerateExcelFileForAllCustomerAndReturnPath(info);
 
-            return Ok(path);
+                return Ok(path);
+            }
+            else
+            {
+                var info = excelGenerator.GetChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+
+                var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
+
+                return Ok(path);
+            }
         }
 
         // POST /api/fba/index/?requestId={requestId}
