@@ -43,6 +43,8 @@ namespace ClothResorting.Models
 
         public string Batch { get; set; }
 
+        public Container ContainerInfo { get; set; }
+
         public PreReceiveOrder PreReceiveOrder { get; set; }
 
         public ICollection<RegularCartonDetail> RegularCartonDetails { get; set; }

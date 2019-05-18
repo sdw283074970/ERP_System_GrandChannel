@@ -5,6 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
+using AutoMapper;
+using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -17,14 +20,17 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/inventorysearch/?vendor={vendor}&container={container}&purchaseOrder={po}&style={style}&color={color}&customer={customer}&size={size}&location={location}&isShipped={isShipped}&isReplenishment={isReplenishment}
+        // GET /api/inventorysearch/?vendor={vendor}&container={container}&purchaseOrder={po}&style={style}&color={color}&customer={customer}&size={size}&location={location}&isShipped={isShipped}&isReplenishment={isReplenishment}&endDate={endDate}
         [HttpGet]
-        public IHttpActionResult SearchInInventory([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment)
+        public IHttpActionResult SearchInInventory([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment, [FromUri]DateTime endDate)
         {
 
             if (isReplenishment)
             {
-                var replenishmentLocationDetails = _context.ReplenishmentLocationDetails.Where(x => x.Vendor == vendor).ToList();
+                var replenishmentLocationDetails = _context.ReplenishmentLocationDetails
+                    .Where(x => x.Vendor == vendor)
+                    .ToList();
+
                 var replenishmentResult = new List<InventoryReportDetail>();
 
                 if (purchaseOrder != "NULL")
@@ -84,7 +90,13 @@ namespace ClothResorting.Controllers.Api
             }
             else
             {
-                var locationDetails = _context.FCRegularLocationDetails.Where(x => x.Vendor == vendor).ToList();
+                var startDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+                var locationDetails = _context.FCRegularLocationDetails
+                    .Include(x => x.RegularCaronDetail.POSummary.ContainerInfo)
+                    .Where(x => x.Vendor == vendor 
+                        && x.RegularCaronDetail.POSummary.ContainerInfo.InboundDate <= endDate 
+                        && x.RegularCaronDetail.POSummary.ContainerInfo.InboundDate > startDate)
+                    .ToList();
 
                 if (container != "NULL")
                 {
@@ -126,7 +138,20 @@ namespace ClothResorting.Controllers.Api
                     locationDetails = locationDetails.Where(x => x.AvailablePcs != 0).ToList();
                 }
 
-                return Ok(locationDetails);
+                var results = new List<FCRegularLocationDetailDto>();
+
+                foreach(var l in locationDetails)
+                {
+                    var dto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(l);
+                    dto.InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+
+                    if (l.RegularCaronDetail.POSummary.ContainerInfo != null)
+                        dto.InboundDate = l.RegularCaronDetail.POSummary.ContainerInfo.InboundDate;
+
+                    results.Add(dto);
+                }
+
+                return Ok(results);
             }
         }
     }

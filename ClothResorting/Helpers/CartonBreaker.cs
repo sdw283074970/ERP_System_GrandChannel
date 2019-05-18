@@ -65,7 +65,6 @@ namespace ClothResorting.Helpers
                         newLocation.Style = cartonLocation.Style;
                         newLocation.Color = cartonLocation.Color;
                         newLocation.CustomerCode = cartonLocation.CustomerCode;
-                        newLocation.InboundDate = cartonLocation.InboundDate;
                         newLocation.Allocator = _userName;
                         newLocation.Location = cartonLocation.Location;
 
@@ -120,7 +119,6 @@ namespace ClothResorting.Helpers
                         newLocation.Style = cartonLocation.Style;
                         newLocation.Color = cartonLocation.Color;
                         newLocation.CustomerCode = cartonLocation.CustomerCode;
-                        newLocation.InboundDate = cartonLocation.InboundDate;
                         newLocation.Allocator = _userName;
                         newLocation.Location = cartonLocation.Location;
 

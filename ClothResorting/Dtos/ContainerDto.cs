@@ -19,6 +19,8 @@ namespace ClothResorting.Dtos
 
         public string ReceivedDate { get; set; }
 
+        public DateTime InboundDate { get; set; }
+
         public string Remark { get; set; }
     }
 }

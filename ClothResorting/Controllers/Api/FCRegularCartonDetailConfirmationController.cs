@@ -79,7 +79,6 @@ namespace ClothResorting.Controllers.Api
 
                         //更新自身的实际收货件数箱数
                         regularCartonDetailInDb.ActualPcs = regularCartonDetailInDb.Quantity;
-                        regularCartonDetailInDb.InboundDate = _timeNow;
 
                         // 同步POSummary
                         regularCartonDetailInDb.POSummary.ActualPcs += regularCartonDetailInDb.Quantity;

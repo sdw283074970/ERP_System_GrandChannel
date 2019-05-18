@@ -54,7 +54,6 @@ namespace ClothResorting.Controllers.Api
                 AvailablePcs = obj.Quantity,
                 PickingPcs = 0,
                 ShippedPcs = -obj.Quantity,
-                InboundDate = _timeNow,
                 Location = obj.Location + "(Put Back)",
                 PcsPerCaron = obj.PcsPerCarton,
                 Cartons = 0,

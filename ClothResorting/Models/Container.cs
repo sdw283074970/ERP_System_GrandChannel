@@ -19,6 +19,15 @@ namespace ClothResorting.Models
 
         public string ReceivedDate { get; set; }
 
+        public DateTime InboundDate { get; set; }
+
         public string Remark { get; set; }
+
+        public ICollection<POSummary> POSummaries { get; set; }
+
+        public Container()
+        {
+            InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+        }
     }
 }

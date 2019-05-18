@@ -11,7 +11,7 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string Vendor { get; set; }
 
-        public string ReceivedDate { get; set; }
+        public DateTime ReceivedDate { get; set; }
 
         public string ContainerNumber { get; set; }
 

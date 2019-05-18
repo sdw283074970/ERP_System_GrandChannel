@@ -33,6 +33,7 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult CreateBatchLocationDetail([FromBody]ArrPreIdLocationJsonObj obj, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
             var locationDeatilList = new List<FCRegularLocationDetail>();
+
             var regularCartonDetailsIndb = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.POSummary.PreReceiveOrder.Id == obj.PreId);
@@ -80,7 +81,6 @@ namespace ClothResorting.Controllers.Api
                             AvailablePcs = inBoxSKU.ToBeAllocatedPcs,
                             PickingPcs = 0,
                             ShippedPcs = 0,
-                            InboundDate = _timeNow,
                             PreReceiveOrder = prereceiveOrder,
                             RegularCaronDetail = inBoxSKU,
                             CartonRange = cartonRange,

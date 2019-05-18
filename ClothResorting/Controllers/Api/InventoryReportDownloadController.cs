@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -19,9 +20,9 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/inventorysearch/?vendor={vendor}&container={container}&purchaseOrder={po}&style={style}&color={color}&customer={customer}&size={size}&location={location}&isShipped={isShipped}&isReplenishment={isReplenishment}
+        // GET /api/inventorysearch/?vendor={vendor}&container={container}&purchaseOrder={po}&style={style}&color={color}&customer={customer}&size={size}&location={location}&isShipped={isShipped}&isReplenishment={isReplenishment}&endDate={endDate}
         [HttpGet]
-        public IHttpActionResult DownloadInventoryReport([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment)
+        public IHttpActionResult DownloadInventoryReport([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment, [FromUri]DateTime endDate)
         {
             var generator = new ExcelGenerator();
             var inventoryList = new List<InventoryReportDetail>();
@@ -102,7 +103,13 @@ namespace ClothResorting.Controllers.Api
             }
             else
             {
-                var locationDetails = _context.FCRegularLocationDetails.Where(x => x.Vendor == vendor).ToList();
+                var startDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+                var locationDetails = _context.FCRegularLocationDetails
+                    .Include(x => x.RegularCaronDetail.POSummary.ContainerInfo)
+                    .Where(x => x.Vendor == vendor
+                        && x.RegularCaronDetail.POSummary.ContainerInfo.InboundDate <= endDate
+                        && x.RegularCaronDetail.POSummary.ContainerInfo.InboundDate > startDate)
+                    .ToList();
 
                 if (container != "NULL")
                 {

@@ -45,7 +45,7 @@ namespace ClothResorting.Controllers.Api
             preReceiveOrderInDb.CustomerName = obj.Vendor;
 
             containerInDb.Vendor = obj.Vendor;
-            containerInDb.ReceivedDate = obj.ReceivedDate;
+            containerInDb.InboundDate = obj.ReceivedDate;
             containerInDb.Reference = obj.Reference;
             containerInDb.ReceiptNumber = obj.ReceiptNumber;
             containerInDb.Remark = obj.Remark;

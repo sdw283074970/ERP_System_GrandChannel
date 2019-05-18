@@ -13,9 +13,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Grand Channel ERP System</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    <link rel="shortcut icon" href="~/img/bitbug_favicon.ico" />
+    <meta name="description" content="The description of my page" />
 
 </head>
 <body>
@@ -46,7 +48,7 @@
             <div>
                 <input type="button" class="btn btn-default btn-back" value="<< Back" />
             </div>
-            <div>
+            @*<div>
                 <font id="orgCtns" color="orange"></font>
                 <font id="availableCtns" color="green"></font>
                 <font id="pickingCtns" color="red"></font>
@@ -55,20 +57,28 @@
                 <font id="availablePcs" color="green"></font>
                 <font id="pickingPcs" color="red"></font>
                 <font id="shippedPcs" color="blue"></font><br />
-            </div>
-            <div>
-                <select id="select-vendor" style="width:170px;height:30px"></select>
-                <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
-                <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
-                <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
-                <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
-                <input style="width:140px" id="input-customer" class="input-sm" placeholder="Customer" />
-                <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
-                <input style="width:140px" id="input-location" class="input-sm" placeholder="Location" />
-                <input type="checkbox" id="check-isshipped" class="cb-selected" /> Display Picking&Shipped Items
-                <input type="checkbox" id="check-isreplenishment" class="cb-selected" /> Is Replenishment
-                <button id="btn-search" class="btn btn-info">Search</button>
-                <button id="btn-export" class="btn btn-primary">Export Results as Excel File</button><br />
+            </div>*@
+            <div style="border:double">
+                <h3 style="text-align:right;margin-right:20px">Search Filter</h3>
+                <div style="margin:20px;text-align:right">
+                    <text>End Date: </text><input type="date" id="input-date" class="input-sm" />
+                    <text>Vendor: </text><select id="select-vendor" style="width:170px;height:30px"></select>
+                    <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
+                    <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
+                    <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
+                    <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
+                    <input style="width:140px" id="input-customer" class="input-sm" placeholder="Customer" />
+                    <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
+                    <input style="width:140px" id="input-location" class="input-sm" placeholder="Location" />
+                </div>
+                <div style="text-align:right;margin-right:20px">
+                    <input type="checkbox" id="check-isshipped" class="cb-selected" /> Display Picking&Shipped Items
+                    <input type="checkbox" id="check-isreplenishment" class="cb-selected" /> Is Replenishment
+                </div>
+                <div style="text-align:right;margin:20px">
+                    <button id="btn-search" class="btn btn-info">Search</button>
+                    <button id="btn-export" class="btn btn-primary">Export Results as Excel File</button><br />
+                </div>
             </div>
             <div>
                 <table id="table" class="table table-condensed table-hover table-striped">
@@ -142,6 +152,10 @@
         var table;
         var index;
         var orderType;
+        var date = new Date();
+        var today = date.getFullYear().toString() + "-" + ((date.getMonth() + 1) <= 9 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()) + "-" + (date.getDate() <= 9 ? '0' + date.getDate().toString() : date.getDate().toString());
+
+        $("#input-date").val(today);
 
         //动态获取Vendor数据
         $.ajax({
@@ -174,7 +188,7 @@
             var isShipped = $("#check-isshipped").is(":checked");
             var isReplenishment = $("#check-isreplenishment").is(":checked");
             var vendor = $("#select-vendor option:selected").val();
-
+            var endDate = $("#input-date").val();
 
             //var obj = {
             //    "container": container,
@@ -185,7 +199,7 @@
             //    "location": location
             //};
 
-            var url = "/api/inventorysearch/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment;
+            var url = "/api/inventorysearch/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment + "&endDate=" + endDate;
 
             //alert(url);
 
@@ -518,8 +532,9 @@
             var isShipped = $("#check-isshipped").is(":checked");
             var isReplenishment = $("#check-isreplenishment").is(":checked");
             var vendor = $("#select-vendor option:selected").val();
+            var endDate = $("#input-date").val();
 
-            var url = "/api/inventoryreportdownload/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment;
+            var url = "/api/inventoryreportdownload/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment + "&endDate=" + endDate;
 
             $.ajax({
                 type: "GET",

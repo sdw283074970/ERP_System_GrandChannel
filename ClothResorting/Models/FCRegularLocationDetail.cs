@@ -55,8 +55,6 @@ namespace ClothResorting.Models
 
         public string ColorCode { get; set; }
 
-        public DateTime InboundDate { get; set; }
-
         public PreReceiveOrder PreReceiveOrder { get; set; }
 
         public RegularCartonDetail RegularCaronDetail { get; set; }

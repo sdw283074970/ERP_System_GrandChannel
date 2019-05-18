@@ -102,9 +102,31 @@ namespace ClothResorting.Controllers.Api
                 .Include(c => c.RegularCartonDetails.Select(x => x.FCRegularLocationDetail))
                 .Where(c => c.PreReceiveOrder.Id == preId);
 
-            foreach(var id in arr)
+            //在数据库中建立Container对象
+            //检验当前输入的Container号是否已经存在数据库中，如不存在则新建立，否则跳过
+            var containerInfo = _context.Containers.SingleOrDefault(x => x.ContainerNumber == obj.Container);
+
+            if (containerInfo == null)
             {
-                poSummariesInDb.SingleOrDefault(c => c.Id == id).Container = container;
+                containerInfo = new Container
+                {
+                    Vendor = poSummariesInDb.First().PreReceiveOrder.CustomerName,
+                    ContainerNumber = obj.Container,
+                    ReceiptNumber = "",
+                    Reference = "",
+                    ReceivedDate = "Unreceived",
+                    Remark = ""
+                };
+
+                _context.Containers.Add(containerInfo);
+            }
+
+            foreach (var id in arr)
+            {
+                var p = poSummariesInDb.SingleOrDefault(c => c.Id == id);
+
+                p.Container = container;
+                p.ContainerInfo = containerInfo;
 
                 foreach(var carton in poSummariesInDb.SingleOrDefault(c => c.Id == id).RegularCartonDetails)
                 {
@@ -115,21 +137,6 @@ namespace ClothResorting.Controllers.Api
                         location.Container = container;
                     }
                 }
-            }
-
-            //在数据库中建立Container对象(非关系型表)
-            //检验当前输入的Container号是否已经存在数据库中，如不存在则新建立，否则跳过
-            var isExisted = _context.Containers.SingleOrDefault(x => x.ContainerNumber == obj.Container) == null ? false : true;
-            if (!isExisted)
-            {
-                _context.Containers.Add(new Container {
-                    Vendor = poSummariesInDb.First().PreReceiveOrder.CustomerName,
-                    ContainerNumber = obj.Container,
-                    ReceiptNumber = "",
-                    Reference = "",
-                    ReceivedDate = "Unreceived",
-                    Remark = ""
-                });
             }
 
             _context.SaveChanges();

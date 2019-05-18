@@ -12,6 +12,8 @@ using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.StaticClass;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Globalization;
+using ClothResorting.Helpers.DPHelper;
 
 namespace ClothResorting.Controllers
 {
@@ -39,14 +41,9 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var palletsLocation = _context.FBAPalletLocations
-            //    .Include(x => x.FBAMasterOrder.Customer)
-            //    .Where(x => x.FBAMasterOrder.Customer.CustomerCode == "NK" && x.AvailablePlts != 0)
-            //    .ToList();
+            var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill(1).xlsx");
 
-            var pickDetail = _context.FBAPickDetails
-                .Where(x => x.ActualPlts != 0 && x.NewPlts == 0 && x.PltsFromInventory == 0)
-                .ToList();
+            var path = cleaner.ClearBills();
 
             ViewBag.Message = "Your application description page.";
 

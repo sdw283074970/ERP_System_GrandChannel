@@ -151,8 +151,6 @@ namespace ClothResorting.Controllers.Api
                 //同步PrereceiveOrder的件数
                 regularCartonDetailInDb.POSummary.PreReceiveOrder.ActualReceivedPcs += changeValue * regularCartonDetailInDb.PcsPerCarton;
 
-                regularCartonDetailInDb.InboundDate = _timeNow;
-
                 index++;
             }
             
