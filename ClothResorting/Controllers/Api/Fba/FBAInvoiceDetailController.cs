@@ -245,7 +245,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}&isChargingIte{isChargingItem}
         [HttpPost]
-        public IHttpActionResult CreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description, [FromUri]bool isChargingItem)
+        public IHttpActionResult CreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description, [FromUri]bool isChargingItem, [FromBody]ObjectBody obj)
         {
             var detail = new ChargingItemDetail();
 
@@ -272,7 +272,6 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
 
                 detail = newDetail;
-                _context.ChargingItemDetails.Add(detail);
             }
             else if (invoiceType == FBAInvoiceType.ShipOrder)
             {
@@ -298,9 +297,14 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
 
                 detail = newDetail;
-                _context.ChargingItemDetails.Add(detail);
             }
 
+            if (obj != null)
+            {
+                detail.HandlingStatus = obj.Content;
+            }
+
+            _context.ChargingItemDetails.Add(detail);
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/", Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(detail));
@@ -505,5 +509,10 @@ namespace ClothResorting.Controllers.Api.Fba
 
             return customerId;
         }
+    }
+
+    public class ObjectBody
+    {
+        public string Content { get; set; }
     }
 }

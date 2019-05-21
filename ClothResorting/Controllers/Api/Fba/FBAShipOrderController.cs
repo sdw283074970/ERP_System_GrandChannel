@@ -728,7 +728,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
             }
 
-            foreach(var c in shipOrder.ChargingItemDetails)
+            var vaildDetails = shipOrder.ChargingItemDetails.Where(x => x.HandlingStatus != FBAStatus.Na);
+
+            foreach(var c in vaildDetails)
             {
                 wo.OperationInstructions.Add(new OperationInstruction {
                     Id = c.Id,

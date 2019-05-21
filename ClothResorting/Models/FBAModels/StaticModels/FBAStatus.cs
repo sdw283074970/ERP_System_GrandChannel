@@ -6,7 +6,9 @@ using System.Web;
 namespace ClothResorting.Models.FBAModels.StaticModels
 {
     public static class FBAStatus
-    { 
+    {
+        public const string Na = "N/A";
+
         public const string WaitingForCharging = "Waiting for charging";
 
         public const string New = "New";
