@@ -41,9 +41,38 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill(1).xlsx");
+            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill(1).xlsx");
 
-            var path = cleaner.ClearBills();
+            //var path = cleaner.ClearBills();
+
+            var pickDetailsInDb = _context.FBAPickDetails
+                .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
+                .Include(x => x.FBAPalletLocation.FBAMasterOrder)
+                .Where(x => x.Id > 0);
+
+            foreach(var p in pickDetailsInDb)
+            {
+                if (p.FBAPalletLocation != null)
+                {
+                    p.InboundDate = p.FBAPalletLocation.FBAMasterOrder.InboundDate;
+                }
+                else if (p.FBACartonLocation != null)
+                {
+                    p.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
+                }
+            }
+
+            var pickDetailCartonsInDb = _context.FBAPickDetailCartons
+                .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
+                .Include(x => x.FBAPickDetail)
+                .Where(x => x.Id > 0);
+
+            foreach(var p in pickDetailCartonsInDb)
+            {
+                p.FBAPickDetail.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
+            }
+
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 

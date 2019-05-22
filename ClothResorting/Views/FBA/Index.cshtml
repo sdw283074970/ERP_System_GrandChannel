@@ -43,7 +43,7 @@
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Start Date: </text><input id='input-date-start' type="date" style='width:170px' class='input-sm' /><br />
         <text>Close Date: </text><input id='input-date-close' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
-        <button id="btn-download" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Download</button>
+        <button id="btn-download" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">导出收费报表</button>
     </div>
 </div>
 @section scripts
@@ -135,7 +135,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Orders</button><button iid='" + data + "' class='btn btn-info btn-export' style='margin-left:20px'>导出收费汇总表</button>";
+                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Orders</button><button iid='" + data + "' class='btn btn-info btn-export' style='margin-left:20px'>Export Reports</button>";
                                 }
                             },
                         ]

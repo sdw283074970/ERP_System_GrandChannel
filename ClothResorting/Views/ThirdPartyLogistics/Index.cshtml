@@ -87,6 +87,7 @@
     <script>
         $(document).ready(function () {
 
+            var table;  
             var preId = JSON.stringify(window.location.search.substr(1));
             var index;
             var customer;
@@ -94,6 +95,7 @@
             var workOrderType
             var vendor;
             var url;
+            var searchBar = grandChannel.getUrlParameter('search');
 
             $(".iframe").hide();
             $(".iframe-ordertype").hide();
@@ -119,130 +121,150 @@
                 }
             });
 
-            $("#table").DataTable({
-                ajax: {
-                    url: "/api/index/?departmentCode=CD",
-                    dataSrc: ""
-                },
-                order: [[0, "desc"]],
-                scrollY: "600px",
-                scrollCollapse: true,
-                iDisplayLength: 100,
-                columns: [
-                    {
-                        data: "id",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "customerName",
-                        render: function (data) {
-                            customer = data;
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "workOrderType",
-                        render: function (data) {
+            $.ajax({
+                type: "GET",
+                url: "/api/index/?departmentCode=CD",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
 
-                            if (data == "Regular")
-                            {
-                                workOrderType = "Pre-pack/Pick&Pack";
-                                return "<text>" + data + "/Pick&Pack</text>";
-                            }
-                            else
-                            {
-                                workOrderType = data;
-                                return "<text>" + data + "</text>";
-                            }
-                        }
-                    },
-                    {
-                        data: "creatDate",
-                        render: function (data) {
-                            return "<text>" + data.substring(0, 10) + "</text>";
-                        }
-                    },
-                    {
-                        data: "inboundDate",
-                        render: function (data) {
-                            if (data.substring(0, 10) == "1900-01-01")
-                                return " ";
-                            return "<text>" + data.substring(0, 10) + "</text>";
-                        }
-                    },
-                    {
-                        data: "operator",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "containerNumber",
-                        render: function (data) {
-                            return "<font color='green'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "totalCartons",
-                        render: function (data) {
-                            return "<font color='green'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "actualReceivedCtns",
-                        render: function (data) {
-                            return "<font color='blue'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "totalPcs",
-                        render: function (data) {
-                            quantity = data;
-                            return "<font color='green'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "actualReceivedPcs",
-                        render: function (data) {
-                            return "<font color='blue'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "id",
-                        render: function (data) {
-                            return "<button class='btn btn-info btn-update' iid='" + data + "'>Update</button>";
-                        }
-                    },
-                    {
-                        data: "id",
-                        render: function (data) {
-                            if (quantity != 0)
-                            {
-                                //if (customer == "SILK-ICON")
-                                //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
-                                if (workOrderType == "Pre-pack/Pick&Pack")
-                                    return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                                else if (workOrderType == "Replenishment")
-                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                                else
-                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                            }
-                            else
-                            {
-                                //if (customer == "SILK-ICON")
-                                //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                if (workOrderType == "Pre-pack/Pick&Pack")
-                                    return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                else if (workOrderType == "Replenishment")
-                                    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                else
-                                    return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                            }
-                        }
+                    if (table) {
+                        table.destroy();
                     }
-                ]
+
+                   table = $("#table").DataTable({
+                        order: [[0, "desc"]],
+                        destroy: true,
+                        data: data,
+                        //scrollX: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "customerName",
+                                render: function (data) {
+                                    customer = data;
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "workOrderType",
+                                render: function (data) {
+
+                                    if (data == "Regular") {
+                                        workOrderType = "Pre-pack/Pick&Pack";
+                                        return "<text>" + data + "/Pick&Pack</text>";
+                                    }
+                                    else {
+                                        workOrderType = data;
+                                        return "<text>" + data + "</text>";
+                                    }
+                                }
+                            },
+                            {
+                                data: "creatDate",
+                                render: function (data) {
+                                    return "<text>" + data.substring(0, 10) + "</text>";
+                                }
+                            },
+                            {
+                                data: "inboundDate",
+                                render: function (data) {
+                                    if (data.substring(0, 10) == "1900-01-01")
+                                        return " ";
+                                    return "<text>" + data.substring(0, 10) + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "containerNumber",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "totalCartons",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualReceivedCtns",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "totalPcs",
+                                render: function (data) {
+                                    quantity = data;
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualReceivedPcs",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button class='btn btn-info btn-update' iid='" + data + "'>Update</button>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    if (quantity != 0) {
+                                        //if (customer == "SILK-ICON")
+                                        //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
+                                        if (workOrderType == "Pre-pack/Pick&Pack")
+                                            return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                        else if (workOrderType == "Replenishment")
+                                            return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                        else
+                                            return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                    }
+                                    else {
+                                        //if (customer == "SILK-ICON")
+                                        //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                        if (workOrderType == "Pre-pack/Pick&Pack")
+                                            return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                        else if (workOrderType == "Replenishment")
+                                            return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                        else
+                                            return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                    }
+                                }
+                            }
+                        ]
+                    });
+
+                    var tableSearch = $("#table_filter").children('label').children('input');
+
+                    if (searchBar != undefined) {
+                        tableSearch.val(searchBar);
+                        table.search(searchBar).draw();
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
             });
 
             //打开创建空work order弹窗
@@ -388,6 +410,14 @@
                         });
                     }
                 });
+            });
+            
+            //点击任何按钮，都将searchBar中的内容保存到url中但不刷新页面
+            $("#table").on("click", ".btn", function () {
+
+                tableSearch = $("#table_filter").children('label').children('input').val();
+
+                window.history.pushState({}, {}, "/thirdpartylogistics/index/?search=" + tableSearch);
             });
 
             $(".btn-back").on("click", function () {

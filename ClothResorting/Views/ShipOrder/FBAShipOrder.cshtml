@@ -546,6 +546,7 @@
             //点击任何按钮，都将searchBar中的内容保存到url中但不刷新页面
             $("#table").on("click", ".btn", function () {
                 tableSearch = $("#table_filter").children('label').children('input').val();
+
                 if (customerId != undefined)
                 {
                     window.history.pushState({}, {}, "/ShipOrder/FBAShipOrder/?customerId=" + customerId + "&search=" + tableSearch);

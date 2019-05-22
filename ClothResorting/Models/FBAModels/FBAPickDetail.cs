@@ -18,6 +18,8 @@ namespace ClothResorting.Models.FBAModels
 
         public int ActualPlts { get; set; }
 
+        public DateTime InboundDate { get; set; }
+
         public string OrderType { get; set; }
 
         public int PltsFromInventory { get; set; }
@@ -31,5 +33,10 @@ namespace ClothResorting.Models.FBAModels
         public FBACartonLocation FBACartonLocation { get; set; }
 
         public ICollection<FBAPickDetailCarton> FBAPickDetailCartons { get; set; }
+
+        public FBAPickDetail()
+        {
+            InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+        }
     }
 }

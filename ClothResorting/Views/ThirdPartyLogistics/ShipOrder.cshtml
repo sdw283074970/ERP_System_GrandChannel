@@ -66,6 +66,7 @@
 
             var status;
             var orderType;
+            var table;
             var index;
             var vendor;
             var shipOrderId;
@@ -89,6 +90,7 @@
             };
 
             var departmentCode = getUrlParameter('departmentCode');
+            var searchBar = getUrlParameter('search');
 
             //动态获取Vendor数据
             $.ajax({
@@ -114,7 +116,12 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    $("#table").DataTable({
+
+                    if (table) {
+                        table.destroy();
+                    }
+
+                    table = $("#table").DataTable({
                         data: data,
                         order: [[0, "desc"]],
                         destroy: true,
@@ -248,6 +255,13 @@
                             }
                         ]
                     });
+
+                    var tableSearch = $("#table_filter").children('label').children('input');
+
+                    if (searchBar != undefined) {
+                        tableSearch.val(searchBar);
+                        table.search(searchBar).draw();
+                    }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -262,7 +276,7 @@
                 $(window.location).attr('href', '/thirdpartylogistics/pickdetail/?shipOrderId=' + button.attr('id') + "&orderType=Regular");
             });
 
-            //Replenihment类型订单的发货菜单
+            //Replenihment类型订单的发货菜单 
             $("#table").on("click", ".btn-replenishmentpick", function () {
                 var button = $(this);
                 $(window.location).attr('href', '/thirdpartylogistics/pickreplenishmentorder/?shipOrderId=' + button.attr('id') + "&orderType=Replenishment");
@@ -468,9 +482,16 @@
                 }
             });
 
+            //点击任何按钮，都将searchBar中的内容保存到url中但不刷新页面
+            $("#table").on("click", ".btn", function () {
+                tableSearch = $("#table_filter").children('label').children('input').val();
+
+                window.history.pushState({}, {}, "/ThirdPartyLogistics/shiporder/?departmentCode=CD&search=" + tableSearch);
+            });
+
             $(".btn-back").on("click", function () {
-                //window.history.back(-1);
-                window.location.replace("/ThirdPartyLogistics/index");
+                window.history.back(-1);
+                //window.location.replace("/ThirdPartyLogistics/index");
             });
         });
     </script>

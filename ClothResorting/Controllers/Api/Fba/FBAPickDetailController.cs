@@ -79,6 +79,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var resultsInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAPallet.FBACartonLocations)
+                    .Include(x => x.FBAMasterOrder)
                     .Include(x => x.FBAPallet.FBAPalletLocations)
                     .Where(x => x.AvailablePlts != 0);
 
@@ -132,7 +133,9 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (orderType == FBAOrderType.ECommerce)
             {
-                var resultsInDb = _context.FBACartonLocations.Where(x => x.AvailableCtns != 0);
+                var resultsInDb = _context.FBACartonLocations
+                    .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                    .Where(x => x.AvailableCtns != 0);
 
                 if (obj.Container != "NULL")
                 {
@@ -193,6 +196,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     var palletLocationInDb = _context.FBAPalletLocations
                         .Include(x => x.FBAPallet.FBACartonLocations)
+                        .Include(x => x.FBAMasterOrder)
                         .Include(x => x.FBAPallet.FBAPalletLocations)
                         .SingleOrDefault(x => x.Id == inventoryId);
 
@@ -212,6 +216,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 else
                 {
                     var cartonLocationInDb = _context.FBACartonLocations
+                        .Include(x => x.FBAOrderDetail.FBAMasterOrder)
                         .SingleOrDefault(x => x.Id == inventoryId);
 
                     _context.FBAPickDetails.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, cartonLocationInDb.AvailableCtns));
@@ -235,6 +240,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var palletLocationInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAPallet.FBACartonLocations)
+                    .Include(x => x.FBAMasterOrder)
                     .Include(x => x.FBAPallet.FBAPalletLocations)
                     .SingleOrDefault(x => x.Id == inventoryLocationId);
 
@@ -251,7 +257,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 foreach(var obj in objArray)
                 {
-                    var cartonLocationInDb = cartonLocationsInDb.SingleOrDefault(x => x.Id == obj.Id);
+                    var cartonLocationInDb = cartonLocationsInDb
+                        .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                        .SingleOrDefault(x => x.Id == obj.Id);
 
                     pickDetailList.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, obj.Quantity));
                 }
@@ -431,6 +439,7 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetail.FBAPalletLocation = fbaPalletLocationInDb;
             pickDetail.OrderType = FBAOrderType.Standard;
             pickDetail.HowToDeliver = fbaPalletLocationInDb.HowToDeliver;
+            pickDetail.InboundDate = fbaPalletLocationInDb.FBAMasterOrder.InboundDate;
 
             pickDetail.FBAShipOrder = shipOrderInDb;
 
@@ -486,6 +495,7 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetail.CtnsPerPlt = 0;
             pickDetail.PickableCtns = ctnQuantity;
             pickDetail.Location = fbaCartonLocationInDb.Location;
+            pickDetail.InboundDate = fbaCartonLocationInDb.FBAOrderDetail.FBAMasterOrder.InboundDate;
 
             fbaCartonLocationInDb.PickingCtns += ctnQuantity;
             fbaCartonLocationInDb.AvailableCtns -= ctnQuantity;

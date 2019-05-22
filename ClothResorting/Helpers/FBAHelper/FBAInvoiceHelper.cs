@@ -35,12 +35,20 @@ namespace ClothResorting.Helpers.FBAHelper
         //输入Invoice Detail列表，客户CODE，日期范围，生成Excel
         public string GenerateExcelFileAndReturnPath(FBAInvoiceInfo info)
         {
-            _ws = _wb.Worksheets[1];
+            //Worksheet summaryWookSheet;
+            //summaryWookSheet = (Worksheet)_wb.Worksheets.Add();
 
-            _ws.Cells[4, 2] = info.CustomerCode;
-            _ws.Cells[4, 4] = info.FromDate == null ? "" : info.FromDate.ToString("yyyy-MM-dd").Substring(0, 10);
-            _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.ToString("yyyy-MM-dd").Substring(0, 10);
-            _ws.Cells[4, 8] = DateTime.Now.ToString("yyyy-MM-dd");
+            for(int i = 1; i <= 3; i++)
+            {
+                _ws = _wb.Worksheets[i];
+                _ws.Cells[4, 2] = info.CustomerCode;
+                _ws.Cells[4, 4] = info.FromDate == null ? "" : info.FromDate.ToString("yyyy-MM-dd").Substring(0, 10);
+                _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.ToString("yyyy-MM-dd").Substring(0, 10);
+                _ws.Cells[4, 8] = DateTime.Now.ToString("yyyy-MM-dd");
+            }
+
+            //制作第一个Summary表
+            _ws = _wb.Worksheets[1];
 
             var startRow = 9;
 
@@ -64,8 +72,10 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 8] = "Total";
             _ws.Cells[startRow, 9] = info.InvoiceReportDetails.Sum(x => x.Amount);
 
-            //制作第二个表
-            startRow += 4;
+            //制作第二个收费项目统计表
+            _ws = _wb.Worksheets[2];
+
+            startRow = 8;
 
             var referenceGroup = info.InvoiceReportDetails.GroupBy(x => x.Reference);
             var chargeActivityGroup = info.InvoiceReportDetails.GroupBy(x => x.Activity);
@@ -137,7 +147,65 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 6] = totalPlts;
             _ws.Cells[startRow, columnIndex + 1] = info.InvoiceReportDetails.Sum(x => x.Amount);
 
-            var fullPath = @"D:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            //制作第三个收费细节表
+            _ws = _wb.Worksheets[3];
+
+            startRow = 6;
+
+            var shipOrderList = _context.FBAShipOrders
+                .Include(x => x.FBAPickDetails)
+                .Where(x => x.CustomerCode == info.CustomerCode
+                    && x.ShipDate >= info.FromDate
+                    && x.ShipDate <= info.ToDate)
+                .ToList();
+
+            foreach(var s in shipOrderList)
+            {
+                _ws.Cells[startRow, 1] = "Reference";
+                _ws.Cells[startRow, 2] = s.ShipOrderNumber;
+                _ws.Cells[startRow, 3] = "Outbound Date";
+                _ws.Cells[startRow, 4] = s.ShipDate.ToString("yyyy-MM-dd");
+
+                startRow++;
+
+                _ws.Cells[startRow, 1] = "Container";
+                _ws.Cells[startRow, 2] = "SKU";
+                _ws.Cells[startRow, 3] = "Pickable Ctns";
+                _ws.Cells[startRow, 4] = "Actual Ctns";
+                _ws.Cells[startRow, 5] = "Plts From Inventory";
+                _ws.Cells[startRow, 6] = "New Plts";
+                _ws.Cells[startRow, 7] = "Actual Plts";
+                _ws.Cells[startRow, 8] = "Inbound Date";
+                _ws.Cells[startRow, 9] = "Ship Date";
+
+                startRow++;
+
+                foreach(var p in s.FBAPickDetails)
+                {
+                    _ws.Cells[startRow, 1] = p.Container;
+                    _ws.Cells[startRow, 2] = p.ShipmentId;
+                    _ws.Cells[startRow, 3] = p.PickableCtns;
+                    _ws.Cells[startRow, 4] = p.ActualQuantity;
+                    _ws.Cells[startRow, 5] = p.PltsFromInventory;
+                    _ws.Cells[startRow, 6] = p.NewPlts;
+                    _ws.Cells[startRow, 7] = p.ActualPlts;
+                    _ws.Cells[startRow, 8] = p.InboundDate.ToString("yyyy-MM-dd");
+                    _ws.Cells[startRow, 9] = p.FBAShipOrder.ShipDate.ToString("yyyy-MM-dd");
+
+                    startRow++;
+                }
+
+                _ws.Cells[startRow, 1] = "Total";
+                _ws.Cells[startRow, 3] = s.FBAPickDetails.Sum(x => x.PickableCtns);
+                _ws.Cells[startRow, 4] = s.FBAPickDetails.Sum(x => x.ActualQuantity);
+                _ws.Cells[startRow, 5] = s.FBAPickDetails.Sum(x => x.PltsFromInventory);
+                _ws.Cells[startRow, 6] = s.FBAPickDetails.Sum(x => x.NewPlts);
+                _ws.Cells[startRow, 7] = s.FBAPickDetails.Sum(x => x.ActualPlts);
+
+                startRow += 2;
+            }
+
+            var fullPath = @"D:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();

@@ -19,6 +19,10 @@ namespace ClothResorting.Models
 
         public string Title { get; set; }
 
+        public string OldValue { get; set; }
+
+        public string NewValue { get; set; }
+
         public string Exception { get; set; }
 
         public DateTime OperationDate { get; set; }

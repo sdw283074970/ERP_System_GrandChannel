@@ -88,6 +88,8 @@
             $(".iframe-create").hide();
 
             var quantity;
+            var searchBar = grandChannel.getUrlParameter('search');
+            var table;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -109,7 +111,7 @@
             var preId = getUrlParameter('preid');
             var vendor = getUrlParameter('vendor');
 
-            var urlstring = "/api/fcpurchaseorderoverview/" + preId;
+            var url = "/api/fcpurchaseorderoverview/" + preId;
 
             $("#select-vendor").append("<option value='" + vendor + "'>" + vendor + "</option>");
 
@@ -131,119 +133,144 @@
             //    }
             //});
 
-            $("#table").DataTable({
-                ajax: {
-                    url: urlstring,
-                    dataSrc: ""
-                },
-                scrollY: "600px",
-                iDisplayLength: 100,
-                scrollCollapse: true,
-                columns: [
-                    {
-                        data: "id",
-                        render: function (data) {
-                            return "<input name='selected' type='checkbox' class='cb-selected' value='"
-                                        + data + "' />";
-                        }
-                    },
-                    {
-                        data: "id",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "container",
-                        render: function (data) {
-                            return "<a href='/ThirdPartyLogistics/ReceivingReport/?preid=" + preId + "&container=" + data + "'><button class='btn btn-link btn-report'>" + data + "</button></a><br>";
-                        }
-                    },
-                    {
-                        data: "vendor",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "batch",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "operator",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "purchaseOrder",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "style",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "orderType",
-                        render: function (data) {
-                            return "<text>" + data + "</text>";
-                        }
-                    },
-                    {
-                        data: "poLine",
-                        render: function (data) {
-                            return "<font'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "customer",
-                        render: function (data) {
-                            return "<font color='blue'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "quantity",
-                        render: function (data) {
-                            quantity = data;
-                            return "<font color='red'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "actualPcs",
-                        render: function (data) {
-                            return "<font color='red'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "cartons",
-                        render: function (data) {
-                            return "<font color='green'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "actualCtns",
-                        render: function (data) {
-                            return "<font color='green'>" + data + "</font>";
-                        }
-                    },
-                    {
-                        data: "id",
-                        render: function (data) {
-                            if (quantity == 0) {
-                                return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>";
-                            }
-                            else {
-                                return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a>";
-                            }
-                        }
+            $.ajax({
+                type: "GET",
+                url: url,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+
+                    if (table) {
+                        table.destroy();
                     }
-                ]
+
+                    table = $("#table").DataTable({
+                        order: [[0, "desc"]],
+                        destroy: true,
+                        data: data,
+                        //scrollX: true,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                                + data + "' />";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "container",
+                                render: function (data) {
+                                    return "<a href='/ThirdPartyLogistics/ReceivingReport/?preid=" + preId + "&container=" + data + "'><button class='btn btn-link btn-report'>" + data + "</button></a><br>";
+                                }
+                            },
+                            {
+                                data: "vendor",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "batch",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "operator",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "purchaseOrder",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "style",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "orderType",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "poLine",
+                                render: function (data) {
+                                    return "<font'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "customer",
+                                render: function (data) {
+                                    return "<font color='blue'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    quantity = data;
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualPcs",
+                                render: function (data) {
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "cartons",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "actualCtns",
+                                render: function (data) {
+                                    return "<font color='green'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    if (quantity == 0) {
+                                        return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>";
+                                    }
+                                    else {
+                                        return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a>";
+                                    }
+                                }
+                            }
+                        ]
+                    });
+
+                    var tableSearch = $("#table_filter").children('label').children('input');
+
+                    if (searchBar != undefined) {
+                        tableSearch.val(searchBar);
+                        table.search(searchBar).draw();
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
             });
 
             //勾选全选选项，则选择所有对象
@@ -542,6 +569,14 @@
             $("#download-generic").on("click", function () {
                 $(window.location).attr('href', '/api/fcpurchaseorderoverview/?customer=Generic');
                 $(".iframe-template").hide();
+            });
+
+            //点击任何按钮，都将searchBar中的内容保存到url中但不刷新页面
+            $("#table").on("click", ".btn", function () {
+
+                tableSearch = $("#table_filter").children('label').children('input').val();
+
+                window.history.pushState({}, {}, "/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + preId + "&vendor=" + vendor + "&search=" + tableSearch);
             });
 
             $(".btn-back").on("click", function () {
