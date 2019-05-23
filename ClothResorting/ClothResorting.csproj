@@ -488,6 +488,7 @@
     <Compile Include="Helpers\FBAHelper\FBAInvoiceHelper.cs" />
     <Compile Include="Helpers\GuidGenerator.cs" />
     <Compile Include="Helpers\IntuitOAuthor.cs" />
+    <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\QBOServiceManager.cs" />
     <Compile Include="Helpers\QBOUrlGenerator.cs" />
     <Compile Include="Helpers\Checker.cs" />
@@ -1626,6 +1627,14 @@
     <Compile Include="Migrations\201905220009375_AddedOldAndNewValueInOperationLog.cs" />
     <Compile Include="Migrations\201905220009375_AddedOldAndNewValueInOperationLog.Designer.cs">
       <DependentUpon>201905220009375_AddedOldAndNewValueInOperationLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201905222126192_AddedEntityNameInOperationLog.cs" />
+    <Compile Include="Migrations\201905222126192_AddedEntityNameInOperationLog.Designer.cs">
+      <DependentUpon>201905222126192_AddedEntityNameInOperationLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201905222255231_AddedUserIpAndRequestBodyInOperationLo.cs" />
+    <Compile Include="Migrations\201905222255231_AddedUserIpAndRequestBodyInOperationLo.Designer.cs">
+      <DependentUpon>201905222255231_AddedUserIpAndRequestBodyInOperationLo.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -3046,6 +3055,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905220009375_AddedOldAndNewValueInOperationLog.resx">
       <DependentUpon>201905220009375_AddedOldAndNewValueInOperationLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905222126192_AddedEntityNameInOperationLog.resx">
+      <DependentUpon>201905222126192_AddedEntityNameInOperationLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905222255231_AddedUserIpAndRequestBodyInOperationLo.resx">
+      <DependentUpon>201905222255231_AddedUserIpAndRequestBodyInOperationLo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

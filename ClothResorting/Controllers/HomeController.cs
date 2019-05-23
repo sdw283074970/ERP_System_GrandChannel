@@ -14,6 +14,8 @@ using ClothResorting.Models.StaticClass;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Globalization;
 using ClothResorting.Helpers.DPHelper;
+using AutoMapper;
+using Newtonsoft.Json;
 
 namespace ClothResorting.Controllers
 {
@@ -45,34 +47,44 @@ namespace ClothResorting.Controllers
 
             //var path = cleaner.ClearBills();
 
-            var pickDetailsInDb = _context.FBAPickDetails
-                .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
-                .Include(x => x.FBAPalletLocation.FBAMasterOrder)
-                .Where(x => x.Id > 0);
+            //var pickDetailsInDb = _context.FBAPickDetails
+            //    .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
+            //    .Include(x => x.FBAPalletLocation.FBAMasterOrder)
+            //    .Where(x => x.Id > 0);
 
-            foreach(var p in pickDetailsInDb)
-            {
-                if (p.FBAPalletLocation != null)
-                {
-                    p.InboundDate = p.FBAPalletLocation.FBAMasterOrder.InboundDate;
-                }
-                else if (p.FBACartonLocation != null)
-                {
-                    p.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
-                }
-            }
+            //foreach(var p in pickDetailsInDb)
+            //{
+            //    if (p.FBAPalletLocation != null)
+            //    {
+            //        p.InboundDate = p.FBAPalletLocation.FBAMasterOrder.InboundDate;
+            //    }
+            //    else if (p.FBACartonLocation != null)
+            //    {
+            //        p.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
+            //    }
+            //}
 
-            var pickDetailCartonsInDb = _context.FBAPickDetailCartons
-                .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
-                .Include(x => x.FBAPickDetail)
-                .Where(x => x.Id > 0);
+            //var pickDetailCartonsInDb = _context.FBAPickDetailCartons
+            //    .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
+            //    .Include(x => x.FBAPickDetail)
+            //    .Where(x => x.Id > 0);
 
-            foreach(var p in pickDetailCartonsInDb)
-            {
-                p.FBAPickDetail.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
-            }
+            //foreach(var p in pickDetailCartonsInDb)
+            //{
+            //    p.FBAPickDetail.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
+            //}
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
+
+            var container = _context.Containers.First();
+            var oldValueStr = JsonConvert.SerializeObject(container);
+
+            container.ReceiptNumber = "99999";
+
+            var logger = new Logger(_context);
+            //await logger.AddCreatedLog<Container>(oldValueStr, container, "NA", "Ex");
+
+            var name = _context.GetTableName<Container>();
 
             ViewBag.Message = "Your application description page.";
 

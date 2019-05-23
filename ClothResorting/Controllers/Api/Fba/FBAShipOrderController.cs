@@ -15,6 +15,10 @@ using System.Web.Http;
 using System.Data.Entity;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Helpers.FBAHelper;
+using ClothResorting.Models.StaticClass;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -22,11 +26,13 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         private ApplicationDbContext _context;
         private string _userName;
+        private Logger _logger;
 
         public FBAShipOrderController()
         {
             _context = new ApplicationDbContext();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _logger = new Logger(_context);
         }
 
         //GET /api/fba/fbashiporder/
@@ -117,7 +123,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/fba/fbashiporder/
         [HttpPost]
-        public IHttpActionResult CreateNewShipOrder([FromBody]ShipOrderDto obj)
+        public async Task<IHttpActionResult> CreateNewShipOrder([FromBody]ShipOrderDto obj)
         {
             if (Checker.CheckString(obj.ShipOrderNumber))
             {
@@ -168,12 +174,14 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var sampleDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.OrderByDescending(x => x.Id).First());
 
+            await _logger.AddCreatedLogAsync<FBAShipOrder>(null, sampleDto, "Created a new FBA ship order", null, OperationLevel.Normal);
+
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
         }
 
         // POST /api/fba/fbashiporder/?shipOrderId={shipOrderId}&comment={comment}&operation={operation}
         [HttpPost]
-        public IHttpActionResult CreateNewCommentFromWarehouse([FromUri]int shipOrderId, [FromUri]string comment, [FromUri]string operation)
+        public async Task<IHttpActionResult> CreateNewCommentFromWarehouse([FromUri]int shipOrderId, [FromUri]string comment, [FromUri]string operation)
         {
             if (operation == "AddNewComment")
             {
@@ -192,7 +200,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 _context.ChargingItemDetails.Add(newComment);
                 _context.SaveChanges();
 
-                var result = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).First());
+                var result = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.Include(x => x.FBAShipOrder).OrderByDescending(x => x.Id).First());
+
+                await _logger.AddCreatedLogAsync<ChargingItemDetail>(null, result, "Added a new WO comment from warehouse", null, OperationLevel.Normal);
+
                 return Created(Request.RequestUri + "/" + result.Id, result);
             }
             else
@@ -203,7 +214,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpPut]
-        public void UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
+        public async Task UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
         {
             if (Checker.CheckString(obj.ShipOrderNumber))
             {
@@ -211,7 +222,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
-
+            var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
             //如果更新的运单号不是之前的运单号且在数据库中有重复，则报错
             if (obj.ShipOrderNumber != shipOrderInDb.ShipOrderNumber && _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.ShipOrderNumber) != null)
             {
@@ -232,28 +243,39 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrderInDb.EditBy = _userName;
             shipOrderInDb.Instruction = obj.Instruction;
 
-            _context.SaveChanges();
+            var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
+
+            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, "Updated some basic ship order info", null, OperationLevel.Mediunm);
         }
             
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operationDate={operationDate}&operation={operation}
         [HttpPut]
-        public void ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
+        public async Task ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
                 .Include(x => x.ChargingItemDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
+            var oldStatus = shipOrderInDb.Status;
+            var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
+
             ChangeStatus(shipOrderInDb, operation, operationDate);
 
-            _context.SaveChanges();
+            var description = "Change ship order status from " + oldStatus + " to " + shipOrderInDb.Status;
+
+            var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
+
+            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
         [HttpPut]
-        public void MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime operationDate)
+        public async Task MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime operationDate)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var oldStatus = shipOrderInDb.Status;
+            var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
             ////如果已经发货了，则报错
             //if (shipOrderInDb.ShipDate.ToString("yyyy-MM-dd") != "1900-01-01")
@@ -269,14 +291,19 @@ namespace ClothResorting.Controllers.Api.Fba
                 shipOrderInDb.ReleasedBy = _userName;
             }
 
-            _context.SaveChanges();
+            var description = "Change ship order status from " + oldStatus + " to " + shipOrderInDb.Status;
+
+            var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
+            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&isRelease={isRelease}
         [HttpPut]
-        public void MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]bool isRelease)
+        public async Task MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]bool isRelease)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var oldStatus = shipOrderInDb.Status;
+            var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
             //当订单状态为picking时强行release并印上日期
             if (shipOrderInDb.Status == FBAStatus.Picking)
@@ -287,18 +314,23 @@ namespace ClothResorting.Controllers.Api.Fba
                 shipOrderInDb.OperationLog = "Released by " + _userName;
             }
 
-            _context.SaveChanges();
+            var description = "Change ship order status from " + oldStatus + " to " + shipOrderInDb.Status;
+
+            var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
+            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
         [HttpPut]
-        public void ResetShipOrderDetail([FromUri]int shipOrderId, [FromUri]string operation)
+        public async Task ResetShipOrderDetail([FromUri]int shipOrderId, [FromUri]string operation)
         {
             if (operation == "Reset")
             {
                 var shipOrderInDb = _context.FBAShipOrders
                     .Include(x => x.ChargingItemDetails)
                     .SingleOrDefault(x => x.Id == shipOrderId);
+
+                var oldValueDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(shipOrderInDb.ChargingItemDetails);
 
                 shipOrderInDb.ChargingItemDetails = null;
 
@@ -323,15 +355,21 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 _context.ChargingItemDetails.AddRange(chargingItemDetailList);
                 _context.SaveChanges();
+
+                var resultDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).Take(chargingItemDetailList.Count));
+                var shipOrderStr = JsonConvert.SerializeObject(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb));
+                await _logger.AddUpdatedLogAsync<ChargingItemDetail>(oldValueDto, resultDto, "Reset all instructions in [dbo].[FBAShipOrder] " + shipOrderStr, null, OperationLevel.Mediunm);
             }
         }
 
         // PUT /api/fba/fbashiporder/?chargingDetailId={chargingDetailId}&comment={comment}&operation={operation}
         [HttpPut]
-        public void UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]bool isChargingItem, [FromUri]string operation)
+        public async Task UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]bool isChargingItem, [FromUri]string operation)
         {
             var instructionInDb = _context.ChargingItemDetails.Find(chargingDetailId);
-            
+            var oldValueDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(instructionInDb);
+            string description = "";
+
             if (operation == "UpdateInstruction")
             {
                 instructionInDb.Description = comment;
@@ -344,31 +382,42 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     instructionInDb.Status = FBAStatus.NoNeedForCharging;
                 }
+
+                description = "Updated instruction by office client";
             }
             else if (operation == "UpdateComment")
             {
                 instructionInDb.Comment = comment;
                 instructionInDb.HandlingStatus = FBAStatus.Pending;
                 instructionInDb.ConfirmedBy = _userName;
+
+                description = "Updated comment by warehouse client";
             }
             else if (operation == "UpdateResult")
             {
                 instructionInDb.Result = comment;
                 instructionInDb.HandlingStatus = FBAStatus.Returned;
+
+                description = "Updated result by office client";
             }
 
-            _context.SaveChanges();
+            var instructionDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(instructionInDb);
+
+            await _logger.AddUpdatedLogAsync<ChargingItemDetail>(oldValueDto, instructionDto, description, null, OperationLevel.Mediunm);
         }
 
         // DELETE /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpDelete]
-        public void DeleteShipOrder([FromUri]int shipOrderId)
+        public async Task DeleteShipOrder([FromUri]int shipOrderId)
         {
             var pickDetailsInDb = _context.FBAPickDetails
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.Id == shipOrderId);
 
+            var pickDetailsDto = Mapper.Map<IEnumerable<FBAPickDetail>, IEnumerable<FBAPickDetailsDto>>(pickDetailsInDb);
+
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var shipOrderDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
             var fbaPickDetailAPI = new FBAPickDetailController();
 
@@ -381,13 +430,32 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.Id == shipOrderId);
 
+            var chargingItemDetailsDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(chargingItemDetailsInDb);
+
             var invoiceDetailsInDb = _context.InvoiceDetails
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.Id == shipOrderId);
 
+            var invoiceDetailsDto = Mapper.Map<IEnumerable<InvoiceDetail>, IEnumerable<InvoiceDetailDto>>(invoiceDetailsInDb);
+
             _context.ChargingItemDetails.RemoveRange(chargingItemDetailsInDb);
             _context.InvoiceDetails.RemoveRange(invoiceDetailsInDb);
             _context.FBAShipOrders.Remove(shipOrderInDb);
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Please remove all diagnostics before deleting this ship order.");
+                //await _logger.AddDeletedLogAsync<FBAShipOrder>(shipOrderDto, "Attemp to delete ship order failed", e.Message, OperationLevel.Exception);
+            }
+
+            await _logger.AddDeletedLogAsync<FBAPickDetail>(pickDetailsDto, "Put back picked items", null, OperationLevel.Mediunm);
+            await _logger.AddDeletedLogAsync<ChargingItemDetail>(chargingItemDetailsDto, "Deleted all WO instructions and charging instructions", null, OperationLevel.Mediunm);
+            await _logger.AddDeletedLogAsync<InvoiceDetail>(invoiceDetailsDto, "Deleted all invoiceDetails", null, OperationLevel.High);
+            await _logger.AddDeletedLogAsync<FBAShipOrder>(shipOrderDto, "Deleted ship order", null, OperationLevel.High);
+
             _context.SaveChanges();
         }
 

@@ -29,5 +29,7 @@ namespace ClothResorting.Models.StaticClass
         public const string High = "High";
 
         public const string Danger = "Danger";
+
+        public const string Exception = "Exception";
     }
 }

@@ -17,8 +17,6 @@ namespace ClothResorting.Models
 
         public string RequestUri { get; set; }
 
-        public string Title { get; set; }
-
         public string OldValue { get; set; }
 
         public string NewValue { get; set; }
@@ -28,5 +26,11 @@ namespace ClothResorting.Models
         public DateTime OperationDate { get; set; }
 
         public string Level { get; set; }
+
+        public string EntityName { get; set; }
+
+        public string UserIp { get; set; }
+
+        public string RequestBody {get;set;}
     }
 }
