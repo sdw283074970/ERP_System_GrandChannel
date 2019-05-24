@@ -1,0 +1,51 @@
+﻿@model ClothResorting.Controllers.UserViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    <div class="jumbotron">
+        <h1>Grand Channel Inc.</h1>
+        <h2>Customer Honme Page</h2>
+        <p class="lead">A Commercial Warehouse specially operated for FBA cargo delivery and E-Commerce cargo online order fulfillment.</p>
+        <p><b>Location:</b> 3 minutes to Los Angeles 60 Freeway</p>
+        <p><b>Address:</b> 13780 Central Ave., Chino, CA 91710</p>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h2>FBA System</h2>
+            <p><a id="btn-fba" class="btn btn-default" href="@Url.Action("FBAClientIndex/", "CustomerClient", new { userId = Model.UserId })">Go &raquo;</a></p>
+
+        </div>
+        <div class="col-md-4">
+            <h2>Drop Shipping Sytem</h2>
+            <p><a class="btn btn-default" href="~/DropShipping/Index">Go &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+            <h2>3PL System</h2>
+            <p><button id="btn-3pl" class="btn btn-default">Go &raquo;</button></p>
+        </div>
+    </div>
+}
+
+@section scripts
+{
+    <script>
+
+        $(document).ready(function () {
+
+            var index;
+
+            $("#btn-3pl").on("click", function () {
+                alert("您的账户上暂无此项业务");
+            });
+
+            //$("#btn-fba").on("click", function () {
+            //    $(window.location).attr('href', "/CustomerClient/FBAClientIndex/");
+            //});
+
+        });
+
+    </script>
+
+}

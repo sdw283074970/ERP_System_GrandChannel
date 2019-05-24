@@ -121,4 +121,21 @@ namespace ClothResorting.FilterAttribute
         }
     }
 
+    public class CustomerFilterAttribute : ActionFilterAttribute
+    {
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!HttpContext.Current.User.IsInRole(RoleName.CanViewAsClientOnly))
+            {
+                filterContext.Result = new RedirectToRouteResult("Denied", new RouteValueDictionary(new
+                {
+                    controller = "Home",
+                    action = "Denied",
+                    area = ""
+                }), false);
+            }
+
+            base.OnActionExecuting(filterContext);
+        }
+    }
 } 

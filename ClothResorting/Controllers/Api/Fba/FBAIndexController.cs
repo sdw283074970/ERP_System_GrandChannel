@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -21,6 +22,16 @@ namespace ClothResorting.Controllers.Api.Fba
         public FBAIndexController()
         {
             _context = new ApplicationDbContext();
+        }
+
+        // GET /api/fba/index/?userId={userId}
+        [HttpGet]
+        public IHttpActionResult GetActiveCustomersByUser([FromUri]string userId)
+        {
+            return Ok(_context.UpperVendors
+                .Include(x => x.ApplicationUser)
+                .Where(x => x.Status == Status.Active && x.DepartmentCode == DepartmentCode.FBA && x.ApplicationUser.Id == userId)
+                .Select(Mapper.Map<UpperVendor, UpperVendorDto>));
         }
 
         // GET /api/fba/index

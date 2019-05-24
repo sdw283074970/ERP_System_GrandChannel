@@ -14,6 +14,8 @@ namespace ClothResorting.Models
     public class ApplicationUser : IdentityUser
     {
         public ICollection<OAuthInfo> OAuthInfo { get; set; }
+        public string CustomerCode { get; set; }
+        public ICollection<UpperVendor> Vendors { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {

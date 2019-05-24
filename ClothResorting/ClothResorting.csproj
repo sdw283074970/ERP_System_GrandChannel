@@ -426,6 +426,7 @@
     <Compile Include="Controllers\Api\ThirdPartyLogisticsApiController.cs" />
     <Compile Include="Controllers\Api\UsersController.cs" />
     <Compile Include="Controllers\Api\Warehouse\WarehouseIndexController.cs" />
+    <Compile Include="Controllers\CustomerClientController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\DropShippingController.cs" />
     <Compile Include="Controllers\EFolderController.cs" />
@@ -1636,6 +1637,14 @@
     <Compile Include="Migrations\201905222255231_AddedUserIpAndRequestBodyInOperationLo.Designer.cs">
       <DependentUpon>201905222255231_AddedUserIpAndRequestBodyInOperationLo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905232149069_AddedCustomerCodeInUser.cs" />
+    <Compile Include="Migrations\201905232149069_AddedCustomerCodeInUser.Designer.cs">
+      <DependentUpon>201905232149069_AddedCustomerCodeInUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201905232222289_ConnectVendorsToUsers.cs" />
+    <Compile Include="Migrations\201905232222289_ConnectVendorsToUsers.Designer.cs">
+      <DependentUpon>201905232222289_ConnectVendorsToUsers.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2196,16 +2205,20 @@
     <Content Include="Views\ShipOrder\ViewFBAPickDetail.cshtml" />
     <Content Include="Views\FBA\FBAInvoiceDetailReadOnly.cshtml" />
     <Content Include="Views\EFolder\FBAEFolder.cshtml" />
-    <Content Include="Views\FBA\FBAClientIndex.cshtml" />
+    <Content Include="Views\CustomerClient\FBAClientIndex.cshtml" />
     <Content Include="Views\Warehouse\Index.cshtml" />
     <Content Include="Views\ShipOrder\FBAPickDetailAdjustOnly.cshtml" />
     <Content Include="Views\Home\Denied.cshtml" />
     <Content Include="Views\Account\Management.cshtml" />
     <Content Include="Views\Home\Error.cshtml" />
     <Content Include="Views\ShipOrder\_FBAShipOrderPartial.cshtml" />
+    <Content Include="Views\CustomerClient\Index.cshtml" />
+    <Content Include="Views\CustomerClient\FBAClientMasterOrder.cshtml" />
+    <Content Include="Views\CustomerClient\FBAClientOrderDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Controllers\Api\CustomerClient\" />
     <Folder Include="Scripts\dist\" />
     <Folder Include="UploadedFiles\" />
   </ItemGroup>
@@ -3061,6 +3074,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905222255231_AddedUserIpAndRequestBodyInOperationLo.resx">
       <DependentUpon>201905222255231_AddedUserIpAndRequestBodyInOperationLo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905232149069_AddedCustomerCodeInUser.resx">
+      <DependentUpon>201905232149069_AddedCustomerCodeInUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905232222289_ConnectVendorsToUsers.resx">
+      <DependentUpon>201905232222289_ConnectVendorsToUsers.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

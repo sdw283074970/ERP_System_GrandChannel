@@ -1,0 +1,156 @@
+﻿
+
+@{
+    ViewBag.Title = "FBAClientIndex";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //var userId = Model.UserId;
+    //Url.Action("FBAClientIndex", "CustomerClientController", new { id = "?userId=" + userId });
+}
+
+<h1>FBA System</h1>
+<h2>Manifest Management</h2>
+
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Customer Code</th>
+                    <th>Customer Name</th>
+                    <th>Contact Tel</th>
+                    <th>Contact E-mail</th>
+                    <th>Contact Person</th>
+                    <th>Status</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe-export">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Start Date: </text><input id='input-date-start' type="date" style='width:170px' class='input-sm' /><br />
+        <text>Close Date: </text><input id='input-date-close' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
+        <button id="btn-download" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">导出收费报表</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe-export").hide();
+
+            var index;
+            var userId = grandChannel.getUrlParameter('userId');
+            var table;
+            var url;
+
+            $.ajax({
+                type: "GET",
+                url: "/api/fba/FBAindex/?userId=" + userId,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                beforeSend: function () {
+                    index = layer.msg('Processing...', {
+                        icon: 1,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
+                success: function (data) {
+                    layer.close(index);
+
+                    $("#table").DataTable({
+                        destroy: true,
+                        data: data,
+                        scrollCollapse: true,
+                        scrollY: "600px",
+                        order: [[0, "desc"]],
+                        iDisplayLength: 100,
+                        columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<font>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "customerCode",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "name",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "telNumber",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "emailAddress",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "contactPerson",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    if (data == "Active")
+                                        return "<font color='green'>" + data + "</font>";
+                                    else
+                                        return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Orders</button>";
+                                }
+                            },
+                        ]
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+
+            //点击管理订单，跳转到该用户的订单总览页面
+            $("#table").on("click", ".btn-manageorders", function () {
+                var customerId = $(this).attr('iid');
+                $(window.location).attr('href', '/CustomerClient/FBAClientMasterOrder/?customerId=' + customerId);
+            });
+        });
+    </script>
+}

@@ -14,7 +14,7 @@ namespace ClothResorting.Controllers.Api
 {
     public class IndexController : ApiController
     {
-        public ApplicationDbContext _context;
+        private ApplicationDbContext _context;
 
         public IndexController()
         {

@@ -23,20 +23,29 @@ namespace ClothResorting.Controllers
     public class HomeController : Controller
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public HomeController()
         {
             _context = new ApplicationDbContext();
+            _userName = System.Web.HttpContext.Current.User.Identity.Name;
         }
 
         public ActionResult Index()
         {
+            var user = _context.Users
+                .SingleOrDefault(x => x.UserName == _userName);
+
+            var userId = user.Id;
+
+            var model = new UserViewModel { UserId = userId };
+
             if (User.IsInRole(RoleName.CanOperateAsT3) || User.IsInRole(RoleName.CanOperateAsT4) || User.IsInRole(RoleName.CanOperateAsT5) || User.IsInRole(RoleName.CanDeleteEverything))
                 return View();
             else if (User.IsInRole(RoleName.CanOperateAsT2))
                 return View("~/Views/Warehouse/Index.cshtml");
             else if (User.IsInRole(RoleName.CanViewAsClientOnly))
-                return View("FBAClientIndex");
+                return View("~/Views/CustomerClient/Index.cshtml", model);
             else
                 return RedirectToAction("Denied", "Home");
         }
