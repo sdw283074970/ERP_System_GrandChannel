@@ -33,21 +33,28 @@ namespace ClothResorting.Controllers
 
         public ActionResult Index()
         {
-            var user = _context.Users
-                .SingleOrDefault(x => x.UserName == _userName);
-
-            var userId = user.Id;
-
-            var model = new UserViewModel { UserId = userId };
-
             if (User.IsInRole(RoleName.CanOperateAsT3) || User.IsInRole(RoleName.CanOperateAsT4) || User.IsInRole(RoleName.CanOperateAsT5) || User.IsInRole(RoleName.CanDeleteEverything))
+            {
                 return View();
+            }
             else if (User.IsInRole(RoleName.CanOperateAsT2))
+            {
                 return View("~/Views/Warehouse/Index.cshtml");
+            }
             else if (User.IsInRole(RoleName.CanViewAsClientOnly))
+            {
+                var user = _context.Users
+                    .SingleOrDefault(x => x.UserName == _userName);
+
+                var userId = user.Id;
+                var model = new UserViewModel { UserId = userId };
+
                 return View("~/Views/CustomerClient/Index.cshtml", model);
+            }
             else
+            {
                 return RedirectToAction("Denied", "Home");
+            }
         }
 
         public ActionResult Test()

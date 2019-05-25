@@ -4,5 +4,607 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>FBAClientOrderDetail</h2>
+<h1>FBA System</h1>
+<h2>Manifest Detail</h2>
+<h2 id="h2-grandnumber">Grand ID: GRANDID123456</h2>
 
+<div class="maincontainer">
+    <div>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+    </div>
+    <div>
+        <input id="btn-upload" type="button" class="btn btn-primary" value="Upload manifest" />
+        <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory" />
+    </div>
+    <div style="border:double">
+        <h3>Add new item</h3>
+        <form id="form-table">
+            <table class="table table-condensed table-hover table-striped">
+                <tr>
+                    <th>FBA shmt ID/SKU</th>
+                    <th>Amz Ref ID</th>
+                    <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
+                    <th>GW(KG)</th>
+                    <th>CBM</th>
+                    <th>Quantity</th>
+                    <th>Remark</th>
+                    <th>Operation</th>
+                </tr>
+                <tr>
+                    <td><input id="input-sku" name="sku" class="input-sm" placeholder="Required" required /></td>
+                    <td><input id="input-amz" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="input-whs" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="input-deliver" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="input-grossweight" name="grossweight" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
+                    <td><input id="input-add-cbm" name="cbm" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
+                    <td><input id="input-qty" name="quantity" type="number" class="input-sm" placeholder="Required" required /></td>
+                    <td><input id="input-remark" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="btn-add" type="button" class="btn btn-primary" value="Add" /></td>
+                </tr>
+            </table>
+        </form>
+</div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Status</th>
+                    <th>Container</th>
+                    <th>FBA shmt ID/SKU</th>
+                    <th>Amz Ref ID</th>
+                    <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
+                    <th>GW(KG)</th>
+                    <th>CBM</th>
+                    <th>Quantity</th>
+                    <th>Actual GW(KG)</th>
+                    <th>Actual CBM</th>
+                    <th>Actual Quantity</th>
+                    <th>Remark</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="iframe">
+    <div style="text-align:center">
+        <input id="input-upload" type="file" class="custom-file-input" accept="xls/xlsx" />
+    </div>
+    <div style="margin-top:20%">
+        <input id="input-uploadtemplate" type="button" class="btn btn-primary" value="Upload Packing List" />
+        <input id="input-download" type="button" class="btn btn-info" value="Download Template" />
+    </div>
+</div>
+<div class="iframe-info">
+    <div style="text-align:right;margin-right:20px">
+        <text>Actual Gross Weight: <input id="input-gw" type="text" class="input-sm" style="margin-top:20px" /></text><br />
+        <text>Actual CBM: <input id="input-cbm" type="text" class="input-sm" style="margin-top:20px" /></text><br />
+        <text>Actual Quantity: <input id="input-quantity" type="text" class="input-sm" style="margin-top:20px;margin-bottom:20px" /></text><br />
+        <text>Comsumed Quantity: <font id="font-comsumed" color="red">0</font></text><br />
+        <text>Comment: <textarea id="textarea-comment" placeholder="Leave comment here" style="width:200px;height:150px;margin-top:20px"></textarea></text><br />
+        <button id="btn-updateinfo" class="btn btn-primary" style="margin-top:20px">Update</button>
+    </div>
+</div>
+<div class="iframe-receive">
+    <div style="text-align:right;margin-right:20px">
+        <text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" placeholder="Required" /></text><br />
+        <text>Inbound Date: <input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
+        <button id="btn-updatereceiving" class="btn btn-primary" style="margin-top:20px">Confirm</button>
+    </div>
+</div>
+
+@*<style type="text/css">
+    th {
+        text-align: center; /** 设置水平方向居中 */
+        vertical-align: middle; /** 设置垂直方向居中 */
+    }
+    td {
+        text-align: center; /** 设置水平方向居中 */
+        vertical-align: middle; /** 设置垂直方向居中 */
+    }
+</style>*@
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $(".iframe").hide();
+            $(".iframe-info").hide();
+            $(".iframe-receive").hide();
+
+            var table;
+            var index;
+            var index2;
+            var status;
+            var url;
+            var orderDetailId;
+
+            //解析url中的参数函数
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var grandNumber = getUrlParameter('grandNumber');
+            $("#h2-grandnumber").html("GRAND NUMBER: " + grandNumber);
+
+            //点击上传打开上传装箱单类型弹窗
+            $("#btn-upload").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["20%", "20%"],
+                    content: $(".iframe")
+                });
+            });
+
+            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+
+            GetAjaxTable("GET", url, table);
+
+            //点击上传PL按钮，上传PL
+            $("#input-uploadtemplate").on("click", function () {
+                var formData = new FormData();
+                var files = $("#input-upload").get(0).files;
+
+                if (files.length > 0) {
+                    formData.append("fileName", files[0]);
+                }
+
+                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber;
+
+                SendUploadAjaxMethod("POST", url, formData);
+            });
+
+            //点击Update按钮，更新信息
+            $("#btn-updateinfo").on("click", function () {
+
+                var actualGrossWeight = $("#input-gw").val();
+                var actualCBM = $("#input-cbm").val();
+                var actualQuantity = $("#input-quantity").val();
+                var comment = $("#textarea-comment").val();
+
+                var obj = {
+                    "actualGrossWeight": actualGrossWeight,
+                    "actualCBM": actualCBM,
+                    "actualQuantity": actualQuantity,
+                    "comment": comment
+                }
+
+                SendAjaxMethod("PUT", url, obj);
+            });
+
+            //点击无问题收取所有货物按钮，收取所有货物
+            $("#btn-updatereceiving").on("click", function () {
+                var inboundDate = $("#input-date").val();
+                var container = $("#input-updatecontainer").val();
+
+                if (inboundDate != "" && container != "")
+                {
+                    url = "/api/fba/masterdetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
+                    SendAjaxMethod("PUT", url, {});
+                }
+                else
+                {
+                    alert("Please select inbound date and container #.");
+                }
+            });
+
+            //点击库内操作，转到库内操作页面
+            $("#btn-operation").on("click", function () {
+                $(window.location).attr('href', '/fba/warehouseOperation/?grandNumber=' + grandNumber);
+            });
+
+            //点击库位分配按钮，转到库位分配页面
+            $("#btn-allocating").on("click", function () {
+                $(window.location).attr('href', '/fba/FBAAllocating/?grandNumber=' + grandNumber);
+            });
+
+            //点击查看库存按钮，转到库存页面
+            $("#btn-inventory").on("click", function () {
+                $(window.location).attr('href', '/fba/Inventory/?grandNumber=' + grandNumber);
+            });
+
+            //点击各个条目的Update按钮打开更新信息弹窗
+            $("#table").on("click", ".btn-update", function () {
+
+                var model;
+                orderDetailId = $(this).attr('iid');
+
+                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+
+                SendAjaxMethodOverrideObj("GET", url, {});
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "500px"],
+                    content: $(".iframe-info")
+                });
+            });
+
+            //点击确认收货按钮，打开收货弹窗，要求输入并确认柜号和入库时间
+            $("#btn-receive").on("click", function () {
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "200px"],
+                    content: $(".iframe-receive")
+                });
+            });
+
+            //点击Receipt按钮，下载自动生成的Receipt
+            $("#btn-receipt").on("click", function () {
+                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Download";
+                grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath("GET", url, {}, index);
+            });
+
+            //点击添加按钮，验证信息，如果通过则添加新的货单内容到数据库
+            $("#btn-add").on("click", function () {
+                if (validform("#form-table").form())
+                {
+                    url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Add";
+
+                    var obj = {
+                        "shipmentId": $("#input-sku").val(),
+                        "amzRefId": $("#input-amz").val(),
+                        "warehouseCode": $("#input-whs").val(),
+                        "deliver": $("#input-deliver").val(),
+                        "grossWeight": $("#input-grossweight").val(),
+                        "cbm": $("#input-add-cbm").val(),
+                        "quantity": $("#input-qty").val(),
+                        "remark": $("#input-remark").val()
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        beforeSend: function () {
+                            layer.close(index);
+                            index = layer.msg('Processing...', {
+                                icon: 3,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
+                        success: function (data) {
+                            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                            GetAjaxTable("GET", url, table);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+                else
+                {
+
+                }
+            });
+
+            //点击删除按钮，删除对应的item
+            $("#table").on("click", ".btn-delete", function () {
+                var orderDetailId = $(this).attr('iid');
+                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+
+                $.ajax({
+                    type: "DELETE",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                        GetAjaxTable("GET", url, table);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+            
+            function GetAjaxTable(methodType, url, table) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "status",
+                                    render: function (data) {
+                                        status = data;
+                                        if (data == "Open")
+                                        {
+                                            return "<font color='green'>" + data + "</font>";
+                                        }
+                                        else
+                                        {
+                                            return "<font color='red'>" + data + "</font>"
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shipmentId",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "amzRefId",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "warehouseCode",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "howToDeliver",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "grossWeight",
+                                    render: function (data) {
+                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "cbm",
+                                    render: function (data) {
+                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "quantity",
+                                    render: function (data) {
+                                        return "<font color='green'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualGrossWeight",
+                                    render: function (data) {
+                                        return "<font color='red'>" + parseFloat(data.toFixed(2)) + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualCBM",
+                                    render: function (data) {
+                                        return "<font color='red'>" + parseFloat(data.toFixed(2)) + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "actualQuantity",
+                                    render: function (data) {
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "remark",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (status != "Locked")
+                                            return "<button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                        else
+                                            return "";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendUploadAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        })
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendAjaxMethodOverrideObj(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    beforeSend: function () {
+                        layer.close(index);
+                        index2 = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (model) {
+                        layer.close(index2);
+
+                        $("#input-gw").val(model.actualGrossWeight);
+                        $("#input-cbm").val(model.actualCBM);
+                        $("#input-quantity").val(model.actualQuantity);
+                        $("#textarea-comment").val(model.comment);
+                        $("#font-comsumed").html(model.comsumedQuantity);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function validform(formId) { 
+                return $(formId).validate({
+                    errorPlacement: function (error, element) {
+                        var p = $("<p />").append(error);
+                        p.appendTo(element.parent());
+                    },
+                    rules : { 
+                        sku: {
+                            required : true
+                        },
+                        quantity: {
+                            required: true
+                        },
+                        cbm: {
+                            required: true
+                        },
+                        grossweight: {
+                            required: true
+                        },
+                    },
+                    messages: {
+                        sku: {
+                            required : "SKU is required"
+                        },
+                        quantity: {
+                            required: "Quantity is required"
+                        },
+                        cbm: {
+                            required: "CBM is required"
+                        },
+                        grossweight: {
+                            required: "Gross Weight is required"
+                        },
+                    }
+                });
+            };
+
+            $(".btn-back").on("click", function () {
+                window.history.back(-1);
+            });
+        });
+    </script>
+}

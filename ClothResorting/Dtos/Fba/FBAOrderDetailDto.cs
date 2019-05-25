@@ -19,5 +19,6 @@ namespace ClothResorting.Dtos.Fba
         public string Remark { get; set; }
 
         public int ComsumedQuantity { get; set; }
+
     }
 }

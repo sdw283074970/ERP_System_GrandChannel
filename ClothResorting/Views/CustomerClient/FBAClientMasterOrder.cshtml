@@ -14,6 +14,7 @@
     <div>
         <input id="btn-master" type="button" class="btn btn-primary" value="Creat new master order" />
         <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
+        <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory report" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -31,7 +32,6 @@
                     <th>Original Plts</th>
                     <th>Actual Plts</th>
                     <th>SKU #</th>
-                    @*<th>Actual Plts</th>*@
                     <th>Inbound Date</th>
                     <th>ETA</th>
                     <th style="width:200px">Operation</th>
@@ -43,27 +43,29 @@
 </div>
 <div class="iframe">
     <h2 id="h2-title"></h2>
-    <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
-        <text>CARRIER: <input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>ETA: <input id='input-eta' type="date" style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>ETD: <input id='input-etd' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />
-        <text>ETA PORT: <input id='input-etaPort' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>PLACE OF RECEIPT: <input id='input-receipt' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-    </div>
-    <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
-        <text>PORT OF DISCHARGE: <input id='input-pod' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>PLACE OF DELIVERY: <input id='input-delivery' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>CONTAINER NO.: <input id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
-        <text>Original Plts: <input id='input-originalplts' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" value="0" /></text><br />
-        <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>INBOUND TYPE: <input id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
-        <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <button id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
-        <button id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
-    </div>
+    <form id="form-create">
+        <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
+            <text>CARRIER: <input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>ETA: <input name="eta" id='input-eta' type="date" style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>ETD: <input id='input-etd' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+            <text>ETA PORT: <input id='input-etaPort' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>PLACE OF RECEIPT: <input id='input-receipt' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+        </div>
+        <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
+            <text>PORT OF DISCHARGE: <input id='input-pod' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>PLACE OF DELIVERY: <input id='input-delivery' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>CONTAINER NO.: <input name="container" id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
+            <text>Original Plts: <input type="number" name="plts" id='input-originalplts' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" value="0" /></text><br />
+            <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>INBOUND TYPE: <input name="type" id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
+            <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <button type="button" id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
+            <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
+        </div>
+    </form>
 </div>
 @section scripts
 {
@@ -73,6 +75,7 @@
             var index;
             var beforeSendingIndex;
             var table;
+            var status;
             var url;
             var grandNumber;
             var customerCode;
@@ -127,49 +130,55 @@
 
             //点击新建按钮，为当前客户新建一个主单
             $("#btn-new").on("click", function () {
-                var carrier = $("#input-carrier").val().toString();
-                var vessel = $("#input-vessel").val().toString();
-                var voy = $("#input-voy").val().toString();
-                var eta = $("#input-eta").val().toString();
-                var etd = $("#input-etd").val().toString();
-                var inboundType = $("#input-inboundtype").val().toString();
-                var etaPort = $("#input-etaPort").val().toString();
-                var placeOfReceipt = $("#input-receipt").val().toString();
-                var portOfLoading = $("#input-pol").val().toString();
-                var portOfDischarge = $("#input-pod").val().toString();
-                var placeOfDelivery = $("#input-delivery").val().toString();
-                var container = $("#input-container").val().toString();
-                var sealNumber = $("#input-seal").val().toString();
-                var containerSize = $("#input-size").val().toString();
-                var originalPlts = $("#input-originalplts").val();
+                if (validform("#form-create").form())
+                {
+                    var carrier = $("#input-carrier").val().toString();
+                    var vessel = $("#input-vessel").val().toString();
+                    var voy = $("#input-voy").val().toString();
+                    var eta = $("#input-eta").val().toString();
+                    var etd = $("#input-etd").val().toString();
+                    var inboundType = $("#input-inboundtype").val().toString();
+                    var etaPort = $("#input-etaPort").val().toString();
+                    var placeOfReceipt = $("#input-receipt").val().toString();
+                    var portOfLoading = $("#input-pol").val().toString();
+                    var portOfDischarge = $("#input-pod").val().toString();
+                    var placeOfDelivery = $("#input-delivery").val().toString();
+                    var container = $("#input-container").val().toString();
+                    var sealNumber = $("#input-seal").val().toString();
+                    var containerSize = $("#input-size").val().toString();
+                    var originalPlts = $("#input-originalplts").val();
 
-                var obj = {
-                    "carrier": carrier,
-                    "vessel": vessel,
-                    "voy": voy,
-                    "eta": eta,
-                    "etd": etd,
-                    "etaPort": etaPort,
-                    "placeOfReceipt": placeOfReceipt,
-                    "portOfLoading": portOfLoading,
-                    "portOfDischarge": portOfDischarge,
-                    "placeOfDelivery": placeOfDelivery,
-                    "container": container,
-                    "sealNumber": sealNumber,
-                    "containerSize": containerSize,
-                    "inboundType": inboundType,
-                    "originalPlts": originalPlts
-                };
+                    var obj = {
+                        "carrier": carrier,
+                        "vessel": vessel,
+                        "voy": voy,
+                        "eta": eta,
+                        "etd": etd,
+                        "etaPort": etaPort,
+                        "placeOfReceipt": placeOfReceipt,
+                        "portOfLoading": portOfLoading,
+                        "portOfDischarge": portOfDischarge,
+                        "placeOfDelivery": placeOfDelivery,
+                        "container": container,
+                        "sealNumber": sealNumber,
+                        "containerSize": containerSize,
+                        "inboundType": inboundType,
+                        "originalPlts": originalPlts
+                    };
 
-                url = "/api/fba/fbamasterorder/" + customerId;
+                    url = "/api/fba/fbamasterorder/" + customerId;
+                    SendAjaxMethod("POST", url, obj);
+                }
+                else
+                {
 
-                SendAjaxMethod("POST", url, obj);
+                }
             });
 
             //点击管理总单按钮，进入所选总单的细节页面
             $("#table").on("click", ".btn-manage", function () {
                 var grandNumber = $(this).attr('iid');
-                $(window.location).attr('href', '/fba/MasterDetail/?grandNumber=' + grandNumber);
+                $(window.location).attr('href', '/CustomerClient/FBAClientOrderDetail/?grandNumber=' + grandNumber);
             });
 
             //点击费用按钮，进入收费项目登记页面
@@ -269,44 +278,88 @@
 
             //点击更新按钮，更新主单的所有信息
             $("#btn-update").on("click", function () {
-                var carrier = $("#input-carrier").val().toString();
-                var vessel = $("#input-vessel").val().toString();
-                var voy = $("#input-voy").val().toString();
-                var eta = $("#input-eta").val().toString();
-                var etd = $("#input-etd").val().toString();
-                var inboundType = $("#input-inboundtype").val().toString();
-                var etaPort = $("#input-etaPort").val().toString();
-                var placeOfReceipt = $("#input-receipt").val().toString();
-                var portOfLoading = $("#input-pol").val().toString();
-                var portOfDischarge = $("#input-pod").val().toString();
-                var placeOfDelivery = $("#input-delivery").val().toString();
-                var container = $("#input-container").val().toString();
-                var sealNumber = $("#input-seal").val().toString();
-                var containerSize = $("#input-size").val().toString();
-                var originalPlts = $("#input-originalplts").val();
+                if (validform("#form-create").form())
+                {
+                    var carrier = $("#input-carrier").val().toString();
+                    var vessel = $("#input-vessel").val().toString();
+                    var voy = $("#input-voy").val().toString();
+                    var eta = $("#input-eta").val().toString();
+                    var etd = $("#input-etd").val().toString();
+                    var inboundType = $("#input-inboundtype").val().toString();
+                    var etaPort = $("#input-etaPort").val().toString();
+                    var placeOfReceipt = $("#input-receipt").val().toString();
+                    var portOfLoading = $("#input-pol").val().toString();
+                    var portOfDischarge = $("#input-pod").val().toString();
+                    var placeOfDelivery = $("#input-delivery").val().toString();
+                    var container = $("#input-container").val().toString();
+                    var sealNumber = $("#input-seal").val().toString();
+                    var containerSize = $("#input-size").val().toString();
+                    var originalPlts = $("#input-originalplts").val();
 
-                var obj = {
-                    "carrier": carrier,
-                    "vessel": vessel,
-                    "voy": voy,
-                    "eta": eta,
-                    "etd": etd,
-                    "etaPort": etaPort,
-                    "placeOfReceipt": placeOfReceipt,
-                    "portOfLoading": portOfLoading,
-                    "portOfDischarge": portOfDischarge,
-                    "placeOfDelivery": placeOfDelivery,
-                    "container": container,
-                    "sealNumber": sealNumber,
-                    "containerSize": containerSize,
-                    "inboundType": inboundType,
-                    "originalPlts": originalPlts
-                };
+                    var obj = {
+                        "carrier": carrier,
+                        "vessel": vessel,
+                        "voy": voy,
+                        "eta": eta,
+                        "etd": etd,
+                        "etaPort": etaPort,
+                        "placeOfReceipt": placeOfReceipt,
+                        "portOfLoading": portOfLoading,
+                        "portOfDischarge": portOfDischarge,
+                        "placeOfDelivery": placeOfDelivery,
+                        "container": container,
+                        "sealNumber": sealNumber,
+                        "containerSize": containerSize,
+                        "inboundType": inboundType,
+                        "originalPlts": originalPlts
+                    };
 
-                url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber;
+                    url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber;
 
-                SendAjaxMethod("PUT", url, obj);
+                    SendAjaxMethod("PUT", url, obj);
+                }
+                else
+                {
+
+                }
             });
+
+            function validform(formId) {
+                return $(formId).validate({
+                    errorPlacement: function(error, element) {  
+                        var p = $("<p />").append(error);
+                        p.appendTo(element.parent());
+                    }, 
+                    rules: {
+                        eta: {
+                            required: true
+                        },
+                        container: {
+                            required: true
+                        },
+                        plts: {
+                            required: true
+                        },
+                        type: {
+                            required: true
+                        },
+                    },
+                    messages: {
+                        eta: {
+                            required: "ETA is required",
+                        },
+                        container: {
+                            required: "Container # is required",
+                        },
+                        plts: {
+                            required: "Pallet number is required",
+                        },
+                        type: {
+                            required: "Inbound type is required",
+                        },
+                    }
+                });
+            };
 
             function GetAjaxTable(methodType, url) {
                 $.ajax({
@@ -414,9 +467,15 @@
                                     data: "inboundDate",
                                     render: function (data) {
                                         if (data == "1900-01-01T00:00:00")
+                                        {
+                                            status = "Unreceived";
                                             return "<font color='red'>Unreceived</font>"
+                                        }
                                         else
+                                        {
+                                            status = "Received";
                                             return "<font>" + data.substring(0, 10) + "</font>";
+                                        }
                                     }
                                 },
                                 {
@@ -429,7 +488,10 @@
                                     data: "grandNumber",
                                     render: function (data) {
                                         //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
-                                        return "<button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
+                                        if (status == "Unreceived")
+                                            return "<button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
+                                        else
+                                            return "<button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
                                     }
                                 }
                             ]

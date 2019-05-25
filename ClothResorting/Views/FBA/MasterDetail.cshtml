@@ -6,7 +6,7 @@
 
 <h1>FBA System</h1>
 <h2>Master Order Detail</h2>
-<h2>Grand ID: GRANDID123456</h2>
+<h2 id="h2-grandnumber">Grand ID: GRANDID123456</h2>
 
 <div class="maincontainer">
     <div>
@@ -21,11 +21,41 @@
         <input id="btn-allocating" type="button" class="btn btn-primary" value="Allocate location" />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory" />
     </div>
+    <div style="border:double">
+        <h3>Add new item</h3>
+        <form id="form-table">
+            <table class="table table-condensed table-hover table-striped">
+                <tr>
+                    <th>FBA shmt ID/SKU</th>
+                    <th>Amz Ref ID</th>
+                    <th>FBA whse Code</th>
+                    <th>How To Deliver</th>
+                    <th>GW(KG)</th>
+                    <th>CBM</th>
+                    <th>Quantity</th>
+                    <th>Remark</th>
+                    <th>Operation</th>
+                </tr>
+                <tr>
+                    <td><input id="input-sku" name="sku" class="input-sm" placeholder="Required" required /></td>
+                    <td><input id="input-amz" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="input-whs" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="input-deliver" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="input-grossweight" name="grossweight" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
+                    <td><input id="input-add-cbm" name="cbm" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
+                    <td><input id="input-qty" name="quantity" type="number" class="input-sm" placeholder="Required" required /></td>
+                    <td><input id="input-remark" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="btn-add" type="button" class="btn btn-primary" value="Add" /></td>
+                </tr>
+            </table>
+        </form>
+    </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
                     <th>Id</th>
+                    <th>Status</th>
                     <th>Container</th>
                     <th>FBA shmt ID/SKU</th>
                     <th>Amz Ref ID</th>
@@ -82,6 +112,7 @@
             $(".iframe-receive").hide();
 
             var table;
+            var status;
             var index;
             var index2;
             var url;
@@ -104,6 +135,7 @@
             };
 
             var grandNumber = getUrlParameter('grandNumber');
+            $("#h2-grandnumber").html("GRAND NUMBER: " + grandNumber);
 
             //点击上传打开上传装箱单类型弹窗
             $("#btn-upload").on("click", function () {
@@ -118,7 +150,7 @@
 
             url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
 
-            GetAjaxTable("GET", url);
+            GetAjaxTable("GET", url, table);
 
             //点击上传PL按钮，上传PL
             $("#input-uploadtemplate").on("click", function () {
@@ -219,7 +251,83 @@
                 grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath("GET", url, {}, index);
             });
 
-            function GetAjaxTable(methodType, url) {
+            //点击添加按钮，验证信息，如果通过则添加新的货单内容到数据库
+            $("#btn-add").on("click", function () {
+                if (validform("#form-table").form()) {
+                    url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Add";
+
+                    var obj = {
+                        "shipmentId": $("#input-sku").val(),
+                        "amzRefId": $("#input-amz").val(),
+                        "warehouseCode": $("#input-whs").val(),
+                        "deliver": $("#input-deliver").val(),
+                        "grossWeight": $("#input-grossweight").val(),
+                        "cbm": $("#input-add-cbm").val(),
+                        "quantity": $("#input-qty").val(),
+                        "remark": $("#input-remark").val()
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        beforeSend: function () {
+                            layer.close(index);
+                            index = layer.msg('Processing...', {
+                                icon: 3,
+                                shade: 0.01,
+                                time: 99 * 1000
+                            });
+                        },
+                        success: function (data) {
+                            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                            GetAjaxTable("GET", url, table);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+                else {
+
+                }
+            });
+
+            //点击删除按钮，删除对应的item
+            $("#table").on("click", ".btn-delete", function () {
+                var orderDetailId = $(this).attr('iid');
+                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+
+                $.ajax({
+                    type: "DELETE",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                        GetAjaxTable("GET", url, table);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            function GetAjaxTable(methodType, url, table) {
                 $.ajax({
                     type: methodType,
                     url: url,
@@ -252,6 +360,18 @@
                                     data: "id",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "status",
+                                    render: function (data) {
+                                        status = data;
+                                        if (data == "Open") {
+                                            return "<font color='green'>" + data + "</font>";
+                                        }
+                                        else {
+                                            return "<font color='red'>" + data + "</font>"
+                                        }
                                     }
                                 },
                                 {
@@ -335,7 +455,10 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        return "<button iid='" + data + "' class='btn btn-link btn-update'>Update</button>";
+                                        if (status != "Locked")
+                                            return "<button iid='" + data + "' class='btn btn-link btn-update'>Update</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                        else
+                                            return "<button iid='" + data + "' class='btn btn-link btn-update'>Update</button>";
                                     }
                                 }
                             ]
@@ -434,6 +557,43 @@
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
                         });
+                    }
+                });
+            };
+
+            function validform(formId) {
+                return $(formId).validate({
+                    errorPlacement: function (error, element) {
+                        var p = $("<p />").append(error);
+                        p.appendTo(element.parent());
+                    },
+                    rules: {
+                        sku: {
+                            required: true
+                        },
+                        quantity: {
+                            required: true
+                        },
+                        cbm: {
+                            required: true
+                        },
+                        grossweight: {
+                            required: true
+                        },
+                    },
+                    messages: {
+                        sku: {
+                            required: "SKU is required"
+                        },
+                        quantity: {
+                            required: "Quantity is required"
+                        },
+                        cbm: {
+                            required: "CBM is required"
+                        },
+                        grossweight: {
+                            required: "Gross Weight is required"
+                        },
                     }
                 });
             };

@@ -48,27 +48,29 @@
 </div>
 <div class="iframe">
     <h2 id="h2-title"></h2>
-    <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
-        <text>CARRIER: <input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional"/></text><br />
-        <text>ETA: <input id='input-eta' type="date" style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>ETD: <input id='input-etd' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />
-        <text>ETA PORT: <input id='input-etaPort' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>PLACE OF RECEIPT: <input id='input-receipt' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-    </div>
-    <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
-        <text>PORT OF DISCHARGE: <input id='input-pod' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>PLACE OF DELIVERY: <input id='input-delivery' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>CONTAINER NO.: <input id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
-        <text>Original Plts: <input id='input-originalplts' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" value="0" /></text><br />
-        <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <text>INBOUND TYPE: <input id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
-        <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        <button id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
-        <button id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
-    </div>
+    <form id="form-create">
+        <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
+            <text>CARRIER: <input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>ETA: <input id='input-eta' type="date" style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>ETD: <input id='input-etd' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+            <text>ETA PORT: <input name="eta" id='input-etaPort' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>PLACE OF RECEIPT: <input id='input-receipt' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+        </div>
+        <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
+            <text>PORT OF DISCHARGE: <input id='input-pod' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>PLACE OF DELIVERY: <input id='input-delivery' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>CONTAINER NO.: <input name="container" id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
+            <text>Original Plts: <input type="number" name="plts" id='input-originalplts' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" value="0" /></text><br />
+            <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>INBOUND TYPE: <input name="type" id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
+            <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <button type="button" id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
+            <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
+        </div>
+    </form>
 </div>
 @section scripts
 {
@@ -521,6 +523,43 @@
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
                         });
+                    }
+                });
+            };
+
+            function validform(formId) {
+                return $(formId).validate({
+                    errorPlacement: function (error, element) {
+                        var p = $("<p />").append(error);
+                        p.appendTo(element.parent());
+                    },
+                    rules: {
+                        eta: {
+                            required: true
+                        },
+                        container: {
+                            required: true
+                        },
+                        plts: {
+                            required: true
+                        },
+                        type: {
+                            required: true
+                        },
+                    },
+                    messages: {
+                        eta: {
+                            required: "ETA is required",
+                        },
+                        container: {
+                            required: "Container # is required",
+                        },
+                        plts: {
+                            required: "Pallet number is required",
+                        },
+                        type: {
+                            required: "Inbound type is required",
+                        },
                     }
                 });
             };

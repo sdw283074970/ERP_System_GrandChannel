@@ -13,16 +13,20 @@ using ClothResorting.Helpers;
 using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models.FBAModels.BaseClass;
 using ClothResorting.Models.FBAModels.StaticModels;
+using System.Threading.Tasks;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
     public class MasterDetailController : ApiController
     {
         private ApplicationDbContext _context;
+        private Logger _logger;
 
         public MasterDetailController()
         {
             _context = new ApplicationDbContext();
+            _logger = new Logger(_context);
         }
 
         // GET /api/fba/masterdetail/?grandNumber={grandNumber}&operation={operation}
@@ -48,10 +52,20 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetMasterDetails([FromUri]string grandNumber)
         {
-            return Ok(_context.FBAOrderDetails
+            var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
-                .Where(x => x.GrandNumber == grandNumber)
-                .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
+                .Include(x => x.FBACartonLocations)
+                .Where(x => x.GrandNumber == grandNumber);
+
+            foreach(var o in orderDetailsInDb)
+            {
+                if (o.FBACartonLocations.Count != 0)
+                    o.Status = "Locked";
+                else
+                    o.Status = "Open";
+            }
+
+            return Ok(Mapper.Map<IEnumerable<FBAOrderDetail>, IEnumerable<FBAOrderDetailDto>>(orderDetailsInDb));
         }
 
         // GET /api/fba/masterdetail/?orderDetailId={orderDetailId}
@@ -59,6 +73,36 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult GetOrderDetail([FromUri]int orderDetailId)
         {
             return Ok(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(_context.FBAOrderDetails.Find(orderDetailId)));
+        }
+
+        // POST /api/fbva/masterdetail/?grandNumber={grandNumber}&operation=Add
+        [HttpPost]
+        public async Task<IHttpActionResult> CreateNewManifestItem([FromUri]string grandNumber, [FromUri]string operation, [FromBody]ManifestItem item)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber);
+
+            var newItem = new FBAOrderDetail {
+                ShipmentId = item.ShipmentId,
+                Container = masterOrderInDb.Container,
+                AmzRefId = item.AmzRefId,
+                WarehouseCode = item.WarehouseCode,
+                HowToDeliver = item.Deliver,
+                GrossWeight = item.GrossWeight,
+                CBM = item.CBM,
+                Quantity = item.Quantity,
+                Remark = item.Remark,
+                FBAMasterOrder = masterOrderInDb,
+                GrandNumber = grandNumber
+            };
+
+            _context.FBAOrderDetails.Add(newItem);
+            _context.SaveChanges();
+
+            var resultDto = Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(_context.FBAOrderDetails.OrderByDescending(x => x.Id).First());
+
+            await _logger.AddCreatedLogAsync<FBAOrderDetail>(null, resultDto, "Added a new manifest item", null, OperationLevel.Normal);
+
+            return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
         }
 
         // POST /api/fbva/masterdetail/?grandNumber={grandNumber}
@@ -113,7 +157,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /appi/fba/masterDetail/?grandNumber={grandNumber}&inboundDate={inboundDate}&container={container}
+        // PUT /api/fba/masterDetail/?grandNumber={grandNumber}&inboundDate={inboundDate}&container={container}
         [HttpPut]
         public void UpdateReceiving([FromUri]string grandNumber, [FromUri]DateTime inboundDate, [FromUri]string container)
         {
@@ -171,5 +215,39 @@ namespace ClothResorting.Controllers.Api.Fba
                 throw new Exception("Contianer Number " + container + " has been taken. Please delete the existed order and try agian.");
             }
         }
+
+        // DELETE /api/fba/masterdetail/?orderDetailId={orderDetailId}
+        [HttpDelete]
+        public async Task  RemoveOrderDetail([FromUri]int orderDetailId)
+        {
+            var orderDetailInDb = _context.FBAOrderDetails
+                .SingleOrDefault(x => x.Id == orderDetailId);
+
+            _context.FBAOrderDetails.Remove(orderDetailInDb);
+
+            var dto = Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(orderDetailInDb);
+            await _logger.AddDeletedLogAsync<FBAOrderDetail>(dto, "Deleted an order detail(manifest item)", null, OperationLevel.Mediunm);
+
+            _context.SaveChanges();
+        }
+    }
+
+    public class ManifestItem
+    {
+        public string ShipmentId { get; set; }
+
+        public string AmzRefId { get; set; }
+
+        public string WarehouseCode { get; set; }
+
+        public string Deliver { get; set; }
+
+        public float GrossWeight { get; set; }
+
+        public float CBM { get; set; }
+
+        public int Quantity { get; set; }
+
+        public string Remark { get; set; }
     }
 }
