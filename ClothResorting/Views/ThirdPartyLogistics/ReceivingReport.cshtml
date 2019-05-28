@@ -13,7 +13,7 @@
     <div style="margin:20px;margin-bottom:0px">
         <font>Container: <font id="container" class="input-sm"></font></font>
         <text>Vendor: </text><input id="vendor" class="input-sm" placeholder="Vendor" />
-        <text>Receiving Date: </text><input id="receiveddate" class="input-sm" type="date" placeholder="RCVD DATE(MM/dd/yy)" />
+        <text>Receiving Date: </text><input id="receiveddate" class="input-sm" type="date" />
         <text>Reference: </text><input id="reference" class="input-sm" placeholder="REFERENCE" />
         <text>Receipt #: </text><input id="receiptnumber" class="input-sm" placeholder="RECEIPT #" />
         <text>Mark: </text><input id="remark" class="input-sm" placeholder="REMARK" />
@@ -79,7 +79,7 @@
                 dataType: "json",
                 success: function (data) {
                     $("#vendor").val(data.vendor);
-                    $("#receiveddate").val(data.receivedDate);
+                    $("#receiveddate").val(data.inboundDate.substring(0, 10));
                     $("#reference").val(data.reference);
                     $("#receiptnumber").val(data.receiptNumber);
                     $("#remark").val(data.remark);

@@ -13,7 +13,7 @@
     </div>
     <div>
         <input id="btn-master" type="button" class="btn btn-primary" value="Creat new master order" />
-        <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
+        @*<input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />*@
         <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory report" />
     </div>
     <div>
@@ -67,6 +67,14 @@
         </div>
     </form>
 </div>
+<div class="iframe-date">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <form id="form-enddate">
+            <text>End date of inventory: </text><input name="enddate" type="date" id='input-enddate' style='width:200px' class='input-sm' required /><br />
+        </form>
+        <button id="btn-view" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">View</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -78,12 +86,12 @@
             var status;
             var url;
             var grandNumber;
-            var customerCode;
+            var customerCode = getUrlParameter('customerCode');;
             var container;
             var customerId = getUrlParameter('customerId');
             var invoiceStatuts;
 
-            $(".iframe").hide();
+            $(".iframe, .iframe-date").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -324,6 +332,24 @@
                 }
             });
 
+            //点击查看inventory report按钮，弹出时间对话框
+            $("#btn-inventory").on("click", function () {
+                grandChannel.openiframe(index, ".iframe-date", "400px", "170px")
+            });
+
+            //点击查看库存报告的view按钮，转到页面
+            $("#btn-view").on("click", function () {
+                if (validform("#form-enddate").form())
+                {
+                    var endDate = $("#input-enddate").val();
+                    $(window.location).attr('href', "/CustomerClient/FBAClientInventoryReport/?customerCode=" + customerCode + "&closeDate=" + endDate);
+                }
+                else
+                {
+
+                }
+            });
+
             function validform(formId) {
                 return $(formId).validate({
                     errorPlacement: function(error, element) {  
@@ -343,6 +369,9 @@
                         type: {
                             required: true
                         },
+                        enddate: {
+                            required: true
+                        }
                     },
                     messages: {
                         eta: {
@@ -357,6 +386,9 @@
                         type: {
                             required: "Inbound type is required",
                         },
+                        enddate: {
+                            required: "End date is required",
+                        }
                     }
                 });
             };

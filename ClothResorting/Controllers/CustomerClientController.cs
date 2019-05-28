@@ -52,6 +52,12 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // GET: 库存报告页面
+        public ActionResult FBAClientInventoryReport()
+        {
+            return View();
+        }
     }
 
     public class UserViewModel

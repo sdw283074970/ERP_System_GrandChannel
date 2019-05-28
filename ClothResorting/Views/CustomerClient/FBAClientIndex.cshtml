@@ -51,6 +51,7 @@
             var userId = grandChannel.getUrlParameter('userId');
             var table;
             var url;
+            var customerCode;
 
             $.ajax({
                 type: "GET",
@@ -149,7 +150,9 @@
             //点击管理订单，跳转到该用户的订单总览页面
             $("#table").on("click", ".btn-manageorders", function () {
                 var customerId = $(this).attr('iid');
-                $(window.location).attr('href', '/CustomerClient/FBAClientMasterOrder/?customerId=' + customerId);
+                customerCode = $(this).parents().parents("tr").children("td").eq(1).children("text").html();
+
+                $(window.location).attr('href', '/CustomerClient/FBAClientMasterOrder/?customerId=' + customerId + "&customerCode=" + customerCode);
             });
         });
     </script>

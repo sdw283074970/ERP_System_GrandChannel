@@ -165,13 +165,18 @@ namespace ClothResorting.Controllers.Api
         {
             if (orderType == OrderType.Regular)
             {
-                var pickDetailInDb = _context.PickDetails.Include(x => x.FCRegularLocationDetail).SingleOrDefault(x => x.Id == pickDetailId);
+                var pickDetailInDb = _context.PickDetails
+                    .Include(x => x.FCRegularLocationDetail)
+                    .SingleOrDefault(x => x.Id == pickDetailId);
 
                 pickDetailInDb.FCRegularLocationDetail.AvailableCtns += putBackCtns;
                 pickDetailInDb.FCRegularLocationDetail.PickingCtns -= putBackCtns;
 
                 pickDetailInDb.FCRegularLocationDetail.AvailablePcs += putBackPcs;
                 pickDetailInDb.FCRegularLocationDetail.PickingPcs -= putBackPcs;
+
+                //刷新被放回地点状态
+                pickDetailInDb.Status = RefreshRegularStatus(pickDetailInDb.FCRegularLocationDetail);
 
                 //如果放回的箱数件数刚好等于拣货的箱数件数，那么移除拣货记录
                 if (putBackCtns == pickDetailInDb.PickCtns && putBackPcs == pickDetailInDb.PickPcs)
@@ -185,9 +190,6 @@ namespace ClothResorting.Controllers.Api
                     pickDetailInDb.PickPcs -= putBackPcs;
                 }
 
-                //刷新被放回地点状态
-                pickDetailInDb.Status = RefreshRegularStatus(pickDetailInDb.FCRegularLocationDetail);
-
                 _context.SaveChanges();
             }
             else if (orderType == OrderType.Replenishment)
@@ -196,6 +198,9 @@ namespace ClothResorting.Controllers.Api
 
                 pickDetailInDb.ReplenishmentLocationDetail.AvailablePcs += putBackPcs;
                 pickDetailInDb.ReplenishmentLocationDetail.PickingPcs -= putBackPcs;
+
+                //刷新被放回地点状态
+                pickDetailInDb.Status = RefreshReplenishmentStatus(pickDetailInDb.ReplenishmentLocationDetail);
 
                 //如果放回的件数刚好等于拣货的件数，那么移除拣货记录
                 if (putBackPcs == pickDetailInDb.PickPcs)
@@ -207,9 +212,6 @@ namespace ClothResorting.Controllers.Api
                 {
                     pickDetailInDb.PickPcs -= putBackPcs;
                 }
-
-                //刷新被放回地点状态
-                pickDetailInDb.Status = RefreshReplenishmentStatus(pickDetailInDb.ReplenishmentLocationDetail);
 
                 _context.SaveChanges();
             }

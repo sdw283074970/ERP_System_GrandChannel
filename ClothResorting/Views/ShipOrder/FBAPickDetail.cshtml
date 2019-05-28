@@ -128,7 +128,8 @@
         <div style="text-align:right">
             <text>Number of Plts from Inventory: </text><input id="input-pickpallet" class="input-sm" placeholder="Inventory pallet quantity" value="0" /><br />
             <text>Number of new Plts: </text><input id="input-newpallet" class="input-sm" placeholder="New pallet quantity" value="0" /><br />
-            <button id="btn-pickpallet" class="btn btn-primary">Pick</button>
+            <button id="btn-pickall" class="btn btn-danger">Pick All</button>
+            <button id="btn-pickpallet" class="btn btn-primary">Confirm Pick</button>
         </div>
     </div>
 </div>
@@ -190,6 +191,7 @@
             //var orderType = getUrlParameter('orderType');
             var container;
             var palletLocationId;
+            var availablePlts;
 
             //点击诊断系统，查看所有诊断
             $("#btn-diag").on("click", function () {
@@ -396,6 +398,10 @@
             $("#table-pallet, #table-carton").on("click", ".btn-inventory-pick", function () {
                 var inventoryType = $(this).attr('inventorytype');
                 var inventoryId = $(this).attr('iid');
+                availablePlts = $(this).parents().parents("tr").children("td").eq(14).children("font").html();
+
+                $("#input-pickpallet").val(0);
+                $("#input-newpallet").val(0);
 
                 if (inventoryType == "Pallet") {
                     palletLocationId = inventoryId;
@@ -472,6 +478,17 @@
                     ];
                     GetAjaxTable("GET", url, "#table-pickpallet", tablePickPallet, ctnsInPltColumnArray);
                 }
+            });
+
+            //点击全选按钮，自动填充数字
+            $("#btn-pickall").on("click", function () {
+                $("#input-pickpallet").val(availablePlts);
+
+                $(".input-cartons").each(function (i) {
+                    var ctns = $(this).parents().parents("tr").children("td").eq(9).children("font").html();
+                    $(this).val(ctns);
+                });
+
             });
 
             //点击箱数拣货按钮，拣取所填数量不为0的对象到拣货列表中
@@ -1018,7 +1035,7 @@
                         {
                             data: "id",
                             render: function (data) {
-                                return "<input type='button' class='btn btn-link btn-inventory-pick' inventorytype='Pallet' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-inventory-allpick' inventorytype='Pallet' iid='" + data + "' value='All Pick' />";
+                                return "<input type='button' class='btn btn-link btn-inventory-pick' inventorytype='Pallet' iid='" + data + "' value='Pick' />";
                             }
                         }
                 ]
