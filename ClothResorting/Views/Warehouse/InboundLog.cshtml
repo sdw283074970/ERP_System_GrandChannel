@@ -1,0 +1,44 @@
+﻿
+@{
+    ViewBag.Title = "InboundLog";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Warehouse Client</h1>
+<h2>Inbound Order Management</h2>
+
+<div class="maincontainer">
+    <div style="margin:20px">
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+        <input id="btn-outboundlog" type="button" class="btn btn-primary" value="Inbound Log" />
+    </div>
+    <div>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th>ORDER ID</th>
+                    <th style="width:70px">STATUS</th>
+                    <th style="width:150px">STATUS CONTROL</th>
+                    <th style="width:200px">OPERATION</th>
+                    <th>DPT</th>
+                    <th>CUSTOMER</th>
+                    <th>TYPE</th>
+                    <th>ETS</th>
+                    <th>GRAND #</th>
+                    <th>CONTAINER #</th>
+                    <th>ORG CTN</th>
+                    <th>ORG PLT</th>
+                    <th>VENDOR</th>
+                    <th style="width:80px">DEST</th>
+                    <th>CARRIER</th>
+                    <th style="width:80px">PUSH DATE</th>
+                    <th style="width:80px">READY TIME</th>
+                    <th style="width:80px">RELEASED DATE</th>
+                    <th style="width:200px">INSTRUCTION</th>
+                    <th style="width:200px">OPLOG</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

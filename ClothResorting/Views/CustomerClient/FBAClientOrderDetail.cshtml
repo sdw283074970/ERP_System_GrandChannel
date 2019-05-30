@@ -33,8 +33,8 @@
                 </tr>
                 <tr>
                     <td><input id="input-sku" name="sku" class="input-sm" placeholder="Required" required /></td>
-                    <td><input id="input-amz" class="input-sm" placeholder="Optional" /></td>
-                    <td><input id="input-whs" class="input-sm" placeholder="Optional" /></td>
+                    <td><input id="input-amz" name="amz" class="input-sm" placeholder="Required" required /></td>
+                    <td><input id="input-whs" name="whs" class="input-sm" placeholder="Required" required /></td>
                     <td><input id="input-deliver" class="input-sm" placeholder="Optional" /></td>
                     <td><input id="input-grossweight" name="grossweight" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
                     <td><input id="input-add-cbm" name="cbm" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
@@ -584,6 +584,12 @@
                         grossweight: {
                             required: true
                         },
+                        amz: {
+                            required: true
+                        },
+                        whs: {
+                            required: true
+                        }
                     },
                     messages: {
                         sku: {
@@ -598,6 +604,12 @@
                         grossweight: {
                             required: "Gross Weight is required"
                         },
+                        amz: {
+                            required: "Amz Ref Id is required"
+                        },
+                        whs: {
+                            required: "WHS code is required"
+                        }
                     }
                 });
             };

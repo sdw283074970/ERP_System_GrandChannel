@@ -15,5 +15,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // GET: inbound log
+        public ActionResult InboundLog()
+        {
+            return View();
+        }
     }
 }

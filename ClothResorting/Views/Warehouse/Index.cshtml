@@ -8,8 +8,9 @@
 <h2>Outbound Order Management</h2>
 
 <div class="maincontainer">
-    <div>
+    <div style="margin:20px">
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
+        <input id="btn-inboundlog" type="button" class="btn btn-primary" value="Inbound Log" />
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
@@ -252,6 +253,11 @@
             ]
             url = "/api/WarehouseIndex/";
             getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
+
+            //电报机inbound log按钮，跳转到inbound log管理界面
+            $("#btn-inboundlog").on("click", function () {
+                $(window.location).attr("href", "/Warehouse/InboundLog/");
+            });
 
             //点击FBA订单下的view按钮，查看FBA的运单（只读状态）
             $("#table").on("click", ".btn-fbaview", function () {
