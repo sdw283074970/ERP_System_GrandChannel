@@ -63,6 +63,8 @@ namespace ClothResorting.Dtos
 
         public string ColorCode { get; set; }
 
+        public string PreLocation { get; set; }
+
         public DateTime InboundDate { get; set; }
 
     }

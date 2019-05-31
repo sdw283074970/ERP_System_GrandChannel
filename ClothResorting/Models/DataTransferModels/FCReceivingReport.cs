@@ -38,5 +38,7 @@ namespace ClothResorting.Models.DataTransferModels
         public string Memo { get; set; }
 
         public string Comment { get; set; }
+
+        public string PreLocation { get; set; }
     }
 }

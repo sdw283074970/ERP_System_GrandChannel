@@ -5,26 +5,27 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Receiving Report</h2>
+<h2>Pre-Receiving Management Page</h2>
+<h3 id="container"></h3>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div style="margin:20px;margin-bottom:0px">
-        <font>Container: <font id="container" class="input-sm"></font></font>
+    <div style="margin:20px;padding-top:20px;text-align:center;border:double">
         <text>Vendor: </text><input id="vendor" class="input-sm" placeholder="Vendor" />
         <text>Receiving Date: </text><input id="receiveddate" class="input-sm" type="date" />
         <text>Reference: </text><input id="reference" class="input-sm" placeholder="REFERENCE" />
         <text>Receipt #: </text><input id="receiptnumber" class="input-sm" placeholder="RECEIPT #" />
         <text>Mark: </text><input id="remark" class="input-sm" placeholder="REMARK" />
-    </div>
-    <div style="margin:20px">
-        <button id="btn-generate" class="btn btn-primary">Generate Receiving Report for Customer</button>
+        <div style="margin:20px;text-align:center">
+            <button id="btn-generate" class="btn btn-primary">Save&Generate Receiving Report</button>
+        </div>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th style="width:100px">Cut PO</th>
                     <th style="width:120px">Style</th>
                     <th style="width:80px">Color</th>
@@ -39,17 +40,27 @@
                     <th style="width:80px">Received By</th>
                     <th style="width:80px">Adjusted By</th>
                     <th>Comment</th>
-                    <th style="width:80px">Operation</th>
+                    <th>Pre-location</th>
+                    @*<th style="width:80px">Operation</th>*@
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            </tbody>
         </table>
+        <div style="text-align:center">
+            <button style="width:300px" id="btn-save" class="btn btn-primary">Save Comment and Pre-location</button>
+        </div>
     </div>
 </div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
+
+            var url;
+            var index;
+            var table;
+            var carton;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -69,7 +80,7 @@
 
             var preId = getUrlParameter('preid');
             var container = getUrlParameter('container');
-            $("#container").html(container);
+            $("#container").html("Container:" + container);
 
             //获取Container的信息
             $.ajax({
@@ -103,6 +114,12 @@
                         scrollY: "600px",
                         iDisplayLength: 100,
                         columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
                             {
                                 data: "purchaseOrder",
                                 render: function (data) {
@@ -154,6 +171,7 @@
                             {
                                 data: "cartons",
                                 render: function (data) {
+                                    carton = data;
                                     return "<font color='green'>" + data + "</font>";
                                 }
                             },
@@ -184,18 +202,58 @@
                             {
                                 data: "comment",
                                 render: function (data) {
-                                    return "<font>" + data + "</font>";
+                                    if (data == null)
+                                        data = "";
+
+                                    if (carton == 0)
+                                        return "";
+
+                                    return "<input class='input-sm input-comment' value='" + data + "' />";
                                 }
                             },
                             {
-                                data: "id",
+                                data: "preLocation",
                                 render: function (data) {
-                                    return "<button id='" + data + "' class='btn btn-link btn-edit'>Edit Comment</button>";
+                                    if (data == null)
+                                        data = "";
+
+                                    if (carton == 0)
+                                        return "";
+
+                                    return "<input class='input-sm input-prelocation' value='" + data + "' />";
                                 }
-                            }
+                            },
+                            //{
+                            //    data: "id",
+                            //    render: function (data) {
+                            //        return "<button id='" + data + "' class='btn btn-link btn-edit'>Edit Comment</button>";
+                            //    }
+                            //}
                         ]
                     });
                 }
+            });
+
+            //点击保存预收信息按钮，保存comment和prelocation
+            $("#btn-save").on("click", function () {
+
+                var objArray = new Array();
+
+                $(".input-prelocation").each(function (i) {
+                    var preLocation = $(this).val();
+                    var id = $(this).parents().parents("tr").children("td").eq(0).children("text").html();
+                    var comment = $(this).parents().parents("tr").children("td").eq(14).children("input").val();
+                    var obj = {
+                        "id": id,
+                        "comment": comment,
+                        "preLocation": preLocation
+                    }
+                    if (preLocation != "" || comment != "")
+                        objArray.push(obj);
+                });
+                url = "/api/receivingreport/?preId=" + preId + "&container=" + container;
+
+                grandChannel.sendAjaxMethod("PUT", url, objArray, index);
             });
 
             //点击Edit，将对应Comment列中的<text>元素替换成<input>元素，并用一个Ok按钮替换Edit按钮, 

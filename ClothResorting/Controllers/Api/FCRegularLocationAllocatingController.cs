@@ -78,7 +78,10 @@ namespace ClothResorting.Controllers.Api
         [HttpPost]
         public IHttpActionResult CreateRegularStock([FromBody]IEnumerable<FCRegularLocationAllocatingJsonObj> objArray, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
-            foreach(var obj in objArray)
+            var preId = objArray.First().PreId;
+            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preId);
+
+            foreach (var obj in objArray)
             {
                 var cartonRange = _context.RegularCartonDetails
                     .Include(c => c.POSummary.PreReceiveOrder)
@@ -99,7 +102,6 @@ namespace ClothResorting.Controllers.Api
                         && c.POSummary.Id == poSummaryId
                         && c.Batch == regularCartonDetail.Batch);
 
-                var preReceiveOrderInDb = _context.PreReceiveOrders.Find(obj.PreId);
 
                 var index = 1;      //用来甄别多种SKU在同一箱的情况
 
@@ -203,7 +205,6 @@ namespace ClothResorting.Controllers.Api
             var latestRecordDto = Mapper.Map<FCRegularLocationDetail, FCRegularLocationDetailDto>(latestRecord);
 
             //返回剩下仍然未分配的结果
-            var preId = objArray.First().PreId;
             var resultDto = _context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.POSummary.PreReceiveOrder.Id == preId

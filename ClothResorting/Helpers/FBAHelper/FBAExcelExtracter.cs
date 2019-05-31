@@ -242,6 +242,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _context.FBAPickDetails.AddRange(pickDetailList);
             _context.SaveChanges();
+
+            AdjustRelationship();
         }
 
         private FBAPickDetail CreateFBAPickDetail(FBACartonLocation cartonLocation, int ctns)
@@ -265,6 +267,36 @@ namespace ClothResorting.Helpers.FBAHelper
                 PickableCtns = ctns,
                 FBACartonLocation = cartonLocation
             };
+        }
+
+        //重新调整Entiy对象关系。上面的批量取货只考虑了货为散箱库存。现在保留以上，修正托盘库存的对象与拣货列表的关系
+        public void AdjustRelationship()
+        {
+            //找出需要调整的拣货对象
+            var pickDetailsInDb = _context.FBAPickDetails
+                .Include(x => x.FBACartonLocation.FBAPallet.FBAPalletLocations)
+                .Include(x => x.FBAPickDetailCartons)
+                .Where(x => x.FBACartonLocation.Status == "InPallet"
+                    && x.FBAPickDetailCartons == null);
+
+            var pickDetailCartonList = new List<FBAPickDetailCarton>();
+
+            foreach(var p in pickDetailsInDb)
+            {
+                var newPickDeatilCarton = new FBAPickDetailCarton {
+                    PickCtns = p.ActualQuantity,
+                    FBAPickDetail = p,
+                    FBACartonLocation = p.FBACartonLocation
+                };
+
+                pickDetailCartonList.Add(newPickDeatilCarton);
+
+                p.FBAPalletLocation = p.FBACartonLocation.FBAPallet.FBAPalletLocations.First();
+                p.FBACartonLocation = null;
+            }
+
+            _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
+            _context.SaveChanges();
         }
 
         public string CombineLocation(IList<string> locationList)

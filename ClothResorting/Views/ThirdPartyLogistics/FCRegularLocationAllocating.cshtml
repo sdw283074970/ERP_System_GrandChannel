@@ -25,6 +25,7 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Container</th>
                     <th>Ctn Range</th>
                     <th>Batch</th>
@@ -38,6 +39,7 @@
                     <th>TBA Ctns</th>
                     <th><input id="select-all" type="checkbox" value="12345" /></th>
                     <th>Cartons</th>
+                    <th>Pre-location</th>
                     <th>Location</th>
                 </tr>
             </thead>
@@ -58,6 +60,7 @@
 
             var table;
             var index;
+            var preLocation;
 
             var lastCartonValue = 0;
             var lastLocation = "";
@@ -131,9 +134,9 @@
 
                         var location = $(this).val();
                         var id = $(this).attr('iid');
-                        var tbaCtns = $(this).parent().parent("tr").children('td').eq(10).children('font').html();
-                        var cartons = $(this).parent().parent("tr").children('td').eq(12).children('input').val();
-                        var container = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+                        var tbaCtns = $(this).parent().parent("tr").children('td').eq(11).children('font').html();
+                        var cartons = $(this).parent().parent("tr").children('td').eq(13).children('input').val();
+                        var container = $(this).parent().parent("tr").children('td').eq(1).children('text').html();
 
                         if (cartons == "") {
                             alert("Cartons and Location cannot be empty.");
@@ -355,6 +358,12 @@
                     iDisplayLength: 100,
                     columns: [
                         {
+                            data: "id",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
                             data: "container",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
@@ -453,6 +462,7 @@
                             data: "toBeAllocatedCtns",
                             render: function (data) {
                                 cartons = data;
+                                lastCartonValue = data;
                                 if (cartons != 0) {
                                     return "<font color='blue'>" + data + "</font>";
                                 }
@@ -487,11 +497,21 @@
                             }
                         },
                         {
+                            data: "preLocation",
+                            render: function (data) {
+                                preLocation = data;
+                                if (data == null)
+                                    return "";
+                                else
+                                    return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
                             data: "id",
                             render: function (data) {
                                 if (cartons != 0) {
                                     //return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
-                                    return "<input style='width:70px' class='input-location' iid='" + data + "' id='loc-" + data + "' />";
+                                    return "<input style='width:70px' class='input-location' iid='" + data + "' id='loc-" + data + "' value='" + preLocation + "' />";
                                 }
                                 else {
                                     return "";

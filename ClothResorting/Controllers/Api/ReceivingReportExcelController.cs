@@ -54,7 +54,8 @@ namespace ClothResorting.Controllers.Api
                     Color = cartonDetail.Color,
                     SKU = cartonDetail.Batch,
                     Memo = "",
-                    Comment = cartonDetail.Comment
+                    Comment = cartonDetail.Comment,
+                    PreLocation = cartonDetail.PreLocation
                 };
 
                 index++;

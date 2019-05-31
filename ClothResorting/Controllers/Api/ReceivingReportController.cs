@@ -38,16 +38,41 @@ namespace ClothResorting.Controllers.Api
             return Ok(cartonDetails);
         }
 
-        // PUT /receivingreport/
+        // PUT /receivingreport/?preId={preId}&container={container}
         [HttpPut]
-        public void UpdateComment([FromBody]PreIdCommentJsonObj obj)
+        public void UpdateComment([FromUri]int preId, [FromUri]string container,[FromBody]IEnumerable<PreInfo> objArray)
         {
-            var cartonDetailInDb = _context.RegularCartonDetails.Find(obj.Id);
+            var cartonDetailsInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.PreReceiveOrder.Id == preId
+                    && x.POSummary.Container == container);
 
-            cartonDetailInDb.Comment = obj.Comment;
-            cartonDetailInDb.Adjustor = _userName;
+            foreach(var o in objArray)
+            {
+                var detail = cartonDetailsInDb.SingleOrDefault(x => x.Id == o.Id);
+
+                detail.Adjustor = _userName;
+                detail.Comment = o.Comment;
+                detail.PreLocation = o.PreLocation;
+            }
 
             _context.SaveChanges();
+
+            //var cartonDetailInDb = _context.RegularCartonDetails.Find(obj.Id);
+
+            //cartonDetailInDb.Comment = obj.Comment;
+            //cartonDetailInDb.Adjustor = _userName;
+
+            //_context.SaveChanges();
         }
+    }
+
+    public class PreInfo
+    {
+        public int Id { get; set; }
+
+        public string PreLocation { get; set; }
+
+        public string Comment { get; set; }
     }
 }

@@ -63,6 +63,8 @@ namespace ClothResorting.Models
 
         public string ColorCode { get; set; }
 
+        public string PreLocation { get; set; }
+
         public POSummary POSummary { get; set; }
 
         public ICollection<FCRegularLocationDetail> FCRegularLocationDetail { get; set; }
