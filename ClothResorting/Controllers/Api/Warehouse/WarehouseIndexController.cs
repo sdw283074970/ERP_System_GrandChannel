@@ -24,9 +24,9 @@ namespace ClothResorting.Controllers.Api.Warehouse
             _userName = HttpContext.Current.User.Identity.Name.Split('@').First();
         }
 
-        // GET /api/warehouseIndex/
+        // GET /api/warehouseIndex/?operation
         [HttpGet]
-        public IHttpActionResult GetAllWarehouseOrder()
+        public IHttpActionResult GetAllWarehouseOrder([FromUri]string operation)
         {
             //将FBA运单转成outbound work order
             var list = new List<WarehouseOrder>();
@@ -35,7 +35,24 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 .Include(x => x.FBAPickDetails)
                 .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking && x.Status != FBAStatus.Shipped);
 
-            foreach(var o in ordersInDb)
+            if (operation == FBAStatus.NewOrder)
+            {
+                ordersInDb = ordersInDb.Where(x => x.Status == FBAStatus.NewOrder);
+            }
+            else if (operation == FBAStatus.Processing)
+            {
+                ordersInDb = ordersInDb.Where(x => x.Status == FBAStatus.Processing);
+            }
+            else if (operation == FBAStatus.Ready)
+            {
+                ordersInDb = ordersInDb.Where(x => x.Status == FBAStatus.Ready);
+            }
+            else if (operation == FBAStatus.Released)
+            {
+                ordersInDb = ordersInDb.Where(x => x.Status == FBAStatus.Released);
+            }
+
+            foreach (var o in ordersInDb)
             {
                 var order = Mapper.Map<FBAShipOrder, WarehouseOrder>(o);
 

@@ -59,9 +59,25 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill(1).xlsx");
+            var cleaner = new BillCleaner(@"D:\ToRemoteServer\FB1.csv");
 
-            //var path = cleaner.ClearBills();
+            var path = cleaner.ClearBills();
+
+            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB2.csv");
+
+            path = cleaner.ClearBills();
+
+            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB3.csv");
+
+            path = cleaner.ClearBills();
+
+            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB4.csv");
+
+            path = cleaner.ClearBills();
+
+            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB5.csv");
+
+            path = cleaner.ClearBills();
 
             //var pickDetailsInDb = _context.FBAPickDetails
             //    .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
@@ -101,33 +117,6 @@ namespace ClothResorting.Controllers
             ////await logger.AddCreatedLog<Container>(oldValueStr, container, "NA", "Ex");
 
             //var name = _context.GetTableName<Container>();
-
-            //找出需要调整的拣货对象
-            var pickDetailsInDb = _context.FBAPickDetails
-                .Include(x => x.FBACartonLocation.FBAPallet.FBAPalletLocations)
-                .Include(x => x.FBAPickDetailCartons)
-                .Where(x => x.FBACartonLocation.Status == "InPallet"
-                    && x.FBAPickDetailCartons.Count == 0);
-
-            var pickDetailCartonList = new List<FBAPickDetailCarton>();
-
-            foreach (var p in pickDetailsInDb)
-            {
-                var newPickDeatilCarton = new FBAPickDetailCarton
-                {
-                    PickCtns = p.ActualQuantity,
-                    FBAPickDetail = p,
-                    FBACartonLocation = p.FBACartonLocation
-                };
-
-                pickDetailCartonList.Add(newPickDeatilCarton);
-
-                p.FBAPalletLocation = p.FBACartonLocation.FBAPallet.FBAPalletLocations.First();
-                p.FBACartonLocation = null;
-            }
-
-            _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
-            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 

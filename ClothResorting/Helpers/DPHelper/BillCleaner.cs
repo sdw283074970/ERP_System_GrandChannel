@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace ClothResorting.Helpers.DPHelper
@@ -43,6 +44,10 @@ namespace ClothResorting.Helpers.DPHelper
                 index++;
             }
 
+            _ws.Cells[1, 35] = "Length";
+            _ws.Cells[1, 36] = "Width";
+            _ws.Cells[1, 37] = "Height";
+
             for (int i = 0; i < billCount; i++)
             {
                 var newBill = new LabelBill();
@@ -51,34 +56,44 @@ namespace ClothResorting.Helpers.DPHelper
                 newBill.LabelCode = _ws.Cells[i + 2, 1].Value2.ToString();
                 newBill.LabelBillDetails = ConvertStringToDetail(str, chargingItemList);
                 billList.Add(newBill);
+
+                string dms = _ws.Cells[i + 2, 34].Value2.ToString();
+
+                _ws.Cells[i + 2, 35] = dms.Split('x')[0];
+                _ws.Cells[i + 2, 36] = dms.Split('x')[1];
+                _ws.Cells[i + 2, 37] = dms.Split('x')[2];
+                _ws.Cells[i + 2, 37].NumberFormat = "#,###,###";
             }
 
             index++;
 
+            index = 1;
+
             var itemArray = chargingItemList.ToArray();
-            _ws.Cells[index, 1] = "Label Code";
+            //_ws.Cells[index, 1] = "Label Code";
 
             for (int i = 0; i < itemArray.Length; i++)
             {
-                _ws.Cells[index, i + 2] = itemArray[i];
+                _ws.Cells[index, i + 38] = itemArray[i];
             }
 
             index++;
 
             foreach(var b in billList)
             {
-                _ws.Cells[index, 1] = b.LabelCode;
+                //_ws.Cells[index, 1] = b.LabelCode;
 
                 foreach(var l in b.LabelBillDetails)
                 {
                     var itemIndex = Array.IndexOf(itemArray, l.ChargingItem);
-                    _ws.Cells[index, itemIndex + 2] = l.Rate;
+                    _ws.Cells[index, itemIndex + 38] = l.Rate;
                 }
 
                 index++;
             }
 
             _wb.Save();
+
             //var fullPath = @"D:\PickingList\test.xlsx";
             //_wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -94,18 +109,15 @@ namespace ClothResorting.Helpers.DPHelper
 
             foreach(var d in details)
             {
-                if (d == " ")
+                string cleanedDetails = Regex.Replace(d, @"\t|\n|\r", "");
+
+                if (cleanedDetails == " " || cleanedDetails == "")
                 {
                     continue;
                 }
 
-                var item = d.Split(':')[0].ToString();
-                var rate = d.Split(':')[1];
-
-                if (item.Contains("\n"))
-                {
-                    item = item.Substring(2);
-                }
+                var item = cleanedDetails.Split(':')[0].ToString();
+                var rate = cleanedDetails.Split(':')[1];
 
                 if (!chargingItemList.Contains(item))
                 {

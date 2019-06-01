@@ -12,6 +12,14 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input id="btn-inboundlog" type="button" class="btn btn-primary" value="Inbound Log" />
     </div>
+    <div style="margin:20px">
+        <font size="5">Catagory: </font>
+        <input name="all" type="button" class="btn btn-default btn-color" value="All" />
+        <input name="new" style="background-color:gold" type="button" class="btn btn-default btn-color" value="New Order" />
+        <input name="processing" style="background-color:red;color:white" type="button" class="btn btn-default btn-color" value="Processing Order" />
+        <input name="ready" style="background-color:green;color:white" type="button" class="btn btn-default btn-color" value="Ready Order" />
+        <input name="released" style="background-color:brown;color:white" type="button" class="btn btn-default btn-color" value="Released Order" />
+    </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
@@ -251,8 +259,32 @@
                     }
                 }
             ]
-            url = "/api/WarehouseIndex/";
+            url = "/api/WarehouseIndex/?operation=GET";
             getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
+
+            //点击按状态查看按钮，按状态分类型
+            $(".btn-color").on("click", function () {
+
+                if ($(this).attr('name') == "new")
+                {
+                    url = "/api/WarehouseIndex/?operation=New Order";
+                }
+                else if ($(this).attr('name') == "processing") {
+                    url = "/api/WarehouseIndex/?operation=Processing";
+                }
+                else if ($(this).attr('name') == "ready") {
+                    url = "/api/WarehouseIndex/?operation=Ready";
+                }
+                else if ($(this).attr('name') == "released") {
+                    url = "/api/WarehouseIndex/?operation=Released";
+                }
+                else
+                {
+                    url = "/api/WarehouseIndex/?operation=GET";
+                }
+
+                getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
+            });
 
             //电报机inbound log按钮，跳转到inbound log管理界面
             $("#btn-inboundlog").on("click", function () {
