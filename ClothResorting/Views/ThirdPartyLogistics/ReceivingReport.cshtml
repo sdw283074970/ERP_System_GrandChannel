@@ -41,6 +41,7 @@
                     <th style="width:80px">Adjusted By</th>
                     <th>Comment</th>
                     <th>Pre-location</th>
+                    <th>Operation</th>
                     @*<th style="width:80px">Operation</th>*@
                 </tr>
             </thead>
@@ -49,9 +50,41 @@
         </table>
         <div style="text-align:center">
             <button style="width:300px" id="btn-save" class="btn btn-primary">Save Comment and Pre-location</button>
+            <input id="input-download" class="btn btn-info" type="button" value="Download" />
         </div>
     </div>
 </div>
+<div class="iframe-location" style="margin:20px;text-align:center">
+    <h3>Add location</h3>
+    <input id="input-location" class="input-sm" placeholder="Location"/>
+    <input id="input-ctns" class="input-sm" type="number" placeholder="Ctns" />
+    <input id="input-plts" class="input-sm" type="number" placeholder="Number of locations" />
+    <input id="btn-add" class="btn btn-info" type="button" value="Add" />
+    <table id="table-location" class="table table-condensed table-hover table-striped">
+        <thead>
+            <tr>
+                <th>Location</th>
+                <th style="width:150px">Ctns</th>
+                <th>Number Of Locations</th>
+                <th>Operation</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <input id="input-confirm" class="btn btn-info" type="button" value="Confirm" />
+</div>
+
+<style type="text/css">
+        th {
+            text-align: center; /** 设置水平方向居中 */
+            vertical-align: middle; /** 设置垂直方向居中 */
+        }
+        td {
+            text-align: center; /** 设置水平方向居中 */
+            vertical-align: middle; /** 设置垂直方向居中 */
+        }
+    </style>
+
 @section scripts
 {
     <script>
@@ -61,6 +94,9 @@
             var index;
             var table;
             var carton;
+            var cartonDetailId;
+
+            $(".iframe-location").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -223,12 +259,16 @@
                                     return "<input class='input-sm input-prelocation' value='" + data + "' />";
                                 }
                             },
-                            //{
-                            //    data: "id",
-                            //    render: function (data) {
-                            //        return "<button id='" + data + "' class='btn btn-link btn-edit'>Edit Comment</button>";
-                            //    }
-                            //}
+                            {
+                                data: "id",
+                                render: function (data) {
+
+                                    if (carton == 0)
+                                        return "";
+
+                                    return "<button iid='" + data + "' class='btn btn-link btn-allocate'>Pre-allocate</button>";
+                                }
+                            }
                         ]
                     });
                 }
@@ -310,7 +350,7 @@
                 {
                     var obj = {
                         "preId": preId,
-                        "containerNumber": $("#container").html(),
+                        "containerNumber": container,
                         "vendor": $("#vendor").val().toString(),
                         "receivedDate": $("#receiveddate").val().toString(),
                         "reference": $("#reference").val() == null ? " " : $("#reference").val().toString(),
@@ -335,6 +375,76 @@
 
                 }
 
+            });
+
+            //点击pre-allocate按钮，打开preallocate界面
+            $("#table").on("click", ".btn-allocate", function () {
+                cartonDetailId = $(this).attr('iid');
+                $("#input-location").val("");
+                $("#input-plts").val("");
+                $("#input-ctns").val("");
+
+                $("#table-location tbody").html("");
+
+                url = "/api/receivingreport/?cartonDetailId=" + cartonDetailId;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        for (i in data)
+                        {
+                            $("#table-location tbody").append("<tr><td>" + data[i].location + "</td><td>" + data[i].ctns + "</td><td>" + data[i].plts + "</td><td><input type='btn' class='btn btn-link btn-delete' value='Delete' /></td></tr>");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                    }
+                });
+
+                grandChannel.openiframe(index, ".iframe-location", "650px", "400px");
+            });
+
+            //点击Add按钮，添加行数
+            $("#btn-add").on("click", function () {
+                var ctns = $("#input-ctns").val();
+                var plts = $("#input-plts").val();
+                var loc = $("#input-location").val();
+
+                $("#table-location tbody").append("<tr><td>" + loc + "</td><td>" + ctns + "</td><td>" + plts + "</td><td><input type='btn' class='btn btn-link btn-delete' value='Delete' /></td></tr>");
+            });
+
+            //点击delete按钮，删除当前行
+            $("#table-location").on("click", ".btn-delete", function () {
+                $(this).parent().parent("tr").remove();
+            });
+
+            //点击confirm按钮，将预分配库位信息上传到服务器解析处理
+            $("#input-confirm").on("click", function () {
+                var objArray = new Array();
+
+                $(".btn-delete").each(function (i) {
+                    var loc = $(this).parent().parent("tr").children("td").eq(0).html();
+                    var ctns = $(this).parent().parent("tr").children("td").eq(1).html();
+                    var plts = $(this).parent().parent("tr").children("td").eq(2).html();
+
+                    var obj = {
+                        "location": loc,
+                        "ctns": ctns,
+                        "plts": plts
+                    }
+
+                    objArray.push(obj);
+                });
+                url = "/api/receivingreport/?cartonDetailId=" + cartonDetailId;
+                grandChannel.sendAjaxMethod("PUT", url, objArray, index);
+            });
+
+            //点击下载按钮，下载带库位分配的packing list
+            $("#input-download").on("click", function () {
+                $(window.location).attr('href', '/api/receivingreport/?container=' + container);
             });
 
             $(".btn-back").on("click", function () {

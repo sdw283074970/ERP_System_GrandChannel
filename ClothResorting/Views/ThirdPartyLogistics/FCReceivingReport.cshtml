@@ -121,7 +121,7 @@
             dataType: "json",
             success: function (data) {
                 $("#vendor").html("Vendor: " + data.vendor);
-                $("#receiveddate").html("Received Date: " + data.receivedDate);
+                $("#receiveddate").html("Receive Date: " + data.inboundDate.substring(0, 10));
                 $("#reference").html("Reference: " + data.reference);
                 $("#receiptnumber").html("Receipt #: " + data.receiptNumber);
                 $("#remark").html("Remark: " + data.remark);

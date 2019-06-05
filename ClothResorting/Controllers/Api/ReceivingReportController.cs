@@ -10,6 +10,7 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.ApiTransformModels;
 using System.Web;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -36,6 +37,48 @@ namespace ClothResorting.Controllers.Api
                 .ToList();
 
             return Ok(cartonDetails);
+        }
+
+        // GET //api/receivingreportexcel/?&container={container}
+        [HttpGet]
+        public IHttpActionResult DownloadPakcingList([FromUri]string container)
+        {
+            var generator = new ExcelGenerator(@"D:\Template\Prelocation-Template.xlsx");
+
+            var fullPath = generator.GeneratePreallocatingReport(container);
+
+            var downloader = new Downloader();
+
+            downloader.DownloadByFullPath(fullPath);
+
+            return Ok();
+        }
+
+        // GET /receivingreport/?cartonDetailId={cartonDetailId}
+        [HttpGet]
+        public IHttpActionResult GetPreLocations([FromUri]int cartonDetailId)
+        {
+            var locationStr = _context.RegularCartonDetails.Find(cartonDetailId).PreLocation;
+
+            var parser = new StringParser();
+            var list = parser.ParseStrToPreLoc(locationStr);
+
+            return Ok(list);
+        }
+
+        // PUT /receivingreport/?cartonDetailId={cartonDetailId}
+        [HttpPut]
+        public void UpdateLocationStr([FromUri]int cartonDetailId, [FromBody]IEnumerable<PreLocation> objArray)
+        {
+            var parser = new StringParser();
+
+            var str = parser.ParsePreLocToStr(objArray);
+
+            var cartonDetailInDb = _context.RegularCartonDetails.Find(cartonDetailId);
+
+            cartonDetailInDb.PreLocation = str;
+
+            _context.SaveChanges();
         }
 
         // PUT /receivingreport/?preId={preId}&container={container}

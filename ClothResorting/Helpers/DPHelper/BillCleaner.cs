@@ -59,10 +59,20 @@ namespace ClothResorting.Helpers.DPHelper
 
                 string dms = _ws.Cells[i + 2, 34].Value2.ToString();
 
-                _ws.Cells[i + 2, 35] = dms.Split('x')[0];
-                _ws.Cells[i + 2, 36] = dms.Split('x')[1];
-                _ws.Cells[i + 2, 37] = dms.Split('x')[2];
-                _ws.Cells[i + 2, 37].NumberFormat = "#,###,###";
+                if (dms == "0")
+                {
+                    _ws.Cells[i + 2, 35] = 0;
+                    _ws.Cells[i + 2, 36] = 0;
+                    _ws.Cells[i + 2, 37] = 0;
+                    _ws.Cells[i + 2, 37].NumberFormat = "#,###,###";
+                }
+                else
+                {
+                    _ws.Cells[i + 2, 35] = dms.Split('x')[0];
+                    _ws.Cells[i + 2, 36] = dms.Split('x')[1];
+                    _ws.Cells[i + 2, 37] = dms.Split('x')[2];
+                    _ws.Cells[i + 2, 37].NumberFormat = "#,###,###";
+                }
             }
 
             index++;
@@ -98,6 +108,10 @@ namespace ClothResorting.Helpers.DPHelper
             //_wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
+
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
 
             return _path;
         }

@@ -39,8 +39,9 @@
                     <th>TBA Ctns</th>
                     <th><input id="select-all" type="checkbox" value="12345" /></th>
                     <th>Cartons</th>
-                    <th>Pre-location</th>
                     <th>Location</th>
+                    <th>Pre-location</th>
+                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -60,6 +61,7 @@
 
             var table;
             var index;
+            var status;
             var preLocation;
 
             var lastCartonValue = 0;
@@ -450,6 +452,8 @@
                         {
                             data: "status",
                             render: function (data) {
+
+                                status = data;
                                 if (data == "To Be Allocated") {
                                     return "<font style='color:Red'>" + data + "</font>";
                                 }
@@ -497,6 +501,18 @@
                             }
                         },
                         {
+                            data: "id",
+                            render: function (data) {
+                                if (cartons != 0) {
+                                    //return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                    return "<input style='width:70px' class='input-location' iid='" + data + "' id='loc-" + data + "' />";
+                                }
+                                else {
+                                    return "";
+                                }
+                            }
+                        },
+                        {
                             data: "preLocation",
                             render: function (data) {
                                 preLocation = data;
@@ -509,15 +525,14 @@
                         {
                             data: "id",
                             render: function (data) {
-                                if (cartons != 0) {
-                                    //return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
-                                    return "<input style='width:70px' class='input-location' iid='" + data + "' id='loc-" + data + "' value='" + preLocation + "' />";
+                                if (cartons != 0 && (preLocation != null || preLocation != " ") && status != "Allocating") {
+                                    return "<input type='button' style='width:70px' class='btn btn-link' iid='" + data + "' value='Appply' />";
                                 }
                                 else {
                                     return "";
                                 }
                             }
-                        }
+                        },
                     ]
                 });
             };

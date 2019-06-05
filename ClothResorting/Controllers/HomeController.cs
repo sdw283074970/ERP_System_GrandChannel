@@ -59,25 +59,21 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var cleaner = new BillCleaner(@"D:\ToRemoteServer\FB1.csv");
+            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\3.csv");
 
-            var path = cleaner.ClearBills();
+            //var path = cleaner.ClearBills();
 
-            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB2.csv");
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\2.csv");
 
-            path = cleaner.ClearBills();
+            //path = cleaner.ClearBills();
 
-            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB3.csv");
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\3.csv");
 
-            path = cleaner.ClearBills();
+            //path = cleaner.ClearBills();
 
-            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB4.csv");
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\4.csv");
 
-            path = cleaner.ClearBills();
-
-            cleaner = new BillCleaner(@"D:\ToRemoteServer\FB5.csv");
-
-            path = cleaner.ClearBills();
+            //path = cleaner.ClearBills();
 
             //var pickDetailsInDb = _context.FBAPickDetails
             //    .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
@@ -117,6 +113,10 @@ namespace ClothResorting.Controllers
             ////await logger.AddCreatedLog<Container>(oldValueStr, container, "NA", "Ex");
 
             //var name = _context.GetTableName<Container>();
+
+            var genertor = new ExcelGenerator(@"D:\Template\Prelocation-Template.xlsx");
+
+            var path = genertor.GeneratePreallocatingReport("GAOU6194820");
 
             ViewBag.Message = "Your application description page.";
 

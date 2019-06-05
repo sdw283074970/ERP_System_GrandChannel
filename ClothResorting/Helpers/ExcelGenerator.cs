@@ -109,7 +109,7 @@ namespace ClothResorting.Helpers
             //}
 
             cells.Add(4, 2, container.Vendor, xf);
-            cells.Add(5, 2, container.ReceivedDate, xf);
+            cells.Add(5, 2, container.InboundDate.ToString("yyyy-MM-dd"), xf);
             cells.Add(6, 2, container.ContainerNumber, xf);
             cells.Add(7, 2, container.Reference, xf);
             cells.Add(8, 2, container.ReceiptNumber, xf);
@@ -500,6 +500,79 @@ namespace ClothResorting.Helpers
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
+
+            return fullPath;
+        }
+
+        public string GeneratePreallocatingReport(string container)
+        {
+            var cartonDetails = _context.RegularCartonDetails
+                .Include(x => x.POSummary)
+                .Where(x => x.POSummary.Container == container
+                    && x.Cartons != 0);
+
+            _ws = _wb.Worksheets[1];
+
+            _ws.Cells[1, 2] = container;
+            var startIndex = 4;
+            var maxLocs = 6;
+
+            var parser = new StringParser();
+
+            foreach(var c in cartonDetails)
+            {
+                _ws.Cells[startIndex, 1] = c.CartonRange;
+                _ws.Cells[startIndex, 2] = c.PurchaseOrder;
+                _ws.Cells[startIndex, 3] = c.Style;
+                _ws.Cells[startIndex, 4] = c.Customer;
+                _ws.Cells[startIndex, 5] = c.Color;
+                _ws.Cells[startIndex, 6] = c.Cartons;
+
+                if (c.PreLocation == null)
+                {
+                    startIndex++;
+                    continue;
+                }
+
+                var list = parser.ParseStrToPreLoc(c.PreLocation).ToList();
+
+                for (var i = 0; i < list.Count(); i++)
+                {
+                    if (list[i].Plts == 1)
+                        _ws.Cells[startIndex, 8 + (i * 2)] = list[i].Ctns;
+
+                    else
+                        _ws.Cells[startIndex, 8 + (i * 2)] = list[i].Ctns + "X" + list[i].Plts;
+
+                    _ws.Cells[startIndex, 9 + (i * 2)] = list[i].Location;
+                }
+
+                maxLocs = Math.Max(maxLocs, list.Count());
+
+                startIndex++;
+            }
+
+            //补全Loc在表中显示的数量
+            if(maxLocs > 6)
+            {
+                var dif = maxLocs - 6;
+
+                for(int i = 0; i < dif; i++)
+                {
+                    _ws.Cells[3, 20 + i] = (6 + i + 1).ToString() + "th";
+                    _ws.Cells[3, 21 + i] = "LOC";
+                }
+            }
+
+            var fullPath = @"D:\OtherReport\Pre-allocatingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
 
             return fullPath;
         }
