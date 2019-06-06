@@ -126,6 +126,13 @@ namespace ClothResorting.Helpers.FBAHelper
         {
             var customerInDb = _context.UpperVendors.Find(customerId);
 
+            var palletLocationInDb = _context.FBAPalletLocations
+                .Include(x => x.FBAMasterOrder.Customer)
+                .Include(x => x.FBAMasterOrder.FBAPallets)
+                .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
+                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate
+                    && x.FBAMasterOrder.Customer.Id == customerId);
+
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
                 .Include(x => x.FBAShipOrder)
@@ -137,13 +144,6 @@ namespace ClothResorting.Helpers.FBAHelper
                     && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
                     && x.PltsFromInventory != 0);
 
-            var palletLocationInDb = _context.FBAPalletLocations
-                .Include(x => x.FBAMasterOrder.Customer)
-                .Include(x => x.FBAMasterOrder.FBAPallets)
-                .Include(x => x.FBAPickDetails)
-                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate
-                    && x.FBAMasterOrder.Customer.Id == customerId);
-
             //var cartonLocationInDb = _context.FBACartonLocations
             //    .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
             //    .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate 
@@ -153,7 +153,8 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 foreach(var pick in p.FBAPickDetails)
                 {
-                    p.ActualPlts -= pick.PltsFromInventory;
+                    if(pick.FBAShipOrder.Status == FBAStatus.Shipped || pick.FBAShipOrder.Status == FBAStatus.Released)
+                        p.ActualPlts -= pick.PltsFromInventory;
                 }
             }
 

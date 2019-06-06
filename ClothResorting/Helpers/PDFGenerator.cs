@@ -21,7 +21,7 @@ namespace ClothResorting.Helpers
             _context = new ApplicationDbContext();
         }
 
-        //生成文件到内存，并不真正输出
+        //生成文件到内存，并下载
         public void GeneratePickDetailPdf(int pullSheetId)
         {
             var pullSheetInDb = _context.ShipOrders
@@ -45,7 +45,7 @@ namespace ClothResorting.Helpers
             //定义内存流
             using (var ms = new MemoryStream())
             //在doc构造函数中传入页面大小和设置页边距(左，右，上，下，单位是pt)
-            using (var doc = new Document(PageSize.LETTER, 0, 0, 24, 24))
+            using (var doc = new Document(PageSize.LETTER, 0, 0, 0, 0))
             //实际写入文件到内存流中
             using (var pw = PdfWriter.GetInstance(doc, ms))
             {
@@ -185,6 +185,126 @@ namespace ClothResorting.Helpers
                 response.Close();
                 response.End();
             }
+        }
+
+        //生成Label文件至内存，并下载
+        public void GenerateLabelPdf(string container)
+        {
+            var cartonDetails = _context.RegularCartonDetails
+                .Where(x => x.Container == container && x.Cartons != 0)
+                .ToList();
+
+            var parser = new StringParser();
+
+            //定义字体
+            var BF_light = BaseFont.CreateFont(@"C:\Windows\Fonts\simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
+            //设置页面大小
+            var rec = new Rectangle(432, 288, 90);
+
+            //定义内存流
+            using (var ms = new MemoryStream())
+            //在doc构造函数中传入页面大小和设置页边距(左，右，上，下，单位是pt)
+            using (var doc = new Document(rec, 0, 0, 14, 14))
+            //实际写入文件到内存流中
+            using (var pw = PdfWriter.GetInstance(doc, ms))
+            {
+                doc.Open();     //打开文件
+
+                foreach (var c in cartonDetails)
+                {
+                    var font = new Font(BF_light, 20);
+                    var font2 = new Font(BF_light, 28);
+
+
+
+                    if (c.PreLocation != null)
+                    {
+                        var locations = parser.ParseStrToPreLoc(c.PreLocation);
+
+                        foreach (var l in locations)
+                        {
+                            var infoTable = new PdfPTable(2);
+
+                            var containerCell = CreateTableCell("CTN#: " + c.Container, font, 0);
+                            infoTable.AddCell(containerCell);
+
+                            var rangeCell = CreateTableCell("CTN RANGE: " + c.CartonRange, font, 0);
+                            infoTable.AddCell(rangeCell);
+
+                            var poCell = CreateTableCell("PO#: " + c.PurchaseOrder, font, 0);
+                            infoTable.AddCell(poCell);
+
+                            var styleCell = CreateTableCell("STYLE: " + c.Style, font, 0);
+                            infoTable.AddCell(styleCell);
+
+                            var colorCell = CreateTableCell("COLOR: " + c.Color, font, 0);
+                            infoTable.AddCell(colorCell);
+
+                            var ctnCell = CreateTableCell("CTNS: " + (l.Plts == 1 ? l.Ctns.ToString() : l.Ctns + "X" + l.Plts), font, 0);
+                            infoTable.AddCell(ctnCell);
+
+                            var locationCell = CreateTableCell("LOC: " + l.Location, font2, 1);
+                            locationCell.Colspan = 2;
+                            locationCell.HorizontalAlignment = 1;
+                            infoTable.AddCell(locationCell);
+                            infoTable.WidthPercentage = 90f;
+
+                            doc.Add(infoTable);
+                            doc.NewPage();
+                        }
+                    }
+                    else
+                    {
+                        var infoTable = new PdfPTable(2);
+
+                        var containerCell = CreateTableCell("CTN#: " + c.Container, font, 0);
+                        infoTable.AddCell(containerCell);
+
+                        var rangeCell = CreateTableCell("CTN RANGE: " + c.CartonRange, font, 0);
+                        infoTable.AddCell(rangeCell);
+
+                        var poCell = CreateTableCell("PO#: " + c.PurchaseOrder, font, 0);
+                        infoTable.AddCell(poCell);
+
+                        var styleCell = CreateTableCell("STYLE: " + c.Style, font, 0);
+                        infoTable.AddCell(styleCell);
+
+                        var colorCell = CreateTableCell("COLOR: " + c.Color, font, 0);
+                        infoTable.AddCell(colorCell);
+
+                        var ctnCell = CreateTableCell("CTNS: " + c.Cartons, font, 0);
+                        infoTable.AddCell(ctnCell);
+
+                        var locationCell = CreateTableCell("LOC: N/A", font2, 1);
+                        locationCell.Colspan = 2;
+                        locationCell.HorizontalAlignment = 1;
+                        infoTable.AddCell(locationCell);
+                        infoTable.WidthPercentage = 90f;
+
+                        doc.Add(infoTable);
+                        doc.NewPage();
+                    }
+                }
+
+                //循环到这里结束
+                doc.Close();
+                pw.Close();
+                ms.Close();
+
+                //输出到客户端
+                var response = HttpContext.Current.Response;
+
+                response.Clear();
+                response.ContentType = "Application/pdf";
+                response.AddHeader("content-disposition", "attachment; filename=" + container + "-Labels.pdf");
+                response.BinaryWrite(ms.ToArray());
+                //ms.WriteTo(response.OutputStream);    //这样也行
+                response.Flush();
+                response.Close();
+                response.End();
+            }
+
         }
 
         //基于PDF模板生成FBA系统中的BOL
@@ -485,6 +605,19 @@ namespace ClothResorting.Helpers
             cell.MinimumHeight = minHeight;
             cell.BorderColor = BaseColor.GRAY;
             table.AddCell(cell);
+        }
+
+        private PdfPCell CreateTableCell(string str, Font font, int position)
+        {
+            var p = new Paragraph(str, font);
+            p.Alignment = Element.ALIGN_LEFT;
+            var cell = new PdfPCell(p);
+            cell.HorizontalAlignment = position;    //0靠左，1居中，2靠右
+            //cell.Border = Rectangle.NO_BORDER;
+            //cell.Border = Rectangle.BOTTOM_BORDER;
+            cell.MinimumHeight = 44f;
+
+            return cell;
         }
     }
 

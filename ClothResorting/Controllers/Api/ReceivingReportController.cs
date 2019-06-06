@@ -39,17 +39,26 @@ namespace ClothResorting.Controllers.Api
             return Ok(cartonDetails);
         }
 
-        // GET //api/receivingreportexcel/?&container={container}
+        // GET //api/receivingreportexcel/?&container={container}&operation={operation}
         [HttpGet]
-        public IHttpActionResult DownloadPakcingList([FromUri]string container)
+        public IHttpActionResult DownloadPakcingList([FromUri]string container, [FromUri]string operation)
         {
-            var generator = new ExcelGenerator(@"D:\Template\Prelocation-Template.xlsx");
+            if (operation == "UnloadingList")
+            {
+                var generator = new ExcelGenerator(@"D:\Template\Prelocation-Template.xlsx");
 
-            var fullPath = generator.GeneratePreallocatingReport(container);
+                var fullPath = generator.GeneratePreallocatingReport(container);
 
-            var downloader = new Downloader();
+                var downloader = new Downloader();
 
-            downloader.DownloadByFullPath(fullPath);
+                downloader.DownloadByFullPath(fullPath);
+            }
+            else if (operation == "Label")
+            {
+                var generator = new PDFGenerator();
+
+                generator.GenerateLabelPdf(container);
+            }
 
             return Ok();
         }

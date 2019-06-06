@@ -114,9 +114,13 @@ namespace ClothResorting.Controllers
 
             //var name = _context.GetTableName<Container>();
 
-            var genertor = new ExcelGenerator(@"D:\Template\Prelocation-Template.xlsx");
+            //var genertor = new ExcelGenerator(@"D:\Template\Prelocation-Template.xlsx");
 
-            var path = genertor.GeneratePreallocatingReport("GAOU6194820");
+            //var path = genertor.GeneratePreallocatingReport("GAOU6194820");
+
+            var labor = new PDFGenerator();
+
+            labor.GenerateLabelPdf("GAOU6194820");
 
             ViewBag.Message = "Your application description page.";
 

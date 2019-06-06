@@ -22,6 +22,10 @@
         </div>
     </div>
     <div>
+        <div style="margin:20px;margin-left:0px">
+            <input id="input-download" class="btn btn-info" type="button" style="background-color:orange" value="Download unloading list" />
+            <input id="input-label" class="btn btn-info" type="button" style="background-color:green" value="Download labels" />
+        </div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -50,7 +54,6 @@
         </table>
         <div style="text-align:center">
             <button style="width:300px" id="btn-save" class="btn btn-primary">Save Comment and Pre-location</button>
-            <input id="input-download" class="btn btn-info" type="button" value="Download" />
         </div>
     </div>
 </div>
@@ -442,9 +445,14 @@
                 grandChannel.sendAjaxMethod("PUT", url, objArray, index);
             });
 
-            //点击下载按钮，下载带库位分配的packing list
+            //点击下载unloading list按钮，下载带库位分配的unloading list
             $("#input-download").on("click", function () {
-                $(window.location).attr('href', '/api/receivingreport/?container=' + container);
+                $(window.location).attr('href', '/api/receivingreport/?container=' + container + "&operation=UnloadingList");
+            });
+
+            //点击下载label按钮，下载labels
+            $("#input-label").on("click", function () {
+                $(window.location).attr('href', '/api/receivingreport/?container=' + container + "&operation=Label");
             });
 
             $(".btn-back").on("click", function () {
