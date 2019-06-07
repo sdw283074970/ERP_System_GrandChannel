@@ -118,9 +118,13 @@ namespace ClothResorting.Controllers
 
             //var path = genertor.GeneratePreallocatingReport("GAOU6194820");
 
-            var labor = new PDFGenerator();
+            //var labor = new PDFGenerator();
 
-            labor.GenerateLabelPdf("GAOU6194820");
+            //labor.GenerateLabelPdf("GAOU6194820");
+
+            var parser = new ExcelParser(@"D:\ToRemoteServer\Copy of GAOU6194820.xlsx");
+
+            parser.ParseFreeCountryPackingListV2(1);
 
             ViewBag.Message = "Your application description page.";
 

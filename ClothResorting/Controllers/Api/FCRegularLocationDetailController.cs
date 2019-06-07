@@ -10,6 +10,7 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Helpers;
+using System.Threading.Tasks;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -67,6 +68,33 @@ namespace ClothResorting.Controllers.Api
             }
 
             return Ok(resultDto);
+        }
+
+        // PUT /api/FCRegularLocationDetail/?preId={preId}
+        [HttpPut]
+        public async Task UpdateLocations([FromUri]int preId, [FromBody]IEnumerable<NewLocation> objArray)
+        {
+            var locationsInDb = _context.FCRegularLocationDetails
+                .Include(x => x.RegularCaronDetail.POSummary.PreReceiveOrder)
+                .Where(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.Id == preId);
+
+            var oldValue = new List<NewLocation>();
+
+            foreach(var o in objArray)
+            {
+                var location = locationsInDb.SingleOrDefault(x => x.Id == o.Id);
+
+                oldValue.Add(new NewLocation{
+                    Id = o.Id,
+                    Location = location.Location
+                });
+
+                location.Location = o.Location;
+            }
+
+            var logger = new Logger(_context);
+
+            await logger.AddUpdatedLogAndSaveChangesAsync<FCRegularLocationDetail>(oldValue, objArray, "Batch update locations", null, OperationLevel.Mediunm);
         }
 
         // PUT /api/FCRegularLocationDetail/?locationId={locationId}
@@ -172,5 +200,12 @@ namespace ClothResorting.Controllers.Api
                 }
             }
         }
+    }
+
+    public class NewLocation
+    {
+        public int Id { get; set; }
+
+        public string Location { get; set; }
     }
 }

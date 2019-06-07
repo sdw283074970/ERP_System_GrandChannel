@@ -245,7 +245,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
-            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, "Updated some basic ship order info", null, OperationLevel.Mediunm);
+            await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, "Updated some basic ship order info", null, OperationLevel.Mediunm);
         }
             
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operationDate={operationDate}&operation={operation}
@@ -266,7 +266,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
-            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
+            await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
@@ -294,7 +294,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var description = "Change ship order status from " + oldStatus + " to " + shipOrderInDb.Status;
 
             var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
-            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
+            await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&isRelease={isRelease}
@@ -317,7 +317,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var description = "Change ship order status from " + oldStatus + " to " + shipOrderInDb.Status;
 
             var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
-            await _logger.AddUpdatedLogAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
+            await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
@@ -358,7 +358,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 var resultDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).Take(chargingItemDetailList.Count));
                 var shipOrderStr = JsonConvert.SerializeObject(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb));
-                await _logger.AddUpdatedLogAsync<ChargingItemDetail>(oldValueDto, resultDto, "Reset all instructions in [dbo].[FBAShipOrder] " + shipOrderStr, null, OperationLevel.Mediunm);
+                await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, resultDto, "Reset all instructions in [dbo].[FBAShipOrder] " + shipOrderStr, null, OperationLevel.Mediunm);
             }
         }
 
@@ -403,7 +403,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var instructionDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(instructionInDb);
 
-            await _logger.AddUpdatedLogAsync<ChargingItemDetail>(oldValueDto, instructionDto, description, null, OperationLevel.Mediunm);
+            await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, instructionDto, description, null, OperationLevel.Mediunm);
         }
 
         // DELETE /api/fba/fbashiporder/?shipOrderId={shipOrderId}

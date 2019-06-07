@@ -41,6 +41,7 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Container</th>
                     <th>Vendor</th>
                     <th>Status</th>
@@ -79,7 +80,7 @@
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th></th>
+                    <th><button id="btn-update" class="btn btn-primary">Update Location</button></th>
                     <th colspan="3" style="text-align:right"><button id="btn-relocateselected" class="btn btn-primary">Relocate selected items</button></th>
                 </tr>
             </tfoot>
@@ -93,6 +94,7 @@
 
                 var table;
                 var index;
+                var url;
 
                 var pickingCtns;
                 var availableCtns;
@@ -494,6 +496,35 @@
                     $(window.location).attr('href', url);
                 });
 
+                //点击表中的location，将font变成input，实现直接改库存的功能
+                $("#table").on("click", ".font-location", function () {
+                    var locationId = $(this).parents().parent("tr").children("td").eq(0).children("text").html();
+                    var currentLocation = $(this).html();
+
+                    $(this).replaceWith("<input iid='" + locationId + "' class='input-sm input-location' style='width:80px' placeholder='" + currentLocation + "' value='" + currentLocation + "' />");
+                });
+
+                //点击更新库位按钮，将所有库位表单中不为空的部分同步至数据库
+                $("#btn-update").on("click", function () {
+                    var objArray = new Array();
+
+                    $(".input-location").each(function (i) {
+                        if ($(this).val() != "")
+                        {
+                            var obj = {
+                                "id": $(this).attr('iid'),
+                                "location": $(this).val()
+                            }
+
+                            objArray.push(obj);
+                        }
+                    });
+
+                    url = "/api/FCRegularLocationDetail/?preId=" + preid;
+
+                    grandChannel.sendAjaxMethod("PUT", url, objArray, index);
+                });
+
                 function GetInventoryTable(data, table) {
                     if (table) {
                         table.destroy();
@@ -506,6 +537,12 @@
                         data: data,
                         destroy: true,
                         columns: [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
                             {
                                 data: "container",
                                 render: function (data) {
@@ -668,7 +705,7 @@
                             {
                                 data: "location",
                                 render: function (data) {
-                                    return "<font color='orange'>" + data + "</font>";
+                                    return "<font color='orange' class='font-location'>" + data + "</font>";
                                 }
                             },
                             {
@@ -694,7 +731,7 @@
                                     else
                                     {
                                         if (originalCtns == 0 || pickingPcs != 0 || isPutBack)
-                                            return "";
+                                            return "<button iid='" + data + "' class='btn btn-link btn-history' ordertype='Regular' >History</button>";
                                         else if (isPutBack)
                                             return "<button style='width:40px' locationid='" + data + "'class='btn btn-link btn-edit'>Edit</button><button style='width:30px' locationid='" + data + "'class='btn btn-link btn-delete'>X</button>";
                                         else

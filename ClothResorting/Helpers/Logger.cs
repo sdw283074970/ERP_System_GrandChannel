@@ -38,7 +38,7 @@ namespace ClothResorting.Helpers
             _context.SaveChanges();
         }
 
-        public async Task AddUpdatedLogAsync<T>(object oldValue, object newValue, string description, string exception, string level) where T : class
+        public async Task AddUpdatedLogAndSaveChangesAsync<T>(object oldValue, object newValue, string description, string exception, string level) where T : class
         {
             var log = await CreateLogAsync<T>(oldValue, newValue, description, exception, level);
 
