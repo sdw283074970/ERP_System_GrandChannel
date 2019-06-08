@@ -26,5 +26,9 @@ namespace ClothResorting.Dtos
         public string ContactPerson { get; set; }
 
         public string Status { get; set; }
+
+        public float OutboundMinCharge { get; set; }
+
+        public float InboundMinCharge { get; set; }
     }
 }

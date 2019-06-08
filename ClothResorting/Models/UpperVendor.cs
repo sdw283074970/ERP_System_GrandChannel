@@ -28,6 +28,10 @@ namespace ClothResorting.Models
 
         public string Status { get; set; }
 
+        public float OutboundMinCharge { get; set; }
+
+        public float InboundMinCharge { get; set; }
+
         public ICollection<PreReceiveOrder> WorkOrders { get; set; }
 
         public ICollection<ChargingItem> ChargingItems { get; set; }

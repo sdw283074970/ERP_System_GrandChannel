@@ -36,6 +36,8 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var p in purchaseOrderDetails)
             {
+                p.Cartons = p.RegularCartonDetails.Sum(x => x.Cartons);
+                p.Quantity = p.RegularCartonDetails.Sum(x => x.Quantity);
                 p.ActualCtns = p.RegularCartonDetails.Sum(x => x.ActualCtns);
                 p.ActualPcs = p.RegularCartonDetails.Sum(x => x.ActualPcs);
             }
@@ -77,11 +79,15 @@ namespace ClothResorting.Controllers.Api
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
-            var excel = new ExcelExtracter(fileSavePath);
+            //var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractFCPurchaseOrderSummary(id);
+            //excel.ExtractFCPurchaseOrderSummary(id);
 
-            excel.ExtractFCPurchaseOrderDetail(id);
+            //excel.ExtractFCPurchaseOrderDetail(id);
+
+            var parser = new ExcelParser(fileSavePath);
+
+            parser.ParseFreeCountryPackingListV2(id);
 
             //强行关闭进程
             var killer = new ExcelKiller();

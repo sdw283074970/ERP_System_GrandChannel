@@ -31,10 +31,26 @@ namespace ClothResorting.Controllers.Api
 
             var preReceiveOrderLists = _context.PreReceiveOrders
                 .Include(x => x.UpperVendor)
-                .Where(x => x.UpperVendor.DepartmentCode == departmentCode)
-                .Select(Mapper.Map<PreReceiveOrder, PreReceiveOrdersDto>);
+                .Include(x => x.POSummaries)
+                .Where(x => x.UpperVendor.DepartmentCode == departmentCode);
 
-            return Ok(preReceiveOrderLists);
+            var regualrCartonInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder);
+
+            foreach(var p in preReceiveOrderLists)
+            {
+                if (p.POSummaries.Count != 0 )
+                {
+                    p.ActualReceivedCtns = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualCtns);
+                    p.ActualReceivedPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualPcs);
+                    p.TotalCartons = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Cartons);
+                    p.TotalPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Quantity);
+                }
+            }
+
+            var result = Mapper.Map<IEnumerable<PreReceiveOrder>, IEnumerable<PreReceiveOrdersDto>>(preReceiveOrderLists);
+
+            return Ok(result);
         }
 
         // POST /api/index/?orderType={orderType}&vendor={vendor}

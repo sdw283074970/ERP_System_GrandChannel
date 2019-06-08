@@ -62,6 +62,7 @@
             var table;
             var index;
             var status;
+            var url;
             var preLocation;
 
             var lastCartonValue = 0;
@@ -345,6 +346,44 @@
                 });
             });
 
+            //点击apply按钮，解析pre-allocating字符串，自动分配库位
+            $("#table").on("click", ".btn-apply", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fcregularlocationallocating/?detailId=" + id + "&operation=Apply";
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        alert("Apply success!");
+
+                        $.ajax({
+                            type: "GET",
+                            url: "/api/FCRegularLocationAllocating/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function (data) {
+                                GetTable(data, table);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
+                            }
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
             function GetTable(data, table) {
                 if (table) {
                     table.destroy();
@@ -526,7 +565,7 @@
                             data: "id",
                             render: function (data) {
                                 if (cartons != 0 && (preLocation != null || preLocation != " ") && status != "Allocating") {
-                                    return "<input type='button' style='width:70px' class='btn btn-link' iid='" + data + "' value='Appply' />";
+                                    return "<input type='button' style='width:70px' class='btn btn-link btn-apply' iid='" + data + "' value='Appply' />";
                                 }
                                 else {
                                     return "";

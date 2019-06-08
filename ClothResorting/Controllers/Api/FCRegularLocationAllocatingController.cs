@@ -83,117 +83,8 @@ namespace ClothResorting.Controllers.Api
 
             foreach (var obj in objArray)
             {
-                var cartonRange = _context.RegularCartonDetails
-                    .Include(c => c.POSummary.PreReceiveOrder)
-                    .SingleOrDefault(c => c.Id == obj.Id)
-                    .CartonRange;
-
-                var poSummaryId = _context.RegularCartonDetails
-                    .Include(c => c.POSummary.PreReceiveOrder)
-                    .SingleOrDefault(c => c.Id == obj.Id)
-                    .POSummary
-                    .Id;
-
-                var regularCartonDetail = _context.RegularCartonDetails.Find(obj.Id);
-
-                var inOneBoxSKUs = _context.RegularCartonDetails
-                    .Include(c => c.POSummary.PreReceiveOrder)
-                    .Where(c => c.CartonRange == cartonRange
-                        && c.POSummary.Id == poSummaryId
-                        && c.Batch == regularCartonDetail.Batch);
-
-
-                var index = 1;      //用来甄别多种SKU在同一箱的情况
-
-                foreach (var cartonDetailInDb in inOneBoxSKUs)
-                {
-                    cartonDetailInDb.Status = "Allocating";
-
-                    if (cartonDetailInDb.Container == null || cartonDetailInDb.Container == "Unknown")
-                    {
-                        throw new Exception("Invalid contaier number. Container must be assigned first.");
-                    }
-
-                    if (index == 1)
-                    {
-                        //当理论入库数量小于实际可用数量的时候，入库实际数量
-                        var allocatedPcs = obj.Cartons * cartonDetailInDb.PcsPerCarton < cartonDetailInDb.ToBeAllocatedPcs ? obj.Cartons * cartonDetailInDb.PcsPerCarton : cartonDetailInDb.ToBeAllocatedPcs;
-                        cartonDetailInDb.ToBeAllocatedCtns -= obj.Cartons;
-                        cartonDetailInDb.ToBeAllocatedPcs -= allocatedPcs;
-
-                        _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
-                        {
-                            Container = cartonDetailInDb.POSummary.Container,
-                            PurchaseOrder = cartonDetailInDb.PurchaseOrder,
-                            Style = cartonDetailInDb.Style,
-                            Color = cartonDetailInDb.Color,
-                            CustomerCode = cartonDetailInDb.Customer,
-                            SizeBundle = cartonDetailInDb.SizeBundle,
-                            PcsBundle = cartonDetailInDb.PcsBundle,
-                            Cartons = obj.Cartons,
-                            Quantity = allocatedPcs,
-                            Location = obj.Location,
-                            PcsPerCaron = cartonDetailInDb.PcsPerCarton,
-                            Status = "In Stock",
-                            AvailableCtns = obj.Cartons,
-                            PickingCtns = 0,
-                            ShippedCtns = 0,
-                            AvailablePcs = allocatedPcs,
-                            PickingPcs = 0,
-                            ShippedPcs = 0,
-                            PreReceiveOrder = preReceiveOrderInDb,
-                            RegularCaronDetail = cartonDetailInDb,
-                            CartonRange = cartonRange,
-                            Allocator = _userName,
-                            Batch = cartonDetailInDb.Batch,
-                            Vendor = cartonDetailInDb.Vendor
-                        });
-
-                        index++;
-                    }
-                    else
-                    {
-                        cartonDetailInDb.ToBeAllocatedPcs -= obj.Cartons * cartonDetailInDb.PcsPerCarton;
-
-                        _context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
-                        {
-                            Container = cartonDetailInDb.POSummary.Container,
-                            PurchaseOrder = cartonDetailInDb.PurchaseOrder,
-                            Style = cartonDetailInDb.Style,
-                            Color = cartonDetailInDb.Color,
-                            CustomerCode = cartonDetailInDb.Customer,
-                            SizeBundle = cartonDetailInDb.SizeBundle,
-                            PcsBundle = cartonDetailInDb.PcsBundle,
-                            Cartons = 0,
-                            Quantity = obj.Cartons * cartonDetailInDb.PcsPerCarton,
-                            Location = obj.Location,
-                            PcsPerCaron = cartonDetailInDb.PcsPerCarton,
-                            Status = "In Stock",
-                            AvailableCtns = 0,
-                            PickingCtns = 0,
-                            ShippedCtns = 0,
-                            AvailablePcs = obj.Cartons * cartonDetailInDb.PcsPerCarton,
-                            PickingPcs = 0,
-                            ShippedPcs = 0,
-                            PreReceiveOrder = preReceiveOrderInDb,
-                            RegularCaronDetail = cartonDetailInDb,
-                            CartonRange = cartonRange,
-                            Allocator = _userName,
-                            Batch = cartonDetailInDb.Batch,
-                            Vendor = cartonDetailInDb.Vendor
-                        });
-                    }
-
-                    if (cartonDetailInDb.ToBeAllocatedCtns == 0)
-                    {
-                        cartonDetailInDb.Status = "Allocated";
-                    }
-
-                }
-
-                _context.SaveChanges();
+                CreateRegularLocation(_context, preReceiveOrderInDb, obj.Id, obj.Cartons, obj.Location);
             }
-
 
             var latestRecord = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).First();
 
@@ -255,6 +146,176 @@ namespace ClothResorting.Controllers.Api
                 return Ok();
                 throw new Exception("Success! All cartons have been allocated.");
             }
+        }
+
+        // POST /api/fcregularlocationallocating/?deatilId={detailId}&operation={operation}
+        [HttpPost]
+        public IHttpActionResult ApplyPreallocatingString([FromUri]int detailId, [FromUri]string operation)
+        {
+            if (operation == "Apply")
+            {
+                var cartonDetailInDb = _context.RegularCartonDetails
+                    .Include(x => x.POSummary.PreReceiveOrder)
+                    .SingleOrDefault(x => x.Id == detailId);
+
+                var preReceiveOrderInDb = cartonDetailInDb.POSummary.PreReceiveOrder;
+
+                var parser = new StringParser();
+
+                //如果预分配字符串为空则报错
+                if (cartonDetailInDb.PreLocation == "" || cartonDetailInDb.PreLocation == " " || cartonDetailInDb.PreLocation == null)
+                {
+                    throw new Exception("Pre-location cannot be null");
+                }
+
+                //如果该detail对象已经有部分被手工分配了则报错
+                if(cartonDetailInDb.Cartons != cartonDetailInDb.ToBeAllocatedCtns)
+                {
+                    throw new Exception("Cannot apply pre-location string cuz part of cartons have been allocated");
+                }
+
+                var list = parser.ParseStrToPreLoc(cartonDetailInDb.PreLocation);
+                var totalCtns = SumTotalCartons(list);
+
+                //如果pre-allocating string中的总箱数大于deatils的可分配箱数则报错
+                if (totalCtns > cartonDetailInDb.ToBeAllocatedCtns)
+                {
+                    throw new Exception("Cannot apply pre-location string cuz not enough ctns available");
+                }
+
+                //开始分配库位
+                foreach(var l in list)
+                {
+                    CreateRegularLocation(_context, preReceiveOrderInDb, detailId, l.Ctns * l.Plts, l.Location);
+                }
+            }
+
+            return Created(Request.RequestUri, " ");
+        }
+
+        private void CreateRegularLocation(ApplicationDbContext context, PreReceiveOrder preReceiveOrderInDb, int deatilId, int cartons, string location)
+        {
+            var cartonRange = context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .SingleOrDefault(c => c.Id == deatilId)
+                .CartonRange;
+
+            var poSummaryId = context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .SingleOrDefault(c => c.Id == deatilId)
+                .POSummary
+                .Id;
+
+            var regularCartonDetail = context.RegularCartonDetails.Find(deatilId);
+
+            var inOneBoxSKUs = context.RegularCartonDetails
+                .Include(c => c.POSummary.PreReceiveOrder)
+                .Where(c => c.CartonRange == cartonRange
+                    && c.POSummary.Id == poSummaryId
+                    && c.Batch == regularCartonDetail.Batch);
+
+
+            var index = 1;      //用来甄别多种SKU在同一箱的情况
+
+            foreach (var cartonDetailInDb in inOneBoxSKUs)
+            {
+                cartonDetailInDb.Status = "Allocating";
+
+                if (cartonDetailInDb.Container == null || cartonDetailInDb.Container == "Unknown")
+                {
+                    throw new Exception("Invalid contaier number. Container must be assigned first.");
+                }
+
+                if (index == 1)
+                {
+                    //当理论入库数量小于实际可用数量的时候，入库实际数量
+                    var allocatedPcs = cartons * cartonDetailInDb.PcsPerCarton < cartonDetailInDb.ToBeAllocatedPcs ? cartons * cartonDetailInDb.PcsPerCarton : cartonDetailInDb.ToBeAllocatedPcs;
+                    cartonDetailInDb.ToBeAllocatedCtns -= cartons;
+                    cartonDetailInDb.ToBeAllocatedPcs -= allocatedPcs;
+
+                    context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    {
+                        Container = cartonDetailInDb.POSummary.Container,
+                        PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                        Style = cartonDetailInDb.Style,
+                        Color = cartonDetailInDb.Color,
+                        CustomerCode = cartonDetailInDb.Customer,
+                        SizeBundle = cartonDetailInDb.SizeBundle,
+                        PcsBundle = cartonDetailInDb.PcsBundle,
+                        Cartons = cartons,
+                        Quantity = allocatedPcs,
+                        Location = location,
+                        PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                        Status = "In Stock",
+                        AvailableCtns = cartons,
+                        PickingCtns = 0,
+                        ShippedCtns = 0,
+                        AvailablePcs = allocatedPcs,
+                        PickingPcs = 0,
+                        ShippedPcs = 0,
+                        PreReceiveOrder = preReceiveOrderInDb,
+                        RegularCaronDetail = cartonDetailInDb,
+                        CartonRange = cartonRange,
+                        Allocator = _userName,
+                        Batch = cartonDetailInDb.Batch,
+                        Vendor = cartonDetailInDb.Vendor
+                    });
+
+                    index++;
+                }
+                else
+                {
+                    cartonDetailInDb.ToBeAllocatedPcs -= cartons * cartonDetailInDb.PcsPerCarton;
+
+                    context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    {
+                        Container = cartonDetailInDb.POSummary.Container,
+                        PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                        Style = cartonDetailInDb.Style,
+                        Color = cartonDetailInDb.Color,
+                        CustomerCode = cartonDetailInDb.Customer,
+                        SizeBundle = cartonDetailInDb.SizeBundle,
+                        PcsBundle = cartonDetailInDb.PcsBundle,
+                        Cartons = 0,
+                        Quantity = cartons * cartonDetailInDb.PcsPerCarton,
+                        Location = location,
+                        PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                        Status = "In Stock",
+                        AvailableCtns = 0,
+                        PickingCtns = 0,
+                        ShippedCtns = 0,
+                        AvailablePcs = cartons * cartonDetailInDb.PcsPerCarton,
+                        PickingPcs = 0,
+                        ShippedPcs = 0,
+                        PreReceiveOrder = preReceiveOrderInDb,
+                        RegularCaronDetail = cartonDetailInDb,
+                        CartonRange = cartonRange,
+                        Allocator = _userName,
+                        Batch = cartonDetailInDb.Batch,
+                        Vendor = cartonDetailInDb.Vendor
+                    });
+                }
+
+                //if (cartonDetailInDb.ToBeAllocatedCtns == 0)
+                //{
+                //    cartonDetailInDb.Status = "Allocated";
+                //}
+
+            }
+
+            context.SaveChanges();
+        }
+
+        private int SumTotalCartons(IEnumerable<PreLocation> list)
+        {
+            var totalCtns = 0;
+
+            foreach(var l in list)
+            {
+                totalCtns += l.Ctns * l.Plts;
+            }
+
+            return totalCtns;
         }
     }
 }

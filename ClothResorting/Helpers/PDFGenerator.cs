@@ -191,8 +191,12 @@ namespace ClothResorting.Helpers
         public void GenerateLabelPdf(string container)
         {
             var cartonDetails = _context.RegularCartonDetails
-                .Where(x => x.Container == container && x.Cartons != 0)
-                .ToList();
+                .Include(x => x.POSummary.RegularCartonDetails)
+                .Where(x => x.Container == container && x.Cartons != 0);
+
+            //var poSummariesInDb = _context.POSummaries
+            //    .Include(x => x.RegularCartonDetails)
+            //    .Where(x => x.Container == container);
 
             var parser = new StringParser();
 
@@ -215,8 +219,7 @@ namespace ClothResorting.Helpers
                 {
                     var font = new Font(BF_light, 20);
                     var font2 = new Font(BF_light, 28);
-
-
+                    var size = CombineSize(c);
 
                     if (c.PreLocation != null)
                     {
@@ -226,8 +229,13 @@ namespace ClothResorting.Helpers
                         {
                             var infoTable = new PdfPTable(2);
 
-                            var containerCell = CreateTableCell("CTN#: " + c.Container, font, 0);
+                            var containerCell = CreateTableCell("CTN#: " + c.Container, font2, 1);
+                            containerCell.Colspan = 2;
+                            containerCell.HorizontalAlignment = 1;
                             infoTable.AddCell(containerCell);
+
+                            var sizeCell = CreateTableCell("SIZE: " + size, font, 0);
+                            infoTable.AddCell(sizeCell);
 
                             var rangeCell = CreateTableCell("CTN RANGE: " + c.CartonRange, font, 0);
                             infoTable.AddCell(rangeCell);
@@ -238,7 +246,7 @@ namespace ClothResorting.Helpers
                             var styleCell = CreateTableCell("STYLE: " + c.Style, font, 0);
                             infoTable.AddCell(styleCell);
 
-                            var colorCell = CreateTableCell("COLOR: " + c.Color, font, 0);
+                            var colorCell = CreateTableCell("COLOR: " + c.Color + "/" + c.ColorCode, font, 0);
                             infoTable.AddCell(colorCell);
 
                             var ctnCell = CreateTableCell("CTNS: " + (l.Plts == 1 ? l.Ctns.ToString() : l.Ctns + "X" + l.Plts), font, 0);
@@ -258,7 +266,9 @@ namespace ClothResorting.Helpers
                     {
                         var infoTable = new PdfPTable(2);
 
-                        var containerCell = CreateTableCell("CTN#: " + c.Container, font, 0);
+                        var containerCell = CreateTableCell("CTN#: " + c.Container, font2, 1);
+                        containerCell.Colspan = 2;
+                        containerCell.HorizontalAlignment = 1;
                         infoTable.AddCell(containerCell);
 
                         var rangeCell = CreateTableCell("CTN RANGE: " + c.CartonRange, font, 0);
@@ -605,6 +615,24 @@ namespace ClothResorting.Helpers
             cell.MinimumHeight = minHeight;
             cell.BorderColor = BaseColor.GRAY;
             table.AddCell(cell);
+        }
+
+        private string CombineSize(RegularCartonDetail cartonDetail)
+        {
+            var summary = cartonDetail.POSummary;
+
+            var oneBoxItems = summary.RegularCartonDetails
+                .Where(x => x.CartonRange == cartonDetail.CartonRange
+                    && x.Batch == cartonDetail.Batch);
+
+            var size = string.Empty;
+
+            foreach(var c in oneBoxItems)
+            {
+                size += c.SizeBundle + "/" + c.PcsBundle + " ";
+            }
+
+            return size;
         }
 
         private PdfPCell CreateTableCell(string str, Font font, int position)

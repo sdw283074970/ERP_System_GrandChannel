@@ -67,8 +67,8 @@ namespace ClothResorting.Controllers.Api
                     carton.ToBeAllocatedCtns = carton.Cartons;
                     carton.ToBeAllocatedPcs = carton.Quantity;
 
-                    carton.POSummary.ActualCtns += carton.ActualCtns;
-                    carton.POSummary.ActualPcs += carton.ActualPcs;
+                    //carton.POSummary.ActualCtns += carton.ActualCtns;
+                    //carton.POSummary.ActualPcs += carton.ActualPcs;
 
                     actualCtns += carton.Cartons;
                     actualPcs += carton.Quantity;
@@ -78,10 +78,10 @@ namespace ClothResorting.Controllers.Api
                 }
             }
 
-            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(id);
+            //var preReceiveOrderInDb = _context.PreReceiveOrders.Find(id);
 
-            preReceiveOrderInDb.ActualReceivedCtns += actualCtns;
-            preReceiveOrderInDb.ActualReceivedPcs += actualPcs;
+            //preReceiveOrderInDb.ActualReceivedCtns += actualCtns;
+            //preReceiveOrderInDb.ActualReceivedPcs += actualPcs;
 
             _context.SaveChanges();
         }
