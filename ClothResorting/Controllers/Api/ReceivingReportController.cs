@@ -105,7 +105,26 @@ namespace ClothResorting.Controllers.Api
 
                 detail.Adjustor = _userName;
                 detail.Comment = o.Comment;
-                detail.PreLocation = o.PreLocation;
+
+                //当预分配字符串不包含冒号以及分号的时候，视为全部分配到一个库位，自动补上冒号和分号
+                if (!o.PreLocation.Contains(":") && !o.PreLocation.Contains(";"))
+                {
+                    detail.PreLocation = o.PreLocation + ":" + detail.Cartons + ";";
+                }
+                //当预分配字符只包含分号时，视为意图全部分配到一个库位，自动在分号前插入冒号和全部箱数
+                else if (o.PreLocation.Contains(";") && !o.PreLocation.Contains(":"))
+                {
+                    detail.PreLocation = o.PreLocation.Substring(0, o.PreLocation.Length - 1) + ":" + detail.Cartons + ";";
+                }
+                //当预分配字符结尾不是分号时，自动补上分号
+                else if (o.PreLocation[o.PreLocation.Length - 1] != ';')
+                {
+                    detail.PreLocation = o.PreLocation + ";";
+                }
+                else
+                {
+                    detail.PreLocation = o.PreLocation;
+                }
             }
 
             _context.SaveChanges();

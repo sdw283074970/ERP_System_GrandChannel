@@ -15,9 +15,22 @@ namespace ClothResorting.Helpers
                 return null;
 
             var list = new List<PreLocation>();
+
+            //当字符串没有‘;’结尾的时候，说明只返回一个预分配库位对象
+            //if (!str.Contains(";"))
+            //{
+            //    list.Add(new PreLocation {
+            //        Ctns = int.Parse(str.Split(':')[1]),
+            //        Plts = str.Split(':')[1].Contains("*") ? (int.Parse(str.Split(':')[1].Split('8')[1])) : 1,
+            //        Location = str.Split(':')[0]
+            //    });
+
+            //    return list;
+            //}
+
             var strArray = str.Split(';');
 
-            //去掉最后一个空对象
+            //去掉最后一个空对象 
             var al = new ArrayList(strArray);
             al.RemoveAt(strArray.Length - 1);
             strArray = (string[])al.ToArray(typeof(string));

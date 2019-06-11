@@ -48,7 +48,9 @@
                 <thead>
                     <tr>
                         <th style="width:66px">Id</th>
-                        <th>Descriptiono</th>
+                        <th>Description</th>
+                        <th>Comment</th>
+                        <th>Result</th>
                         <th style="width:180px">Status</th>
                         <th style="width:180px">Create Date</th>
                         <th style="width:180px">Create By</th>
@@ -194,6 +196,22 @@
                             {
                                 data: "description",
                                 render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "result",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },

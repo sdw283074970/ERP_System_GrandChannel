@@ -192,7 +192,8 @@ namespace ClothResorting.Helpers
         {
             var cartonDetails = _context.RegularCartonDetails
                 .Include(x => x.POSummary.RegularCartonDetails)
-                .Where(x => x.Container == container && x.Cartons != 0);
+                .Where(x => x.Container == container && x.Cartons != 0)
+                .ToList();
 
             //var poSummariesInDb = _context.POSummaries
             //    .Include(x => x.RegularCartonDetails)
@@ -221,6 +222,17 @@ namespace ClothResorting.Helpers
                     var font2 = new Font(BF_light, 28);
                     var size = CombineSize(c);
 
+                    var containerCell = CreateTableCell("CTNR#: " + c.Container, font2, 1);
+                    containerCell.Colspan = 2;
+                    containerCell.HorizontalAlignment = 1;
+
+                    var sizeCell = CreateTableCell("SIZE: " + size, font, 0);
+                    var rangeCell = CreateTableCell("CTN RANGE: " + c.CartonRange, font, 0);
+                    var poCell = CreateTableCell("PO#: " + c.PurchaseOrder, font, 0);
+                    var styleCell = CreateTableCell("STYLE: " + c.Style, font, 0);
+                    var colorCell = CreateTableCell("COLOR: " + c.Color + "/" + c.ColorCode, font, 0);
+                    var remarkCell = CreateTableCell("REMARK:", font, 0);
+
                     if (c.PreLocation != null)
                     {
                         var locations = parser.ParseStrToPreLoc(c.PreLocation);
@@ -229,33 +241,23 @@ namespace ClothResorting.Helpers
                         {
                             var infoTable = new PdfPTable(2);
 
-                            var containerCell = CreateTableCell("CTN#: " + c.Container, font2, 1);
-                            containerCell.Colspan = 2;
-                            containerCell.HorizontalAlignment = 1;
-                            infoTable.AddCell(containerCell);
-
-                            var sizeCell = CreateTableCell("SIZE: " + size, font, 0);
-                            infoTable.AddCell(sizeCell);
-
-                            var rangeCell = CreateTableCell("CTN RANGE: " + c.CartonRange, font, 0);
-                            infoTable.AddCell(rangeCell);
-
-                            var poCell = CreateTableCell("PO#: " + c.PurchaseOrder, font, 0);
-                            infoTable.AddCell(poCell);
-
-                            var styleCell = CreateTableCell("STYLE: " + c.Style, font, 0);
-                            infoTable.AddCell(styleCell);
-
-                            var colorCell = CreateTableCell("COLOR: " + c.Color + "/" + c.ColorCode, font, 0);
-                            infoTable.AddCell(colorCell);
-
                             var ctnCell = CreateTableCell("CTNS: " + (l.Plts == 1 ? l.Ctns.ToString() : l.Ctns + "X" + l.Plts), font, 0);
-                            infoTable.AddCell(ctnCell);
 
                             var locationCell = CreateTableCell("LOC: " + l.Location, font2, 1);
                             locationCell.Colspan = 2;
                             locationCell.HorizontalAlignment = 1;
+
+                            //单元格顺序
+                            infoTable.AddCell(containerCell);
+                            infoTable.AddCell(styleCell);
+                            infoTable.AddCell(poCell);
+                            infoTable.AddCell(colorCell);
+                            infoTable.AddCell(sizeCell);
+                            infoTable.AddCell(ctnCell);
+                            infoTable.AddCell(remarkCell);
                             infoTable.AddCell(locationCell);
+                            //infoTable.AddCell(rangeCell);
+
                             infoTable.WidthPercentage = 90f;
 
                             doc.Add(infoTable);
@@ -266,30 +268,23 @@ namespace ClothResorting.Helpers
                     {
                         var infoTable = new PdfPTable(2);
 
-                        var containerCell = CreateTableCell("CTN#: " + c.Container, font2, 1);
-                        containerCell.Colspan = 2;
-                        containerCell.HorizontalAlignment = 1;
-                        infoTable.AddCell(containerCell);
-
-                        var rangeCell = CreateTableCell("CTN RANGE: " + c.CartonRange, font, 0);
-                        infoTable.AddCell(rangeCell);
-
-                        var poCell = CreateTableCell("PO#: " + c.PurchaseOrder, font, 0);
-                        infoTable.AddCell(poCell);
-
-                        var styleCell = CreateTableCell("STYLE: " + c.Style, font, 0);
-                        infoTable.AddCell(styleCell);
-
-                        var colorCell = CreateTableCell("COLOR: " + c.Color, font, 0);
-                        infoTable.AddCell(colorCell);
-
                         var ctnCell = CreateTableCell("CTNS: " + c.Cartons, font, 0);
-                        infoTable.AddCell(ctnCell);
 
                         var locationCell = CreateTableCell("LOC: N/A", font2, 1);
                         locationCell.Colspan = 2;
                         locationCell.HorizontalAlignment = 1;
+
+                        //单元格顺序
+                        infoTable.AddCell(containerCell);
+                        infoTable.AddCell(styleCell);
+                        infoTable.AddCell(poCell);
+                        infoTable.AddCell(colorCell);
+                        infoTable.AddCell(sizeCell);
+                        infoTable.AddCell(ctnCell);
+                        infoTable.AddCell(remarkCell);
                         infoTable.AddCell(locationCell);
+                        //infoTable.AddCell(rangeCell);
+
                         infoTable.WidthPercentage = 90f;
 
                         doc.Add(infoTable);
