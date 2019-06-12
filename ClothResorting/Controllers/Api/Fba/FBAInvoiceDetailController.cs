@@ -409,9 +409,9 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/fbainvoicedetail/?reference{reference}&invoiceType={invoiceType}&closeDate={closeDate}
+        // PUT /api/fba/fbainvoicedetail/?reference{reference}&invoiceType={invoiceType}&closeDate={closeDate}&isAppliedMinCharge={isAppliedMinCharge}
         [HttpPut]
-        public void CloseChargeOrder([FromUri]string reference, [FromUri]string invoiceType, [FromUri]DateTime closeDate)
+        public void CloseChargeOrder([FromUri]string reference, [FromUri]string invoiceType, [FromUri]DateTime closeDate, [FromUri]bool isAppliedMinCharge)
         {
             if (invoiceType == FBAInvoiceType.ShipOrder)
             {
@@ -421,6 +421,70 @@ namespace ClothResorting.Controllers.Api.Fba
                 shipOrderInDb.InvoiceStatus = "Closed";
                 shipOrderInDb.CloseDate = closeDate;
                 shipOrderInDb.ConfirmedBy = _userName;
+
+                if (isAppliedMinCharge)
+                {
+                    var invoiceDetailsInDb = _context.InvoiceDetails
+                        .Include(x => x.FBAShipOrder)
+                        .Where(x => x.FBAShipOrder.ShipOrderNumber == reference);
+
+                    var outboundMinCharge = _context.UpperVendors
+                        .SingleOrDefault(x => x.CustomerCode == shipOrderInDb.CustomerCode)
+                        .OutboundMinCharge;
+
+                    //检查是否已经存在差价收费项目
+                    var priceDifference = invoiceDetailsInDb.SingleOrDefault(x => x.Activity == "Price Difference");
+                    float pd = 0;
+
+                    if (invoiceDetailsInDb.Count() == 0)
+                    {
+                        pd = outboundMinCharge;
+                    }
+                    else
+                    {
+                        pd = outboundMinCharge - (float)invoiceDetailsInDb.Sum(x => x.Amount);
+                    }
+
+                    if (priceDifference == null)
+                    {
+                        //检查是否满足shiporder每单最小值,不满足的话则建立差价收费项目
+                        if (pd > 0)
+                        {
+                            _context.InvoiceDetails.Add(new InvoiceDetail
+                            {
+                                Activity = "Price Difference",
+                                ChargingType = "Price Difference",
+                                Unit = "N/A",
+                                Quantity = 1,
+                                Rate = pd,
+                                Amount = pd,
+                                InvoiceType = FBAInvoiceType.ShipOrder,
+                                DateOfCost = DateTime.Now,
+                                Operator = _userName,
+                                FBAShipOrder = shipOrderInDb,
+                                Memo = "MIN CHARGE"
+                            });
+                        }
+                    }
+                    //如果已经有收费项目，则刷新收费项目中的金额
+                    else
+                    {
+                        var amount = invoiceDetailsInDb.Where(x => x.Activity != "Price Difference").Sum(x => x.Amount);
+                        pd = outboundMinCharge - (float)amount;
+
+                        //如果仍然有差额，则刷新差额收费
+                        if (pd > 0)
+                        {
+                            priceDifference.Amount = pd;
+                            priceDifference.Rate = pd;
+                        }
+                        //如果没有差额，则删除差额收费
+                        else
+                        {
+                            _context.InvoiceDetails.Remove(priceDifference);
+                        }
+                    }
+                }
             }
             else if (invoiceType == FBAInvoiceType.MasterOrder)
             {
@@ -514,5 +578,84 @@ namespace ClothResorting.Controllers.Api.Fba
     public class ObjectBody
     {
         public string Content { get; set; }
+    }
+
+    public class InvoiceApi
+    {
+        public void CloseShipOrder(ApplicationDbContext context, FBAShipOrder shipOrderInDb, string _userName, string reference, string invoiceType, DateTime closeDate, bool isAppliedMinCharge)
+        {
+            shipOrderInDb.InvoiceStatus = "Closed";
+            shipOrderInDb.CloseDate = closeDate;
+            shipOrderInDb.ConfirmedBy = _userName;
+
+            if (isAppliedMinCharge)
+            {
+                var invoiceDetailsInDb = shipOrderInDb.InvoiceDetails;
+
+                var outboundMinCharge = context.UpperVendors
+                    .SingleOrDefault(x => x.CustomerCode == shipOrderInDb.CustomerCode)
+                    .OutboundMinCharge;
+
+                //检查是否已经存在差价收费项目
+                var priceDifference = invoiceDetailsInDb.SingleOrDefault(x => x.Activity == "Price Difference");
+                float pd = 0;
+
+                if (invoiceDetailsInDb.Count() == 0)
+                {
+                    pd = outboundMinCharge;
+                }
+                else
+                {
+                    pd = outboundMinCharge - (float)invoiceDetailsInDb.Sum(x => x.Amount);
+                }
+
+                if (priceDifference == null)
+                {
+                    //检查是否满足shiporder每单最小值,不满足的话则建立差价收费项目
+                    if (pd > 0)
+                    {
+                        context.InvoiceDetails.Add(new InvoiceDetail
+                        {
+                            Activity = "Price Difference",
+                            ChargingType = "Price Difference",
+                            Unit = "N/A",
+                            Quantity = 1,
+                            Rate = Math.Round(pd, 2),
+                            Amount = Math.Round(pd, 2),
+                            InvoiceType = FBAInvoiceType.ShipOrder,
+                            DateOfCost = DateTime.Now,
+                            Operator = _userName,
+                            FBAShipOrder = shipOrderInDb,
+                            Memo = "MIN CHARGE"
+                        });
+                    }
+                }
+                //如果已经有收费项目，则刷新收费项目中的金额
+                else
+                {
+                    var amount = invoiceDetailsInDb.Where(x => x.Activity != "Price Difference").Sum(x => x.Amount);
+                    pd = outboundMinCharge - (float)amount;
+
+                    //如果仍然有差额，则刷新差额收费
+                    if (pd > 0)
+                    {
+                        priceDifference.Amount = Math.Round(pd, 2);
+                        priceDifference.Rate = Math.Round(pd, 2);
+                    }
+                    //如果没有差额，则删除差额收费
+                    else
+                    {
+                        context.InvoiceDetails.Remove(priceDifference);
+                    }
+                }
+            }
+        }
+
+        public void CloseMasterOrder(FBAMasterOrder masterOrder,string _userName, DateTime closeDate)
+        {
+            masterOrder.InvoiceStatus = "Closed";
+            masterOrder.CloseDate = closeDate;
+            masterOrder.ConfirmedBy = _userName;
+        }
     }
 }

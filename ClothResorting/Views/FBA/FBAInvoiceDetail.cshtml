@@ -163,6 +163,7 @@
 <div class="iframe-save">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Select Close Date: </text><input type="date" id='input-closedate' style='width:170px' class='input-sm' /><br />
+        <text>Apply minimum charge </text><input id="input-ismincharge" type="checkbox" /><br />
         <button id="btn-save" class='btn btn-danger' style="margin-top:20px;margin-right:20px;text-align:right">Save&Close</button>
     </div>
 </div>
@@ -701,7 +702,8 @@
 
                 if (closeDate != "")
                 {
-                    url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&closeDate=" + closeDate;
+                    var isAppliedMinCharge = $("#input-ismincharge").is(":checked");
+                    url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&closeDate=" + closeDate + "&isAppliedMinCharge=" + isAppliedMinCharge;
                     SendAjaxMethodAndBack("PUT", url, {});
                 }
                 else
@@ -943,19 +945,19 @@
                                 {
                                     data: "rate",
                                     render: function (data) {
-                                        return "<text>$" + data + "</text>";
+                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
                                     }
                                 },
                                 {
                                     data: "amount",
                                     render: function (data) {
-                                        return "<text>$" + data + "</text>";
+                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
                                     }
                                 },
                                 {
                                     data: "cost",
                                     render: function (data) {
-                                        return "<text>$" + data + "</text>";
+                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
                                     }
                                 },
                                 {

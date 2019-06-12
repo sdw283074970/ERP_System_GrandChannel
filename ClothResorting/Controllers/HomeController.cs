@@ -16,6 +16,7 @@ using System.Globalization;
 using ClothResorting.Helpers.DPHelper;
 using AutoMapper;
 using Newtonsoft.Json;
+using ClothResorting.Controllers.Api.Fba;
 
 namespace ClothResorting.Controllers
 {
@@ -59,72 +60,39 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\3.csv");
+            var shipOrderList = new List<FBAShipOrder>();
 
-            //var path = cleaner.ClearBills();
+            var awDate = new DateTime(2019, 04, 29, 0, 0, 0, 0);
+            var wdDate = new DateTime(2019, 05, 06, 0, 0, 0, 0);
+            var pgDate = new DateTime(2019, 04, 30, 0, 0, 0, 0);
 
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\2.csv");
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.InvoiceDetails)
+                .Where(s => (s.CustomerCode == "AW" && s.ShipDate >= awDate) 
+                    || (s.CustomerCode == "FTC" && s.ShipDate >= awDate) 
+                    || (s.CustomerCode == "WD" && s.ShipDate >= wdDate) 
+                    || (s.CustomerCode == "GRNDPG" && s.ShipDate >= pgDate));
 
-            //path = cleaner.ClearBills();
+            foreach (var s in shipOrderInDb)
+            {
+                foreach (var i in s.InvoiceDetails)
+                {
+                    i.Amount = i.Quantity * i.Rate;
+                }
+            }
 
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\3.csv");
+            _context.SaveChanges();
 
-            //path = cleaner.ClearBills();
+            var api = new InvoiceApi();
 
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\4.csv");
+            var list = shipOrderInDb.ToList();
 
-            //path = cleaner.ClearBills();
+            foreach (var s in shipOrderInDb)
+            {
+                api.CloseShipOrder(_context, s, User.Identity.Name.Split('@')[0], s.ShipOrderNumber, FBAInvoiceType.ShipOrder, s.CloseDate, true);
+            }
 
-            //var pickDetailsInDb = _context.FBAPickDetails
-            //    .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
-            //    .Include(x => x.FBAPalletLocation.FBAMasterOrder)
-            //    .Where(x => x.Id > 0);
-
-            //foreach(var p in pickDetailsInDb)
-            //{
-            //    if (p.FBAPalletLocation != null)
-            //    {
-            //        p.InboundDate = p.FBAPalletLocation.FBAMasterOrder.InboundDate;
-            //    }
-            //    else if (p.FBACartonLocation != null)
-            //    {
-            //        p.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
-            //    }
-            //}
-
-            //var pickDetailCartonsInDb = _context.FBAPickDetailCartons
-            //    .Include(x => x.FBACartonLocation.FBAOrderDetail.FBAMasterOrder)
-            //    .Include(x => x.FBAPickDetail)
-            //    .Where(x => x.Id > 0);
-
-            //foreach(var p in pickDetailCartonsInDb)
-            //{
-            //    p.FBAPickDetail.InboundDate = p.FBACartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate;
-            //}
-
-            //_context.SaveChanges();
-
-            //var container = _context.Containers.First();
-            //var oldValueStr = JsonConvert.SerializeObject(container);
-
-            //container.ReceiptNumber = "99999";
-
-            //var logger = new Logger(_context);
-            ////await logger.AddCreatedLog<Container>(oldValueStr, container, "NA", "Ex");
-
-            //var name = _context.GetTableName<Container>();
-
-            //var genertor = new ExcelGenerator(@"D:\Template\Prelocation-Template.xlsx");
-
-            //var path = genertor.GeneratePreallocatingReport("GAOU6194820");
-
-            //var labor = new PDFGenerator();
-
-            //labor.GenerateLabelPdf("GAOU6194820");
-
-            var parser = new ExcelParser(@"D:\ToRemoteServer\Copy of GAOU6194820.xlsx");
-
-            parser.ParseFreeCountryPackingListV2(1);
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 
@@ -133,6 +101,7 @@ namespace ClothResorting.Controllers
 
         public ActionResult Contact()
         {
+
             ViewBag.Message = "Your contact page.";
 
             return View();
