@@ -37,27 +37,29 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //输入截止日期和客户代码，返回到截止日期时FBA的库存列表
-        public FBAInventoryInfo GetFBAInventoryResidualInfo(string customerCode, DateTime closeDate)
+        public FBAInventoryInfo GetFBAInventoryResidualInfo(string customerCode, DateTime CloseDate)
         {
             var residualInventoryList = new List<FBAResidualInventory>();
             var minDate = new DateTime(1992, 11, 17);
+            var rCloseDate = new DateTime(CloseDate.Year, CloseDate.Month, CloseDate.Day, 23, 59, 59);
 
-            //获取在指定日期前已发出的拣货列表
-            var pickDetailList = _context.FBAPickDetails
-                .Include(x => x.FBAPickDetailCartons)
-                .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.PlaceTime <= closeDate && x.FBAShipOrder.PlaceTime >= minDate);
-            //.Where(x => x.FBAShipOrder.ShipDate <= closeDate && x.FBAShipOrder.ShipDate >= minDate);
+            //获取在指定日期前的相关拣货列表
+            //var pickDetailList = _context.FBAPickDetails
+            //    .Include(x => x.FBAPickDetailCartons)
+            //    .Include(x => x.FBAShipOrder)
+            //    .Where(x => x.FBAShipOrder.PlaceTime <= rCloseDate && x.FBAShipOrder.PlaceTime >= minDate);
+            ////.Where(x => x.FBAShipOrder.ShipDate <= closeDate && x.FBAShipOrder.ShipDate >= minDate);
 
-            var t = pickDetailList.ToList();
+            //var t = pickDetailList.ToList();
 
             //获取在指定日期之前入库的总箱数库存列表
             var cartonLocationsInDb = _context.FBACartonLocations
                 .Include(x => x.FBAPallet.FBAPalletLocations)
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
-                .Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAPickDetailCartons
+                    .Select(c => c.FBAPickDetail.FBAShipOrder))
                 .Include(x => x.FBAPickDetails)
-                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= rCloseDate
                     && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= minDate
                     && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
@@ -65,7 +67,7 @@ namespace ClothResorting.Helpers.FBAHelper
             var palletLocationsInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAPickDetails)
-                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate 
+                .Where(x => x.FBAMasterOrder.InboundDate <= rCloseDate 
                     && x.FBAMasterOrder.InboundDate >= minDate
                     && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
@@ -85,7 +87,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     foreach(var pickCarton in cartonLocation.FBAPickDetailCartons)
                     {
-                        cartonLocation.ActualQuantity -= pickCarton.PickCtns;
+                        //获取在指定日期前的相关拣货列表
+                        if (pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime <= rCloseDate)
+                            cartonLocation.ActualQuantity -= pickCarton.PickCtns;
                     }
                 }
                 else    //直接与拣货单
@@ -137,7 +141,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
             info.TotalResidualQuantity = residualInventoryList.Sum(x => x.ResidualQuantity);
-            info.CloseDate = closeDate;
+            info.CloseDate = rCloseDate;
 
             return info;
         }

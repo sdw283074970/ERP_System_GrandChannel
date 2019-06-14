@@ -153,7 +153,7 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 foreach(var pick in p.FBAPickDetails)
                 {
-                    if(pick.FBAShipOrder.Status == FBAStatus.Shipped || pick.FBAShipOrder.Status == FBAStatus.Released)
+                    if((pick.FBAShipOrder.Status == FBAStatus.Shipped || pick.FBAShipOrder.Status == FBAStatus.Released) && pick.FBAShipOrder.ShipDate <= closeDate)
                         p.ActualPlts -= pick.PltsFromInventory;
                 }
             }
