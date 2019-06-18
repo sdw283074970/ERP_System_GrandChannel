@@ -60,6 +60,8 @@ namespace ClothResorting.Models
         public DbSet<OAuthInfo> OAuthInfo { get; set; }
         public DbSet<OutboundHistory> OutboundHistories { get; set; }
 
+        public DbSet<PermanentSKU> PermanentSKUs { get; set; }
+
         //FBA
         public DbSet<FBAMasterOrder> FBAMasterOrders { get; set; }
         public DbSet<FBAOrderDetail> FBAOrderDetails { get; set; }

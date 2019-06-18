@@ -67,6 +67,8 @@ namespace ClothResorting.Models
 
         public POSummary POSummary { get; set; }
 
+        public PermanentSKU PermanentSKU { get; set; }
+
         public ICollection<FCRegularLocationDetail> FCRegularLocationDetail { get; set; }
     }
 }

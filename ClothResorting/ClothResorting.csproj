@@ -1665,6 +1665,10 @@
     <Compile Include="Migrations\201906072258566_AddedMinChargeForEveryCustomer.Designer.cs">
       <DependentUpon>201906072258566_AddedMinChargeForEveryCustomer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201906180140108_AddedPermanentSKU.cs" />
+    <Compile Include="Migrations\201906180140108_AddedPermanentSKU.Designer.cs">
+      <DependentUpon>201906180140108_AddedPermanentSKU.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1757,6 +1761,7 @@
     <Compile Include="Models\InvoiceDetail.cs" />
     <Compile Include="Models\OAuthInfo.cs" />
     <Compile Include="Models\OperationLog.cs" />
+    <Compile Include="Models\PermanentSKU.cs" />
     <Compile Include="Models\QBOModels\CustomerResponseBody.cs" />
     <Compile Include="Models\QBOModels\InvoiceCreateRequestBody.cs" />
     <Compile Include="Models\QBOModels\ItemCreateRequestModel.cs" />
@@ -3109,6 +3114,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201906072258566_AddedMinChargeForEveryCustomer.resx">
       <DependentUpon>201906072258566_AddedMinChargeForEveryCustomer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201906180140108_AddedPermanentSKU.resx">
+      <DependentUpon>201906180140108_AddedPermanentSKU.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

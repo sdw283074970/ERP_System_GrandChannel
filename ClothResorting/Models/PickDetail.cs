@@ -46,5 +46,7 @@ namespace ClothResorting.Models
         public FCRegularLocationDetail FCRegularLocationDetail { get; set; }
 
         public ReplenishmentLocationDetail ReplenishmentLocationDetail { get; set; }
+
+        public PermanentSKU PermanentSKU { get; set; }
     }
 }
