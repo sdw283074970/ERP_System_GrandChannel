@@ -9,56 +9,71 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-//namespace ClothResorting.Controllers.Api
-//{
-//    public class PermanentLocManagementController : ApiController
-//    {
-//        private ApplicationDbContext _context;
+namespace ClothResorting.Controllers.Api
+{
+    public class PermanentLocManagementController : ApiController
+    {
+        private ApplicationDbContext _context;
 
-//        public PermanentLocManagementController()
-//        {
-//            _context = new ApplicationDbContext();
-//        }
+        public PermanentLocManagementController()
+        {
+            _context = new ApplicationDbContext();
+        }
 
-//        // GET /api/permanentlocmanagement
-//        [HttpGet]
-//        public IHttpActionResult GetAllPermanentLocation()
-//        {
-//            return Ok(_context.PermanentLocations
-//                .Where(c => c.Id > 0)
-//                .OrderByDescending(c => c.Id)
-//                .ToList()
-//                .Select(Mapper.Map<PermanentLocation, PermanentLocationDto>));
-//        }
+        // GET /api/permanentlocmanagement
+        [HttpGet]
+        public IHttpActionResult GetAllPermanentLocation()
+        {
+            var result = _context.PermanentSKUs
+                .Select(Mapper.Map<PermanentSKU, PermanentSKUDto>);
 
-//        // POST /api/permanentlocmanagement
-//        [HttpPost]
-//        public IHttpActionResult CreateNewPermanentLocation([FromBody]PermanentLocJsonObj obj)
-//        {
-//            var location = new PermanentLocation
-//            {
-//                Location = obj.Location,
-//                Vender = obj.Vender,
-//                PurchaseOrder = obj.PurchaseOrder,
-//                Style = obj.Style,
-//                Color = obj.Color,
-//                Size = obj.Size,
-//                Quantity = 0
-//            };
+            return Ok(result);
+        }
 
-//            _context.PermanentLocations.Add(location);
+        // POST /api/permanentlocmanagement
+        [HttpPost]
+        public IHttpActionResult CreateNewPermanentLocation([FromBody]PermanentLocJsonObj obj)
+        {
+            var location = new PermanentSKU
+            {
+                Location = obj.Location,
+                Vendor = obj.Vender,
+                PurchaseOrder = obj.PurchaseOrder,
+                Style = obj.Style,
+                Color = obj.Color,
+                Size = obj.Size,
+                Quantity = 0
+            };
 
-//            _context.SaveChanges();
+            //查重
+            var skuInDb = _context.PermanentSKUs
+                .Where(x => x.PurchaseOrder == obj.PurchaseOrder
+                    && x.Vendor == obj.Vender
+                    && x.Style == obj.Style
+                    && x.Color == obj.Color
+                    && x.Size == obj.Size)
+                .ToList();
 
-//            var id = _context.PermanentLocations.OrderByDescending(c => c.Id).First().Id;
+            if (skuInDb.Count > 0)
+            {
+                throw new Exception("This SKU already exist in the system.");
+            }
+            else
+            {
+                _context.PermanentSKUs.Add(location);
+            }
 
-//            var results = _context.PermanentLocations
-//                .Where(c => c.Id > 0)
-//                .OrderByDescending(c => c.Id)
-//                .ToList()
-//                .Select(Mapper.Map<PermanentLocation, PermanentLocationDto>);
+            _context.SaveChanges();
 
-//            return Created(Request.RequestUri + "/" + id, results);
-//        }
-//    }
-//}
+            var id = _context.PermanentSKUs.OrderByDescending(c => c.Id).First().Id;
+
+            var results = _context.PermanentSKUs
+                .Where(c => c.Id > 0)
+                .OrderByDescending(c => c.Id)
+                .ToList()
+                .Select(Mapper.Map<PermanentSKU, PermanentSKUDto>);
+
+            return Created(Request.RequestUri + "/" + id, results);
+        }
+    }
+}

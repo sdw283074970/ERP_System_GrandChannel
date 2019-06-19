@@ -43,5 +43,10 @@ namespace ClothResorting.Models
         public FBAShipOrder FBAShipOrder { get; set; }
 
         public Invoice Invoice { get; set; }
+
+        public InvoiceDetail()
+        {
+            DateOfCost = new DateTime(1900, 01, 01);
+        }
     }
 }

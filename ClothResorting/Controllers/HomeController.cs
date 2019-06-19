@@ -60,39 +60,39 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var shipOrderList = new List<FBAShipOrder>();
+            //var shipOrderList = new List<FBAShipOrder>();
 
-            var awDate = new DateTime(2019, 04, 29, 0, 0, 0, 0);
-            var wdDate = new DateTime(2019, 05, 06, 0, 0, 0, 0);
-            var pgDate = new DateTime(2019, 04, 30, 0, 0, 0, 0);
+            //var awDate = new DateTime(2019, 04, 29, 0, 0, 0, 0);
+            //var wdDate = new DateTime(2019, 05, 06, 0, 0, 0, 0);
+            //var pgDate = new DateTime(2019, 04, 30, 0, 0, 0, 0);
 
-            var shipOrderInDb = _context.FBAShipOrders
-                .Include(x => x.InvoiceDetails)
-                .Where(s => (s.CustomerCode == "AW" && s.ShipDate >= awDate) 
-                    || (s.CustomerCode == "FTC" && s.ShipDate >= awDate) 
-                    || (s.CustomerCode == "WD" && s.ShipDate >= wdDate) 
-                    || (s.CustomerCode == "GRNDPG" && s.ShipDate >= pgDate));
+            //var shipOrderInDb = _context.FBAShipOrders
+            //    .Include(x => x.InvoiceDetails)
+            //    .Where(s => (s.CustomerCode == "AW" && s.ShipDate >= awDate) 
+            //        || (s.CustomerCode == "FTC" && s.ShipDate >= awDate) 
+            //        || (s.CustomerCode == "WD" && s.ShipDate >= wdDate) 
+            //        || (s.CustomerCode == "GRNDPG" && s.ShipDate >= pgDate));
 
-            foreach (var s in shipOrderInDb)
-            {
-                foreach (var i in s.InvoiceDetails)
-                {
-                    i.Amount = i.Quantity * i.Rate;
-                }
-            }
+            //foreach (var s in shipOrderInDb)
+            //{
+            //    foreach (var i in s.InvoiceDetails)
+            //    {
+            //        i.Amount = i.Quantity * i.Rate;
+            //    }
+            //}
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
-            var api = new InvoiceApi();
+            //var api = new InvoiceApi();
 
-            var list = shipOrderInDb.ToList();
+            //var list = shipOrderInDb.ToList();
 
-            foreach (var s in shipOrderInDb)
-            {
-                api.CloseShipOrder(_context, s, User.Identity.Name.Split('@')[0], s.ShipOrderNumber, FBAInvoiceType.ShipOrder, s.CloseDate, true);
-            }
+            //foreach (var s in shipOrderInDb)
+            //{
+            //    api.CloseShipOrder(_context, s, User.Identity.Name.Split('@')[0], s.ShipOrderNumber, FBAInvoiceType.ShipOrder, s.CloseDate, true);
+            //}
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 
