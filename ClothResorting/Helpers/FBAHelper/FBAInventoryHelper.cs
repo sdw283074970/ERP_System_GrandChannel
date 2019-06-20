@@ -41,7 +41,8 @@ namespace ClothResorting.Helpers.FBAHelper
         {
             var residualInventoryList = new List<FBAResidualInventory>();
             var minDate = new DateTime(1992, 11, 17);
-            var rCloseDate = new DateTime(CloseDate.Year, CloseDate.Month, CloseDate.Day, 23, 59, 59);
+            //var rCloseDate = new DateTime(CloseDate.Year, CloseDate.Month, CloseDate.Day, 23, 59, 59);
+            var rCloseDate = CloseDate.AddDays(1);
 
             //获取在指定日期前的相关拣货列表
             //var pickDetailList = _context.FBAPickDetails

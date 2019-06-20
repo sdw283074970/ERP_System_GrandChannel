@@ -7,6 +7,7 @@
 <h1>Third-party Logistics Distribution System</h1>
 <h2>Pre-Receiving Management Page</h2>
 <h3 id="container"></h3>
+<h3 id="skunumber"></h3>
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
@@ -133,6 +134,20 @@
                     $("#reference").val(data.reference);
                     $("#receiptnumber").val(data.receiptNumber);
                     $("#remark").val(data.remark);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseJSON.exceptionMessage);
+                }
+            });
+
+            //获取SKU数量的信息
+            $.ajax({
+                type: "GET",
+                url: "/api/container/?container=" + container + "&operation=SKU",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    $("#skunumber").html("SKU#: " + data);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     alert(XMLHttpRequest.responseJSON.exceptionMessage);

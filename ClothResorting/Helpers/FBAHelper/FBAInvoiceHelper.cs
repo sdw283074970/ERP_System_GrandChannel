@@ -384,13 +384,15 @@ namespace ClothResorting.Helpers.FBAHelper
                 CustomerCode = customer.CustomerCode
             };
 
+            closeDate = closeDate.AddDays(1);
+
             var invoiceDetails = _context.InvoiceDetails
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAMasterOrder.FBAOrderDetails)
                 .Include(x => x.FBAMasterOrder.FBAPallets)
                 .Include(x => x.FBAShipOrder.FBAPickDetails)
                 .Where(x => x.FBAMasterOrder.Customer.Id == customerId || x.FBAShipOrder.CustomerCode == customer.CustomerCode)
-                .Where(x => x.FBAShipOrder == null ? x.FBAMasterOrder.CloseDate <= closeDate && x.FBAMasterOrder.CloseDate >= startDate : x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate <= closeDate)
+                .Where(x => x.FBAShipOrder == null ? x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate : x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate)
                 //.Where(x => x.DateOfCost >= startDate && x.DateOfCost <= closeDate)
                 .ToList();
 
@@ -442,13 +444,15 @@ namespace ClothResorting.Helpers.FBAHelper
             var info = new FBAInvoiceInfo { CustomerCode = "ALL FBA CUSTOMER", FromDate = startDate, ToDate = closeDate };
             var invoiceReportList = new List<InvoiceReportDetail>();
 
+            closeDate = closeDate.AddDays(1);
+
             var invoiceDetails = _context.InvoiceDetails
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAMasterOrder.FBAOrderDetails)
                 .Include(x => x.FBAMasterOrder.FBAPallets)
                 .Include(x => x.FBAShipOrder.FBAPickDetails)
                 .Where(x => x.FBAMasterOrder.Customer.DepartmentCode == "FBA" || x.FBAShipOrder.Id > 0)
-                .Where(x => x.FBAShipOrder == null ? x.FBAMasterOrder.CloseDate <= closeDate && x.FBAMasterOrder.CloseDate >= startDate : x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate <= closeDate)
+                .Where(x => x.FBAShipOrder == null ? x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate : x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate)
                 .ToList();
 
             foreach (var i in invoiceDetails)

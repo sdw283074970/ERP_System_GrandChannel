@@ -124,23 +124,25 @@ namespace ClothResorting.Helpers.FBAHelper
         //生成StorageFee报告并返回完整路径
         public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate)
         {
+            var actualCloseDate = closeDate.AddDays(1);
+
             var customerInDb = _context.UpperVendors.Find(customerId);
 
             var palletLocationInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAMasterOrder.FBAPallets)
                 .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate
+                .Where(x => x.FBAMasterOrder.InboundDate < actualCloseDate
                     && x.FBAMasterOrder.Customer.Id == customerId);
 
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.ShipDate <= closeDate
+                .Where(x => x.FBAShipOrder.ShipDate < actualCloseDate
                     && x.FBAShipOrder.ShipDate >= startDate
                     && x.FBAShipOrder.Status == FBAStatus.Shipped
                     && x.FBAPalletLocation != null
-                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate <= closeDate
+                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < actualCloseDate
                     && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
                     && x.PltsFromInventory != 0);
 
@@ -153,7 +155,8 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 foreach(var pick in p.FBAPickDetails)
                 {
-                    if((pick.FBAShipOrder.Status == FBAStatus.Shipped || pick.FBAShipOrder.Status == FBAStatus.Released) && pick.FBAShipOrder.ShipDate <= closeDate)
+                    //从原有托盘数量扣除状态为shipped状态，且发货日期在结束日期之前的运单中的托盘数量
+                    if(pick.FBAShipOrder.Status == FBAStatus.Shipped && pick.FBAShipOrder.ShipDate < actualCloseDate)
                         p.ActualPlts -= pick.PltsFromInventory;
                 }
             }
@@ -168,10 +171,10 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 var pallets = p.Sum(x => x.ActualPlts);
 
-                if (pallets == 0)
-                {
-                    continue;
-                }
+                //if (pallets == 0)
+                //{
+                //    continue;
+                //}
 
                 _ws.Cells[startIndex, 1] = FBAOrderType.MasterOrder;
                 _ws.Cells[startIndex, 2] = p.First().Container;

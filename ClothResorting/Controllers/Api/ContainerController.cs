@@ -34,6 +34,22 @@ namespace ClothResorting.Controllers.Api
             return Ok(Mapper.Map<Container, ContainerDto>(containerInDb));
         }
 
+        // GET /container/?container={container}&operation={SKU}
+        [HttpGet]
+        public IHttpActionResult GetSKUInfo([FromUri]string container, [FromUri]string operation)
+        {
+            var cartonDetails = _context.RegularCartonDetails
+                .Where(x => x.Container == container)
+                .ToList();
+
+            if (operation == "SKU")
+            {
+                return Ok(CountNumberOfSKU(cartonDetails));
+            }
+
+            return Ok();
+        }
+
         // PUT /container/
         [HttpPut]
         public void UpdateContainerInfo(ContainerInfoJsonObj obj)
@@ -51,6 +67,26 @@ namespace ClothResorting.Controllers.Api
             containerInDb.Remark = obj.Remark;
 
             _context.SaveChanges();
+        }
+
+        int CountNumberOfSKU(IEnumerable<RegularCartonDetail> cartonDetails)
+        {
+            var skuList = new List<RegularCartonDetail>();
+
+            foreach(var c in cartonDetails)
+            {
+                var sameSku = skuList.SingleOrDefault(x => x.PurchaseOrder == c.PurchaseOrder
+                    && x.Color == c.Color
+                    && x.Style == c.Style
+                    && x.SizeBundle == c.SizeBundle);
+
+                if (sameSku == null)
+                {
+                    skuList.Add(c);
+                }
+            }
+
+            return skuList.Count;
         }
     }
 }
