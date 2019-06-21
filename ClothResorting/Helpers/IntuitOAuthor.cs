@@ -177,8 +177,6 @@ namespace ClothResorting.Helpers
         //            FamilyName = "AAA"
         //        };
 
-                
-
         //        var result = dataService.Add(customer) as Customer;
 
         //    //}

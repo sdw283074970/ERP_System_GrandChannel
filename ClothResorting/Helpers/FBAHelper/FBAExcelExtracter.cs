@@ -139,6 +139,7 @@ namespace ClothResorting.Helpers.FBAHelper
             var pickingList = new List<FBAPickingItem>();
             var pickDetailList = new List<FBAPickDetail>();
             var diagnosticsList = new List<PullSheetDiagnostic>();
+            var pickDetailCartonList = new List<FBAPickDetailCarton>();
 
             _ws = _wb.Worksheets[1];
 
@@ -201,7 +202,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
                     if (c.AvailableCtns <= targetCtns && c.AvailableCtns != 0)
                     {
-                        var pickDetail = CreateFBAPickDetail(c, c.AvailableCtns);
+                        var pickDetail = CreateFBAPickDetail(c, c.AvailableCtns, pickDetailCartonList);
                         pickDetail.FBAShipOrder = shipOrderInDb;
                         pickDetailList.Add(pickDetail);
                         targetCtns -= c.AvailableCtns;
@@ -210,7 +211,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     }
                     else if (c.AvailableCtns > targetCtns)
                     {
-                        var pickDetail = CreateFBAPickDetail(c, targetCtns);
+                        var pickDetail = CreateFBAPickDetail(c, targetCtns, pickDetailCartonList);
                         pickDetail.FBAShipOrder = shipOrderInDb;
                         pickDetailList.Add(pickDetail);
                         c.AvailableCtns -= targetCtns;
@@ -241,32 +242,69 @@ namespace ClothResorting.Helpers.FBAHelper
             }
 
             _context.FBAPickDetails.AddRange(pickDetailList);
+            _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
             _context.SaveChanges();
 
             AdjustRelationship();
         }
 
-        private FBAPickDetail CreateFBAPickDetail(FBACartonLocation cartonLocation, int ctns)
+        private FBAPickDetail CreateFBAPickDetail(FBACartonLocation cartonLocation, int ctns, IList<FBAPickDetailCarton> pickDetailCartonList)
         {
-            var location = CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList());
+            //如果不是放在托盘上的货，则直接建立pickdetail和cartondetail的关系
+            if (cartonLocation.Status != "InPallet")
+            {
+                var location = CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList());
 
-            return new FBAPickDetail {
-                Location = location,
-                GrandNumber = cartonLocation.GrandNumber,
-                Container = cartonLocation.Container,
-                ShipmentId = cartonLocation.ShipmentId,
-                AmzRefId = cartonLocation.AmzRefId,
-                WarehouseCode = cartonLocation.WarehouseCode,
-                ActualCBM = cartonLocation.CBMPerCtn * ctns,
-                Size = " ",
-                ActualGrossWeight = cartonLocation.GrossWeightPerCtn * ctns,
-                ActualQuantity = ctns,
-                OrderType = FBAOrderType.Standard,
-                HowToDeliver = cartonLocation.HowToDeliver,
-                Status = FBAStatus.Picking,
-                PickableCtns = ctns,
-                FBACartonLocation = cartonLocation
-            };
+                return new FBAPickDetail
+                {
+                    Location = location,
+                    GrandNumber = cartonLocation.GrandNumber,
+                    Container = cartonLocation.Container,
+                    ShipmentId = cartonLocation.ShipmentId,
+                    AmzRefId = cartonLocation.AmzRefId,
+                    WarehouseCode = cartonLocation.WarehouseCode,
+                    ActualCBM = cartonLocation.CBMPerCtn * ctns,
+                    Size = " ",
+                    ActualGrossWeight = cartonLocation.GrossWeightPerCtn * ctns,
+                    ActualQuantity = ctns,
+                    OrderType = FBAOrderType.Standard,
+                    HowToDeliver = cartonLocation.HowToDeliver,
+                    Status = FBAStatus.Picking,
+                    PickableCtns = ctns,
+                    FBACartonLocation = cartonLocation
+                };
+            }
+            //如果是托盘里的carton，先找到其托盘对象，再在托盘对象中拣货
+            else
+            {
+                var palletLocation = cartonLocation.FBAPallet.FBAPalletLocations.First();
+                var pickDetail = new FBAPickDetail
+                {
+                    Location = palletLocation.Location,
+                    GrandNumber = palletLocation.GrandNumber,
+                    Container = palletLocation.Container,
+                    ShipmentId = palletLocation.ShipmentId,
+                    AmzRefId = palletLocation.AmzRefId,
+                    WarehouseCode = palletLocation.WarehouseCode,
+                    ActualCBM = cartonLocation.CBMPerCtn * ctns,
+                    Size = " ",
+                    ActualGrossWeight = cartonLocation.GrossWeightPerCtn * ctns,
+                    ActualQuantity = ctns,
+                    OrderType = FBAOrderType.Standard,
+                    HowToDeliver = palletLocation.HowToDeliver,
+                    Status = FBAStatus.Picking,
+                    PickableCtns = ctns,
+                    FBAPalletLocation = palletLocation
+                };
+
+                pickDetailCartonList.Add(new FBAPickDetailCarton {
+                    PickCtns = ctns,
+                    FBAPickDetail = pickDetail,
+                    FBACartonLocation = cartonLocation
+                });
+
+                return pickDetail;
+            }
         }
 
         //重新调整Entiy对象关系。上面的批量取货只考虑了货为散箱库存。现在保留以上，修正托盘库存的对象与拣货列表的关系

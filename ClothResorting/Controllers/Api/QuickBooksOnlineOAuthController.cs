@@ -60,13 +60,13 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + userId, code);
         }
 
-        // POST /apiquickbooksonlineoauth/{id}(invoiceId)
+        // POST /apiquickbooksonlineoauth/?invoiceId={invoiceId}
         [HttpPost]
-        public IHttpActionResult SyncInvoiceToQBO([FromUri]int id)
+        public IHttpActionResult SyncInvoiceToQBO([FromUri]int invoiceId)
         {
             var invoiceInDb = _context.Invoices
                 .Include(x => x.InvoiceDetails)
-                .SingleOrDefault(x => x.Id == id);
+                .SingleOrDefault(x => x.Id == invoiceId);
 
             //使用Refresh token刷新或得新鲜的Access Token
             var userId = User.Identity.GetUserId<string>();
@@ -76,7 +76,7 @@ namespace ClothResorting.Controllers.Api
             //同步invoice到QBO中
             var service = new QBOServiceManager();
 
-            service.SyncInvoice(id);
+            service.SyncInvoice(invoiceId);
 
             return Created(Request.RequestUri, "Sync Success!");
         }

@@ -575,7 +575,7 @@
                     type: "POST",
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
-                    url: "/api/QuickBooksOnlineOAuth/" + id,
+                    url: "/api/QuickBooksOnlineOAuth/?invoiceId=" + id,
                     success: function () {
                         layer.alert("Success!");
                     },

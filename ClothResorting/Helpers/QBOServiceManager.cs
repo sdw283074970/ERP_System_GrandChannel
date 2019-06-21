@@ -32,6 +32,7 @@ namespace ClothResorting.Helpers
         //将系统中的收费服务项目与QBO中的收费服务对比，将系统中有但QBO中没有的项目同步到QBO中去
         #region Steps description
             //1.检查公司ERP系统中的收费项目是否与QBO中的收费项目同步，并同步未同步的部分
+            //1.1 逐个检查invoice中的收费项目是否在QBO中存在，如不存在，则在QBO中新建这个项目
             //2.检查公司ERP系统中的Customer是否与QBO中的Customer同步，如已同步则查询对应Customer的Value，否则报错，显示要求手动同步
             //3.将要同步的Invoice对象转换成QBO能识别的对象并序列化
             //4.同步Invoice
@@ -54,8 +55,39 @@ namespace ClothResorting.Helpers
             var companyId = string.Empty;
 
             #region Step 1
-            //获取系统中所有不重名的收费项目列表(未解决)
-            var itemList = _context.ChargingItems.ToList();
+            ////获取系统中所有不重名的收费项目列表(未解决)
+            //var itemList = _context.ChargingItems.ToList();
+
+            ////获取QBO中的收费列表
+            //var itemQuery = "SELECT * FROM Item WHERE Type = 'Service'";
+            //var itemJsonResponseData = WebServiceManager.SendQueryRequest(QBOUrlGenerator.QueryRequestUrl(_baseUrl, oauthInfo.RealmId, itemQuery), oauthInfo.AccessToken);
+
+            ////将获得的Json对象反序列化
+            //var itemResponseBody = new ItemResponseBody();
+            //using (var input = new StringReader(itemJsonResponseData))
+            //{
+            //    //var responseBody = JSON.Deserialize<ResponseBody>(input);     //Jil的反序列化方法不太好用
+            //    itemResponseBody = JsonConvert.DeserializeObject<ItemResponseBody>(itemJsonResponseData);
+            //}
+
+            ////对比两表，将不重复的item做成QBO能接受的对象格式并序列化
+            //foreach (var item in itemList)
+            //{
+            //    if (itemResponseBody.QueryResponse.Item.Where(x => x.Name == item.Name).Count() == 0)
+            //    {
+            //        var itemCreateRequestModel = new ItemCreateRequestModel
+            //        {
+            //            IncomeAccountRef = new IncomeAccountRef { Value = "26" },    //默认关联账户是26 Services账户
+            //            //IncomeAccountRef = new IncomeAccountRef { Value = "1" },    //默认关联账户是1 Services账户
+            //            Name = item.Name,
+            //            Type = "Service"
+            //        };
+
+            //        string itemJsonData = JsonConvert.SerializeObject(itemCreateRequestModel);
+            //        //调用建立新Item的API在QBO中建立不重复的收费项目
+            //        var itemResponse = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, oauthInfo.RealmId, "item"), itemJsonData, "POST", oauthInfo.AccessToken);
+            //    }
+            //}
 
             //获取QBO中的收费列表
             var itemQuery = "SELECT * FROM Item WHERE Type = 'Service'";
@@ -69,15 +101,19 @@ namespace ClothResorting.Helpers
                 itemResponseBody = JsonConvert.DeserializeObject<ItemResponseBody>(itemJsonResponseData);
             }
 
-            //对比两表，将不重复的item做成QBO能接受的对象格式并序列化
-            foreach (var item in itemList)
+            var itemsInQbo = itemResponseBody.QueryResponse.Item.ToList();
+            //逐个检查该invoice下的每一个收费项目名称是否在QBO中存在
+            foreach (var i in invoiceInDb.InvoiceDetails)
             {
-                if (itemResponseBody.QueryResponse.Item.Where(x => x.Name == item.Name).Count() == 0)
+                var itemName = i.Activity;
+
+                //如果不存在则新建一个，默认放在一个income账户下，该账户的Id由用户提供
+                if (itemsInQbo.SingleOrDefault(x => x.Name == itemName) == null)
                 {
-                    var itemCreateRequestModel = new ItemCreateRequestModel {
+                    var itemCreateRequestModel = new ItemCreateRequestModel
+                    {
                         IncomeAccountRef = new IncomeAccountRef { Value = "26" },    //默认关联账户是26 Services账户
-                        //IncomeAccountRef = new IncomeAccountRef { Value = "1" },    //默认关联账户是1 Services账户
-                        Name = item.Name,
+                        Name = itemName,
                         Type = "Service"
                     };
 
@@ -86,9 +122,10 @@ namespace ClothResorting.Helpers
                     var itemResponse = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, oauthInfo.RealmId, "item"), itemJsonData, "POST", oauthInfo.AccessToken);
                 }
             }
+
             #endregion
 
-            #region Step 2
+            #region Step 2 检查公司ERP系统中的Customer是否与QBO中的Customer同步，如已同步则查询对应Customer的Value，否则报错，显示要求手动同步
             var customerQuery = "SELECT * FROM CUSTOMER WHERE COMPANYNAME = '" + companyName + "'";
 
             var companyNameJsonResponseData = WebServiceManager.SendQueryRequest(QBOUrlGenerator.QueryRequestUrl(_baseUrl, oauthInfo.RealmId, customerQuery), oauthInfo.AccessToken);
@@ -110,7 +147,7 @@ namespace ClothResorting.Helpers
             }
             #endregion
 
-            #region Step 3
+            #region Step 3 将要同步的Invoice对象转换成QBO能识别的对象并序列化，并同步
             var invoice = new InvoiceCreateRequestBody {
                 CustomerRef = new CustomerRef(),
             };
