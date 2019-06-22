@@ -127,8 +127,15 @@
                 url: "/api/index/?departmentCode=CD",
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
+                beforeSend: function () {
+                    index = layer.msg('Processing...', {
+                        icon: 1,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
                 success: function (data) {
-
+                    layer.close(index);
                     if (table) {
                         table.destroy();
                     }
@@ -392,7 +399,7 @@
             });
 
             $("#btn-invoice").on("click", function () {
-                $(window.location).attr('href', '/ThirdPartyLogistics/invoicemanagement/?departmentCode=CD');
+                $(window.location).attr('href', '/ThirdPartyLogistics/invoicemanagement/');
             });
 
             //获取QBO授权

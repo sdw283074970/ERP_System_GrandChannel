@@ -12,16 +12,19 @@ using ClothResorting.Models.ApiTransformModels;
 using System.Globalization;
 using Microsoft.Office.Interop.Excel;
 using ClothResorting.Models.StaticClass;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api
 {
     public class InvoiceManagementController : ApiController
     {
         private ApplicationDbContext _context;
+        private string _userName;
 
         public InvoiceManagementController()
         {
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/invoiceManagement/?vendor={vendor}&departmentCode={departmentCode}
@@ -67,7 +70,9 @@ namespace ClothResorting.Controllers.Api
                 Currency = obj.Currency,
                 UpperVendor = vendorInDb,
                 Container = obj.Container,
-                RequestId = ""
+                RequestId = "",
+                CreatedBy = _userName,
+                CreatedDate = DateTime.Now
             };
 
 

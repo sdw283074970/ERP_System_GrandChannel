@@ -39,5 +39,12 @@ namespace ClothResorting.Dtos
 
         public string RequestId { get; set; }
 
+        public string CreatedBy { get; set; }
+
+        public string UploadedBy { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public DateTime UploadedDate { get; set; }
     }
 }

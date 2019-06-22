@@ -6,13 +6,17 @@
 
 <h1>Third-party Logistics Distribution System</h1>
 <h2>Invoice Management</h2>
+<h2 id="h2-vendor"></h2>
 
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div id="div-create">
-        <text>Select Vendor: </text> <select id='select-vendor' style='width:170px;height:30px' required='required'></select>
+    <div id="div-vendor" style="margin:10px">
+
+    </div>
+    <div id="div-create" style="margin-left:10px;margin-bottom:10px">
+        @*<text>Select Vendor: </text> <select id='select-vendor' style='width:170px;height:30px' required='required'></select>*@
         <button id="btn-chargingitem" class="btn btn-primary">Manage charging items</button>
         <button id="btn-create" class="btn btn-primary">Create a new invoice</button>
     </div>
@@ -24,15 +28,16 @@
                     <th>INVOICE#</th>
                     <th>PO</th>
                     <th>CONTAINER</th>
-                    <th>TYPE</th>
                     <th>ISSUE DATE</th>
                     <th>TOTAL DUE</th>
                     <th>DUE DATE</th>
                     <th>ENCLOSED</th>
                     <th>SHIP DATE</th>
                     <th>SHIP VIA</th>
-                    <th>CURRENCY</th>
-                    <th>REQUEST ID</th>
+                    <th>CREATE DATE</th>
+                    <th>CREATE BY</th>
+                    <th>UPLOAD DATE</th>
+                    <th>UPLOAD BY</th>
                     <th style="width:220px">OPERATION</th>
                 </tr>
             </thead>
@@ -68,10 +73,12 @@
         $(document).ready(function () {
 
             var table;
+            var index;
             var vendor;
             var state;
             var realmId;
             var code;
+            var invoiceNumber;
             $(".iframe").hide();
 
             //解析url中的参数函数
@@ -94,6 +101,14 @@
             state = getUrlParameter('state');
             code = getUrlParameter('code');
             realmId = getUrlParameter('realmId');
+            vendor = getUrlParameter('vendor');
+
+            if (vendor == null)
+                $(window.location).attr("href", "/ThirdPartyLogistics/invoicemanagement/?vendor=Silk%20Icon&departmentCode=CD")
+
+            $("#h2-vendor").html("Vendor: " + vendor);
+
+            GetInvoiceTable(vendor);
 
             //将重定向的URL中传递的三个授权参数送到后台进行下一步授权认证
             if (typeof (state) != "undefined" || typeof (code) != "undefined" || typeof (realmId) != "undefined")
@@ -122,125 +137,19 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
-                    }
+                    //for (var i = 0; i < data.length; i++) {
+                    //    $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    //}
+
                     //获取默认的vendor
-                    vendor = data[0];
+                    //vendor = data[0];
 
-                    //显示默认vendor的invoice列表
-                    $.ajax({
-                        type: "GET",
-                        url: "/api/invoicemanagement/?vendor=" + vendor + "&departmentCode=" + departmentCode,
-                        contentType: 'application/json; charset=utf-8',
-                        dataType: "json",
-                        success: function (data) {
+                    var buttonStr = "";
+                    for (var i = 0; i < data.length; i++) {
+                        buttonStr += "<button value='" + data[i] + "' class='btn btn-info btn-vendor' style='margin-right:5px'>" + data[i] + "</button>"
+                    }
 
-                            if (table) {
-                                table.destroy();
-                            }
-
-                            table = $("#table").DataTable({
-                                data: data,
-                                order: [[0, "desc"]],
-                                destroy: true,
-                                scrollCollapse: true,
-                                scrollY: "600px",
-                                iDisplayLength: 100,
-                                columns: [
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "invoiceNumber",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "purchaseOrder",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "container",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "invoiceType",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "invoiceDate",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "totalDue",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "dueDate",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "enclosed",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "shipDate",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "shipVia",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "currency",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "requestId",
-                                        render: function (data) {
-                                            return "<text>" + data + "</text>";
-                                        }
-                                    },
-                                    {
-                                        data: "id",
-                                        render: function (data) {
-                                            return "<img style='height:40px' id='img-sync' iid ='" + data + "'src='/Img/c2qb_green_btn_sm_default.png' class='btn' alt='Sync' /><button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
-                                        }
-                                    }
-                                ]
-                            });
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
-                            });
-                        }
-                    });
+                    $("#div-vendor").html(buttonStr);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -250,122 +159,15 @@
             });
 
             //当下拉列表变化时，改变对应的vendor的invoice搜索结果
-            $("#select-vendor").on("change", function () {
+            //$("#select-vendor").on("change", function () {
 
-                vendor = $("#select-vendor option:selected").val();
+            //    //vendor = $("#select-vendor option:selected").val();
+            //});
 
-                $.ajax({
-                    type: "GET",
-                    url: "/api/invoicemanagement/?vendor=" + vendor + "&departmentCode=" + departmentCode,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    success: function (data) {
-
-                        if (table) {
-                            table.destroy();
-                        }
-
-                        table = $("#table").DataTable({
-                            data: data,
-                            order: [[0, "desc"]],
-                            destroy: true,
-                            scrollCollapse: true,
-                            scrollY: "600px",
-                            iDisplayLength: 100,
-                            columns: [
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "invoiceNumber",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "purchaseOrder",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "container",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "invoiceType",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "invoiceDate",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "totalDue",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "dueDate",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "enclosed",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "shipDate",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "shipVia",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "currency",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "requestId",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<img style='height:40px' id='img-sync' iid ='" + data + "'src='/Img/c2qb_green_btn_sm_default.png' class='btn' alt='Sync' /><button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
-                                    }
-                                }
-                            ]
-                        });
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
-                        });
-                    }
-                });
+            //点击任何一个vendor按钮，转到这个vendor的invoice页面
+            $("#div-vendor").on("click", ".btn-vendor", function () {
+                vendor = $(this).val();
+                $(window.location).attr("href", "/ThirdPartyLogistics/invoicemanagement/?vendor=" + vendor + "&departmentCode=CD");
             });
 
             //点击创建新Invoice，打开新建弹窗
@@ -576,7 +378,15 @@
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     url: "/api/QuickBooksOnlineOAuth/?invoiceId=" + id,
+                    beforeSend: function () {
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
                     success: function () {
+                        layer.close(index);
                         layer.alert("Success!");
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -584,6 +394,133 @@
                     }
                 });
             });
+
+            function GetInvoiceTable(vendor) {
+
+                //显示默认vendor的invoice列表
+                $.ajax({
+                    type: "GET",
+                    url: "/api/invoicemanagement/?vendor=" + vendor + "&departmentCode=CD",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            data: data,
+                            order: [[0, "desc"]],
+                            destroy: true,
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "invoiceNumber",
+                                    render: function (data) {
+                                        invoiceNumber = data;
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "invoiceDate",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "totalDue",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "dueDate",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "enclosed",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shipDate",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shipVia",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "createdDate",
+                                    render: function (data) {
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "createdBy",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "uploadedDate",
+                                    render: function (data) {
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "uploadedBy",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (invoiceNumber == "Unsynchronised")
+                                            return "<img style='height:40px' id='img-sync' iid ='" + data + "'src='/Img/c2qb_green_btn_sm_default.png' class='btn' alt='Sync' /><button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                        else
+                                            return "<button iid='" + data + "' class='btn btn-link btn-view'>View</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            }
 
             $(".btn-back").on("click", function () {
                 //window.history.back(-1);

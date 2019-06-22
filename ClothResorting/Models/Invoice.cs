@@ -39,8 +39,22 @@ namespace ClothResorting.Models
 
         public string RequestId { get; set; }
 
+        public string CreatedBy { get; set; }
+
+        public string UploadedBy { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public DateTime UploadedDate { get; set; }
+
         public UpperVendor UpperVendor { get; set; }
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
+
+        public Invoice()
+        {
+            CreatedDate = new DateTime(1900, 01, 01);
+            UploadedDate = new DateTime(1900, 01, 01);
+        }
     }
 }

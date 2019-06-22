@@ -37,7 +37,7 @@ namespace ClothResorting.Helpers
             //3.将要同步的Invoice对象转换成QBO能识别的对象并序列化
             //4.同步Invoice
         #endregion
-        public void SyncInvoice(int invoiceId)
+        public InvoiceResult SyncInvoice(int invoiceId)
         {
             var oauthInfo = _context.Users
                 .Include(x => x.OAuthInfo)
@@ -53,6 +53,7 @@ namespace ClothResorting.Helpers
             var companyName = invoiceInDb.UpperVendor.Name;
 
             var companyId = string.Empty;
+            var accountValue = ConfigurationManager.AppSettings["accountValue"];
 
             #region Step 1
             ////获取系统中所有不重名的收费项目列表(未解决)
@@ -112,7 +113,7 @@ namespace ClothResorting.Helpers
                 {
                     var itemCreateRequestModel = new ItemCreateRequestModel
                     {
-                        IncomeAccountRef = new IncomeAccountRef { Value = "26" },    //默认关联账户是26 Services账户
+                        IncomeAccountRef = new IncomeAccountRef { Value = accountValue },    //默认关联账户是26 Services账户
                         Name = itemName,
                         Type = "Service"
                     };
@@ -188,9 +189,30 @@ namespace ClothResorting.Helpers
 
             var invoiceJsonData = JsonConvert.SerializeObject(invoice);
             var invoiceJsonResponseData = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, oauthInfo.RealmId, "invoice"), invoiceJsonData, "POST", oauthInfo.AccessToken);
-            
+
             //可以将返回的数据继续与数据库的invoice数据同步，暂留
+            var invoiceResult = new InvoiceResult();
+
+            using (var input = new StringReader(invoiceJsonResponseData))
+            {
+                invoiceResult = JsonConvert.DeserializeObject<InvoiceResult>(invoiceJsonResponseData);
+            }
+
+            return invoiceResult;
             #endregion
         }
+    }
+
+    public class Invoice
+    {
+        public string DocNumber { get; set; }
+    }
+
+    public class InvoiceResult
+    {
+        public Invoice Invoice { get; set; }
+
+        [JsonProperty("time")]
+        public DateTime Time { get; set; }
     }
 }

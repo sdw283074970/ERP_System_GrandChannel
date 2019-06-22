@@ -33,11 +33,13 @@ namespace ClothResorting.Controllers.Api
     {
         private IntuitOAuthor _intuitOAuth;
         private ApplicationDbContext _context;
+        private string _userName;
 
         public QuickBooksOnlineOAuthController()
         {
             _intuitOAuth = new IntuitOAuthor();
             _context = new ApplicationDbContext();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/qucikbooksonlineOauth/
@@ -76,7 +78,13 @@ namespace ClothResorting.Controllers.Api
             //同步invoice到QBO中
             var service = new QBOServiceManager();
 
-            service.SyncInvoice(invoiceId);
+            var invoiceResult = service.SyncInvoice(invoiceId);
+
+            invoiceInDb.InvoiceNumber = invoiceResult.Invoice.DocNumber;
+            invoiceInDb.UploadedDate = invoiceResult.Time;
+            invoiceInDb.UploadedBy = _userName;
+
+            _context.SaveChanges();
 
             return Created(Request.RequestUri, "Sync Success!");
         }
