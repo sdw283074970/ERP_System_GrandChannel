@@ -10,6 +10,8 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Models.ApiTransformModels;
+using ClothResorting.Helpers;
+using System.Threading.Tasks;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -175,27 +177,30 @@ namespace ClothResorting.Controllers.Api
 
         // DELETE /api/invoiceDetail/{id}
         [HttpDelete]
-        public void DeleteInvoiceDetail([FromUri]int id)
+        public async Task DeleteInvoiceDetail([FromUri]int id)
         {
             var invoiceDetailInDb = _context.InvoiceDetails
                 .Include(x => x.Invoice)
                 .SingleOrDefault(x => x.Id == id);
 
+            var logger = new Logger(_context);
+
+            await logger.AddDeletedLogAsync<InvoiceDetail>(invoiceDetailInDb, "Deleted invoice detail directly", null, OperationLevel.High);
 
             _context.InvoiceDetails.Remove(invoiceDetailInDb);
             _context.SaveChanges();
 
-            if (invoiceDetailInDb.Invoice != null)
-            {
-                var invoiceId = invoiceDetailInDb.Invoice.Id;
-                var invoiceInDb = _context.Invoices
-                    .Include(x => x.InvoiceDetails)
-                    .SingleOrDefault(x => x.Id == invoiceId);
+            //if (invoiceDetailInDb.Invoice != null)
+            //{
+            //    var invoiceId = invoiceDetailInDb.Invoice.Id;
+            //    var invoiceInDb = _context.Invoices
+            //        .Include(x => x.InvoiceDetails)
+            //        .SingleOrDefault(x => x.Id == invoiceId);
 
-                invoiceInDb.TotalDue = invoiceInDb.InvoiceDetails.Sum(x => x.Amount);
+            //    invoiceInDb.TotalDue = invoiceInDb.InvoiceDetails.Sum(x => x.Amount);
 
-                _context.SaveChanges();
-            }
+            //    _context.SaveChanges();
+            //}
         }
     }
 }

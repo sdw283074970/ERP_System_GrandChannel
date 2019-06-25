@@ -31,10 +31,18 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetInvoiceList([FromUri]string vendor, [FromUri]string departmentCode)
         {
-            var resultDto = _context.Invoices
+            var resultList = _context.Invoices
                 .Include(x => x.UpperVendor)
+                .Include(x => x.InvoiceDetails)
                 .Where(x => x.UpperVendor.Name == vendor && x.UpperVendor.DepartmentCode == departmentCode)
-                .Select(Mapper.Map<Invoice, InvoiceDto>);
+                .ToList();
+
+            foreach(var r in resultList)
+            {
+                r.TotalDue = r.InvoiceDetails.Sum(x => x.Amount);
+            }
+
+            var resultDto = Mapper.Map<IEnumerable<Invoice>, IEnumerable<InvoiceDto>>(resultList);
 
             return Ok(resultDto);
         }

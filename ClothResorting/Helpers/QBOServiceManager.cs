@@ -53,7 +53,7 @@ namespace ClothResorting.Helpers
             var companyName = invoiceInDb.UpperVendor.Name;
 
             var companyId = string.Empty;
-            var accountValue = ConfigurationManager.AppSettings["accountValue"];
+            var accountValue = QueryAccountId(oauthInfo);
 
             #region Step 1
             ////获取系统中所有不重名的收费项目列表(未解决)
@@ -103,6 +103,7 @@ namespace ClothResorting.Helpers
             }
 
             var itemsInQbo = itemResponseBody.QueryResponse.Item.ToList();
+
             //逐个检查该invoice下的每一个收费项目名称是否在QBO中存在
             foreach (var i in invoiceInDb.InvoiceDetails)
             {
@@ -190,7 +191,7 @@ namespace ClothResorting.Helpers
             var invoiceJsonData = JsonConvert.SerializeObject(invoice);
             var invoiceJsonResponseData = WebServiceManager.SendCreateRequest(QBOUrlGenerator.CreateRequestUrl(_baseUrl, oauthInfo.RealmId, "invoice"), invoiceJsonData, "POST", oauthInfo.AccessToken);
 
-            //可以将返回的数据继续与数据库的invoice数据同步，暂留
+            //将返回的数据继续与数据库的invoice数据同步
             var invoiceResult = new InvoiceResult();
 
             using (var input = new StringReader(invoiceJsonResponseData))
@@ -201,7 +202,55 @@ namespace ClothResorting.Helpers
             return invoiceResult;
             #endregion
         }
+
+        public string QueryAccountId(OAuthInfo oauthInfo)
+        {
+            var accountName = ConfigurationManager.AppSettings["accountName"];
+            //var accountType = ConfigurationManager.AppSettings["accountType"];
+            //var accountSubType = ConfigurationManager.AppSettings["accountSubType"];
+
+            var accountType = "Income";
+            var accountSubType = "ServiceFeeIncome";
+
+            var accountQuery = "select * from Account where Name = '" + accountName + "' AND AccountType='" + accountType + "' AND AccountSubType='" + accountSubType + "'";
+            var accountJsonResponseData = WebServiceManager.SendQueryRequest(QBOUrlGenerator.QueryRequestUrl(_baseUrl, oauthInfo.RealmId, accountQuery), oauthInfo.AccessToken);
+            var accountResponseBody = new AccountResponse();
+            using (var input = new StringReader(accountJsonResponseData))
+            {
+                accountResponseBody = JsonConvert.DeserializeObject<AccountResponse>(accountJsonResponseData);
+            }
+
+            if (accountResponseBody.QueryResponse.Account == null)
+            {
+                throw new Exception("Cannot find any account named " + accountName + " matching type " + accountType + " and subtype " + accountSubType + ".");
+            }
+
+            return accountResponseBody.QueryResponse.Account.First().Id;
+        }
     }
+
+    public class AccountResponse
+    {
+        public QueryResponse QueryResponse { get; set; }
+    }
+
+    public class QueryResponse
+    {
+        public List<Account> Account { get; set; }
+    }
+
+    public class Account
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+
+        public string AccountType { get; set; }
+
+        public string AccountSubType { get; set; }
+    }
+
+
 
     public class Invoice
     {

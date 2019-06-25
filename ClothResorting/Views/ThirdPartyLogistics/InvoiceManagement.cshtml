@@ -493,6 +493,8 @@
                                 {
                                     data: "uploadedDate",
                                     render: function (data) {
+                                        if (data.substring(0, 4) == "1900")
+                                            return "";
                                         return "<text>" + data.substring(0, 10) + "</text>";
                                     }
                                 },
