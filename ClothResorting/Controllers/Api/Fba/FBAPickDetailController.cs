@@ -424,7 +424,9 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetail.PickableCtns = objArray.Sum(x => x.Quantity);
             pickDetail.NewPlts = newPltQuantity;
             pickDetail.PltsFromInventory = pltQuantity;
-            pickDetail.ActualPlts = pltQuantity + newPltQuantity;
+            //pickDetail.ActualPlts = pltQuantity + newPltQuantity;
+            //现在强行规定，实际出库托盘数量为0，防止仓库偷懒不调整
+            pickDetail.ActualPlts = 0;
             pickDetail.CtnsPerPlt = fbaPalletLocationInDb.CtnsPerPlt;
             pickDetail.Location = fbaPalletLocationInDb.Location;
 

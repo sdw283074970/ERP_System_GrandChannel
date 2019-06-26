@@ -184,8 +184,8 @@ namespace ClothResorting.Controllers.Api
                 .SingleOrDefault(x => x.Id == id);
 
             var logger = new Logger(_context);
-
-            await logger.AddDeletedLogAsync<InvoiceDetail>(invoiceDetailInDb, "Deleted invoice detail directly", null, OperationLevel.High);
+            var invoiceDetailDto = Mapper.Map<InvoiceDetail, InvoiceDetailDto>(invoiceDetailInDb);
+            await logger.AddDeletedLogAsync<InvoiceDetail>(invoiceDetailDto, "Deleted invoice detail directly", null, OperationLevel.High);
 
             _context.InvoiceDetails.Remove(invoiceDetailInDb);
             _context.SaveChanges();

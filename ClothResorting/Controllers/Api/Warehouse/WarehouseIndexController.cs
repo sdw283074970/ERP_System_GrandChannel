@@ -10,6 +10,7 @@ using System.Data.Entity;
 using ClothResorting.Models.FBAModels.StaticModels;
 using AutoMapper;
 using ClothResorting.Models.FBAModels;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api.Warehouse
 {
@@ -77,6 +78,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.ChargingItemDetails)
+                .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
             UpdateWOInfo(shipOrderInDb, pickMan, instructor, location);
@@ -85,6 +87,11 @@ namespace ClothResorting.Controllers.Api.Warehouse
             {
                 shipOrderInDb.ReadyTime = DateTime.Now;
                 shipOrderInDb.ReadyBy = _userName;
+
+                if (shipOrderInDb.OrderType == FBAOrderType.Standard && shipOrderInDb.FBAPickDetails.Count > 0 && shipOrderInDb.FBAPickDetails.Sum(x => x.ActualPlts) == 0)
+                {
+                    throw new Exception("Cannot ready for now. The actual outbound plts of a standard ship order cannot be 0. Please go and adjust actual plts first.");
+                }
 
                 if (!IsAllowedToReady(shipOrderInDb))
                 {

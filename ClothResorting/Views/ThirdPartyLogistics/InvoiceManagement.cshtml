@@ -387,7 +387,9 @@
                     },
                     success: function () {
                         layer.close(index);
-                        layer.alert("Success!");
+                        layer.alert("Success!", function () {
+                            $(window.location).reload();
+                        });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage);

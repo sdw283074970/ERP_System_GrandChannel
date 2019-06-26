@@ -250,8 +250,6 @@ namespace ClothResorting.Helpers
         public string AccountSubType { get; set; }
     }
 
-
-
     public class Invoice
     {
         public string DocNumber { get; set; }

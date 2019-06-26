@@ -31,20 +31,27 @@ namespace ClothResorting.Controllers.Api
 
             var preReceiveOrderLists = _context.PreReceiveOrders
                 .Include(x => x.UpperVendor)
-                .Include(x => x.POSummaries)
+                .Include(x => x.POSummaries.Select(c => c.RegularCartonDetails))
                 .Where(x => x.UpperVendor.DepartmentCode == departmentCode);
 
             var regualrCartonInDb = _context.RegularCartonDetails
                 .Include(x => x.POSummary.PreReceiveOrder);
 
-            foreach(var p in preReceiveOrderLists)
+            foreach (var p in preReceiveOrderLists)
             {
-                if (p.POSummaries.Count != 0 )
+                if (p.POSummaries.Count != 0)
                 {
-                    p.ActualReceivedCtns = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualCtns);
-                    p.ActualReceivedPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualPcs);
-                    p.TotalCartons = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Cartons);
-                    p.TotalPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Quantity);
+                    try
+                    {
+                        p.ActualReceivedCtns = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualCtns);
+                        p.ActualReceivedPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualPcs);
+                        p.TotalCartons = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Cartons);
+                        p.TotalPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Quantity);
+                    }
+                    catch(Exception e)
+                    {
+                        continue;
+                    }
                 }
             }
 
