@@ -56,9 +56,9 @@ namespace ClothResorting.Models.QBOModels
 
     public class MetaData
     {
-        public string CreateTime { get; set; }
+        public DateTime CreateTime { get; set; }
 
-        public string LastUpdatedTime { get; set; }
+        public DateTime LastUpdatedTime { get; set; }
     }
 
     public class IncomeAccountRef

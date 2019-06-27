@@ -21,5 +21,10 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        public ActionResult ManageInvoices()
+        {
+            return View("~/Views/ThirdPartyLogistics/InvoiceManagement.cshtml");
+        }
     }
 }

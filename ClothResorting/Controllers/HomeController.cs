@@ -60,39 +60,30 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var shipOrderList = new List<FBAShipOrder>();
+            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill1.csv");
+            //var path = cleaner.ClearBills();
 
-            //var awDate = new DateTime(2019, 04, 29, 0, 0, 0, 0);
-            //var wdDate = new DateTime(2019, 05, 06, 0, 0, 0, 0);
-            //var pgDate = new DateTime(2019, 04, 30, 0, 0, 0, 0);
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill2.csv");
+            //path = cleaner.ClearBills();
 
-            //var shipOrderInDb = _context.FBAShipOrders
-            //    .Include(x => x.InvoiceDetails)
-            //    .Where(s => (s.CustomerCode == "AW" && s.ShipDate >= awDate) 
-            //        || (s.CustomerCode == "FTC" && s.ShipDate >= awDate) 
-            //        || (s.CustomerCode == "WD" && s.ShipDate >= wdDate) 
-            //        || (s.CustomerCode == "GRNDPG" && s.ShipDate >= pgDate));
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill3.csv");
+            //path = cleaner.ClearBills();
 
-            //foreach (var s in shipOrderInDb)
-            //{
-            //    foreach (var i in s.InvoiceDetails)
-            //    {
-            //        i.Amount = i.Quantity * i.Rate;
-            //    }
-            //}
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill4.csv");
+            //path = cleaner.ClearBills();
 
-            //_context.SaveChanges();
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill5.csv");
+            //path = cleaner.ClearBills();
 
-            //var api = new InvoiceApi();
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill6.csv");
+            //path = cleaner.ClearBills();
 
-            //var list = shipOrderInDb.ToList();
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill7.csv");
+            //path = cleaner.ClearBills();
 
-            //foreach (var s in shipOrderInDb)
-            //{
-            //    api.CloseShipOrder(_context, s, User.Identity.Name.Split('@')[0], s.ShipOrderNumber, FBAInvoiceType.ShipOrder, s.CloseDate, true);
-            //}
+            var syncer = new QBOServiceManager();
 
-            //_context.SaveChanges();
+            syncer.SyncInvoiceFromQBO("Free Country");
 
             ViewBag.Message = "Your application description page.";
 

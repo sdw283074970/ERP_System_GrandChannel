@@ -78,7 +78,7 @@ namespace ClothResorting.Controllers.Api
             //同步invoice到QBO中
             var service = new QBOServiceManager();
 
-            var invoiceResult = service.SyncInvoice(invoiceId);
+            var invoiceResult = service.SyncInvoiceToQBO(invoiceId);
 
             invoiceInDb.InvoiceNumber = invoiceResult.Invoice.DocNumber;
             invoiceInDb.UploadedDate = invoiceResult.Time;
