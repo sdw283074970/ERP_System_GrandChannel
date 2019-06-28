@@ -136,18 +136,24 @@
                             {
                                 data: "activity",
                                 render: function (data) {
+                                    if (data == "NA")
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "chargingType",
                                 render: function (data) {
+                                    if (data == "NA")
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "unit",
                                 render: function (data) {
+                                    if (data == "NA")
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -172,6 +178,8 @@
                             {
                                 data: "memo",
                                 render: function (data) {
+                                    if (data == "NA")
+                                        return "";
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -415,18 +423,24 @@
                                                 {
                                                     data: "activity",
                                                     render: function (data) {
+                                                        if (data == "NA")
+                                                            return "";
                                                         return "<text>" + data + "</text>";
                                                     }
                                                 },
                                                 {
                                                     data: "chargingType",
                                                     render: function (data) {
+                                                        if (data == "NA")
+                                                            return "";
                                                         return "<text>" + data + "</text>";
                                                     }
                                                 },
                                                 {
                                                     data: "unit",
                                                     render: function (data) {
+                                                        if (data == "NA")
+                                                            return "";
                                                         return "<text>" + data + "</text>";
                                                     }
                                                 },
@@ -451,6 +465,8 @@
                                                 {
                                                     data: "memo",
                                                     render: function (data) {
+                                                        if (data == "NA")
+                                                            return "";
                                                         return "<text>" + data + "</text>";
                                                     }
                                                 },

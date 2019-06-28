@@ -1,4 +1,5 @@
 ﻿using ClothResorting.FilterAttribute;
+using ClothResorting.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,13 @@ namespace ClothResorting.Controllers
 
         public ActionResult ManageInvoices()
         {
-            return View("~/Views/ThirdPartyLogistics/InvoiceManagement.cshtml");
+            var oauth = new IntuitOAuthor();
+            var authURL = oauth.ConnectToQB();
+
+            Response.Redirect(authURL);
+
+            //return View("~/Views/ThirdPartyLogistics/InvoiceManagement.cshtml");
+            return View();
         }
     }
 }

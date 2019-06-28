@@ -1,31 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-using Intuit.Ipp.OAuth2PlatformClient;
-using System.Threading.Tasks;
-using Intuit.Ipp.Core;
-using Intuit.Ipp.Data;
-using Intuit.Ipp.DataService;
-using Intuit.Ipp.LinqExtender;
-using Intuit.Ipp.QueryFilter;
-using Intuit.Ipp.Security;
-using Intuit.Ipp.Exception;
+﻿using System.Web.Http;
 using System.Linq;
-using Intuit.Ipp.ReportService;
-using System.Security.Cryptography;
-using System.Web.UI;
-using System.Configuration;
-using System.Text;
-using Newtonsoft.Json;
-using System.IO;
 using System.Web;
 using ClothResorting.Helpers;
 using Microsoft.AspNet.Identity;
 using ClothResorting.Models;
 using System.Data.Entity;
-using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {

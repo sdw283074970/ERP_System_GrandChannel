@@ -23,9 +23,11 @@ namespace ClothResorting.Helpers
         private string _userId;
         private OAuthInfo _oauthInfo;
         private string _userName;
+        private DateTime _syncDate;
 
         public QBOServiceManager()
         {
+            _syncDate = DateTime.Now;
             _context = new ApplicationDbContext();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
             _baseUrl = ConfigurationManager.AppSettings["baseUrl"];
@@ -211,31 +213,77 @@ namespace ClothResorting.Helpers
 
             var invoicesInDb = _context.Invoices
                 .Include(x => x.UpperVendor)
+                .Include(x => x.InvoiceDetails)
                 .Where(x => x.UpperVendor.Name == vendor);
 
+            var existedInvoiceList = new List<QBOInvoice>();
             var newInvoiceList = new List<QBOInvoice>();
 
             var invoiceQueryResult = QueryAllInvoices(_oauthInfo);
 
             var filteredInvoices = invoiceQueryResult.QueryResponse.Invoice.Where(x => x.CustomerRef.Name == vendor);
 
-            //修改系统中invoice号相同，但总金额不同的invoice
-
+            //找出系统中之前同步过且存在的invoice（doc号相同）
             //找出新invoice（系统中没有的invoice）
-            foreach(var i in filteredInvoices)
+            foreach (var i in filteredInvoices)
             {
                 if (!invoicesInDb.Select(x => x.InvoiceNumber).Contains(i.DocNumber))
                 {
                     newInvoiceList.Add(i);
                 }
+                else
+                {
+                    existedInvoiceList.Add(i);
+                }
             }
 
-            if (newInvoiceList.Count == 0)
+            //同步旧invoice
+            foreach(var i in existedInvoiceList)
             {
-                throw new Exception("No more new invoices need to be synchronized.");
+                var invoiceInDb = invoicesInDb.SingleOrDefault(x => x.InvoiceNumber == i.DocNumber);
+
+                invoiceInDb.InvoiceDate = i.TxnDate.ToString("yyyy-MM-dd");
+                invoiceInDb.DueDate = i.DueDate.ToString("yyyy-MM-dd");
+                invoiceInDb.ShipDate = i.ShipDate.ToString("yyyy-MM-dd");
+                invoiceInDb.CreatedDate = i.MetaData.CreateTime;
+                invoiceInDb.UploadedDate = _syncDate;
+                invoiceInDb.UploadedBy = _userName;
+
+                //如果totalamt不一样或line数量不同，说明invoice内容改过了，需要删掉旧内容，重新同步新内容
+                if (i.TotalAmt != invoiceInDb.TotalDue || (i.Line.Count - 1) != invoiceInDb.InvoiceDetails.Count)
+                {
+                    _context.InvoiceDetails.RemoveRange(invoiceInDb.InvoiceDetails);
+
+                    invoiceInDb.InvoiceDetails = null;
+
+                    i.Line.Remove(i.Line[i.Line.Count - 1]);
+
+                    for (var j = 0; j < i.Line.Count; j++)
+                    {
+                        var newLine = new InvoiceDetail
+                        {
+                            Activity = i.Line[j].SalesItemLineDetail == null ? "NA" : i.Line[j].SalesItemLineDetail.ItemRef.Name,
+                            ChargingType = i.Line[j].ItemAccountRef == null ? "NA" : i.Line[j].ItemAccountRef.Name,
+                            Unit = "NA",
+                            Quantity = i.Line[j].SalesItemLineDetail == null ? 0 : i.Line[j].SalesItemLineDetail.Qty,
+                            Rate = i.Line[j].SalesItemLineDetail == null ? 0 : i.Line[j].SalesItemLineDetail.UnitPrice,
+                            Amount = i.Line[j].Amount,
+                            Memo = i.Line[j].Description == null ? "NA" : i.Line[j].Description,
+                            Invoice = invoiceInDb
+                        };
+
+                        _context.InvoiceDetails.Add(newLine);
+                    }
+                }
+
+                invoiceInDb.TotalDue = i.TotalAmt;
             }
 
-            var bugs = new List<Models.Invoice>();
+            ////同步新invoice
+            //if (newInvoiceList.Count == 0)
+            //{
+            //    throw new Exception("No more new invoices need to be synchronized.");
+            //}
 
             foreach(var i in newInvoiceList)
             {
@@ -251,28 +299,27 @@ namespace ClothResorting.Helpers
                     ShipVia = "NA",
                     CreatedDate = i.MetaData.CreateTime,
                     CreatedBy = "FROM QBO",
-                    UploadedDate = DateTime.Now,
+                    UploadedDate = _syncDate,
                     UploadedBy = _userName,
-                    UpperVendor = vendorInDb
+                    UpperVendor = vendorInDb,
+                    RequestId = "First sync at " + _syncDate.ToString("yyy--MM-dd")
                 };
-
-                bugs.Add(newInvoice);
 
                 _context.Invoices.Add(newInvoice);
 
                 i.Line.Remove(i.Line[i.Line.Count - 1]);
 
-                for(var j = 0; j < i.Line.Count; j++)
+                for (var j = 0; j < i.Line.Count; j++)
                 {
                     var newLine = new InvoiceDetail
                     {
-                        Activity = i.Line[j].SalesItemLineDetail.ItemRef.Name,
+                        Activity = i.Line[j].SalesItemLineDetail == null ? "NA" : i.Line[j].SalesItemLineDetail.ItemRef.Name,
                         ChargingType = i.Line[j].ItemAccountRef == null ? "NA" : i.Line[j].ItemAccountRef.Name,
                         Unit = "NA",
-                        Quantity = i.Line[j].SalesItemLineDetail.Qty,
-                        Rate = i.Line[j].SalesItemLineDetail.UnitPrice,
+                        Quantity = i.Line[j].SalesItemLineDetail == null ? 0 : i.Line[j].SalesItemLineDetail.Qty,
+                        Rate = i.Line[j].SalesItemLineDetail == null ? 0 : i.Line[j].SalesItemLineDetail.UnitPrice,
                         Amount = i.Line[j].Amount,
-                        Memo = i.Line[j].Description,
+                        Memo = i.Line[j].Description == null ? "NA" : i.Line[j].Description,
                         Invoice = newInvoice
                     };
 

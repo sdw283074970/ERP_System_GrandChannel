@@ -19,26 +19,24 @@
         @*<text>Select Vendor: </text> <select id='select-vendor' style='width:170px;height:30px' required='required'></select>*@
         <button id="btn-chargingitem" class="btn btn-primary">Manage charging items</button>
         <button id="btn-create" class="btn btn-primary">Create a new invoice</button>
-        <button id="btn-create" class="btn btn-primary">Process Synchronization</button>
+        <button id="btn-sync" class="btn btn-primary">Process Synchronization</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
                 <tr>
                     <th style="width:33px">Id</th>
-                    <th>INVOICE#</th>
-                    <th>PO</th>
-                    <th>CONTAINER</th>
+                    <th>QBO INVOICE#</th>
+                    <th>PO REF</th>
+                    <th>CONTAINER REF</th>
                     <th>ISSUE DATE</th>
                     <th>TOTAL DUE</th>
                     <th>DUE DATE</th>
-                    <th>ENCLOSED</th>
                     <th>SHIP DATE</th>
-                    <th>SHIP VIA</th>
                     <th>CREATE DATE</th>
                     <th>CREATE BY</th>
-                    <th>UPLOAD DATE</th>
-                    <th>UPLOAD BY</th>
+                    <th>LAST UPDATE DATE</th>
+                    <th>UPDATE BY</th>
                     <th style="width:220px">OPERATION</th>
                 </tr>
             </thead>
@@ -398,6 +396,34 @@
                 });
             });
 
+            //点击process sync按钮，从QB反向同步invoice到系统中
+            $("#btn-sync").on("click", function () {
+                $.ajax({
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    url: "/api/invoicemanagement/?vendor=" + vendor,
+                    beforeSend: function () {
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.close(index);
+                        layer.alert("Sync success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
             function GetInvoiceTable(vendor) {
 
                 //显示默认vendor的invoice列表
@@ -454,7 +480,7 @@
                                 {
                                     data: "totalDue",
                                     render: function (data) {
-                                        return "<text>" + data + "</text>";
+                                        return "<text>$" + data + "</text>";
                                     }
                                 },
                                 {
@@ -464,20 +490,10 @@
                                     }
                                 },
                                 {
-                                    data: "enclosed",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
                                     data: "shipDate",
                                     render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "shipVia",
-                                    render: function (data) {
+                                        if (data.substring(0, 4) == "0001")
+                                            return "";
                                         return "<text>" + data + "</text>";
                                     }
                                 },

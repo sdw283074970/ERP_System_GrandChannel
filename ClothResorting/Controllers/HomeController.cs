@@ -1,22 +1,8 @@
 ﻿using ClothResorting.Helpers;
 using ClothResorting.Models;
-using ClothResorting.Models.FBAModels;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity.Migrations;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using System.Data.Entity;
-using ClothResorting.Helpers.FBAHelper;
-using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.StaticClass;
-using Microsoft.AspNet.Identity.EntityFramework;
-using System.Globalization;
-using ClothResorting.Helpers.DPHelper;
-using AutoMapper;
-using Newtonsoft.Json;
-using ClothResorting.Controllers.Api.Fba;
 
 namespace ClothResorting.Controllers
 {

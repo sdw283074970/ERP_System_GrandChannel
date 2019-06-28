@@ -13,6 +13,7 @@ using System.Globalization;
 using Microsoft.Office.Interop.Excel;
 using ClothResorting.Models.StaticClass;
 using System.Web;
+using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -42,7 +43,7 @@ namespace ClothResorting.Controllers.Api
                 r.TotalDue = r.InvoiceDetails.Sum(x => x.Amount);
             }
 
-            var resultDto = Mapper.Map<IEnumerable<Invoice>, IEnumerable<InvoiceDto>>(resultList);
+            var resultDto = Mapper.Map<IEnumerable<Models.Invoice>, IEnumerable<InvoiceDto>>(resultList);
 
             return Ok(resultDto);
         }
@@ -53,7 +54,7 @@ namespace ClothResorting.Controllers.Api
         {
             var invoiceInDb = _context.Invoices.Find(invoiceId);
 
-            return Ok(Mapper.Map<Invoice, InvoiceDto>(invoiceInDb));
+            return Ok(Mapper.Map<Models.Invoice, InvoiceDto>(invoiceInDb));
         }
 
         // POST /api/invoicemanagement/
@@ -62,7 +63,7 @@ namespace ClothResorting.Controllers.Api
         {
             var vendorInDb = _context.UpperVendors.SingleOrDefault(x => x.Name == obj.Vendor && x.DepartmentCode == obj.DepartmentCode);
 
-            var newInvoice = new Invoice
+            var newInvoice = new Models.Invoice
             {
                 InvoiceNumber = "Unsynchronised",
                 InvoiceType = "",
@@ -100,9 +101,20 @@ namespace ClothResorting.Controllers.Api
             _context.Invoices.Add(newInvoice);
             _context.SaveChanges();
 
-            var sampleDto = Mapper.Map<Invoice, InvoiceDto>(_context.Invoices.OrderByDescending(x => x.Id).First());
+            var sampleDto = Mapper.Map<Models.Invoice, InvoiceDto>(_context.Invoices.OrderByDescending(x => x.Id).First());
 
             return Created(Request.RequestUri + "/" + sampleDto.Id, sampleDto);
+        }
+
+        // POST /api/invoicemanagement/?vendor={vendor}
+        [HttpPost]
+        public IHttpActionResult SyncAllInvoicesByVendor([FromUri]string vendor)
+        {
+            var service = new QBOServiceManager();
+
+            service.SyncInvoiceFromQBO(vendor);
+
+            return Created(Request.RequestUri, "Sync Success!");
         }
 
         // POST /api/invoicemanagement/{id}

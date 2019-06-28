@@ -54,3 +54,30 @@
     color:red;
     }
 </style>
+@*@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            //获取QBO授权
+            $("#li-connect").on("click", function () {
+                $.ajax({
+                    type: "GET",
+                    url: "/api/QuickBooksOnlineOAuth/",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    success: function (data) {
+                        alert("success!");
+                        $(window.location).attr('href', data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+        });
+    </script>
+}*@

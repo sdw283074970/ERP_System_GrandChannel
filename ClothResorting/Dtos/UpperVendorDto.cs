@@ -30,5 +30,8 @@ namespace ClothResorting.Dtos
         public float OutboundMinCharge { get; set; }
 
         public float InboundMinCharge { get; set; }
+
+        public DateTime LastUpdatedTime { get; set; }
+
     }
 }
