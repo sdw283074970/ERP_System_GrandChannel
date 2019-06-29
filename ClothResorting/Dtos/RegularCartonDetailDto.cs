@@ -67,5 +67,9 @@ namespace ClothResorting.Dtos
 
         public DateTime InboundDate { get; set; }
 
+        public int ToPermanentCtns { get; set; }
+
+        public int ToPermanentPcs { get; set; }
+
     }
 }

@@ -65,6 +65,10 @@ namespace ClothResorting.Models
 
         public string PreLocation { get; set; }
 
+        public int ToPermanentCtns { get; set; }
+
+        public int ToPermanentPcs { get; set; }
+
         public POSummary POSummary { get; set; }
 
         public PermanentSKU PermanentSKU { get; set; }

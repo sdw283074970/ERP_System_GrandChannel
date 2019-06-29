@@ -20,6 +20,7 @@
         <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
         <button id="btn-filter" class="btn btn-info">Filter</button>
         <button id="btn-clear" class="btn btn-danger">Clear Filter</button>
+        <button id="btn-permanent" class="btn btn-danger">Allocate Permanent SKU</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -375,6 +376,26 @@
                                 });
                             }
                         });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击侦测永久库位对象按钮，侦测并分配所有永久库位
+            $("#btn-permanent").on("click", function () {
+
+                    $.ajax({
+                    type: "PUT",
+                    url: "/api/FCRegularLocationAllocating/?preId=" + preid ,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        alert("Allocate Success!");
+                        GetTable(data, table);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

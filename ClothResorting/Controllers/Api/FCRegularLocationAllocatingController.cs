@@ -193,6 +193,53 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri, " ");
         }
 
+        // PUT /api/fcregularlocationallocating/?preId={preId}
+        [HttpPut]
+        public void DetectAndAllocatePermanentSKUs([FromUri]int preId)
+        {
+            var vendor = _context.PreReceiveOrders.Find(preId).CustomerName;
+
+            var cartonDetailsInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.PreReceiveOrder.Id == preId && x.ToBeAllocatedPcs != 0);
+
+            var permanentSKUsInDb = _context.PermanentSKUs.Where(x => x.Vendor == vendor);
+
+            TransferRegularToPermanent(cartonDetailsInDb, permanentSKUsInDb);
+        }
+
+        private void TransferRegularToPermanent(IEnumerable<RegularCartonDetail> cartonDetailsInDb, IEnumerable<PermanentSKU> permanentSKUsInDb)
+        {
+            foreach(var c in cartonDetailsInDb)
+            {
+                var sku = FindPermanentSKU(c, permanentSKUsInDb);
+
+                if (sku != null)
+                {
+                    c.PermanentSKU = sku;
+                    c.ToPermanentCtns = c.ToBeAllocatedCtns;
+                    c.ToPermanentPcs = c.ToBeAllocatedPcs;
+                    c.ToBeAllocatedCtns = 0;
+                    c.ToBeAllocatedPcs = 0;
+
+                    sku.AvailablePcs += c.ToPermanentPcs;
+                    sku.Quantity += c.ToPermanentPcs;
+                }
+            }
+
+            _context.SaveChanges();
+        }
+
+        private PermanentSKU FindPermanentSKU(RegularCartonDetail c, IEnumerable<PermanentSKU> permanentSKUsInDb)
+        {
+            var sku = permanentSKUsInDb.SingleOrDefault(x => x.PurchaseOrder == c.PurchaseOrder
+                && x.Style == c.Style
+                && x.Color == c.Color
+                && x.Size == c.SizeBundle);
+
+            return sku;
+        }
+
         private void CreateRegularLocation(ApplicationDbContext context, PreReceiveOrder preReceiveOrderInDb, int deatilId, int cartons, string location)
         {
             var cartonRange = context.RegularCartonDetails
