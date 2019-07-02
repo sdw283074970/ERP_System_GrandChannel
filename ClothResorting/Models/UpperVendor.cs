@@ -45,5 +45,10 @@ namespace ClothResorting.Models
         public ICollection<InstructionTemplate> InstructionTemplates { get; set; }
 
         public ApplicationUser ApplicationUser { get; set; }
+
+        public UpperVendor()
+        {
+            LastUpdatedTime = new DateTime(1900, 1, 1);
+        }
     }
 }

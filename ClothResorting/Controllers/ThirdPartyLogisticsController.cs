@@ -233,5 +233,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //永久库位SKU进出货记录
+        public ActionResult PermanentHistory()
+        {
+            return View();
+        }
     }
 }

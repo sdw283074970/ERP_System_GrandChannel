@@ -251,7 +251,8 @@
                         if (status == "New Created")
                             return "<input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Release' />";
                         else if (status == "Picking")
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
+                            //return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
                         else if (status == "New Order")
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
                         else if (status == "Processing")

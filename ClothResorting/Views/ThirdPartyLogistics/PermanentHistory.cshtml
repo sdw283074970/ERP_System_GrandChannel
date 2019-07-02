@@ -1,60 +1,29 @@
 ﻿
 @{
-    ViewBag.Title = "PermanentLocManagment";
+    ViewBag.Title = "PermanentHistory";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@*SilkIocn永久库位管理页面*@
 <h1>Third-party Logistics Distribution System</h1>
-<h2>PermanentLocManagment</h2>
-<div>
+<h2>Permanent SKU History Page</h2>
+
+<div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <div>
-            <font>
-                LOCATION:
-                <input id="location" style="width:100px" />
-            </font>
-            <font>
-                VENDER:
-                <input id="vender" style="width:100px" />
-            </font>
-            <font>
-                PO:
-                <input id="purchaseorder" style="width:100px" />
-            </font>
-            <font>
-                STYLE:
-                <input id="style" style="width:100px" />
-            </font>
-            <font>
-                COLOR:
-                <input id="color" style="width:100px" />
-            </font>
-            <font>
-                SIZE:
-                <input id="size" style="width:100px" />
-            </font>
-            <input id="btn-addloc" type="button" class="btn btn-info" value="Add new Pmt-Loc" />
-        </div>
-    </div>
-    <div>
-        <table id="table" class="table table-condensed table-hover table-striped">
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Location</th>
-                    <th>Vender</th>
-                    <th>Po</th>
+                    <th>Inbound/Pick Date</th>
+                    <th>Ref Type</th>
+                    <th>Ref Number</th>
+                    <th>PO#</th>
                     <th>Style</th>
                     <th>Color</th>
                     <th>Size</th>
-                    <th>Quantity</th>
-                    <th>Available Pcs</th>
-                    <th>Picking Pcs</th>
-                    <th>Shipped Pcs</th>
+                    <th>Ctns consumed</th>
+                    <th>Pcs Change</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -67,59 +36,13 @@
     <script>
         $(document).ready(function () {
 
-            var index;
             var table;
-            var pLocation;
-            var vender;
-            var po;
-            var style;
-            var color;
-            var size;
+            var index;
+            var url;
+
+            var locId = grandChannel.getUrlParameter('locId');
 
             GetDefaultTable(index, table);
-
-            $("#btn-addloc").on("click", function () {
-                pLocation = $("#location").val();
-                vender = $("#vender").val();
-                po = $("#purchaseorder").val();
-                style = $("#style").val();
-                color = $("#color").val();
-                size = $("#size").val();
-                
-                if(pLocation == "" || vender == "" || po == "" || style == "" || color == "" || size == "")
-                {
-                    alert("All fields are required!");
-                }
-                else
-                {
-                    var obj = {
-                        "location": pLocation,
-                        "vender": vender,
-                        "color": color,
-                        "size": size,
-                        "purchaseOrder": po.toString(),
-                        "style": style.toString()
-                    };
-
-                    $.ajax({
-                        contentType: 'application/json; charset=utf-8',
-                        type: "POST",
-                        dataType: "json",
-                        url: "/api/PermanentLocManagement",
-                        data: JSON.stringify(obj),
-                        success: function (data, status, xhr) {
-                            alert("Success!");
-                            GetDefaultTable(index, table);
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
-                        });
-                    }
-                    });
-                }
-
-            });
 
             function GetDefaultTable(index, table) {
 
@@ -127,7 +50,7 @@
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     type: "GET",
-                    url: "/api/PermanentLocManagement",
+                    url: "/api/PermanentLocManagement/?locId=" + locId,
                     beforeSend: function () {
                         layer.close(index);
                         index = layer.msg('Processing...', {
@@ -152,19 +75,19 @@
                             iDisplayLength: 100,
                             columns: [
                                 {
-                                    data: "id",
+                                    data: "inOrPickDate",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
                                 },
                                 {
-                                    data: "location",
+                                    data: "refType",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
                                 },
                                 {
-                                    data: "vendor",
+                                    data: "refNumber",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
@@ -194,25 +117,13 @@
                                     }
                                 },
                                 {
-                                    data: "quantity",
+                                    data: "cartonChange",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
                                 },
                                 {
-                                    data: "availablePcs",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "pickingPcs",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "shippedPcs",
+                                    data: "displayQuantityChange",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
@@ -220,7 +131,7 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                            return "<button class='btn btn-link btn-history' iid='" + data + "'>History</button>";
+                                            return "";
                                     }
                                 }
                             ]
@@ -234,16 +145,9 @@
                 });
             }
 
-            $("#table").on("click", ".btn-history", function () {
-                var locId = $(this).attr("iid");
-
-                $(window.location).attr("href", "/thirdpartylogistics/PermanentHistory/?locId=" + locId);
-            });
-
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });
-
         });
     </script>
 }
