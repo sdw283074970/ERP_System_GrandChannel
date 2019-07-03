@@ -470,6 +470,7 @@
     <Compile Include="Dtos\InstructionTemplateDto.cs" />
     <Compile Include="Dtos\InvoiceDetailDto.cs" />
     <Compile Include="Dtos\InvoiceDto.cs" />
+    <Compile Include="Dtos\NameCrossReferenceDto.cs" />
     <Compile Include="Dtos\OutboundHistoryDto.cs" />
     <Compile Include="Dtos\PermanentSKUDto.cs" />
     <Compile Include="Dtos\ReplenishmentLocationDetailDto.cs" />
@@ -493,6 +494,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ChargingItemGenerator.cs" />
+    <Compile Include="Helpers\CrossReferenceTransfer.cs" />
     <Compile Include="Helpers\DPHelper\BillCleaner.cs" />
     <Compile Include="Helpers\ExcelParser.cs" />
     <Compile Include="Helpers\FBAHelper\FBAExcelExtracter.cs" />
@@ -1682,6 +1684,14 @@
     <Compile Include="Migrations\201906290039307_AddedToPermanentCtnsAndPcsInRegularCartonDetails.Designer.cs">
       <DependentUpon>201906290039307_AddedToPermanentCtnsAndPcsInRegularCartonDetails.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201907030023420_AddedNameCrossReferencesTableAndRemovedUselessTables.cs" />
+    <Compile Include="Migrations\201907030023420_AddedNameCrossReferencesTableAndRemovedUselessTables.Designer.cs">
+      <DependentUpon>201907030023420_AddedNameCrossReferencesTableAndRemovedUselessTables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201907030039576_ModifiedNameCrossReferenceFiledsName.cs" />
+    <Compile Include="Migrations\201907030039576_ModifiedNameCrossReferenceFiledsName.Designer.cs">
+      <DependentUpon>201907030039576_ModifiedNameCrossReferenceFiledsName.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1772,6 +1782,7 @@
     <Compile Include="Models\InstructionTemplate.cs" />
     <Compile Include="Models\Invoice.cs" />
     <Compile Include="Models\InvoiceDetail.cs" />
+    <Compile Include="Models\NameCrossReference.cs" />
     <Compile Include="Models\OAuthInfo.cs" />
     <Compile Include="Models\OperationLog.cs" />
     <Compile Include="Models\PermanentSKU.cs" />
@@ -3140,6 +3151,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201906290039307_AddedToPermanentCtnsAndPcsInRegularCartonDetails.resx">
       <DependentUpon>201906290039307_AddedToPermanentCtnsAndPcsInRegularCartonDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201907030023420_AddedNameCrossReferencesTableAndRemovedUselessTables.resx">
+      <DependentUpon>201907030023420_AddedNameCrossReferencesTableAndRemovedUselessTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201907030039576_ModifiedNameCrossReferenceFiledsName.resx">
+      <DependentUpon>201907030039576_ModifiedNameCrossReferenceFiledsName.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

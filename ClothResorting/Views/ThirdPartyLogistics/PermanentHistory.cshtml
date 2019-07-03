@@ -39,10 +39,19 @@
             var table;
             var index;
             var url;
+            var refType;
 
             var locId = grandChannel.getUrlParameter('locId');
 
             GetDefaultTable(index, table);
+
+            //点击putback按钮，可以putback指定的入库条目
+            $("#table").on("click", ".btn-putback", function () {
+                var cartonDetailId = $(this).attr('iid');
+                url = "/api/PermanentLocManagement/?cartonDetailId=" + cartonDetailId;
+
+                grandChannel.sendAjaxMethod("PUT", url, null, index);
+            });
 
             function GetDefaultTable(index, table) {
 
@@ -69,7 +78,7 @@
                             data: data,
                             destroy: true,
                             //scrollX: true,
-                            //order: [[2, "asc"]],
+                            order: [[0, "asc"]],
                             scrollCollapse: true,
                             scrollY: "600px",
                             iDisplayLength: 100,
@@ -83,6 +92,7 @@
                                 {
                                     data: "refType",
                                     render: function (data) {
+                                        refType = data;
                                         return "<text>" + data + "</text>";
                                     }
                                 },
@@ -131,7 +141,9 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                            return "";
+                                        if (refType == "Inbound")
+                                            return "<button class='btn btn-link btn-putback' iid='" + data + "'>Put all back</button>";
+                                        return "";
                                     }
                                 }
                             ]

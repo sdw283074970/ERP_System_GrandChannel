@@ -36,10 +36,10 @@ namespace ClothResorting.Models
         public DbSet<CartonDetail> CartonDetails { get; set; }
         public DbSet<PurchaseOrderSummary> PurchaseOrderSummaries { get; set; }
         public DbSet<PreReceiveOrder> PreReceiveOrders { get; set; }
-        public DbSet<SizeRatio> SizeRatios { get; set; }
-        public DbSet<Measurement> Measurements { get; set; }
+        //public DbSet<SizeRatio> SizeRatios { get; set; }
+        //public DbSet<Measurement> Measurements { get; set; }
         public DbSet<CartonBreakDown> CartonBreakDowns { get; set; }
-        public DbSet<CartonBreakdownOutbound> CartonBreakdownOutbounds { get; set; }
+        //public DbSet<CartonBreakdownOutbound> CartonBreakdownOutbounds { get; set; }
         public DbSet<ReplenishmentLocationDetail> ReplenishmentLocationDetails { get; set; }
         public DbSet<PurchaseOrderInventory> PurchaseOrderInventories { get; set; }
         public DbSet<SpeciesInventory> SpeciesInventories { get; set; }
@@ -47,7 +47,7 @@ namespace ClothResorting.Models
         public DbSet<POSummary> POSummaries { get; set; }
         public DbSet<RegularCartonDetail> RegularCartonDetails { get; set; }
         public DbSet<FCRegularLocationDetail> FCRegularLocationDetails { get; set; }
-        public DbSet<CartonInside> CartonInsides { get; set; }
+        //public DbSet<CartonInside> CartonInsides { get; set; }
         public DbSet<ShipOrder> ShipOrders { get; set; }
         public DbSet<PickDetail> PickDetails { get; set; }
         public DbSet<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }
@@ -59,8 +59,8 @@ namespace ClothResorting.Models
         public DbSet<ChargingItem> ChargingItems { get; set; }
         public DbSet<OAuthInfo> OAuthInfo { get; set; }
         public DbSet<OutboundHistory> OutboundHistories { get; set; }
-
         public DbSet<PermanentSKU> PermanentSKUs { get; set; }
+        public DbSet<NameCrossReference> NameCrossReferences { get; set; }
 
         //FBA
         public DbSet<FBAMasterOrder> FBAMasterOrders { get; set; }

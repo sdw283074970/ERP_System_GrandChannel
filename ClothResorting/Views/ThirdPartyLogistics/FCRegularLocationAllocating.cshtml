@@ -395,7 +395,7 @@
                     dataType: "json",
                     success: function () {
                         alert("Allocate Success!");
-                        GetTable(data, table);
+                        GetDefaultTable(table);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -405,7 +405,218 @@
                 });
             });
 
+            function GetDefaultTable(table) {
+
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    type: "GET",
+                    url: "/api/FCRegularLocationAllocating/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table").DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[2, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "cartonRange",
+                                    render: function (data) {
+                                        if (data != lastCartonRange) {
+                                            lastCartonRange = data;
+                                        }
+                                        else {
+                                            currentCartonRange = data;
+                                        }
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "batch",
+                                    render: function (data) {
+                                        if (data != lastBatch) {
+                                            lastBatch = data;
+                                        }
+                                        else {
+                                            currentBatch = data;
+                                        }
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+
+                                        if (data != lastPO)
+                                            lastPO = data;
+                                        else
+                                            currentPO = data;
+
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+
+                                        if (data != lastStyle)
+                                            lastStyle = data;
+                                        else
+                                            currentStyle = data;
+
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+
+                                        if (data != lastColor)
+                                            lastColor = data;
+                                        else
+                                            currentColor = data;
+
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "customer",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "sizeBundle",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "pcsBundle",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "status",
+                                    render: function (data) {
+
+                                        status = data;
+                                        if (data == "To Be Allocated") {
+                                            return "<font style='color:Red'>" + data + "</font>";
+                                        }
+                                        else {
+                                            return "<font style='color:Orange'>" + data + "</font>";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "toBeAllocatedCtns",
+                                    render: function (data) {
+                                        cartons = data;
+                                        lastCartonValue = data;
+                                        if (cartons != 0) {
+                                            return "<font color='blue'>" + data + "</font>";
+                                        }
+                                        else {
+                                            return "";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        //if (currentCartonRange == lastCartonRange && currentBatch == lastBatch) {
+                                        if (cartons == 0) {
+                                            return "";
+                                        }
+                                        else {
+                                            return "<input name='selected' type='checkbox' class='cb-selected' value='"
+                                                + data + "' />";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (cartons != 0) {
+                                            return "<input style='width:70px' id='ctns-" + data + "' type='number' value='" + lastCartonValue + "' />";
+                                        }
+                                        else {
+                                            return "";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (cartons != 0) {
+                                            //return "<input style='width:50px' id='loc-" + data + "' value='" + lastLocation + "' /><button style='width:50px' class='btn btn-link btn-allocate' id='" + data + "'>OK</button>";
+                                            return "<input style='width:70px' class='input-location' iid='" + data + "' id='loc-" + data + "' />";
+                                        }
+                                        else {
+                                            return "";
+                                        }
+                                    }
+                                },
+                                {
+                                    data: "preLocation",
+                                    render: function (data) {
+                                        preLocation = data;
+                                        if (data == null)
+                                            return "";
+                                        else
+                                            return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (cartons != 0 && (preLocation != null || preLocation != " ") && status != "Allocating") {
+                                            return "<input type='button' style='width:70px' class='btn btn-link btn-apply' iid='" + data + "' value='Appply' />";
+                                        }
+                                        else {
+                                            return "";
+                                        }
+                                    }
+                                },
+                            ]
+                        });
+                    }
+                });
+            };
+
             function GetTable(data, table) {
+
                 if (table) {
                     table.destroy();
                 }

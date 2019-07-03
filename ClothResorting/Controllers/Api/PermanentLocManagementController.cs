@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -25,8 +26,21 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetAllPermanentLocation()
         {
-            var result = _context.PermanentSKUs
-                .Select(Mapper.Map<PermanentSKU, PermanentSKUDto>);
+            var resultInDb = _context.PermanentSKUs
+                .Include(x => x.InboundLogs)
+                .Include(x => x.OutboundLogs.Select(c => c.ShipOrder));
+
+            var list = resultInDb.ToList();
+
+            foreach(var r in resultInDb)
+            {
+                r.Quantity = r.InboundLogs.Count() == 0 ? 0 : r.InboundLogs.Sum(x => x.ToPermanentPcs);
+                r.ShippedPcs = r.OutboundLogs.Where(x => x.ShipOrder.Status == Status.Shipped).Count() == 0 ? 0: r.OutboundLogs.Where(x => x.ShipOrder.Status == Status.Shipped).Sum(x => x.PickPcs);
+                r.PickingPcs = r.OutboundLogs.Where(x => x.ShipOrder.Status != Status.Shipped).Count() == 0? 0 : r.OutboundLogs.Where(x => x.ShipOrder.Status != Status.Shipped).Sum(x => x.PickPcs);
+                r.AvailablePcs = r.Quantity - r.ShippedPcs - r.PickingPcs;
+            }
+
+            var result = Mapper.Map<IEnumerable<PermanentSKU>, IEnumerable<PermanentSKUDto>>(resultInDb);
 
             return Ok(result);
         }
@@ -51,6 +65,7 @@ namespace ClothResorting.Controllers.Api
             foreach(var c in cartonDetailsInDb)
             {
                 historyList.Add(new PermanentHistory {
+                    Id = c.Id,
                     InOrPickDate = containerList.SingleOrDefault(x => x.ContainerNumber == c.Container).InboundDate.ToString("MM/dd/yyyy"),
                     RefType = "Inbound",
                     RefNumber = c.Container,
@@ -69,6 +84,7 @@ namespace ClothResorting.Controllers.Api
             {
                 historyList.Add(new PermanentHistory
                 {
+                    Id = p.Id,
                     InOrPickDate = p.PickDate,
                     RefType = "Outbound",
                     RefNumber = p.ShipOrder.OrderPurchaseOrder,
@@ -98,7 +114,8 @@ namespace ClothResorting.Controllers.Api
                 Style = obj.Style,
                 Color = obj.Color,
                 Size = obj.Size,
-                Quantity = 0
+                Quantity = 0,
+                Status = Status.Active
             };
 
             //查重
@@ -131,10 +148,39 @@ namespace ClothResorting.Controllers.Api
 
             return Created(Request.RequestUri + "/" + id, results);
         }
+
+        // PUT /api/permanentlocmanagement/?cartonDetailId={cartonDetailId}
+        [HttpPut]
+        public void PutbackInboundRecord([FromUri]int cartonDetailId)
+        {
+            var cartonDetailInDb = _context.RegularCartonDetails.Find(cartonDetailId);
+            cartonDetailInDb.ToBeAllocatedCtns = cartonDetailInDb.ToPermanentCtns;
+            cartonDetailInDb.ToBeAllocatedPcs = cartonDetailInDb.ToPermanentPcs;
+
+            cartonDetailInDb.ToPermanentCtns = 0;
+            cartonDetailInDb.ToPermanentPcs = 0;
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/permanentlocmanagement/?locId={locId}
+        [HttpPut]
+        public void ActiveOrDeactiveLoc([FromUri]int locId)
+        {
+            var locInDb = _context.PermanentSKUs.Find(locId);
+
+            if (locInDb.Status == Status.Active)
+                locInDb.Status = Status.Inactive;
+            else
+                locInDb.Status = Status.Active;
+
+            _context.SaveChanges();
+        }
     }
 
     public class PermanentHistory
     {
+        public int Id { get; set; }
         public string RefType { get; set; }
 
         public string RefNumber { get; set; }

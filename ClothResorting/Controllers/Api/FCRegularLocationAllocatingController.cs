@@ -19,11 +19,13 @@ namespace ClothResorting.Controllers.Api
     {
         private ApplicationDbContext _context;
         private string _userName;
+        private CrossReferenceTransfer _transfer;
 
         public FCRegularLocationAllocatingController()
         {
             _context = new ApplicationDbContext();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _transfer = new CrossReferenceTransfer(_context);
         }
 
         // GET /api/fcregularlocationallocating/?preId={preid}&container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size}/ 获取还没有被分配的SKU
@@ -221,21 +223,24 @@ namespace ClothResorting.Controllers.Api
                     c.ToPermanentPcs = c.ToBeAllocatedPcs;
                     c.ToBeAllocatedCtns = 0;
                     c.ToBeAllocatedPcs = 0;
-
-                    sku.AvailablePcs += c.ToPermanentPcs;
-                    sku.Quantity += c.ToPermanentPcs;
                 }
             }
 
             _context.SaveChanges();
         }
 
-        private PermanentSKU FindPermanentSKU(RegularCartonDetail c, IEnumerable<PermanentSKU> permanentSKUsInDb)
+        private PermanentSKU FindPermanentSKU(RegularCartonDetail cartonDetail, IEnumerable<PermanentSKU> permanentSKUsInDb)
         {
-            var sku = permanentSKUsInDb.SingleOrDefault(x => x.PurchaseOrder == c.PurchaseOrder
-                && x.Style == c.Style
-                && x.Color == c.Color
-                && x.Size == c.SizeBundle);
+            cartonDetail.PurchaseOrder = _transfer.TransName("PurchaseOrder", cartonDetail.PurchaseOrder);
+            cartonDetail.Style = _transfer.TransName("Style", cartonDetail.Style);
+            cartonDetail.Color = _transfer.TransName("Color", cartonDetail.Color);
+            cartonDetail.SizeBundle = _transfer.TransName("Size", cartonDetail.SizeBundle);
+
+            var sku = permanentSKUsInDb.SingleOrDefault(x => x.PurchaseOrder == cartonDetail.PurchaseOrder
+                && x.Style == cartonDetail.Style
+                && x.Color == cartonDetail.Color
+                && x.Size == cartonDetail.SizeBundle
+                && x.Status == Status.Active);
 
             return sku;
         }

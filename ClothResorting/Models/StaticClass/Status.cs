@@ -45,6 +45,6 @@ namespace ClothResorting.Models.StaticClass
 
         public const string Active = "Active";
 
-        public const string Deactive = "Deactive";
+        public const string Inactive = "Inactive";
     }
 }

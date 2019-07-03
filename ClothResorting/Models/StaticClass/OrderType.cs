@@ -11,6 +11,8 @@ namespace ClothResorting.Models.StaticClass
 
         public const string Garment = "Garment";
 
+        public const string Permanent = "Permanent";
+
         public const string FBA = "FBA";
 
         public const string Prepack = "Pre-pack";

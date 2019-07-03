@@ -45,6 +45,7 @@
             <thead>
                 <tr>
                     <th>Id</th>
+                    <th>Status</th>
                     <th>Location</th>
                     <th>Vender</th>
                     <th>Po</th>
@@ -75,6 +76,7 @@
             var style;
             var color;
             var size;
+            var status;
 
             GetDefaultTable(index, table);
 
@@ -158,6 +160,14 @@
                                     }
                                 },
                                 {
+                                    data: "status",
+                                    render: function (data) {
+                                        if (data == "Active")
+                                            return "<font color='green'>" + data + "</font>";
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
                                     data: "location",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
@@ -220,7 +230,7 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                            return "<button class='btn btn-link btn-history' iid='" + data + "'>History</button>";
+                                            return "<button class='btn btn-link btn-active' iid='" + data + "'>Active/Deactive</button><button class='btn btn-link btn-history' iid='" + data + "'>History</button>";
                                     }
                                 }
                             ]
@@ -234,10 +244,19 @@
                 });
             }
 
+            //点击历史按钮，转入sku历史页面
             $("#table").on("click", ".btn-history", function () {
                 var locId = $(this).attr("iid");
 
                 $(window.location).attr("href", "/thirdpartylogistics/PermanentHistory/?locId=" + locId);
+            });
+
+            //转换是否启用状态
+            $("#table").on("click", ".btn-active", function () {
+                var locId = $(this).attr("iid");
+                url = "/api/PermanentLocManagement/?locId=" + locId;
+
+                grandChannel.sendAjaxMethod("PUT", url, null, index);
             });
 
             $(".btn-back").on("click", function () {

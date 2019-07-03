@@ -48,7 +48,56 @@ namespace ClothResorting.Controllers.Api
             return Ok();
         }
 
-        // POST /api/pickdetail/?container={container}&customer={customer}&purchaseOrder={purchaseOrder}&style={style}&color={color}&size={size}
+        // GET /api/pickdetail/?customer={customer}&purchaseOrder={purchaseOrder}&style={style}&color={color}&size={size}
+        [HttpGet]
+        public IHttpActionResult GetActivePermanentTable([FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
+        {
+            var permanentSKUsInDb = _context.PermanentSKUs
+                .Include(x => x.InboundLogs)
+                .Include(x => x.OutboundLogs.Select(c => c.ShipOrder))
+                .Where(x => x.Status == Status.Active);
+                //.Select(Mapper.Map<PermanentSKU, PermanentSKUDto>);
+
+            if (customer != null)
+            {
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Vendor == customer);
+            }
+
+            if (purchaseOrder != null)
+
+            {
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.PurchaseOrder == purchaseOrder);
+            }
+
+            if (style != null)
+            {
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Style == style);
+            }
+
+            if (color != null)
+            {
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Color == color);
+            }
+
+            if (size != null)
+            {
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Size == size);
+            }
+
+            foreach (var r in permanentSKUsInDb)
+            {
+                r.Quantity = r.InboundLogs.Count() == 0 ? 0 : r.InboundLogs.Sum(x => x.ToPermanentPcs);
+                r.ShippedPcs = r.OutboundLogs.Where(x => x.ShipOrder.Status == Status.Shipped).Count() == 0 ? 0 : r.OutboundLogs.Where(x => x.ShipOrder.Status == Status.Shipped).Sum(x => x.PickPcs);
+                r.PickingPcs = r.OutboundLogs.Where(x => x.ShipOrder.Status != Status.Shipped).Count() == 0 ? 0 : r.OutboundLogs.Where(x => x.ShipOrder.Status != Status.Shipped).Sum(x => x.PickPcs);
+                r.AvailablePcs = r.Quantity - r.ShippedPcs - r.PickingPcs;
+            }
+
+            var result = Mapper.Map<IEnumerable<PermanentSKU>, IEnumerable<PermanentSKUDto>>(permanentSKUsInDb);
+
+            return Ok(result);
+        }
+
+        // POST /api/pickdetail/?shipOrderId={shipOrderId}&container={container}&customer={customer}&purchaseOrder={purchaseOrder}&style={style}&color={color}&size={size}
         [HttpPost]
         public void PickByConditions([FromUri]int shipOrderId, [FromUri]string container, [FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
         {
@@ -123,6 +172,46 @@ namespace ClothResorting.Controllers.Api
 
             _context.PickDetails.AddRange(pickList);
             _context.SaveChanges();
+        }
+
+        // POST /api/pickdetail/?shipOrderId={shipOrderId}
+        [HttpPost]
+        public IHttpActionResult PickPermanentSKUs([FromUri]int shipOrderId, [FromBody]IEnumerable<PermanentSKUPickInfo> objArray)
+        {
+            var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
+            var permanentSKUsInDb = _context.PermanentSKUs
+                .Where(x => x.Status == Status.Active);
+            var pickDetailList = new List<PickDetail>();
+
+            foreach(var o in objArray)
+            {
+                var sku = permanentSKUsInDb.SingleOrDefault(x => x.Id == o.LocId);
+
+                pickDetailList.Add(new PickDetail {
+                    CartonRange = "NA",
+                    Container = "NA",
+                    PurchaseOrder = sku.PurchaseOrder,
+                    Style = sku.Style,
+                    Color = sku.Color,
+                    CustomerCode = "NA",
+                    SizeBundle = sku.Size,
+                    PcsBundle = "NA",
+                    PcsPerCarton = 0,
+                    PickCtns = 0,
+                    PickPcs = o.Pcs,
+                    Location = sku.Location,
+                    PickDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                    PermanentSKU = sku,
+                    ShipOrder = shipOrderInDb
+                });
+            }
+
+            _context.PickDetails.AddRange(pickDetailList);
+            _context.SaveChanges();
+
+            var result = Mapper.Map<IEnumerable<PickDetail>, IEnumerable<PickDetailDto>>(pickDetailList);
+
+            return Created(Request.RequestUri, result);
         }
 
         // POST /api/pickdetail/{id}(shipOrderId)
@@ -215,6 +304,25 @@ namespace ClothResorting.Controllers.Api
 
                 _context.SaveChanges();
             }
+            else if (orderType == OrderType.Permanent)
+            {
+                var pickDetailInDb = _context.PickDetails
+                    .Include(x => x.PermanentSKU)
+                    .SingleOrDefault(x => x.Id == pickDetailId);
+
+                //如果放回的件数刚好等于拣货的件数，那么移除拣货记录
+                if (putBackPcs == pickDetailInDb.PickPcs)
+                {
+                    _context.PickDetails.Remove(pickDetailInDb);
+                }
+                //否则仍然保留拣货记录
+                else
+                {
+                    pickDetailInDb.PickPcs -= putBackPcs;
+                }
+
+                _context.SaveChanges();
+            }
         }
 
         private string RefreshRegularStatus(FCRegularLocationDetail location)
@@ -248,5 +356,12 @@ namespace ClothResorting.Controllers.Api
                 return Status.InStock;
             }
         }
+    }
+
+    public class PermanentSKUPickInfo
+    {
+        public int LocId { get; set; }
+
+        public int Pcs { get; set; }
     }
 }
