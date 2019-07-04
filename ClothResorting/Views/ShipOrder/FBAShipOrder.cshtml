@@ -76,7 +76,7 @@
 <div class="iframe-date">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Select Operation Date: </text><input type="datetime-local" id='input-shipdate' style='width:200px' class='input-sm' /><br />
-        <button id="btn-ready" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
+        <button id="btn-release" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Release</button>
         <button id="btn-ship" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ship</button>
     </div>
 </div>
@@ -114,7 +114,7 @@
             var invoiceStatus;
             var searchBar = getUrlParameter('search');
 
-            $(".iframe, #btn-update, #btn-ready, #btn-ship").hide();
+            $(".iframe, #btn-update, #btn-release, #btn-ship").hide();
             $(".iframe-date").hide();
             $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse,.iframe-detail, .iframe-wo-result, .iframe-detail-result").hide();
 
@@ -475,15 +475,44 @@
                 SendAjaxMethod("PUT", url, {});
             })
 
-            //点击changestatus按钮，将运单正向改变状态
+            //点击new create状态下的release按钮，将运单状态变为released
             $("#table").on("click", ".btn-changestatus", function () {
-                var id = $(this).attr('iid');
-                var date = new Date();
-                var today = date.getFullYear().toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operationDate=" + today + "&operation=ChangeStatus";
-                SendAjaxMethod("PUT", url, {});
+                var button = $(this);
+                shipOrderId = button.attr('iid');
+                $("#btn-ship").hide();
+                $("#btn-release").show();
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["400px", "150px"],
+                    content: $(".iframe-date")
+                });
+
+                //var id = $(this).attr('iid');
+                //var date = new Date();
+                //var today = date.getFullYear().toString() + "-" + (date.getMonth() + 1).toString() + "-" + date.getDate().toString();
+
+                //url = "/api/fba/fbashiporder/?shipOrderId=" + id + "&operationDate=" + today + "&operation=ChangeStatus";
+                //SendAjaxMethod("PUT", url, {});
             })
+
+            //填好release日期后，点击确认release按钮,确认release
+            $("#btn-release").on("click", function () {
+
+                layer.close(index);
+                var releaseDate = $("#input-shipdate").val();
+
+                if (releaseDate != "") {
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=" + releaseDate + "&operation=Released";
+                    SendAjaxMethod("PUT", url, {});
+                }
+                else {
+                    alert("Release Date is required.");
+                }
+            });
 
             //点击picking状态下的Release按钮，将运单标记为released
             $("#table").on("click", ".btn-release", function () {
@@ -497,7 +526,7 @@
                 var button = $(this);
                 shipOrderId = button.attr('iid');
                 $("#btn-ship").show();
-                $("btn-ready").hide();
+                $("#btn-release").hide();
 
                 index = layer.open({
                     title: false,

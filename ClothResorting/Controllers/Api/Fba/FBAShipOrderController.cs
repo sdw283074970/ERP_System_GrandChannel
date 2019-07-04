@@ -655,7 +655,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.ReleasedBy = "Cancelled by " + _userName;
                 }
             }
-            //点操作直接为ready时，直接将订单mark成ready
+            //当操作直接为ready时，直接将订单mark成ready
             else if (operation == FBAStatus.Ready)
             {
                 if (IsPending(shipOrderInDb))
@@ -664,7 +664,19 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
 
                 shipOrderInDb.Status = FBAStatus.Ready;
+                shipOrderInDb.ReadyTime = operationDate;
                 shipOrderInDb.OperationLog = "Approved by " + _userName;
+            }
+            else if (operation == FBAStatus.Released)
+            {
+                if (shipOrderInDb.FBAPickDetails.Count != 0)
+                {
+                    throw new Exception("操作失败！请不要利用状态刷新不及时的BUG将有拣货内容的运单跳过仓库端操作直接发货！");
+                }
+
+                shipOrderInDb.Status = FBAStatus.Released;
+                shipOrderInDb.ReleasedDate = operationDate;
+                shipOrderInDb.OperationLog = "Release directly by " + _userName;
             }
         }
 

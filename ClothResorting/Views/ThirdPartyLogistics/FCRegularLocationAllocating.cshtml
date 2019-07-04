@@ -20,7 +20,8 @@
         <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
         <button id="btn-filter" class="btn btn-info">Filter</button>
         <button id="btn-clear" class="btn btn-danger">Clear Filter</button>
-        <button id="btn-permanent" class="btn btn-danger">Allocate Permanent SKU</button>
+        <button id="btn-permanent" class="btn btn-primary">Detect and allocate Permanent SKU</button>
+        <button id="btn-list" class="btn btn-primary">Check detected permanent SKU list</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -55,13 +56,39 @@
         <input id="input-batchlocation" type="text" class="input-lg" placeholder="Location" /> <button id="btn-batchupdate" class="btn btn-info">Batch Update</button>
     </div>
 </div>
+<div class="iframe-list">
+    <div style="margin:20px">
+        <h2>Detected permanent SKUs</h2>
+        <table id="table-list" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Org PO</th>
+                    <th>Org Style</th>
+                    <th>Org Color</th>
+                    <th>Org Size</th>
+                    <th>Store as PO</th>
+                    <th>Store as Style</th>
+                    <th>Store as Color</th>
+                    <th>Store as Size</th>
+                    <th>Ctn</th>
+                    <th>Qty</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
             var table;
+            var tableList;
             var index;
+            var index2;
             var status;
             var url;
             var preLocation;
@@ -91,6 +118,8 @@
                 sku: "NULL",
                 size: "NULL"
             };
+
+            $(".iframe-list").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -405,6 +434,126 @@
                 });
             });
 
+            //点击查看识别为永久库位SKU列表按钮，查看所有被识别为永久SKU的物品
+            $("#btn-list").on("click", function () {
+
+                grandChannel.openiframe(index, ".iframe-list", "1200px", "600px");
+                GetPermanentSKULis(tableList, index2);
+            });
+
+            function GetPermanentSKULis(table, index) {
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    type: "GET",
+                    url: "/api/FCRegularLocationAllocating/?preId=" + preid,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $("#table-list").DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            //order: [[2, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "orgPo",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "orgStyle",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "orgColor",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "orgSize",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "newPo",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "newStyle",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "newColor",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "newSize",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "toPermanentCtns",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "toPermanentPcs",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                            ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            }
+
             function GetDefaultTable(table) {
 
                 $.ajax({
@@ -610,6 +759,11 @@
                                     }
                                 },
                             ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
                         });
                     }
                 });

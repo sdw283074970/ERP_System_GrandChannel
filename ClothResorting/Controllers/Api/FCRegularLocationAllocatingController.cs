@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
 using AutoMapper;
@@ -74,6 +72,39 @@ namespace ClothResorting.Controllers.Api
             }
 
             return Ok(resultDto);
+        }
+
+        // GET /api/fcregularlocationallocating/?preId={preid}
+        [HttpGet]
+        public IHttpActionResult GetDetectedPermanentList([FromUri]int preId)
+        {
+            var detectedSKUs = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Include(x => x.PermanentSKU)
+                .Where(x => x.POSummary.PreReceiveOrder.Id == preId
+                    && (x.ToPermanentCtns != 0 || x.ToPermanentPcs != 0));
+
+            var detectedList = new List<DetectedSKU>();
+
+            foreach(var d in detectedSKUs)
+            {
+                detectedList.Add(new DetectedSKU {
+                    Id = d.Id,
+                    OrgPo = d.PurchaseOrder,
+                    OrgStyle = d.Style,
+                    OrgColor = d.Color,
+                    OrgSize = d.SizeBundle,
+                    NewPo = d.PermanentSKU.PurchaseOrder,
+                    NewStyle = d.PermanentSKU.Style,
+                    NewColor = d.PermanentSKU.Color,
+                    NewSize = d.PermanentSKU.Size,
+                    ToPermanentCtns = d.ToPermanentCtns,
+                    ToPermanentPcs = d.ToPermanentPcs,
+                    Location = d.PermanentSKU.Location
+                });
+            }
+
+            return Ok(detectedList);
         }
 
         // POST /api/fcregularlocationallocating/?container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size} 根据传入数据分解已收货对象，obj.id为cartondetail的id，cartondetail在此处用作记录待分配箱数及件数
@@ -231,15 +262,20 @@ namespace ClothResorting.Controllers.Api
 
         private PermanentSKU FindPermanentSKU(RegularCartonDetail cartonDetail, IEnumerable<PermanentSKU> permanentSKUsInDb)
         {
-            cartonDetail.PurchaseOrder = _transfer.TransName("PurchaseOrder", cartonDetail.PurchaseOrder);
-            cartonDetail.Style = _transfer.TransName("Style", cartonDetail.Style);
-            cartonDetail.Color = _transfer.TransName("Color", cartonDetail.Color);
-            cartonDetail.SizeBundle = _transfer.TransName("Size", cartonDetail.SizeBundle);
+            //cartonDetail.PurchaseOrder = _transfer.TransName("PurchaseOrder", cartonDetail.PurchaseOrder);
+            //cartonDetail.Style = _transfer.TransName("Style", cartonDetail.Style);
+            //cartonDetail.Color = _transfer.TransName("Color", cartonDetail.Color);
+            //cartonDetail.SizeBundle = _transfer.TransName("Size", cartonDetail.SizeBundle);
 
-            var sku = permanentSKUsInDb.SingleOrDefault(x => x.PurchaseOrder == cartonDetail.PurchaseOrder
-                && x.Style == cartonDetail.Style
-                && x.Color == cartonDetail.Color
-                && x.Size == cartonDetail.SizeBundle
+            var po = _transfer.TransName("PurchaseOrder", cartonDetail.PurchaseOrder);
+            var style = _transfer.TransName("Style", cartonDetail.Style);
+            var color = _transfer.TransName("Color", cartonDetail.Color);
+            var size = _transfer.TransName("Size", cartonDetail.SizeBundle);
+
+            var sku = permanentSKUsInDb.SingleOrDefault(x => x.PurchaseOrder == po
+                && x.Style == style
+                && x.Color == color
+                && x.Size == size
                 && x.Status == Status.Active);
 
             return sku;
@@ -369,5 +405,32 @@ namespace ClothResorting.Controllers.Api
 
             return totalCtns;
         }
+    }
+
+    public class DetectedSKU
+    {
+        public int Id { get; set; }
+
+        public string OrgPo { get; set; }
+
+        public string OrgStyle { get; set; }
+
+        public string OrgColor { get; set; }
+
+        public string OrgSize { get; set; }
+
+        public string NewPo { get; set; }
+
+        public string NewStyle { get; set; }
+
+        public string NewColor { get; set; }
+
+        public string NewSize { get; set; }
+
+        public int ToPermanentCtns { get; set; }
+
+        public int ToPermanentPcs { get; set; }
+
+        public string Location { get; set; }
     }
 }
