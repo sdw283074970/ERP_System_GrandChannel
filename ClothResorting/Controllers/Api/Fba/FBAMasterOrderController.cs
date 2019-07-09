@@ -57,6 +57,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 resultDto[i].SKUNumber = skuList[i];
             }
+
             return Ok(resultDto);
         }
 
@@ -146,6 +147,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.InboundType = obj.InboundType;
             masterOrder.InvoiceStatus = "Await";
             masterOrder.UpdateLog += "Update by " + _userName + " at " + DateTime.Now.ToString() + ". ";
+            masterOrder.Status = FBAStatus.New;
 
             _context.FBAMasterOrders.Add(masterOrder);
             _context.SaveChanges();

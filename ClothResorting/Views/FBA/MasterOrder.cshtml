@@ -20,6 +20,7 @@
             <thead>
                 <tr>
                     <th>Id</th>
+                    <th>Status</th>
                     <th>Grand No.</th>
                     <th>Inbound Type</th>
                     <th>Container Size</th>
@@ -358,6 +359,12 @@
                             columns: [
                                 {
                                     data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "status",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }

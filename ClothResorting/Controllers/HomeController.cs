@@ -3,6 +3,7 @@ using ClothResorting.Models;
 using System.Linq;
 using System.Web.Mvc;
 using ClothResorting.Models.StaticClass;
+using ClothResorting.Helpers.DPHelper;
 
 namespace ClothResorting.Controllers
 {
@@ -46,30 +47,13 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill1.csv");
             //var path = cleaner.ClearBills();
 
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill2.csv");
-            //path = cleaner.ClearBills();
-
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill3.csv");
-            //path = cleaner.ClearBills();
-
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill4.csv");
-            //path = cleaner.ClearBills();
-
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill5.csv");
-            //path = cleaner.ClearBills();
-
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill6.csv");
-            //path = cleaner.ClearBills();
-
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill7.csv");
-            //path = cleaner.ClearBills();
-
-            var syncer = new QBOServiceManager();
-
-            syncer.SyncInvoiceFromQBO("Free Country");
+            for(int i = 1; i <= 29; i++)
+            {
+                var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill" + i.ToString() + ".csv");
+                var path = cleaner.ClearBills();
+            }
 
             ViewBag.Message = "Your application description page.";
 
