@@ -32,6 +32,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime CloseDate { get; set; }
 
+        public DateTime UnloadTime { get; set; }
+
         public string Status { get; set; }
 
         public UpperVendor Customer { get; set; }
@@ -43,6 +45,18 @@ namespace ClothResorting.Models.FBAModels
         public int OriginalPlts { get; set; }
 
         public string ReceivedBy { get; set; }
+
+        public string Lumper { get; set; }
+
+        public string Instruction { get; set; }
+
+        public string DockNumber { get; set; }
+
+        public DateTime PushTime { get; set; }
+
+        public DateTime AvailableTime { get; set; }
+
+        public DateTime OutTime { get; set; }
 
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
@@ -73,6 +87,10 @@ namespace ClothResorting.Models.FBAModels
             OriginalPlts = 0;
             InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            OutTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            AvailableTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            PushTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            UnloadTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             Status = StaticClass.Status.NewCreated;
         }
     }

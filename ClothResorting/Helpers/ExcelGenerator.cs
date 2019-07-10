@@ -425,7 +425,7 @@ namespace ClothResorting.Helpers
 
             if (sizeArray.Length <= 1)
             {
-                sizeBundle = "XS,S,M,L,1X,2X,3X,4X,5X,6X,2T,3T,4T,PS,PM,PL,PXL,4,5,5/6,6,7,7/8,8,9,10,10/12,12,14,14/16,16,18/20";
+                sizeBundle = "XS,S,M,L,XL,XXL,XXXL,XXXXL,XXXXXL,XXXXXXL,2XL,3XL,4XL,5XL,1X,2X,3X,4X,5X,6X,2T,3T,4T,PS,PM,PL,PXL,XS(4/5),S(4),S(4/5),S(7/8),S(8),M(5/6),M(7/8),M(10/12),L(6X),L(7),L(14),L(14/16),L(16),L(19),XL(18/20),12M,18M,24M,MT,LT,XLT,2XLT,3XLT,4XLT,SZ2,SZ3,SZ4,SIZE 6,SIZE 7,SIZE 8,SIZE 10,SIZE 12,SIZE 14,SIZE 16";
                 sizeArray = sizeBundle.Split(',');
             }
 
@@ -670,7 +670,7 @@ namespace ClothResorting.Helpers
             var newList = new List<FCRegularLocationDetail>();
             foreach (var i in inventoryList)
             {
-                i.SizeBundle = UnifySize(i.SizeBundle);
+                i.SizeBundle = i.SizeBundle.ToUpper();
                 var sameItem = newList.SingleOrDefault(x => x.PurchaseOrder == i.PurchaseOrder && x.Style == i.Style && x.Color == i.Color && x.SizeBundle == i.SizeBundle);
 
                 if ( sameItem == null)

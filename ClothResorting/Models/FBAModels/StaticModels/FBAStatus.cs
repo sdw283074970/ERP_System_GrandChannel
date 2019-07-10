@@ -9,6 +9,8 @@ namespace ClothResorting.Models.FBAModels.StaticModels
     {
         public const string Na = "N/A";
 
+        public const string Received = "Received";
+
         public const string WaitingForCharging = "Waiting for charging";
 
         public const string New = "New";

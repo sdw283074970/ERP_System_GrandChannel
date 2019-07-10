@@ -28,38 +28,102 @@ namespace ClothResorting.Controllers.Api.Warehouse
         [HttpGet]
         public IHttpActionResult GetAllProcessingMasterOrders()
         {
+            //获取FBA部门的所有待收货主单
             var masterOrders = _context.FBAMasterOrders
-                .Include(x => x.InvoiceDetails)
+                .Include(x => x.Customer)
                 .Include(x => x.FBAOrderDetails)
                 .Include(x => x.FBAPallets)
                 .Where(x => x.Status == FBAStatus.Processing || x.Status == FBAStatus.Finished)
                 .ToList();
 
-            var skuList = new List<int>();
+            var inboundLogList = new List<InboundLog>();
 
             foreach (var m in masterOrders)
             {
-                m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
-                m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
-                m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
-                m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
-                m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
-                m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
-                skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
+                var newLog = new InboundLog {
+                    Id = m.Id,
+                    Status = m.Status,
+                    Department = DepartmentCode.FBA,
+                    Customer = m.Customer.CustomerCode,
+                    InboundType = m.InboundType,
+                    ETA = m.ETA,
+                    InboundDate = m.InboundDate,
+                    DockNumber = m.DockNumber,
+                    Container = m.Container,
+                    Ctns = m.FBAOrderDetails.Sum(x => x.Quantity),
+                    SKU = m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count(),
+                    OriginalPlts = m.OriginalPlts,
+                    Carrier = m.Carrier,
+                    Lumper = m.Lumper,
+                    Instruction = m.Instruction,
+                    PushTime = m.PushTime,
+                    AvailableTime = m.AvailableTime,
+                    OutTime = m.OutTime,
+                    UnloadTime = m.UnloadTime,
+                    UpdateLog = m.UpdateLog
+                };
+
+                inboundLogList.Add(newLog);
             }
 
-            var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
+            //获取所有服装部待收货主单
+            //
 
-            for (int i = 0; i < masterOrders.Count; i++)
+            return Ok(inboundLogList);
+        }
+
+        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrderId}&operation
+        public void UpdateMasterOrderFromWarehouse([FromUri]int masterOrderId, [FromUri]string operation, [FromBody]InboundLog log)
+        {
+            var orderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            if (operation == "Update")
             {
-                resultDto[i].SKUNumber = skuList[i];
-            }
 
-            return Ok();
+                orderInDb.InboundDate = log.InboundDate;
+                orderInDb.UnloadTime = log.UnloadTime;
+                orderInDb.AvailableTime = log.AvailableTime;
+                orderInDb.OutTime = log.OutTime;
+                orderInDb.DockNumber = log.DockNumber;
+
+                _context.SaveChanges();
+            }
+            else if (operation == "Confirm")
+            {
+                //检查以上5个信息是否都填了
+                if (CheckIfAllFeildsAreFilled(orderInDb))
+                {
+                    orderInDb.Status = FBAStatus.Received;
+                }
+                else
+                {
+                    throw new Exception("All fields must be updated before confirming received.");
+                }
+            }
+            else if (operation == "Finish")
+            {
+
+            }
+        }
+
+        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrder}
+
+        bool CheckIfAllFeildsAreFilled(FBAMasterOrder orderInDb)
+        {
+            if (orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadTime.Year != 1900 && orderInDb.AvailableTime.Year != 1900 && orderInDb.OutTime.Year != 1900)
+                return true;
+            else
+                return false;
+        }
+
+        bool CheckIfAllCartonsAreAllocated(FBAMasterOrder orderInDb)
+        {
+
+            return false;
         }
     }
 
-    class InboundLog
+    public class InboundLog
     {
         public int Id { get; set; }
 
@@ -70,5 +134,36 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public string Customer { get; set; }
 
         public string InboundType { get; set; }
+
+        public string ETA { get; set; }
+
+        public DateTime InboundDate { get; set; }
+
+        public string DockNumber { get; set; }
+
+        public string Container { get; set; }
+
+        public int Ctns { get; set; }
+
+        public int SKU { get; set; }
+
+        public int OriginalPlts { get; set; }
+
+        public string Carrier { get; set; }
+
+        public string Lumper { get; set; }
+
+        public string Instruction { get; set; }
+
+        public string UpdateLog { get; set; }
+
+        public DateTime PushTime { get; set; }
+
+        public DateTime UnloadTime { get; set; }
+
+        public DateTime AvailableTime { get; set; }
+
+        public DateTime OutTime { get; set; }
     }
+
 }

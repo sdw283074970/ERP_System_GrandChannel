@@ -14,6 +14,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float TotalCBM { get; set; }
 
+        public string DockNumber { get; set; }
+
         public string InboundType { get; set; }
 
         public string InvoiceStatus { get; set; }
@@ -45,5 +47,17 @@ namespace ClothResorting.Dtos.Fba
         public string UpdateLog { get; set; }
 
         public string Comment { get; set; }
+
+        public string Lumper { get; set; }
+
+        public string Instruction { get; set; }
+
+        public DateTime PushTime { get; set; }
+
+        public DateTime UnloadTime { get; set; }
+
+        public DateTime AvailableTime { get; set; }
+
+        public DateTime OutTime { get; set; }
     }
 }
