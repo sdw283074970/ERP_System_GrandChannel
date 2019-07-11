@@ -9,8 +9,8 @@
 
 <div class="maincontainer">
     <div style="margin:20px">
-        <input type="button" class="btn btn-default btn-back" value="<< Back" />
-        <input id="btn-inboundlog" type="button" class="btn btn-primary" value="Inbound Log" />
+        @*<input type="button" class="btn btn-default btn-back" value="<< Back" />*@
+        <input id="btn-inboundlog" type="button" class="btn btn-primary" value="View Inbound Log" />
     </div>
     <div style="margin:20px">
         <font size="5">Catagory: </font>
@@ -286,7 +286,7 @@
                 getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
             });
 
-            //电报机inbound log按钮，跳转到inbound log管理界面
+            //点击inbound log按钮，跳转到inbound log管理界面
             $("#btn-inboundlog").on("click", function () {
                 $(window.location).attr("href", "/Warehouse/InboundLog/");
             });

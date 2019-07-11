@@ -147,7 +147,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.InboundType = obj.InboundType;
             masterOrder.InvoiceStatus = "Await";
             masterOrder.UpdateLog += "Update by " + _userName + " at " + DateTime.Now.ToString() + ". ";
-            masterOrder.Status = FBAStatus.New;
+            masterOrder.Status = FBAStatus.NewCreated;
 
             _context.FBAMasterOrders.Add(masterOrder);
             _context.SaveChanges();

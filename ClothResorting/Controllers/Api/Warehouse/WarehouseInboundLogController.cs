@@ -33,7 +33,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 .Include(x => x.Customer)
                 .Include(x => x.FBAOrderDetails)
                 .Include(x => x.FBAPallets)
-                .Where(x => x.Status == FBAStatus.Processing || x.Status == FBAStatus.Finished)
+                //.Where(x => x.Status == FBAStatus.Processing || x.Status == FBAStatus.Allocated)
                 .ToList();
 
             var inboundLogList = new List<InboundLog>();
@@ -72,14 +72,15 @@ namespace ClothResorting.Controllers.Api.Warehouse
             return Ok(inboundLogList);
         }
 
-        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrderId}&operation
+        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrderId}&operation={operation}
         public void UpdateMasterOrderFromWarehouse([FromUri]int masterOrderId, [FromUri]string operation, [FromBody]InboundLog log)
         {
-            var orderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            var orderInDb = _context.FBAMasterOrders
+                .Include(x => x.FBAOrderDetails)
+                .SingleOrDefault(x => x.Id == masterOrderId);
 
             if (operation == "Update")
             {
-
                 orderInDb.InboundDate = log.InboundDate;
                 orderInDb.UnloadTime = log.UnloadTime;
                 orderInDb.AvailableTime = log.AvailableTime;
@@ -91,7 +92,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             else if (operation == "Confirm")
             {
                 //检查以上5个信息是否都填了
-                if (CheckIfAllFeildsAreFilled(orderInDb))
+                if (CheckIfAllFieldsAreFilled(orderInDb) && CheckIfCanBeReceived(orderInDb))
                 {
                     orderInDb.Status = FBAStatus.Received;
                 }
@@ -102,22 +103,45 @@ namespace ClothResorting.Controllers.Api.Warehouse
             }
             else if (operation == "Finish")
             {
-
+                if (CheckIfAllCtnsAreAllocated(orderInDb))
+                {
+                    orderInDb.Status = FBAStatus.Allocated;
+                }
+                else
+                {
+                    throw new Exception("All cartons must be allocated before marking this order finished.");
+                }
             }
         }
 
         // PUT /api/warehouseinboundlog/?masterOrderId={masterOrder}
 
-        bool CheckIfAllFeildsAreFilled(FBAMasterOrder orderInDb)
+        bool CheckIfAllFieldsAreFilled(FBAMasterOrder orderInDb)
         {
             if (orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadTime.Year != 1900 && orderInDb.AvailableTime.Year != 1900 && orderInDb.OutTime.Year != 1900)
                 return true;
-            else
-                return false;
+
+            return false;
         }
 
-        bool CheckIfAllCartonsAreAllocated(FBAMasterOrder orderInDb)
+        bool CheckIfCanBeReceived(FBAMasterOrder orderInDb)
         {
+            if (orderInDb.FBAOrderDetails.Count == 0)
+                throw new Exception("Cannot mark this empty order received");
+
+            if (orderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity) != 0)
+                return true;
+
+            return false;
+        }
+
+        bool CheckIfAllCtnsAreAllocated(FBAMasterOrder orderInDb)
+        {
+            if (orderInDb.FBAOrderDetails.Count == 0)
+                throw new Exception("Cannot mark this empty order allocated.");
+
+            if (orderInDb.FBAOrderDetails.Sum(x => x.ComsumedQuantity) == orderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity))
+                return true;
 
             return false;
         }
