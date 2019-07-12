@@ -14,6 +14,10 @@ namespace ClothResorting.Dtos.Fba
 
         public float TotalCBM { get; set; }
 
+        public string UnloadingType { get; set; }
+
+        public string StorageType { get; set; }
+
         public string DockNumber { get; set; }
 
         public string InboundType { get; set; }

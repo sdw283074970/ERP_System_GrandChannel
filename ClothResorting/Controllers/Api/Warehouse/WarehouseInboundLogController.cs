@@ -89,7 +89,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
                 _context.SaveChanges();
             }
-            else if (operation == "Confirm")
+            else if (operation == "Receive")
             {
                 //检查以上5个信息是否都填了
                 if (CheckIfAllFieldsAreFilled(orderInDb) && CheckIfCanBeReceived(orderInDb))

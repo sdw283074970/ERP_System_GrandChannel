@@ -5,7 +5,7 @@
 }
 
 <h1>FBA System</h1>
-<h2>Master Order Page</h2>
+<h2>Master Order Page（Receiving Order Page）</h2>
 
 <div class="maincontainer">
     <div>
@@ -20,7 +20,6 @@
             <thead>
                 <tr>
                     <th>Id</th>
-                    <th>Status</th>
                     <th>Grand No.</th>
                     <th>Inbound Type</th>
                     <th>Container Size</th>
@@ -41,6 +40,14 @@
                     <th>Closed By</th>
                     <th>eFolder</th>
                     <th style="width:200px">Operation</th>
+                    <th>Status</th>
+                    <th style="width:150px">Status Control</th>
+                    <th style="width:200px">INSTRUCTION</th>
+                    <th style="width:80px">PUSH DATE</th>
+                    <th style="width:80px">UNLOAD TIME</th>
+                    <th style="width:80px">EPT CNTR AVA TIME</th>
+                    <th style="width:80px">EPT CNTR OUT TIME</th>
+                    <th style="width:200px">OPLOG</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -68,6 +75,7 @@
             <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>INBOUND TYPE: <input name="type" id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
             <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>INSTRUCTION: <input id='input-instruction' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <button type="button" id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
             <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
         </div>
@@ -83,6 +91,7 @@
             var table;
             var url;
             var grandNumber;
+            var masterOrderId;
             var customerCode;
             var container;
             var customerId;
@@ -148,43 +157,51 @@
 
             //点击新建按钮，为当前客户新建一个主单
             $("#btn-new").on("click", function () {
-                var carrier = $("#input-carrier").val().toString();
-                var vessel = $("#input-vessel").val().toString();
-                var voy = $("#input-voy").val().toString();
-                var eta = $("#input-eta").val().toString();
-                var etd = $("#input-etd").val().toString();
-                var inboundType = $("#input-inboundtype").val().toString();
-                var etaPort = $("#input-etaPort").val().toString();
-                var placeOfReceipt = $("#input-receipt").val().toString();
-                var portOfLoading = $("#input-pol").val().toString();
-                var portOfDischarge = $("#input-pod").val().toString();
-                var placeOfDelivery = $("#input-delivery").val().toString();
-                var container = $("#input-container").val().toString();
-                var sealNumber = $("#input-seal").val().toString();
-                var containerSize = $("#input-size").val().toString();
-                var originalPlts = $("#input-originalplts").val();
+                if (validform("#form-create").form()) {
+                    var carrier = $("#input-carrier").val().toString();
+                    var vessel = $("#input-vessel").val().toString();
+                    var voy = $("#input-voy").val().toString();
+                    var eta = $("#input-eta").val().toString();
+                    var etd = $("#input-etd").val().toString();
+                    var inboundType = $("#input-inboundtype").val().toString();
+                    var etaPort = $("#input-etaPort").val().toString();
+                    var placeOfReceipt = $("#input-receipt").val().toString();
+                    var portOfLoading = $("#input-pol").val().toString();
+                    var portOfDischarge = $("#input-pod").val().toString();
+                    var placeOfDelivery = $("#input-delivery").val().toString();
+                    var container = $("#input-container").val().toString();
+                    var sealNumber = $("#input-seal").val().toString();
+                    var containerSize = $("#input-size").val().toString();
+                    var originalPlts = $("#input-originalplts").val();
+                    var instruction = $("#input-instruction").val();
 
-                var obj = {
-                    "carrier": carrier,
-                    "vessel": vessel,
-                    "voy": voy,
-                    "eta": eta,
-                    "etd": etd,
-                    "etaPort": etaPort,
-                    "placeOfReceipt": placeOfReceipt,
-                    "portOfLoading": portOfLoading,
-                    "portOfDischarge": portOfDischarge,
-                    "placeOfDelivery": placeOfDelivery,
-                    "container": container,
-                    "sealNumber": sealNumber,
-                    "containerSize": containerSize,
-                    "inboundType": inboundType,
-                    "originalPlts": originalPlts
-                };
+                    var obj = {
+                        "carrier": carrier,
+                        "vessel": vessel,
+                        "voy": voy,
+                        "eta": eta,
+                        "etd": etd,
+                        "etaPort": etaPort,
+                        "placeOfReceipt": placeOfReceipt,
+                        "portOfLoading": portOfLoading,
+                        "portOfDischarge": portOfDischarge,
+                        "placeOfDelivery": placeOfDelivery,
+                        "container": container,
+                        "sealNumber": sealNumber,
+                        "containerSize": containerSize,
+                        "inboundType": inboundType,
+                        "originalPlts": originalPlts,
+                        "instruction": instruction
+                    };
 
-                url = "/api/fba/fbamasterorder/" + customerId;
+                    url = "/api/fba/fbamasterorder/" + customerId;
 
-                SendAjaxMethod("POST", url, obj);
+                    SendAjaxMethod("POST", url, obj);
+                }
+                else {
+
+                }
+
             });
 
             //点击管理总单按钮，进入所选总单的细节页面
@@ -230,7 +247,7 @@
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
 
-                var tpStatus = $(this).parent().parent("tr").children('td').eq(16).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(15).children('text').html();
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")
@@ -329,6 +346,13 @@
                 SendAjaxMethod("PUT", url, obj);
             });
 
+            //点击push按钮，打开编辑unload order页面
+            $("#table").on("click", ".btn-push", function () {
+                masterOrderId = $(this).attr('iid');
+            });
+
+            //点击确认发布按钮，将收货单状态改为New Order，unload order发布到仓库端
+
             function GetAjaxTable(methodType, url) {
                 $.ajax({
                     type: methodType,
@@ -351,7 +375,7 @@
                         table = $("#table").DataTable({
                             data: data,
                             destroy: true,
-                            //scrollX: true,
+                            scrollX: true,
                             order: [[0, "desc"]],
                             scrollCollapse: true,
                             scrollY: "600px",
@@ -359,12 +383,6 @@
                             columns: [
                                 {
                                     data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "status",
                                     render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
@@ -494,6 +512,83 @@
                                     render: function (data) {
                                         //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
                                         return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button>";
+                                    }
+                                },
+                                {
+                                    data: "status",
+                                    render: function (data) {
+                                        status = data;
+                                        if (data == "New Created")
+                                            return "<font color='gray'>" + data + "</font>"
+                                        if (data == "New Order")
+                                            return "<font color='orange'>" + data + "</font>"
+                                        else if (data == "Processing" || data == "Pending")
+                                            return "<font color='red'>" + data + "</font>";
+                                        else if (data == "Received")
+                                            return "<font color='green'>" + data + "</font>";
+                                        else if (data == "Allocated")
+                                            return "<font color='brown'>" + data + "</font>";
+                                        else if (data == "Completed")
+                                            return "<font color='blue'>" + data + "</font>";
+                                        else
+                                            return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (status == "New Created")
+                                            return "<input type='button' class='btn btn-link btn-push' iid='" + data + "' value='Push' />";
+                                        else if (status == "Processing")
+                                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
+                                        else
+                                            return "";
+                                    }
+                                },
+                                {
+                                    data: "instruction",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "pushTime",
+                                    render: function (data) {
+                                        if (data == "1900-01-01T00:00:00")
+                                            return "<font color='red'></font>"
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "unloadTime",
+                                    render: function (data) {
+                                        if (data == "1900-01-01T00:00:00")
+                                            return "<font color='red'></font>"
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "availableTime",
+                                    render: function (data) {
+                                        if (data == "1900-01-01T00:00:00")
+                                            return "<font color='red'></font>"
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "outTime",
+                                    render: function (data) {
+                                        if (data == "1900-01-01T00:00:00")
+                                            return "<font color='red'></font>"
+                                        return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "updateLog",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
                                     }
                                 }
                             ]

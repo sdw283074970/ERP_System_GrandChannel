@@ -31,7 +31,7 @@
                     <th>ORG PLT</th>
                     <th>CARRIER</th>
                     <th>LUMPER SVC</th>
-                    <th style="width:200px">INSTRUCTION</thstyle="width:200px">
+                    <th style="width:200px">INSTRUCTION</th>
                     <th style="width:80px">PUSH DATE</th>
                     <th style="width:80px">UNLOAD TIME</th>
                     <th style="width:80px">EPT CNTR AVA TIME</th>
@@ -67,14 +67,16 @@
                         status = data;
                         if (data == "New Created")
                             return "<font color='gray'>" + data + "</font>"
+                        if (data == "New Order")
+                            return "<font color='orange'>" + data + "</font>"
                         else if (data == "Processing" || data == "Pending")
                             return "<font color='red'>" + data + "</font>";
+                        else if (data == "Received")
+                            return "<font color='green'>" + data + "</font>";
+                        else if (data == "Allocated")
+                            return "<font color='brown'>" + data + "</font>";
                         else if (data == "Completed")
                             return "<font color='blue'>" + data + "</font>";
-                        else if (data == "Received")
-                            return "<font color='brown'>" + data + "</font>";
-                        else if (data == "Allocated")
-                            return "<font color='green'>" + data + "</font>";
                         else
                             return "<font>" + data + "</font>";
                     }
@@ -82,13 +84,15 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "Processing" || status == "New Created")
+                        if (status == "New Created")
                             return "<input type='button' class='btn btn-link btn-fnsreceiving' iid='" + data + "' value='Finish Receiving' />";
+                        else if (status == "New Order")
+                            return "";  
                         else if (status == "Received")
                             return "<input type='button' class='btn btn-link btn-fnsallocating' iid='" + data + "' value='Finish Allocating' />";
                         else if (status == "Allocated")
                             return "";
-                        else if (status == "Shipped")
+                        else if (status == "Completed")
                             return "";  
                         else
                             return "";
@@ -99,13 +103,11 @@
                     render: function (data) {
                         if (status == "New Created"|| status == "Processing" || status == "Allocated")
                             return "<input type='button' class='btn btn-link btn-update' iid='" + data + "' value='Update' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
+                        else if (status == "New Order")
+                            return "";  
                         else if (status == "Processing" || status == "Allocated")
                             return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Adjust' />";
-                        else if (status == "Ready")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
-                        else if (status == "Released" || status == "Pending")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
-                        else if (status == "Shipped")
+                        else if (status == "Received")
                             return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
                         else
                             return "";
@@ -232,6 +234,15 @@
             url = "/api/WarehouseInboundLog/";
             getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
 
+            //点击操作中的更新按钮，更新五个数据
+
+            //点击状态控制栏下的完成收货按钮，将收货单标记为完成收货
+            $("#table").on("click", ".btn-fnsreceiving", function () {
+                var orderId = $(this).attr('iid');
+                url = "/api/warehouse/warehouseinboundlog/?masterOrderId=" + orderId + "&operation=Receive"
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
             //点击outbound log按钮，跳转到inbound log管理界面
             $("#btn-outboundlog").on("click", function () {
                 $(window.location).attr("href", "/Warehouse/Index");
@@ -261,7 +272,7 @@
                             data: data,
                             destroy: true,
                             scrollX: true,
-                            order: [[14, "desc"]],
+                            order: [[0, "desc"]],
                             scrollCollapse: true,
                             scrollY: "600px",
                             iDisplayLength: 100,

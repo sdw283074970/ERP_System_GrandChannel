@@ -28,6 +28,10 @@ namespace ClothResorting.Models.FBAModels
 
         public string InvoiceStatus { get; set; }
 
+        public string UnloadingType { get; set; }
+
+        public string StorageType { get; set; }
+
         public DateTime InboundDate { get; set; }
 
         public DateTime CloseDate { get; set; }
