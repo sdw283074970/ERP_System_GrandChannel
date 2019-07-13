@@ -81,6 +81,8 @@
         </div>
     </form>
 </div>
+@Html.Partial("~/Views/FBA/_FBAMasterOrderPartialView.cshtml", null)
+
 @section scripts
 {
     <script>
@@ -97,6 +99,7 @@
             var customerId;
             var invoiceStatuts;
 
+            $(".iframe-wo").hide();
             $(".iframe").hide();
 
             //解析url中的参数函数
@@ -117,13 +120,11 @@
 
             customerId = getUrlParameter('customerId');
 
-            if (customerId != undefined)
-            {
+            if (customerId != undefined) {
                 //获取客户Id对应的所有总单
                 url = "/api/fba/fbamasterorder/" + customerId;
             }
-            else
-            {
+            else {
                 //获取所有总单
                 url = "/api/fba/fbamasterorder/";
                 //隐藏建单按钮和查看用户运单按钮
@@ -348,7 +349,13 @@
 
             //点击push按钮，打开编辑unload order页面
             $("#table").on("click", ".btn-push", function () {
+                var grandNumber = $(this).parent().parent("tr").children("td").eq(1).children("text").html();
+
                 masterOrderId = $(this).attr('iid');
+                customerCode = grandNumber.substring(0, grandNumber.length - 10);
+                reference = $(this).parent().parent("tr").children("td").eq(4).children("text").html();
+
+                GetWorkOrder(masterOrderId, customerCode, reference, ".iframe-wo");
             });
 
             //点击确认发布按钮，将收货单状态改为New Order，unload order发布到仓库端
@@ -562,7 +569,7 @@
                                     }
                                 },
                                 {
-                                    data: "unloadTime",
+                                    data: "unloadFinishTime",
                                     render: function (data) {
                                         if (data == "1900-01-01T00:00:00")
                                             return "<font color='red'></font>"
@@ -628,6 +635,170 @@
                     }
                 });
             };
+
+            function GetWorkOrder(masterOrderId, customerCode, reference, pageId) {
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+                url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=WO";
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $(".text-place").html(data.placeTime);
+                        $(".text-finish").html(data.unloadFinishTime);
+                        $(".text-eta").html(data.eta);
+                        $(".text-inbound").html(data.inboundDate);
+                        $(".text-out").html(data.outTime);
+                        $(".text-damage").html(data.isDamaged);
+                        $(".text-container").html(data.container);
+                        $(".text-grandnumber").html(data.grandNumber);
+                        $(".text-carrier").html(data.carrier);
+
+                        var plColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "shipmentId",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "amzRefId",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "warehouseCode",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "grossWeight",
+                                render: function (data) {
+                                    if (data != 0)
+                                        return "<text>" + data + "</text>";
+                                    else
+                                        return "";
+                                }
+                            },
+                            {
+                                data: "cbm",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ];
+                        $(".table-packinglist").DataTable({
+                            data: data.packingList,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "200px",
+                            iDisplayLength: 100,
+                            columns: plColumnArray
+                        });
+
+                        var osColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "result",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "handlingStatus",
+                                render: function (data) {
+                                    if (data == "New")
+                                        return "<font color='blue'>" + data + "</font>";
+                                    else if (data == "Pending")
+                                        return "<font color='red'>" + data + "</font>";
+                                    else if (data == "Returned")
+                                        return "<font color='Orange'>" + data + "</font>";
+                                    else if (data == "Finished")
+                                        return "<font color='green'>" + data + "</font>";
+                                    else
+                                        return "<font>Invaild Date</font>"
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                }
+                            }
+                        ];
+                        table = $(".table-wo").DataTable({
+                            data: data.operationInstructions,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "desc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: osColumnArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            }
 
             function validform(formId) {
                 return $(formId).validate({

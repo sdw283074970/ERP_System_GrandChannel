@@ -95,6 +95,53 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(resultDto);
         }
 
+        // GET /api/fbamasterorder/?masterOrderId={masterOrderId}&operation={operation}
+        [HttpGet]
+        public IHttpActionResult GetUnloadWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            if (operation == "WO")
+            {
+                var unloadWO = new UnloadWorkOrder {
+                    PlaceTime = masterOrderInDb.PushTime,
+                    UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
+                    ETA = masterOrderInDb.ETA,
+                    Container = masterOrderInDb.Container,
+                    GrandNumber = masterOrderInDb.GrandNumber,
+                    Carrier = masterOrderInDb.Carrier,
+                    InboundDate = masterOrderInDb.InboundDate,
+                    OutTime = masterOrderInDb.OutTime,
+                    IsDamaged = masterOrderInDb.IsDamaged
+            };
+
+                var packingList = _context.FBAOrderDetails
+                    .Include(x => x.FBAMasterOrder)
+                    .Where(x => x.FBAMasterOrder.Id == masterOrderId)
+                    .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>);
+
+                var chargingList = _context.ChargingItemDetails
+                    .Include(x => x.FBAMasterOrder)
+                    .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+                foreach(var c in chargingList)
+                {
+                    unloadWO.OperationInstructions.Add(new OperationInstruction {
+                        Id = c.Id,
+                        Description = c.Description,
+                        Comment = c.Comment,
+                        Result = c.Result,
+                        Status = c.Status
+                    });
+                }
+
+                unloadWO.PackingList = packingList.ToList();
+
+                return Ok(unloadWO);
+            }
+
+            return Ok();
+        }
+
         // GET /api/fba/fbamasterorder/?grandNumber={grandNumber}&operation={edit}
         [HttpGet]
         public IHttpActionResult GetMasterOrderInfo([FromUri]string grandNumber, [FromUri]string operation)
@@ -286,6 +333,38 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             DateTime.TryParseExact(stringTime, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
             return dateTime;
+        }
+    }
+
+    public class UnloadWorkOrder
+    {
+        public DateTime PlaceTime { get; set; }
+
+        public DateTime UnloadFinishTime { get; set; }
+
+        public string ETA { get; set; }
+
+        public string Container { get; set; }
+
+        public string GrandNumber { get; set; }
+
+        public string Carrier { get; set; }
+
+        public DateTime InboundDate { get; set; }
+
+        public DateTime OutTime { get; set; }
+
+        public string IsDamaged { get; set; }
+
+        public ICollection<FBAOrderDetailDto> PackingList { get; set; }
+
+        public ICollection<OperationInstruction> OperationInstructions { get; set; }
+
+        public UnloadWorkOrder()
+        {
+            PackingList = new List<FBAOrderDetailDto>();
+
+            OperationInstructions = new List<OperationInstruction>();
         }
     }
 }

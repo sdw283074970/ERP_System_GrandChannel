@@ -87,9 +87,9 @@
 </div>
 <div class="iframe-info">
     <div style="text-align:right;margin-right:20px">
-        <text>Actual Gross Weight: <input id="input-gw" type="text" class="input-sm" style="margin-top:20px"/></text><br />
-        <text>Actual CBM: <input id="input-cbm" type="text" class="input-sm" style="margin-top:20px"/></text><br />
-        <text>Actual Quantity: <input id="input-quantity" type="text" class="input-sm" style="margin-top:20px;margin-bottom:20px"/></text><br />
+        <text>Actual Gross Weight: <input id="input-gw" type="text" class="input-sm" style="margin-top:20px" /></text><br />
+        <text>Actual CBM: <input id="input-cbm" type="text" class="input-sm" style="margin-top:20px" /></text><br />
+        <text>Actual Quantity: <input id="input-quantity" type="text" class="input-sm" style="margin-top:20px;margin-bottom:20px" /></text><br />
         <text>Comsumed Quantity: <font id="font-comsumed" color="red">0</font></text><br />
         <text>Comment: <textarea id="textarea-comment" placeholder="Leave comment here" style="width:200px;height:150px;margin-top:20px"></textarea></text><br />
         <button id="btn-updateinfo" class="btn btn-primary" style="margin-top:20px">Update</button>
@@ -102,6 +102,7 @@
         <button id="btn-updatereceiving" class="btn btn-primary" style="margin-top:20px">Confirm</button>
     </div>
 </div>
+
 @section scripts
 {
     <script>
@@ -189,13 +190,11 @@
                 var inboundDate = $("#input-date").val();
                 var container = $("#input-updatecontainer").val();
 
-                if (inboundDate != "" && container != "")
-                {
+                if (inboundDate != "" && container != "") {
                     url = "/api/fba/masterdetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
                     SendAjaxMethod("PUT", url, {});
                 }
-                else
-                {
+                else {
                     alert("Please select inbound date and container #.");
                 }
             });

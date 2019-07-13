@@ -13,10 +13,10 @@
     </div>
     <div>
         <input id="btn-customer" type="button" class="btn btn-primary" value="Manage customer" />
-        <a href="~/fba/MasterOrder/"><input type="button" class="btn btn-primary" value="View All Master Order" /></a>
+        <a href="~/fba/FBAAddressManagement"><input id="btn-address" type="button" class="btn btn-primary" value="Manage Address Book" /></a>
+        <a href="~/fba/MasterOrder/"><input type="button" class="btn btn-primary" value="View All Rcv Order" /></a>
         <a href="~/shiporder/FBAShipOrder/"><input type="button" class="btn btn-primary" value="View All Ship Order" /></a>
         <a href="~/fba/FBAInventoryIndex"><input type="button" class="btn btn-primary" value="Inventory Report" /></a>
-        <a href="~/fba/FBAAddressManagement"><input id="btn-address" type="button" class="btn btn-primary" value="Manage Address Book" /></a>
         <a href="~/fba/storagecharge"><input id="btn-storage" type="button" class="btn btn-primary" value="Calculate storage" /></a>
         @*<a href="~/Warehouse/Index"><input id="btn-storage" type="button" class="btn btn-primary" value="Warehouse Client" /></a>*@
         <button id="btn-export" iid="0" class="btn btn-info">导出所有收费汇总表</button>
@@ -50,8 +50,6 @@
 {
     <script>
         $(document).ready(function () {
-
-            $(".iframe-export").hide();
 
             var index;
             var customerId;
@@ -135,7 +133,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Orders</button><button iid='" + data + "' class='btn btn-info btn-export' style='margin-left:20px'>Export Reports</button>";
+                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Rcv Orders</button><button iid='" + data + "' class='btn btn-info btn-export' style='margin-left:20px'>Export Reports</button>";
                                 }
                             },
                         ]
@@ -189,8 +187,7 @@
                 var startDate = $("#input-date-start").val();
                 var closeDate = $("#input-date-close").val();
 
-                if (startDate != "" && closeDate != "")
-                {
+                if (startDate != "" && closeDate != "") {
                     url = "/api/fba/fbaindex/?customerId=" + customerId + "&startDate=" + startDate + "&closeDate=" + closeDate;
 
                     $.ajax({

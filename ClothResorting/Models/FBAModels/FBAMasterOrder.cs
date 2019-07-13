@@ -28,15 +28,11 @@ namespace ClothResorting.Models.FBAModels
 
         public string InvoiceStatus { get; set; }
 
-        public string UnloadingType { get; set; }
-
-        public string StorageType { get; set; }
-
         public DateTime InboundDate { get; set; }
 
         public DateTime CloseDate { get; set; }
 
-        public DateTime UnloadTime { get; set; }
+        public DateTime UnloadFinishTime { get; set; }
 
         public string Status { get; set; }
 
@@ -61,6 +57,8 @@ namespace ClothResorting.Models.FBAModels
         public DateTime AvailableTime { get; set; }
 
         public DateTime OutTime { get; set; }
+
+        public string IsDamaged { get; set; }
 
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
@@ -94,7 +92,7 @@ namespace ClothResorting.Models.FBAModels
             OutTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             AvailableTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             PushTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
-            UnloadTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            UnloadFinishTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             Status = StaticClass.Status.NewCreated;
         }
     }

@@ -14,10 +14,6 @@ namespace ClothResorting.Dtos.Fba
 
         public float TotalCBM { get; set; }
 
-        public string UnloadingType { get; set; }
-
-        public string StorageType { get; set; }
-
         public string DockNumber { get; set; }
 
         public string InboundType { get; set; }
@@ -58,10 +54,13 @@ namespace ClothResorting.Dtos.Fba
 
         public DateTime PushTime { get; set; }
 
-        public DateTime UnloadTime { get; set; }
+        public DateTime UnloadFinishTime { get; set; }
 
         public DateTime AvailableTime { get; set; }
 
         public DateTime OutTime { get; set; }
+
+        public string IsDamaged { get; set; }
+
     }
 }

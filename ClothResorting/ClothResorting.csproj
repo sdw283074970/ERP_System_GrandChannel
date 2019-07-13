@@ -1703,6 +1703,14 @@
     <Compile Include="Migrations\201907120023307_AddedFBAWorkorderTemplateAndDetails.Designer.cs">
       <DependentUpon>201907120023307_AddedFBAWorkorderTemplateAndDetails.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201907121851452_RemovedTowTypeFieldsInFBAMasterOrder.cs" />
+    <Compile Include="Migrations\201907121851452_RemovedTowTypeFieldsInFBAMasterOrder.Designer.cs">
+      <DependentUpon>201907121851452_RemovedTowTypeFieldsInFBAMasterOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201907122309052_ModifiedFBAMasterOrder.cs" />
+    <Compile Include="Migrations\201907122309052_ModifiedFBAMasterOrder.Designer.cs">
+      <DependentUpon>201907122309052_ModifiedFBAMasterOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2281,6 +2289,7 @@
     <Content Include="Views\Warehouse\InboundLog.cshtml" />
     <Content Include="Service References\AzureStorage1\ConnectedService.json" />
     <Content Include="Views\ThirdPartyLogistics\PermanentHistory.cshtml" />
+    <Content Include="Views\FBA\_FBAMasterOrderPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -3176,6 +3185,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201907120023307_AddedFBAWorkorderTemplateAndDetails.resx">
       <DependentUpon>201907120023307_AddedFBAWorkorderTemplateAndDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201907121851452_RemovedTowTypeFieldsInFBAMasterOrder.resx">
+      <DependentUpon>201907121851452_RemovedTowTypeFieldsInFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201907122309052_ModifiedFBAMasterOrder.resx">
+      <DependentUpon>201907122309052_ModifiedFBAMasterOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

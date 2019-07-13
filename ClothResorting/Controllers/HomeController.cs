@@ -49,7 +49,7 @@ namespace ClothResorting.Controllers
         {
             //var path = cleaner.ClearBills();
 
-            for(int i = 1; i <= 29; i++)
+            for(int i = 1; i <= 5; i++)
             {
                 var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill" + i.ToString() + ".csv");
                 var path = cleaner.ClearBills();

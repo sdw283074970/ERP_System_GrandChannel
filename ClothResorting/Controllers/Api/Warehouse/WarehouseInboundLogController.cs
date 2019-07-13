@@ -59,7 +59,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     PushTime = m.PushTime,
                     AvailableTime = m.AvailableTime,
                     OutTime = m.OutTime,
-                    UnloadTime = m.UnloadTime,
+                    UnloadTime = m.UnloadFinishTime,
                     UpdateLog = m.UpdateLog
                 };
 
@@ -82,7 +82,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             if (operation == "Update")
             {
                 orderInDb.InboundDate = log.InboundDate;
-                orderInDb.UnloadTime = log.UnloadTime;
+                orderInDb.UnloadFinishTime = log.UnloadTime;
                 orderInDb.AvailableTime = log.AvailableTime;
                 orderInDb.OutTime = log.OutTime;
                 orderInDb.DockNumber = log.DockNumber;
@@ -118,7 +118,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         bool CheckIfAllFieldsAreFilled(FBAMasterOrder orderInDb)
         {
-            if (orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadTime.Year != 1900 && orderInDb.AvailableTime.Year != 1900 && orderInDb.OutTime.Year != 1900)
+            if (orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadFinishTime.Year != 1900 && orderInDb.AvailableTime.Year != 1900 && orderInDb.OutTime.Year != 1900)
                 return true;
 
             return false;
