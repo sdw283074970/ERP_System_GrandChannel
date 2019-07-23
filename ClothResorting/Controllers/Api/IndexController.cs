@@ -21,41 +21,15 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        //GET /api/index/?departmentCode={departmentCode} 获取指定部门的所有的PreReceiveOrders(work order)
-        public IHttpActionResult GetPrereceiveOrder([FromUri]string departmentCode)
+        //GET /api/index/?departmentCode={departmentCode}&timeFrom={timeFrom}&timeTo={timeTo}
+        public IHttpActionResult GetLatestMonthPrereceiveOrder([FromUri]string departmentCode, [FromUri]DateTime timeFrom, [FromUri]DateTime timeTo)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var preReceiveOrderLists = _context.PreReceiveOrders
-                .Include(x => x.UpperVendor)
-                .Include(x => x.POSummaries.Select(c => c.RegularCartonDetails))
-                .Where(x => x.UpperVendor.DepartmentCode == departmentCode);
-
-            var regualrCartonInDb = _context.RegularCartonDetails
-                .Include(x => x.POSummary.PreReceiveOrder);
-
-            foreach (var p in preReceiveOrderLists)
-            {
-                if (p.POSummaries.Count != 0)
-                {
-                    try
-                    {
-                        p.ActualReceivedCtns = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualCtns);
-                        p.ActualReceivedPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualPcs);
-                        p.TotalCartons = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Cartons);
-                        p.TotalPcs = regualrCartonInDb.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Quantity);
-                    }
-                    catch(Exception e)
-                    {
-                        continue;
-                    }
-                }
-            }
-
-            var result = Mapper.Map<IEnumerable<PreReceiveOrder>, IEnumerable<PreReceiveOrdersDto>>(preReceiveOrderLists);
+            var result = GetPreReceiveOrdersByTime(departmentCode, timeFrom, timeTo);
 
             return Ok(result);
         }
@@ -94,6 +68,47 @@ namespace ClothResorting.Controllers.Api
 
             _context.POSummaries.RemoveRange(poSummariesInDb);
             _context.SaveChanges();
+        }
+
+        IEnumerable<PreReceiveOrdersDto> GetPreReceiveOrdersByTime(string departmentCode, DateTime timeFrom, DateTime timeTo)
+        {
+            timeTo = timeTo.AddDays(1);
+
+            var preReceiveOrderLists = _context.PreReceiveOrders
+                .Include(x => x.UpperVendor)
+                .Include(x => x.POSummaries.Select(c => c.RegularCartonDetails))
+                .Where(x => x.UpperVendor.DepartmentCode == departmentCode
+                    && x.CreatDate >= timeFrom
+                    && x.CreatDate < timeTo)
+                .ToList();
+
+            var regualrCarton = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.PreReceiveOrder.CreatDate >= timeFrom
+                    && x.POSummary.PreReceiveOrder.CreatDate < timeTo)
+                .ToList();
+
+            foreach (var p in preReceiveOrderLists)
+            {
+                if (p.POSummaries.Count != 0)
+                {
+                    try
+                    {
+                        p.ActualReceivedCtns = regualrCarton.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualCtns);
+                        p.ActualReceivedPcs = regualrCarton.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.ActualPcs);
+                        p.TotalCartons = regualrCarton.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Cartons);
+                        p.TotalPcs = regualrCarton.Where(x => x.POSummary.PreReceiveOrder.Id == p.Id).Sum(x => x.Quantity);
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            var result = Mapper.Map<IEnumerable<PreReceiveOrder>, IEnumerable<PreReceiveOrdersDto>>(preReceiveOrderLists);
+
+            return result;
         }
     }
 }

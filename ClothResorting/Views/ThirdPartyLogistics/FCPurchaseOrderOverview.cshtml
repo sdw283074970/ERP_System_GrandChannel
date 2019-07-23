@@ -47,16 +47,16 @@
 </div>
 <div class="iframe">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
-        <text>Select vendor: </text>
+        @*<text>Select vendor: </text>
         <select id="select-vendor" style="width:170px;height:30px"></select><br />
         <text>Select po type: </text>
         <select id="select-potype" style="width:170px;height:30px">
             <option value="Pre-pack">Pre-pack</option>
             <option value="Solid Pack">Solid Pack</option>
             <option value='Mix' style='width:170px;height:30px'>Mix</option>
-        </select><br />
+        </select><br />*@
         <input id="upload2" type="file" accept="xls/xlsx" style="margin-top:5px;margin-left:100px;width:200px" /><br />
-        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Regular Packing List" /><br />
+        <input id="uploadppkfile" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Generic Packing List" /><br />
         <input id="uploadfc" type="button" class="btn btn-primary" style="margin-top:5px" value="Upload Free Country Packing List" /><br />
     </div>
 </div>
@@ -372,7 +372,7 @@
             $("#uploadppkfile").on("click", function () {
                 var formData = new FormData();
                 var files = $("#upload2").get(0).files;
-                var purchaseOrderType = $("#select-potype option:selected").val();
+                //var purchaseOrderType = $("#select-potype option:selected").val();
 
                 if (files.length > 0) {
                     formData.append("fileName", files[0]);
@@ -383,7 +383,7 @@
                     cache: false,
                     processData: false,
                     type: "POST",
-                    url: "/api/RegularPackingList/?preId=" + preId + "&vendor=" + vendor + "&purchaseOrderType=" + purchaseOrderType,
+                    url: "/api/RegularPackingList/?preId=" + preId + "&vendor=" + vendor,
                     data: formData,
                     beforeSend: function () {
                         layer.close(index);

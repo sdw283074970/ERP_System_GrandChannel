@@ -44,7 +44,7 @@
         <text>Select Vendor: </text><select id='select-vendor' class='select-vendor' style='width:170px;height:30px' required='required'></select><br />
         <text>Select Order Type: </text><select id='select-ordertype' style='width:170px;height:30px' required='required'>
             <option value='Regular'>Regular</option>
-            <option value='Replenishment'>Replenishment</option>
+            @*<option value='Replenishment'>Replenishment</option>*@
         </select><br />
         <text>Customer: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><br />
         <text>Address: </text><input id='input-address' style='width:270px' class='input-sm' value="Default" /><br />
@@ -115,8 +115,15 @@
                 url: "/api/shiporder/?departmentCode=" + departmentCode,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
+                beforeSend: function () {
+                    index = layer.msg('Processing...', {
+                        icon: 1,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
                 success: function (data) {
-
+                    layer.close(index);
                     if (table) {
                         table.destroy();
                     }

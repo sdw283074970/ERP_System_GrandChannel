@@ -41,7 +41,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractPOSummaryAndCartonDetail(id, OrderType.Replenishment, vendor);
+            excel.ExtractPOSummaryAndCartonDetail(id, vendor);
 
             //强行关闭进程
             var killer = new ExcelKiller();

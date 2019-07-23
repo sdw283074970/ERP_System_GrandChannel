@@ -19,9 +19,9 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // POST /api/regularpackinglist/?preId={id}&vendor={cendor}&purchaseOrderType={purchaseOrderType}
+        // POST /api/regularpackinglist/?preId={id}&vendor={vendor}
         [HttpPost]
-        public void UploadRegularPackingList([FromUri]int preId, [FromUri]string vendor, [FromUri]string purchaseOrderType)
+        public void UploadRegularPackingList([FromUri]int preId, [FromUri]string vendor)
         {
             var fileSavePath = "";
 
@@ -36,7 +36,7 @@ namespace ClothResorting.Controllers.Api
 
             var excel = new ExcelExtracter(fileSavePath);
 
-            excel.ExtractPOSummaryAndCartonDetail(preId, purchaseOrderType, vendor);
+            excel.ExtractPOSummaryAndCartonDetail(preId, vendor);
 
             var killer = new ExcelKiller();
 

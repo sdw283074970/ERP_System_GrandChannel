@@ -58,7 +58,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 var order = Mapper.Map<FBAShipOrder, WarehouseOrder>(o);
 
                 order.Department = "FBA";
-                order.WarehouseOrderType = "Outbound";
+                order.WarehouseOrderType = o.OrderType == FBAOrderType.Adjustment ? FBAOrderType.Adjustment : FBAOrderType.Inbound;
                 order.ETS = o.ETS.ToString("yyyy-MM-dd") + " " + o.ETSTimeRange;
                 order.TotalCtns = o.FBAPickDetails.Sum(x => x.ActualQuantity);
                 order.TotalPlts = o.FBAPickDetails.Sum(x => x.ActualPlts);

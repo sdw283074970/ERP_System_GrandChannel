@@ -21,5 +21,11 @@ namespace ClothResorting.Models.StaticClass
         public const string MasterOrder = "MasterOrder";
 
         public const string ShipOrder = "ShipOrder";
+
+        public const string Adjustment = "Adjustment";
+
+        public const string Outbound = "Outbound";
+
+        public const string Inbound = "Inbound";
     }
 }

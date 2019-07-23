@@ -48,9 +48,48 @@ namespace ClothResorting.Controllers.Api
             return Ok();
         }
 
+        // GET /api/pickdetail/?container={container}&customer={customer}&purchaseOrder={purchaseOrder}&style={style}&color={color}&size={size}
+        [HttpGet]
+        public IHttpActionResult GetRegularInventoryTable([FromUri]string container, [FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
+        {
+            var regularLocationInDb = _context.FCRegularLocationDetails
+                .Where(x => x.Vendor == customer);
+
+            if (container != null)
+            {
+                regularLocationInDb = regularLocationInDb.Where(x => x.Container.Contains(container));
+            }
+
+            if (purchaseOrder != null)
+
+            {
+                regularLocationInDb = regularLocationInDb.Where(x => x.PurchaseOrder.Contains(purchaseOrder));
+            }
+
+            if (style != null)
+            {
+                regularLocationInDb = regularLocationInDb.Where(x => x.Style.Contains(style));
+            }
+
+            if (color != null)
+            {
+                regularLocationInDb = regularLocationInDb.Where(x => x.Color.Contains(color));
+            }
+
+            if (size != null)
+            {
+                regularLocationInDb = regularLocationInDb.Where(x => x.SizeBundle.Contains(size));
+            }
+
+            var result = Mapper.Map<IEnumerable<FCRegularLocationDetail>, IEnumerable<FCRegularLocationDetailDto>>(regularLocationInDb);
+
+            return Ok(result);
+        }
+
+
         // GET /api/pickdetail/?customer={customer}&purchaseOrder={purchaseOrder}&style={style}&color={color}&size={size}
         [HttpGet]
-        public IHttpActionResult GetActivePermanentTable([FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
+        public IHttpActionResult GetActivePermanentInventoryTable([FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
         {
             var permanentSKUsInDb = _context.PermanentSKUs
                 .Include(x => x.InboundLogs)
@@ -60,28 +99,28 @@ namespace ClothResorting.Controllers.Api
 
             if (customer != null)
             {
-                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Vendor == customer);
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Vendor.Contains(customer));
             }
 
             if (purchaseOrder != null)
 
             {
-                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.PurchaseOrder == purchaseOrder);
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.PurchaseOrder.Contains(purchaseOrder));
             }
 
             if (style != null)
             {
-                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Style == style);
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Style.Contains(style));
             }
 
             if (color != null)
             {
-                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Color == color);
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Color.Contains(color));
             }
 
             if (size != null)
             {
-                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Size == size);
+                permanentSKUsInDb = permanentSKUsInDb.Where(x => x.Size.Contains(size));
             }
 
             foreach (var r in permanentSKUsInDb)
@@ -110,10 +149,10 @@ namespace ClothResorting.Controllers.Api
                 locationsInDb = locationsInDb.Where(x => x.Container == container);
             }
 
-            if (customer != "NULL")
-            {
-                locationsInDb = locationsInDb.Where(x => x.CustomerCode == customer);
-            }
+            //if (customer != "NULL")
+            //{
+            //    locationsInDb = locationsInDb.Where(x => x.CustomerCode == customer);
+            //}
 
             if (purchaseOrder != "NULL")
             {
@@ -174,44 +213,26 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
-        // POST /api/pickdetail/?shipOrderId={shipOrderId}
+        // POST /api/pickdetail/?shipOrderId={shipOrderId}&orderType={orderType}
         [HttpPost]
-        public IHttpActionResult PickPermanentSKUs([FromUri]int shipOrderId, [FromBody]IEnumerable<PermanentSKUPickInfo> objArray)
+        public IHttpActionResult PickPermanentSKUs([FromUri]int shipOrderId, [FromUri]string orderType, [FromBody]IEnumerable<PickInfo> objArray)
         {
             var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
-            var permanentSKUsInDb = _context.PermanentSKUs
-                .Where(x => x.Status == Status.Active);
-            var pickDetailList = new List<PickDetail>();
 
-            foreach(var o in objArray)
+            if(orderType == OrderType.Permanent)
             {
-                var sku = permanentSKUsInDb.SingleOrDefault(x => x.Id == o.LocId);
+                var result = PickPermanentItem(_context, shipOrderInDb, objArray);
 
-                pickDetailList.Add(new PickDetail {
-                    CartonRange = "NA",
-                    Container = "NA",
-                    PurchaseOrder = sku.PurchaseOrder,
-                    Style = sku.Style,
-                    Color = sku.Color,
-                    CustomerCode = "NA",
-                    SizeBundle = sku.Size,
-                    PcsBundle = "NA",
-                    PcsPerCarton = 0,
-                    PickCtns = 0,
-                    PickPcs = o.Pcs,
-                    Location = sku.Location,
-                    PickDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                    PermanentSKU = sku,
-                    ShipOrder = shipOrderInDb
-                });
+                return Created(Request.RequestUri, result);
+            }
+            else if (orderType == OrderType.Regular)
+            {
+                var result = PickRegularItem(_context, shipOrderInDb, objArray);
+
+                return Created(Request.RequestUri, result);
             }
 
-            _context.PickDetails.AddRange(pickDetailList);
-            _context.SaveChanges();
-
-            var result = Mapper.Map<IEnumerable<PickDetail>, IEnumerable<PickDetailDto>>(pickDetailList);
-
-            return Created(Request.RequestUri, result);
+            return Ok();
         }
 
         // POST /api/pickdetail/{id}(shipOrderId)
@@ -356,12 +377,105 @@ namespace ClothResorting.Controllers.Api
                 return Status.InStock;
             }
         }
+
+        private IEnumerable<PickDetailDto> PickPermanentItem(ApplicationDbContext context, ShipOrder shipOrderInDb, IEnumerable<PickInfo> objArray)
+        {
+            var permanentSKUsInDb = context.PermanentSKUs
+                .Where(x => x.Status == Status.Active);
+            var pickDetailList = new List<PickDetail>();
+
+            foreach (var o in objArray)
+            {
+                var sku = permanentSKUsInDb.SingleOrDefault(x => x.Id == o.LocId);
+
+                pickDetailList.Add(new PickDetail
+                {
+                    CartonRange = "NA",
+                    Container = "NA",
+                    PurchaseOrder = sku.PurchaseOrder,
+                    Style = sku.Style,
+                    Color = sku.Color,
+                    CustomerCode = "NA",
+                    SizeBundle = sku.Size,
+                    PcsBundle = "NA",
+                    PcsPerCarton = 0,
+                    PickCtns = 0,
+                    PickPcs = o.Pcs,
+                    Location = sku.Location,
+                    PickDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                    PermanentSKU = sku,
+                    ShipOrder = shipOrderInDb
+                });
+            }
+
+            context.PickDetails.AddRange(pickDetailList);
+            context.SaveChanges();
+
+            return Mapper.Map<IEnumerable<PickDetail>, IEnumerable<PickDetailDto>>(pickDetailList);
+        }
+
+        private IEnumerable<PickDetailDto> PickRegularItem(ApplicationDbContext context, ShipOrder shipOrderInDb, IEnumerable<PickInfo> objArray)
+        {
+            var regularItemsInDb = context.FCRegularLocationDetails
+                .Where(x => x.AvailableCtns != 0 || x.AvailablePcs != 0);
+
+            var pickDetailList = new List<PickDetail>();
+
+            var ctnsList = objArray.Where(x => x.Ctns != 0).ToList();
+            var pcsList = objArray.Where(x => x.Pcs != 0).ToList();
+
+            foreach(var c in ctnsList)
+            {
+                var sameItemInPcsList = pcsList.SingleOrDefault(x => x.Id == c.Id);
+                if (sameItemInPcsList == null)
+                    continue;
+                else
+                    c.Pcs = sameItemInPcsList.Pcs;
+            }
+
+            foreach (var c in ctnsList)
+            {
+                var item = regularItemsInDb.SingleOrDefault(x => x.Id == c.Id);
+                item.AvailableCtns -= c.Ctns;
+                item.PickingCtns += c.Ctns;
+                item.AvailablePcs -= c.Pcs;
+                item.PickingPcs += c.Pcs;
+
+                pickDetailList.Add(new PickDetail
+                {
+                    CartonRange = item.CartonRange,
+                    Container = item.Container,
+                    PurchaseOrder = item.PurchaseOrder,
+                    Style = item.Style,
+                    Color = item.Color,
+                    CustomerCode = item.CustomerCode,
+                    SizeBundle = item.SizeBundle,
+                    PcsBundle = item.PcsBundle,
+                    PcsPerCarton = item.PcsPerCaron,
+                    PickCtns = c.Ctns,
+                    PickPcs = c.Pcs,
+                    Location = item.Location,
+                    PickDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                    FCRegularLocationDetail = item,
+                    ShipOrder = shipOrderInDb
+                });
+            }
+
+            context.PickDetails.AddRange(pickDetailList);
+            context.SaveChanges();
+
+            return Mapper.Map<IEnumerable<PickDetail>, IEnumerable<PickDetailDto>>(pickDetailList);
+        }
     }
 
-    public class PermanentSKUPickInfo
+    public class PickInfo
     {
         public int LocId { get; set; }
 
+        public int Id { get; set; }
+
         public int Pcs { get; set; }
+
+        public int Ctns { get; set; }
     }
 }

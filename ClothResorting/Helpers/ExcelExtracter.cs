@@ -106,7 +106,7 @@ namespace ClothResorting.Helpers
         }
 
         //扫描单页模板，计算每一个POSummary并写入数据库
-        public void ExtractPOSummaryAndCartonDetail(int preId, string purchaseOrderType, string vendor)
+        public void ExtractPOSummaryAndCartonDetail(int preId, string vendor)
         {
             var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preId);     //获取刚建立的PreReceiveOrder
 

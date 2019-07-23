@@ -11,8 +11,14 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
+    <div style="margin:20px">
+        <h4>View by create date(Display latest 30 days records by default)</h4>
+        <text>Date From: </text><input id="input-timefrom" type="date" class="input-sm" />
+        <text>Date To: </text><input id="input-timeto" type="date" class="input-sm" />
+        <button id="btn-view" class="btn btn-info">View</button>
+    </div>
     <div>
-        <input id="btn-create" type="button" class="btn btn-group" value="Creat An Empty Work Order" />
+        <input id="btn-create" type="button" class="btn btn-group" value="Create New Pre-Rcv Order" />
         <input id="btn-pl" type="button" class="btn btn-primary" value="Search Packing List" />
         <input id="btn-search" type="button" class="btn btn-primary" value="Search Inventory" />
         <input type="button" class="btn btn-primary btn-shiporder" value="Manage ship order" />
@@ -62,9 +68,9 @@
         <select id="select-vendor" style="width:170px;height:30px"></select><br />
         <text>Select work order type: </text>
         <select id="select-ordertype" style="width:170px;height:30px">
-            <option value="Regular">Pre-pack/Pick&Pack</option>
-            <option value="Replenishment">Replenishment</option>
-            <option value="Mix">Mix</option>
+            <option value="Regular">Regular</option>
+            @*<option value="Replenishment">Replenishment</option>*@
+            @*<option value="Mix">Mix</option>*@
         </select><br />
         <button id="create1" style="margin-top:10px" class="btn btn-primary">Create</button>
     </div>
@@ -103,6 +109,25 @@
             //$(".iframe-freecountry").hide();
             $(".iframe-silkicon").hide();
 
+            var timeFrom = grandChannel.getUrlParameter('timeFrom');
+            var timeTo = grandChannel.getUrlParameter('timeTo');
+            var searchKeyWord = grandChannel.getUrlParameter('search');
+
+            $("#input-timefrom").val(timeFrom);
+            $("#input-timeto").val(timeTo);
+
+            //点击view按钮，重新限定查询显示的时间范围
+            $("#btn-view").on("click", function () {
+
+                var newTimeFrom = $("#input-timefrom").val();
+                var newTimeTo = $("#input-timeto").val();
+
+                if (searchKeyWord != undefined)
+                    $(window.location).attr("href", "/ThirdPartyLogistics/index/?timeFrom=" + newTimeFrom + "&timeTo=" + newTimeTo + "&search=" + searchKeyWord);
+                else
+                    $(window.location).attr("href", "/ThirdPartyLogistics/index/?timeFrom=" + newTimeFrom + "&timeTo=" + newTimeTo);
+            });
+
             //动态获取Vendor数据
             $.ajax({
                 type: "GET",
@@ -124,7 +149,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/index/?departmentCode=CD",
+                url: "/api/index/?departmentCode=CD&timeFrom=" + timeFrom + "&timeTo=" + timeTo,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 beforeSend: function () {
@@ -166,14 +191,16 @@
                                 data: "workOrderType",
                                 render: function (data) {
 
-                                    if (data == "Regular") {
-                                        workOrderType = "Pre-pack/Pick&Pack";
-                                        return "<text>" + data + "/Pick&Pack</text>";
-                                    }
-                                    else {
-                                        workOrderType = data;
-                                        return "<text>" + data + "</text>";
-                                    }
+                                    //if (data == "Regular") {
+                                    //    workOrderType = "Pre-pack/Pick&Pack";
+                                    //    return "<text>" + data + "/Pick&Pack</text>";
+                                    //}
+                                    //else {
+                                    //    workOrderType = data;
+                                    //    return "<text>" + data + "</text>";
+                                    //}
+
+                                    return "<text>" + data + "</text>";
                                 }
                             },
                             {
@@ -236,26 +263,31 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (quantity != 0) {
-                                        //if (customer == "SILK-ICON")
-                                        //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
-                                        if (workOrderType == "Pre-pack/Pick&Pack")
-                                            return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                                        else if (workOrderType == "Replenishment")
-                                            return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                                        else
-                                            return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
-                                    }
-                                    else {
-                                        //if (customer == "SILK-ICON")
-                                        //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                        if (workOrderType == "Pre-pack/Pick&Pack")
-                                            return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                        else if (workOrderType == "Replenishment")
-                                            return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                        else
-                                            return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
-                                    }
+                                    //if (quantity != 0) {
+                                    //    //if (customer == "SILK-ICON")
+                                    //    //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a>";
+                                    //    if (workOrderType == "Pre-pack/Pick&Pack")
+                                    //        return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                    //    else if (workOrderType == "Replenishment")
+                                    //        return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                    //    else
+                                    //        return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                    //}
+                                    //else {
+                                    //    //if (customer == "SILK-ICON")
+                                    //    //    return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?" + data + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                    //    if (workOrderType == "Pre-pack/Pick&Pack")
+                                    //        return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                    //    else if (workOrderType == "Replenishment")
+                                    //        return "<a href='/ThirdPartyLogistics/SIPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                    //    else
+                                    //        return "<a href='/ThirdPartyLogistics/MixPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
+                                    //}
+
+                                    if (quantity != 0) 
+                                        return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a>";
+                                    else
+                                        return "<a href='/ThirdPartyLogistics/FCPurchaseOrderOverview/?preid=" + data + "&vendor=" + customer + "'><button class='btn btn-info'>Manage</button></a><button id='" + data + "' class='btn btn-danger btn-delete'>Delete</button>";
                                 }
                             }
                         ]
@@ -425,7 +457,7 @@
 
                 tableSearch = $("#table_filter").children('label').children('input').val();
 
-                window.history.pushState({}, {}, "/thirdpartylogistics/index/?search=" + tableSearch);
+                window.history.pushState({}, {}, "/thirdpartylogistics/index/?timeFrom=" + timeFrom + "&timeTo=" + timeTo + "&search=" + tableSearch);
             });
 
             //点击管理永久库位跳到相应页面

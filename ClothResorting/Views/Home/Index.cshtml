@@ -37,14 +37,17 @@
         $(document).ready(function () {
 
             var index;
+            var date = new Date();
+            var timeFrom = date.getFullYear().toString() + "-" + (date.getMonth() <  9 ? ("0" + date.getMonth().toString()) : date.getMonth().toString()) + "-" + date.getDate().toString();
+            var timeTo = date.getFullYear().toString() + "-" + ((date.getMonth() + 1) < 9 ? ("0" + (date.getMonth() + 1).toString()) : (date.getMonth() + 1).toString()) + "-" + date.getDate().toString();
 
             $("#btn-3pl").on("click", function () {
 
-                $(window.location).attr('href', "/thirdpartylogistics/index");
+                $(window.location).attr('href', "/thirdpartylogistics/index/?timeFrom=" + timeFrom + "&timeTo=" + timeTo);
             });
 
             $("#btn-regular").on("click", function () {
-                $(window.location).attr('href', "/thirdpartylogistics/index");
+                $(window.location).attr('href', "/thirdpartylogistics/index/?timeFrom=" + timeFrom + "&timeTo=" + timeTo);
             });
 
         });

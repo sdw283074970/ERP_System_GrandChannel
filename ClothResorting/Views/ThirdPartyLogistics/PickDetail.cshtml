@@ -5,7 +5,7 @@
 }
 
 <h1>Third-party Logistics Distribution System</h1>
-<h2>Pick Regular Order</h2>
+<h2>Ship Order Pick Detail Page</h2>
 
 <div class="maincontainer">
     <div>
@@ -20,13 +20,14 @@
     </div>
     <div>
         <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
-        <input style="width:140px" id="input-customer" class="input-sm" placeholder="Customer" />
+        <input style="width:140px" id="input-customer" class="input-sm" placeholder="Vendor" />
         <input style="width:140px" id="input-po" class="input-sm" placeholder="Cut PO" />
         <input style="width:140px" id="input-style" class="input-sm" placeholder="Style" />
         <input style="width:140px" id="input-color" class="input-sm" placeholder="Color" />
         <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
         <button id="btn-pick" class="btn btn-info">Pick All In Regular Location</button>
-        <button id="btn-search" class="btn btn-info">Search In Permanent Location</button>
+        <button id="btn-search" class="btn btn-info">Search In Permanent Inventory</button>
+        <button id="btn-searchregular" class="btn btn-info">Search In Regular Inventory</button>
     </div>
     <div class="iframe-permanent" style="border:double;margin:20px;padding-left:20px;padding-right:20px">
         <h3>Permanent SKU</h3>
@@ -37,7 +38,7 @@
                         <th>Id</th>
                         <th>Status</th>
                         <th>Location</th>
-                        <th>Vender</th>
+                        <th>Vendor</th>
                         <th>Po</th>
                         <th>Style</th>
                         <th>Color</th>
@@ -55,6 +56,43 @@
         <div style="text-align:center">
             <button id="btn-pickpermanent" style="margin:20px;margin-right:0px" class="btn btn-primary">Pick filled permanent SKU</button>
             <button id="btn-close" style="margin:20px;margin-left:0px" class="btn btn-danger">Close</button>
+        </div>
+    </div>
+    <div class="iframe-regular" style="border:double;margin:20px;padding-left:20px;padding-right:20px">
+        <h3>Regular Inventory</h3>
+        <div>
+            <table id="table-regular" class="table table-condensed table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Status</th>
+                        <th>Location</th>
+                        <th>Vendor</th>
+                        <th>Container</th>
+                        <th>CC</th>
+                        <th>Po</th>
+                        <th>Style</th>
+                        <th>Color</th>
+                        <th>Size</th>
+                        <th>Org Ctns</th>
+                        <th>Available Ctns</th>
+                        <th>Picking Ctns</th>
+                        <th>Shipped Ctns</th>
+                        <th>Pick Ctns</th>
+                        <th>Org Qty</th>
+                        <th>Available Pcs</th>
+                        <th>Picking Pcs</th>
+                        <th>Shipped Pcs</th>
+                        <th>Pick Pcs</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center">
+            <button id="btn-pickregular" style="margin:20px;margin-right:0px" class="btn btn-primary">Pick filled regular items</button>
+            <button id="btn-closeregular" style="margin:20px;margin-left:0px" class="btn btn-danger">Close</button>
         </div>
     </div>
     <div>
@@ -116,12 +154,13 @@
             var orderType;
             var container;
             var permanentTable;
+            var regularTable;
             var url;
             var index;
             var pickDetailId;
             var searchBar = getUrlParameter('search');
             $(".iframe").hide();
-            $(".iframe-putback, .iframe-permanent").hide();
+            $(".iframe-putback, .iframe-permanent, .iframe-regular").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -148,7 +187,16 @@
                 url: "/api/pickdetail/" + shipOrderId,
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
+                beforeSend: function () {
+                    index = layer.msg('Processing...', {
+                        icon: 1,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
                 success: function (data) {
+                    layer.close(index);
+
                     if (table) {
                         table.destroy();
                     }
@@ -378,7 +426,7 @@
                 });
             });
 
-            //点击搜索按钮，搜索永久库位中的SKU
+            //点击搜索永久库位按钮，搜索永久库位中的SKU
             $("#btn-search").on("click", function () {
                 $(".iframe-permanent").show();
                 var po = $("#input-po").val().toString();
@@ -390,6 +438,25 @@
                 var url = "/api/pickdetail/?customer=" + customer + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&size=" + size;
 
                 GetPermanentTable(url, permanentTable, index);
+            });
+
+            //点击搜索普通库位按钮，搜索普通库位中的物品
+            $("#btn-searchregular").on("click", function () {
+                var container = $("#input-container").val().toString();
+                var po = $("#input-po").val().toString();
+                var style = $("#input-style").val().toString();
+                var color = $("#input-color").val().toString();
+                var customer = $("#input-customer").val().toString();
+                var size = $("#input-size").val().toString();
+
+                if (customer == "") {
+                    alert("Vendor cannot be empty.");
+                }
+                else {
+                    $(".iframe-regular").show();
+                    var url = "/api/pickdetail/?container=" + container + "&customer=" + customer + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&size=" + size;
+                    GetRegularTable(url, regularTable, index);
+                }
             });
 
             //点击PutBack按钮，弹出放回对话框
@@ -417,11 +484,11 @@
 
             //点击捡已填永久库位货按钮
             $("#btn-pickpermanent").on("click", function () {
-                url = "/api/pickdetail/?shipOrderId=" + shipOrderId;
+                url = "/api/pickdetail/?shipOrderId=" + shipOrderId + "&orderType=Permanent";
                 var objArray = new Array();
 
                 $(".input-pcs").each(function (i) {
-                    if ((this).val() != "") {
+                    if ((this).val() != "" || (this).val() != 0) {
                     var obj = {
                         "locId": $(this).attr('iid'),
                         "pcs": $(this).val()
@@ -433,9 +500,46 @@
                 grandChannel.sendAjaxMethod("POST", url, objArray, index);
             });
 
+            //点击捡已填regular库位货按钮
+            $("#btn-pickregular").on("click", function () {
+                url = "/api/pickdetail/?shipOrderId=" + shipOrderId + "&orderType=Regular";
+                var objArray = new Array();
+
+                $(".input-regularpcs").each(function (i) {
+                    var thisPcs = $(this).val();
+                    if (thisPcs != "" || thisPcs != 0) {
+                    var obj = {
+                        "id": $(this).attr('iid'),
+                        "pcs": $(this).val(),
+                        "ctns": 0
+                    };
+                    objArray.push(obj);
+                    }
+                });
+
+                $(".input-regularctns").each(function (i) {
+                    var thisCtns = $(this).val();
+                    if (thisCtns != "" || thisCtns != 0) {
+                    var obj = {
+                        "id": $(this).attr('iid'),
+                        "pcs": 0,
+                        "ctns": $(this).val()
+                    };
+                    objArray.push(obj);
+                    }
+                });
+
+                grandChannel.sendAjaxMethod("POST", url, objArray, index);
+            });
+
             //点击关闭按钮，关闭permanent sku拣货页面
             $("#btn-close").on("click", function () {
                 $(".iframe-permanent").hide();
+            });
+
+            //点击关闭按钮，关闭regular拣货页面
+            $("#btn-closeregular").on("click", function () {
+                $(".iframe-regular").hide();
             });
 
             function GetPermanentTable(url, table, index) {
@@ -546,6 +650,185 @@
                                     data: "id",
                                     render: function (data) {
                                             return "<input class='input-sm input-pcs' type='number' iid='" + data + "' value='0' /><button class='btn btn-link btn-history' iid='" + data + "'>History</button>";
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            }
+
+            function GetRegularTable(url, table, index) {
+                var cartons;
+                var pieces;
+
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    type: "GET",
+                    url: url,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+
+                        if (table) {
+                            table.destroy();
+                        }
+                        table = $("#table-regular").DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            //order: [[2, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "status",
+                                    render: function (data) {
+                                        if (data == "Active")
+                                            return "<font color='green'>" + data + "</font>";
+                                        return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "vendor",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "customerCode",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "sizeBundle",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "cartons",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "availableCtns",
+                                    render: function (data) {
+                                        cartons = data;
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "pickingCtns",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shippedCtns",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (cartons == 0)
+                                            return "";
+                                        else
+                                            return "<input class='input-sm input-regularctns' type='number' iid='" + data + "' value='0' />";
+                                    }
+                                },
+                                {
+                                    data: "quantity",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "availablePcs",
+                                    render: function (data) {
+                                        pieces = data;
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "pickingPcs",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "shippedPcs",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (pieces == 0)
+                                            return "";
+                                        else
+                                            return "<input class='input-sm input-regularpcs' type='number' iid='" + data + "' value='0' />";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<button iid='" + data + "' class='btn btn-link btn-history' ordertype='Regular' >History</button>";
                                     }
                                 }
                             ]
