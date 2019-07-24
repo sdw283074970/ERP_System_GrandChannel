@@ -86,7 +86,6 @@ namespace ClothResorting.Controllers.Api
             return Ok(result);
         }
 
-
         // GET /api/pickdetail/?customer={customer}&purchaseOrder={purchaseOrder}&style={style}&color={color}&size={size}
         [HttpGet]
         public IHttpActionResult GetActivePermanentInventoryTable([FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
@@ -140,9 +139,12 @@ namespace ClothResorting.Controllers.Api
         [HttpPost]
         public void PickByConditions([FromUri]int shipOrderId, [FromUri]string container, [FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
         {
-            var locationsInDb = _context.FCRegularLocationDetails.Where(x => x.AvailablePcs != 0);
-            var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
+            var locationsInDb = _context.FCRegularLocationDetails.Where(x => x.AvailablePcs > 0 || x.AvailableCtns > 0);
+            var shipOrderInDb = _context.ShipOrders
+                .Include(x => x.PickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
             var pickList = new List<PickDetail>();
+            var orgCount = shipOrderInDb.PickDetails.Count();
 
             if (container != "NULL")
             {
@@ -173,6 +175,9 @@ namespace ClothResorting.Controllers.Api
             {
                 locationsInDb = locationsInDb.Where(x => x.SizeBundle == size);
             }
+
+            //调出前1000条记录
+            locationsInDb = locationsInDb.Take(1000);
 
             //将筛选后的所有对象出货
             foreach(var location in locationsInDb)
@@ -208,6 +213,11 @@ namespace ClothResorting.Controllers.Api
             }
 
             shipOrderInDb.Status = Status.Picking;
+
+            if (orgCount + pickList.Count() > 1000)
+            {
+                throw new Exception("Pick failed. The maximum capicity of pick details in one ship order is 1000. Original count before this pick: " + orgCount + ", after pick count: " + (orgCount + pickList.Count()));
+            }
 
             _context.PickDetails.AddRange(pickList);
             _context.SaveChanges();
@@ -421,44 +431,43 @@ namespace ClothResorting.Controllers.Api
 
             var pickDetailList = new List<PickDetail>();
 
-            var ctnsList = objArray.Where(x => x.Ctns != 0).ToList();
-            var pcsList = objArray.Where(x => x.Pcs != 0).ToList();
-
-            foreach(var c in ctnsList)
+            foreach (var o in objArray)
             {
-                var sameItemInPcsList = pcsList.SingleOrDefault(x => x.Id == c.Id);
-                if (sameItemInPcsList == null)
-                    continue;
-                else
-                    c.Pcs = sameItemInPcsList.Pcs;
-            }
+                var pickDetailInList = pickDetailList.SingleOrDefault(x => x.Id == o.Id);
+                var item = regularItemsInDb.SingleOrDefault(x => x.Id == o.Id);
 
-            foreach (var c in ctnsList)
-            {
-                var item = regularItemsInDb.SingleOrDefault(x => x.Id == c.Id);
-                item.AvailableCtns -= c.Ctns;
-                item.PickingCtns += c.Ctns;
-                item.AvailablePcs -= c.Pcs;
-                item.PickingPcs += c.Pcs;
+                item.AvailableCtns -= o.Ctns;
+                item.PickingCtns += o.Ctns;
+                item.AvailablePcs -= o.Pcs;
+                item.PickingPcs += o.Pcs;
 
-                pickDetailList.Add(new PickDetail
+                if (pickDetailInList == null)
                 {
-                    CartonRange = item.CartonRange,
-                    Container = item.Container,
-                    PurchaseOrder = item.PurchaseOrder,
-                    Style = item.Style,
-                    Color = item.Color,
-                    CustomerCode = item.CustomerCode,
-                    SizeBundle = item.SizeBundle,
-                    PcsBundle = item.PcsBundle,
-                    PcsPerCarton = item.PcsPerCaron,
-                    PickCtns = c.Ctns,
-                    PickPcs = c.Pcs,
-                    Location = item.Location,
-                    PickDate = DateTime.Now.ToString("MM/dd/yyyy"),
-                    FCRegularLocationDetail = item,
-                    ShipOrder = shipOrderInDb
-                });
+                    pickDetailList.Add(new PickDetail
+                    {
+                        Id = o.Id,
+                        CartonRange = item.CartonRange,
+                        Container = item.Container,
+                        PurchaseOrder = item.PurchaseOrder,
+                        Style = item.Style,
+                        Color = item.Color,
+                        CustomerCode = item.CustomerCode,
+                        SizeBundle = item.SizeBundle,
+                        PcsBundle = item.PcsBundle,
+                        PcsPerCarton = item.PcsPerCaron,
+                        PickCtns = o.Ctns,
+                        PickPcs = o.Pcs,
+                        Location = item.Location,
+                        PickDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                        FCRegularLocationDetail = item,
+                        ShipOrder = shipOrderInDb
+                    });
+                }
+                else
+                {
+                    pickDetailInList.PickPcs += o.Pcs;
+                    pickDetailInList.PickCtns += o.Ctns;
+                }
             }
 
             context.PickDetails.AddRange(pickDetailList);

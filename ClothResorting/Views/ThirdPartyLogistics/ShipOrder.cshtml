@@ -387,7 +387,7 @@
                 var button = $(this);
                 var id = button.attr('value');
 
-                bootbox.confirm("Are you want to ship this order? This operation is unreversed.", function (result) {
+                bootbox.confirm("Cancellation only removes the top 1000 records. You may need to repeat this operation until this shipping order deleted.", function (result) {
                     if (result) {
                         $.ajax({
                             type: "DELETE",

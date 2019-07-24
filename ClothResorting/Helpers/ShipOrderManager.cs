@@ -155,9 +155,10 @@ namespace ClothResorting.Helpers
                 foreach (var pickDetail in pickDetailsInDb)
                 {
                     var locationDetailInDb = pickDetail.FCRegularLocationDetail;
-                    var parasiticLocationDetail = _context.FCRegularLocationDetails.Where(x => x.Container == locationDetailInDb.Container
-                        && x.CartonRange == locationDetailInDb.CartonRange
-                        && x.Batch == locationDetailInDb.Batch)
+                    var parasiticLocationDetail = _context.FCRegularLocationDetails
+                        .Where(x => x.Container == locationDetailInDb.Container
+                            && x.CartonRange == locationDetailInDb.CartonRange
+                            && x.Batch == locationDetailInDb.Batch)
                         .ToList();
 
                     locationDetailInDb.AvailablePcs += pickDetail.PickPcs;
@@ -262,6 +263,47 @@ namespace ClothResorting.Helpers
             }
         }
 
+
+        public void RemovePickDetail(ApplicationDbContext context, PickDetail pickDetailInDb, int putBackCtns, int putBackPcs, string orderType)
+        {
+            if (orderType == OrderType.Regular)
+            {
+                pickDetailInDb.FCRegularLocationDetail.AvailableCtns += putBackCtns;
+                pickDetailInDb.FCRegularLocationDetail.PickingCtns -= putBackCtns;
+
+                pickDetailInDb.FCRegularLocationDetail.AvailablePcs += putBackPcs;
+                pickDetailInDb.FCRegularLocationDetail.PickingPcs -= putBackPcs;
+
+                //刷新被放回地点状态
+                pickDetailInDb.Status = RefreshRegularStatus(pickDetailInDb.FCRegularLocationDetail);
+
+                //如果放回的箱数件数刚好等于拣货的箱数件数，那么移除拣货记录
+                if (putBackCtns == pickDetailInDb.PickCtns && putBackPcs == pickDetailInDb.PickPcs)
+                {
+                    context.PickDetails.Remove(pickDetailInDb);
+                }
+                //否则仍然保留拣货记录
+                else
+                {
+                    pickDetailInDb.PickCtns -= putBackCtns;
+                    pickDetailInDb.PickPcs -= putBackPcs;
+                }
+            }
+            else if (orderType == OrderType.Permanent)
+            {
+                //如果放回的件数刚好等于拣货的件数，那么移除拣货记录
+                if (putBackPcs == pickDetailInDb.PickPcs)
+                {
+                    context.PickDetails.Remove(pickDetailInDb);
+                }
+                //否则仍然保留拣货记录
+                else
+                {
+                    pickDetailInDb.PickPcs -= putBackPcs;
+                }
+            }
+        }
+
         private void AdjustMainShippedCartons(ApplicationDbContext context, FCRegularLocationDetail locationDetailInDb, IEnumerable<FCRegularLocationDetail> parasiticLocationDetail)
         {
             //如果其本身就是宿主对象
@@ -337,6 +379,22 @@ namespace ClothResorting.Helpers
             else
             {
                 return a / b + 1;
+            }
+        }
+
+        private string RefreshRegularStatus(FCRegularLocationDetail location)
+        {
+            if (location.PickingCtns != 0 || location.PickingPcs != 0)
+            {
+                return Status.Picking;
+            }
+            else if (location.PickingCtns == 0 && location.PickingPcs == 0 && location.AvailableCtns == 0 && location.AvailablePcs == 0)
+            {
+                return Status.Shipped;
+            }
+            else
+            {
+                return Status.InStock;
             }
         }
     }

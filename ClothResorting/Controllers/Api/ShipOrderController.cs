@@ -109,7 +109,30 @@ namespace ClothResorting.Controllers.Api
         [HttpDelete]
         public void CancelShipOrder([FromUri]int shipOrderId)
         {
-            _manager.CancelShipOrder(shipOrderId);
+            //_manager.CancelShipOrder(shipOrderId);
+
+            var shipOrderInDb = _context.ShipOrders
+                .Include(x => x.PickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
+
+            var pickDetailsInDb = _context.PickDetails
+                .Include(x => x.ShipOrder)
+                .Include(x => x.FCRegularLocationDetail)
+                .Include(x => x.PermanentSKU)
+                .Where(x => x.ShipOrder.Id == shipOrderId)
+                .Take(1000);
+
+            foreach(var p in pickDetailsInDb)
+            {
+                _manager.RemovePickDetail(_context, p, p.PickCtns, p.PickPcs, p.ShipOrder.OrderType);
+            }
+
+            if (!shipOrderInDb.PickDetails.Any())
+            {
+                _context.ShipOrders.Remove(shipOrderInDb);
+            }
+
+            _context.SaveChanges();
         }
     }
 }

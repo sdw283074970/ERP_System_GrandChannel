@@ -27,7 +27,8 @@
         <input style="width:140px" id="input-size" class="input-sm" placeholder="Size or Size Combo" />
         <button id="btn-pick" class="btn btn-info">Pick All In Regular Location</button>
         <button id="btn-search" class="btn btn-info">Search In Permanent Inventory</button>
-        <button id="btn-searchregular" class="btn btn-info">Search In Regular Inventory</button>
+        <button id="btn-searchregular" class="btn btn-info">Search In Regular Inventory</button><br />
+        <font color="red">*The [Pick All In Regular Location] feature only takes out the first 1000 records.</font>
     </div>
     <div class="iframe-permanent" style="border:double;margin:20px;padding-left:20px;padding-right:20px">
         <h3>Permanent SKU</h3>
@@ -78,12 +79,12 @@
                         <th>Available Ctns</th>
                         <th>Picking Ctns</th>
                         <th>Shipped Ctns</th>
-                        <th>Pick Ctns</th>
+                        <th style="width:120px">Pick Ctns</th>
                         <th>Org Qty</th>
                         <th>Available Pcs</th>
                         <th>Picking Pcs</th>
                         <th>Shipped Pcs</th>
-                        <th>Pick Pcs</th>
+                        <th style="width:120px">Pick Pcs</th>
                         <th>Operation</th>
                     </tr>
                 </thead>
@@ -159,6 +160,7 @@
             var index;
             var pickDetailId;
             var searchBar = getUrlParameter('search');
+            var searchUrl;
             $(".iframe").hide();
             $(".iframe-putback, .iframe-permanent, .iframe-regular").hide();
 
@@ -182,130 +184,7 @@
             var shipOrderId = getUrlParameter('shipOrderId');
             var orderType = getUrlParameter('orderType');
 
-            $.ajax({
-                type: "GET",
-                url: "/api/pickdetail/" + shipOrderId,
-                contentType: 'application/json; charset=utf-8',
-                dataType: "json",
-                beforeSend: function () {
-                    index = layer.msg('Processing...', {
-                        icon: 1,
-                        shade: 0.01,
-                        time: 99 * 1000
-                    });
-                },
-                success: function (data) {
-                    layer.close(index);
-
-                    if (table) {
-                        table.destroy();
-                    }
-                    table = $("#table").DataTable({
-                        destroy: true,
-                        data: data,
-                        //scrollX: true,
-                        scrollCollapse: true,
-                        scrollY: "600px",
-                        iDisplayLength: 100,
-                        columns: [
-                            {
-                                data: "cartonRange",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "container",
-                                render: function (data) {
-                                    container = data;
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            { 
-                                data: "purchaseOrder",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "style",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "color",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "customerCode",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "sizeBundle",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pcsBundle",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pcsPerCarton",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pickCtns",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "pickPcs",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "location",
-                                render: function (data) {
-                                    return "<text>" + data + "</text>";
-                                }
-                            },
-                            {
-                                data: "id",
-                                render: function (data) {
-                                    if (container == "NA")
-                                        return "<button iid='" + data + "' class='btn btn-link btn-putback' ordertype='Permanent'>Put Back</button>";
-                                    else
-                                        return "<button iid='" + data + "' class='btn btn-link btn-putback' ordertype='Regular'>Put Back</button>";
-                                }
-                            }
-                        ]
-                    });
-
-                    var tableSearch = $("#table_filter").children('label').children('input');
-
-                    if (searchBar != undefined) {
-                        tableSearch.val(searchBar);
-                        table.search(searchBar).draw();
-                    }
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                        location.reload();
-                    });
-                }
-            });
+            GetPickDetailTable();
 
             $("#btn-upload").on("click", function () {
                 index = layer.open({
@@ -454,8 +333,8 @@
                 }
                 else {
                     $(".iframe-regular").show();
-                    var url = "/api/pickdetail/?container=" + container + "&customer=" + customer + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&size=" + size;
-                    GetRegularTable(url, regularTable, index);
+                    searchUrl = "/api/pickdetail/?container=" + container + "&customer=" + customer + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&size=" + size;
+                    GetRegularTable(searchUrl, regularTable, index);
                 }
             });
 
@@ -482,13 +361,13 @@
                 window.history.pushState({}, {}, "/thirdpartylogistics/pickdetail/?shipOrderId=" + shipOrderId + "&orderType=" + orderType + "&search=" + tableSearch);
             });
 
-            //点击捡已填永久库位货按钮
+            //点击捡取已填永久库位货按钮
             $("#btn-pickpermanent").on("click", function () {
                 url = "/api/pickdetail/?shipOrderId=" + shipOrderId + "&orderType=Permanent";
                 var objArray = new Array();
 
                 $(".input-pcs").each(function (i) {
-                    if ((this).val() != "" || (this).val() != 0) {
+                    if ($(this).val() != "" && $(this).val() != 0) {
                     var obj = {
                         "locId": $(this).attr('iid'),
                         "pcs": $(this).val()
@@ -507,29 +386,54 @@
 
                 $(".input-regularpcs").each(function (i) {
                     var thisPcs = $(this).val();
-                    if (thisPcs != "" || thisPcs != 0) {
-                    var obj = {
-                        "id": $(this).attr('iid'),
-                        "pcs": $(this).val(),
-                        "ctns": 0
-                    };
-                    objArray.push(obj);
+                    if (thisPcs != "" && thisPcs != 0) {
+                        var obj = {
+                            "id": $(this).attr('iid'),
+                            "pcs": $(this).val(),
+                            "ctns": 0
+                        };
+                        objArray.push(obj);
                     }
                 });
 
                 $(".input-regularctns").each(function (i) {
                     var thisCtns = $(this).val();
-                    if (thisCtns != "" || thisCtns != 0) {
-                    var obj = {
-                        "id": $(this).attr('iid'),
-                        "pcs": 0,
-                        "ctns": $(this).val()
-                    };
-                    objArray.push(obj);
+                    if (thisCtns != "" && thisCtns != 0) {
+                        var obj = {
+                            "id": $(this).attr('iid'),
+                            "pcs": 0,
+                            "ctns": $(this).val()
+                        };
+                        objArray.push(obj);
                     }
                 });
 
-                grandChannel.sendAjaxMethod("POST", url, objArray, index);
+                alert(JSON.stringify(objArray));
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: JSON.stringify(objArray),
+                    beforeSend: function () {
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        alert("Pick success!");
+                        GetRegularTable(searchUrl, regularTable, index);
+                        GetPickDetailTable();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            location.reload();
+                        });
+                    }
+                });
             });
 
             //点击关闭按钮，关闭permanent sku拣货页面
@@ -541,6 +445,151 @@
             $("#btn-closeregular").on("click", function () {
                 $(".iframe-regular").hide();
             });
+
+            //点击history按钮，查看出货history
+            $("#table-regular").on("click", ".btn-history", function () {
+                alert("Coming soon!");
+            });
+
+            //点击max按钮，将其对应的input值改为最大值
+            $("#table-regular").on("click", ".btn-max", function () {
+                $(this).prev().val($(this).prev().attr('max'));
+            });
+
+            //限制输入框输入数量超过最大可用数量
+            $("#table-regular").on("keyup", ".input-regularpcs, .input-regularctns", function () {
+                if ($(this).val() - $(this).attr('max') > 0)
+                    $(this).val($(this).attr('max'));
+                else if ($(this).val() - 0 < 0)
+                    $(this).val(0);
+            });
+
+            function GetPickDetailTable() {
+                $.ajax({
+                    type: "GET",
+                    url: "/api/pickdetail/" + shipOrderId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+
+                        if (table) {
+                            table.destroy();
+                        }
+                        table = $("#table").DataTable({
+                            destroy: true,
+                            data: data,
+                            //scrollX: true,
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: [
+                                {
+                                    data: "cartonRange",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        container = data;
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                { 
+                                    data: "purchaseOrder",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "style",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "color",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "customerCode",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "sizeBundle",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "pcsBundle",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "pcsPerCarton",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "pickCtns",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "pickPcs",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "location",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (container == "NA")
+                                            return "<button iid='" + data + "' class='btn btn-link btn-putback' ordertype='Permanent'>Put Back</button>";
+                                        else
+                                            return "<button iid='" + data + "' class='btn btn-link btn-putback' ordertype='Regular'>Put Back</button>";
+                                    }
+                                }
+                            ]
+                        });
+
+                        var tableSearch = $("#table_filter").children('label').children('input');
+
+                        if (searchBar != undefined) {
+                            tableSearch.val(searchBar);
+                            table.search(searchBar).draw();
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            location.reload();
+                        });
+                    }
+                });
+            }
 
             function GetPermanentTable(url, table, index) {
 
@@ -788,7 +837,7 @@
                                         if (cartons == 0)
                                             return "";
                                         else
-                                            return "<input class='input-sm input-regularctns' type='number' iid='" + data + "' value='0' />";
+                                            return "<input class='input-sm input-regularctns' type='number' iid='" + data + "' style='width:70px' min='0' max='" + cartons + "' value='0' /><button class='btn btn-link btn-max'>Max</button>";
                                     }
                                 },
                                 {
@@ -821,8 +870,8 @@
                                     render: function (data) {
                                         if (pieces == 0)
                                             return "";
-                                        else
-                                            return "<input class='input-sm input-regularpcs' type='number' iid='" + data + "' value='0' />";
+                                        else 
+                                            return "<input class='input-sm input-regularpcs' type='number' style='width:70px' min='0' max='" + pieces + "' iid='" + data + "' value='0' /><button class='btn btn-link btn-max'>Max</button>";
                                     }
                                 },
                                 {
@@ -840,6 +889,25 @@
                         });
                     }
                 });
+            }
+
+            function limitInput(o) {
+                alert("test");
+                var value = o.val();
+                var min = 0;
+                var max = o.attr('max');
+                if (parseInt(value) < min) {
+                    alert("min");
+                    o.val(min);
+                }
+                else if (parseInt(value) > max) {
+                    alert("max")
+                    o.val(max);
+                }
+            }
+
+            function onKeyUpCallBack() {
+                alert("success!");
             }
 
             $(".btn-back").on("click", function () {
