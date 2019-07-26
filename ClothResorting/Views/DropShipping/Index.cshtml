@@ -5,4 +5,57 @@
 }
 
 <h1>Constructing...</h1>
+<input id="upload"  multiple="multiple" type="file" accept="xls/xlsx" />
+<input id="uploadfile" type="button" class="btn btn-primary" value="Upload Files" />
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var index;
+
+            //点击上传&下载按钮上传文件
+            $("#uploadfile").on("click", function () {
+                var files = document.getElementById("upload").files;
+                var formData = new FormData();
+                //var files = $("#upload").files;
+
+                if (files.length > 0) {
+                    for (var i = 0; i < files.length; i++) {
+                    formData.append("fileName", files[i]);
+                    }
+                }
+
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    type: "POST",
+                    url: "/api/DPBillsTransfer/",
+                    data: formData,
+                    beforeSend: function () {
+                        layer.close(index);
+                        layer.msg('Extracting files...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.alert("Upload successed! The file will download automatically.");
+                        //$(window.location).attr('href', '/api/fba/downloadfile/');
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            location.reload();
+                        });
+                    }
+                });
+                //}
+                //else {
+                //    alert("Please upload file first.");
+                //}
+            });
+        });
+    </script>
+}
 

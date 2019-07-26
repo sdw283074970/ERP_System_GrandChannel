@@ -716,6 +716,10 @@
                 var cartons;
                 var pieces;
 
+                if (table) {
+                    table.destroy();
+                }
+
                 $.ajax({
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
@@ -731,10 +735,6 @@
                     },
                     success: function (data) {
                         layer.close(index);
-
-                        if (table) {
-                            table.destroy();
-                        }
                         table = $("#table-regular").DataTable({
                             data: data,
                             destroy: true,

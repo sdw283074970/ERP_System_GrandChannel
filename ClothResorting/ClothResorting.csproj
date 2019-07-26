@@ -72,6 +72,9 @@
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.1.0.145, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.1.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="Intuit.Ipp.Core, Version=5.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IppDotNetSdkForQuickBooksApiV3.5.5.0\lib\Intuit.Ipp.Core.dll</HintPath>
       <Private>True</Private>
@@ -368,6 +371,7 @@
     <Compile Include="Controllers\Api\ChargingItemManagementController.cs" />
     <Compile Include="Controllers\Api\ContainerController.cs" />
     <Compile Include="Controllers\Api\CustomerManagementController.cs" />
+    <Compile Include="Controllers\Api\DP\DPBillsTransferController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeMethodController.cs" />
     <Compile Include="Controllers\Api\Fba\ChargeTemplateController.cs" />
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
@@ -499,6 +503,7 @@
     <Compile Include="Helpers\ChargingItemGenerator.cs" />
     <Compile Include="Helpers\CrossReferenceTransfer.cs" />
     <Compile Include="Helpers\DPHelper\BillCleaner.cs" />
+    <Compile Include="Helpers\DPHelper\Zipper.cs" />
     <Compile Include="Helpers\ExcelParser.cs" />
     <Compile Include="Helpers\FBAHelper\FBAExcelExtracter.cs" />
     <Compile Include="Helpers\FBAHelper\FBAExcelGenerator.cs" />

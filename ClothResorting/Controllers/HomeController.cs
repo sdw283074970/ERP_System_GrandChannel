@@ -49,11 +49,17 @@ namespace ClothResorting.Controllers
         {
             //var path = cleaner.ClearBills();
 
-            for(int i = 1; i <= 5; i++)
-            {
-                var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill" + i.ToString() + ".csv");
-                var path = cleaner.ClearBills();
-            }
+            //for(int i = 1; i <= 5; i++)
+            //{
+            //    var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill" + i.ToString() + ".csv");
+            //    var path = cleaner.ClearBills();
+            //}
+
+            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\FedexBill_20190621_005.xlsx");
+            //var path = cleaner.ClearBills();
+
+            //cleaner = new BillCleaner(@"D:\ToRemoteServer\FedexBill_20190705_0001.xlsx");
+            //path = cleaner.ClearBills();
 
             ViewBag.Message = "Your application description page.";
 

@@ -11,7 +11,6 @@ namespace ClothResorting.Helpers.DPHelper
     {
         //全局变量
         #region
-        private string _path = "";
         private _Application _excel;
         private Workbook _wb;
         private Worksheet _ws;
@@ -20,18 +19,17 @@ namespace ClothResorting.Helpers.DPHelper
         #endregion
 
         //构造器
-        public BillCleaner(string path)
+        public BillCleaner()
         {
-            _path = path;
             _dateTimeNow = DateTime.Now;
-            _excel = new Application();
-            _wb = _excel.Workbooks.Open(_path);
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         //清理账单，将收费单号和收费项目、价格分离
-        public string ClearBills()
+        public string ClearBills(string path)
         {
+            _excel = new Application();
+            _wb = _excel.Workbooks.Open(path);
             _ws = _wb.Worksheets[1];
             var billCount = -1;
             var index = 1;
@@ -106,14 +104,14 @@ namespace ClothResorting.Helpers.DPHelper
 
             //var fullPath = @"D:\PickingList\test.xlsx";
             //_wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
-
+            _wb.Close();
             _excel.Quit();
 
             var killer = new ExcelKiller();
 
             killer.Dispose();
 
-            return _path;
+            return path;
         }
 
         private IList<LabelBillDetail> ConvertStringToDetail(string str, List<string> chargingItemList)

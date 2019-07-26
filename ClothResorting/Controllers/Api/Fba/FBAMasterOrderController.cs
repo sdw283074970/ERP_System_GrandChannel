@@ -121,7 +121,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 var chargingList = _context.ChargingItemDetails
                     .Include(x => x.FBAMasterOrder)
-                    .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+                    .Where(x => x.FBAMasterOrder.Id == masterOrderId
+                        && x.Status != "N/A");
 
                 foreach(var c in chargingList)
                 {
