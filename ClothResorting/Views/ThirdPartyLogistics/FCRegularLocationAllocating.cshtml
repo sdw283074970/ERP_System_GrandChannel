@@ -22,6 +22,7 @@
         <button id="btn-clear" class="btn btn-danger">Clear Filter</button>
         <button id="btn-permanent" class="btn btn-primary">Detect and allocate Permanent SKU</button>
         <button id="btn-list" class="btn btn-primary">Check detected permanent SKU list</button>
+        <button id="btn-quick" class="btn btn-primary">Quick allocating</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -50,6 +51,7 @@
         </table>
         <div style="text-align:right">
             <input type="button" class="btn btn-primary btn-filled" value="Allocate All Filled Items" />
+            <input id="btn-applyall" type="button" class="btn btn-primary" value="Apply All" />
         </div>
     </div>
     <div>
@@ -414,10 +416,46 @@
                 });
             });
 
+            //点击apply all按钮，解析所有可以apply的对象到库存中
+            $("#btn-applyall").on("click", function () {
+                url = "/api/fcregularlocationallocating/?preId=" + preid + "&operation=ApplyAll";
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+
+                        alert("Apply success!");
+
+                        $.ajax({
+                            type: "GET",
+                            url: "/api/FCRegularLocationAllocating/?preId=" + preid + "&container=" + filter.container + "&batch=" + filter.batch + "&po=" + filter.po + "&style=" + filter.style + "&color=" + filter.color + "&sku=" + filter.sku + "&size=" + filter.size,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function (data) {
+                                GetTable(data, table);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    window.location.reload();
+                                });
+                            }
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
             //点击侦测永久库位对象按钮，侦测并分配所有永久库位
             $("#btn-permanent").on("click", function () {
 
-                    $.ajax({
+                $.ajax({
                     type: "PUT",
                     url: "/api/FCRegularLocationAllocating/?preId=" + preid ,
                     contentType: 'application/json; charset=utf-8',
@@ -439,6 +477,12 @@
 
                 grandChannel.openiframe(index, ".iframe-list", "1200px", "600px");
                 GetPermanentSKULis(tableList, index2);
+            });
+
+            //点击快速分配按钮，将所有未分配的对象快速分配到库存中，库位默认为N/A
+            $("#btn-quick").on("click", function () {
+                url = "/api/fcregularlocationallocating/?preId=" + preid + "&operation=QuickAllocating";
+                grandChannel.sendAjaxMethod("POST", url, {}, index);
             });
 
             function GetPermanentSKULis(table, index) {
@@ -779,7 +823,7 @@
                     data: data,
                     destroy: true,
                     //scrollX: true,
-                    order: [[2, "asc"]],
+                    order: [[0, "asc"]],
                     scrollCollapse: true,
                     scrollY: "600px",
                     iDisplayLength: 100,

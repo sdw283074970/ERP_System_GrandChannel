@@ -4,6 +4,9 @@ using System.Linq;
 using System.Web.Mvc;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Helpers.DPHelper;
+using System.Data.Entity;
+using System;
+using System.Collections.Generic;
 
 namespace ClothResorting.Controllers
 {
@@ -47,19 +50,28 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var path = cleaner.ClearBills();
+            var date1 = new DateTime(2019, 7, 24);
+            var date2 = new DateTime(2019, 7, 1);
 
-            //for(int i = 1; i <= 5; i++)
-            //{
-            //    var cleaner = new BillCleaner(@"D:\ToRemoteServer\Bill" + i.ToString() + ".csv");
-            //    var path = cleaner.ClearBills();
-            //}
 
-            //var cleaner = new BillCleaner(@"D:\ToRemoteServer\FedexBill_20190621_005.xlsx");
-            //var path = cleaner.ClearBills();
+            var cartonDetailsInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.PreReceiveOrder.CreatDate < date1 && x.POSummary.PreReceiveOrder.CreatDate >= date2)
+                .Where(x => x.Status == Status.ToBeAllocated)
+                .Where(x => x.ToBeAllocatedPcs > 0 || x.ToBeAllocatedCtns > 0);
 
-            //cleaner = new BillCleaner(@"D:\ToRemoteServer\FedexBill_20190705_0001.xlsx");
-            //path = cleaner.ClearBills();
+            var locationList = new List<FCRegularLocationDetail>();
+
+            foreach (var r in cartonDetailsInDb)
+            {
+                locationList.Add(CreateRegularLocationV2(r));
+            }
+
+            if (locationList.Any())
+            {
+                _context.FCRegularLocationDetails.AddRange(locationList);
+                _context.SaveChanges();
+            }
 
             ViewBag.Message = "Your application description page.";
 
@@ -118,6 +130,42 @@ namespace ClothResorting.Controllers
             }
 
             return yyyy + "-" + MM + "-" + dd;
+        }
+
+        private FCRegularLocationDetail CreateRegularLocationV2(RegularCartonDetail cartonDetailInDb)
+        {
+            var result = new FCRegularLocationDetail
+            {
+                Container = cartonDetailInDb.POSummary.Container,
+                PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                Style = cartonDetailInDb.Style,
+                Color = cartonDetailInDb.Color,
+                CustomerCode = cartonDetailInDb.Customer,
+                SizeBundle = cartonDetailInDb.SizeBundle,
+                PcsBundle = cartonDetailInDb.PcsBundle,
+                Cartons = cartonDetailInDb.ToBeAllocatedCtns,
+                Quantity = cartonDetailInDb.ToBeAllocatedPcs,
+                Location = "FLOOR",
+                PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                Status = "In Stock",
+                AvailableCtns = cartonDetailInDb.ToBeAllocatedCtns,
+                PickingCtns = 0,
+                ShippedCtns = 0,
+                AvailablePcs = cartonDetailInDb.ToBeAllocatedPcs,
+                PickingPcs = 0,
+                ShippedPcs = 0,
+                PreReceiveOrder = cartonDetailInDb.POSummary.PreReceiveOrder,
+                RegularCaronDetail = cartonDetailInDb,
+                CartonRange = cartonDetailInDb.CartonRange,
+                Allocator = _userName,
+                Batch = cartonDetailInDb.Batch,
+                Vendor = cartonDetailInDb.Vendor
+            };
+
+            cartonDetailInDb.ToBeAllocatedCtns = 0;
+            cartonDetailInDb.ToBeAllocatedPcs = 0;
+
+            return result;
         }
     }
 }

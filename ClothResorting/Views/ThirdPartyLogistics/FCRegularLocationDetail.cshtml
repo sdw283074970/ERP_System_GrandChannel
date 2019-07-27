@@ -41,47 +41,58 @@
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Container</th>
-                    <th>Vendor</th>
-                    <th>Status</th>
-                    <th>Range</th>
-                    <th>PO</th>
-                    <th>Style</th>
-                    <th>Color</th>
-                    <th>CC</th>
-                    <th>Size</th>
-                    <th>Pcs</th>
-                    <th>Org Ctns</th>
-                    <th>Org Pcs</th>
-                    <th>Available Ctns</th>
-                    <th>Picking Ctns</th>
-                    <th>Shipped Ctns</th>
-                    <th>Available Pcs</th>
-                    <th>Picking Pcs</th>
-                    <th>Shipped Pcs</th>
-                    <th>Allocated By</th>
-                    <th>Batch</th>
-                    <th>Location</th>
-                    <th><input id="select-all" type="checkbox" value="12345" /> </th>
-                    <th>Operation</th>
+                    <th style="text-align:right;border:double">Id</th>
+                    <th style="text-align:right;border:double">Container</th>
+                    <th style="text-align:right;border:double">Vendor</th>
+                    <th style="text-align:right;border:double">Status</th>
+                    <th style="text-align:right;border:double">Range</th>
+                    <th style="text-align:right;border:double">PO</th>
+                    <th style="text-align:right;border:double">Style</th>
+                    <th style="text-align:right;border:double">Color</th>
+                    <th style="text-align:right;border:double">CC</th>
+                    <th style="text-align:right;border:double">Size</th>
+                    <th style="text-align:right;border:double">Pcs</th>
+                    <th style="text-align:right;border:double">Org Ctns</th>
+                    <th style="text-align:right;border:double">Org Pcs</th>
+                    <th style="text-align:right;border:double">Available Ctns</th>
+                    <th style="text-align:right;border:double">Picking Ctns</th>
+                    <th style="text-align:right;border:double">Shipped Ctns</th>
+                    <th style="text-align:right;border:double">Available Pcs</th>
+                    <th style="text-align:right;border:double">Picking Pcs</th>
+                    <th style="text-align:right;border:double">Shipped Pcs</th>
+                    <th style="text-align:right;border:double">Allocated By</th>
+                    <th style="text-align:right;border:double">Batch</th>
+                    <th style="text-align:right;border:double">Location</th>
+                    <th style="text-align:right;border:double"><input id="select-all" type="checkbox" value="12345" /> </th>
+                    <th style="text-align:right;border:double">Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
             <tfoot>
                 <tr>
-                    <th colspan="10" style="text-align:right">Total:</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th><button id="btn-update" class="btn btn-primary">Update Location</button></th>
-                    <th colspan="3" style="text-align:right"><button id="btn-relocateselected" class="btn btn-primary">Relocate selected items</button></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double"></th>
+                    <th style="text-align:right;border:double">Total:</th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:left;border:double"></th>
+                    <th style="text-align:center;border:double"><button id="btn-update" class="btn btn-primary">Update Location</button></th>
+                    <th colspan="2" style="text-align:right;border:double"><button id="btn-relocateselected" class="btn btn-primary">Relocate selected items</button></th>
                 </tr>
             </tfoot>
         </table>
@@ -531,11 +542,13 @@
                     }
 
                     table = $("#table").DataTable({
+                        data: data,
+                        destroy: true,
+                        scrollX: true,
+                        order: [[0, "asc"]],
                         scrollCollapse: true,
                         scrollY: "600px",
                         iDisplayLength: 100,
-                        data: data,
-                        destroy: true,
                         columns: [
                             {
                                 data: "id",
@@ -752,68 +765,68 @@
                             };
 
                             var totalOrgCtns = api
-                                .column(10)
-                                .data()
-                                .reduce(function (a, b) {
-                                    return intVal(a) + intVal(b);
-                                }, 0);
-
-                            var totalOrgPcs = api
                                 .column(11)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalAvaCtns = api
+                            var totalOrgPcs = api
                                 .column(12)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalPickingCtns = api
+                            var totalAvaCtns = api
                                 .column(13)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalShippedCtns = api
+                            var totalPickingCtns = api
                                 .column(14)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
-                            var totalAvaPcs = api
+
+                            var totalShippedCtns = api
                                 .column(15)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
-
-                            var totalPickingPcs = api
+                            var totalAvaPcs = api
                                 .column(16)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            var totalShippedPcs = api
+                            var totalPickingPcs = api
                                 .column(17)
                                 .data()
                                 .reduce(function (a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            $(api.column(10).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
-                            $(api.column(11).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
-                            $(api.column(12).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
-                            $(api.column(13).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
-                            $(api.column(14).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
-                            $(api.column(15).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
-                            $(api.column(16).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
-                            $(api.column(17).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
+                            var totalShippedPcs = api
+                                .column(18)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            $(api.column(11).footer()).html("<font color='orange'>" + totalOrgCtns + "</font>");
+                            $(api.column(12).footer()).html("<font color='orange'>" + totalOrgPcs + "</font>");
+                            $(api.column(13).footer()).html("<font color='green'>" + totalAvaCtns + "</font>");
+                            $(api.column(14).footer()).html("<font color='red'>" + totalPickingCtns + "</font>");
+                            $(api.column(15).footer()).html("<font color='blue'>" + totalShippedCtns + "</font>");
+                            $(api.column(16).footer()).html("<font color='green'>" + totalAvaPcs + "</font>");
+                            $(api.column(17).footer()).html("<font color='red'>" + totalPickingPcs + "</font>");
+                            $(api.column(18).footer()).html("<font color='blue'>" + totalShippedPcs + "</font>");
 
                             $("#orgCtns").html("Inbound Cartons: " + totalOrgCtns);
                             $("#orgPcs").html("Inbound Units: " + totalOrgPcs);

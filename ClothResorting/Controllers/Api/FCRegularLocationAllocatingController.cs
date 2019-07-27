@@ -112,12 +112,19 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult CreateRegularStock([FromBody]IEnumerable<FCRegularLocationAllocatingJsonObj> objArray, [FromUri]string container, [FromUri]string batch, [FromUri]string po, [FromUri]string style, [FromUri]string color, [FromUri]string sku, [FromUri]string size)
         {
             var preId = objArray.First().PreId;
-            var preReceiveOrderInDb = _context.PreReceiveOrders.Find(preId);
+            var cartonDetailsInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.PreReceiveOrder.Id == preId);
+            var list = new List<FCRegularLocationDetail>();
 
             foreach (var obj in objArray)
             {
-                CreateRegularLocation(_context, preReceiveOrderInDb, obj.Id, obj.Cartons, obj.Location);
+                var detailInDb = cartonDetailsInDb.SingleOrDefault(x => x.Id == obj.Id);
+                list.AddRange(CreateRegularLocation(_context, detailInDb, obj.Cartons, obj.Location));
             }
+
+            _context.FCRegularLocationDetails.AddRange(list);
+            _context.SaveChanges();
 
             var latestRecord = _context.FCRegularLocationDetails.OrderByDescending(c => c.Id).First();
 
@@ -185,13 +192,13 @@ namespace ClothResorting.Controllers.Api
         [HttpPost]
         public IHttpActionResult ApplyPreallocatingString([FromUri]int detailId, [FromUri]string operation)
         {
+            var locationList = new List<FCRegularLocationDetail>();
+
             if (operation == "Apply")
             {
                 var cartonDetailInDb = _context.RegularCartonDetails
                     .Include(x => x.POSummary.PreReceiveOrder)
                     .SingleOrDefault(x => x.Id == detailId);
-
-                var preReceiveOrderInDb = cartonDetailInDb.POSummary.PreReceiveOrder;
 
                 var parser = new StringParser();
 
@@ -219,11 +226,72 @@ namespace ClothResorting.Controllers.Api
                 //开始分配库位
                 foreach(var l in list)
                 {
-                    CreateRegularLocation(_context, preReceiveOrderInDb, detailId, l.Ctns * l.Plts, l.Location);
+                    locationList.AddRange(CreateRegularLocation(_context, cartonDetailInDb, l.Ctns * l.Plts, l.Location));
                 }
             }
 
+            _context.FCRegularLocationDetails.AddRange(locationList);
+            _context.SaveChanges();
+
             return Created(Request.RequestUri, " ");
+        }
+
+        // POST /api/fcregularlocationallocating/?preId={preId}&operation={operation}
+        [HttpPost]
+        public IHttpActionResult QuickAllocating([FromUri]int preId, [FromUri]string operation)
+        {
+            var regularCartonsInDb = _context.RegularCartonDetails
+                .Include(x => x.POSummary.PreReceiveOrder)
+                .Where(x => x.POSummary.PreReceiveOrder.Id == preId)
+                .Where(x => x.ToBeAllocatedPcs > 0 || x.ToBeAllocatedCtns > 0);
+
+            var locationList = new List<FCRegularLocationDetail>();
+
+            if (operation == "QuickAllocating")
+            {
+                foreach (var r in regularCartonsInDb)
+                {
+                    locationList.Add(CreateRegularLocationV2(r));
+                }
+            }
+            else if (operation == "ApplyAll")
+            {
+                var appliableCartonDetails = regularCartonsInDb
+                    .Where(x => x.ToBeAllocatedCtns == x.ActualCtns 
+                        && x.ToBeAllocatedPcs == x.ActualPcs 
+                        && (x.ActualPcs > 0 || x.ActualCtns > 0)
+                        && !(x.PreLocation == "" || x.PreLocation == " " || x.PreLocation == null));
+
+                var parser = new StringParser();
+
+                foreach (var a in appliableCartonDetails)
+                {
+                    var list = parser.ParseStrToPreLoc(a.PreLocation);
+                    var totalCtns = SumTotalCartons(list);
+
+                    //如果pre-allocating string中的总箱数大于deatils的可分配箱数则跳过
+                    if (totalCtns > a.ToBeAllocatedCtns)
+                    {
+                        continue;
+                    }
+
+                    //开始分配库位
+                    foreach (var l in list)
+                    {
+                        locationList.AddRange(CreateRegularLocation(_context, a, l.Ctns * l.Plts, l.Location));
+                    }
+                }
+            }
+
+            if (locationList.Any())
+            {
+                _context.FCRegularLocationDetails.AddRange(locationList);
+                _context.SaveChanges();
+            }
+
+            var result = Mapper.Map<IEnumerable<FCRegularLocationDetail>, IEnumerable<FCRegularLocationDetailDto>>(locationList);
+
+            return Created(Request.RequestUri, result);
         }
 
         // PUT /api/fcregularlocationallocating/?preId={preId}
@@ -281,27 +349,27 @@ namespace ClothResorting.Controllers.Api
             return sku;
         }
 
-        private void CreateRegularLocation(ApplicationDbContext context, PreReceiveOrder preReceiveOrderInDb, int deatilId, int cartons, string location)
+        private IEnumerable<FCRegularLocationDetail> CreateRegularLocation(ApplicationDbContext context, RegularCartonDetail detailInDb, int cartons, string location)
         {
             var cartonRange = context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
-                .SingleOrDefault(c => c.Id == deatilId)
+                .SingleOrDefault(c => c.Id == detailInDb.Id)
                 .CartonRange;
 
             var poSummaryId = context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
-                .SingleOrDefault(c => c.Id == deatilId)
+                .SingleOrDefault(c => c.Id == detailInDb.Id)
                 .POSummary
                 .Id;
-
-            var regularCartonDetail = context.RegularCartonDetails.Find(deatilId);
 
             var inOneBoxSKUs = context.RegularCartonDetails
                 .Include(c => c.POSummary.PreReceiveOrder)
                 .Where(c => c.CartonRange == cartonRange
                     && c.POSummary.Id == poSummaryId
-                    && c.Batch == regularCartonDetail.Batch);
+                    && c.Batch == detailInDb.Batch
+                    && (c.Cartons != 0 || c.Quantity != 0));
 
+            var list = new List<FCRegularLocationDetail>();
 
             var index = 1;      //用来甄别多种SKU在同一箱的情况
 
@@ -321,7 +389,7 @@ namespace ClothResorting.Controllers.Api
                     cartonDetailInDb.ToBeAllocatedCtns -= cartons;
                     cartonDetailInDb.ToBeAllocatedPcs -= allocatedPcs;
 
-                    context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    list.Add(new FCRegularLocationDetail
                     {
                         Container = cartonDetailInDb.POSummary.Container,
                         PurchaseOrder = cartonDetailInDb.PurchaseOrder,
@@ -341,7 +409,7 @@ namespace ClothResorting.Controllers.Api
                         AvailablePcs = allocatedPcs,
                         PickingPcs = 0,
                         ShippedPcs = 0,
-                        PreReceiveOrder = preReceiveOrderInDb,
+                        PreReceiveOrder = detailInDb.POSummary.PreReceiveOrder,
                         RegularCaronDetail = cartonDetailInDb,
                         CartonRange = cartonRange,
                         Allocator = _userName,
@@ -355,7 +423,7 @@ namespace ClothResorting.Controllers.Api
                 {
                     cartonDetailInDb.ToBeAllocatedPcs -= cartons * cartonDetailInDb.PcsPerCarton;
 
-                    context.FCRegularLocationDetails.Add(new FCRegularLocationDetail
+                    list.Add(new FCRegularLocationDetail
                     {
                         Container = cartonDetailInDb.POSummary.Container,
                         PurchaseOrder = cartonDetailInDb.PurchaseOrder,
@@ -375,7 +443,7 @@ namespace ClothResorting.Controllers.Api
                         AvailablePcs = cartons * cartonDetailInDb.PcsPerCarton,
                         PickingPcs = 0,
                         ShippedPcs = 0,
-                        PreReceiveOrder = preReceiveOrderInDb,
+                        PreReceiveOrder = detailInDb.POSummary.PreReceiveOrder,
                         RegularCaronDetail = cartonDetailInDb,
                         CartonRange = cartonRange,
                         Allocator = _userName,
@@ -383,15 +451,45 @@ namespace ClothResorting.Controllers.Api
                         Vendor = cartonDetailInDb.Vendor
                     });
                 }
-
-                //if (cartonDetailInDb.ToBeAllocatedCtns == 0)
-                //{
-                //    cartonDetailInDb.Status = "Allocated";
-                //}
-
             }
 
-            context.SaveChanges();
+            return list;
+        }
+
+        private FCRegularLocationDetail CreateRegularLocationV2(RegularCartonDetail cartonDetailInDb)
+        {
+            var result = new FCRegularLocationDetail
+            {
+                Container = cartonDetailInDb.POSummary.Container,
+                PurchaseOrder = cartonDetailInDb.PurchaseOrder,
+                Style = cartonDetailInDb.Style,
+                Color = cartonDetailInDb.Color,
+                CustomerCode = cartonDetailInDb.Customer,
+                SizeBundle = cartonDetailInDb.SizeBundle,
+                PcsBundle = cartonDetailInDb.PcsBundle,
+                Cartons = cartonDetailInDb.ToBeAllocatedCtns,
+                Quantity = cartonDetailInDb.ToBeAllocatedPcs,
+                Location = "FLOOR",
+                PcsPerCaron = cartonDetailInDb.PcsPerCarton,
+                Status = "In Stock",
+                AvailableCtns = cartonDetailInDb.ToBeAllocatedCtns,
+                PickingCtns = 0,
+                ShippedCtns = 0,
+                AvailablePcs = cartonDetailInDb.ToBeAllocatedPcs,
+                PickingPcs = 0,
+                ShippedPcs = 0,
+                PreReceiveOrder = cartonDetailInDb.POSummary.PreReceiveOrder,
+                RegularCaronDetail = cartonDetailInDb,
+                CartonRange = cartonDetailInDb.CartonRange,
+                Allocator = _userName,
+                Batch = cartonDetailInDb.Batch,
+                Vendor = cartonDetailInDb.Vendor
+            };
+
+            cartonDetailInDb.ToBeAllocatedCtns = 0;
+            cartonDetailInDb.ToBeAllocatedPcs = 0;
+
+            return result;
         }
 
         private int SumTotalCartons(IEnumerable<PreLocation> list)
