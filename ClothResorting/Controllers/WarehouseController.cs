@@ -21,5 +21,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        // GET: ReceivingPage
+        public ActionResult FBAReceiving()
+        {
+            return View();
+        }
     }
 }

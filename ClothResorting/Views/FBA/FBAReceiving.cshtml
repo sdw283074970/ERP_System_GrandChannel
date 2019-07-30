@@ -1,53 +1,22 @@
 ﻿
 @{
-    ViewBag.Title = "MasterDetail";
+    ViewBag.Title = "FBAReceiving";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>FBA System</h1>
-<h2>Master Order Detail</h2>
-<h2 id="h2-grandnumber">Grand ID: GRANDID123456</h2>
+<h1>Warehouse Client</h1>
+<h2>FBA Receiving Page</h2>
+<h2 id="h2-grandnumber"></h2>
 
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-upload" type="button" class="btn btn-primary" value="Upload packing list" />
         <input id="btn-receive" type="button" class="btn btn-primary" value="Receive all unreceived sku" />
         <input id="btn-operation" type="button" class="btn btn-primary" value="Register pallets info" />
-        <input id="btn-receipt" type="button" class="btn btn-primary" value="Download warehouse receipt" />
         <input id="btn-allocating" type="button" class="btn btn-primary" value="Allocate location" />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory" />
-    </div>
-    <div style="border:double">
-        <h3>Add new item</h3>
-        <form id="form-table">
-            <table class="table table-condensed table-hover table-striped">
-                <tr>
-                    <th>FBA shmt ID/SKU</th>
-                    <th>Amz Ref ID</th>
-                    <th>FBA whse Code</th>
-                    <th>How To Deliver</th>
-                    <th>GW(KG)</th>
-                    <th>CBM</th>
-                    <th>Quantity</th>
-                    <th>Remark</th>
-                    <th>Operation</th>
-                </tr>
-                <tr>
-                    <td><input id="input-sku" name="sku" class="input-sm" placeholder="Required" required /></td>
-                    <td><input id="input-amz" name="amz" class="input-sm" placeholder="Required" required /></td>
-                    <td><input id="input-whs" name="whs" class="input-sm" placeholder="Required" required /></td>
-                    <td><input id="input-deliver" class="input-sm" placeholder="Optional" /></td>
-                    <td><input id="input-grossweight" name="grossweight" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
-                    <td><input id="input-add-cbm" name="cbm" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
-                    <td><input id="input-qty" name="quantity" type="number" class="input-sm" placeholder="Required" required /></td>
-                    <td><input id="input-remark" class="input-sm" placeholder="Optional" /></td>
-                    <td><input id="btn-add" type="button" class="btn btn-primary" value="Add" /></td>
-                </tr>
-            </table>
-        </form>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -75,15 +44,6 @@
         </table>
     </div>
 </div>
-<div class="iframe">
-    <div style="text-align:center">
-        <input id="input-upload" type="file" class="custom-file-input" accept="xls/xlsx" />
-    </div>
-    <div style="margin-top:20%">
-        <input id="input-uploadtemplate" type="button" class="btn btn-primary" value="Upload Packing List" />
-        <input id="input-download" type="button" class="btn btn-info" value="Download Template" />
-    </div>
-</div>
 <div class="iframe-info">
     <div style="text-align:right;margin-right:20px">
         <text>Actual Gross Weight: <input id="input-gw" type="text" class="input-sm" style="margin-top:20px" /></text><br />
@@ -106,8 +66,6 @@
 {
     <script>
         $(document).ready(function () {
-
-            $(".iframe").hide();
             $(".iframe-info").hide();
             $(".iframe-receive").hide();
 
@@ -136,34 +94,26 @@
 
             var grandNumber = getUrlParameter('grandNumber');
             $("#h2-grandnumber").html("GRAND NUMBER: " + grandNumber);
+            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+            GetAjaxTable("GET", url, table);
 
-            //点击上传打开上传装箱单类型弹窗
-            $("#btn-upload").on("click", function () {
+            //点击各个条目的Update按钮打开更新信息弹窗
+            $("#table").on("click", ".btn-update", function () {
+
+                var model;
+                orderDetailId = $(this).attr('iid');
+
+                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+
+                SendAjaxMethodOverrideObj("GET", url, {});
+
                 index = layer.open({
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["20%", "20%"],
-                    content: $(".iframe")
+                    area: ["400px", "500px"],
+                    content: $(".iframe-info")
                 });
-            });
-
-            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
-
-            GetAjaxTable("GET", url, table);
-
-            //点击上传PL按钮，上传PL
-            $("#input-uploadtemplate").on("click", function () {
-                var formData = new FormData();
-                var files = $("#input-upload").get(0).files;
-
-                if (files.length > 0) {
-                    formData.append("fileName", files[0]);
-                }
-
-                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber;
-
-                SendUploadAjaxMethod("POST", url, formData);
             });
 
             //点击Update按钮，更新信息
@@ -213,25 +163,6 @@
                 $(window.location).attr('href', '/fba/Inventory/?grandNumber=' + grandNumber);
             });
 
-            //点击各个条目的Update按钮打开更新信息弹窗
-            $("#table").on("click", ".btn-update", function () {
-
-                var model;
-                orderDetailId = $(this).attr('iid');
-
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
-
-                SendAjaxMethodOverrideObj("GET", url, {});
-
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["400px", "500px"],
-                    content: $(".iframe-info")
-                });
-            });
-
             //点击确认收货按钮，打开收货弹窗，要求输入并确认柜号和入库时间
             $("#btn-receive").on("click", function () {
                 index = layer.open({
@@ -240,88 +171,6 @@
                     shadeclose: true,
                     area: ["400px", "200px"],
                     content: $(".iframe-receive")
-                });
-            });
-
-            //点击Receipt按钮，下载自动生成的Receipt
-            $("#btn-receipt").on("click", function () {
-                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Download";
-                grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath("GET", url, {}, index);
-            });
-
-            //点击添加按钮，验证信息，如果通过则添加新的货单内容到数据库
-            $("#btn-add").on("click", function () {
-                if (validform("#form-table").form()) {
-                    url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Add";
-
-                    var obj = {
-                        "shipmentId": $("#input-sku").val(),
-                        "amzRefId": $("#input-amz").val(),
-                        "warehouseCode": $("#input-whs").val(),
-                        "deliver": $("#input-deliver").val(),
-                        "grossWeight": $("#input-grossweight").val(),
-                        "cbm": $("#input-add-cbm").val(),
-                        "quantity": $("#input-qty").val(),
-                        "remark": $("#input-remark").val()
-                    }
-
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        contentType: 'application/json; charset=utf-8',
-                        dataType: "json",
-                        data: JSON.stringify(obj),
-                        beforeSend: function () {
-                            layer.close(index);
-                            index = layer.msg('Processing...', {
-                                icon: 3,
-                                shade: 0.01,
-                                time: 99 * 1000
-                            });
-                        },
-                        success: function (data) {
-                            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
-                            GetAjaxTable("GET", url, table);
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                                window.location.reload();
-                            });
-                        }
-                    });
-                }
-                else {
-
-                }
-            });
-
-            //点击删除按钮，删除对应的item
-            $("#table").on("click", ".btn-delete", function () {
-                var orderDetailId = $(this).attr('iid');
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
-
-                $.ajax({
-                    type: "DELETE",
-                    url: url,
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: "json",
-                    beforeSend: function () {
-                        layer.close(index);
-                        index = layer.msg('Processing...', {
-                            icon: 3,
-                            shade: 0.01,
-                            time: 99 * 1000
-                        });
-                    },
-                    success: function (data) {
-                        url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
-                        GetAjaxTable("GET", url, table);
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
-                            window.location.reload();
-                        });
-                    }
                 });
             });
 
@@ -614,3 +463,4 @@
         });
     </script>
 }
+

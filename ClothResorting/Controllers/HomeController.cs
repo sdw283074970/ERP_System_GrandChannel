@@ -50,28 +50,27 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var date1 = new DateTime(2019, 7, 24);
-            var date2 = new DateTime(2019, 7, 1);
+            //var date1 = new DateTime(2019, 7, 24);
+            //var date2 = new DateTime(2019, 7, 1);
 
+            //var cartonDetailsInDb = _context.RegularCartonDetails
+            //    .Include(x => x.POSummary.PreReceiveOrder)
+            //    .Where(x => x.POSummary.PreReceiveOrder.CreatDate < date1 && x.POSummary.PreReceiveOrder.CreatDate >= date2)
+            //    .Where(x => x.Status == Status.ToBeAllocated)
+            //    .Where(x => x.ToBeAllocatedPcs > 0 || x.ToBeAllocatedCtns > 0);
 
-            var cartonDetailsInDb = _context.RegularCartonDetails
-                .Include(x => x.POSummary.PreReceiveOrder)
-                .Where(x => x.POSummary.PreReceiveOrder.CreatDate < date1 && x.POSummary.PreReceiveOrder.CreatDate >= date2)
-                .Where(x => x.Status == Status.ToBeAllocated)
-                .Where(x => x.ToBeAllocatedPcs > 0 || x.ToBeAllocatedCtns > 0);
+            //var locationList = new List<FCRegularLocationDetail>();
 
-            var locationList = new List<FCRegularLocationDetail>();
+            //foreach (var r in cartonDetailsInDb)
+            //{
+            //    locationList.Add(CreateRegularLocationV2(r));
+            //}
 
-            foreach (var r in cartonDetailsInDb)
-            {
-                locationList.Add(CreateRegularLocationV2(r));
-            }
-
-            if (locationList.Any())
-            {
-                _context.FCRegularLocationDetails.AddRange(locationList);
-                _context.SaveChanges();
-            }
+            //if (locationList.Any())
+            //{
+            //    _context.FCRegularLocationDetails.AddRange(locationList);
+            //    _context.SaveChanges();
+            //}
 
             ViewBag.Message = "Your application description page.";
 

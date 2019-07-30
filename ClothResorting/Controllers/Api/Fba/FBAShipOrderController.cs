@@ -696,7 +696,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         //只有托盘中的第一项物品显示托盘数，其他物品不显示并在生成PDF的时候取消表格顶线，99999用于区分是否是同一托盘的非首项
                         if (i == 0)
                         {
-                            plt = pickDetail.ActualPlts;
+                            plt = pickDetail.PltsFromInventory;
                         }
                         else
                         {

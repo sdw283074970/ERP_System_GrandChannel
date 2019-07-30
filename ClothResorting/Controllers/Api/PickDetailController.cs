@@ -137,7 +137,7 @@ namespace ClothResorting.Controllers.Api
 
         // POST /api/pickdetail/?shipOrderId={shipOrderId}&container={container}&customer={customer}&purchaseOrder={purchaseOrder}&style={style}&color={color}&size={size}
         [HttpPost]
-        public void PickByConditions([FromUri]int shipOrderId, [FromUri]string container, [FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
+        public void PickAllMatchedItemsByConditions([FromUri]int shipOrderId, [FromUri]string container, [FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
         {
             var locationsInDb = _context.FCRegularLocationDetails.Where(x => x.AvailablePcs > 0 || x.AvailableCtns > 0);
             var shipOrderInDb = _context.ShipOrders
@@ -225,7 +225,7 @@ namespace ClothResorting.Controllers.Api
 
         // POST /api/pickdetail/?shipOrderId={shipOrderId}&orderType={orderType}
         [HttpPost]
-        public IHttpActionResult PickPermanentSKUs([FromUri]int shipOrderId, [FromUri]string orderType, [FromBody]IEnumerable<PickInfo> objArray)
+        public IHttpActionResult PickItemsByCondition([FromUri]int shipOrderId, [FromUri]string orderType, [FromBody]IEnumerable<PickInfo> objArray)
         {
             var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
 
@@ -241,6 +241,9 @@ namespace ClothResorting.Controllers.Api
 
                 return Created(Request.RequestUri, result);
             }
+
+            shipOrderInDb.Status = Status.Picking;
+            _context.SaveChanges();
 
             return Ok();
         }
