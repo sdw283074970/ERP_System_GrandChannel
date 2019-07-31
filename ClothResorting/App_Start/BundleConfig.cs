@@ -14,7 +14,10 @@ namespace ClothResorting
                         "~/Scripts/DataTables/dataTables.bootstrap.js",
                         "~/Scripts/Customized/GrandChannel.js",
                         "~/Scripts/layer/layer.js",
-                        "~/Scripts/bootbox.js"));
+                        "~/Scripts/bootbox.js",
+                        "~/Scripts/jquery.signalR-2.4.1.js",
+                        "~/Scripts/serviceWorker.min.js",
+                        "~/Scripts/push.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));

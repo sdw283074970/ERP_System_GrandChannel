@@ -84,12 +84,12 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Created")
-                            return "<input type='button' class='btn btn-link btn-fnsreceiving' iid='" + data + "' value='Finish Receiving' />";
-                        else if (status == "New Order")
-                            return "";  
+                        if (status == "New Order")
+                            return "<input type='button' class='btn btn-link btn-start' iid='" + data + "' value='Start Unloading' />";  
+                        else if (status == "Processing")
+                            return "<input type='button' class='btn btn-link btn-return' iid='" + data + "' value='Return Report' />";
                         else if (status == "Received")
-                            return "<input type='button' class='btn btn-link btn-fnsallocating' iid='" + data + "' value='Finish Allocating' />";
+                            return "<input type='button' class='btn btn-link btn-fnsallocating' iid='" + data + "' value='Submit Allocation' />";
                         else if (status == "Allocated")
                             return "";
                         else if (status == "Completed")
@@ -101,14 +101,14 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Created"|| status == "Processing" || status == "Allocated")
-                            return "<input type='button' class='btn btn-link btn-update' iid='" + data + "' value='Update' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
-                        else if (status == "New Order")
-                            return "";  
-                        else if (status == "Processing" || status == "Allocated")
-                            return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Adjust' />";
+                        if (status == "New Order")
+                            return "<input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='View WO' />";  
+                        else if (status == "Processing")
+                            return "<input type='button' class='btn btn-link btn-wo-process' iid='" + data + "' value='Process WO' /><input type='button' class='btn btn-link btn-logon' iid='" + data + "' value='Logon Items' />";
                         else if (status == "Received")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-allocate' iid='" + data + "' value='Allocate Location' />";
+                        else if (status == "Allocated")
+                            return "<input type='button' class='btn btn-link btn-inventory' iid='" + data + "' value='Inventory Control' />";
                         else
                             return "";
                     }
@@ -246,6 +246,12 @@
             //点击outbound log按钮，跳转到inbound log管理界面
             $("#btn-outboundlog").on("click", function () {
                 $(window.location).attr("href", "/Warehouse/Index");
+            });
+
+            //点击登陆物品清单，打开录入收货页面
+            $("#table").on("click", ".btn-logon", function () {
+                var masterOrderId = $(this).attr('iid');
+                $(window.location).attr('href', "/warehouse/FBAReceiving/?masterOrderId=" + masterOrderId);
             });
 
             function getAjaxTable(methodType, url, tableId, table, columsArray, index, searchBar) {

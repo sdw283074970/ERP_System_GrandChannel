@@ -50,27 +50,25 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var date1 = new DateTime(2019, 7, 24);
-            //var date2 = new DateTime(2019, 7, 1);
+            var regularCartonDetailsInDb = _context.RegularCartonDetails
+                .Include(x => x.FCRegularLocationDetail)
+                .Where(x => x.Container == "TCNU4354482");
 
-            //var cartonDetailsInDb = _context.RegularCartonDetails
-            //    .Include(x => x.POSummary.PreReceiveOrder)
-            //    .Where(x => x.POSummary.PreReceiveOrder.CreatDate < date1 && x.POSummary.PreReceiveOrder.CreatDate >= date2)
-            //    .Where(x => x.Status == Status.ToBeAllocated)
-            //    .Where(x => x.ToBeAllocatedPcs > 0 || x.ToBeAllocatedCtns > 0);
+            foreach(var r in regularCartonDetailsInDb)
+            {
+                if (r.FCRegularLocationDetail.Any())
+                {
+                    r.Status = Status.Allocated;
+                }
+                else
+                {
+                    r.Status = Status.ToBeAllocated;
+                    r.ToBeAllocatedCtns = r.Cartons;
+                    r.ToBeAllocatedPcs = r.Quantity;
+                }
+            }
 
-            //var locationList = new List<FCRegularLocationDetail>();
-
-            //foreach (var r in cartonDetailsInDb)
-            //{
-            //    locationList.Add(CreateRegularLocationV2(r));
-            //}
-
-            //if (locationList.Any())
-            //{
-            //    _context.FCRegularLocationDetails.AddRange(locationList);
-            //    _context.SaveChanges();
-            //}
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 

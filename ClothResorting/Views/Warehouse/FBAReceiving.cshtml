@@ -6,17 +6,17 @@
 
 <h1>Warehouse Client</h1>
 <h2>FBA Receiving Page</h2>
-<h2 id="h2-grandnumber"></h2>
+<h2 id="h2-container"></h2>
 
 <div class="maincontainer">
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div>
+    <div style="margin:20px">
         <input id="btn-receive" type="button" class="btn btn-primary" value="Receive all unreceived sku" />
-        <input id="btn-operation" type="button" class="btn btn-primary" value="Register pallets info" />
+        @*<input id="btn-operation" type="button" class="btn btn-primary" value="Register pallets info" />
         <input id="btn-allocating" type="button" class="btn btn-primary" value="Allocate location" />
-        <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory" />
+        <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory" />*@
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -56,7 +56,7 @@
 </div>
 <div class="iframe-receive">
     <div style="text-align:right;margin-right:20px">
-        <text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" placeholder="Required" /></text><br />
+        @*<text>Container #: <input id="input-updatecontainer" type="text" class="input-sm" style="margin-top:20px;width:170px" placeholder="Required" /></text><br />*@
         <text>Inbound Date: <input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" /></text><br />
         <button id="btn-updatereceiving" class="btn btn-primary" style="margin-top:20px">Confirm</button>
     </div>
@@ -92,9 +92,9 @@
                 }
             };
 
-            var grandNumber = getUrlParameter('grandNumber');
-            $("#h2-grandnumber").html("GRAND NUMBER: " + grandNumber);
-            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+            var masterOrderId = getUrlParameter('masterOrderId');
+            //$("#h2-container").html("Container: " + grandNumber);
+            url = '/api/fba/MasterDetail/?masterOrderId=' + masterOrderId;
             GetAjaxTable("GET", url, table);
 
             //点击各个条目的Update按钮打开更新信息弹窗
@@ -165,13 +165,16 @@
 
             //点击确认收货按钮，打开收货弹窗，要求输入并确认柜号和入库时间
             $("#btn-receive").on("click", function () {
-                index = layer.open({
-                    title: false,
-                    type: 1,
-                    shadeclose: true,
-                    area: ["400px", "200px"],
-                    content: $(".iframe-receive")
-                });
+                //index = layer.open({
+                //    title: false,
+                //    type: 1,
+                //    shadeclose: true,
+                //    area: ["400px", "200px"],
+                //    content: $(".iframe-receive")
+                //});
+
+                url = "/api/fba/masterdetail/?masterOrderId=" + masterOrderId;
+                SendAjaxMethod("PUT", url, {});
             });
 
             function GetAjaxTable(methodType, url, table) {
@@ -302,10 +305,7 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        if (status != "Locked")
-                                            return "<button iid='" + data + "' class='btn btn-link btn-update'>Update</button><button iid='" + data + "' class='btn btn-link btn-delete'>Delete</button>";
-                                        else
-                                            return "<button iid='" + data + "' class='btn btn-link btn-update'>Update</button>";
+                                        return "<button iid='" + data + "' class='btn btn-link btn-update'>Update</button>";
                                     }
                                 }
                             ]

@@ -50,6 +50,26 @@
                 $(window.location).attr('href', "/thirdpartylogistics/index/?timeFrom=" + timeFrom + "&timeTo=" + timeTo);
             });
 
+            var conn = $.connection("/testconnection");
+
+            //conn.start().done(function (data) {
+            //    console.log("已连接服务器，当前GUID为：" + data.id);
+            //    conn.send("To Admin");
+            //});
+
+            //conn.received(function (data) {
+            //    console.log("服务器返回消息：" + data);
+            //});
+
+            //Push.create("您已成功连接服务器订单/通知推送模块！", {
+            //    body: "You have connected to notification server!",
+            //    icon: '/Img/c2qb_green_btn_sm_default.png',
+            //    timeout: 10000,
+            //    onClick: function () {
+            //        window.focus;
+            //        this.close;
+            //    }
+            //});
         });
 
     </script>

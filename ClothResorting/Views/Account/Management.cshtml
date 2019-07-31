@@ -12,6 +12,12 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-default btn-adduser" value="Add new user" />
     </div>
+    <div style="margin:20px">
+        <h3>广播通知Broadcast</h3><br />
+        <text>Title: </text><input style="width:150px" id="input-title" class="input-sm" />
+        <text>Body: </text><input style="width:300px" id="input-body" class="input-sm" />
+        <button id="btn-broadcast" class="btn btn-primary">Broadcast</button>
+    </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
@@ -64,6 +70,7 @@
             var table_roles;
             var searchBar;
             var userId;
+            var conn = $.connection("/testconnection");
 
             $(".iframe").hide();
 
@@ -168,6 +175,42 @@
             //点击添加新用户按钮，转到register页面
             $(".btn-adduser").on("click", function () {
                 $(window.location).attr('href', "register");
+            });
+
+            $("#btn-broadcast").on("click", function () {
+                var title = $("#input-title").val();
+                var body = $("#input-body").val();
+
+                conn.start().done(function (data) {
+                    console.log("已连接服务器，当前GUID为：" + data.id);
+                    conn.send(title + ":" + body);
+                });
+
+                //Push.Create(title, {
+                //    body: body,
+                //    icon: '/Img/c2qb_green_btn_sm_default.png',
+                //    timeout: 10000,
+                //    onClick: function () {
+                //        window.focus;
+                //        this.close;
+                //    }
+                //});
+
+                conn.received(function (data) {
+
+                    var t = data.split(':')[0];
+                    var b = data.split(':')[1];
+
+                    Push.create(t, {
+                        body: b,
+                        icon: '/Img/grandchannel_small.png',
+                        timeout: 10000,
+                        onClick: function () {
+                            window.focus;
+                            this.close;
+                        }
+                    });
+                });
             });
         });
     </script>

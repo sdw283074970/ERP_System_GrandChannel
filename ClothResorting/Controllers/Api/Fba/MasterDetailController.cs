@@ -50,7 +50,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/masterdetail/?grandNumber={grandNumber}
         [HttpGet]
-        public IHttpActionResult GetMasterDetails([FromUri]string grandNumber)
+        public IHttpActionResult GetMasterDetailsByGrandNumber([FromUri]string grandNumber)
         {
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
@@ -58,6 +58,26 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Where(x => x.GrandNumber == grandNumber);
 
             foreach(var o in orderDetailsInDb)
+            {
+                if (o.FBACartonLocations.Count != 0)
+                    o.Status = "Locked";
+                else
+                    o.Status = "Open";
+            }
+
+            return Ok(Mapper.Map<IEnumerable<FBAOrderDetail>, IEnumerable<FBAOrderDetailDto>>(orderDetailsInDb));
+        }
+
+        // GET /api/fba/masterdetail/?masterOrderId={masterOrderId}
+        [HttpGet]
+        public IHttpActionResult GetMasterDetailsByMasterOrderId([FromUri]int masterOrderId)
+        {
+            var orderDetailsInDb = _context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .Include(x => x.FBACartonLocations)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            foreach (var o in orderDetailsInDb)
             {
                 if (o.FBACartonLocations.Count != 0)
                     o.Status = "Locked";
@@ -215,6 +235,37 @@ namespace ClothResorting.Controllers.Api.Fba
                 throw new Exception("Contianer Number " + container + " has been taken. Please delete the existed order and try agian.");
             }
         }
+
+        // PUT /api/fba/masterDetail/?masterOrderId={masterOrderId}
+        [HttpPut]
+        public void UpdateReceivingWithoutReceivingDate([FromUri]int masterOrderId)
+        {
+
+            var orderDetailsInDb = _context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            var masterInDb = orderDetailsInDb.First().FBAMasterOrder;
+
+            //如果已经分配库位了，就不能使用这个批量收货的功能
+            if (_context.FBACartonLocations.Where(x => x.Container == masterInDb.Container).Count() > 0)
+            {
+                throw new Exception("Cannot using this batch receving function because there were some items allocated.");
+            }
+
+            foreach (var detail in orderDetailsInDb)
+            {
+                if (detail.ActualQuantity == 0)
+                {
+                    detail.ActualCBM = detail.CBM;
+                    detail.ActualGrossWeight = detail.GrossWeight;
+                    detail.ActualQuantity = detail.Quantity;
+                }
+            }
+
+            _context.SaveChanges();
+        }
+
 
         // DELETE /api/fba/masterdetail/?orderDetailId={orderDetailId}
         [HttpDelete]

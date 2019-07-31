@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin;
+﻿using ClothResorting.Manager;
+using Microsoft.Owin;
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(ClothResorting.Startup))]
@@ -8,6 +9,7 @@ namespace ClothResorting
     {
         public void Configuration(IAppBuilder app)
         {
+            app.MapSignalR<DefaultConnection>("/testconnection");
             ConfigureAuth(app);
         }
     }

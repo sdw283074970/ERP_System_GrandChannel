@@ -55,7 +55,7 @@ namespace ClothResorting.Helpers.DPHelper
                 newBill.LabelBillDetails = ConvertStringToDetail(str, chargingItemList);
                 billList.Add(newBill);
 
-                string dms = _ws.Cells[i + 2, 34].Value2.ToString();
+                string dms = _ws.Cells[i + 2, 34].Value2.ToString() == null ?? "0x0x0";
 
                 if (dms == "0")
                 {
