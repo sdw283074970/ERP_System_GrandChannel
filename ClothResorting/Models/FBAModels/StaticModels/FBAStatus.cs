@@ -11,6 +11,10 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Received = "Received";
 
+        public const string Registered = "Registered";
+
+        public const string Arrived = "Arrived";
+
         public const string Allocated = "Allocated";
 
         public const string WaitingForCharging = "Waiting for charging";

@@ -1724,6 +1724,14 @@
     <Compile Include="Migrations\201907122309052_ModifiedFBAMasterOrder.Designer.cs">
       <DependentUpon>201907122309052_ModifiedFBAMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201908010107073_AddedUnloadStartTime.cs" />
+    <Compile Include="Migrations\201908010107073_AddedUnloadStartTime.Designer.cs">
+      <DependentUpon>201908010107073_AddedUnloadStartTime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201908010157255_AddedVerifiedBy.cs" />
+    <Compile Include="Migrations\201908010157255_AddedVerifiedBy.Designer.cs">
+      <DependentUpon>201908010157255_AddedVerifiedBy.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3210,6 +3218,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201907122309052_ModifiedFBAMasterOrder.resx">
       <DependentUpon>201907122309052_ModifiedFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908010107073_AddedUnloadStartTime.resx">
+      <DependentUpon>201908010107073_AddedUnloadStartTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908010157255_AddedVerifiedBy.resx">
+      <DependentUpon>201908010157255_AddedVerifiedBy.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

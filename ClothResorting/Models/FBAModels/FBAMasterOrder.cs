@@ -34,6 +34,8 @@ namespace ClothResorting.Models.FBAModels
 
         public DateTime UnloadFinishTime { get; set; }
 
+        public DateTime UnloadStartTime { get; set; }
+
         public string Status { get; set; }
 
         public UpperVendor Customer { get; set; }
@@ -41,6 +43,8 @@ namespace ClothResorting.Models.FBAModels
         public float TotalAmount { get; set; }
 
         public string ConfirmedBy { get; set; }
+
+        public string VerifiedBy { get; set; }
 
         public int OriginalPlts { get; set; }
 
@@ -93,6 +97,7 @@ namespace ClothResorting.Models.FBAModels
             AvailableTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             PushTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             UnloadFinishTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            UnloadStartTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             Status = StaticClass.Status.NewCreated;
         }
     }

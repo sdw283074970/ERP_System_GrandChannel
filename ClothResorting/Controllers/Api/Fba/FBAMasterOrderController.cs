@@ -99,10 +99,15 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetUnloadWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
         {
-            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            var masterOrderInDb = _context.FBAMasterOrders
+                .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
+                .Include(x => x.FBAPallets)
+                .SingleOrDefault(x => x.Id == masterOrderId);
+
             if (operation == "WO")
             {
-                var unloadWO = new UnloadWorkOrder {
+                var unloadWO = new UnloadWorkOrder
+                {
                     PlaceTime = masterOrderInDb.PushTime,
                     UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
                     ETA = masterOrderInDb.ETA,
@@ -111,8 +116,20 @@ namespace ClothResorting.Controllers.Api.Fba
                     Carrier = masterOrderInDb.Carrier,
                     InboundDate = masterOrderInDb.InboundDate,
                     OutTime = masterOrderInDb.OutTime,
-                    IsDamaged = masterOrderInDb.IsDamaged
-            };
+                    IsDamaged = masterOrderInDb.IsDamaged,
+                    VerifiedBy = masterOrderInDb.VerifiedBy,
+                    UnloadStartTime = masterOrderInDb.UnloadStartTime,
+                    DockNumber = masterOrderInDb.DockNumber
+                };
+
+                double logonProgress = masterOrderInDb.FBAOrderDetails != null ? (double)masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity) / (double)masterOrderInDb.FBAOrderDetails.Sum(x => x.Quantity) : 0;
+                unloadWO.LogonProgress = (float)Math.Round(logonProgress, 2) * 100;
+
+                double registerProgress = masterOrderInDb.FBAPallets != null ? (double)masterOrderInDb.FBAPallets.Sum(x => x.ActualQuantity) / (double)masterOrderInDb.FBAOrderDetails.Sum(x => x.Quantity) : 0;
+                unloadWO.RegisterProgress = (float)Math.Round(registerProgress, 2) * 100;
+
+                double allocationProgress = masterOrderInDb.FBAOrderDetails != null ? (double)masterOrderInDb.FBAOrderDetails.Select(x => x.FBACartonLocations.Sum(c => c.ActualQuantity)).Sum() / (double)masterOrderInDb.FBAOrderDetails.Sum(z => z.Quantity) : 0;
+                unloadWO.AllocationProgress = (float)Math.Round(allocationProgress, 2) * 100;
 
                 var packingList = _context.FBAOrderDetails
                     .Include(x => x.FBAMasterOrder)
@@ -343,6 +360,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public DateTime UnloadFinishTime { get; set; }
 
+        public DateTime UnloadStartTime { get; set; }
+
         public string ETA { get; set; }
 
         public string Container { get; set; }
@@ -350,6 +369,16 @@ namespace ClothResorting.Controllers.Api.Fba
         public string GrandNumber { get; set; }
 
         public string Carrier { get; set; }
+
+        public string VerifiedBy { get; set; }
+
+        public float LogonProgress { get; set; }
+
+        public float RegisterProgress { get; set; }
+
+        public float AllocationProgress { get; set; }
+
+        public string DockNumber { get; set; }
 
         public DateTime InboundDate { get; set; }
 

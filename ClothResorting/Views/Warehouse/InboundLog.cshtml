@@ -11,6 +11,17 @@
     <div style="margin:20px">
         <input id="btn-outboundlog" type="button" class="btn btn-primary" value="View Outbound Log" />
     </div>
+    <div style="margin:20px">
+        <font size="5">Catagory: </font>
+        <input name="all" type="button" class="btn btn-default btn-color" value="All" />
+        <input name="incoming" style="background-color:orange;color:white" type="button" class="btn btn-default btn-color" value="Incoming Order" />
+        <input name="arriced" style="background-color:darkcyan;color:white" type="button" class="btn btn-default btn-color" value="Arrived Order" />
+        <input name="processing" style="background-color:red;color:white" type="button" class="btn btn-default btn-color" value="Processing Order" />
+        <input name="received" style="background-color:green;color:white" type="button" class="btn btn-default btn-color" value="Received Order" />
+        <input name="registered" style="background-color:purple;color:white" type="button" class="btn btn-default btn-color" value="Registered Order" />
+        <input name="allocated" style="background-color:brown;color:white" type="button" class="btn btn-default btn-color" value="Allocated Order" />
+        <input name="completed" style="background-color:darkblue;color:white" type="button" class="btn btn-default btn-color" value="Completed Order" />
+    </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
@@ -33,7 +44,8 @@
                     <th>LUMPER SVC</th>
                     <th style="width:200px">INSTRUCTION</th>
                     <th style="width:80px">PUSH DATE</th>
-                    <th style="width:80px">UNLOAD TIME</th>
+                    <th style="width:80px">START TIME</th>
+                    <th style="width:80px">FINISH TIME</th>
                     <th style="width:80px">EPT CNTR AVA TIME</th>
                     <th style="width:80px">EPT CNTR OUT TIME</th>
                     <th style="width:200px">OPLOG</th>
@@ -43,6 +55,38 @@
         </table>
     </div>
 </div>
+<div class="iframe-fbadate">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Operation Date: </text><input type="datetime-local" id='input-operationdate' style='width:200px' class='input-sm' /><br />
+        <button id="btn-confirm" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm</button>
+    </div>
+</div>
+<div class="iframe-detail">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Comment: </text><input id='input-detail-comment' style='width:400px' class='input-sm' /><br />
+        <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Add</button>
+        <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
+    </div>
+</div>
+<div class="iframe-update">
+    <h2 id="h2-title"style="margin-left:20px" ></h2>
+    <form id="form-create">
+        <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
+            <text>Inbound Date: <input name="inbounddate" id='input-inbounddate' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <text>Unload Finish Time: <input name="finishtime" id='input-finishtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <text>Trailer Ava Time: <input name="availabletime" id='input-avatime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+        </div>
+        <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
+            <text>Ept Trailer Out Time: <input name="outtime" id='input-outtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <text>Dock Number: <input name="docknumber" id='input-docknumber' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
+            <text>Verified By: <input name="verifiedby" id='input-verifiedby' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
+            <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Save&Update</button>
+            <button type="button" id="btn-report" class='btn btn-primary' style="margin-top:20px">Submit Report</button>
+        </div>
+    </form>
+</div>
+@Html.Partial("~/Views/FBA/_FBAMasterOrderPartialView.cshtml", null)
+
 @section scripts
 {
     <script>
@@ -51,8 +95,14 @@
             var index;
             var table;
             var url;
+            var operation;
+            var masterOrderId;
             var searchBar = grandChannel.getUrlParameter('search');
 
+            $(".iframe-wo-push, .iframe-wo-view").hide();
+            $(".iframe-wo-process").hide();
+            $(".iframe-fbadate, .iframe-detail, .iframe-update").hide();
+            $("#btn-update, #btn-report").hide();
 
             var columnsArray = [
                 {
@@ -67,12 +117,16 @@
                         status = data;
                         if (data == "New Created")
                             return "<font color='gray'>" + data + "</font>"
-                        if (data == "New Order")
+                        if (data == "Incoming")
                             return "<font color='orange'>" + data + "</font>"
+                        else if (data == "Arrived")
+                            return "<font color='darkcyan'>" + data + "</font>";
                         else if (data == "Processing" || data == "Pending")
                             return "<font color='red'>" + data + "</font>";
                         else if (data == "Received")
                             return "<font color='green'>" + data + "</font>";
+                        else if (data == "Registered")
+                            return "<font color='purple'>" + data + "</font>";
                         else if (data == "Allocated")
                             return "<font color='brown'>" + data + "</font>";
                         else if (data == "Completed")
@@ -84,16 +138,20 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Order")
-                            return "<input type='button' class='btn btn-link btn-start' iid='" + data + "' value='Start Unloading' />";  
+                        if (status == "Incoming")
+                            return "<input type='button' class='btn btn-link btn-receive' iid='" + data + "' value='Mark Received' />";
+                        if (status == "Arrived")
+                            return "<input type='button' class='btn btn-link btn-start' iid='" + data + "' value='Start Unloading' />";
                         else if (status == "Processing")
-                            return "<input type='button' class='btn btn-link btn-return' iid='" + data + "' value='Return Report' />";
+                            return "<input type='button' class='btn btn-link btn-report' iid='" + data + "' value='Submit Report' />";
                         else if (status == "Received")
-                            return "<input type='button' class='btn btn-link btn-fnsallocating' iid='" + data + "' value='Submit Allocation' />";
+                            return "<input type='button' class='btn btn-link btn-registered' iid='" + data + "' value='Submit Register' />";
+                        else if (status == "Registered")
+                            return "<input type='button' class='btn btn-link btn-allocated' iid='" + data + "' value='Submit Allocation' />";
                         else if (status == "Allocated")
                             return "";
                         else if (status == "Completed")
-                            return "";  
+                            return "";
                         else
                             return "";
                     }
@@ -101,12 +159,14 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Order")
-                            return "<input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='View WO' />";  
+                        if (status == "Incoming" || status == "Arrived")
+                            return "<input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='View WO' />";
                         else if (status == "Processing")
-                            return "<input type='button' class='btn btn-link btn-wo-process' iid='" + data + "' value='Process WO' /><input type='button' class='btn btn-link btn-logon' iid='" + data + "' value='Logon Items' />";
+                            return "<input type='button' class='btn btn-link btn-wo-process' iid='" + data + "' value='Process WO' />";
                         else if (status == "Received")
-                            return "<input type='button' class='btn btn-link btn-allocate' iid='" + data + "' value='Allocate Location' />";
+                            return "<input type='button' class='btn btn-link btn-registering' iid='" + data + "' value='Register Plt' />";
+                        else if (status == "Registered")
+                            return "<input type='button' class='btn btn-link btn-allocating' iid='" + data + "' value='Allocate Location' />";
                         else if (status == "Allocated")
                             return "<input type='button' class='btn btn-link btn-inventory' iid='" + data + "' value='Inventory Control' />";
                         else
@@ -140,12 +200,16 @@
                 {
                     data: "inboundDate",
                     render: function (data) {
+                        if (data.substring(0, 4) == "1900")
+                            return "";
                         return "<text>" + data.substring(0, 10) + "</text>";
                     }
                 },
                 {
                     data: "dockNumber",
                     render: function (data) {
+                        if (data == null)
+                            return "";
                         return "<text>" + data + "</text>";
                     }
                 },
@@ -183,12 +247,16 @@
                 {
                     data: "lumper",
                     render: function (data) {
+                        if (data == null)
+                            return "";
                         return "<text>" + data + "</text>";
                     }
                 },
                 {
                     data: "instruction",
                     render: function (data) {
+                        if (data == null)
+                            return "";
                         return "<text>" + data + "</text>";
                     }
                 },
@@ -201,10 +269,18 @@
                     }
                 },
                 {
-                    data: "unloadTime",
+                    data: "unloadStartTime",
                     render: function (data) {
                         if (data == "1900-01-01T00:00:00")
-                            return "<font color='red'></font>"
+                            return "<font></font>"
+                        return "<text>" + data.substring(0, 10) + "</text>";
+                    }
+                },
+                {
+                    data: "unloadFinishTime",
+                    render: function (data) {
+                        if (data == "1900-01-01T00:00:00")
+                            return "<font></font>"
                         return "<text>" + data.substring(0, 10) + "</text>";
                     }
                 },
@@ -234,24 +310,106 @@
             url = "/api/WarehouseInboundLog/";
             getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
 
-            //点击操作中的更新按钮，更新五个数据
+            //点击View WO按钮，打开浏览unload work order页面
+            $("#table").on("click", ".btn-wo-readonly", function () {
+                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
+                masterOrderId = $(this).attr('iid');
 
-            //点击状态控制栏下的完成收货按钮，将收货单标记为完成收货
-            $("#table").on("click", ".btn-fnsreceiving", function () {
+                GetWorkOrder(masterOrderId, customerCode, ".iframe-wo-view");
+            });
+
+            //点击标记到货按钮，填写到货日期
+            $("#table").on("click", ".btn-receive", function () {
+                var button = $(this);
+                operation = "MarkInboundDate";
+                masterOrderId = button.attr('iid');
+
+                grandChannel.openiframe(index, ".iframe-fbadate", "400px", "150px");
+            });
+
+            //点击FBA订单的开始卸货按钮，打开填写日期弹窗
+            $("#table").on("click", ".btn-start", function () {
+                var button = $(this);
+                operation = "Start";
+                masterOrderId = button.attr('iid');
+
+                grandChannel.openiframe(index, ".iframe-fbadate", "400px", "150px");
+            });
+
+            //点击弹出日期框的确认按钮，确认操作
+            $("#btn-confirm").on("click", function () {
+                layer.close(index);
+                var operationDate = $("#input-operationdate").val();
+
+                if (operationDate != "") {
+                    url = "/api/warehouseinboundlog/?masterOrderId=" + shipOrderId + "&operationDate=" + operationDate + "&operation=" + operation;
+                    grandChannel.sendAjaxMethod("PUT", url, {}, index);
+                }
+                else {
+                    alert("Date cannot be empty.");
+                }
+            });
+
+            //点击Process WO按钮，打开处理WO页面
+            $("#table").on("click", ".btn-wo-process", function () {
+                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
+                masterOrderId = $(this).attr('iid');
+
+                GetWorkOrder(masterOrderId, customerCode, ".iframe-wo-process");
+            });
+
+            //点击WO中的logon items按钮，跳转到录入收货页面
+            $(".btn-logon").on("click", function () {
+                $(window.location).attr('href', "/warehouse/FBAReceiving/?masterOrderId=" + masterOrderId);
+            });
+
+            //点击提交报告按钮，弹出填写报告日期弹窗
+            $("#table").on("click", ".btn-report", function () {
+                var button = $(this);
+                operation = "Report";
+                masterOrderId = button.attr('iid');
+                $("#btn-update, #btn-report").show();
+                $("#h2-title").html("Submit Unloading Report");
+
+                url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId + "&operation=Update";
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $("#input-inbounddate").val(transFormatDate(data.inboundDate));
+                        $("#input-finishtime").val(transFormatDate(data.unloadFinishTime));
+                        $("#input-avatime").val(transFormatDate(data.availableTime));
+                        $("#input-outtime").val(transFormatDate(data.outTime));
+                        $("#input-docknumber").val(transFormatDate(data.dockNumber));
+                        $("#input-verifiedby").val(transFormatDate(data.verifiedBy));
+                    }
+                });
+
+                grandChannel.openiframe(index, ".iframe-update", "800px", "350px");
+            });
+
+            //点击提交卸货报告弹窗中的提交按钮，将收货单标记为完成收货并提交收货报告
+            $("#btn-report").on("click", function () {
                 var orderId = $(this).attr('iid');
-                url = "/api/warehouse/warehouseinboundlog/?masterOrderId=" + orderId + "&operation=Receive"
+                url = "/api/warehouse/warehouseinboundlog/?masterOrderId=" + orderId + "&operation=Report"
                 grandChannel.sendAjaxMethod("PUT", url, {}, index);
             });
 
             //点击outbound log按钮，跳转到inbound log管理界面
             $("#btn-outboundlog").on("click", function () {
                 $(window.location).attr("href", "/Warehouse/Index");
-            });
-
-            //点击登陆物品清单，打开录入收货页面
-            $("#table").on("click", ".btn-logon", function () {
-                var masterOrderId = $(this).attr('iid');
-                $(window.location).attr('href', "/warehouse/FBAReceiving/?masterOrderId=" + masterOrderId);
             });
 
             function getAjaxTable(methodType, url, tableId, table, columsArray, index, searchBar) {
@@ -299,6 +457,185 @@
                     }
                 });
             };
+
+            function transDate(date) {
+                return date.substring(0, 4) == "1900" ? " " : date.substring(0, 10);
+            }
+
+            function transFormatDate(date) {
+                return date.substring(0, 4) == "1900" ? " " : date;
+            }
+
+            function GetWorkOrder(masterOrderId, customerCode, pageId) {
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+                url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=WO";
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $(".text-place").html(transDate(data.placeTime));
+                        $(".text-finish").html(transDate(data.unloadFinishTime));
+                        $(".text-eta").html(transDate(data.eta));
+                        $(".text-inbound").html(transDate(data.inboundDate));
+                        $(".text-out").html(transDate(data.outTime));
+                        $(".text-damage").html(data.isDamaged);
+                        $(".text-container").html(data.container);
+                        $(".text-grandnumber").html(data.grandNumber);
+                        $(".text-start").html(transDate(data.unloadStartTime));
+                        $(".text-logon").html(data.logonProgress.toFixed(2) + "%");
+                        $(".text-verified").html(data.verifiedBy);
+                        $(".text-register").html(data.registerProgress.toFixed(2) + "%");
+                        $(".text-dock").html(data.dock);
+                        $(".text-allocation").html(data.allocationProgress.toFixed(2) + "%");
+
+                        var plColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "shipmentId",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "amzRefId",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "warehouseCode",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "grossWeight",
+                                render: function (data) {
+                                    if (data != 0)
+                                        return "<text>" + data + "</text>";
+                                    else
+                                        return "";
+                                }
+                            },
+                            {
+                                data: "cbm",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "quantity",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            }
+                        ];
+                        $(".table-packinglist").DataTable({
+                            data: data.packingList,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "200px",
+                            iDisplayLength: 100,
+                            columns: plColumnArray
+                        });
+
+                        var osColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "result",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "handlingStatus",
+                                render: function (data) {
+                                    if (data == "New")
+                                        return "<font color='blue'>" + data + "</font>";
+                                    else if (data == "Pending")
+                                        return "<font color='red'>" + data + "</font>";
+                                    else if (data == "Returned")
+                                        return "<font color='Orange'>" + data + "</font>";
+                                    else if (data == "Finished")
+                                        return "<font color='green'>" + data + "</font>";
+                                    else
+                                        return "<font>Invaild Date</font>"
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    if (pageId == ".iframe-wo-view")
+                                        return "";
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                }
+                            }
+                        ];
+                        table = $(".table-wo").DataTable({
+                            data: data.operationInstructions,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[0, "desc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: osColumnArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            }
         });
     </script>
 }

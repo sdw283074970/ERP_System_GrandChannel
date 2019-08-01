@@ -1,4 +1,4 @@
-﻿<div class="iframe-wo" style="margin:20px">
+﻿<div class="ifram-wo iframe-wo-push" style="margin:20px">
     <h1>Unload Work Order</h1>
     <h2 class="h2-customercode"></h2>
     @*<button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>*@
@@ -6,18 +6,24 @@
         <h3>Summary</h3>
         <div style="float:left;width:33%;border:dotted;border-color:red">
             <text>Place Time:</text><text class="text-place"> </text><br />
+            <text>Start Time:</text><text class="text-start"> </text><br />
             <text>Finish Time:</text><text class="text-finish"> </text><br />
             <text>ETA:</text><text class="text-eta"> </text><br />
+            <text>Logon Progress:</text><text class="text-logon"> </text><br />
         </div>
         <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
             <text>Container #:</text><text class="text-container"> </text><br />
             <text>GRND #:</text><text class="text-grandnumber"> </text><br />
             <text>Carrier:</text><text class="text-carrier"> </text><br />
+            <text>Verified By:</text><text class="text-verified"> </text><br />
+            <text>Register Progress:</text><text class="text-register"> </text><br />
         </div>
         <div style="float:right;width:33%;border:dotted;border-color:blue">
             <text>Inbound Time:</text><text class="text-inbound"> </text><br />
             <text>Out Time:</text><text class="text-out"> </text><br />
+            <text>Dock #:</text><text class="text-dock"> </text><br />
             <text>Is damaged:</text><text class="text-damage"> </text><br />
+            <text>Allocation Progress:</text><text class="text-allocation"> </text><br />
         </div>
     </div>
     <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
@@ -58,5 +64,134 @@
     </div>
     <div style="text-align:center">
         <button class="btn btn-primary btn-push" style="margin-top:20px">Push</button>
+    </div>
+</div>
+<div class="ifram-wo iframe-wo-view" style="margin:20px">
+    <h1>Unload Work Order</h1>
+    <h2 class="h2-customercode"></h2>
+    @*<button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>*@
+    <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
+        <h3>Summary</h3>
+        <div style="float:left;width:33%;border:dotted;border-color:red">
+            <text>Place Time:</text><text class="text-place"> </text><br />
+            <text>Start Time:</text><text class="text-start"> </text><br />
+            <text>Finish Time:</text><text class="text-finish"> </text><br />
+            <text>ETA:</text><text class="text-eta"> </text><br />
+            <text>Logon Progress:</text><text class="text-logon"> </text><br />
+        </div>
+        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
+            <text>Container #:</text><text class="text-container"> </text><br />
+            <text>GRND #:</text><text class="text-grandnumber"> </text><br />
+            <text>Carrier:</text><text class="text-carrier"> </text><br />
+            <text>Verified By:</text><text class="text-verified"> </text><br />
+            <text>Register Progress:</text><text class="text-register"> </text><br />
+        </div>
+        <div style="float:right;width:33%;border:dotted;border-color:blue">
+            <text>Inbound Time:</text><text class="text-inbound"> </text><br />
+            <text>Out Time:</text><text class="text-out"> </text><br />
+            <text>Dock #:</text><text class="text-dock"> </text><br />
+            <text>Is damaged:</text><text class="text-damage"> </text><br />
+            <text>Allocation Progress:</text><text class="text-allocation"> </text><br />
+        </div>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Packing List</h3>
+        <table class="table table-condensed table-hover table-striped table-packinglist">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>FBA ID/SKU</th>
+                    <th>AMZ ID</th>
+                    <th>WHS CODE</th>
+                    <th>GW(KG)</th>
+                    <th>CBM</th>
+                    <th>QUANTITY</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Operation Instruction</h3>
+        <table class="table table-condensed table-hover table-striped table-wo">
+            <thead>
+                <tr>
+                    <th style="width:50px">Id</th>
+                    <th>Description</th>
+                    <th>Comment</th>
+                    <th>Result</th>
+                    <th>Charging Status</th>
+                    <th>Status</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="ifram-wo iframe-wo-process" style="margin:20px">
+    <h1>Unload Work Order</h1>
+    <h2 class="h2-customercode"></h2>
+    @*<button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>*@
+    <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
+        <h3>Summary</h3>
+        <div style="float:left;width:33%;border:dotted;border-color:red">
+            <text>Place Time:</text><text class="text-place"> </text><br />
+            <text>Start Time:</text><text class="text-start"> </text><br />
+            <text>Finish Time:</text><text class="text-finish"> </text><br />
+            <text>ETA:</text><text class="text-eta"> </text><br />
+            <text>Logon Progress:</text><text class="text-logon"> </text><br />
+        </div>
+        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
+            <text>Container #:</text><text class="text-container"> </text><br />
+            <text>GRND #:</text><text class="text-grandnumber"> </text><br />
+            <text>Carrier:</text><text class="text-carrier"> </text><br />
+            <text>Verified By:</text><text class="text-verified"> </text><br />
+            <text>Register Progress:</text><text class="text-register"> </text><br />
+        </div>
+        <div style="float:right;width:33%;border:dotted;border-color:blue">
+            <text>Inbound Time:</text><text class="text-inbound"> </text><br />
+            <text>Out Time:</text><text class="text-out"> </text><br />
+            <text>Dock #:</text><text class="text-dock"> </text><br />
+            <text>Is damaged:</text><text class="text-damage"> </text><br />
+            <text>Allocation Progress:</text><text class="text-allocation"> </text><br />
+        </div>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Packing List</h3>
+        <table class="table table-condensed table-hover table-striped table-packinglist">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>FBA ID/SKU</th>
+                    <th>AMZ ID</th>
+                    <th>WHS CODE</th>
+                    <th>GW(KG)</th>
+                    <th>CBM</th>
+                    <th>QUANTITY</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div style="text-align:center">
+            <button class="btn btn-primary btn-logon" style="margin-top:20px">Logon Items</button>
+        </div>
+    </div>
+    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Operation Instruction</h3>
+        <table class="table table-condensed table-hover table-striped table-wo">
+            <thead>
+                <tr>
+                    <th style="width:50px">Id</th>
+                    <th>Description</th>
+                    <th>Comment</th>
+                    <th>Result</th>
+                    <th>Charging Status</th>
+                    <th>Status</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>

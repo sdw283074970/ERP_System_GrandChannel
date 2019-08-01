@@ -58,6 +58,8 @@ namespace ClothResorting.Dtos.Fba
 
         public DateTime AvailableTime { get; set; }
 
+        public DateTime UnloadStartTime { get; set; }
+
         public DateTime OutTime { get; set; }
 
         public string IsDamaged { get; set; }

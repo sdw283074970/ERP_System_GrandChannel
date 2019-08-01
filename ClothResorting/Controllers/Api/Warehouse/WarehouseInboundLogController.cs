@@ -31,7 +31,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             //获取FBA部门的所有待收货主单
             var masterOrders = _context.FBAMasterOrders
                 .Include(x => x.Customer)
-                .Include(x => x.FBAOrderDetails)
+                .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
                 .Include(x => x.FBAPallets)
                 //.Where(x => x.Status == FBAStatus.Processing || x.Status == FBAStatus.Allocated)
                 .ToList();
@@ -59,8 +59,9 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     PushTime = m.PushTime,
                     AvailableTime = m.AvailableTime,
                     OutTime = m.OutTime,
-                    UnloadTime = m.UnloadFinishTime,
-                    UpdateLog = m.UpdateLog
+                    UnloadFinishTime = m.UnloadFinishTime,
+                    UpdateLog = m.UpdateLog,
+                    VerifiedBy = m.VerifiedBy
                 };
 
                 inboundLogList.Add(newLog);
@@ -72,6 +73,61 @@ namespace ClothResorting.Controllers.Api.Warehouse
             return Ok(inboundLogList);
         }
 
+        // GET /api/warehouseinboundlog/?masterOrderId={masterOrderId}&operation={operation}
+        public IHttpActionResult GetInboundLog([FromUri]int masterOrderId, [FromUri]string operation)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            if (operation == "Update")
+            {
+                var log = new InboundLog {
+                    InboundDate = masterOrderInDb.InboundDate,
+                    UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
+                    AvailableTime = masterOrderInDb.AvailableTime,
+                    OutTime = masterOrderInDb.OutTime,
+                    DockNumber = masterOrderInDb.DockNumber,
+                    VerifiedBy = masterOrderInDb.VerifiedBy
+                };
+
+                return Ok(log);
+            }
+
+            return Ok();
+        }
+
+        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrder}&operationDate={operationDate}&operation={operation}
+        public void ChangeInboundLogStatus([FromUri]int masterOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders
+                .Include(x => x.FBAPallets)
+                .Include(x => x.FBAOrderDetails)
+                .Include(x => x.ChargingItemDetails)
+                .SingleOrDefault(x => x.Id == masterOrderId);
+
+            if (operation == "MarkInboundDate")
+            {
+                masterOrderInDb.InboundDate = operationDate;
+                masterOrderInDb.Status = FBAStatus.Arrived;
+            }
+            else if (operation == "Start")
+            {
+                masterOrderInDb.UnloadStartTime = operationDate;
+                masterOrderInDb.Status = FBAStatus.Processing;
+            }
+            else if (operation  == "Register")
+            {
+                masterOrderInDb.Status = FBAStatus.Registered;
+            }
+            else if (operation == "Allocate")
+            {
+                if (CheckIfAllCtnsAreAllocated(masterOrderInDb))
+                    masterOrderInDb.Status = FBAStatus.Allocated;
+                else
+                    throw new Exception("Failed. Please ensure that all the plts and ctns are allocated.");
+            }
+            _context.SaveChanges();
+        }
+
         // PUT /api/warehouseinboundlog/?masterOrderId={masterOrderId}&operation={operation}
         public void UpdateMasterOrderFromWarehouse([FromUri]int masterOrderId, [FromUri]string operation, [FromBody]InboundLog log)
         {
@@ -79,20 +135,17 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 .Include(x => x.FBAOrderDetails)
                 .SingleOrDefault(x => x.Id == masterOrderId);
 
-            if (operation == "Update")
-            {
-                orderInDb.InboundDate = log.InboundDate;
-                orderInDb.UnloadFinishTime = log.UnloadTime;
-                orderInDb.AvailableTime = log.AvailableTime;
-                orderInDb.OutTime = log.OutTime;
-                orderInDb.DockNumber = log.DockNumber;
+            orderInDb.InboundDate = log.InboundDate;
+            orderInDb.UnloadFinishTime = log.UnloadFinishTime;
+            orderInDb.AvailableTime = log.AvailableTime;
+            orderInDb.OutTime = log.OutTime;
+            orderInDb.DockNumber = log.DockNumber;
+            orderInDb.VerifiedBy = log.VerifiedBy;
 
-                _context.SaveChanges();
-            }
-            else if (operation == "Receive")
+            if (operation == "Report")
             {
-                //检查以上5个信息是否都填了
-                if (CheckIfAllFieldsAreFilled(orderInDb) && CheckIfCanBeReceived(orderInDb))
+                //以上5个信息是都填了且收货数量大于0且所有命令都被执行才能被完整确认收货
+                if (CheckIfAllFieldsAreFilled(orderInDb) && CheckIfCanBeReceived(orderInDb) && CheckIfAllOrdersAreFinished(orderInDb))
                 {
                     orderInDb.Status = FBAStatus.Received;
                 }
@@ -101,27 +154,24 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     throw new Exception("All fields must be updated before confirming received.");
                 }
             }
-            else if (operation == "Finish")
-            {
-                if (CheckIfAllCtnsAreAllocated(orderInDb))
-                {
-                    orderInDb.Status = FBAStatus.Allocated;
-                }
-                else
-                {
-                    throw new Exception("All cartons must be allocated before marking this order finished.");
-                }
-            }
-        }
 
-        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrder}
+            _context.SaveChanges();
+        }
 
         bool CheckIfAllFieldsAreFilled(FBAMasterOrder orderInDb)
         {
-            if (orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadFinishTime.Year != 1900 && orderInDb.AvailableTime.Year != 1900 && orderInDb.OutTime.Year != 1900)
+            if (orderInDb.ConfirmedBy != null && orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadFinishTime.Year != 1900 && orderInDb.AvailableTime.Year != 1900 && orderInDb.OutTime.Year != 1900)
                 return true;
 
             return false;
+        }
+
+        bool CheckIfAllOrdersAreFinished(FBAMasterOrder orderInDb)
+        {
+            if (!orderInDb.ChargingItemDetails.Where(x => x.Status == FBAStatus.New).Any())
+                return true;
+            else
+                throw new Exception("Failed. Please ensure that all instructions in the work order have been completed.");
         }
 
         bool CheckIfCanBeReceived(FBAMasterOrder orderInDb)
@@ -129,7 +179,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             if (orderInDb.FBAOrderDetails.Count == 0)
                 throw new Exception("Cannot mark this empty order received");
 
-            if (orderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity) != 0)
+            if (orderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity) > 0)
                 return true;
 
             return false;
@@ -137,13 +187,18 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         bool CheckIfAllCtnsAreAllocated(FBAMasterOrder orderInDb)
         {
+            var result = false;
+
             if (orderInDb.FBAOrderDetails.Count == 0)
                 throw new Exception("Cannot mark this empty order allocated.");
 
             if (orderInDb.FBAOrderDetails.Sum(x => x.ComsumedQuantity) == orderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity))
-                return true;
+                result = true;
 
-            return false;
+            if (orderInDb.FBAPallets.Any() && orderInDb.FBAPallets.Sum(x => x.ComsumedPallets) != orderInDb.FBAPallets.Sum(x => x.ActualPallets))
+                result = false;
+
+            return result;
         }
     }
 
@@ -181,13 +236,23 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string UpdateLog { get; set; }
 
+        public string VerifiedBy { get; set; }
+
         public DateTime PushTime { get; set; }
 
-        public DateTime UnloadTime { get; set; }
+        public DateTime UnloadStartTime { get; set; }
+
+        public DateTime UnloadFinishTime { get; set; }
 
         public DateTime AvailableTime { get; set; }
 
         public DateTime OutTime { get; set; }
+
+        public float LogonProgress { get; set; }
+
+        public float RegisterProgress { get; set; }
+
+        public float AllocationProgress { get;set;}
     }
 
 }
