@@ -186,6 +186,7 @@ namespace ClothResorting.Controllers.Api.Fba
             if (operation == "AddNewComment")
             {
                 var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+                shipOrderInDb.Status = FBAStatus.Pending;
                 var newComment = new ChargingItemDetail
                 {
                     CreateBy = _userName,
@@ -366,7 +367,11 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public async Task UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]bool isChargingItem, [FromUri]string operation)
         {
-            var instructionInDb = _context.ChargingItemDetails.Find(chargingDetailId);
+            var instructionInDb = _context.ChargingItemDetails
+                .Include(x => x.FBAMasterOrder)
+                .Include(x => x.FBAShipOrder)
+                .SingleOrDefault(x => x.Id == chargingDetailId);
+
             var oldValueDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(instructionInDb);
             string description = "";
 
@@ -392,11 +397,20 @@ namespace ClothResorting.Controllers.Api.Fba
                 instructionInDb.ConfirmedBy = _userName;
 
                 description = "Updated comment by warehouse client";
+
+                if (instructionInDb.FBAShipOrder != null)
+                    instructionInDb.FBAShipOrder.Status = FBAStatus.Pending;
+                else
+                    instructionInDb.FBAMasterOrder.Status = FBAStatus.Pending;
             }
             else if (operation == "UpdateResult")
             {
                 instructionInDb.Result = comment;
-                instructionInDb.HandlingStatus = FBAStatus.Returned;
+                instructionInDb.HandlingStatus = FBAStatus.Updated;
+                if (instructionInDb.FBAShipOrder != null)
+                    instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
+                else
+                    instructionInDb.FBAMasterOrder.Status = FBAStatus.Updated;
 
                 description = "Updated result by office client";
             }
@@ -590,7 +604,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 //Pending状态，则转回Processing状态
                 else if (shipOrderInDb.Status == FBAStatus.Pending)
                 {
-                    shipOrderInDb.Status = FBAStatus.Processing;
+                    shipOrderInDb.Status = FBAStatus.Updated;
                     shipOrderInDb.OperationLog = "Returned by " + _userName;
                 }
                 //如果订单为ready状态，则转换为Released状态（如果是空单则不会返回给仓库）

@@ -81,6 +81,26 @@
         </div>
     </form>
 </div>
+<div class="iframe-detail">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
+        <text>Is charging item</text><input type="checkbox" id="cb-charge" /><br />
+        <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Create</button>
+        <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
+    </div>
+</div>
+<div class="iframe-detail-result">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Result: </text><input id='input-detail-result' style='width:400px' class='input-sm' /><br />
+        <button id="btn-detail-result" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
+    </div>
+</div>
+<div class="iframe-fbadate">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Operation Date: </text><input type="datetime-local" id='input-operationdate' style='width:200px' class='input-sm' /><br />
+        <button id="btn-confirm" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm</button>
+    </div>
+</div>
 @Html.Partial("~/Views/FBA/_FBAMasterOrderPartialView.cshtml", null)
 
 @section scripts
@@ -98,9 +118,11 @@
             var container;
             var customerId;
             var invoiceStatuts;
+            var pageId;
 
-            $(".iframe-wo").hide();
-            $(".iframe").hide();
+            $(".iframe-wo-push, .iframe-wo-view").hide();
+            $(".iframe-wo-process").hide();
+            $(".iframe, .iframe-fbadate").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -354,11 +376,161 @@
                 masterOrderId = $(this).attr('iid');
                 customerCode = grandNumber.substring(0, grandNumber.length - 10);
                 reference = $(this).parent().parent("tr").children("td").eq(4).children("text").html();
+                pageId = ".iframe-wo-push";
 
-                GetWorkOrder(masterOrderId, customerCode, reference, ".iframe-wo");
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                GetWorkOrder(masterOrderId, pageId);
+            });
+
+            //点击WO页面中的添加新指令按钮，弹出填写指令弹窗
+            $(".btn-detail-create").on("click", function () {
+                $("#cb-charge").show();
+
+                $("#input-detail-description").val("");
+                $("#btn-detail-update").hide();
+                $("#btn-detail-add").show();
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+            });
+
+            //点击添加按钮，添加操作指示
+            $("#btn-detail-add").on("click", function () {
+                var description = $("#input-detail-description").val();
+                var isChargingItem = $("#cb-charge").prop("checked");
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=MasterOrder&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
+                    SendAjaxMethodAndRefreshWorkOrder("POST", url, {});
+                }
+            });
+
+            //点击操作指示表中的更新按钮，打开更新界面
+            $(".table-wo").on("click", ".btn-detail-update", function () {
+                $("#cb-charge").show();
+                chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId;
+                var pIndex;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        pIndex = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(pIndex);
+                        $("#input-detail-description").val(data.description);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
+                $("#btn-detail-add").hide();
+                $("#btn-detail-update").show();
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+
+            });
+
+            //点击更新按钮，更新操作指示
+            $("#btn-detail-update").on("click", function () {
+                var description = $("#input-detail-description").val();
+                var isChargingItem = $("#cb-charge").prop("checked");
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&operation=UpdateInstruction";
+
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+                }
+            });
+
+            //点击操作指示表中的更新结果按钮，打开更新结果界面
+            $(".table-wo").on("click", ".btn-result", function () {
+                chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId;
+                var pIndex;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        pIndex = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(pIndex);
+                        $("#input-detail-result").val(data.result);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail-result")
+                });
+
+            });
+
+            //点击更新按钮，更新操作指示
+            $("#btn-detail-result").on("click", function () {
+                var description = $("#input-detail-result").val();
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&operation=UpdateResult";
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+                }
+            });
+
+            //点击操作指示表中的删除按钮，删除选中的操作指示
+            $(".table-wo").on("click", ".btn-detail-delete", function () {
+                var id = $(this).attr('iid');
+
+                url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
+
+                SendAjaxMethodAndRefreshWorkOrder("DELETE", url, {});
             });
 
             //点击确认发布按钮，将收货单状态改为New Order，unload order发布到仓库端
+            $("#btn-push").on("click", function () {
+                url = "/api/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=Push";
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
 
             function GetAjaxTable(methodType, url) {
                 $.ajax({
@@ -527,7 +699,7 @@
                                         status = data;
                                         if (data == "New Created")
                                             return "<font color='gray'>" + data + "</font>"
-                                        if (data == "New Order")
+                                        if (data == "Incoming")
                                             return "<font color='orange'>" + data + "</font>"
                                         else if (data == "Processing" || data == "Pending")
                                             return "<font color='red'>" + data + "</font>";
@@ -547,7 +719,7 @@
                                         if (status == "New Created")
                                             return "<input type='button' class='btn btn-link btn-push' iid='" + data + "' value='Push' />";
                                         else if (status == "Processing")
-                                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
+                                            return " ";
                                         else
                                             return "";
                                     }
@@ -636,9 +808,22 @@
                 });
             };
 
-            function GetWorkOrder(masterOrderId, customerCode, reference, pageId) {
-                $(".h2-customercode").html("Customer Code: " + customerCode);
-                grandChannel.openiframe(index, pageId, "1000px", "800px");
+            function transDate(date) {
+                if (date != null)
+                    return date.substring(0, 4) == "1900" ? " " : date.substring(0, 10);
+                else
+                    return "";
+            }
+
+            function transFormatDate(date) {
+                if (date != null)
+                    return date.substring(0, 4) == "1900" ? " " : date;
+                else
+                    return "";
+            }
+
+            function GetWorkOrder(masterOrderId, pageId) {
+
                 url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=WO";
 
                 $.ajax({
@@ -656,15 +841,20 @@
                     },
                     success: function (data) {
                         layer.close(index);
-                        $(".text-place").html(data.placeTime);
-                        $(".text-finish").html(data.unloadFinishTime);
-                        $(".text-eta").html(data.eta);
-                        $(".text-inbound").html(data.inboundDate);
-                        $(".text-out").html(data.outTime);
+                        $(".text-place").html(transDate(data.placeTime));
+                        $(".text-finish").html(transDate(data.unloadFinishTime));
+                        $(".text-eta").html(transDate(data.eta));
+                        $(".text-inbound").html(transDate(data.inboundDate));
+                        $(".text-out").html(transDate(data.outTime));
                         $(".text-damage").html(data.isDamaged);
                         $(".text-container").html(data.container);
                         $(".text-grandnumber").html(data.grandNumber);
-                        $(".text-carrier").html(data.carrier);
+                        $(".text-start").html(transDate(data.unloadStartTime));
+                        $(".text-logon").html(data.logonProgress.toFixed(2) + "%");
+                        $(".text-verified").html(data.verifiedBy);
+                        $(".text-register").html(data.registerProgress.toFixed(2) + "%");
+                        $(".text-dock").html(data.dock);
+                        $(".text-allocation").html(data.allocationProgress.toFixed(2) + "%");
 
                         var plColumnArray = [
                             {
@@ -766,17 +956,19 @@
                                         return "<font color='blue'>" + data + "</font>";
                                     else if (data == "Pending")
                                         return "<font color='red'>" + data + "</font>";
-                                    else if (data == "Returned")
+                                    else if (data == "Updated")
                                         return "<font color='Orange'>" + data + "</font>";
                                     else if (data == "Finished")
                                         return "<font color='green'>" + data + "</font>";
                                     else
-                                        return "<font>Invaild Date</font>"
+                                        return "<font>" + data + "</font>"
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
+                                    if (pageId == ".iframe-wo-view")
+                                        return "";
                                     return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                 }
                             }
@@ -833,6 +1025,33 @@
                         type: {
                             required: "Inbound type is required",
                         },
+                    }
+                });
+            };
+
+            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.close(index);
+                        GetWorkOrder(masterOrderId, customerCode, pageId);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             };

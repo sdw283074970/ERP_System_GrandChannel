@@ -60,6 +60,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     AvailableTime = m.AvailableTime,
                     OutTime = m.OutTime,
                     UnloadFinishTime = m.UnloadFinishTime,
+                    UnloadStartTime = m.UnloadStartTime,
                     UpdateLog = m.UpdateLog,
                     VerifiedBy = m.VerifiedBy
                 };
@@ -73,29 +74,26 @@ namespace ClothResorting.Controllers.Api.Warehouse
             return Ok(inboundLogList);
         }
 
-        // GET /api/warehouseinboundlog/?masterOrderId={masterOrderId}&operation={operation}
-        public IHttpActionResult GetInboundLog([FromUri]int masterOrderId, [FromUri]string operation)
+        // GET /api/warehouseinboundlog/?masterOrderId={masterOrderId}
+        [HttpGet]
+        public IHttpActionResult GetInboundLog([FromUri]int masterOrderId)
         {
             var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
 
-            if (operation == "Update")
-            {
-                var log = new InboundLog {
-                    InboundDate = masterOrderInDb.InboundDate,
-                    UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
-                    AvailableTime = masterOrderInDb.AvailableTime,
-                    OutTime = masterOrderInDb.OutTime,
-                    DockNumber = masterOrderInDb.DockNumber,
-                    VerifiedBy = masterOrderInDb.VerifiedBy
-                };
+            var log = new InboundLog {
+                InboundDate = masterOrderInDb.InboundDate,
+                UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
+                AvailableTime = masterOrderInDb.AvailableTime,
+                OutTime = masterOrderInDb.OutTime,
+                DockNumber = masterOrderInDb.DockNumber,
+                VerifiedBy = masterOrderInDb.VerifiedBy
+            };
 
-                return Ok(log);
-            }
-
-            return Ok();
+            return Ok(log);
         }
 
         // PUT /api/warehouseinboundlog/?masterOrderId={masterOrder}&operationDate={operationDate}&operation={operation}
+        [HttpPut]
         public void ChangeInboundLogStatus([FromUri]int masterOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
         {
             var masterOrderInDb = _context.FBAMasterOrders
@@ -128,11 +126,13 @@ namespace ClothResorting.Controllers.Api.Warehouse
             _context.SaveChanges();
         }
 
-        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrderId}&operation={operation}
+        // PUT /api/warehouseinboundlog/?masterOrderId={masterOrderId}
+        [HttpPut]
         public void UpdateMasterOrderFromWarehouse([FromUri]int masterOrderId, [FromUri]string operation, [FromBody]InboundLog log)
         {
             var orderInDb = _context.FBAMasterOrders
                 .Include(x => x.FBAOrderDetails)
+                .Include(x => x.ChargingItemDetails)
                 .SingleOrDefault(x => x.Id == masterOrderId);
 
             orderInDb.InboundDate = log.InboundDate;
@@ -151,7 +151,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 }
                 else
                 {
-                    throw new Exception("All fields must be updated before confirming received.");
+                    throw new Exception("Inbound date, Finish time, Dock # and Verified by must be updated before submit unloading report.");
                 }
             }
 
@@ -160,7 +160,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         bool CheckIfAllFieldsAreFilled(FBAMasterOrder orderInDb)
         {
-            if (orderInDb.ConfirmedBy != null && orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadFinishTime.Year != 1900 && orderInDb.AvailableTime.Year != 1900 && orderInDb.OutTime.Year != 1900)
+            if (orderInDb.VerifiedBy != null && orderInDb.DockNumber != null && orderInDb.InboundDate.Year != 1900 && orderInDb.UnloadFinishTime.Year != 1900)
                 return true;
 
             return false;
@@ -216,10 +216,6 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string ETA { get; set; }
 
-        public DateTime InboundDate { get; set; }
-
-        public string DockNumber { get; set; }
-
         public string Container { get; set; }
 
         public int Ctns { get; set; }
@@ -236,23 +232,27 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string UpdateLog { get; set; }
 
-        public string VerifiedBy { get; set; }
-
         public DateTime PushTime { get; set; }
 
         public DateTime UnloadStartTime { get; set; }
-
-        public DateTime UnloadFinishTime { get; set; }
-
-        public DateTime AvailableTime { get; set; }
-
-        public DateTime OutTime { get; set; }
 
         public float LogonProgress { get; set; }
 
         public float RegisterProgress { get; set; }
 
         public float AllocationProgress { get;set;}
+
+        public DateTime AvailableTime { get; set; }
+
+        public DateTime InboundDate { get; set; }
+
+        public string DockNumber { get; set; }
+
+        public DateTime OutTime { get; set; }
+
+        public DateTime UnloadFinishTime { get; set; }
+
+        public string VerifiedBy { get; set; }
     }
 
 }

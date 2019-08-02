@@ -7,6 +7,12 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 {
     public static class FBAStatus
     {
+        public const string Updated = "Updated";
+
+        public const string Confirmed = "Confirmed";
+
+        public const string Incoming = "Incoming";
+
         public const string Na = "N/A";
 
         public const string Received = "Received";

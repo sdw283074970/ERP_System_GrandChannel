@@ -69,19 +69,20 @@
     </div>
 </div>
 <div class="iframe-update">
-    <h2 id="h2-title"style="margin-left:20px" ></h2>
+    <h2 id="h2-title" style="margin-left:20px"></h2>
     <form id="form-create">
         <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
             <text>Inbound Date: <input name="inbounddate" id='input-inbounddate' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
             <text>Unload Finish Time: <input name="finishtime" id='input-finishtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
             <text>Trailer Ava Time: <input name="availabletime" id='input-avatime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <font color="red">*Date or time won't be saved without hours and minutes.</font>
         </div>
         <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
             <text>Ept Trailer Out Time: <input name="outtime" id='input-outtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
             <text>Dock Number: <input name="docknumber" id='input-docknumber' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
             <text>Verified By: <input name="verifiedby" id='input-verifiedby' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
             <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Save&Update</button>
-            <button type="button" id="btn-report" class='btn btn-primary' style="margin-top:20px">Submit Report</button>
+            <button type="button" id="btn-submitreport" class='btn btn-primary' style="margin-top:20px">Submit Report</button>
         </div>
     </form>
 </div>
@@ -96,6 +97,7 @@
             var table;
             var url;
             var operation;
+            var pageId;
             var masterOrderId;
             var searchBar = grandChannel.getUrlParameter('search');
 
@@ -314,8 +316,12 @@
             $("#table").on("click", ".btn-wo-readonly", function () {
                 customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
                 masterOrderId = $(this).attr('iid');
+                pageId = ".iframe-wo-view";
 
-                GetWorkOrder(masterOrderId, customerCode, ".iframe-wo-view");
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                GetWorkOrder(masterOrderId, pageId);
             });
 
             //点击标记到货按钮，填写到货日期
@@ -342,7 +348,7 @@
                 var operationDate = $("#input-operationdate").val();
 
                 if (operationDate != "") {
-                    url = "/api/warehouseinboundlog/?masterOrderId=" + shipOrderId + "&operationDate=" + operationDate + "&operation=" + operation;
+                    url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId + "&operationDate=" + operationDate + "&operation=" + operation;
                     grandChannel.sendAjaxMethod("PUT", url, {}, index);
                 }
                 else {
@@ -354,8 +360,12 @@
             $("#table").on("click", ".btn-wo-process", function () {
                 customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
                 masterOrderId = $(this).attr('iid');
+                pageId = ".iframe-wo-process";
 
-                GetWorkOrder(masterOrderId, customerCode, ".iframe-wo-process");
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                GetWorkOrder(masterOrderId, pageId);
             });
 
             //点击WO中的logon items按钮，跳转到录入收货页面
@@ -371,7 +381,7 @@
                 $("#btn-update, #btn-report").show();
                 $("#h2-title").html("Submit Unloading Report");
 
-                url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId + "&operation=Update";
+                url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId;
 
                 $.ajax({
                     type: "GET",
@@ -392,19 +402,150 @@
                         $("#input-finishtime").val(transFormatDate(data.unloadFinishTime));
                         $("#input-avatime").val(transFormatDate(data.availableTime));
                         $("#input-outtime").val(transFormatDate(data.outTime));
-                        $("#input-docknumber").val(transFormatDate(data.dockNumber));
-                        $("#input-verifiedby").val(transFormatDate(data.verifiedBy));
+                        $("#input-docknumber").val(data.dockNumber);
+                        $("#input-verifiedby").val(data.verifiedBy);
                     }
                 });
 
                 grandChannel.openiframe(index, ".iframe-update", "800px", "350px");
             });
 
+            //点击更新信息弹窗中的更新按钮，将数据更新到收货单中
+            $("#btn-update").on("click", function () {
+                var inboundDate = $("#input-inbounddate").val();
+                var unloadFinishTime = $("#input-finishtime").val();
+                var availableTime = $("#input-avatime").val();
+                var outTime = $("#input-outtime").val();
+                var dockNumber = $("#input-docknumber").val();
+                var verifiedBy = $("#input-verifiedby").val();
+
+                if (inboundDate != "") {
+                    var obj = {
+                        "inboundDate": inboundDate,
+                        "unloadFinishTime": unloadFinishTime == "" ? "1900-01-01" : unloadFinishTime,
+                        "availableTime": availableTime == "" ? "1900-01-01" : availableTime,
+                        "outTime": outTime == "" ? "1900-01-01" : outTime,
+                        "dockNumber": dockNumber,
+                        "verifiedBy": verifiedBy
+                    }
+
+                    url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId + "&operation=Update";
+
+                    grandChannel.sendAjaxMethod("PUT", url, obj, index);
+                }
+                else {
+                    alert("Inbound Date is required.");
+                }
+            });
+
             //点击提交卸货报告弹窗中的提交按钮，将收货单标记为完成收货并提交收货报告
-            $("#btn-report").on("click", function () {
-                var orderId = $(this).attr('iid');
-                url = "/api/warehouse/warehouseinboundlog/?masterOrderId=" + orderId + "&operation=Report"
-                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            $("#btn-submitreport").on("click", function () {
+                var inboundDate = $("#input-inbounddate").val();
+                var unloadFinishTime = $("#input-finishtime").val();
+                var availableTime = $("#input-avatime").val();
+                var outTime = $("#input-outtime").val();
+                var dockNumber = $("#input-docknumber").val();
+                var verifiedBy = $("#input-verifiedby").val();
+
+                if (inboundDate != "") {
+                    var obj = {
+                        "inboundDate": inboundDate,
+                        "unloadFinishTime": unloadFinishTime == "" ? "1900-01-01" : unloadFinishTime,
+                        "availableTime": availableTime == "" ? "1900-01-01" : availableTime,
+                        "outTime": outTime == "" ? "1900-01-01" : outTime,
+                        "dockNumber": dockNumber,
+                        "verifiedBy": verifiedBy
+                    }
+
+                    url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId + "&operation=Report";
+
+                    grandChannel.sendAjaxMethod("PUT", url, obj, index);
+                }
+                else {
+                    alert("Inbound Date is required.");
+                }
+            });
+
+            //点击提交新comment按钮，打开一个简易填写界面
+            $("#btn-detail-comment").on("click", function () {
+                $("#input-detail-comment").val("");
+                $("#btn-detail-update").hide();
+                $("#btn-detail-add").show();
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+            });
+
+            //点击Add，建立一个新的仓库报告条目
+            $("#btn-detail-add").on("click", function () {
+                var description = $("#input-detail-comment").val();
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&comment=" + encodeURIComponent(description) + "&operation=AddNewComment";
+                    SendAjaxMethodAndRefreshWorkOrder("POST", url, {});
+                }
+            });
+
+            //点击操作指示表中的Comment按钮，提出comment
+            $(".table-wo").on("click", ".btn-comment", function () {
+                chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId;
+                var pIndex;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        pIndex = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(pIndex);
+                        $("#input-detail-comment").val(data.comment);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+                $("#btn-detail-update").show();
+                $("#btn-detail-add").hide();
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["500px", "150px"],
+                    content: $(".iframe-detail")
+                });
+            });
+
+            //点击更新按钮，更新操作指示的comment
+            $("#btn-detail-update").on("click", function () {
+                var description = $("#input-detail-comment").val();
+
+                if (description != "") {
+                    layer.close(index);
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&operation=UpdateComment";
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+                }
+            });
+
+            //点击confirm按钮，将选中指令标记为处理完成
+            $(".table-wo").on("click", ".btn-confirm", function () {
+                var chargingItemDetailId = $(this).attr('iid');
+                url = "/api/warehouseindex/?chargingItemDetailId=" + chargingItemDetailId + "&operation=Confirm";
+                SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
             });
 
             //点击outbound log按钮，跳转到inbound log管理界面
@@ -459,16 +600,20 @@
             };
 
             function transDate(date) {
-                return date.substring(0, 4) == "1900" ? " " : date.substring(0, 10);
+                if (date != null)
+                    return date.substring(0, 4) == "1900" ? " " : date.substring(0, 10);
+                else
+                    return "";
             }
 
             function transFormatDate(date) {
-                return date.substring(0, 4) == "1900" ? " " : date;
+                if (date != null)
+                    return date.substring(0, 4) == "1900" ? " " : date;
+                else
+                    return "";
             }
 
-            function GetWorkOrder(masterOrderId, customerCode, pageId) {
-                $(".h2-customercode").html("Customer Code: " + customerCode);
-                grandChannel.openiframe(index, pageId, "1000px", "800px");
+            function GetWorkOrder(masterOrderId, pageId) {
                 url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=WO";
 
                 $.ajax({
@@ -601,7 +746,7 @@
                                         return "<font color='blue'>" + data + "</font>";
                                     else if (data == "Pending")
                                         return "<font color='red'>" + data + "</font>";
-                                    else if (data == "Returned")
+                                    else if (data == "Updated")
                                         return "<font color='Orange'>" + data + "</font>";
                                     else if (data == "Finished")
                                         return "<font color='green'>" + data + "</font>";
@@ -612,9 +757,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (pageId == ".iframe-wo-view")
-                                        return "";
-                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                    return "<button iid='" + data + "' class='btn btn-link btn-comment'>Comment</button><button iid='" + data + "' class='btn btn-link btn-confirm'>Confirm</button>";
                                 }
                             }
                         ];
@@ -636,6 +779,33 @@
                     }
                 });
             }
+
+            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function () {
+                        layer.close(index);
+                        GetWorkOrder(masterOrderId, customerCode, pageId);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
         });
     </script>
 }

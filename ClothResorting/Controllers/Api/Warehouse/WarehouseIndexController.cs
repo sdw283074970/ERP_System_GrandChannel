@@ -83,6 +83,11 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             UpdateWOInfo(shipOrderInDb, pickMan, instructor, location);
 
+            if (IsPending(shipOrderInDb))
+            {
+                shipOrderInDb.Status = FBAStatus.Pending;
+            }
+
             if (operation == "Save&Ready")
             {
                 shipOrderInDb.ReadyTime = DateTime.Now;
@@ -95,7 +100,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
                 if (!IsAllowedToReady(shipOrderInDb))
                 {
-                    throw new Exception("Cannot ready for now. There are still some unhandled new or returned instructions in this work order.");
+                    throw new Exception("Cannot ready for now. You must finish all the instruction in this work order.");
                 }
                 else if (IsPending(shipOrderInDb))
                 {
@@ -116,10 +121,36 @@ namespace ClothResorting.Controllers.Api.Warehouse
         [HttpPut]
         public void ConfirmInstruction([FromUri]int chargingItemDetailId)
         {
-            var chargingItemDetailInDb = _context.ChargingItemDetails.Find(chargingItemDetailId);
+            var detailInDb = _context.ChargingItemDetails
+                .Include(x => x.FBAMasterOrder.ChargingItemDetails)
+                .Include(x => x.FBAShipOrder.ChargingItemDetails)
+                .SingleOrDefault(x => x.Id == chargingItemDetailId);
 
-            chargingItemDetailInDb.HandlingStatus = FBAStatus.Finished;
-            chargingItemDetailInDb.ConfirmedBy = _userName;
+            if (detailInDb.HandlingStatus == FBAStatus.Confirmed)
+                detailInDb.HandlingStatus = FBAStatus.Finished;
+            else
+                detailInDb.HandlingStatus = FBAStatus.Confirmed;
+
+            detailInDb.ConfirmedBy = _userName;
+
+            if (detailInDb.FBAShipOrder != null)
+            {
+                if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
+                    detailInDb.FBAShipOrder.Status = FBAStatus.Updated;
+                else if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())
+                    detailInDb.FBAShipOrder.Status = FBAStatus.Pending;
+                else
+                    detailInDb.FBAShipOrder.Status = FBAStatus.Processing;
+            }
+            else
+            {
+                if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
+                    detailInDb.FBAMasterOrder.Status = FBAStatus.Updated;
+                else if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())
+                    detailInDb.FBAMasterOrder.Status = FBAStatus.Pending;
+                else
+                    detailInDb.FBAMasterOrder.Status = FBAStatus.Processing;
+            }
 
             _context.SaveChanges();
         }
@@ -150,7 +181,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             var result = true;
             foreach (var s in shipOrderInDb.ChargingItemDetails)
             {
-                if (s.HandlingStatus == FBAStatus.New || s.HandlingStatus == FBAStatus.Returned)
+                if (s.HandlingStatus == FBAStatus.New || s.HandlingStatus == FBAStatus.Returned || s.HandlingStatus == FBAStatus.Updated || s.HandlingStatus == FBAStatus.Pending || s.HandlingStatus == FBAStatus.Confirmed)
                 {
                     result = false;
                     break;

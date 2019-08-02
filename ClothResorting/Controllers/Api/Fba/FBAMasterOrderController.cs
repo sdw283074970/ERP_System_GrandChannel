@@ -14,6 +14,8 @@ using System.Globalization;
 using ClothResorting.Models.FBAModels.StaticModels;
 using System.Web;
 using ClothResorting.Helpers;
+using System.Threading.Tasks;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -21,11 +23,13 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         private ApplicationDbContext _context;
         private string _userName;
+        private Logger _logger;
 
         public FBAMasterOrderController()
         {
             _context = new ApplicationDbContext();
             _userName = HttpContext.Current.User.Identity.Name.Split('@').First();
+            _logger = new Logger(_context);
         }
 
         // GET /api/fba/fbamasterorder/
@@ -148,6 +152,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         Description = c.Description,
                         Comment = c.Comment,
                         Result = c.Result,
+                        HandlingStatus = c.HandlingStatus,
                         Status = c.Status
                     });
                 }
@@ -175,6 +180,40 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return Ok();
+        }
+
+        // POST /api/fba/fbamasterorder/?masterOrderId={masterOrderId}&comment={comment}&operation={operation}
+        [HttpPost]
+        public async Task<IHttpActionResult> CreateNewCommentFromWarehouse([FromUri]int masterOrderId, [FromUri]string comment, [FromUri]string operation)
+        {
+            if (operation == "AddNewComment")
+            {
+                var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+                masterOrderInDb.Status = FBAStatus.Pending;
+                var newComment = new ChargingItemDetail
+                {
+                    CreateBy = _userName,
+                    Comment = comment,
+                    CreateDate = DateTime.Now,
+                    Description = "Extral comment from warehouse",
+                    HandlingStatus = FBAStatus.Pending,
+                    Status = FBAStatus.Unhandled,
+                    FBAMasterOrder = masterOrderInDb
+                };
+
+                _context.ChargingItemDetails.Add(newComment);
+                _context.SaveChanges();
+
+                var result = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.Include(x => x.FBAShipOrder).OrderByDescending(x => x.Id).First());
+
+                await _logger.AddCreatedLogAsync<ChargingItemDetail>(null, result, "Added a new WO comment from warehouse", null, OperationLevel.Normal);
+
+                return Created(Request.RequestUri + "/" + result.Id, result);
+            }
+            else
+            {
+                return Ok("Invaild operation.");
+            }
         }
 
         //POST /api/fba/fbamasterorder/{id}
@@ -224,7 +263,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbamasterOrder/?masterOrderId={masterOrderId}&container={container}&inboundDate={inboundDate}
         [HttpPut]
-        public void UpdateMasterOrderInfo([FromUri]string masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
+        public void UpdateMasterOrderInfo([FromUri]int masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
         {
             if (Checker.CheckString(container))
             {
@@ -234,7 +273,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var inboundDateTime = new DateTime();
             inboundDateTime = ParseStringToDateTime(inboundDateTime, inboundDate);
 
-            var masterOrderInDb = _context.FBAMasterOrders.Include(x => x.FBAOrderDetails).SingleOrDefault(x => x.GrandNumber == masterOrderId);
+            var masterOrderInDb = _context.FBAMasterOrders.Include(x => x.FBAOrderDetails).SingleOrDefault(x => x.Id == masterOrderId);
 
             if (container != "NULL")
             {
@@ -250,6 +289,21 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             _context.SaveChanges();
+        }
+
+        // PUT /api/fbamasterorder/?masterOrderId={masterOrderId}&operation={operation}
+        [HttpPut]
+        public void PushUnloadWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            if (operation == "Push")
+            {
+                masterOrderInDb.PushTime = DateTime.Now;
+                masterOrderInDb.UpdateLog = "Placed by " + _userName + " at " + DateTime.Now.ToString();
+                masterOrderInDb.Status = FBAStatus.Incoming;
+                _context.SaveChanges();
+            }
         }
 
         // PUT /api/fba/fbamasterorder/?grandNumber={grandNumber}&operation={edit}
