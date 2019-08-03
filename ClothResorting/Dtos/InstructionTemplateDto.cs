@@ -13,6 +13,10 @@ namespace ClothResorting.Dtos
 
         public DateTime CreateDate { get; set; }
 
+        public bool IsApplyToShipOrder { get; set; }
+
+        public bool IsApplyToMasterOrder { get; set; }
+
         public string Status { get; set; }
 
         public string CreateBy { get; set; }

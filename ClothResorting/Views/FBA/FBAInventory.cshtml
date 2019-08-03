@@ -109,11 +109,22 @@
             var currentLocation;
             var currentShipped;
             var grandNumber = getUrlParameter('grandNumber');
+            var masterOrderId = getUrlParameter('masterOrderId');
+            var url;
+            var url2;
 
-            $("#h2").html("Grand Number: " + grandNumber);
+            if (grandNumber != undefined) {
+                $("#h2").html("Grand Number: " + grandNumber);
+                url = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Pallet";
+                url2 = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Carton";
+
+            }
+            else {
+                url = "/api/fba/fbainventory/?masterOrderId=" + masterOrderId + "&inventoryType=Pallet";
+                url2 = "/api/fba/fbainventory/?masterOrderId=" + masterOrderId + "&inventoryType=Carton";
+            }
 
             //获取Pallet库存表
-            url = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Pallet";
             var palletsColumnArray = [
                 {
                     data: "id",
@@ -233,7 +244,6 @@
             GetAjaxTable("GET", url, "#table-pallet", palletTable, palletsColumnArray, true);
 
             //获取Carton库存表
-            url = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Carton";
             var cartonsColumnArray = [
                 {
                     data: "id",
@@ -332,7 +342,7 @@
                     }
                 }
             ]
-            GetAjaxTable("GET", url, "#table-carton", cartonTable, cartonsColumnArray, false);
+            GetAjaxTable("GET", url2, "#table-carton", cartonTable, cartonsColumnArray, false);
 
             //点击托盘库存列表中的View按钮，查看该托盘内容
             $("#table-pallet").on("click", ".btn-view", function () {

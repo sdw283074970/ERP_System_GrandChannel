@@ -33,7 +33,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 .Include(x => x.Customer)
                 .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
                 .Include(x => x.FBAPallets)
-                //.Where(x => x.Status == FBAStatus.Processing || x.Status == FBAStatus.Allocated)
+                .Where(x => x.Status != FBAStatus.NewCreated)
                 .ToList();
 
             var inboundLogList = new List<InboundLog>();
@@ -168,10 +168,10 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         bool CheckIfAllOrdersAreFinished(FBAMasterOrder orderInDb)
         {
-            if (!orderInDb.ChargingItemDetails.Where(x => x.Status == FBAStatus.New).Any())
-                return true;
-            else
+            if (orderInDb.ChargingItemDetails.Where(x => x.HandlingStatus !=  FBAStatus.Finished).Any())
                 throw new Exception("Failed. Please ensure that all instructions in the work order have been completed.");
+
+            return true;
         }
 
         bool CheckIfCanBeReceived(FBAMasterOrder orderInDb)
@@ -181,8 +181,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             if (orderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity) > 0)
                 return true;
-
-            return false;
+            else
+                throw new Exception("Cannot mark this 0 received order received");
         }
 
         bool CheckIfAllCtnsAreAllocated(FBAMasterOrder orderInDb)

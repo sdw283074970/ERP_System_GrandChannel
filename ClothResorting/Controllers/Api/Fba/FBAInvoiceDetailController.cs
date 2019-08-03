@@ -262,6 +262,9 @@ namespace ClothResorting.Controllers.Api.Fba
                     FBAMasterOrder = masterOrderInDb
                 };
 
+                if (masterOrderInDb.Status == FBAStatus.Pending)
+                    masterOrderInDb.Status = FBAStatus.Updated;
+
                 if (isChargingItem)
                 {
                     newDetail.Status = FBAStatus.WaitingForCharging;
@@ -286,6 +289,9 @@ namespace ClothResorting.Controllers.Api.Fba
                     Description = description,
                     FBAShipOrder = shipOrderInDb
                 };
+
+                if (shipOrderInDb.Status == FBAStatus.Pending)
+                    shipOrderInDb.Status = FBAStatus.Updated;
 
                 if (isChargingItem)
                 {
@@ -546,7 +552,33 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpDelete]
         public void DeleteChargingItemDetail([FromUri]int chargingItemDetailId)
         {
-            var detailInDb = _context.ChargingItemDetails.Find(chargingItemDetailId);
+            var detailInDb = _context.ChargingItemDetails
+                .Include(x => x.FBAMasterOrder.ChargingItemDetails)
+                .Include(x => x.FBAShipOrder.ChargingItemDetails)
+                .SingleOrDefault(x => x.Id == chargingItemDetailId);
+
+            detailInDb.HandlingStatus = "Discarded";
+
+            if (detailInDb.FBAShipOrder != null)
+            {
+                var originalStatus = (detailInDb.FBAShipOrder.Status == FBAStatus.Pending || detailInDb.FBAShipOrder.Status == FBAStatus.Updated) ? FBAStatus.Updated : detailInDb.FBAShipOrder.Status;
+                if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
+                    detailInDb.FBAShipOrder.Status = FBAStatus.Updated;
+                else if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())
+                    detailInDb.FBAShipOrder.Status = FBAStatus.Pending;
+                else
+                    detailInDb.FBAShipOrder.Status = originalStatus;
+            }
+            else
+            {
+                var originalStatus = (detailInDb.FBAMasterOrder.Status == FBAStatus.Pending || detailInDb.FBAMasterOrder.Status == FBAStatus.Updated) ? FBAStatus.Updated : detailInDb.FBAMasterOrder.Status;
+                if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
+                    detailInDb.FBAMasterOrder.Status = FBAStatus.Updated;
+                else if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())
+                    detailInDb.FBAMasterOrder.Status = FBAStatus.Pending;
+                else
+                    detailInDb.FBAMasterOrder.Status = originalStatus;
+            }
 
             _context.ChargingItemDetails.Remove(detailInDb);
             _context.SaveChanges();

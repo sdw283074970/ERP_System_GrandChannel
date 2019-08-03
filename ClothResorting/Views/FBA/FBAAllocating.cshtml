@@ -116,10 +116,20 @@
             var ctnsInPltTable;
             var index;
             var url;
+            var masterOrderId = getUrlParameter('masterOrderId');
+            var url2;
             var actualQuantity
             var grandNumber = getUrlParameter('grandNumber');
 
-            $("#h2").html("Grand Number: " + grandNumber);
+            if (grandNumber != undefined) {
+                $("#h2").html("Grand Number: " + grandNumber);
+                url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber;
+                url2 = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
+            }
+            else {
+                url = "/api/fba/fbaallocating/?masterOrderId=" + masterOrderId;
+                url2 = "/api/fba/WarehouseOperation/?masterOrderId=" + masterOrderId;
+            }
 
             //获取托盘可分配表
             var palletTableId = "#table-pallet";
@@ -249,7 +259,6 @@
                     }
                 }
             ]
-            url = "/api/fba/fbaallocating/?grandNumber=" + grandNumber;
             GetAjaxTable("GET", url, palletTableId, palletTable, palletsColumnArray);
 
             //获取箱数可分配表
@@ -342,8 +351,7 @@
                     }
                 }
             ]
-            url = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
-            GetAjaxTable("GET", url, cartonTableId, cartonTable, cartonsColumnArray);
+            GetAjaxTable("GET", url2, cartonTableId, cartonTable, cartonsColumnArray);
 
             //点击分配所有已填写托盘数按钮，将已填写的托盘数量分配到指定库位
             $("#btn-filledpallet").on("click", function () {

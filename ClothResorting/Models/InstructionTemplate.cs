@@ -17,6 +17,10 @@ namespace ClothResorting.Models
 
         public string CreateBy { get; set; }
 
+        public bool IsApplyToShipOrder { get; set; }
+
+        public bool IsApplyToMasterOrder { get; set; }
+
         public UpperVendor Customer { get; set; }
 
         public InstructionTemplate()

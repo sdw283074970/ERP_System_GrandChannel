@@ -233,16 +233,17 @@ namespace ClothResorting.Controllers.Api
             {
                 var result = PickPermanentItem(_context, shipOrderInDb, objArray);
 
+                shipOrderInDb.Status = Status.Picking;
                 return Created(Request.RequestUri, result);
             }
             else if (orderType == OrderType.Regular)
             {
                 var result = PickRegularItem(_context, shipOrderInDb, objArray);
 
+                shipOrderInDb.Status = Status.Picking;
                 return Created(Request.RequestUri, result);
             }
 
-            shipOrderInDb.Status = Status.Picking;
             _context.SaveChanges();
 
             return Ok();

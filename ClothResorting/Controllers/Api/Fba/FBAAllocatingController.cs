@@ -30,6 +30,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 && x.ActualPallets > x.ComsumedPallets).Select(Mapper.Map<FBAPallet, FBAPalletDto>));
         }
 
+        // GET /api/fba/fbaallocating/?masterOrderId={masterOrderId}
+        [HttpGet]
+        public IHttpActionResult GetAllocatablePalletsByMasterOrderId([FromUri]int masterOrderId)
+        {
+            return Ok(_context.FBAPallets
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId
+                && x.ActualPallets > x.ComsumedPallets).Select(Mapper.Map<FBAPallet, FBAPalletDto>));
+        }
+
         // POST /api/fba/fbaallocating/?grandNumber={grandNumber}&inventoryType={inventoryType}
         [HttpPost]
         public void CreateLocationObjects([FromUri]string grandNumber, [FromUri]string inventoryType, [FromBody]IEnumerable<FBALocationDto> objArray)

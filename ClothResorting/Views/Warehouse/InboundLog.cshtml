@@ -98,11 +98,11 @@
             var url;
             var operation;
             var pageId;
+            var operation;
             var masterOrderId;
             var searchBar = grandChannel.getUrlParameter('search');
 
-            $(".iframe-wo-push, .iframe-wo-view").hide();
-            $(".iframe-wo-process").hide();
+            $(".iframe-wo-warehouse, .iframe-wo-office").hide();
             $(".iframe-fbadate, .iframe-detail, .iframe-update").hide();
             $("#btn-update, #btn-report").hide();
 
@@ -123,7 +123,7 @@
                             return "<font color='orange'>" + data + "</font>"
                         else if (data == "Arrived")
                             return "<font color='darkcyan'>" + data + "</font>";
-                        else if (data == "Processing" || data == "Pending")
+                        else if (data == "Processing" || data == "Pending" || data == "Updated")
                             return "<font color='red'>" + data + "</font>";
                         else if (data == "Received")
                             return "<font color='green'>" + data + "</font>";
@@ -144,7 +144,7 @@
                             return "<input type='button' class='btn btn-link btn-receive' iid='" + data + "' value='Mark Received' />";
                         if (status == "Arrived")
                             return "<input type='button' class='btn btn-link btn-start' iid='" + data + "' value='Start Unloading' />";
-                        else if (status == "Processing")
+                        else if (status == "Processing" || status == "Pending" || status == "Updated")
                             return "<input type='button' class='btn btn-link btn-report' iid='" + data + "' value='Submit Report' />";
                         else if (status == "Received")
                             return "<input type='button' class='btn btn-link btn-registered' iid='" + data + "' value='Submit Register' />";
@@ -162,17 +162,17 @@
                     data: "id",
                     render: function (data) {
                         if (status == "Incoming" || status == "Arrived")
-                            return "<input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='View WO' />";
-                        else if (status == "Processing")
-                            return "<input type='button' class='btn btn-link btn-wo-process' iid='" + data + "' value='Process WO' />";
+                            return "<input type='button' class='btn btn-link btn-wo-view' operation='view' iid='" + data + "' value='View WO' />";
+                        else if (status == "Processing" || status == "Pending" || status == "Updated")
+                            return "<input type='button' class='btn btn-link btn-wo-process' operation='process' iid='" + data + "' value='Process WO' />";
                         else if (status == "Received")
-                            return "<input type='button' class='btn btn-link btn-registering' iid='" + data + "' value='Register Plt' />";
+                            return "<input type='button' class='btn btn-link btn-wo-review' operation='review' iid='" + data + "' value='Review WO' /><input type='button' class='btn btn-link btn-registering' iid='" + data + "' value='Register Plt' />";
                         else if (status == "Registered")
-                            return "<input type='button' class='btn btn-link btn-allocating' iid='" + data + "' value='Allocate Location' />";
+                            return "<input type='button' class='btn btn-link btn-wo-review' operation='review' iid='" + data + "' value='Review WO' /><input type='button' class='btn btn-link btn-allocating' iid='" + data + "' value='Allocate Items' />";
                         else if (status == "Allocated")
-                            return "<input type='button' class='btn btn-link btn-inventory' iid='" + data + "' value='Inventory Control' />";
+                            return "<input type='button' class='btn btn-link btn-wo-review' operation='review' iid='" + data + "' value='Review WO' /><input type='button' class='btn btn-link btn-inventory' iid='" + data + "' value='Inventory' />";
                         else
-                            return "";
+                            return "<input type='button' class='btn btn-link btn-wo-review' operation='review' iid='" + data + "' value='Review WO' /><input type='button' class='btn btn-link btn-inventory' iid='" + data + "' value='Inventory' />";
                     }
                 },
                 {
@@ -313,15 +313,47 @@
             getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
 
             //点击View WO按钮，打开浏览unload work order页面
-            $("#table").on("click", ".btn-wo-readonly", function () {
+            $("#table").on("click", ".btn-wo-view", function () {
+                $(".btn-logon, #btn-detail-comment, #btn-wo-update").hide();
                 customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
                 masterOrderId = $(this).attr('iid');
-                pageId = ".iframe-wo-view";
+                pageId = ".iframe-wo-warehouse";
 
                 $(".h2-customercode").html("Customer Code: " + customerCode);
                 grandChannel.openiframe(index, pageId, "1000px", "800px");
 
-                GetWorkOrder(masterOrderId, pageId);
+                operation = $(this).attr('operation');
+                GetWorkOrder(masterOrderId, operation);
+            });
+
+            //点击Review WO按钮，打开检查Unload work order页面
+            $("#table").on("click", ".btn-wo-review", function () {
+                $(".btn-logon, #btn-detail-comment").hide();
+                $("#btn-wo-update").show();
+                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
+                masterOrderId = $(this).attr('iid');
+                pageId = ".iframe-wo-warehouse";
+
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                operation = $(this).attr('operation');
+                GetWorkOrder(masterOrderId, operation);
+            });
+
+            //点击Process WO按钮，打开浏览unload work order页面
+            $("#table").on("click", ".btn-wo-process", function () {
+                $(".btn-logon, #btn-detail-comment").show();
+                $("#btn-wo-update").hide();
+                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
+                masterOrderId = $(this).attr('iid');
+                pageId = ".iframe-wo-warehouse";
+
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                operation = $(this).attr('operation');
+                GetWorkOrder(masterOrderId, operation);
             });
 
             //点击标记到货按钮，填写到货日期
@@ -354,18 +386,6 @@
                 else {
                     alert("Date cannot be empty.");
                 }
-            });
-
-            //点击Process WO按钮，打开处理WO页面
-            $("#table").on("click", ".btn-wo-process", function () {
-                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
-                masterOrderId = $(this).attr('iid');
-                pageId = ".iframe-wo-process";
-
-                $(".h2-customercode").html("Customer Code: " + customerCode);
-                grandChannel.openiframe(index, pageId, "1000px", "800px");
-
-                GetWorkOrder(masterOrderId, pageId);
             });
 
             //点击WO中的logon items按钮，跳转到录入收货页面
@@ -409,6 +429,40 @@
 
                 grandChannel.openiframe(index, ".iframe-update", "800px", "350px");
             });
+
+            //点击WO中Summary中的update按钮，也可以打开报告弹窗
+            $("#btn-wo-update").on("click", function myfunction() {
+                $("#btn-update, #btn-report").hide();
+                $("#h2-title").html("Update Unloading Report");
+
+                url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $("#input-inbounddate").val(transFormatDate(data.inboundDate));
+                        $("#input-finishtime").val(transFormatDate(data.unloadFinishTime));
+                        $("#input-avatime").val(transFormatDate(data.availableTime));
+                        $("#input-outtime").val(transFormatDate(data.outTime));
+                        $("#input-docknumber").val(data.dockNumber);
+                        $("#input-verifiedby").val(data.verifiedBy);
+                    }
+                });
+
+                grandChannel.openiframe(index, ".iframe-update", "800px", "350px");
+            })
 
             //点击更新信息弹窗中的更新按钮，将数据更新到收货单中
             $("#btn-update").on("click", function () {
@@ -548,7 +602,41 @@
                 SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
             });
 
-            //点击outbound log按钮，跳转到inbound log管理界面
+            //点击Register plt按钮，跳转到托盘注册页面
+            $("#table").on("click", ".btn-registering", function () {
+                masterOrderId = $(this).attr('iid');
+                $(window.location).attr('href', "/fba/warehouseOperation/?masterOrderId=" + masterOrderId);
+            });
+
+            //点击提交托盘注册表，提交注册
+            $("#table").on("click", ".btn-registered", function () {
+                masterOrderId = $(this).attr('iid');
+                url = "/api/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&operation=Register"
+
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
+            //点击分配库位按钮，跳转到库位分配页面
+            $("#table").on("click", ".btn-allocating", function () {
+                masterOrderId = $(this).attr('iid');
+                $(window.location).attr('href', "/fba/FBAAllocating/?masterOrderId=" + masterOrderId);
+            });
+
+            //点击提交分配按钮，提交分配结果
+            $("#table").on("click", ".btn-allocated", function () {
+                masterOrderId = $(this).attr('iid');
+                url = "/api/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&operation=Allocate"
+
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
+            //点击查看库存按钮，查看库存
+            $("#table").on("click", ".btn-inventory", function myfunction() {
+                masterOrderId = $(this).attr('iid');
+                $(window.location).attr('href', "/fba/Inventory/?masterOrderId=" + masterOrderId);
+            });
+
+            //点击outbound log按钮，跳转到outbound log管理界面
             $("#btn-outboundlog").on("click", function () {
                 $(window.location).attr("href", "/Warehouse/Index");
             });
@@ -613,7 +701,7 @@
                     return "";
             }
 
-            function GetWorkOrder(masterOrderId, pageId) {
+            function GetWorkOrder(masterOrderId, operation) {
                 url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=WO";
 
                 $.ajax({
@@ -640,11 +728,11 @@
                         $(".text-container").html(data.container);
                         $(".text-grandnumber").html(data.grandNumber);
                         $(".text-start").html(transDate(data.unloadStartTime));
-                        $(".text-logon").html(data.logonProgress.toFixed(2) + "%");
+                        $(".text-logon").html(parseFloat(data.logonProgress).toFixed(2) + "%");
                         $(".text-verified").html(data.verifiedBy);
-                        $(".text-register").html(data.registerProgress.toFixed(2) + "%");
+                        $(".text-register").html(parseFloat(data.registerProgress).toFixed(2) + "%");
                         $(".text-dock").html(data.dock);
-                        $(".text-allocation").html(data.allocationProgress.toFixed(2) + "%");
+                        $(".text-allocation").html(parseFloat(data.allocationProgress).toFixed(2) + "%");
 
                         var plColumnArray = [
                             {
@@ -744,20 +832,21 @@
                                 render: function (data) {
                                     if (data == "New")
                                         return "<font color='blue'>" + data + "</font>";
-                                    else if (data == "Pending")
+                                    else if (data == "Pending" || data == "Updated" || data == "Processing")
                                         return "<font color='red'>" + data + "</font>";
-                                    else if (data == "Updated")
-                                        return "<font color='Orange'>" + data + "</font>";
-                                    else if (data == "Finished")
+                                    else if (data == "Finished" || data == "Confirmed")
                                         return "<font color='green'>" + data + "</font>";
                                     else
-                                        return "<font>Invaild Date</font>"
+                                        return "<font>Invaild Data</font>"
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-comment'>Comment</button><button iid='" + data + "' class='btn btn-link btn-confirm'>Confirm</button>";
+                                    if (operation == "view")
+                                        return "";
+                                    else
+                                        return "<button iid='" + data + "' class='btn btn-link btn-comment'>Comment</button><button iid='" + data + "' class='btn btn-link btn-confirm'>Confirm/Finish</button>";
                                 }
                             }
                         ];
@@ -780,7 +869,7 @@
                 });
             }
 
-            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj) {
+            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj, operation) {
                 $.ajax({
                     type: methodType,
                     url: url,
@@ -797,7 +886,7 @@
                     },
                     success: function () {
                         layer.close(index);
-                        GetWorkOrder(masterOrderId, customerCode, pageId);
+                        GetWorkOrder(masterOrderId, operation);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

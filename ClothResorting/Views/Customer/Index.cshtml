@@ -66,10 +66,12 @@
                 <tr>
                     <th style="width:66px">Id</th>
                     <th>Descriptiono</th>
+                    <th>Ship Order</th>
+                    <th>Master Order</th>
                     <th>Status</th>
-                    <th style="width:180px">Update Date</th>
-                    <th style="width:180px">Create By</th>
-                    <th style="width:180px">OPERATION</th>
+                    <th>Update Date</th>
+                    <th>Create By</th>
+                    <th>OPERATION</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -80,8 +82,10 @@
 <div class="iframe-detail">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Description: </text><input id='input-detail-description' style='width:400px' class='input-sm' /><br />
-        <text>Is charging item</text><input type="checkbox" id="cb-charge" /><br />
-        <text>Apply to all FBA customer</text><input type="checkbox" id="cb-all" /><br />
+        <text>Is charging item </text><input type="checkbox" id="cb-charge" /><br />
+        <text>Is apply to ship order </text><input type="checkbox" id="cb-shiporder" /><br />
+        <text>Is apply to master order </text><input type="checkbox" id="cb-masterorder" /><br />
+        <text>Apply to all FBA customer </text><input type="checkbox" id="cb-all" /><br />
         <button id="btn-detail-add" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">create</button>
     </div>
 </div>
@@ -106,35 +110,46 @@
             var instructionColumnArray = [
                 {
                     data: "id",
-                    width: "10%",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
                 },
                 {
                     data: "description",
-                    width: "80%",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
                 },
                 {
+                    data: "isApplyToShipOrder",
+                    render: function (data) {
+                        if (data == true)
+                            return "<text>√<text>";
+                        return "<text>X</text>";
+                    }
+                },
+                {
+                    data: "isApplyToMasterOrder",
+                    render: function (data) {
+                        if (data == true)
+                            return "<text>√<text>";
+                        return "<text>X</text>";
+                    }
+                },
+                {
                     data: "status",
-                    width: "20%",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
                 },
                 {
                     data: "createDate",
-                    width: "20%",
                     render: function (data) {
                         return "<text>" + data.toString().substring(0, 10) + "</text>";
                     }
                 },
                 {
                     data: "createBy",
-                    width: "20%",
                     render: function (data) {
                         return "<text>" + data + "</text>";
                     }
@@ -346,17 +361,19 @@
 
             //点击添加项目按钮，打开一个简易填写界面
             $("#btn-detail-create").on("click", function () {
-                grandChannel.openiframe(index_detail, ".iframe-detail", "500px", "150px");
+                grandChannel.openiframe(index_detail, ".iframe-detail", "500px", "250px");
             });
 
             //点击添加按钮，添加WO指示模板
             $("#btn-detail-add").on("click", function () {
                 var description = $("#input-detail-description").val();
+                var isApplyToShipOrder = $("#cb-shiporder").prop("checked");
+                var isApplyToMasterOrder = $("#cb-masterorder").prop("checked");
                 var isAppliedToAll = $("#cb-all").prop("checked");
                 var isChargingItem = $("#cb-charge").prop("checked");
 
                 if (description != "") {
-                    url = "/api/CustomerManagement/?customerId=" + customerId + "&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&isAppliedToAll=" + isAppliedToAll;
+                    url = "/api/CustomerManagement/?customerId=" + customerId + "&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&isAppliedToAll=" + isAppliedToAll + "&isApplyToShipOrder=" + isApplyToShipOrder + "&isApplyToMasterOrder=" + isApplyToMasterOrder;
 
                     $.ajax({
                         type: "POST",

@@ -118,11 +118,11 @@
             var container;
             var customerId;
             var invoiceStatuts;
+            var operation;
             var pageId;
 
-            $(".iframe-wo-push, .iframe-wo-view").hide();
-            $(".iframe-wo-process").hide();
-            $(".iframe, .iframe-fbadate").hide();
+            $(".iframe-wo-warehouse, .iframe-wo-office").hide();
+            $(".iframe, .iframe-fbadate, .iframe-detail-result, .iframe-detail").hide();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -319,6 +319,7 @@
                         $("#input-seal").val(data.sealNumber);
                         $("#input-size").val(data.containerSize);
                         $("#input-originalplts").val(data.originalPlts);
+                        $("#input-instruction").val(data.instruction);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -345,6 +346,7 @@
                 var sealNumber = $("#input-seal").val().toString();
                 var containerSize = $("#input-size").val().toString();
                 var originalPlts = $("#input-originalplts").val();
+                var instruction = $("#input-instruction").val();
 
                 var obj = {
                     "carrier": carrier,
@@ -361,7 +363,8 @@
                     "sealNumber": sealNumber,
                     "containerSize": containerSize,
                     "inboundType": inboundType,
-                    "originalPlts": originalPlts
+                    "originalPlts": originalPlts,
+                    "instruction": instruction
                 };
 
                 url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber;
@@ -369,19 +372,56 @@
                 SendAjaxMethod("PUT", url, obj);
             });
 
-            //点击push按钮，打开编辑unload order页面
-            $("#table").on("click", ".btn-push", function () {
+            //点击push WO按钮，打开编辑unload order页面
+            $("#table").on("click", ".btn-wo-push", function () {
+                $("#btn-push, .btn-detail-create, #btn-detail-reset").show();
+
+                var grandNumber = $(this).parent().parent("tr").children("td").eq(1).children("text").html();
+                masterOrderId = $(this).attr('iid');
+                customerCode = grandNumber.substring(0, grandNumber.length - 10);
+                reference = $(this).parent().parent("tr").children("td").eq(4).children("text").html();
+                pageId = ".iframe-wo-office";
+
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                operation = $(this).attr('operation');
+                GetWorkOrder(masterOrderId, operation);
+            });
+
+            //点击update WO按钮，打开更新unload order页面
+            $("#table").on("click", ".btn-wo-update", function () {
+                $(".btn-detail-create, #btn-detail-reset").show();
+                $("#btn-push").hide();
                 var grandNumber = $(this).parent().parent("tr").children("td").eq(1).children("text").html();
 
                 masterOrderId = $(this).attr('iid');
                 customerCode = grandNumber.substring(0, grandNumber.length - 10);
                 reference = $(this).parent().parent("tr").children("td").eq(4).children("text").html();
-                pageId = ".iframe-wo-push";
+                pageId = ".iframe-wo-office";
 
                 $(".h2-customercode").html("Customer Code: " + customerCode);
                 grandChannel.openiframe(index, pageId, "1000px", "800px");
 
-                GetWorkOrder(masterOrderId, pageId);
+                operation = $(this).attr('operation');
+                GetWorkOrder(masterOrderId, operation);
+            });
+
+            //点击View WO按钮，打开更新unload order页面
+            $("#table").on("click", ".btn-wo-view", function () {
+                $("#btn-push, .btn-detail-create, #btn-detail-reset").hide();
+                var grandNumber = $(this).parent().parent("tr").children("td").eq(1).children("text").html();
+
+                masterOrderId = $(this).attr('iid');
+                customerCode = grandNumber.substring(0, grandNumber.length - 10);
+                reference = $(this).parent().parent("tr").children("td").eq(4).children("text").html();
+                pageId = ".iframe-wo-office";
+
+                $(".h2-customercode").html("Customer Code: " + customerCode);
+                grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                operation = $(this).attr('operation');
+                GetWorkOrder(masterOrderId, operation);
             });
 
             //点击WO页面中的添加新指令按钮，弹出填写指令弹窗
@@ -408,7 +448,7 @@
                 if (description != "") {
                     layer.close(index);
                     url = "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=MasterOrder&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
-                    SendAjaxMethodAndRefreshWorkOrder("POST", url, {});
+                    SendAjaxMethodAndRefreshWorkOrder("POST", url, {}, operation);
                 }
             });
 
@@ -463,7 +503,7 @@
                     layer.close(index);
                     url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&operation=UpdateInstruction";
 
-                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {}, operation);
                 }
             });
 
@@ -513,7 +553,7 @@
                 if (description != "") {
                     layer.close(index);
                     url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&operation=UpdateResult";
-                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+                    SendAjaxMethodAndRefreshWorkOrder("PUT", url, {}, operation);
                 }
             });
 
@@ -523,7 +563,13 @@
 
                 url = "/api/fba/fbainvoicedetail/?chargingItemDetailId=" + id;
 
-                SendAjaxMethodAndRefreshWorkOrder("DELETE", url, {});
+                SendAjaxMethodAndRefreshWorkOrder("DELETE", url, {}, operation);
+            });
+
+            //点击Reset按钮，重制当前WO的指示（与模板同步）
+            $("#btn-detail-reset").on("click", function () {
+                url = "/api/fba/fbashiporder/?referenceId=" + masterOrderId + "&orderType=MasterOrder&operation=Reset";
+                SendAjaxMethodAndRefreshWorkOrder("PUT", url, {}, operation);
             });
 
             //点击确认发布按钮，将收货单状态改为New Order，unload order发布到仓库端
@@ -701,10 +747,14 @@
                                             return "<font color='gray'>" + data + "</font>"
                                         if (data == "Incoming")
                                             return "<font color='orange'>" + data + "</font>"
-                                        else if (data == "Processing" || data == "Pending")
+                                        else if (data == "Arrived")
+                                            return "<font color='darkcyan'>" + data + "</font>";
+                                        else if (data == "Processing" || data == "Pending" || data == "Updated")
                                             return "<font color='red'>" + data + "</font>";
                                         else if (data == "Received")
                                             return "<font color='green'>" + data + "</font>";
+                                        else if (data == "Registered")
+                                            return "<font color='purple'>" + data + "</font>";
                                         else if (data == "Allocated")
                                             return "<font color='brown'>" + data + "</font>";
                                         else if (data == "Completed")
@@ -717,11 +767,13 @@
                                     data: "id",
                                     render: function (data) {
                                         if (status == "New Created")
-                                            return "<input type='button' class='btn btn-link btn-push' iid='" + data + "' value='Push' />";
-                                        else if (status == "Processing")
-                                            return " ";
+                                            return "<input type='button' class='btn btn-link btn-wo-push' operation='push' iid='" + data + "' value='Push WO' />";
+                                        else if (status == "Received" || status == "Registered" || status == "Allocated" || status == "Completed")
+                                            return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' />";
+                                        else if (status == "Incoming" || status == "Arrived")
+                                            return "<input type='button' class='btn btn-link btn-wo-update' operation='update' iid='" + data + "' value='Update WO' />";
                                         else
-                                            return "";
+                                            return "<input type='button' class='btn btn-link btn-wo-update' operation='process' iid='" + data + "' value='Process WO' />";
                                     }
                                 },
                                 {
@@ -822,7 +874,7 @@
                     return "";
             }
 
-            function GetWorkOrder(masterOrderId, pageId) {
+            function GetWorkOrder(masterOrderId) {
 
                 url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=WO";
 
@@ -850,11 +902,11 @@
                         $(".text-container").html(data.container);
                         $(".text-grandnumber").html(data.grandNumber);
                         $(".text-start").html(transDate(data.unloadStartTime));
-                        $(".text-logon").html(data.logonProgress.toFixed(2) + "%");
+                        $(".text-logon").html(parseFloat(data.logonProgress).toFixed(2) + "%");
                         $(".text-verified").html(data.verifiedBy);
-                        $(".text-register").html(data.registerProgress.toFixed(2) + "%");
+                        $(".text-register").html(parseFloat(data.registerProgress).toFixed(2) + "%");
                         $(".text-dock").html(data.dock);
-                        $(".text-allocation").html(data.allocationProgress.toFixed(2) + "%");
+                        $(".text-allocation").html(parseFloat(data.allocationProgress).toFixed(2) + "%");
 
                         var plColumnArray = [
                             {
@@ -954,11 +1006,9 @@
                                 render: function (data) {
                                     if (data == "New")
                                         return "<font color='blue'>" + data + "</font>";
-                                    else if (data == "Pending")
+                                    else if (data == "Pending" || data == "Updated" || data == "Processing")
                                         return "<font color='red'>" + data + "</font>";
-                                    else if (data == "Updated")
-                                        return "<font color='Orange'>" + data + "</font>";
-                                    else if (data == "Finished")
+                                    else if (data == "Finished" || data =="Confirmed")
                                         return "<font color='green'>" + data + "</font>";
                                     else
                                         return "<font>" + data + "</font>"
@@ -967,8 +1017,10 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (pageId == ".iframe-wo-view")
+                                    if (operation == "view")
                                         return "";
+                                    if (operation == "push" || operation == "update")
+                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                     return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                 }
                             }
@@ -1029,7 +1081,7 @@
                 });
             };
 
-            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj) {
+            function SendAjaxMethodAndRefreshWorkOrder(methodType, url, obj, operation) {
                 $.ajax({
                     type: methodType,
                     url: url,
@@ -1046,7 +1098,7 @@
                     },
                     success: function () {
                         layer.close(index);
-                        GetWorkOrder(masterOrderId, customerCode, pageId);
+                        GetWorkOrder(masterOrderId, operation);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {

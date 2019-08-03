@@ -81,12 +81,18 @@
             var table;
             var index;
             var grandNumber = getUrlParameter('grandNumber');
+            var masterOrderId = getUrlParameter('masterOrderId');
             var url;
             var actualQuantity;
 
-            $("#h2").html("Grand Number: " + grandNumber);
+            if (grandNumber != undefined) {
+                $("#h2").html("Grand Number: " + grandNumber);
+                url = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
+            }
+            else {
+                url = "/api/fba/WarehouseOperation/?masterOrderId=" + masterOrderId;
+            }
 
-            url = "/api/fba/WarehouseOperation/?grandNumber=" + grandNumber;
             GetAjaxTable("GET", url);
 
             //点击全选，勾选所有Checkbox

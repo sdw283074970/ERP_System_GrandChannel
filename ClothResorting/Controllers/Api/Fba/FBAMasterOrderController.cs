@@ -295,15 +295,55 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void PushUnloadWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
         {
-            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            var masterOrderInDb = _context.FBAMasterOrders
+                .Include(x => x.FBAOrderDetails)
+                .SingleOrDefault(x => x.Id == masterOrderId);
 
             if (operation == "Push")
             {
+                if (masterOrderInDb.FBAOrderDetails == null)
+                    throw new Exception("Cannot push orders with 0 SKUs");
+
                 masterOrderInDb.PushTime = DateTime.Now;
                 masterOrderInDb.UpdateLog = "Placed by " + _userName + " at " + DateTime.Now.ToString();
                 masterOrderInDb.Status = FBAStatus.Incoming;
-                _context.SaveChanges();
             }
+            else if (operation == "Register")
+            {
+                masterOrderInDb.Status = FBAStatus.Registered;
+                masterOrderInDb.UpdateLog = "Registed by " + _userName + " at " + DateTime.Now.ToString();
+            }
+            else if (operation == "Allocate")
+            {
+                var ctnsInPlts = 0;
+                var ctnsOutPlts = 0;
+                try
+                {
+                    ctnsInPlts = _context.FBAPalletLocations
+                        .Include(x => x.FBAMasterOrder)
+                        .Where(x => x.FBAMasterOrder.Id == masterOrderId)
+                        .Sum(x => x.ActualQuantity);
+
+                    ctnsOutPlts = _context.FBACartonLocations
+                       .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                       .Where(x => x.Status != "InPallet")
+                       .Sum(x => x.ActualQuantity);
+                }
+                catch(Exception e)
+                {
+                    ctnsInPlts = 0;
+                    ctnsOutPlts = 0;
+                }
+
+                if ((ctnsInPlts + ctnsOutPlts) == masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity))
+                {
+                    masterOrderInDb.UpdateLog = "Allocated by " + _userName + " at " + DateTime.Now.ToString();
+                    masterOrderInDb.Status = FBAStatus.Allocated;
+                }
+                else
+                    throw new Exception("cannot mark an order as allocated before the goods are fully allocated.");
+            }
+            _context.SaveChanges();
         }
 
         // PUT /api/fba/fbamasterorder/?grandNumber={grandNumber}&operation={edit}
@@ -340,6 +380,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrderInDb.SealNumber = obj.SealNumber;
             masterOrderInDb.InboundType = obj.InboundType;
             masterOrderInDb.ContainerSize = obj.ContainerSize;
+            masterOrderInDb.Instruction = obj.Instruction;
 
             _context.SaveChanges();
         }

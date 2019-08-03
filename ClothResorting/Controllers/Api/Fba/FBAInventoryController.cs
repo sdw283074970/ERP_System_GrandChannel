@@ -72,6 +72,26 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
+        // GET /api/fba/fbaiventory/?masterOrderId={masterOrderId}&inventoryType={inventoryType}
+        [HttpGet]
+        public IHttpActionResult GetFBAInventoryByMasterOrderId([FromUri]int masterOrderId, [FromUri]string inventoryType)
+        {
+            if (inventoryType == FBAInventoryType.Pallet)
+            {
+                return Ok(_context.FBAPalletLocations
+                    .Include(x => x.FBAMasterOrder)
+                    .Where(x => x.FBAMasterOrder.Id == masterOrderId)
+                    .Select(Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>));
+            }
+            else
+            {
+                return Ok(_context.FBACartonLocations
+                    .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                    .Where(x => x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId)
+                    .Select(Mapper.Map<FBACartonLocation, FBACartonLocationDto>));
+            }
+        }
+
         // GET /api/fba/fbaiventory/?container={container}&sku={sku}&amzRef={amzRef}&warehouseCode={warehouseCode}&inventoryType={inventoryType} 搜索获取可拣货列表
         [HttpGet]
         public IHttpActionResult GetFBAInventoryViaContainer([FromUri]string container, [FromUri]string sku, [FromUri]string amzRef, [FromUri]string warehouseCode, [FromUri]string inventoryType)

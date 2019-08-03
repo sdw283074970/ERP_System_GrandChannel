@@ -751,7 +751,7 @@
 
             //点击Reset按钮，重制当前WO的指示（与模板同步）
             $("#btn-detail-reset").on("click", function () {
-                url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=Reset";
+                url = "/api/fba/fbashiporder/?referenceId=" + shipOrderId + "&orderType=ShipOrder&operation=Reset";
                 SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
             });
 

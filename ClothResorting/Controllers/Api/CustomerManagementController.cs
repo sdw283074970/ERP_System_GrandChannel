@@ -83,9 +83,9 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + result.Id, Mapper.Map<UpperVendor, UpperVendorDto>(result));
         }
 
-        //POST /api/customermanagement/?customerId={customerId}&description={description}&isChargingItem={isChargingItem}&isAppliedToAll={isAppliedToAll}
+        //POST /api/customermanagement/?customerId={customerId}&description={description}&isChargingItem={isChargingItem}&isAppliedToAll={isAppliedToAll}&isApplyToShipOrder={isApplyToShipOrder}&isApplyToMasterOrder={isApplyToMasterOrder}
         [HttpPost]
-        public IHttpActionResult CreateNewChargingDetailTemplate([FromUri]int customerId, [FromUri]string description, [FromUri]bool isChargingItem, [FromUri]bool isAppliedToAll)
+        public IHttpActionResult CreateNewChargingDetailTemplate([FromUri]int customerId, [FromUri]string description, [FromUri]bool isChargingItem, [FromUri]bool isAppliedToAll, [FromUri]bool isApplyToShipOrder, [FromUri]bool isApplyToMasterOrder)
         {
             var fbaCustomers = _context.UpperVendors
                 .Where(x => x.DepartmentCode == "FBA");
@@ -94,6 +94,8 @@ namespace ClothResorting.Controllers.Api
             {
                 var newTemplate = new InstructionTemplate
                 {
+                    IsApplyToMasterOrder = isApplyToMasterOrder,
+                    IsApplyToShipOrder = isApplyToShipOrder,
                     CreateBy = _userName,
                     Description = description,
                     CreateDate = DateTime.Now
@@ -121,6 +123,8 @@ namespace ClothResorting.Controllers.Api
                 {
                     var newTemplate = new InstructionTemplate
                     {
+                        IsApplyToMasterOrder = isApplyToMasterOrder,
+                        IsApplyToShipOrder = isApplyToShipOrder,
                         CreateBy = _userName,
                         Description = description,
                         CreateDate = DateTime.Now

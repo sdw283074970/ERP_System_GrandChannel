@@ -119,7 +119,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         // PUT /api/warehouseIndex/?chargingItemDetailId={chargingItemDetailId}
         [HttpPut]
-        public void ConfirmInstruction([FromUri]int chargingItemDetailId)
+        public void ConfirmAndFinishInstruction([FromUri]int chargingItemDetailId)
         {
             var detailInDb = _context.ChargingItemDetails
                 .Include(x => x.FBAMasterOrder.ChargingItemDetails)
@@ -135,21 +135,23 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             if (detailInDb.FBAShipOrder != null)
             {
+                var originalStatus = (detailInDb.FBAShipOrder.Status == FBAStatus.Pending || detailInDb.FBAShipOrder.Status == FBAStatus.Updated) ? FBAStatus.Updated : detailInDb.FBAShipOrder.Status;
                 if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
                     detailInDb.FBAShipOrder.Status = FBAStatus.Updated;
                 else if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())
                     detailInDb.FBAShipOrder.Status = FBAStatus.Pending;
                 else
-                    detailInDb.FBAShipOrder.Status = FBAStatus.Processing;
+                    detailInDb.FBAShipOrder.Status = originalStatus;
             }
             else
             {
+                var originalStatus = (detailInDb.FBAMasterOrder.Status == FBAStatus.Pending || detailInDb.FBAMasterOrder.Status == FBAStatus.Updated) ? FBAStatus.Updated : detailInDb.FBAMasterOrder.Status;
                 if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
                     detailInDb.FBAMasterOrder.Status = FBAStatus.Updated;
                 else if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())
                     detailInDb.FBAMasterOrder.Status = FBAStatus.Pending;
                 else
-                    detailInDb.FBAMasterOrder.Status = FBAStatus.Processing;
+                    detailInDb.FBAMasterOrder.Status = originalStatus;
             }
 
             _context.SaveChanges();

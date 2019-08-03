@@ -321,45 +321,91 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
+        // PUT /api/fba/fbashiporder/?referenceId={referenceId}&orderType={orderType}}&operation={operation}
         [HttpPut]
-        public async Task ResetShipOrderDetail([FromUri]int shipOrderId, [FromUri]string operation)
+        public async Task ResetWorkOrderInstruction([FromUri]int referenceId, [FromUri]string orderType, [FromUri]string operation)
         {
             if (operation == "Reset")
             {
-                var shipOrderInDb = _context.FBAShipOrders
-                    .Include(x => x.ChargingItemDetails)
-                    .SingleOrDefault(x => x.Id == shipOrderId);
+                var instructionTemplates = new List<InstructionTemplate>();
 
-                var oldValueDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(shipOrderInDb.ChargingItemDetails);
-
-                shipOrderInDb.ChargingItemDetails = null;
-
-                var chargingItemDetailList = new List<ChargingItemDetail>();
-
-                var instructionTemplates = _context.InstructionTemplates
-                    .Include(x => x.Customer)
-                    .Where(x => x.Customer.CustomerCode == shipOrderInDb.CustomerCode)
-                    .ToList();
-
-                foreach(var i in instructionTemplates)
+                if (orderType == FBAOrderType.ShipOrder)
                 {
-                    chargingItemDetailList.Add(new ChargingItemDetail {
-                        Status = i.Status,
-                        CreateBy = _userName,
-                        Description = i.Description,
-                        CreateDate = DateTime.Now,
-                        HandlingStatus = FBAStatus.New,
-                        FBAShipOrder = shipOrderInDb
-                    });
+                    var referenceInDb = _context.FBAShipOrders
+                        .Include(x => x.ChargingItemDetails)
+                        .SingleOrDefault(x => x.Id == referenceId);
+
+                    var oldValueDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(referenceInDb.ChargingItemDetails);
+
+                    referenceInDb.ChargingItemDetails = null;
+
+                    var chargingItemDetailList = new List<ChargingItemDetail>();
+
+                    instructionTemplates = _context.InstructionTemplates
+                        .Include(x => x.Customer)
+                        .Where(x => x.Customer.CustomerCode == referenceInDb.CustomerCode
+                            && x.IsApplyToShipOrder == true)
+                        .ToList();
+
+                    foreach (var i in instructionTemplates)
+                    {
+                        chargingItemDetailList.Add(new ChargingItemDetail
+                        {
+                            Status = i.Status,
+                            CreateBy = _userName,
+                            Description = i.Description,
+                            CreateDate = DateTime.Now,
+                            HandlingStatus = FBAStatus.New,
+                            FBAShipOrder = referenceInDb
+                        });
+                    }
+
+                    _context.ChargingItemDetails.AddRange(chargingItemDetailList);
+                    _context.SaveChanges();
+
+                    var resultDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).Take(chargingItemDetailList.Count));
+                    var shipOrderStr = JsonConvert.SerializeObject(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(referenceInDb));
+                    await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, resultDto, "Reset all instructions in [dbo].[FBAShipOrder] " + shipOrderStr, null, OperationLevel.Mediunm);
                 }
+                else if (orderType == FBAOrderType.MasterOrder)
+                {
+                    var referenceInDb = _context.FBAMasterOrders
+                        .Include(x => x.Customer)
+                        .Include(x => x.ChargingItemDetails)
+                        .SingleOrDefault(x => x.Id == referenceId);
 
-                _context.ChargingItemDetails.AddRange(chargingItemDetailList);
-                _context.SaveChanges();
+                    var oldValueDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(referenceInDb.ChargingItemDetails);
 
-                var resultDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).Take(chargingItemDetailList.Count));
-                var shipOrderStr = JsonConvert.SerializeObject(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb));
-                await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, resultDto, "Reset all instructions in [dbo].[FBAShipOrder] " + shipOrderStr, null, OperationLevel.Mediunm);
+                    referenceInDb.ChargingItemDetails = null;
+
+                    var chargingItemDetailList = new List<ChargingItemDetail>();
+
+                    instructionTemplates = _context.InstructionTemplates
+                        .Include(x => x.Customer)
+                        .Where(x => x.Customer.CustomerCode == referenceInDb.Customer.CustomerCode
+                            && x.IsApplyToMasterOrder == true)
+                        .ToList();
+
+                    foreach (var i in instructionTemplates)
+                    {
+                        chargingItemDetailList.Add(new ChargingItemDetail
+                        {
+                            Status = i.Status,
+                            CreateBy = _userName,
+                            Description = i.Description,
+                            CreateDate = DateTime.Now,
+                            HandlingStatus = FBAStatus.New,
+                            FBAMasterOrder = referenceInDb
+                        });
+                    }
+
+                    _context.ChargingItemDetails.AddRange(chargingItemDetailList);
+                    _context.SaveChanges();
+
+                    var resultDto = Mapper.Map<IEnumerable<ChargingItemDetail>, IEnumerable<ChargingItemDetailDto>>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).Take(chargingItemDetailList.Count));
+                    var masterOrderStr = JsonConvert.SerializeObject(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(referenceInDb));
+                    await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, resultDto, "Reset all instructions in [dbo].[FBAMasterOrder] " + masterOrderStr, null, OperationLevel.Mediunm);
+                }
             }
         }
 
@@ -379,6 +425,11 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 instructionInDb.Description = comment;
                 instructionInDb.HandlingStatus = FBAStatus.New;
+                if (instructionInDb.FBAMasterOrder != null && instructionInDb.FBAMasterOrder.Status == FBAStatus.Pending)
+                    instructionInDb.FBAMasterOrder.Status = FBAStatus.Updated;
+                else if (instructionInDb.FBAShipOrder != null && instructionInDb.FBAShipOrder.Status == FBAStatus.Pending)
+                    instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
+
                 if (isChargingItem)
                 {
                     instructionInDb.Status = FBAStatus.WaitingForCharging;
@@ -407,6 +458,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 instructionInDb.Result = comment;
                 instructionInDb.HandlingStatus = FBAStatus.Updated;
+
                 if (instructionInDb.FBAShipOrder != null)
                     instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
                 else

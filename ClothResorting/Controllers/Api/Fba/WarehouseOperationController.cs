@@ -33,6 +33,17 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
         }
 
+        // GET /api/warehouseoperation/?masterOrderId={masterOrderId}
+        [HttpGet]
+        public IHttpActionResult GetUnlaiedObjectsByMasterOrderId([FromUri]int masterOrderId)
+        {
+            return Ok(_context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId
+                    && x.ComsumedQuantity < x.ActualQuantity)
+                .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>));
+        }
+
         // POST /api/warehouseoperation/?grandNumber={grandNumber}&pltQuantity={pltQuantity}&pltSize={pltSize}&packType={packType}&isSelectedByCheckBox={isSelectedByCheckBox}
         [HttpPost]
         public void CreatePallet([FromUri]string grandNumber, [FromUri]int pltQuantity, [FromUri]string pltSize, [FromUri]bool doesAppliedLabel, [FromUri]bool hasSortingMarking, [FromUri]bool isOverSizeOrOverwidth, [FromUri]string packType, [FromUri]bool isSelectedByCheckBox, [FromBody]IEnumerable<PalletInfoDto> objArray)
