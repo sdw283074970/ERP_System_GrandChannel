@@ -57,7 +57,7 @@
             <option value='Standard'>Standard</option>
             <option value='Ecommerce'>Ecommerce</option>
             <option value='LooseCarton'>LooseCarton</option>
-            <option value='Adjustment'>Adjustment</option>
+            <option value='Adjustment'>Adjustment</option>4
         </select><br />
         <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
         <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
@@ -96,6 +96,7 @@
     </div>
 </div>
 @Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
+@Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 
 @section scripts
 {
@@ -116,9 +117,10 @@
             var invoiceStatus;
             var searchBar = getUrlParameter('search');
 
+            $(".btn-wo-operation, #iframe-verifiedinfo").hide();
             $(".iframe, #btn-update, #btn-release, #btn-ship").hide();
             $(".iframe-date").hide();
-            $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse,.iframe-detail, .iframe-wo-result, .iframe-detail-result").hide();
+            $(".iframe-wo, .iframe-wo-office, .iframe-wo-warehouse, .iframe-detail, .iframe-wo-result, .iframe-detail-result").hide();
 
             //动态获取Customer数据
             $.ajax({
@@ -138,13 +140,11 @@
                 }
             });
 
-            if (customerId != undefined)
-            {
+            if (customerId != undefined) {
                 //获取订单列表
                 url = "/api/fba/fbashiporder/?customerId=" + customerId;
             }
-            else
-            {
+            else {
                 url = "/api/fba/fbashiporder/";
             }
 
@@ -163,7 +163,7 @@
                             return "<font color='gray'>" + data + "</font>"
                         else if (data == "Picking")
                             return "<font color='vermilion'>" + data + "</font>";
-                        if (data == "New Order")
+                        else if (status == "New Order" || status == "Returned Order")
                             return "<font color='orange'>" + data + "</font>"
                         else if (data == "Processing" || data == "Pending" || data == "Updated")
                             return "<font color='red'>" + data + "</font>";
@@ -254,13 +254,13 @@
                             return "<input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Release' />";
                         else if (status == "Picking")
                             //return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
-                        else if (status == "New Order")
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-wo' operation='push' iid='" + data + "' value='Push' />";
+                        else if (status == "New Order" || status == "Returned Order")
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
                         else if (status == "Processing")
                             return "";
                         else if (status == "Pending" || status == "Updated")
-                            return "<button class='btn btn-link btn-wo-result'>WO</button>";
+                            return "<button class='btn btn-link btn-wo' operation='ready'>Update WO</button>";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unready' />";
                         else if (status == "Released")
@@ -284,16 +284,16 @@
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
                         else if (status == "Picking")
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
-                        else if (status == "New Order")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        else if (status == "New Order" || status == "Returned Order")
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Processing" || status == "Pending")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Ready")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Released")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else if (status == "Shipped")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
                         else
                             return "";
                     }
@@ -562,7 +562,7 @@
             $("#table").on("click", ".btn-delete", function () {
                 var id = $(this).attr('iid');
 
-                url = "/api/fba/fbashiporder/?shipOrderId=" + id; 
+                url = "/api/fba/fbashiporder/?shipOrderId=" + id;
                 SendAjaxMethod("DELETE", url, {});
             });
 
@@ -580,12 +580,10 @@
             $("#table").on("click", ".btn", function () {
                 tableSearch = $("#table_filter").children('label').children('input').val();
 
-                if (customerId != undefined)
-                {
+                if (customerId != undefined) {
                     window.history.pushState({}, {}, "/ShipOrder/FBAShipOrder/?customerId=" + customerId + "&search=" + tableSearch);
                 }
-                else
-                {
+                else {
                     window.history.pushState({}, {}, "/ShipOrder/FBAShipOrder/?search=" + tableSearch);
                 }
             });
@@ -701,24 +699,30 @@
                 }
             });
 
-            //点击Push按钮，打开编辑Work Order弹窗
+            //点击所有与打开wo相关的按钮，根据operation显示/关闭相关按钮
             $("#table").on("click", ".btn-wo", function () {
                 customerCode = $(this).parent().parent("tr").children("td").eq(3).children("text").html();
                 shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
                 reference = $(this).parent().parent("tr").children("td").eq(2).children("text").html();
+                var operation = $(this).attr('operation');
 
-                GetWorkOrder(shipOrderId, customerCode, reference, ".iframe-wo");
-            });
-
-            //点击WO按钮，打开只读的Work Order弹窗
-            $("#table").on("click", ".btn-wo-readonly", function () {
-                customerCode = $(this).parent().parent("tr").children("td").eq(3).children("text").html();
-                shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
-                reference = $(this).parent().parent("tr").children("td").eq(2).children("text").html();
                 $(".h2-customercode").html("Customer Code: " + customerCode);
-                pageId = ".iframe-wo-readonly";
+                pageId = ".iframe-wo-office";
                 grandChannel.openiframe(index, pageId, "1000px", "800px");
-                GetWorkOrder(shipOrderId, customerCode, reference, pageId);
+
+                if (operation == "push") {
+                    $(".btn-detail-create, #btn-detail-reset, .btn-push").show();
+                    $(".btn-wo-result-status").hide();
+                }
+                else if (operation == "readonly") {
+                    $(".btn-wo-result-status, .btn-detail-create, #btn-detail-reset, .btn-push").hide();
+                }
+                else if (operation == "ready") {
+                    $(".btn-detail-create, #btn-detail-reset, .btn-push").hide();
+                    $(".btn-wo-result-status").show();
+                }
+
+                GetWorkOrder(shipOrderId, operation);
             });
 
             //点击添加指示按钮按钮，打开一个简易填写界面
@@ -828,18 +832,6 @@
                 SendAjaxMethod("PUT", url, {});
             });
 
-            //点击pending状态下的WO按钮，打开返回WO的界面
-            $("#table").on("click", ".btn-wo-result", function () {
-                $("#cb-charge").hide();
-                customerCode = $(this).parent().parent("tr").children("td").eq(3).children("text").html();
-                shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
-                reference = $(this).parent().parent("tr").children("td").eq(2).children("text").html();
-                $(".h2-customercode").html("Customer Code: " + customerCode);
-                pageId = ".iframe-wo-result";
-                grandChannel.openiframe(index, pageId, "1000px", "800px");
-                GetWorkOrder(shipOrderId, customerCode, reference, pageId);
-            });
-
             //点击操作指示表中的更新结果按钮，打开更新结果界面
             $(".table-wo").on("click", ".btn-result", function () {
                 chargingDetailId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
@@ -893,7 +885,7 @@
             //点击Return按钮，将订单退回到仓库端，或将订单Mark成Ready
             $(".btn-wo-result-status").on("click", function () {
                 if ($(this).val() == "Return")
-                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=1992-11-17&operation=ChangeStatus";
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=1992-11-17&operation=ReverseStatus";
                 else
                     url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=1992-11-17&operation=Ready";
 
@@ -981,8 +973,7 @@
                 });
             };
 
-            function ReturnDownableMenu(id)
-            {
+            function ReturnDownableMenu(id) {
                 return "<div class='downablemenu'><ul><li>Operation Menu<ul><li><input type='button' class='btn btn-link btn-pick' iid='" + id + "' value='Pick' /></li><li><input type='button' class='btn btn-link btn-download' iid='" + id + "' value='Download BOL' /></li></ul></li></ul></div>"
             }
 
@@ -1040,7 +1031,7 @@
                 }
             };
 
-            function GetWorkOrder(shipOrderId, pageId) {
+            function GetWorkOrder(shipOrderId, operation) {
                 url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO";
 
                 $.ajax({
@@ -1179,7 +1170,10 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                    if (operation == "readonly" || operation == "ready")
+                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
+                                    else
+                                        return "";
                                 }
                             }
                         ];

@@ -183,7 +183,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             var result = true;
             foreach (var s in shipOrderInDb.ChargingItemDetails)
             {
-                if (s.HandlingStatus == FBAStatus.New || s.HandlingStatus == FBAStatus.Returned || s.HandlingStatus == FBAStatus.Updated || s.HandlingStatus == FBAStatus.Pending || s.HandlingStatus == FBAStatus.Confirmed)
+                if (s.HandlingStatus == FBAStatus.New || s.HandlingStatus == FBAStatus.ReturnedOrder || s.HandlingStatus == FBAStatus.Updated || s.HandlingStatus == FBAStatus.Pending || s.HandlingStatus == FBAStatus.Confirmed)
                 {
                     result = false;
                     break;

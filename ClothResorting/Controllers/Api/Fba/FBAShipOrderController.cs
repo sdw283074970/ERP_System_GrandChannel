@@ -630,7 +630,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.OperationLog = "Placed by " + _userName;
                 }
                 //如果订单为新的订单状态，则转换为processing状态
-                else if (shipOrderInDb.Status == FBAStatus.NewOrder)
+                else if (shipOrderInDb.Status == FBAStatus.NewOrder || shipOrderInDb.Status == FBAStatus.ReturnedOrder)
                 {
                     shipOrderInDb.Status = FBAStatus.Processing;
                     shipOrderInDb.StartedBy = _userName;
@@ -654,11 +654,11 @@ namespace ClothResorting.Controllers.Api.Fba
                     }
                 }
                 //Pending状态，则转回Processing状态
-                else if (shipOrderInDb.Status == FBAStatus.Pending)
-                {
-                    shipOrderInDb.Status = FBAStatus.Updated;
-                    shipOrderInDb.OperationLog = "Returned by " + _userName;
-                }
+                //else if (shipOrderInDb.Status == FBAStatus.Pending)
+                //{
+                //    shipOrderInDb.Status = FBAStatus.Updated;
+                //    shipOrderInDb.OperationLog = "Returned by " + _userName;
+                //}
                 //如果订单为ready状态，则转换为Released状态（如果是空单则不会返回给仓库）
                 else if (shipOrderInDb.Status == FBAStatus.Ready)
                 {
@@ -700,19 +700,19 @@ namespace ClothResorting.Controllers.Api.Fba
                         shipOrderInDb.OperationLog = "Revert by " + _userName;
                     }
                 }
-                else if (shipOrderInDb.Status == FBAStatus.NewOrder)
+                else if (shipOrderInDb.Status == FBAStatus.NewOrder || shipOrderInDb.Status == FBAStatus.ReturnedOrder)
                 {
                     shipOrderInDb.Status = FBAStatus.Picking;
                     shipOrderInDb.OperationLog = "Recalled by " + _userName;
                 }
-                else if (shipOrderInDb.Status == FBAStatus.Processing)
+                else if (shipOrderInDb.Status == FBAStatus.Processing || shipOrderInDb.Status == FBAStatus.Pending || shipOrderInDb.Status == FBAStatus.Updated)
                 {
-                    shipOrderInDb.Status = FBAStatus.NewOrder;
+                    shipOrderInDb.Status = FBAStatus.ReturnedOrder;
                     shipOrderInDb.OperationLog = "Reset by " + _userName;
                 }
                 else if (shipOrderInDb.Status == FBAStatus.Ready)
                 {
-                    shipOrderInDb.Status = FBAStatus.Processing;
+                    shipOrderInDb.Status = FBAStatus.ReturnedOrder;
                     shipOrderInDb.OperationLog = "Unready by " + _userName;
                 }
                 else if (shipOrderInDb.Status == FBAStatus.Released)

@@ -234,6 +234,8 @@ namespace ClothResorting.Controllers.Api
                 var result = PickPermanentItem(_context, shipOrderInDb, objArray);
 
                 shipOrderInDb.Status = Status.Picking;
+                _context.SaveChanges();
+
                 return Created(Request.RequestUri, result);
             }
             else if (orderType == OrderType.Regular)
@@ -241,6 +243,8 @@ namespace ClothResorting.Controllers.Api
                 var result = PickRegularItem(_context, shipOrderInDb, objArray);
 
                 shipOrderInDb.Status = Status.Picking;
+                _context.SaveChanges();
+
                 return Created(Request.RequestUri, result);
             }
 

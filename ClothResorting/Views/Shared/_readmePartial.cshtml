@@ -1,0 +1,121 @@
+﻿<div style="border:double;padding:20px">
+    <h2>Readme (Quick Start)</h2>
+    <hr>
+    <div id="div-shiporder-office" style="text-align:center">
+        <h3>Shipping Order Status Statement</h3>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:150px;text-align:center">SO Status</th>
+                    <th>Description</th>
+                    <th style="width:150px;text-align:center">Derived From</th>
+                    <th style="width:150px;text-align:center">Next Phase</th>
+                </tr>
+                <tr>
+                    <td><font color="gray">New Created</font></td>
+                    <td style="text-align:left"><font>This is a new order created by the office. The office needs to register the picking information in the order.</font></td>
+                    <td><font>-</font></td>
+                    <td><font color="red">Picking</font></td>
+                </tr>
+                <tr>
+                    <td><font color="red">Picking</font></td>
+                    <td style="text-align:left"><font>The office is generating a picking list and editing instructions from the system for this order. The office needs to push the completed picking order to the warehouse.</font></td>
+                    <td><font color="gray">New Created</font></td>
+                    <td><font color="orange">New Order</font></td>
+                </tr>
+                <tr>
+                    <td><font color="orange">New Order</font></td>
+                    <td style="text-align:left"><font>This is a new order with a picking list and working instructions, which is pushed to the warehouse by the office. The warehouse needs to start processing this order as soon as possible.</font></td>
+                    <td><font color="red">Picking</font></td>
+                    <td><font color="red">Processing</font></td>
+                </tr>
+                <tr>
+                    <td><font color="orange">Returned Order</font></td>
+                    <td style="text-align:left"><font>The order was returned by the office for some reason. The warehouse needs to start executing it again.</font></td>
+                    <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
+                    <td><font color="red">Processing</font></td>
+                </tr>
+                <tr>
+                    <td><font color="red">Processing</font></td>
+                    <td style="text-align:left"><font>This order is being processed by the warehouse. The warehouse needs to report questions and feedback, or mark the order as Ready after successful execution of all instructions.</font></td>
+                    <td><font color="orange">New Order</font></td>
+                    <td><font color="red">Pending</font>/<font color="green">Ready</font></td>
+                </tr>
+                <tr>
+                    <td><font color="red">Pending</font></td>
+                    <td style="text-align:left"><font>This order contains some questions and feedback from the warehouse. The office needs to give further instructions as soon as possible.</font></td>
+                    <td><font color="red">Processing</font>/<font color="red">Updated</font></td>
+                    <td><font color="red">Processing</font>/<font color="red">Updated</font></td>
+                </tr>
+                <tr>
+                    <td><font color="red">Updated</font></td>
+                    <td style="text-align:left"><font>This order contains further instructions from the office. The warehouse to execute them as soon as possible.</font></td>
+                    <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
+                    <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
+                </tr>
+                <tr>
+                    <td><font color="green">Ready</font></td>
+                    <td style="text-align:left"><font>This order is confirmed by the warehouse that it is ready, which means that the warehouse has fully executed all the instructions without any legacy problems. The warehouse needs to mark this order as Released once  the goods are taken away by trucks.</font></td>
+                    <td><font color="red">Processing</font></td>
+                    <td><font color="brown">Released</font></td>
+                </tr>
+                <tr>
+                    <td><font color="brown">Release</font></td>
+                    <td style="text-align:left"><font>The order was confirmed by the warehouse that all the goods in the picking list had been taken away by trucks. The finance department needs to charge and inspect the order.</font></td>
+                    <td><font color="green">Ready</font></td>
+                    <td><font color="blue">Ship</font></td>
+                </tr>
+                <tr>
+                    <td><font color="blue">Shipped</font></td>
+                    <td style="text-align:left"><font>The order is checked by the accounting department and marked as shipped. Once marked as shipped, the order status cannot be changed. No further action is required on this order.</font></td>
+                    <td><font color="brown">Released</font></td>
+                    <td>-</td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <hr>
+        <h3>Work Order Status Statement</h3>
+        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th style="width:150px;text-align:center">WO Status</th>
+                    <th>Description</th>
+                    <th style="width:150px;text-align:center">Derived From</th>
+                    <th style="width:150px;text-align:center">Next Phase</th>
+                </tr>
+                <tr>
+                    <td><font color="blue">New</font></td>
+                    <td style="text-align:left"><font>This instruction is issued by the office and needs to be confirmed and implemented by the warehouse.</font></td>
+                    <td><font>-</font></td>
+                    <td><font color="red">Pending</font>/<font color="green">Confirmed</font></td>
+                </tr>
+                <tr>
+                    <td><font color="red">Pending</font></td>
+                    <td style="text-align:left"><font>The warehouse has questions or feedback about this directive and needs further instructions from the office.</font></td>
+                    <td><font color="blue">New</font>/<font color="red">Updated</font></td>
+                    <td><font color="red">Updated</font>/<font color="green">Confirmed</font></td>
+                </tr>
+                <tr>
+                    <td><font color="red">Updated</font></td>
+                    <td style="text-align:left"><font>The office has further explained and supplemented this instruction, which needs to be implemented by the warehouse as soon as possible.</font></td>
+                    <td><font color="red">Pending</font></td>
+                    <td><font color="red">Pending</font>/<font color="green">Confirmed</font></td>
+                </tr>
+                <tr>
+                    <td><font color="green">Confirmed</font></td>
+                    <td style="text-align:left"><font>This instruction is validated by the warehouse, indicating that they fully understand the instructions and have no problems. The warehouse needs to continue to complete this instruction.</font></td>
+                    <td><font color="blue">New</font>/<font color="red">Updated</font></td>
+                    <td><font color="green">Finished</font></td>
+                </tr>
+                <tr>
+                    <td><font color="green">Finished</font></td>
+                    <td style="text-align:left"><font>This order was confirmed by the warehouse, indicating that they fully understood and successfully executed it. This instruction no longer requires any action at this time.</font></td>
+                    <td><font color="green">Confirmed</font></td>
+                    <td>-</td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

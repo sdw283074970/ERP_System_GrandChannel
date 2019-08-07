@@ -64,6 +64,7 @@
     </div>
 </div>
 @Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
+@Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 
 @section scripts
 {
@@ -76,10 +77,11 @@
             var orderNumber;
             var shipOrderId;
             var orderId;
+            var operation;
             var pageId;
             var searchBar = grandChannel.getUrlParameter('search');
 
-            $(".iframe-wo, .iframe-wo-readonly, .iframe-wo-warehouse, .iframe-wo-result").hide();
+            $(".iframe-wo-warehouse, .iframe-wo-office").hide();
             $(".iframe-fbadate, .iframe-detail").hide();
 
             var columnsArray = [
@@ -97,7 +99,7 @@
                             return "<font color='gray'>" + data + "</font>"
                         else if (data == "Picking")
                             return "<font color='vermilion'>" + data + "</font>";
-                        if (data == "New Order")
+                        if (data == "New Order" || data == "Returned Order")
                             return "<font color='orange'>" + data + "</font>"
                         else if (data == "Processing" || data == "Pending" || data == "Updated")
                             return "<font color='red'>" + data + "</font>";
@@ -114,11 +116,11 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Order")
+                        if (status == "New Order" || status == "Returned Order")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Start' />";
                         else if (status == "Processing" || status == "Pending" || status == "Updated")
                             //return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Ready' /><input type='button' class='btn btn-link btn-wo-warehouse' iid='" + data + "' value='WO' />";
-                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-wo-warehouse' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-fbarevert' iid='" + data + "' value='Stop' /><input type='button' class='btn btn-link btn-wo' operation='process' iid='" + data + "' value='Process WO' />";
                         else if (status == "Ready")
                             return "<input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
                         else if (status == "Released")
@@ -132,16 +134,16 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Order")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
+                        if (status == "New Order" || status == "Returned Order")
+                            return "<input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='Review WO' />";
                         else if (status == "Processing" || status == "Pending" || status == "Updated")
-                            return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Adjust' />";
+                            return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Process Adjust' />";
                         else if (status == "Ready")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='Review Adjust' /><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='Review WO' />";
                         else if (status == "Released")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='Review Adjust' /><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='Review WO' />";
                         else if (status == "Shipped")
-                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-wo-readonly' iid='" + data + "' value='WO' />";
+                            return "<input type='button' class='btn btn-link btn-fbaview' iid='" + data + "' value='Review Adjust' /><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='Review WO' />";
                         else
                             return "";
                     }
@@ -266,8 +268,7 @@
             //点击按状态查看按钮，按状态分类型
             $(".btn-color").on("click", function () {
 
-                if ($(this).attr('name') == "new")
-                {
+                if ($(this).attr('name') == "new") {
                     url = "/api/WarehouseIndex/?operation=New Order";
                 }
                 else if ($(this).attr('name') == "processing") {
@@ -279,8 +280,7 @@
                 else if ($(this).attr('name') == "released") {
                     url = "/api/WarehouseIndex/?operation=Released";
                 }
-                else
-                {
+                else {
                     url = "/api/WarehouseIndex/?operation=GET";
                 }
 
@@ -299,26 +299,35 @@
             });
 
             //点击操作栏中的WO按钮，以只读的形式查看WO
-            $("#table").on("click", ".btn-wo-readonly", function () {
+            $("#table").on("click", ".btn-wo", function () {
                 customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
                 shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
                 reference = $(this).parent().parent("tr").children("td").eq(7).children("text").html();
                 $(".h2-customercode").html("Customer Code: " + customerCode);
-                pageId = ".iframe-wo-readonly";
+                operation = $(this).attr('operation');
+                pageId = ".iframe-wo-warehouse";
+
+                if (operation == 'readonly') {
+                    $("#iframe-verifiedinfo, .btn-wo-operation").hide();
+                }
+                else if (operation == 'process') {
+                    $("#iframe-verifiedinfo, .btn-wo-operation").show();
+                }
+
                 grandChannel.openiframe(index, pageId, "1000px", "800px");
-                GetWorkOrder(shipOrderId, pageId);
+                GetWorkOrder(shipOrderId, operation);
             });
 
             //点击状态控制栏中的WO按钮，以编辑页面的形式打开WO
-            $("#table").on("click", ".btn-wo-warehouse", function () {
-                customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
-                shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
-                reference = $(this).parent().parent("tr").children("td").eq(7).children("text").html();
-                $(".h2-customercode").html("Customer Code: " + customerCode);
-                pageId = ".iframe-wo-warehouse";
-                grandChannel.openiframe(index, pageId, "1000px", "800px");
-                GetWorkOrder(shipOrderId, pageId);
-            });
+            //$("#table").on("click", ".btn-wo-warehouse", function () {
+            //    customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
+            //    shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+            //    reference = $(this).parent().parent("tr").children("td").eq(7).children("text").html();
+            //    $(".h2-customercode").html("Customer Code: " + customerCode);
+            //    pageId = ".iframe-wo-warehouse";
+            //    grandChannel.openiframe(index, pageId, "1000px", "800px");
+            //    GetWorkOrder(shipOrderId, pageId);
+            //});
 
             //点击FBA订单下的Adjust按钮，打开可以调整的FBA运单（只限调整）
             $("#table").on("click", ".btn-fbaadjust", function () {
@@ -339,8 +348,7 @@
                 layer.close(index);
                 var operationDate = $("#input-operationdate").val();
 
-                if (operationDate != "")
-                {
+                if (operationDate != "") {
                     url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=" + operationDate + "&operation=ChangeStatus";
                     grandChannel.sendAjaxMethod("PUT", url, {}, index);
                 }
@@ -425,8 +433,7 @@
                 var instructor = $("#input-instructor").val();
                 var location = $("#input-lot").val();
 
-                if (pickMan != "" && instructor != "" && location != "")
-                {
+                if (pickMan != "" && instructor != "" && location != "") {
                     var operation;
 
                     if ($(this).val() == "Save&Close")
@@ -437,8 +444,7 @@
                     url = "/api/warehouseIndex/?shipOrderId=" + shipOrderId + "&pickMan=" + pickMan + "&instructor=" + instructor + "&location=" + location + "&operation=" + operation;
                     grandChannel.sendAjaxMethod("PUT", url, {});
                 }
-                else
-                {
+                else {
                     alert("Pick Man, Instructor and Location are required.");
                 }
             });
@@ -529,7 +535,7 @@
                 });
             };
 
-            function GetWorkOrder(shipOrderId, pageId) {
+            function GetWorkOrder(shipOrderId, operation) {
                 url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operation=WO";
 
                 $.ajax({
@@ -614,130 +620,66 @@
                             iDisplayLength: 100,
                             columns: plColumnArray
                         });
-                        var osColumnArray;
-                        if (pageId == ".iframe-wo-readonly") {
-                            osColumnArray = [
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "description",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "comment",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "result",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "status",
-                                    render: function (data) {
-                                        return "";
-                                    }
-                                },
-                                {
-                                    data: "handlingStatus",
-                                    render: function (data) {
-                                        if (data == "New")
-                                            return "<font color='blue'>" + data + "</font>";
-                                        else if (data == "Pending")
-                                            return "<font color='red'>" + data + "</font>";
-                                        else if (data == "Updated" || data == "Retrued")
-                                            return "<font color='Orange'>" + data + "</font>";
-                                        else if (data == "Finished" || data == "Confirmed")
-                                            return "<font color='green'>" + data + "</font>";
-                                        else
-                                            return "<font>Invaild Date</font>"
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return " ";
-                                    }
+                        var osColumnArray = [
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
                                 }
-                            ];
-                        }
-                        else if (pageId == ".iframe-wo-warehouse") {
-
-                            $("#input-pickman").val(data.pickMan);
-                            $("#input-instructor").val(data.instructor);
-                            $("#input-lot").val(data.lot);
-
-                            osColumnArray = [
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "description",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "comment",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "result",
-                                    render: function (data) {
-                                        if (data == null)
-                                            return "";
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "status",
-                                    render: function (data) {
+                            },
+                            {
+                                data: "description",
+                                render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "comment",
+                                render: function (data) {
+                                    if (data == null)
                                         return "";
-                                    }
-                                },
-                                {
-                                    data: "handlingStatus",
-                                    render: function (data) {
-                                        if (data == "New")
-                                            return "<font color='blue'>" + data + "</font>";
-                                        else if (data == "Pending")
-                                            return "<font color='red'>" + data + "</font>";
-                                        else if (data == "Updated" || data == "Retrued")
-                                            return "<font color='Orange'>" + data + "</font>";
-                                        else if (data == "Confirmed" || data == "Finished")
-                                            return "<font color='green'>" + data + "</font>";
-                                        else
-                                            return "<font>Invaild Date</font>"
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "result",
+                                render: function (data) {
+                                    if (data == null)
+                                        return "";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "status",
+                                render: function (data) {
+                                    return "";
+                                }
+                            },
+                            {
+                                data: "handlingStatus",
+                                render: function (data) {
+                                    if (data == "New")
+                                        return "<font color='blue'>" + data + "</font>";
+                                    else if (data == "Pending")
+                                        return "<font color='red'>" + data + "</font>";
+                                    else if (data == "Updated" || data == "Retrued")
+                                        return "<font color='Orange'>" + data + "</font>";
+                                    else if (data == "Finished" || data == "Confirmed")
+                                        return "<font color='green'>" + data + "</font>";
+                                    else
+                                        return "<font>Invaild Date</font>"
+                                }
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    if (operation == "readonly")
+                                        return "";
+                                    else
                                         return "<button iid='" + data + "' class='btn btn-link btn-comment'>Comment</button><button iid='" + data + "' class='btn btn-link btn-confirm'>Confirm/Finish</button>";
-                                    }
                                 }
-                            ];
-                        }
+                            }
+                        ];
 
                         table = $(".table-wo").DataTable({
                             data: data.operationInstructions,

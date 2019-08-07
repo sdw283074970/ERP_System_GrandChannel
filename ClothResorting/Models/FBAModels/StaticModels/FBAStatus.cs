@@ -27,7 +27,7 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string New = "New";
 
-        public const string Returned = "Returned";
+        public const string ReturnedOrder = "Returned Order";
 
         public const string Finished = "Finished";
 

@@ -4,6 +4,30 @@
 <h2>@ViewBag.Title.</h2>
 <h3>@ViewBag.Message</h3>
 
+<html>
+    <head>
+        <style>
+        h1{font-size:2.5em;background-color:lightgray;margin:5px;padding:5px;}
+        button{font-size:.5em;}
+        input{font-size:1.3em;}
+        #scanData{width:90%;margin:10px;}
+        </style>
+    </head>
+    <body>
+        <h1>
+            Barcode
+            <button onclick="window.location.href='./index.html'">Home</button>
+            <button onclick="EB.Application.quit();">Quit</button>
+        </h1>
+
+        <div id=content>
+            <input id="scanData" type=text>
+            <input type=button value="Enable Scan">
+            <input type=button value="Disable Scan">
+        </div>
+    </body>
+</html>
+
 <address>
     One Microsoft Way<br />
     Redmond, WA 98052-6399<br />
