@@ -135,7 +135,7 @@
                     data: "id",
                     render: function (data) {
                         if (status == "New Order" || status == "Returned Order")
-                            return "<input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='Review WO' />";
+                            return "<input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='Preview WO' />";
                         else if (status == "Processing" || status == "Pending" || status == "Updated")
                             return "<input type='button' class='btn btn-link btn-fbaadjust' iid='" + data + "' value='Process Adjust' />";
                         else if (status == "Ready")

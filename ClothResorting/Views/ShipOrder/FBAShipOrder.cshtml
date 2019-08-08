@@ -1170,10 +1170,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (operation == "readonly" || operation == "ready")
-                                        return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
-                                    else
-                                        return "";
+                                    return "<button iid='" + data + "' class='btn btn-link btn-detail-update'>Update</button><button iid='" + data + "'class='btn btn-result btn-link'>Result</button><button iid='" + data + "' class='btn btn-link btn-detail-delete'>Delete</button>";
                                 }
                             }
                         ];
