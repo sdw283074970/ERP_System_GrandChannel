@@ -47,6 +47,7 @@
                     <th style="width:80px">UNLOAD TIME</th>
                     <th style="width:80px">EPT CNTR AVA TIME</th>
                     <th style="width:80px">EPT CNTR OUT TIME</th>
+                    <th style="width:80px">CREATED BY</th>
                     <th style="width:200px">OPLOG</th>
                 </tr>
             </thead>
@@ -814,6 +815,14 @@
                                         if (data == "1900-01-01T00:00:00")
                                             return "<font color='red'></font>"
                                         return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "createdBy",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
                                     }
                                 },
                                 {

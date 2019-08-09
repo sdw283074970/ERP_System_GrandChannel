@@ -39,6 +39,7 @@
                     <th style="width:80px">Ready Time</th>
                     <th style="width:80px">Released Date</th>
                     <th style="width:80px">Shipped Date</th>
+                    <th style="width:80px">Created By</th>
                     <th style="width:200px">Log</th>
                 </tr>
             </thead>
@@ -346,6 +347,12 @@
                             return "<font color='red'></font>"
                         else
                             return "<font>" + data.substring(0, 10) + " " + data.substring(11, 16) + "</font>";
+                    }
+                },
+                {
+                    data: "createBy",
+                    render: function (data) {
+                        return "<font>" + data + "</font>";
                     }
                 },
                 {

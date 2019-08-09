@@ -249,6 +249,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.Customer = customer;
             masterOrder.OriginalPlts = obj.OriginalPlts;
             masterOrder.InboundType = obj.InboundType;
+            masterOrder.CreatedBy = _userName;
             masterOrder.InvoiceStatus = "Await";
             masterOrder.UpdateLog += "Update by " + _userName + " at " + DateTime.Now.ToString() + ". ";
             masterOrder.Status = FBAStatus.NewCreated;

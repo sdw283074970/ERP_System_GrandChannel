@@ -14,6 +14,12 @@ namespace ClothResorting.Models.FBAModels
 
         public string GrandNumber { get; set; }
 
+        public string CreatedBy { get; set; }
+
+        public string UnloadingType { get; set; }
+
+        public string StorageType { get; set; }
+
         public float TotalCBM { get; set; }
 
         public int TotalCtns { get; set; }
