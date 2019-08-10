@@ -33,13 +33,12 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 
         public string ContainerSize { get; set; }
 
-        public void AssembleFirstPart(string eta, string carrier, string vessel, string voy, string etd)
+        public void AssembleFirstPart(string eta, string carrier, string vessel, string voy)
         {
             ETA = eta;
             Carrier = carrier;
             Vessel = vessel;
             Voy = voy;
-            ETD = etd;
         }
 
         public void AssembeSecondPart(string etaPort, string placeOfReceipt, string portOfLoading, string portOfDischarge, string placeOfDelivery)

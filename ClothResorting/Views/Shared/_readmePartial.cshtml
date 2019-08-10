@@ -1,415 +1,427 @@
 ﻿<div style="border:double;padding:20px">
     <h1>Readme (Quick Start)</h1>
     <hr>
-    <div style="text-align:center">
-        <h2>Shipping Order Workflow(Office)</h2>
-        <img style="margin:20px" src="~/Img/Shippingorder_office_workflow.png" />
+    <div id="div-inbound">
+        <div style="text-align:center">
+            <h2>Master Order/Receiving Order Workflow(Office)</h2>
+            <img style="margin:20px" src="~/Img/MasterOrder_ofiice_workflow.png" />
+        </div>
+        <div style="text-align:center">
+            <h2>Inbound Workflow(Warehouse)</h2>
+            <img style="margin:20px" src="~/Img/Inbound_warehouse_workflow.png" />
+        </div>
     </div>
-    <div style="text-align:center">
-        <h2>Outbound Workflow(Warehouse)</h2>
-        <img style="margin:20px" src="~/Img/Outbound_warehouse_workflow.png" />
-    </div>
-    <div style="text-align:center">
-        <h2>Shipping Order Status Statement</h2>
-        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
-            <thead>
-                <tr>
-                    <th style="width:150px;text-align:center">SO Status</th>
-                    <th>Description</th>
-                    <th style="width:150px;text-align:center">Derived From</th>
-                    <th style="width:150px;text-align:center">Next Phase</th>
-                </tr>
-                <tr>
-                    <td><font color="gray">New Created</font></td>
-                    <td style="text-align:left"><font>This is a new order created by the office. The office needs to register the picking information in the order.</font></td>
-                    <td><font>-</font></td>
-                    <td><font color="red">Picking</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">Picking</font></td>
-                    <td style="text-align:left"><font>The office is generating a picking list and editing instructions from the system for this order. The office needs to push the completed picking order to the warehouse.</font></td>
-                    <td><font color="gray">New Created</font></td>
-                    <td><font color="orange">New Order</font></td>
-                </tr>
-                <tr>
-                    <td><font color="orange">New Order</font></td>
-                    <td style="text-align:left"><font>This is a new order with a picking list and working instructions, which is pushed to the warehouse by the office. The warehouse needs to start processing this order as soon as possible.</font></td>
-                    <td><font color="red">Picking</font></td>
-                    <td><font color="red">Processing</font></td>
-                </tr>
-                <tr>
-                    <td><font color="orange">Returned Order</font></td>
-                    <td style="text-align:left"><font>The order was returned by the office for some reason. The warehouse needs to start executing it again.</font></td>
-                    <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
-                    <td><font color="red">Processing</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">Processing</font></td>
-                    <td style="text-align:left"><font>This order is being processed by the warehouse. The warehouse needs to report questions and feedback, or mark the order as Ready after successful execution of all instructions.</font></td>
-                    <td><font color="orange">New Order</font></td>
-                    <td><font color="red">Pending</font>/<font color="green">Ready</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">Pending</font></td>
-                    <td style="text-align:left"><font>This order contains some questions and feedback from the warehouse. The office needs to give further instructions as soon as possible.</font></td>
-                    <td><font color="red">Processing</font>/<font color="red">Updated</font></td>
-                    <td><font color="red">Processing</font>/<font color="red">Updated</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">Updated</font></td>
-                    <td style="text-align:left"><font>This order contains further instructions from the office. The warehouse needs to execute them as soon as possible.</font></td>
-                    <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
-                    <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
-                </tr>
-                <tr>
-                    <td><font color="green">Ready</font></td>
-                    <td style="text-align:left"><font>This order is confirmed by the warehouse that it is ready, which means that the warehouse has fully executed all the instructions without any legacy problems. The warehouse needs to mark this order as Released once  the goods are taken away by trucks.</font></td>
-                    <td><font color="red">Processing</font></td>
-                    <td><font color="brown">Released</font></td>
-                </tr>
-                <tr>
-                    <td><font color="brown">Release</font></td>
-                    <td style="text-align:left"><font>The order was confirmed by the warehouse that all the goods in the picking list had been taken away by trucks. The finance department needs to charge and inspect the order.</font></td>
-                    <td><font color="green">Ready</font></td>
-                    <td><font color="blue">Ship</font></td>
-                </tr>
-                <tr>
-                    <td><font color="blue">Shipped</font></td>
-                    <td style="text-align:left"><font>The order is checked by the accounting department and marked as shipped. Once marked as shipped, the order status cannot be changed. No further action is required on this order.</font></td>
-                    <td><font color="brown">Released</font></td>
-                    <td>-</td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <hr>
-        <h2>Work Order Status Statement</h2>
-        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
-            <thead>
-                <tr>
-                    <th style="width:150px;text-align:center">WO Status</th>
-                    <th>Description</th>
-                    <th style="width:150px;text-align:center">Derived From</th>
-                    <th style="width:150px;text-align:center">Next Phase</th>
-                </tr>
-                <tr>
-                    <td><font color="blue">New</font></td>
-                    <td style="text-align:left"><font>This instruction is issued by the office and needs to be confirmed and implemented by the warehouse.</font></td>
-                    <td><font>-</font></td>
-                    <td><font color="red">Pending</font>/<font color="green">Confirmed</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">Pending</font></td>
-                    <td style="text-align:left"><font>The warehouse has questions or feedback about this directive and needs further instructions from the office.</font></td>
-                    <td><font color="blue">New</font>/<font color="red">Updated</font></td>
-                    <td><font color="red">Updated</font>/<font color="green">Confirmed</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">Updated</font></td>
-                    <td style="text-align:left"><font>The office has further explained and supplemented this instruction, which needs to be implemented by the warehouse as soon as possible.</font></td>
-                    <td><font color="red">Pending</font></td>
-                    <td><font color="red">Pending</font>/<font color="green">Confirmed</font></td>
-                </tr>
-                <tr>
-                    <td><font color="green">Confirmed</font></td>
-                    <td style="text-align:left"><font>This instruction is validated by the warehouse, indicating that they fully understand the instructions and have no problems. The warehouse needs to continue to complete this instruction.</font></td>
-                    <td><font color="blue">New</font>/<font color="red">Updated</font></td>
-                    <td><font color="green">Finished</font></td>
-                </tr>
-                <tr>
-                    <td><font color="green">Finished</font></td>
-                    <td style="text-align:left"><font>This order was confirmed by the warehouse, indicating that they fully understood and successfully executed it. This instruction no longer requires any action at this time.</font></td>
-                    <td><font color="green">Confirmed</font></td>
-                    <td>-</td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div style="text-align:center">
-        <h2>Shipping Order Button Function Statement(Office)</h2>
-        <hr>
-        <img src="~/Img/ShipOrder_Office_Statement.jpg" style="margin:20px" />
-        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
-            <thead>
-                <tr>
-                    <th style="width:100px;text-align:center">Button Order</th>
-                    <th style="width:150px;text-align:center">Button Name</th>
-                    <th style="width:400px;text-align:center">Applicability</th>
-                    <th>Function Description</th>
-                </tr>
-                <tr>
-                    <td><font color="red">1.</font></td>
-                    <td><button class="btn btn-link">Release</button></td>
-                    <td><font>Applicable when the selected order only contains fee records.</font></td>
-                    <td style="text-align:left"><font>Used to mark this order status directly as Released.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">2.</font></td>
-                    <td><button class="btn btn-link">Revert</button></td>
-                    <td><font>Applicable only if the order does not include any picking goods.</font></td>
-                    <td style="text-align:left"><font>Used to re-mark the order for Picking status as New Created.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">3.</font></td>
-                    <td><button class="btn btn-link">Push</button></td>
-                    <td><font>Applicable only when completing picking from the system.</font></td>
-                    <td style="text-align:left"><font>Used to edit the operation instructions and push this order to the warehouse.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">4.</font></td>
-                    <td><button class="btn btn-link">Recall</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to recall orders that have been pushed to the warehouse but have not yet been processed for re-editing.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">5.</font></td>
-                    <td><button class="btn btn-link">Update WO</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to update and supplement issued operational instructions.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">6.</font></td>
-                    <td><button class="btn btn-link">Unready</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to mark an order that has been marked Ready as Returned Order and call it back to the warehouse for re-operation.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">7.</font></td>
-                    <td><button class="btn btn-link">Released</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to re-mark an order that has been marked as Released as Ready.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">8.</font></td>
-                    <td><button class="btn btn-link">Ship</button></td>
-                    <td><font>Applicable only when confirming that the selected order has no legacy problems.</font></td>
-                    <td style="text-align:left"><font>Used to mark the Released status as Shipped. Storage charges will depend on this status.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">9.</font></td>
-                    <td><button class="btn btn-link">Files</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to upload dependency files related to the selected order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">10.</font></td>
-                    <td><button class="btn btn-link">Fee</button></td>
-                    <td><font>Applicable only when registration fees are required.</font></td>
-                    <td style="text-align:left"><font>Used to open the charge page associated with the selected order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">11.</font></td>
-                    <td><button class="btn btn-link">Push</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to edit the basic information of selected order</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">12.</font></td>
-                    <td><button class="btn btn-link">Pick</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to open the picking page of the selected page</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">13.</font></td>
-                    <td><button class="btn btn-link">X</button></td>
-                    <td><font>Applicable only when the selected order does not involve any fee items.</font></td>
-                    <td style="text-align:left"><font>Used to delete the entire order, including all items in the order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">14.</font></td>
-                    <td><button class="btn btn-link">BOL</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to download the BOL of the selected order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">15.</font></td>
-                    <td><button class="btn btn-link">WO</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to view and modify the work order content related to the selected order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">16.</font></td>
-                    <td><button class="btn btn-link">View</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to open the picking page related to the selected order in read-only mode.</font></td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div style="text-align:center">
-        <h2>Outbound Log Button Function Statement(Warehouse)</h2>
-        <hr>
-        <img src="~/Img/Outbound_warehouse_buttonStatement_1.jpg" style="margin:20px" />
-        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
-            <thead>
-                <tr>
-                    <th style="width:100px;text-align:center">Button Order</th>
-                    <th style="width:150px;text-align:center">Button Name</th>
-                    <th style="width:400px;text-align:center">Applicability</th>
-                    <th>Function Description</th>
-                </tr>
-                <tr>
-                    <td><font color="red">1.</font></td>
-                    <td><button class="btn btn-link">Start</button></td>
-                    <td><font>Applicable when the warehouse has sufficient human and material resources to start to execute this order</font></td>
-                    <td style="text-align:left"><font>Used to mark the selected order as Processing status.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">2.</font></td>
-                    <td><button class="btn btn-link">Stop</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to re-mark the selected order status as "New Order".</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">3.</font></td>
-                    <td><button class="btn btn-link">Process WO</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to open a editable work order page.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">4.</font></td>
-                    <td><button class="btn btn-link">Release</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to mark the selected order as Release status.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">5.</font></td>
-                    <td><button class="btn btn-link">Preview</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to preview work orders (not editable).</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">6.</font></td>
-                    <td><button class="btn btn-link">Process Adjust</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to mark an order that has been marked Ready as Returned Order and call it back to the warehouse for re-operation.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">7.</font></td>
-                    <td><button class="btn btn-link">Review WO</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to review work orders (not editable).</font></td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div style="text-align:center">
-        <h2>Work Order Button Function Statement(Office)</h2>
-        <hr>
-        <img src="~/Img/ShipOrder_WO_Office.jpg" style="margin:20px" />
-        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
-            <thead>
-                <tr>
-                    <th style="width:100px;text-align:center">Button Order</th>
-                    <th style="width:150px;text-align:center">Button Name</th>
-                    <th style="width:400px;text-align:center">Applicability</th>
-                    <th>Function Description</th>
-                </tr>
-                <tr>
-                    <td><font color="red">1.</font></td>
-                    <td><button class="btn btn-primary">Add new instruction</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to create a new work instruction.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">2.</font></td>
-                    <td><button class="btn btn-primary">Reset</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to replace all instruction sets of the selected work order with the default instruction set of the customer.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">3.</font></td>
-                    <td><button class="btn btn-link">Update</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to update the selected working instruction description. The updated working instruction status will be changed to "Updated".</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">4.</font></td>
-                    <td><button class="btn btn-link">Result</button></td>
-                    <td><font>Applicable only when you need to answer warehouse questions and process warehouse feedback.</font></td>
-                    <td style="text-align:left"><font>Used to handle queries and feedback from warehouses. Further instructions and instructions will be displayed in the Result column and the selected instruction status will be changed to Updated.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">5.</font></td>
-                    <td><button class="btn btn-link">Delete</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to delete the selected instruction.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">6.</font></td>
-                    <td><button class="btn btn-primary">Push</button></td>
-                    <td><font>Applicable only after confirming that the order is complete and correct.</font></td>
-                    <td style="text-align:left"><font>Used to push the order bound to the current work order to the warehouse.</font></td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div style="text-align:center">
-        <h2>Work Order Button/Area Function Statement(Warehouse)</h2>
-        <hr>
-        <img src="~/Img/Outbound_WO_Warehouse.jpg" style="margin:20px" />
-        <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
-            <thead>
-                <tr>
-                    <th style="width:100px;text-align:center">Button/Area Order</th>
-                    <th style="width:150px;text-align:center">Button/Area Name</th>
-                    <th style="width:400px;text-align:center">Applicability</th>
-                    <th>Function Description</th>
-                </tr>
-                <tr>
-                    <td><font color="red">1.</font></td>
-                    <td><button class="btn btn-primary">Add new comment</button></td>
-                    <td><font>Applicable only if other exceptions that exceed the current instruction scope need to be reported.</font></td>
-                    <td style="text-align:left"><font>Used to create a new instruction that can carry a new exception report.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">2.</font></td>
-                    <td><button class="btn btn-link">Comment</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Applicable only if you need to ask questions or give feedback for the selected instruction.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">3.</font></td>
-                    <td><button class="btn btn-link">Confirm/Finish</button></td>
-                    <td><font>Applicable when you fully understand or complete this instruction.</font></td>
-                    <td style="text-align:left"><font>Used to change the status of the selected instruction. The first click will change the instruction status to Confirmed, meaning that you fully understand the instruction and there is no doubt. The second click changes the selected instruction status to Finished, meaning that the instruction is fully completed and has no problems.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">4.</font></td>
-                    <td><text>Pick Man</text></td>
-                    <td><font>Mandatory information.</font></td>
-                    <td style="text-align:left"><font>Used to record the name of the actual operator of this work order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">5.</font></td>
-                    <td><text>Verified by</text></td>
-                    <td><font>Mandatory information.</font></td>
-                    <td style="text-align:left"><font>Used to record the actual person responsible for this work order. The responsible person will be responsible for all information recorded and feedback from this work order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">6.</font></td>
-                    <td><text>Location</text></td>
-                    <td><font>Mandatory information.</font></td>
-                    <td style="text-align:left"><font>Used to record the temporary area for store the picking goods.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">7.</font></td>
-                    <td><button class="btn btn-primary">Save&Close</button></td>
-                    <td><font>No restrictions.</font></td>
-                    <td style="text-align:left"><font>Used to save the information in the "Update" section of the current work order.</font></td>
-                </tr>
-                <tr>
-                    <td><font color="red">8.</font></td>
-                    <td><button class="btn btn-danger">Save&Ready</button></td>
-                    <td><font>Applicable only when the Update section is complete and all instructions have been finished.</font></td>
-                    <td style="text-align:left"><font>Used to mark the outbound order bound to the current work order as Ready.</font></td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div id="div-outbound">
+        <div style="text-align:center">
+            <h2>Shipping Order Workflow(Office)</h2>
+            <img style="margin:20px" src="~/Img/Shippingorder_office_workflow.png" />
+        </div>
+        <div style="text-align:center">
+            <h2>Outbound Workflow(Warehouse)</h2>
+            <img style="margin:20px" src="~/Img/Outbound_warehouse_workflow.png" />
+        </div>
+        <div style="text-align:center">
+            <h2>Shipping Order Status Statement</h2>
+            <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:150px;text-align:center">SO Status</th>
+                        <th>Description</th>
+                        <th style="width:150px;text-align:center">Derived From</th>
+                        <th style="width:150px;text-align:center">Next Phase</th>
+                    </tr>
+                    <tr>
+                        <td><font color="gray">New Created</font></td>
+                        <td style="text-align:left"><font>This is a new order created by the office. The office needs to register the picking information in the order.</font></td>
+                        <td><font>-</font></td>
+                        <td><font color="red">Picking</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">Picking</font></td>
+                        <td style="text-align:left"><font>The office is generating a picking list and editing instructions from the system for this order. The office needs to push the completed picking order to the warehouse.</font></td>
+                        <td><font color="gray">New Created</font></td>
+                        <td><font color="orange">New Order</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="orange">New Order</font></td>
+                        <td style="text-align:left"><font>This is a new order with a picking list and working instructions, which is pushed to the warehouse by the office. The warehouse needs to start processing this order as soon as possible.</font></td>
+                        <td><font color="red">Picking</font></td>
+                        <td><font color="red">Processing</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="orange">Returned Order</font></td>
+                        <td style="text-align:left"><font>The order was returned by the office for some reason. The warehouse needs to start executing it again.</font></td>
+                        <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
+                        <td><font color="red">Processing</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">Processing</font></td>
+                        <td style="text-align:left"><font>This order is being processed by the warehouse. The warehouse needs to report questions and feedback, or mark the order as Ready after successful execution of all instructions.</font></td>
+                        <td><font color="orange">New Order</font></td>
+                        <td><font color="red">Pending</font>/<font color="green">Ready</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">Pending</font></td>
+                        <td style="text-align:left"><font>This order contains some questions and feedback from the warehouse. The office needs to give further instructions as soon as possible.</font></td>
+                        <td><font color="red">Processing</font>/<font color="red">Updated</font></td>
+                        <td><font color="red">Processing</font>/<font color="red">Updated</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">Updated</font></td>
+                        <td style="text-align:left"><font>This order contains further instructions from the office. The warehouse needs to execute them as soon as possible.</font></td>
+                        <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
+                        <td><font color="red">Processing</font>/<font color="red">Pending</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="green">Ready</font></td>
+                        <td style="text-align:left"><font>This order is confirmed by the warehouse that it is ready, which means that the warehouse has fully executed all the instructions without any legacy problems. The warehouse needs to mark this order as Released once  the goods are taken away by trucks.</font></td>
+                        <td><font color="red">Processing</font></td>
+                        <td><font color="brown">Released</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="brown">Release</font></td>
+                        <td style="text-align:left"><font>The order was confirmed by the warehouse that all the goods in the picking list had been taken away by trucks. The finance department needs to charge and inspect the order.</font></td>
+                        <td><font color="green">Ready</font></td>
+                        <td><font color="blue">Ship</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="blue">Shipped</font></td>
+                        <td style="text-align:left"><font>The order is checked by the accounting department and marked as shipped. Once marked as shipped, the order status cannot be changed. No further action is required on this order.</font></td>
+                        <td><font color="brown">Released</font></td>
+                        <td>-</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <hr>
+            <h2>Work Order Status Statement</h2>
+            <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:150px;text-align:center">WO Status</th>
+                        <th>Description</th>
+                        <th style="width:150px;text-align:center">Derived From</th>
+                        <th style="width:150px;text-align:center">Next Phase</th>
+                    </tr>
+                    <tr>
+                        <td><font color="blue">New</font></td>
+                        <td style="text-align:left"><font>This instruction is issued by the office and needs to be confirmed and implemented by the warehouse.</font></td>
+                        <td><font>-</font></td>
+                        <td><font color="red">Pending</font>/<font color="green">Confirmed</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">Pending</font></td>
+                        <td style="text-align:left"><font>The warehouse has questions or feedback about this directive and needs further instructions from the office.</font></td>
+                        <td><font color="blue">New</font>/<font color="red">Updated</font></td>
+                        <td><font color="red">Updated</font>/<font color="green">Confirmed</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">Updated</font></td>
+                        <td style="text-align:left"><font>The office has further explained and supplemented this instruction, which needs to be implemented by the warehouse as soon as possible.</font></td>
+                        <td><font color="red">Pending</font></td>
+                        <td><font color="red">Pending</font>/<font color="green">Confirmed</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="green">Confirmed</font></td>
+                        <td style="text-align:left"><font>This instruction is validated by the warehouse, indicating that they fully understand the instructions and have no problems. The warehouse needs to continue to complete this instruction.</font></td>
+                        <td><font color="blue">New</font>/<font color="red">Updated</font></td>
+                        <td><font color="green">Finished</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="green">Finished</font></td>
+                        <td style="text-align:left"><font>This order was confirmed by the warehouse, indicating that they fully understood and successfully executed it. This instruction no longer requires any action at this time.</font></td>
+                        <td><font color="green">Confirmed</font></td>
+                        <td>-</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center">
+            <h2>Shipping Order Button Function Statement(Office)</h2>
+            <hr>
+            <img src="~/Img/ShipOrder_Office_Statement.jpg" style="margin:20px" />
+            <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:100px;text-align:center">Button Order</th>
+                        <th style="width:150px;text-align:center">Button Name</th>
+                        <th style="width:400px;text-align:center">Applicability</th>
+                        <th>Function Description</th>
+                    </tr>
+                    <tr>
+                        <td><font color="red">1.</font></td>
+                        <td><button class="btn btn-link">Release</button></td>
+                        <td><font>Applicable when the selected order only contains fee records.</font></td>
+                        <td style="text-align:left"><font>Used to mark this order status directly as Released.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">2.</font></td>
+                        <td><button class="btn btn-link">Revert</button></td>
+                        <td><font>Applicable only if the order does not include any picking goods.</font></td>
+                        <td style="text-align:left"><font>Used to re-mark the order for Picking status as New Created.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">3.</font></td>
+                        <td><button class="btn btn-link">Push</button></td>
+                        <td><font>Applicable only when completing picking from the system.</font></td>
+                        <td style="text-align:left"><font>Used to edit the operation instructions and push this order to the warehouse.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">4.</font></td>
+                        <td><button class="btn btn-link">Recall</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to recall orders that have been pushed to the warehouse but have not yet been processed for re-editing.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">5.</font></td>
+                        <td><button class="btn btn-link">Update WO</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to update and supplement issued operational instructions.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">6.</font></td>
+                        <td><button class="btn btn-link">Unready</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to mark an order that has been marked Ready as Returned Order and call it back to the warehouse for re-operation.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">7.</font></td>
+                        <td><button class="btn btn-link">Released</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to re-mark an order that has been marked as Released as Ready.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">8.</font></td>
+                        <td><button class="btn btn-link">Ship</button></td>
+                        <td><font>Applicable only when confirming that the selected order has no legacy problems.</font></td>
+                        <td style="text-align:left"><font>Used to mark the Released status as Shipped. Storage charges will depend on this status.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">9.</font></td>
+                        <td><button class="btn btn-link">Files</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to upload dependency files related to the selected order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">10.</font></td>
+                        <td><button class="btn btn-link">Fee</button></td>
+                        <td><font>Applicable only when registration fees are required.</font></td>
+                        <td style="text-align:left"><font>Used to open the charge page associated with the selected order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">11.</font></td>
+                        <td><button class="btn btn-link">Push</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to edit the basic information of selected order</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">12.</font></td>
+                        <td><button class="btn btn-link">Pick</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to open the picking page of the selected page</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">13.</font></td>
+                        <td><button class="btn btn-link">X</button></td>
+                        <td><font>Applicable only when the selected order does not involve any fee items.</font></td>
+                        <td style="text-align:left"><font>Used to delete the entire order, including all items in the order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">14.</font></td>
+                        <td><button class="btn btn-link">BOL</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to download the BOL of the selected order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">15.</font></td>
+                        <td><button class="btn btn-link">WO</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to view and modify the work order content related to the selected order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">16.</font></td>
+                        <td><button class="btn btn-link">View</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to open the picking page related to the selected order in read-only mode.</font></td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center">
+            <h2>Outbound Log Button Function Statement(Warehouse)</h2>
+            <hr>
+            <img src="~/Img/Outbound_warehouse_buttonStatement_1.jpg" style="margin:20px" />
+            <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:100px;text-align:center">Button Order</th>
+                        <th style="width:150px;text-align:center">Button Name</th>
+                        <th style="width:400px;text-align:center">Applicability</th>
+                        <th>Function Description</th>
+                    </tr>
+                    <tr>
+                        <td><font color="red">1.</font></td>
+                        <td><button class="btn btn-link">Start</button></td>
+                        <td><font>Applicable when the warehouse has sufficient human and material resources to start to execute this order</font></td>
+                        <td style="text-align:left"><font>Used to mark the selected order as Processing status.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">2.</font></td>
+                        <td><button class="btn btn-link">Stop</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to re-mark the selected order status as "New Order".</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">3.</font></td>
+                        <td><button class="btn btn-link">Process WO</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to open a editable work order page.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">4.</font></td>
+                        <td><button class="btn btn-link">Release</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to mark the selected order as Release status.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">5.</font></td>
+                        <td><button class="btn btn-link">Preview</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to preview work orders (not editable).</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">6.</font></td>
+                        <td><button class="btn btn-link">Process Adjust</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to mark an order that has been marked Ready as Returned Order and call it back to the warehouse for re-operation.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">7.</font></td>
+                        <td><button class="btn btn-link">Review WO</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to review work orders (not editable).</font></td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center">
+            <h2>Work Order Button Function Statement(Office)</h2>
+            <hr>
+            <img src="~/Img/ShipOrder_WO_Office.jpg" style="margin:20px" />
+            <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:100px;text-align:center">Button Order</th>
+                        <th style="width:150px;text-align:center">Button Name</th>
+                        <th style="width:400px;text-align:center">Applicability</th>
+                        <th>Function Description</th>
+                    </tr>
+                    <tr>
+                        <td><font color="red">1.</font></td>
+                        <td><button class="btn btn-primary">Add new instruction</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to create a new work instruction.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">2.</font></td>
+                        <td><button class="btn btn-primary">Reset</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to replace all instruction sets of the selected work order with the default instruction set of the customer.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">3.</font></td>
+                        <td><button class="btn btn-link">Update</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to update the selected working instruction description. The updated working instruction status will be changed to "Updated".</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">4.</font></td>
+                        <td><button class="btn btn-link">Result</button></td>
+                        <td><font>Applicable only when you need to answer warehouse questions and process warehouse feedback.</font></td>
+                        <td style="text-align:left"><font>Used to handle queries and feedback from warehouses. Further instructions and instructions will be displayed in the Result column and the selected instruction status will be changed to Updated.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">5.</font></td>
+                        <td><button class="btn btn-link">Delete</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to delete the selected instruction.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">6.</font></td>
+                        <td><button class="btn btn-primary">Push</button></td>
+                        <td><font>Applicable only after confirming that the order is complete and correct.</font></td>
+                        <td style="text-align:left"><font>Used to push the order bound to the current work order to the warehouse.</font></td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center">
+            <h2>Work Order Button/Area Function Statement(Warehouse)</h2>
+            <hr>
+            <img src="~/Img/Outbound_WO_Warehouse.jpg" style="margin:20px" />
+            <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
+                <thead>
+                    <tr>
+                        <th style="width:100px;text-align:center">Button/Area Order</th>
+                        <th style="width:150px;text-align:center">Button/Area Name</th>
+                        <th style="width:400px;text-align:center">Applicability</th>
+                        <th>Function Description</th>
+                    </tr>
+                    <tr>
+                        <td><font color="red">1.</font></td>
+                        <td><button class="btn btn-primary">Add new comment</button></td>
+                        <td><font>Applicable only if other exceptions that exceed the current instruction scope need to be reported.</font></td>
+                        <td style="text-align:left"><font>Used to create a new instruction that can carry a new exception report.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">2.</font></td>
+                        <td><button class="btn btn-link">Comment</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Applicable only if you need to ask questions or give feedback for the selected instruction.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">3.</font></td>
+                        <td><button class="btn btn-link">Confirm/Finish</button></td>
+                        <td><font>Applicable when you fully understand or complete this instruction.</font></td>
+                        <td style="text-align:left"><font>Used to change the status of the selected instruction. The first click will change the instruction status to Confirmed, meaning that you fully understand the instruction and there is no doubt. The second click changes the selected instruction status to Finished, meaning that the instruction is fully completed and has no problems.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">4.</font></td>
+                        <td><text>Pick Man</text></td>
+                        <td><font>Mandatory information.</font></td>
+                        <td style="text-align:left"><font>Used to record the name of the actual operator of this work order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">5.</font></td>
+                        <td><text>Verified by</text></td>
+                        <td><font>Mandatory information.</font></td>
+                        <td style="text-align:left"><font>Used to record the actual person responsible for this work order. The responsible person will be responsible for all information recorded and feedback from this work order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">6.</font></td>
+                        <td><text>Location</text></td>
+                        <td><font>Mandatory information.</font></td>
+                        <td style="text-align:left"><font>Used to record the temporary area for store the picking goods.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">7.</font></td>
+                        <td><button class="btn btn-primary">Save&Close</button></td>
+                        <td><font>No restrictions.</font></td>
+                        <td style="text-align:left"><font>Used to save the information in the "Update" section of the current work order.</font></td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">8.</font></td>
+                        <td><button class="btn btn-danger">Save&Ready</button></td>
+                        <td><font>Applicable only when the Update section is complete and all instructions have been finished.</font></td>
+                        <td style="text-align:left"><font>Used to mark the outbound order bound to the current work order as Ready.</font></td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>

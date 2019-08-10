@@ -41,7 +41,7 @@
                     <th>eFolder</th>
                     <th style="width:200px">Operation</th>
                     <th>Status</th>
-                    <th style="width:150px">Status Control</th>
+                    <th style="width:180px">Status Control</th>
                     <th style="width:200px">INSTRUCTION</th>
                     <th style="width:80px">PUSH DATE</th>
                     <th style="width:80px">UNLOAD TIME</th>
@@ -59,23 +59,52 @@
     <h2 id="h2-title"></h2>
     <form id="form-create">
         <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
+            <text>CONTAINER NO.: <input name="container" id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
+            <text>ETA: <input name="eta" id='input-eta' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+            <text>ORIGINAL PLTS: <input type="number" name="plts" id='input-originalplts' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" value="0" /></text><br />
+            <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>CARRIER: <input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
+            <text>INBOUND TYPE: </text>
+            <select name="inboundtype" id='select-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
+                <option value='FCL'>FCL</option>
+                <option value='LCL'>LCL</option>
+                <option value='LTL'>LTL</option>
+                <option value='FTL'>FTL</option>
+                <option value='LOOSE CTN'>LOOSE CTN</option>
+                <option value='OTHER'>SEE INSTRUCTION</option>
+            </select><br />
+            <text>UNLOADING TYPE: </text>
+            <select name="unloadingtype" id='select-unloadingtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
+                <option value='DROPOFF'>DROP-OFF</option>
+                <option value='LIVE UNLOAD'>LIVE UNLOAD</option>
+                <option value='OTHER'>SEE INSTRUCTION</option>
+            </select><br />
+            <text>STORAGE TYPE: </text>
+            <select name="storagetype" id='select-storagetype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
+                <option value='STORAGE'>STORAGE</option>
+                <option value='TRANSIT SHIPMENT'>TRANSIT SHIPMENT</option>
+                <option value='ECOMMERCE'>E-COMMERCE</option>
+                <option value='OTHER'>SEE INSTRUCTION</option>
+            </select><br />
+            <text>PALLETIZING: </text>
+            <select name="palletizing" id='select-palletizing' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
+                <option value='NORMAL'>NORMAL</option>
+                <option value='72'><=72'</option>
+                <option value='80'><=80'</option>
+                <option value='DOUBLE'>DOUBLE-STACK</option>
+                <option value='LOOSE OTHER'>SEE INSTRUCTION</option>
+            </select><br />
+        </div>
+        <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
             <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-            <text>ETA: <input name="eta" id='input-eta' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />
-            <text>ETD: <input id='input-etd' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />
+            @*<text>ETD: <input id='input-etd' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />*@
             <text>ETA PORT: <input id='input-etaPort' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>PLACE OF RECEIPT: <input id='input-receipt' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-        </div>
-        <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
             <text>PORT OF DISCHARGE: <input id='input-pod' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>PLACE OF DELIVERY: <input id='input-delivery' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-            <text>CONTAINER NO.: <input name="container" id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
-            <text>Original Plts: <input type="number" name="plts" id='input-originalplts' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" value="0" /></text><br />
             <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-            <text>INBOUND TYPE: <input name="type" id='input-inboundtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
-            <text>CONTAINER SIZE: <input id='input-size' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>INSTRUCTION: <input id='input-instruction' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <button type="button" id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
             <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
@@ -102,7 +131,21 @@
         <button id="btn-confirm" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm</button>
     </div>
 </div>
+<div id="div-rollback">
+    <div style="margin:10px;text-align:center">
+        <h3>Status rollback</h3>
+        <text>Select status: </text><select name="rollback" id='select-rollback' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
+            <option value='Incoming'><text style="color:orange">Incoming</text></option>
+            <option value='Arrived'><text style="color:darkcyan">Arrived</text></option>
+            <option value='Processing'><text style="color:red">Processing</text></option>
+            <option value='Received'><text style="color:green">Received</text></option>
+            <option value='Registered'><text style="color:purple">Registered</text></option>
+        </select><br />
+        <button id="btn-rollback" class="btn btn-primary" style="margin-top:20px">Rollback</button>
+    </div>
+</div>
 @Html.Partial("~/Views/FBA/_FBAMasterOrderPartialView.cshtml", null)
+@Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 
 @section scripts
 {
@@ -122,7 +165,7 @@
             var operation;
             var pageId;
 
-            $(".iframe-wo-warehouse, .iframe-wo-office").hide();
+            $(".iframe-wo-warehouse, .iframe-wo-office, #div-rollback").hide();
             $(".iframe, .iframe-fbadate, .iframe-detail-result, .iframe-detail").hide();
 
             //解析url中的参数函数
@@ -169,7 +212,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["750px", "550px"],
+                    area: ["750px", "650px"],
                     content: $(".iframe")
                 });
             });
@@ -186,8 +229,8 @@
                     var vessel = $("#input-vessel").val().toString();
                     var voy = $("#input-voy").val().toString();
                     var eta = $("#input-eta").val().toString();
-                    var etd = $("#input-etd").val().toString();
-                    var inboundType = $("#input-inboundtype").val().toString();
+                    //var etd = $("#input-etd").val().toString();
+                    //var inboundType = $("#input-inboundtype").val().toString();
                     var etaPort = $("#input-etaPort").val().toString();
                     var placeOfReceipt = $("#input-receipt").val().toString();
                     var portOfLoading = $("#input-pol").val().toString();
@@ -198,13 +241,16 @@
                     var containerSize = $("#input-size").val().toString();
                     var originalPlts = $("#input-originalplts").val();
                     var instruction = $("#input-instruction").val();
+                    var inboundType = $("#select-inboundtype option:selected").val();
+                    var unloadingType = $("#select-unloadingtype option:selected").val();
+                    var storageType = $("#select-storagetype option:selected").val();
+                    var palletizing = $("#select-palletizing option:selected").val();
 
                     var obj = {
                         "carrier": carrier,
                         "vessel": vessel,
                         "voy": voy,
                         "eta": eta,
-                        "etd": etd,
                         "etaPort": etaPort,
                         "placeOfReceipt": placeOfReceipt,
                         "portOfLoading": portOfLoading,
@@ -215,7 +261,10 @@
                         "containerSize": containerSize,
                         "inboundType": inboundType,
                         "originalPlts": originalPlts,
-                        "instruction": instruction
+                        "instruction": instruction,
+                        "unloadingType": unloadingType,
+                        "storageType": storageType,
+                        "palletizing": palletizing
                     };
 
                     url = "/api/fba/fbamasterorder/" + customerId;
@@ -280,13 +329,26 @@
                     $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=MasterOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus'));
             });
 
+            //点击状态回滚按钮，打开回滚对话框
+            $("#table").on("click", ".btn-rollback", function () {
+                masterOrderId = $(this).attr('iid');
+                grandChannel.openiframe(index, "#div-rollback", "300px", "200px");
+            });
+
+            //在回滚对话框中点击回滚按钮，将选中的主单状态回滚到所选状态
+            $("#btn-rollback").on("click", function () {
+                var rollbackStatus = $("#select-rollback option:selected").val();
+                url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&status=" + rollbackStatus;
+                SendAjaxMethod("PUT", url, {});
+            });
+
             //点击编辑按钮，进入主单编辑页面
             $("#table").on("click", ".btn-edit", function () {
                 $("#btn-new").hide();
                 $("#btn-update").show();
                 $("#h2-title").html("Update master order");
                 grandNumber = $(this).attr('iid');
-                grandChannel.openiframe(index, ".iframe", "750px", "550px");
+                grandChannel.openiframe(index, ".iframe", "750px", "650px");
 
                 url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber + "&operation=Edit";
 
@@ -309,8 +371,8 @@
                         $("#input-vessel").val(data.vessel);
                         $("#input-voy").val(data.voy);
                         $("#input-eta").val(data.eta);
-                        $("#input-etd").val(data.etd);
-                        $("#input-inboundtype").val(data.inboundType);
+                        //$("#input-etd").val(data.etd);
+                        //$("#input-inboundtype").val(data.inboundType);
                         $("#input-etaPort").val(data.etaPort);
                         $("#input-receipt").val(data.placeOfReceipt);
                         $("#input-pol").val(data.portOfLoading);
@@ -321,6 +383,10 @@
                         $("#input-size").val(data.containerSize);
                         $("#input-originalplts").val(data.originalPlts);
                         $("#input-instruction").val(data.instruction);
+                        $("#select-inboundtype").val(data.inboundType);
+                        $("#select-unloadingtype").val(data.unloadingType);
+                        $("#select-storagetype").val(data.storageType);
+                        $("#select-palletizing").val(data.palletizing);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -336,8 +402,8 @@
                 var vessel = $("#input-vessel").val().toString();
                 var voy = $("#input-voy").val().toString();
                 var eta = $("#input-eta").val().toString();
-                var etd = $("#input-etd").val().toString();
-                var inboundType = $("#input-inboundtype").val().toString();
+                //var etd = $("#input-etd").val().toString();
+                //var inboundType = $("#input-inboundtype").val().toString();
                 var etaPort = $("#input-etaPort").val().toString();
                 var placeOfReceipt = $("#input-receipt").val().toString();
                 var portOfLoading = $("#input-pol").val().toString();
@@ -348,13 +414,16 @@
                 var containerSize = $("#input-size").val().toString();
                 var originalPlts = $("#input-originalplts").val();
                 var instruction = $("#input-instruction").val();
+                var inboundType = $("#select-inboundtype option:selected").val();
+                var unloadingType = $("#select-unloadingtype option:selected").val();
+                var storageType = $("#select-storagetype option:selected").val();
+                var palletizing = $("#select-palletizing option:selected").val();
 
                 var obj = {
                     "carrier": carrier,
                     "vessel": vessel,
                     "voy": voy,
                     "eta": eta,
-                    "etd": etd,
                     "etaPort": etaPort,
                     "placeOfReceipt": placeOfReceipt,
                     "portOfLoading": portOfLoading,
@@ -365,7 +434,10 @@
                     "containerSize": containerSize,
                     "inboundType": inboundType,
                     "originalPlts": originalPlts,
-                    "instruction": instruction
+                    "instruction": instruction,
+                    "unloadingType": unloadingType,
+                    "storageType": storageType,
+                    "palletizing": palletizing
                 };
 
                 url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber;
@@ -769,10 +841,14 @@
                                     render: function (data) {
                                         if (status == "New Created")
                                             return "<input type='button' class='btn btn-link btn-wo-push' operation='push' iid='" + data + "' value='Push WO' />";
-                                        else if (status == "Received" || status == "Registered" || status == "Allocated" || status == "Completed")
+                                        else if (status == "Received" || status == "Registered" || status == "Completed")
                                             return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' />";
-                                        else if (status == "Incoming" || status == "Arrived")
+                                        else if (status == "Allocated")
+                                            return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' /><input type='button' class='btn btn-link btn-rollback' iid='" + data + "' value='Rollback' />";
+                                        else if (status == "Arrived")
                                             return "<input type='button' class='btn btn-link btn-wo-update' operation='update' iid='" + data + "' value='Update WO' />";
+                                        else if (status == "Incoming")
+                                            return "<input type='button' class='btn btn-link btn-wo-update' operation='update' iid='" + data + "' value='Update WO' /><input type='button' class='btn btn-link btn-callback' iid='" + data + "' value='Call back' />";
                                         else
                                             return "<input type='button' class='btn btn-link btn-wo-update' operation='process' iid='" + data + "' value='Process WO' />";
                                     }
@@ -911,6 +987,9 @@
                         $(".text-container").html(data.container);
                         $(".text-grandnumber").html(data.grandNumber);
                         $(".text-start").html(transDate(data.unloadStartTime));
+                        $(".text-unloading").html(data.unloadingType);
+                        $(".text-storage").html(data.storageType);
+                        $(".text-palletizing").html(data.palletizing);
                         $(".text-logon").html(parseFloat(data.logonProgress).toFixed(2) + "%");
                         $(".text-verified").html(data.verifiedBy);
                         $(".text-register").html(parseFloat(data.registerProgress).toFixed(2) + "%");
@@ -1017,7 +1096,7 @@
                                         return "<font color='blue'>" + data + "</font>";
                                     else if (data == "Pending" || data == "Updated" || data == "Processing")
                                         return "<font color='red'>" + data + "</font>";
-                                    else if (data == "Finished" || data =="Confirmed")
+                                    else if (data == "Finished" || data == "Confirmed")
                                         return "<font color='green'>" + data + "</font>";
                                     else
                                         return "<font>" + data + "</font>"
@@ -1069,7 +1148,16 @@
                         plts: {
                             required: true
                         },
-                        type: {
+                        inboundtype: {
+                            required: true
+                        },
+                        unloadingtype: {
+                            required: true
+                        },
+                        storagetype: {
+                            required: true
+                        },
+                        palletizing: {
                             required: true
                         },
                     },
@@ -1083,8 +1171,17 @@
                         plts: {
                             required: "Pallet number is required",
                         },
-                        type: {
+                        inboundtype: {
                             required: "Inbound type is required",
+                        },
+                        unloadingtype: {
+                            required: "Unloading type is required",
+                        },
+                        storagetype: {
+                            required: "Storage type is required",
+                        },
+                        palletizing: {
+                            required: "Palletizing request is required",
                         },
                     }
                 });

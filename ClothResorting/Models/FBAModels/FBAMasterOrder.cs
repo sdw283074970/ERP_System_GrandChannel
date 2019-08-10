@@ -84,6 +84,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string UpdateLog { get; set; }
 
+        public string Palletizing { get; set; }
+
         public string Comment { get; set; }
 
         //public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }

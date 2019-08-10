@@ -68,25 +68,26 @@
         <button id="btn-detail-update" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Update</button>
     </div>
 </div>
-<div class="iframe-update">
-    <h2 id="h2-title" style="margin-left:20px"></h2>
-    <form id="form-create">
-        <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
-            <text>Inbound Date: <input name="inbounddate" id='input-inbounddate' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
-            <text>Unload Finish Time: <input name="finishtime" id='input-finishtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
-            <text>Trailer Ava Time: <input name="availabletime" id='input-avatime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
-            <font color="red">*Date or time won't be saved without hours and minutes.</font>
-        </div>
-        <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
-            <text>Ept Trailer Out Time: <input name="outtime" id='input-outtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
-            <text>Dock Number: <input name="docknumber" id='input-docknumber' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
-            <text>Verified By: <input name="verifiedby" id='input-verifiedby' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
-            <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Save&Update</button>
-            <button type="button" id="btn-submitreport" class='btn btn-primary' style="margin-top:20px">Submit Report</button>
-        </div>
-    </form>
-</div>
+@*<div class="iframe-update">
+        <h2 id="h2-title" style="margin-left:20px"></h2>
+        <form id="form-create">
+            <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
+                <text>Inbound Date: <input name="inbounddate" id='input-inbounddate' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+                <text>Unload Finish Time: <input name="finishtime" id='input-finishtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+                <text>Trailer Ava Time: <input name="availabletime" id='input-avatime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+                <font color="red">*Date or time won't be saved without hours and minutes.</font>
+            </div>
+            <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
+                <text>Ept Trailer Out Time: <input name="outtime" id='input-outtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+                <text>Dock Number: <input name="docknumber" id='input-docknumber' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
+                <text>Verified By: <input name="verifiedby" id='input-verifiedby' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
+                <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Save&Update</button>
+                <button type="button" id="btn-submitreport" class='btn btn-primary' style="margin-top:20px">Submit Report</button>
+            </div>
+        </form>
+    </div>*@
 @Html.Partial("~/Views/FBA/_FBAMasterOrderPartialView.cshtml", null)
+@Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 
 @section scripts
 {
@@ -145,7 +146,7 @@
                         if (status == "Arrived")
                             return "<input type='button' class='btn btn-link btn-start' iid='" + data + "' value='Start Unloading' />";
                         else if (status == "Processing" || status == "Pending" || status == "Updated")
-                            return "<input type='button' class='btn btn-link btn-report' iid='" + data + "' value='Submit Report' />";
+                            return "<input type='button' class='btn btn-link btn-wo-process' operation='process' iid='" + data + "' value='Process WO' />";
                         else if (status == "Received")
                             return "<input type='button' class='btn btn-link btn-registered' iid='" + data + "' value='Submit Register' />";
                         else if (status == "Registered")
@@ -162,9 +163,9 @@
                     data: "id",
                     render: function (data) {
                         if (status == "Incoming" || status == "Arrived")
-                            return "<input type='button' class='btn btn-link btn-wo-view' operation='view' iid='" + data + "' value='View WO' />";
+                            return "<input type='button' class='btn btn-link btn-wo-view' operation='preview' iid='" + data + "' value='Preview WO' />";
                         else if (status == "Processing" || status == "Pending" || status == "Updated")
-                            return "<input type='button' class='btn btn-link btn-wo-process' operation='process' iid='" + data + "' value='Process WO' />";
+                            return "";
                         else if (status == "Received")
                             return "<input type='button' class='btn btn-link btn-wo-review' operation='review' iid='" + data + "' value='Review WO' /><input type='button' class='btn btn-link btn-registering' iid='" + data + "' value='Register Plt' />";
                         else if (status == "Registered")
@@ -312,9 +313,9 @@
             url = "/api/WarehouseInboundLog/";
             getAjaxTable("GET", url, "#table", table, columnsArray, index, searchBar);
 
-            //点击View WO按钮，打开浏览unload work order页面
+            //点击Preview WO按钮，打开浏览unload work order页面
             $("#table").on("click", ".btn-wo-view", function () {
-                $(".btn-logon, #btn-detail-comment, #btn-wo-update").hide();
+                $(".btn-logon, #btn-detail-comment, #btn-wo-update, .iframe-wo-warehouse-update").hide();
                 customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
                 masterOrderId = $(this).attr('iid');
                 pageId = ".iframe-wo-warehouse";
@@ -329,10 +330,37 @@
             //点击Review WO按钮，打开检查Unload work order页面
             $("#table").on("click", ".btn-wo-review", function () {
                 $(".btn-logon, #btn-detail-comment").hide();
-                $("#btn-wo-update").show();
+                $("#btn-update, #btn-submitreport").hide();
+                $(".iframe-wo-warehouse-update, #btn-update").show();
                 customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
                 masterOrderId = $(this).attr('iid');
                 pageId = ".iframe-wo-warehouse";
+
+                url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $("#input-inbounddate").val(transFormatDate(data.inboundDate));
+                        $("#input-finishtime").val(transFormatDate(data.unloadFinishTime));
+                        $("#input-avatime").val(transFormatDate(data.availableTime));
+                        $("#input-outtime").val(transFormatDate(data.outTime));
+                        $("#input-docknumber").val(data.dockNumber);
+                        $("#input-verifiedby").val(data.verifiedBy);
+                    }
+                });
 
                 $(".h2-customercode").html("Customer Code: " + customerCode);
                 grandChannel.openiframe(index, pageId, "1000px", "800px");
@@ -343,14 +371,40 @@
 
             //点击Process WO按钮，打开浏览unload work order页面
             $("#table").on("click", ".btn-wo-process", function () {
-                $(".btn-logon, #btn-detail-comment").show();
-                $("#btn-wo-update").hide();
+                $(".iframe-wo-warehouse-update, .btn-logon, #btn-detail-comment").show();
+                $("#btn-update, #btn-submitreport").show();
                 customerCode = $(this).parent().parent("tr").children("td").eq(5).children("text").html();
                 masterOrderId = $(this).attr('iid');
                 pageId = ".iframe-wo-warehouse";
 
                 $(".h2-customercode").html("Customer Code: " + customerCode);
                 grandChannel.openiframe(index, pageId, "1000px", "800px");
+
+                url = "/api/warehouseinboundlog/?masterOrderId=" + masterOrderId;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $("#input-inbounddate").val(transFormatDate(data.inboundDate));
+                        $("#input-finishtime").val(transFormatDate(data.unloadFinishTime));
+                        $("#input-avatime").val(transFormatDate(data.availableTime));
+                        $("#input-outtime").val(transFormatDate(data.outTime));
+                        $("#input-docknumber").val(data.dockNumber);
+                        $("#input-verifiedby").val(data.verifiedBy);
+                    }
+                });
 
                 operation = $(this).attr('operation');
                 GetWorkOrder(masterOrderId, operation);
@@ -613,7 +667,14 @@
                 masterOrderId = $(this).attr('iid');
                 url = "/api/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&operation=Register"
 
-                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+                layer.confirm("Are you sure you have finished the registration </br> of pallet information？", { title: "Warnning", btn: ["Yes", "No"] },
+                    function (index22) {
+                        alert(123);
+                        grandChannel.sendAjaxMethod("PUT", url, {}, index);
+                        layer.close(index22);
+                    },
+                    function () { }
+                );
             });
 
             //点击分配库位按钮，跳转到库位分配页面
@@ -728,6 +789,9 @@
                         $(".text-container").html(data.container);
                         $(".text-grandnumber").html(data.grandNumber);
                         $(".text-start").html(transDate(data.unloadStartTime));
+                        $(".text-unloading").html(data.unloadingType);
+                        $(".text-storage").html(data.storageType);
+                        $(".text-palletizing").html(data.palletizing);
                         $(".text-logon").html(parseFloat(data.logonProgress).toFixed(2) + "%");
                         $(".text-verified").html(data.verifiedBy);
                         $(".text-register").html(parseFloat(data.registerProgress).toFixed(2) + "%");
@@ -837,13 +901,13 @@
                                     else if (data == "Finished" || data == "Confirmed")
                                         return "<font color='green'>" + data + "</font>";
                                     else
-                                        return "<font>Invaild Data</font>"
+                                        return "<font>" + data + "</font>"
                                 }
                             },
                             {
                                 data: "id",
                                 render: function (data) {
-                                    if (operation == "view")
+                                    if (operation == "view" || operation == "review" || operation == "preview")
                                         return "";
                                     else
                                         return "<button iid='" + data + "' class='btn btn-link btn-comment'>Comment</button><button iid='" + data + "' class='btn btn-link btn-confirm'>Confirm/Finish</button>";

@@ -112,6 +112,9 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var unloadWO = new UnloadWorkOrder
                 {
+                    UnloadingType = masterOrderInDb.UnloadingType,
+                    StorageType = masterOrderInDb.StorageType,
+                    Palletizing = masterOrderInDb.Palletizing,
                     PlaceTime = masterOrderInDb.PushTime,
                     UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
                     ETA = masterOrderInDb.ETA,
@@ -242,13 +245,16 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var masterOrder = new FBAMasterOrder();
 
-            masterOrder.AssembleFirstPart(obj.ETA, obj.Carrier, obj.Vessel, obj.Voy, obj.ETD);
+            masterOrder.AssembleFirstPart(obj.ETA, obj.Carrier, obj.Vessel, obj.Voy);
             masterOrder.AssembeSecondPart(obj.ETAPort, obj.PlaceOfReceipt, obj.PortOfLoading, obj.PortOfDischarge, obj.PlaceOfDelivery);
             masterOrder.AssembeThirdPart(obj.SealNumber, obj.ContainerSize, obj.Container);
             masterOrder.GrandNumber = grandNumber;
             masterOrder.Customer = customer;
             masterOrder.OriginalPlts = obj.OriginalPlts;
             masterOrder.InboundType = obj.InboundType;
+            masterOrder.UnloadingType = obj.UnloadingType;
+            masterOrder.StorageType = obj.StorageType;
+            masterOrder.Palletizing = obj.Palletizing;
             masterOrder.CreatedBy = _userName;
             masterOrder.InvoiceStatus = "Await";
             masterOrder.UpdateLog += "Update by " + _userName + " at " + DateTime.Now.ToString() + ". ";
@@ -370,7 +376,9 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrderInDb.Vessel = obj.Vessel;
             masterOrderInDb.Voy = obj.Voy;
             masterOrderInDb.ETA = obj.ETA;
-            masterOrderInDb.ETD = obj.ETD;
+            masterOrderInDb.UnloadingType = obj.UnloadingType;
+            masterOrderInDb.StorageType = obj.StorageType;
+            masterOrderInDb.Palletizing = obj.Palletizing;
             masterOrderInDb.ETAPort = obj.ETAPort;
             masterOrderInDb.PlaceOfReceipt = obj.PlaceOfReceipt;
             masterOrderInDb.PortOfLoading = obj.PortOfLoading;
@@ -383,6 +391,15 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrderInDb.ContainerSize = obj.ContainerSize;
             masterOrderInDb.Instruction = obj.Instruction;
 
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fba/fbamasterorder/?masterOrderId={masterOrderId}&status={status}
+        [HttpPut]
+        public void RollbackStatus([FromUri]int masterOrderId, [FromUri]string status)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            masterOrderInDb.Status = status;
             _context.SaveChanges();
         }
 
@@ -481,6 +498,12 @@ namespace ClothResorting.Controllers.Api.Fba
         public DateTime OutTime { get; set; }
 
         public string IsDamaged { get; set; }
+
+        public string UnloadingType { get; set; }
+
+        public string StorageType { get; set; }
+
+        public string Palletizing { get; set; }
 
         public ICollection<FBAOrderDetailDto> PackingList { get; set; }
 

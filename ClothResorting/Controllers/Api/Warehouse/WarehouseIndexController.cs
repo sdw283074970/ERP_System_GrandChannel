@@ -135,7 +135,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             if (detailInDb.FBAShipOrder != null)
             {
-                var originalStatus = (detailInDb.FBAShipOrder.Status == FBAStatus.Pending || detailInDb.FBAShipOrder.Status == FBAStatus.Updated) ? FBAStatus.Updated : detailInDb.FBAShipOrder.Status;
+                var originalStatus = (detailInDb.FBAShipOrder.Status == FBAStatus.Pending || detailInDb.FBAShipOrder.Status == FBAStatus.Updated) ? FBAStatus.Processing : detailInDb.FBAShipOrder.Status;
                 if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
                     detailInDb.FBAShipOrder.Status = FBAStatus.Updated;
                 else if (detailInDb.FBAShipOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())
@@ -145,7 +145,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             }
             else
             {
-                var originalStatus = (detailInDb.FBAMasterOrder.Status == FBAStatus.Pending || detailInDb.FBAMasterOrder.Status == FBAStatus.Updated) ? FBAStatus.Updated : detailInDb.FBAMasterOrder.Status;
+                var originalStatus = (detailInDb.FBAMasterOrder.Status == FBAStatus.Pending || detailInDb.FBAMasterOrder.Status == FBAStatus.Updated) ? FBAStatus.Processing : detailInDb.FBAMasterOrder.Status;
                 if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Updated).Any())
                     detailInDb.FBAMasterOrder.Status = FBAStatus.Updated;
                 else if (detailInDb.FBAMasterOrder.ChargingItemDetails.Where(x => x.HandlingStatus == FBAStatus.Pending).Any())

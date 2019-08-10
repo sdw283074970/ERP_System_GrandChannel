@@ -2,27 +2,31 @@
     <h1>Unload Work Order</h1>
     <h2 class="h2-customercode"></h2>
     @*<button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>*@
-    <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
+    <div style="margin-top:20px;border:double;height:220px;padding:20px;padding-top:0px">
         <h3>Summary</h3>
-        <div style="float:left;width:33%;border:dotted;border-color:red">
-            <text>Place Time:</text><text class="text-place"> </text><br />
-            <text>Start Time:</text><text class="text-start"> </text><br />
-            <text>Finish Time:</text><text class="text-finish"> </text><br />
-            <text>ETA:</text><text class="text-eta"> </text><br />
-            <text>Logon Progress:</text><text class="text-logon"> </text><br />
-        </div>
-        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
+        <div style="float:left;width:33%;border:dotted;border-color:red;padding:10px">
             <text>Container #:</text><text class="text-container"> </text><br />
             <text>GRND #:</text><text class="text-grandnumber"> </text><br />
             <text>Carrier:</text><text class="text-carrier"> </text><br />
-            <text>Verified By:</text><text class="text-verified"> </text><br />
-            <text>Register Progress:</text><text class="text-register"> </text><br />
+            <text>Storage Type:</text><text class="text-storage"> </text><br />
+            <text>Unloading Type:</text><text class="text-unloading"> </text><br />
+            <text>Palletizing Request:</text><text class="text-palletizing"> </text><br />
+
         </div>
-        <div style="float:right;width:33%;border:dotted;border-color:blue">
+        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen;padding:10px">
+            <text>ETA:</text><text class="text-eta"> </text><br />
+            <text>Place Time:</text><text class="text-place"> </text><br />
             <text>Inbound Time:</text><text class="text-inbound"> </text><br />
+            <text>Start Time:</text><text class="text-start"> </text><br />
+            <text>Finish Time:</text><text class="text-finish"> </text><br />
             <text>Out Time:</text><text class="text-out"> </text><br />
+        </div>
+        <div style="float:right;width:33%;border:dotted;border-color:blue;padding:10px">
             <text>Dock #:</text><text class="text-dock"> </text><br />
             <text>Is damaged:</text><text class="text-damage"> </text><br />
+            <text>Verified By:</text><text class="text-verified"> </text><br />
+            <text>Logon Progress:</text><text class="text-logon"> </text><br />
+            <text>Register Progress:</text><text class="text-register"> </text><br />
             <text>Allocation Progress:</text><text class="text-allocation"> </text><br />
         </div>
     </div>
@@ -70,28 +74,32 @@
     <h1>Unload Work Order</h1>
     <h2 class="h2-customercode"></h2>
     @*<button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>*@
-    <button id="btn-wo-update" class="btn btn-primary" style="margin-top:20px">Update Summary</button>
-    <div style="margin-top:20px;border:double;height:180px;padding:20px;padding-top:0px">
+    @*<button id="btn-wo-update" class="btn btn-primary" style="margin-top:20px">Update Summary</button>*@
+    <div style="margin-top:20px;border:double;height:220px;padding:20px;padding-top:0px">
         <h3>Summary</h3>
-        <div style="float:left;width:33%;border:dotted;border-color:red">
-            <text>Place Time:</text><text class="text-place"> </text><br />
-            <text>Start Time:</text><text class="text-start"> </text><br />
-            <text>Finish Time:</text><text class="text-finish"> </text><br />
-            <text>ETA:</text><text class="text-eta"> </text><br />
-            <text>Logon Progress:</text><text class="text-logon"> </text><br />
-        </div>
-        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen">
+        <div style="float:left;width:33%;border:dotted;border-color:red;padding:10px">
             <text>Container #:</text><text class="text-container"> </text><br />
             <text>GRND #:</text><text class="text-grandnumber"> </text><br />
             <text>Carrier:</text><text class="text-carrier"> </text><br />
-            <text>Verified By:</text><text class="text-verified"> </text><br />
-            <text>Register Progress:</text><text class="text-register"> </text><br />
+            <text>Storage Type:</text><text class="text-storage"> </text><br />
+            <text>Unloading Type:</text><text class="text-unloading"> </text><br />
+            <text>Palletizing Request:</text><text class="text-palletizing"> </text><br />
+
         </div>
-        <div style="float:right;width:33%;border:dotted;border-color:blue">
+        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen;padding:10px">
+            <text>ETA:</text><text class="text-eta"> </text><br />
+            <text>Place Time:</text><text class="text-place"> </text><br />
             <text>Inbound Time:</text><text class="text-inbound"> </text><br />
+            <text>Start Time:</text><text class="text-start"> </text><br />
+            <text>Finish Time:</text><text class="text-finish"> </text><br />
             <text>Out Time:</text><text class="text-out"> </text><br />
+        </div>
+        <div style="float:right;width:33%;border:dotted;border-color:blue;padding:10px">
             <text>Dock #:</text><text class="text-dock"> </text><br />
             <text>Is damaged:</text><text class="text-damage"> </text><br />
+            <text>Verified By:</text><text class="text-verified"> </text><br />
+            <text>Logon Progress:</text><text class="text-logon"> </text><br />
+            <text>Register Progress:</text><text class="text-register"> </text><br />
             <text>Allocation Progress:</text><text class="text-allocation"> </text><br />
         </div>
     </div>
@@ -132,5 +140,23 @@
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+    <div class="iframe-wo-warehouse-update" style="margin-top:20px;border:double;padding:20px;padding-top:0px">
+        <h3>Update</h3>
+        <div style="margin-left:30px;text-align:right;float:left">
+            <text>Inbound Date: <input name="inbounddate" id='input-inbounddate' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <text>Unload Finish Time: <input name="finishtime" id='input-finishtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <text>Trailer Ava Time: <input name="availabletime" id='input-avatime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <font color="red">*Date or time won't be saved without hours and minutes.</font>
+        </div>
+        <div style="margin-right:20px;text-align:right">
+            <text>Ept Trailer Out Time: <input name="outtime" id='input-outtime' type="datetime-local" style='width:200px;margin-top:20px' class='input-sm' required /></text><br />
+            <text>Dock Number: <input name="docknumber" id='input-docknumber' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
+            <text>Verified By: <input name="verifiedby" id='input-verifiedby' style='width:200px;margin-top:20px' class='input-sm' placeholder="Required when submitting" required /></text><br />
+        </div>
+        <div style="margin-top:20px;text-align:center">
+            <button type="button" id="btn-update" class='btn btn-info' style="margin-top:20px">Save&Update</button>
+            <button type="button" id="btn-submitreport" class='btn btn-primary' style="margin-top:20px">Submit Report</button>
+        </div>
     </div>
 </div>

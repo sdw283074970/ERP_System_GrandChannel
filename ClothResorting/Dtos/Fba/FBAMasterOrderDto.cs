@@ -22,6 +22,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string DockNumber { get; set; }
 
+        public string Palletizing { get; set; }
+
         public string InboundType { get; set; }
 
         public string InvoiceStatus { get; set; }
