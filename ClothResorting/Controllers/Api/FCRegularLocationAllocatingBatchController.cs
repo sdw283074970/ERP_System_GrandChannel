@@ -61,12 +61,19 @@ namespace ClothResorting.Controllers.Api
 
                     foreach (var inBoxSKU in inOneBoxSKU)
                     {
+                        if (inBoxSKU.ToBeAllocatedCtns == 0 && inBoxSKU.ToBeAllocatedPcs == 0)
+                        {
+                            inBoxSKU.Status = Status.Allocated;
+                            continue;
+                        }
+
                         locationDeatilList.Add(new FCRegularLocationDetail
                         {
                             Container = inBoxSKU.Container,
                             PurchaseOrder = inBoxSKU.PurchaseOrder,
                             Style = inBoxSKU.Style,
                             Color = inBoxSKU.Color,
+                            UPCNumber = inBoxSKU.UPCNumber,
                             CustomerCode = inBoxSKU.Customer,
                             SizeBundle = inBoxSKU.SizeBundle,
                             PcsBundle = inBoxSKU.PcsBundle,

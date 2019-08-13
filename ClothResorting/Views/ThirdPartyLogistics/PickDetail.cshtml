@@ -70,6 +70,7 @@
                         <th>Location</th>
                         <th>Vendor</th>
                         <th>Container</th>
+                        <th>UPC #</th>
                         <th>CC</th>
                         <th>Po</th>
                         <th>Style</th>
@@ -102,6 +103,7 @@
                 <tr>
                     <th>Carton Range</th>
                     <th>Container</th>
+                    <th>UPC #</th>
                     <th>Cut PO</th>
                     <th>Style</th>
                     <th>Color</th>
@@ -200,8 +202,8 @@
             $("#btn-confirmputback").on("click", function () {
                 var putBackCtns = $("#input-ctns").val() == "" ? 0 : $("#input-ctns").val();
                 var putBackPcs = $("#input-pcs").val() == "" ? 0 : $("#input-pcs").val();
-                var pickingCtns = $(this).parent().parent("tr").children('td').eq(9).children('text').html();
-                var pickingPcs = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
+                var pickingCtns = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
+                var pickingPcs = $(this).parent().parent("tr").children('td').eq(11).children('text').html();
 
                 if (putBackCtns > pickingCtns || putBackPcs > pickingPcs)
                 {
@@ -340,8 +342,8 @@
 
             //点击PutBack按钮，弹出放回对话框
             $("#table").on("click", ".btn-putback", function () {
-                var pickingCtns = $(this).parent().parent("tr").children('td').eq(9).children('text').html();
-                var pickingPcs = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
+                var pickingCtns = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
+                var pickingPcs = $(this).parent().parent("tr").children('td').eq(11).children('text').html();
                 orderType = $(this).attr('ordertype');
                 
                 pickDetailId = $(this).attr("iid");
@@ -407,8 +409,6 @@
                         objArray.push(obj);
                     }
                 });
-
-                alert(JSON.stringify(objArray));
 
                 $.ajax({
                     type: "POST",
@@ -499,6 +499,13 @@
                                 },
                                 {
                                     data: "container",
+                                    render: function (data) {
+                                        container = data;
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "upcNumber",
                                     render: function (data) {
                                         container = data;
                                         return "<text>" + data + "</text>";
@@ -773,6 +780,13 @@
                                 {
                                     data: "container",
                                     render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "upcNumber",
+                                    render: function (data) {
+                                        container = data;
                                         return "<text>" + data + "</text>";
                                     }
                                 },

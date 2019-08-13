@@ -29,6 +29,8 @@ namespace ClothResorting.Models
 
         public int Cartons { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public int ActualCtns { get; set; }
 
         public string SizeBundle { get; set; }

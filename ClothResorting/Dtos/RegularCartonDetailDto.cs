@@ -15,6 +15,8 @@ namespace ClothResorting.Dtos
 
         public string Style { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public string Customer { get; set; }
 
         public string CartonRange { get; set; }

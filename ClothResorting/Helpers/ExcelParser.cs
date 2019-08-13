@@ -47,7 +47,7 @@ namespace ClothResorting.Helpers
                 po.Id = 0;
 
                 //获取size的数量
-                var endColumnIndex = 12;
+                var endColumnIndex = 13;
 
                 while(_ws.Cells[startIndex + 2, endColumnIndex].Value2 != "Pack")
                 {
@@ -73,9 +73,10 @@ namespace ClothResorting.Helpers
                     var customer = _ws.Cells[i, 4].Value2.ToString();
                     var colorCode = _ws.Cells[i, 9].Value2.ToString();
                     var color = _ws.Cells[i, 10].Value2.ToString();
-                    var cartons = (int)_ws.Cells[i, 11].Value2;
+                    var cartons = (int)_ws.Cells[i, 12].Value2;
+                    var upcNumber = _ws.Cells[i, 10].Value2 == null ? "NA" : _ws.Cells[i, 10].Value2.ToString();
 
-                    for (int j = 12; j <= endColumnIndex; j++)
+                    for (int j = 13; j <= endColumnIndex; j++)
                     {
                         var size = _ws.Cells[startIndex + 2, j].Value2.ToString();
                         var pcs = (int)_ws.Cells[i, j].Value2;
@@ -86,8 +87,9 @@ namespace ClothResorting.Helpers
                             Style = style,
                             Customer = customer,
                             Color = color,
+                            UPCNumber = upcNumber,
                             ColorCode = colorCode,
-                            Cartons = j == 12 ? cartons : 0,
+                            Cartons = j == 13 ? cartons : 0,
                             PcsBundle = pcs.ToString(),
                             PcsPerCarton = pcs,
                             Quantity = pcs * cartons,
@@ -129,7 +131,7 @@ namespace ClothResorting.Helpers
             //进行检查，检测出以下情况报错：
             //1.对象第1行第1列不是“Order”
             //2.对象第3行第3列不是“Style#”
-            //3.对象第3行第11列不是“Cartons”
+            //3.对象第3行第12列不是“Cartons”
             //4.对象最后一行第1列不是“Totals”
             //5.检测到Totals但不是最后一行
 
@@ -145,9 +147,9 @@ namespace ClothResorting.Helpers
                     throw new Exception("Style # column does not match the template. PLease check cell [" + (startIndex + 2) + ",3]");
                 }
 
-                if (_ws.Cells[startIndex + 2, 11].Value2 != "Cartons")
+                if (_ws.Cells[startIndex + 2, 12].Value2 != "Cartons")
                 {
-                    throw new Exception("Column does not match the template. PLease check row " + (startIndex + 2) + " and make sure the column 'Cartons' is the 11th column");
+                    throw new Exception("Column does not match the template. PLease check row " + (startIndex + 2) + " and make sure the column 'Cartons' is the 12th column");
                 }
 
                 var currentValue = _ws.Cells[index, 1].Value2;

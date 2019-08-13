@@ -118,10 +118,11 @@
             var invoiceStatus;
             var searchBar = getUrlParameter('search');
 
-            $(".btn-wo-operation, #iframe-verifiedinfo").hide();
+            $(".btn-wo-operation, #iframe-verifiedinfo, .div-readme").hide();
             $(".iframe, #btn-update, #btn-release, #btn-ship").hide();
             $(".iframe-date").hide();
             $(".iframe-wo, .iframe-wo-office, .iframe-wo-warehouse, .iframe-detail, .iframe-wo-result, .iframe-detail-result").hide();
+            $(".div-readme.div-office.div-outbound").show();
 
             //动态获取Customer数据
             $.ajax({

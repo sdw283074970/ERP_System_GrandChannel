@@ -15,6 +15,8 @@ namespace ClothResorting.Models
 
         public string Style { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public string Color { get; set; }
 
         public string CustomerCode { get; set; }

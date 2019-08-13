@@ -146,7 +146,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var chargingList = _context.ChargingItemDetails
                     .Include(x => x.FBAMasterOrder)
                     .Where(x => x.FBAMasterOrder.Id == masterOrderId
-                        && x.Status != "N/A");
+                        && x.HandlingStatus != "N/A");
 
                 foreach(var c in chargingList)
                 {
@@ -315,6 +315,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 masterOrderInDb.UpdateLog = "Placed by " + _userName + " at " + DateTime.Now.ToString();
                 masterOrderInDb.Status = FBAStatus.Incoming;
             }
+            else if (operation == "Callback")
+            {
+                masterOrderInDb.Status = FBAStatus.Incoming;
+                masterOrderInDb.UpdateLog = "Callback by " + _userName + " at " + DateTime.Now.ToString();
+            }
             else if (operation == "Register")
             {
                 masterOrderInDb.Status = FBAStatus.Registered;
@@ -350,6 +355,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 else
                     throw new Exception("cannot mark an order as allocated before the goods are fully allocated.");
             }
+
             _context.SaveChanges();
         }
 

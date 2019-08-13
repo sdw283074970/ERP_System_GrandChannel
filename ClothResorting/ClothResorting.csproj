@@ -1744,6 +1744,10 @@
     <Compile Include="Migrations\201908091839056_AddedPalletizingInFBAMasterOrder.Designer.cs">
       <DependentUpon>201908091839056_AddedPalletizingInFBAMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201908122249403_AddedUPCNumberInGDSystem.cs" />
+    <Compile Include="Migrations\201908122249403_AddedUPCNumberInGDSystem.Designer.cs">
+      <DependentUpon>201908122249403_AddedUPCNumberInGDSystem.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3254,6 +3258,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201908091839056_AddedPalletizingInFBAMasterOrder.resx">
       <DependentUpon>201908091839056_AddedPalletizingInFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908122249403_AddedUPCNumberInGDSystem.resx">
+      <DependentUpon>201908122249403_AddedUPCNumberInGDSystem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

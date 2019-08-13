@@ -165,8 +165,9 @@
             var operation;
             var pageId;
 
-            $(".iframe-wo-warehouse, .iframe-wo-office, #div-rollback").hide();
+            $(".iframe-wo-warehouse, .iframe-wo-office, #div-rollback, .div-readme").hide();
             $(".iframe, .iframe-fbadate, .iframe-detail-result, .iframe-detail").hide();
+            $(".div-readme.div-office.div-inbound").show();
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -648,6 +649,12 @@
             //点击确认发布按钮，将收货单状态改为New Order，unload order发布到仓库端
             $("#btn-push").on("click", function () {
                 url = "/api/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=Push";
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
+            //点击callback按钮，召回已发布的订单
+            $("#table").on("click", ".btn-callback", function () {
+                url = "/api/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=CallBack";
                 grandChannel.sendAjaxMethod("PUT", url, {}, index);
             });
 

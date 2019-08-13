@@ -103,9 +103,10 @@
             var masterOrderId;
             var searchBar = grandChannel.getUrlParameter('search');
 
-            $(".iframe-wo-warehouse, .iframe-wo-office").hide();
+            $(".iframe-wo-warehouse, .iframe-wo-office, .div-readme").hide();
             $(".iframe-fbadate, .iframe-detail, .iframe-update").hide();
             $("#btn-update, #btn-report").hide();
+            $(".div-readme.div-warehouse.div-inbound").show();
 
             var columnsArray = [
                 {

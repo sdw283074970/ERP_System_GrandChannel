@@ -32,6 +32,7 @@
                     <th>Container</th>
                     <th>Ctn Range</th>
                     <th>Batch</th>
+                    <th>UPC #</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>Color</th>
@@ -39,6 +40,7 @@
                     <th>Size Bundle</th>
                     <th>Pcs Bundle</th>
                     <th>Status</th>
+                    <th>Org Ctns</th>
                     <th>TBA Ctns</th>
                     <th><input id="select-all" type="checkbox" value="12345" /></th>
                     <th>Cartons</th>
@@ -169,8 +171,8 @@
 
                         var location = $(this).val();
                         var id = $(this).attr('iid');
-                        var tbaCtns = $(this).parent().parent("tr").children('td').eq(11).children('font').html();
-                        var cartons = $(this).parent().parent("tr").children('td').eq(13).children('input').val();
+                        var tbaCtns = $(this).parent().parent("tr").children('td').eq(13).children('font').html();
+                        var cartons = $(this).parent().parent("tr").children('td').eq(15).children('input').val();
                         var container = $(this).parent().parent("tr").children('td').eq(1).children('text').html();
 
                         if (cartons == "") {
@@ -599,7 +601,6 @@
             }
 
             function GetDefaultTable(table) {
-
                 $.ajax({
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
@@ -662,6 +663,12 @@
                                         else {
                                             currentBatch = data;
                                         }
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "upcNumber",
+                                    render: function (data) {
                                         return "<text>" + data + "</text>";
                                     }
                                 },
@@ -730,6 +737,12 @@
                                         else {
                                             return "<font style='color:Orange'>" + data + "</font>";
                                         }
+                                    }
+                                },
+                                {
+                                    data: "actualCtns",
+                                    render: function (data) {
+                                        return "<font color='orange'>" + data + "</font>";
                                     }
                                 },
                                 {
@@ -865,6 +878,12 @@
                             }
                         },
                         {
+                            data: "upcNumber",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
                             data: "purchaseOrder",
                             render: function (data) {
 
@@ -929,6 +948,12 @@
                                 else {
                                     return "<font style='color:Orange'>" + data + "</font>";
                                 }
+                            }
+                        },
+                        {
+                            data: "actualCtns",
+                            render: function (data) {
+                                return "<font color='orange'>" + data + "</font>";
                             }
                         },
                         {
