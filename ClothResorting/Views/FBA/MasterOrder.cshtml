@@ -16,6 +16,9 @@
         <input id="btn-ship" type="button" class="btn btn-primary" value="Manage ship order" />
     </div>
     <div>
+        <input id="input-sku" class="input-sm" /><button id="btn-sku" class="btn btn-primary" style="margin-left:5px">Search FBA ID/SKU</button>
+    </div>
+    <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -24,16 +27,11 @@
                     <th>Inbound Type</th>
                     <th>Container Size</th>
                     <th>Container No.</th>
-                    <th>Total CBM</th>
-                    <th>Actual CBM</th>
                     <th>Total Ctns</th>
                     <th>Actual Ctns</th>
                     <th>Original Plts</th>
                     <th>Actual Plts</th>
                     <th>SKU #</th>
-                    @*<th>Actual Plts</th>*@
-                    <th>Inbound Date</th>
-                    <th>ETA</th>
                     <th>Total Amount</th>
                     <th>Invoice Status</th>
                     <th>Close Date</th>
@@ -43,7 +41,9 @@
                     <th>Status</th>
                     <th style="width:180px">Status Control</th>
                     <th style="width:200px">INSTRUCTION</th>
+                    <th style="width:80px">ETA</th>
                     <th style="width:80px">PUSH DATE</th>
+                    <th style="width:80px">INBOUND TIME</th>
                     <th style="width:80px">UNLOAD TIME</th>
                     <th style="width:80px">EPT CNTR AVA TIME</th>
                     <th style="width:80px">EPT CNTR OUT TIME</th>
@@ -72,12 +72,14 @@
                 <option value='FTL'>FTL</option>
                 <option value='LOOSE CTN'>LOOSE CTN</option>
                 <option value='OTHER'>SEE INSTRUCTION</option>
+                <option value='NA'>N/A</option>
             </select><br />
             <text>UNLOADING TYPE: </text>
             <select name="unloadingtype" id='select-unloadingtype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
                 <option value='DROPOFF'>DROP-OFF</option>
                 <option value='LIVE UNLOAD'>LIVE UNLOAD</option>
                 <option value='OTHER'>SEE INSTRUCTION</option>
+                <option value='NA'>N/A</option>
             </select><br />
             <text>STORAGE TYPE: </text>
             <select name="storagetype" id='select-storagetype' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
@@ -85,6 +87,7 @@
                 <option value='TRANSIT SHIPMENT'>TRANSIT SHIPMENT</option>
                 <option value='ECOMMERCE'>E-COMMERCE</option>
                 <option value='OTHER'>SEE INSTRUCTION</option>
+                <option value='NA'>N/A</option>
             </select><br />
             <text>PALLETIZING: </text>
             <select name="palletizing" id='select-palletizing' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required">
@@ -93,6 +96,7 @@
                 <option value='80'><=80'</option>
                 <option value='DOUBLE'>DOUBLE-STACK</option>
                 <option value='LOOSE OTHER'>SEE INSTRUCTION</option>
+                <option value='NA'>N/A</option>
             </select><br />
         </div>
         <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
@@ -321,7 +325,7 @@
             //点击费用按钮，进入收费项目登记页面
             $("#table").on("click", ".btn-fee", function () {
 
-                var tpStatus = $(this).parent().parent("tr").children('td').eq(15).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(11).children('text').html();
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")
@@ -654,8 +658,20 @@
 
             //点击callback按钮，召回已发布的订单
             $("#table").on("click", ".btn-callback", function () {
-                url = "/api/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=CallBack";
+                masterOrderId = $(this).attr('iid');
+                url = "/api/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=Callback";
                 grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
+            //点击搜索FBA ID/SKU，返回所有符合条件的主单
+            $("#btn-sku").on("click", function () {
+                var sku = $("#input-sku").val();
+
+                if (sku != "") {
+                    url = "/api/fbamasterorder/?sku=" + sku + "&orderType=MasterOrder";
+
+                    GetAjaxTable("GET", url);
+                }
             });
 
             function GetAjaxTable(methodType, url) {
@@ -717,18 +733,18 @@
                                         return "<text>" + data + "</text>";
                                     }
                                 },
-                                {
-                                    data: "totalCBM",
-                                    render: function (data) {
-                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "actualCBM",
-                                    render: function (data) {
-                                        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
-                                    }
-                                },
+                                //{
+                                //    data: "totalCBM",
+                                //    render: function (data) {
+                                //        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
+                                //    }
+                                //},
+                                //{
+                                //    data: "actualCBM",
+                                //    render: function (data) {
+                                //        return "<font color='green'>" + parseFloat(data.toFixed(2)) + "</font>";
+                                //    }
+                                //},
                                 {
                                     data: "totalCtns",
                                     render: function (data) {
@@ -758,21 +774,6 @@
                                     data: "skuNumber",
                                     render: function (data) {
                                         return "<font color='orange'>" + data + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "inboundDate",
-                                    render: function (data) {
-                                        if (data == "1900-01-01T00:00:00")
-                                            return "<font color='red'>Unreceived</font>"
-                                        else
-                                            return "<font>" + data.substring(0, 10) + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "eta",
-                                    render: function (data) {
-                                        return "<font>" + data + "</font>";
                                     }
                                 },
                                 {
@@ -869,11 +870,26 @@
                                     }
                                 },
                                 {
+                                    data: "eta",
+                                    render: function (data) {
+                                        return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
                                     data: "pushTime",
                                     render: function (data) {
                                         if (data == "1900-01-01T00:00:00")
                                             return "<font color='red'></font>"
                                         return "<text>" + data.substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "inboundDate",
+                                    render: function (data) {
+                                        if (data == "1900-01-01T00:00:00")
+                                            return "<font color='red'>Unreceived</font>"
+                                        else
+                                            return "<font>" + data.substring(0, 10) + "</font>";
                                     }
                                 },
                                 {

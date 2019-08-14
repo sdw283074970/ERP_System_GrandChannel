@@ -11,8 +11,8 @@
     <div>
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
-    <div id="div-create">
-        <button id="btn-create" class="btn btn-primary">Created a new ship order</button>
+    <div id="div-create" style="margin:5px">
+        <input id="input-sku" class="input-sm" /><button id="btn-sku" style="margin-left:5px;margin-right:5px" class="btn btn-primary">Search FBA ID/SKU</button><button id="btn-create" class="btn btn-primary">Created a new ship order</button>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
@@ -905,6 +905,17 @@
                 var chargingItemDetailId = $(this).attr('iid');
                 url = "/api/warehouseindex/?chargingItemDetailId=" + chargingItemDetailId + "&operation=Confirm";
                 SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
+            });
+
+            //点击搜索FBA ID/SKU，返回所有符合条件的主单
+            $("#btn-sku").on("click", function () {
+                var sku = $("#input-sku").val();
+
+                if (sku != "") {
+                    url = "/api/fbamasterorder/?sku=" + sku + "&orderType=ShipOrder";
+
+                    GetAjaxTable("GET", url, "#table", table, columnArray);
+                }
             });
 
             function GetAjaxTable(methodType, url, tableId, table, columsArray) {

@@ -165,13 +165,16 @@ namespace ClothResorting.Controllers.Api
                 context.FCRegularLocationDetails.Remove(locationInDb);
             }
 
-            //然后找到所有寄生箱对象，即找到在同一箱的其他size库存(range相同且可用箱数为0的对象)
+            //然后找到当前SKU所在库存位置的所有同箱对象，即找到在同一箱在这个库存中的所有其他size库存(range相同，包括其他的宿主SKU对象)
             var locationsInDb = context.FCRegularLocationDetails
                 .Include(x => x.RegularCaronDetail.POSummary.PreReceiveOrder)
                 .Where(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.Id == preId
                     && x.Batch == locationInDb.Batch
                     && x.CartonRange == locationInDb.CartonRange
-                    && x.Cartons == 0);
+                    && x.Location == locationInDb.Location
+                    && x.Id != locationInDb.Id);
+
+            var test = locationsInDb.ToList();
 
             foreach (var location in locationsInDb)
             {

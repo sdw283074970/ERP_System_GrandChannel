@@ -953,7 +953,12 @@
                         {
                             data: "actualCtns",
                             render: function (data) {
-                                return "<font color='orange'>" + data + "</font>";
+                                if (data != 0) {
+                                    return "<font color='orange'>" + data + "</font>";
+                                }
+                                else {
+                                    return "";
+                                }
                             }
                         },
                         {

@@ -99,6 +99,31 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(resultDto);
         }
 
+        // GET /api/fbamasterorder/?sku={sku}&orderType={orderType}
+        public IHttpActionResult GetOrdersBySKUQuery([FromUri]string sku, [FromUri]string orderType)
+        {
+            if (orderType == FBAOrderType.MasterOrder)
+            {
+                var result = _context.FBAMasterOrders
+                    .Include(x => x.FBAOrderDetails)
+                    .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
+                    .Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>);
+
+                return Ok(result);
+            }
+            else if (orderType == FBAOrderType.ShipOrder)
+            {
+                var result = _context.FBAShipOrders
+                    .Include(x => x.FBAPickDetails)
+                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
+                    .Select(Mapper.Map<FBAShipOrder, FBAShipOrderDto>);
+
+                return Ok(result);
+            }
+
+            return Ok();
+        }
+
         // GET /api/fbamasterorder/?masterOrderId={masterOrderId}&operation={operation}
         [HttpGet]
         public IHttpActionResult GetUnloadWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
@@ -317,7 +342,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (operation == "Callback")
             {
-                masterOrderInDb.Status = FBAStatus.Incoming;
+                masterOrderInDb.Status = FBAStatus.NewCreated;
                 masterOrderInDb.UpdateLog = "Callback by " + _userName + " at " + DateTime.Now.ToString();
             }
             else if (operation == "Register")
