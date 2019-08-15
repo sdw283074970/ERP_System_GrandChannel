@@ -18,6 +18,10 @@
                 <input id="location" style="width:100px" />
             </font>
             <font>
+                UPC #:
+                <input id="upc" style="width:100px" />
+            </font>
+            <font>
                 VENDER:
                 <input id="vender" style="width:100px" />
             </font>
@@ -74,6 +78,7 @@
             var vender;
             var po;
             var style;
+            var upc;
             var color;
             var size;
             var status;
@@ -83,6 +88,7 @@
             $("#btn-addloc").on("click", function () {
                 pLocation = $("#location").val();
                 vender = $("#vender").val();
+                upc = $("upc").val();
                 po = $("#purchaseorder").val();
                 style = $("#style").val();
                 color = $("#color").val();
@@ -99,6 +105,7 @@
                         "vender": vender,
                         "color": color,
                         "size": size,
+                        "upcNumber": upc,
                         "purchaseOrder": po.toString(),
                         "style": style.toString()
                     };

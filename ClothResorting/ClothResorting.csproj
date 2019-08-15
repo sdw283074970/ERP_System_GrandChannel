@@ -1748,6 +1748,10 @@
     <Compile Include="Migrations\201908122249403_AddedUPCNumberInGDSystem.Designer.cs">
       <DependentUpon>201908122249403_AddedUPCNumberInGDSystem.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201908142210402_AddedUPCNumberForPermanentSKU.cs" />
+    <Compile Include="Migrations\201908142210402_AddedUPCNumberForPermanentSKU.Designer.cs">
+      <DependentUpon>201908142210402_AddedUPCNumberForPermanentSKU.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2171,6 +2175,51 @@
     <Content Include="Scripts\DataTables\responsive.semanticui.js" />
     <Content Include="Scripts\DataTables\responsive.semanticui.min.js" />
     <Content Include="Scripts\dropzone.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.application.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.audiocapture.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.barcode.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.battery.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.bluetooth.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.camera.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.cardreader.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.configreadwrite.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.connectionchecking.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.database.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.database.sqlite3.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.device.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.devicememory.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.ekb.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.eznfc.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.instrumentation.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.intent.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.keycapture.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.keystate.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.log.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.logcapture.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.mediaplayer.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.nativemenubar.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.nativetabbar.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.nativetoolbar.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.navbar.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.network.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.notification.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.printer.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.printerzebra.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.remotenotification.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.rhofile.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.screenorientation.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.sensor.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.shortcutgenerator.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.signalindicators.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.signature.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.sip.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.smartcradle.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.system.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.system.process.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.timer.js" />
+    <Content Include="Scripts\EnterpriseBrowser\eb.webview.js" />
+    <Content Include="Scripts\EnterpriseBrowser\ebapi-modules.js" />
+    <Content Include="Scripts\EnterpriseBrowser\ebapi.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />
@@ -3261,6 +3310,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201908122249403_AddedUPCNumberInGDSystem.resx">
       <DependentUpon>201908122249403_AddedUPCNumberInGDSystem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908142210402_AddedUPCNumberForPermanentSKU.resx">
+      <DependentUpon>201908142210402_AddedUPCNumberForPermanentSKU.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

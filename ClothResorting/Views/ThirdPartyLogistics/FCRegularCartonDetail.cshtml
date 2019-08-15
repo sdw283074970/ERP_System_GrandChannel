@@ -11,6 +11,17 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <button id="btn-bulk" class="btn btn-primary">Receive Bulk Cartons</button>
     </div>
+    <div id="div-barcode" style="margin:10px">
+        <script type="text/javascript" charset="utf-8" src="~/Scripts/EnterpriseBrowser/ebapi-modules.js"></script>
+        <h1>
+            Barcode
+        </h1>
+        <div id=content>
+            <input id="scanData" type=text>
+            <input type=button value="Enable Scan" id="btn-enable">
+            <input type=button value="Disable Scan" id="btn-disable">
+        </div>
+    </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
@@ -411,6 +422,25 @@
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
             });
+
+            $("#btn-enablt").on("click", function () {
+                fnScanEnable();
+            });
+
+            function fnScanEnable() { 
+                EB.Barcode.enable({allDecoders:true},fnBarcodeScanned);
+                document.getElementById('scanData').value = "enabled: press HW trigger to capture.";
+            }
+
+            function fnBarcodeScanned(jsonObject) {
+                console.log("Barcode Scanned:{" + JSON.stringify(jsonObject) + "}");
+                document.getElementById('scanData').value = "barcode: " + jsonObject.data;
+            }
+
+            function fnScanDisable() {
+                EB.Barcode.disable();
+                document.getElementById('scanData').value = "disabled: press 'enable' to scan.";
+            }
         });
     </script>
 }

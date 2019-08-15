@@ -9,6 +9,8 @@ namespace ClothResorting.Models.ApiTransformModels
     {
         public string Location { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public string Vender { get; set; }
     }
 }

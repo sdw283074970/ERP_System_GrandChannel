@@ -110,6 +110,7 @@ namespace ClothResorting.Controllers.Api
             {
                 Location = obj.Location,
                 Vendor = obj.Vender,
+                UPCNumber = obj.UPCNumber,
                 PurchaseOrder = obj.PurchaseOrder,
                 Style = obj.Style,
                 Color = obj.Color,
@@ -124,6 +125,7 @@ namespace ClothResorting.Controllers.Api
                     && x.Vendor == obj.Vender
                     && x.Style == obj.Style
                     && x.Color == obj.Color
+                    && x.UPCNumber == obj.UPCNumber
                     && x.Size == obj.Size)
                 .ToList();
 
