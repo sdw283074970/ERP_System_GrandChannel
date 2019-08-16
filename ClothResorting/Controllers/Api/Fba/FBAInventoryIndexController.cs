@@ -53,15 +53,25 @@ namespace ClothResorting.Controllers.Api.Fba
             //downloadHandler.Invoke(downloadSourcePath, customerCode + " Inventory Report", ".xls");
         }
 
-        // GET /api/fba/fbainventoryindex/?closeDate={closeDate}
+        // GET /api/fba/fbainventoryindex/?customerCode={customerCode}&closeDate={closeDate}
         [HttpGet]
-        public IHttpActionResult GetRemainCustomerList([FromUri]string closeDate)
+        public IHttpActionResult GetRemainCustomerList([FromUri]string customerCode, [FromUri]DateTime closeDate)
         {
             var helper = new FBAInventoryHelper();
+            if (customerCode == "ALL")
+            {
+                var customerInventoryList = helper.ReturnNonZeroCBMInventoryInfo(closeDate);
 
-            var customerInventoryList = helper.ReturnNonZeroCBMInventoryInfo(closeDate);
+                return Ok(customerInventoryList);
+            }
+            else
+            {
+                var list = new List<FBAInventoryInfo>();
+                var result = helper.ReturnInventoryInfoByCustomerCode(customerCode, closeDate);
+                list.Add(result);
 
-            return Ok(customerInventoryList);
+                return Ok(list);
+            }
         }
     }
 }

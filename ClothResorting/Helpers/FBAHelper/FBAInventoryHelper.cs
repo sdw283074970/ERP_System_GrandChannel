@@ -67,7 +67,7 @@ namespace ClothResorting.Helpers.FBAHelper
             //获取在指定日期前入库的托盘库存列表
             var palletLocationsInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder.Customer)
-                .Include(x => x.FBAPickDetails)
+                .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
                 .Where(x => x.FBAMasterOrder.InboundDate <= rCloseDate 
                     && x.FBAMasterOrder.InboundDate >= minDate
                     && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
@@ -122,11 +122,12 @@ namespace ClothResorting.Helpers.FBAHelper
             }
 
             //计算原有托盘数减去所有发出的托盘数
-            foreach(var plt in palletLocationsInDb)
+            foreach(var plt in palletLocationsList)
             {
                 foreach(var pick in plt.FBAPickDetails)
                 {
-                    plt.ActualPlts -= pick.PltsFromInventory;
+                    if (pick.FBAShipOrder.ShipDate < rCloseDate && pick.FBAShipOrder.ShipDate.Year != 1900)
+                        plt.ActualPlts -= pick.PltsFromInventory;
                 }
             }
 
@@ -207,17 +208,17 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //返回库存CBM不为0的FBA客户列表
-        public IList<FBAInventoryInfo> ReturnNonZeroCBMInventoryInfo(string closeDate)
+        public IList<FBAInventoryInfo> ReturnNonZeroCBMInventoryInfo(DateTime closeDate)
         {
-            DateTime closeDateInDateTime;
-            DateTime.TryParseExact(closeDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out closeDateInDateTime);
+            //DateTime closeDateInDateTime;
+            //DateTime.TryParseExact(closeDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out closeDateInDateTime);
 
             var customerCodeList = _context.UpperVendors.Where(x => x.DepartmentCode == "FBA").Select(x => x.CustomerCode).ToList();
             var resultList = new List<FBAInventoryInfo>();
 
             foreach(var code in customerCodeList)
             {
-                var info = GetFBAInventoryResidualInfo(code, closeDateInDateTime);
+                var info = GetFBAInventoryResidualInfo(code, closeDate);
                 if (info.FBAResidualInventories.Count != 0)
                 {
                     resultList.Add(info);
@@ -225,6 +226,13 @@ namespace ClothResorting.Helpers.FBAHelper
             }
 
             return resultList;
+        }
+
+        public FBAInventoryInfo ReturnInventoryInfoByCustomerCode(string customerCode, DateTime closeDate)
+        {
+            var info = GetFBAInventoryResidualInfo(customerCode, closeDate);
+
+            return info;
         }
 
         public string CombineLocation(IList<string> locationList)

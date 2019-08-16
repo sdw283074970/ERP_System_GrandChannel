@@ -13,7 +13,10 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" /><button id="btn-inspect" class="btn btn-primary">Inspect</button>
+        <text>Customer Code: </text><input id="input-customer" class="input-sm" style="margin-top:20px;width:170px" placeholder="Optional" />
+        <text>Close Date(Include): </text><input id="input-date" type="date" class="input-sm" style="margin-top:20px;width:170px" />
+        <button id="btn-inspect" class="btn btn-primary">Inspect</button><br />
+        <font color="red">*If Customer Code is empty, the system will return all customer's inventory.</font>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
@@ -40,13 +43,19 @@
             var url;
             var table;
             var closeDate;
+            var customerCode;
 
             $("#btn-inspect").on("click", function () {
                 closeDate = $("#input-date").val();
+                customerCode = $("#input-customer").val();
+
+                if (customerCode == "") {
+                    customerCode = "ALL";
+                }
 
                 if (closeDate != "")
                 {
-                    url = "/api/fba/fbainventoryindex/?closeDate=" + closeDate;
+                    url = "/api/fba/fbainventoryindex/?customerCode=" + customerCode + "&closeDate=" + closeDate;
                     var columsArray = [
                         {
                             data: "customer",

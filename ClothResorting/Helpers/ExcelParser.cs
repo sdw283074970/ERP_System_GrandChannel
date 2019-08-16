@@ -72,7 +72,7 @@ namespace ClothResorting.Helpers
                     var style = _ws.Cells[i, 3].Value2.ToString();
                     var customer = _ws.Cells[i, 4].Value2.ToString();
                     var colorCode = _ws.Cells[i, 9].Value2.ToString();
-                    var color = _ws.Cells[i, 10].Value2.ToString();
+                    var color = _ws.Cells[i, 11].Value2.ToString();
                     var cartons = (int)_ws.Cells[i, 12].Value2;
                     var upcNumber = _ws.Cells[i, 10].Value2 == null ? "NA" : _ws.Cells[i, 10].Value2.ToString();
 
