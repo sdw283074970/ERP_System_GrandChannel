@@ -13,6 +13,7 @@ using ClothResorting.Helpers;
 
 namespace ClothResorting.Controllers.Api
 {
+    [AllowAnonymous]
     public class FCPurchaseOrderOverviewController : ApiController
     {
         private ApplicationDbContext _context;

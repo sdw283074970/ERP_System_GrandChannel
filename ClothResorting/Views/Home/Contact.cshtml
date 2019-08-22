@@ -25,6 +25,9 @@
             <input type=button value="Enable Scan">
             <input type=button value="Disable Scan">
         </div>
+        <div>
+            <button id="btn-test" class="btn btn-primary">TEST</button>
+        </div>
     </body>
 </html>
 
@@ -39,3 +42,40 @@
     <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
     <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
 </address>
+@section scripts
+{
+    <script>
+    $(document).ready(function () {
+        var index;
+        var table;
+        var url;
+
+        $("#btn-test").on("click", function () {
+            url = "/api/barcode/?operation=test";
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                beforeSend: function () {
+                    layer.close(index);
+                    pIndex = layer.msg('Processing...', {
+                        icon: 3,
+                        shade: 0.01,
+                        time: 99 * 1000
+                    });
+                },
+                success: function (data) {
+                    alert(data);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+        });
+    });
+    </script>
+}

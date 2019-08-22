@@ -498,20 +498,22 @@
                 $(".input-pickcarton").each(function (i) {
                     var availableCtns = $(this).parent().parent("tr").children('td').eq(10).children('font').html();
                     var sku = $(this).parent().parent("tr").children('td').eq(4).children('font').html();
-                    if ($(this).val() != "" && parseInt($(this).val()) <= parseInt(availableCtns)) {
-                        if ($(this).val() != "") {
-                            var obj = {
-                                "id": $(this).attr('iid'),
-                                "quantity": $(this).val()
-                            };
+                    if ($(this).val() != "") {
+                        if (parseInt($(this).val()) <= parseInt(availableCtns)) {
+                            if ($(this).val() != "") {
+                                var obj = {
+                                    "id": $(this).attr('iid'),
+                                    "quantity": $(this).val()
+                                };
 
-                            objArray.push(obj);
+                                objArray.push(obj);
+                            }
                         }
-                    }
-                    else 
-                    {
-                        isVaild = false;
-                        alert("请检查SKU " + sku + " 拣货数量是否充足。");
+                        else 
+                        {
+                            isVaild = false;
+                            alert("请检查SKU " + sku + " 拣货数量是否充足。");
+                        }
                     }
                 });
 

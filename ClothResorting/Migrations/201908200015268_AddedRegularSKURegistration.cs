@@ -1,0 +1,31 @@
+namespace ClothResorting.Migrations
+{
+    using System;
+    using System.Data.Entity.Migrations;
+    
+    public partial class AddedRegularSKURegistration : DbMigration
+    {
+        public override void Up()
+        {
+            CreateTable(
+                "dbo.RegularSKURegistrations",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Customer = c.String(),
+                        UPCNumber = c.String(),
+                        Style = c.String(),
+                        Color = c.String(),
+                        Size = c.String(),
+                        SizeNumber = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+        }
+        
+        public override void Down()
+        {
+            DropTable("dbo.RegularSKURegistrations");
+        }
+    }
+}

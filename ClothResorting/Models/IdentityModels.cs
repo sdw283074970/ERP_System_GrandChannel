@@ -61,6 +61,8 @@ namespace ClothResorting.Models
         public DbSet<OutboundHistory> OutboundHistories { get; set; }
         public DbSet<PermanentSKU> PermanentSKUs { get; set; }
         public DbSet<NameCrossReference> NameCrossReferences { get; set; }
+        public DbSet<RegularSKURegistration> RegularSKURegistrations { get; set; }
+
 
         //FBA
         public DbSet<FBAMasterOrder> FBAMasterOrders { get; set; }

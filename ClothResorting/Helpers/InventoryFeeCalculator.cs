@@ -40,7 +40,7 @@ namespace ClothResorting.Helpers
             var chargeMethodsList = chargeMethods.OrderBy(x => x.From).ToList();
 
             _ws = _wb.Worksheets[1];
-            var countOfEntries = 0;
+            var countOfEntries = 0; //待收费条目数量
             var index = 2;
 
             _ws.Cells[1, 11] = timeUnit + "s Stored in Billing Period";
@@ -73,11 +73,11 @@ namespace ClothResorting.Helpers
                 _ws.Cells[i + 2, 11] = storedDuration;
                 _ws.Cells[i + 2, 12] = startTimeUnit;
 
-                //查找应该从第几个时间单位开始计费(查找开始计费的时间落在哪个计费区域)
+                //查找应该从第几个时间单位开始计费(查找开始计费的时间落在哪个计费区间)
                 int starIndex = 0;
                 for(int k = 0; k < chargeMethodsList.Count(); k++)
                 {
-                    if (startTimeUnit >= chargeMethodsList[k].From && startTimeUnit <=chargeMethodsList[k].To)
+                    if (startTimeUnit >= chargeMethodsList[k].From && startTimeUnit <= chargeMethodsList[k].To)
                     {
                         starIndex = k;
                         break;

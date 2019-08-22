@@ -67,15 +67,16 @@
     </div>
 </div>
 <div class="iframe-create" style="margin-top:20px;margin-right:20px;text-align:right">
+    <h3>Create PO/PLT</h3>
     <text>Purchase Order: </text><input id='input-po' style='width:170px' class='input-sm' placeholder='Cut PO' /><br />
-    <text>Select PO Type: </text><select id='select-ordertype' style='width:170px;height:30px'>
+    <text>Select PO Type: </text><select id='select-ordertype' class="input-sm" style='width:170px;height:30px;margin-top:10px'>
         <option value='Pre-pack'>Pre-pack</option>
         <option value='Solid Pack' style='width:170px;height:30px'>Solid Pack</option>
         <option value='Mix' style='width:170px;height:30px'>Mix</option>
     </select><br />
-    <text>Style: </text><input id='input-style' style='width:170px' class='input-sm' placeholder='Style' /><br />
-    <text>PO Line: </text><input id='input-poline' style='width:170px' class='input-sm' placeholder='PO Line' /><br />
-    <text>Customer: </text><input id='input-customer' style='width:170px' class='input-sm' placeholder='Customer' /><br />
+    <text>Style: </text><input id='input-style' style='width:170px;margin-top:10px' class='input-sm' placeholder='Style' /><br />
+    <text>PO Line/PLT No.: </text><input type="number" id='input-poline' style='width:170px;margin-top:10px' class='input-sm' placeholder='PO Line/PLT No.' /><br />
+    <text>Vendor's customer: </text><input id='input-customer' style='width:170px;margin-top:10px' class='input-sm' placeholder='Customer' /><br />
     <button id="btn-add" class='btn btn-primary' style="margin-top:10px">Add</button>
 </div>
 @section scripts
@@ -501,7 +502,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["300px", "250px"],
+                    area: ["350px", "320px"],
                     content: $(".iframe-create")
                 });
                 button.replaceWith("<div><div>");
@@ -515,6 +516,8 @@
                 var poLine = $("#input-poline").val();
                 var customer = $("#input-customer").val();
 
+                alert(poLine);
+
                 if (purchaseOrder == "" || style == "" || poLine == "" || customer == "") {
                     alert("All fields are required.");
                 }
@@ -524,7 +527,7 @@
                         "purchaseOrder": purchaseOrder.toString(),
                         "style": style.toString(),
                         "orderType": orderType.toString(),
-                        "pOLine": poLine,
+                        "poLine": poLine,
                         "customer": customer.toString(),
                         "vendor": vendor
                     };

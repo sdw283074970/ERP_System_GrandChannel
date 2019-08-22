@@ -372,6 +372,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\Api\AdjustedHistoryController.cs" />
     <Compile Include="Controllers\Api\AdjustmentDetailController.cs" />
+    <Compile Include="Controllers\Api\BarcodeController.cs" />
     <Compile Include="Controllers\Api\BulkPOSummaryController.cs" />
     <Compile Include="Controllers\Api\CartonBreakdownActualReceivedCartonController.cs" />
     <Compile Include="Controllers\Api\CartonDetailConfirmationController.cs" />
@@ -401,6 +402,7 @@
     <Compile Include="Controllers\Api\InvoiceManagementController.cs" />
     <Compile Include="Controllers\Api\OnlineFixController.cs" />
     <Compile Include="Controllers\Api\QuickBooksOnlineOAuthController.cs" />
+    <Compile Include="Controllers\Api\UploadBatchScanResultsController.cs" />
     <Compile Include="Controllers\Api\UpperVendorController.cs" />
     <Compile Include="Controllers\Api\FCPurchaseOrderOverviewController.cs" />
     <Compile Include="Controllers\Api\FCReceivingReportController.cs" />
@@ -522,6 +524,7 @@
     <Compile Include="Helpers\QBOServiceManager.cs" />
     <Compile Include="Helpers\QBOUrlGenerator.cs" />
     <Compile Include="Helpers\Checker.cs" />
+    <Compile Include="Helpers\ScannerManager.cs" />
     <Compile Include="Helpers\StringParser.cs" />
     <Compile Include="Helpers\WebServiceManager.cs" />
     <Compile Include="Helpers\ShipOrderManager.cs" />
@@ -1752,6 +1755,10 @@
     <Compile Include="Migrations\201908142210402_AddedUPCNumberForPermanentSKU.Designer.cs">
       <DependentUpon>201908142210402_AddedUPCNumberForPermanentSKU.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201908200015268_AddedRegularSKURegistration.cs" />
+    <Compile Include="Migrations\201908200015268_AddedRegularSKURegistration.Designer.cs">
+      <DependentUpon>201908200015268_AddedRegularSKURegistration.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1852,6 +1859,7 @@
     <Compile Include="Models\QBOModels\InvoiceCreateRequestBody.cs" />
     <Compile Include="Models\QBOModels\ItemCreateRequestModel.cs" />
     <Compile Include="Models\QBOModels\ItemResponseBody.cs" />
+    <Compile Include="Models\RegularSKURegistration.cs" />
     <Compile Include="Models\ReplenishmentLocationDetail.cs" />
     <Compile Include="Models\PickDetail.cs" />
     <Compile Include="Models\POSummary.cs" />
@@ -3269,6 +3277,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201908142210402_AddedUPCNumberForPermanentSKU.resx">
       <DependentUpon>201908142210402_AddedUPCNumberForPermanentSKU.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908200015268_AddedRegularSKURegistration.resx">
+      <DependentUpon>201908200015268_AddedRegularSKURegistration.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
