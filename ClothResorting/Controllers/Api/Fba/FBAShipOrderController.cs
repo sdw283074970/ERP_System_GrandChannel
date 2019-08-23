@@ -163,6 +163,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.BOLNumber = obj.BOLNumber;
             shipOrder.Carrier = obj.Carrier;
             shipOrder.ETS = obj.ETS;
+            shipOrder.BatchNumber = obj.BatchNumber;
             shipOrder.ETSTimeRange = obj.TimeRange;
             shipOrder.PickNumber = obj.PickNumber;
             shipOrder.PurchaseOrderNumber = obj.PurchaseOrderNumber;
@@ -238,6 +239,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrderInDb.Carrier = obj.Carrier;
             shipOrderInDb.BOLNumber = obj.BOLNumber;
             shipOrderInDb.ETS = obj.ETS;
+            shipOrderInDb.BatchNumber = obj.BatchNumber;
             shipOrderInDb.ETSTimeRange = obj.TimeRange;
             shipOrderInDb.PickNumber = obj.PickNumber;
             shipOrderInDb.PurchaseOrderNumber = obj.PurchaseOrderNumber;
@@ -911,6 +913,8 @@ namespace ClothResorting.Controllers.Api.Fba
     public class ShipOrderDto
     {
         public string ShipOrderNumber { get; set; }
+
+        public string BatchNumber { get; set; }
 
         public string CustomerCode { get; set; }
 

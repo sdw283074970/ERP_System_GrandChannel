@@ -12,6 +12,8 @@ namespace ClothResorting.Models.FBAModels
 
         public int CtnsPerPlt { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public int PickableCtns { get; set; }
 
         public string Location { get; set; }

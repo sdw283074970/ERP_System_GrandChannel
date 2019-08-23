@@ -12,6 +12,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string ShipOrderNumber { get; set; }
 
+        public string BatchNumber { get; set; }
+
         public string CustomerCode { get; set; }
 
         public string OrderType { get; set; }

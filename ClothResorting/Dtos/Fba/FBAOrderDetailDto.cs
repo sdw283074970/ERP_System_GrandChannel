@@ -12,6 +12,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float GrossWeight { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public float CBM { get; set; }
 
         public int Quantity { get; set; }

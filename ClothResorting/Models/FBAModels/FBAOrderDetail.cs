@@ -14,6 +14,8 @@ namespace ClothResorting.Models.FBAModels
 
         public float CBM { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public int Quantity { get; set; }
 
         public string Remark { get; set; }

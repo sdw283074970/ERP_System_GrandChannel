@@ -20,7 +20,8 @@
                 <tr>
                     <th style="width:39px">Id</th>
                     <th style="width:70px">Status</th>
-                    <th>Ship Order #</th>
+                    <th style="width:120px">Ship Order #</th>
+                    <th style="width:60px">Batch #</th>
                     <th>Customer Code</th>
                     <th>Destination</th>
                     <th style="width:80px">ETS</th>
@@ -50,7 +51,7 @@
 <div class="iframe">
     <h2 id="h2-title"></h2>
     <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
-        <text>Ship Order Number: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Required' /><br />
+        <text>Ship Order #: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Required' /><br />
         <text>Customer Code: </text><select id='select-customercode' class='select-vendor' style='width:170px;height:30px;margin-top:20px' required='required'>
             <option value='NULL'>Please select a code</option>
         </select><br />
@@ -63,6 +64,7 @@
         <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
         <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
         <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
+        <text>Batch #: </text><input id='input-batch' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
     </div>
     <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
         <text>BOL #: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
@@ -183,6 +185,14 @@
                     data: "shipOrderNumber",
                     render: function (data) {
                         shipOrder = data;
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "batchNumber",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
                         return "<text>" + data + "</text>";
                     }
                 },
@@ -410,6 +420,7 @@
                 var pickReference = $("#input-reference").val();
                 var bol = $("#input-bol").val();
                 var carrier = $("#input-carrier").val();
+                var batchNumber = $("#input-batch").val();
                 var ets = $("#input-ets").val();
                 var timeRange = $("#input-range").val();
                 var pickNumber = $("#input-pick").val();
@@ -433,7 +444,8 @@
                         "timeRange": timeRange.toString(),
                         "pickNumber": pickNumber.toString(),
                         "purchaseOrderNumber": purchaseOrderNumber.toString(),
-                        "instruction": instruction.toString()
+                        "instruction": instruction.toString(),
+                        "batchNumber": batchNumber.toString()
                     }
                     $.ajax({
                         type: "POST",
@@ -458,7 +470,7 @@
             $("#table").on("click", ".btn-fee", function () {
 
                 shipOrderId = shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
-                var tpStatus = $(this).parent().parent("tr").children('td').eq(9).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")
@@ -632,6 +644,7 @@
                         $("#input-reference").val(data.pickReference);
                         $("#input-bol").val(data.bolNumber);
                         $("#input-carrier").val(data.carrier);
+                        $("#input-batch").val(data.batchNumber);
                         $("#input-ets").val(data.ets.toString().substring(0, 10));
                         $("#input-range").val(data.etsTimeRange);
                         $("#input-pick").val(data.pickNumber);
@@ -663,6 +676,7 @@
                 var pickReference = $("#input-reference").val();
                 var bol = $("#input-bol").val();
                 var carrier = $("#input-carrier").val();
+                var batchNumber = $("#input-batch").val();
                 var ets = $("#input-ets").val();
                 var timeRange = $("#input-range").val();
                 var pickNumber = $("#input-pick").val();
@@ -686,7 +700,8 @@
                         "timeRange": timeRange.toString(),
                         "pickNumber": pickNumber.toString(),
                         "purchaseOrderNumber": purchaseOrderNumber.toString(),
-                        "instruction": instruction.toString()
+                        "instruction": instruction.toString(),
+                        "batchNumber": batchNumber.toString()
                     }
                     $.ajax({
                         type: "PUT",

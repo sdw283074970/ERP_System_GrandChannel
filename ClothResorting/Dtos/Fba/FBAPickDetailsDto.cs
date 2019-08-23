@@ -12,6 +12,8 @@ namespace ClothResorting.Dtos.Fba
 
         public int CtnsPerPlt { get; set; }
 
+        public string UPCNumber { get; set; }
+
         public string Location { get; set; }
 
         public int ActualPlts { get; set; }

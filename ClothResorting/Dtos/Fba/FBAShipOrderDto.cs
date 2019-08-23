@@ -13,6 +13,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string CustomerCode { get; set; }
 
+        public string BatchNumber { get; set; }
+
         public string OrderType { get; set; }
 
         public string Destination { get; set; }
