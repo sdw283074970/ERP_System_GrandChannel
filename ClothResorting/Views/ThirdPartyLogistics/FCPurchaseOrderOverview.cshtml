@@ -11,7 +11,7 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <input type="button" class="btn btn-primary btn-upload" value="Upload Packing List" />
         <input type="button" class="btn btn-primary btn-download" value="Download Packing List Template" />
-        <button id="btn-bulk" class="btn btn-info">Create Bulk PO Summary</button>
+        <button id="btn-bulk" class="btn btn-info">Create New Batch</button>
         <input id="btn-allocate" type="button" class="btn btn-info" value="Allocate location" />
         <input id="btn-location" type="button" class="btn btn-info" value="View inventory" />
         <input id="btn-rcvall" type="button" class="btn btn-default btn-danger" value="Receiving all without problem." />
@@ -21,15 +21,15 @@
             <thead>
                 <tr>
                     <th><input id="select-all" type="checkbox" value="0" /></th>
-                    <th>Id</th>
-                    <th>Container</th>
+                    <th>Batch Id</th>
+                    <th>Container #</th>
                     <th>Vendor</th>
-                    <th>Batch</th>
+                    <th>Batch #</th>
                     <th>Created By</th>
                     <th>PO</th>
                     <th>Style</th>
                     <th>PO Type</th>
-                    <th>PO Line</th>
+                    <th>PO Line/Plt #</th>
                     <th>Customer</th>
                     <th>Quantity</th>
                     <th>Received Pcs</th>
@@ -72,7 +72,7 @@
     <text>Select PO Type: </text><select id='select-ordertype' class="input-sm" style='width:170px;height:30px;margin-top:10px'>
         <option value='Pre-pack'>Pre-pack</option>
         <option value='Solid Pack' style='width:170px;height:30px'>Solid Pack</option>
-        <option value='Mix' style='width:170px;height:30px'>Mix</option>
+        <option value='MIX' style='width:170px;height:30px'>Mix</option>
     </select><br />
     <text>Style: </text><input id='input-style' style='width:170px;margin-top:10px' class='input-sm' placeholder='Style' /><br />
     <text>PO Line/PLT No.: </text><input type="number" id='input-poline' style='width:170px;margin-top:10px' class='input-sm' placeholder='PO Line/PLT No.' /><br />
@@ -250,10 +250,10 @@
                                 data: "id",
                                 render: function (data) {
                                     if (quantity == 0) {
-                                        return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>";
+                                        return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?batchId=" + data + "&vendor=" + vendor + "'><button class='btn btn-link'>Receiving</button></a><button id='" + data + "' class='btn btn-link btn-delete'>Delete</button><br>";
                                     }
                                     else {
-                                        return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?" + data + "'><button class='btn btn-link'>Receiving</button></a>";
+                                        return "<a href='/ThirdPartyLogistics/fcRegularCartonDetail/?batchId=" + data + "&vendor=" + vendor + "'><button class='btn btn-link'>Receiving</button></a>";
                                     }
                                 }
                             }
@@ -515,8 +515,6 @@
                 var orderType = $("#select-ordertype option:selected").val();
                 var poLine = $("#input-poline").val();
                 var customer = $("#input-customer").val();
-
-                alert(poLine);
 
                 if (purchaseOrder == "" || style == "" || poLine == "" || customer == "") {
                     alert("All fields are required.");

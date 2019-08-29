@@ -9,7 +9,7 @@ using System.Data.Entity;
 
 namespace ClothResorting.Controllers.Api
 {
-    public class UploadBatchScanResultsController : ApiController
+    public class RegisteredRegularSKUController : ApiController
     {
         private ApplicationDbContext _context;
         private int _registeredItemAdded;
@@ -18,7 +18,7 @@ namespace ClothResorting.Controllers.Api
         private int _unregisteredItemDeducted;
         private int _totalOrgPcs;
 
-        public UploadBatchScanResultsController()
+        public RegisteredRegularSKUController()
         {
             _context = new ApplicationDbContext();
             _registeredItemAdded = 0;
@@ -27,9 +27,26 @@ namespace ClothResorting.Controllers.Api
             _unregisteredItemDeducted = 0;
         }
 
-        // POST /api/uploadbatchScanResults/?batchId={batchId}&container={container}&operation={operation}
+        // GET /api/RegisteredRegularSKU/?vendor={vendor}&upc={upc}
+        [HttpGet]
+        public IHttpActionResult GetUPCInfo([FromUri]string vendor, [FromUri]string upc)
+        {
+            var resultStr = string.Empty;
+            var upcInDb = _context.RegularSKURegistrations
+                .SingleOrDefault(x => x.Customer == vendor
+                    && x.UPCNumber == upc);
+
+            if (upcInDb != null)
+                resultStr = upcInDb.UPCNumber + ";" + upcInDb.Style + ";" + upcInDb.Color + ";" + upcInDb.Size;
+            else
+                resultStr = upc + ";;;";
+
+            return Ok(resultStr);
+        }
+
+        // POST /api/RegisteredRegularSKU/?batchId={batchId}&container={container}&cartonRange={cartonRange}&operation={operation}
         [HttpPost]
-        public IHttpActionResult CreateBatchSKUItems([FromUri]int batchId, [FromUri]string container, [FromUri]string operation, [FromBody]IEnumerable<UPCItem> items)
+        public IHttpActionResult CreateBatchSKUItems([FromUri]int batchId, [FromUri]string container, [FromUri]string cartonRange, [FromUri]string operation, [FromBody]IEnumerable<UPCItem> items)
         {
             var poSummaryInDb = _context.POSummaries
                 .Include(x => x.PreReceiveOrder.UpperVendor)
@@ -44,11 +61,11 @@ namespace ClothResorting.Controllers.Api
             _totalOrgPcs = items.Count();
 
             var registeredSKU = _context.RegularSKURegistrations.ToList();
-            var newItemList = GenerateNewItemList(poSummaryInDb, registeredSKU, items);
+            var newItemList = GenerateNewItemList(poSummaryInDb, registeredSKU, cartonRange, items);
 
             if (operation == "Add")
             {
-                var list = MergePltItems(_context, poSummaryInDb, newItemList, "Add");
+                var list = MergePltItems(_context, poSummaryInDb, newItemList, cartonRange, "Add");
                 _context.RegularCartonDetails.AddRange(list);
                 _context.SaveChanges();
 
@@ -56,7 +73,7 @@ namespace ClothResorting.Controllers.Api
             }
             else if (operation == "Minus")
             {
-                var list = MergePltItems(_context, poSummaryInDb, newItemList, "Minus");
+                var list = MergePltItems(_context, poSummaryInDb, newItemList, cartonRange, "Minus");
                 _context.RegularCartonDetails.AddRange(list);
                 _context.SaveChanges();
 
@@ -68,14 +85,14 @@ namespace ClothResorting.Controllers.Api
             return Ok("No operation applied.");
         }
 
-        IList<RegularCartonDetail> GenerateNewItemList(POSummary poSummaryInDb, IEnumerable<RegularSKURegistration> registeredSKU, IEnumerable<UPCItem> items)
+        IList<RegularCartonDetail> GenerateNewItemList(POSummary poSummaryInDb, IEnumerable<RegularSKURegistration> registeredSKU, string cartonRange, IEnumerable<UPCItem> items)
         {
             var newItemList = new List<RegularCartonDetail>();
 
             foreach (var i in items)
             {
                 var refItem = registeredSKU.FirstOrDefault(x => x.UPCNumber == i.UPCNumber);
-                var itemInList = newItemList.SingleOrDefault(x => x.UPCNumber == i.UPCNumber);
+                var itemInList = newItemList.SingleOrDefault(x => x.UPCNumber == i.UPCNumber && x.CartonRange == cartonRange);
 
                 if (refItem == null)
                 {
@@ -93,7 +110,7 @@ namespace ClothResorting.Controllers.Api
                             UPCNumber = i.UPCNumber,
                             Receiver = "SCAN",
                             Batch = poSummaryInDb.Batch,
-                            CartonRange = poSummaryInDb.PoLine.ToString(),
+                            CartonRange = cartonRange,
                             Customer = "SCAN",
                             PurchaseOrder = poSummaryInDb.PurchaseOrder,
                             Style = "NA",
@@ -122,7 +139,7 @@ namespace ClothResorting.Controllers.Api
                             UPCNumber = i.UPCNumber,
                             Receiver = "SCAN",
                             Batch = poSummaryInDb.Batch,
-                            CartonRange = poSummaryInDb.PoLine.ToString(),
+                            CartonRange = cartonRange,
                             Customer = "SCAN",
                             PurchaseOrder = poSummaryInDb.PurchaseOrder,
                             Style = refItem.Style,
@@ -140,7 +157,7 @@ namespace ClothResorting.Controllers.Api
             return newItemList;
         }
 
-        IList<RegularCartonDetail> MergePltItems(ApplicationDbContext context, POSummary poSummaryInDb, IList<RegularCartonDetail> newItemList, string operation)
+        IList<RegularCartonDetail> MergePltItems(ApplicationDbContext context, POSummary poSummaryInDb, IList<RegularCartonDetail> newItemList, string cartonRange, string operation)
         {
             var regularCartionDetailsInDb = context.RegularCartonDetails
                 .Include(x => x.POSummary)
@@ -149,7 +166,7 @@ namespace ClothResorting.Controllers.Api
             for(int i = 0; i < newItemList.Count(); i++)
             {
                 var upc = newItemList[i].UPCNumber;
-                var itemInDb = regularCartionDetailsInDb.SingleOrDefault(x => x.UPCNumber == upc);
+                var itemInDb = regularCartionDetailsInDb.SingleOrDefault(x => x.UPCNumber == upc && x.CartonRange == cartonRange);
 
                 if (itemInDb != null)
                 {
@@ -171,6 +188,8 @@ namespace ClothResorting.Controllers.Api
                     }
                     i -= 1;
                 }
+                //没有找到已存在的item就不操作
+                else { }
             }
 
             //foreach (var item in newItemList)

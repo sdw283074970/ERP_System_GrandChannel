@@ -11,17 +11,6 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
         <button id="btn-bulk" class="btn btn-primary">Receive Bulk Cartons</button>
     </div>
-    <div id="div-barcode" style="margin:10px">
-        <script type="text/javascript" charset="utf-8" src="~/Scripts/Customized/ebapi.js"></script>
-        <h1>
-            Barcode
-        </h1>
-        <div id=content>
-            <input id="scanData" type=text>
-            <input type=button value="Enable Scan" id="btn-enable">
-            <input type=button value="Disable Scan" id="btn-disable">
-        </div>
-    </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped">
             <thead>
@@ -29,8 +18,8 @@
                     <th>Id</th>
                     <th>UPC #</th>
                     <th>Received By</th>
-                    <th>Batch</th>
-                    <th>Range</th>
+                    <th>Batch #</th>
+                    <th>Ctn Range</th>
                     <th>Customer</th>
                     <th>PO</th>
                     <th>Order Type</th>
@@ -67,12 +56,27 @@
     <text>Pack: <input id='input-pack' style='width:170px' class='input-sm' placeholder='Units per Carton' /></text><br />
     <button class='btn btn-primary btn-update'>Add</button>
 </div>
+<div class="iframe-upc" style="text-align:right;margin-top:20px;margin-right:20px">
+    <h3>Update UPC Registration</h3>
+    <text>UPC #: </text><text id="text-upc"></text><br />
+    <text>Vendor: </text><select id="select-vendor" class='input-sm' style="width:170px;height:30px;margin-top:10px"></select><br />
+    <text>Style: </text><input id="div-input-style" class="input-sm" style="width:170px;margin-top:10px" /><br />
+    <text>Color: </text><input id="div-input-color" class="input-sm" style="width:170px;margin-top:10px" /><br />
+    <text>Size: </text><input id="div-input-size" class="input-sm" style="width:170px;margin-top:10px" /><br />
+    <button id="div-btn-update" class='btn btn-primary' style="margin-top:10px">Update</button>
+</div>
 @section scripts
 {
     <script>
         $(document).ready(function () {
 
-            $(".iframe").hide();
+            $(".iframe, .iframe-upc").hide();
+
+            var upc;
+            var style;
+            var color;
+            var size;
+            var url;
 
             //解析url中的参数函数
             function getUrlParameter(sParam) {
@@ -94,12 +98,33 @@
             //var preid = getUrlParameter('preid');
             //var po = getUrlParameter('po').toString();
             //var data = { "preid": preid, "po": po };
-            var id = window.location.search.substr(1);
+            var id = getUrlParameter('batchId');
             var cartons;
             var quantity;
             var cartonRange;
             var lastCartonRange = "null";
             var currentCartonRange;
+            var vendor = getUrlParameter('vendor');
+
+            //动态获取Vendor数据
+            $.ajax({
+                type: "GET",
+                url: "/api/uppervendor/?departmentCode=CD",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++)
+                    {
+                        $("#select-vendor").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    bootbox.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
 
             $.ajax({
                 type: "GET",
@@ -107,6 +132,8 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data, status, xhr) {
+                    $("#select-vendor").val(vendor);
+
                     $("#table").DataTable({
                         data: data,
                         scrollY: "600px",
@@ -122,7 +149,7 @@
                             {
                                 data: "upcNumber",
                                 render: function (data) {
-                                    return "<font>" + data + "</font>";
+                                    return "<input type='button' class='btn btn-link input-upc' value='" + data + "' />";
                                 }
                             },
                             {
@@ -165,19 +192,19 @@
                             {
                                 data: "style",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<text class='text' column='Style'>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "color",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<text class='text' column='Color'>" + data + "</text>";
                                 }
                             },
                             {
                                 data: "sizeBundle",
                                 render: function (data) {
-                                    return "<text>" + data + "</text>";
+                                    return "<text class='text' column='Size'>" + data + "</text>";
                                 }
                             },
                             {
@@ -351,6 +378,34 @@
                 });
             });
 
+            //点击UPC，弹出表单
+            $("#table").on("click", ".input-upc", function () {
+                upc = $(this).val();
+                style = $(this).parent().parent("tr").children("td").eq(8).children("text").html();
+                color = $(this).parent().parent("tr").children("td").eq(9).children("text").html();
+                size = $(this).parent().parent("tr").children("td").eq(10).children("text").html();
+
+                $("#text-upc").html(upc);
+                $("#div-input-style").val(style);
+                $("#div-input-color").val(color);
+                $("#div-input-size").val(size);
+
+                index = layer.open({
+                    title: false,
+                    type: 1,
+                    shadeclose: true,
+                    area: ["300px", "300px"],
+                    content: $(".iframe-upc")
+                });
+            });
+
+            //点击update按钮，将更新后的UPC信息同步到系统中
+            $("#div-btn-update").on("click", function () {
+                url = "/api/FCRegularCartonDetails/?vendor=" + vendor + "&upc=" + upc + "&style=" + style + "&color=" + color + "&size=" + size;
+
+
+            });
+
             //点击Add按钮，添加数据到数据库，并且关闭刚才出现的散货表单，重新出现“添加散货”按钮，并出现一个撤销按钮
             $(".btn-update").on("click", function () {
                 var style = $("#input-style").val();
@@ -418,6 +473,41 @@
                     }
                 });
             });
+
+            ////点击表中的style color 和 size 自动替换成可编辑项
+            //$("#table").on("click", ".text", function () {
+            //    $(this).replaceWith("<input class='input-column' column='" + $(this).attr('column') + "' style='width:70px' value='" + $(this).html() + "' />");
+            //})
+
+            ////编辑完新字段以后，按下回车确认
+            //$("#table").on("keypress", ".input-column", function () {
+
+            //    var locationValue = $(this).val();
+            //    var locationType = $(this).attr('locationtype');
+
+            //    if (locationValue == "") {
+            //        locationValue = currentLocation;
+            //    }
+
+            //    //按回车，触发事件
+            //    if (event.keyCode == "13") {
+            //        $.ajax({
+            //            type: "PUT",
+            //            url: "/api/fbainventory/?locationId=" + locationId + "&locationValue=" + locationValue + "&locationtype=" + locationType,
+            //            contentType: 'application/json; charset=utf-8',
+            //            dataType: "json",
+            //            success: function () {
+            //                alert("Success!");
+            //                window.location.reload();
+            //            },
+            //            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            //                alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+            //                    location.reload();
+            //                });
+            //            }
+            //        });
+            //    }
+            //});
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);
