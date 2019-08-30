@@ -55,28 +55,30 @@ namespace ClothResorting.Helpers
 
                     locationDetailInDb.ShippedPcs += pickDetail.PickPcs;
                     locationDetailInDb.PickingPcs -= pickDetail.PickPcs;
+                    locationDetailInDb.ShippedCtns += pickDetail.PickCtns;
+                    locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
 
-                    //如果该拣货对象的库存不存在寄生对象的情况，则箱数正常从拣货箱数扣除并加倒
-                    if (parasiticLocationDetail.Count() == 1)
-                    {
-                        locationDetailInDb.ShippedCtns += pickDetail.PickCtns;
-                        locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
-                    }
-                    //否则，先查找到宿主并扣除宿主拣货箱数
-                    else
-                    {
-                        //如果当前对象就是宿主对象，正常除拣货箱数
-                        if (locationDetailInDb.Cartons != 0)
-                        {
-                            locationDetailInDb.ShippedCtns += pickDetail.PickCtns;
-                            locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
-                        }
-                        //否则找到宿主对象，与其比较谁的应发箱数最大，并将这个数字更新到已发箱数中
-                        else
-                        {
-                            AdjustMainShippedCartons(_context, locationDetailInDb, parasiticLocationDetail);
-                        }
-                    }
+                    ////如果该拣货对象的库存不存在寄生对象的情况，则箱数正常从拣货箱数扣除并加倒
+                    //if (parasiticLocationDetail.Count() == 1)
+                    //{
+                    //    locationDetailInDb.ShippedCtns += pickDetail.PickCtns;
+                    //    locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                    //}
+                    ////否则，先查找到宿主并扣除宿主拣货箱数
+                    //else
+                    //{
+                    //    //如果当前对象就是宿主对象，正常除拣货箱数
+                    //    if (locationDetailInDb.Cartons != 0)
+                    //    {
+                    //        locationDetailInDb.ShippedCtns += pickDetail.PickCtns;
+                    //        locationDetailInDb.PickingCtns -= pickDetail.PickCtns;
+                    //    }
+                    //    //否则找到宿主对象，与其比较谁的应发箱数最大，并将这个数字更新到已发箱数中
+                    //    else
+                    //    {
+                    //        AdjustMainShippedCartons(_context, locationDetailInDb, parasiticLocationDetail);
+                    //    }
+                    //}
 
                     if (locationDetailInDb.PickingPcs == 0 && locationDetailInDb.AvailablePcs == 0)
                     {
