@@ -40,7 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\ClothResorting.XML</DocumentationFile>
+    <DocumentationFile>bin\ClothResorting.xml</DocumentationFile>
     <NoWarn>1591;0168;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -274,7 +274,6 @@
     </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -1761,6 +1760,14 @@
     <Compile Include="Migrations\201908222302497_AddedUPCNumberAndBatchNumberInFBASystem.cs" />
     <Compile Include="Migrations\201908222302497_AddedUPCNumberAndBatchNumberInFBASystem.Designer.cs">
       <DependentUpon>201908222302497_AddedUPCNumberAndBatchNumberInFBASystem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201909032223115_AddedConnectionBetweenFBAMasterOrderAndFBACartonLocation.cs" />
+    <Compile Include="Migrations\201909032223115_AddedConnectionBetweenFBAMasterOrderAndFBACartonLocation.Designer.cs">
+      <DependentUpon>201909032223115_AddedConnectionBetweenFBAMasterOrderAndFBACartonLocation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201909042124050_AddedCustomerCodeInFBAMasterOrder.cs" />
+    <Compile Include="Migrations\201909042124050_AddedCustomerCodeInFBAMasterOrder.Designer.cs">
+      <DependentUpon>201909042124050_AddedCustomerCodeInFBAMasterOrder.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -3286,6 +3293,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201908222302497_AddedUPCNumberAndBatchNumberInFBASystem.resx">
       <DependentUpon>201908222302497_AddedUPCNumberAndBatchNumberInFBASystem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909032223115_AddedConnectionBetweenFBAMasterOrderAndFBACartonLocation.resx">
+      <DependentUpon>201909032223115_AddedConnectionBetweenFBAMasterOrderAndFBACartonLocation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909042124050_AddedCustomerCodeInFBAMasterOrder.resx">
+      <DependentUpon>201909042124050_AddedCustomerCodeInFBAMasterOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

@@ -29,6 +29,8 @@ namespace ClothResorting.Models.FBAModels
 
         public FBAPallet FBAPallet { get; set; }
 
+        public FBAMasterOrder FBAMasterOrder { get; set; }
+
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
 
         public ICollection<FBAPickDetailCarton> FBAPickDetailCartons { get; set; }

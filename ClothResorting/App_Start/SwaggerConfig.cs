@@ -13,7 +13,6 @@ namespace ClothResorting
         public static void Register()
         {
             var thisAssembly = typeof(SwaggerConfig).Assembly;
-            string path = string.Format("{0}/bin/ClothResorting.XML", System.AppDomain.CurrentDomain.BaseDirectory);
 
             GlobalConfiguration.Configuration
                 .EnableSwagger(c =>
@@ -34,7 +33,7 @@ namespace ClothResorting
                         // hold additional metadata for an API. Version and title are required but you can also provide
                         // additional fields by chaining methods off SingleApiVersion.
                         //
-                        c.SingleApiVersion("v1", "ClothResorting");
+                        c.SingleApiVersion("v1", "Grand Channel WHS Online API Doc.");
 
                         // If you want the output Swagger docs to be indented properly, enable the "PrettyPrint" option.
                         //
@@ -103,7 +102,8 @@ namespace ClothResorting
                         // those comments into the generated docs and UI. You can enable this by providing the path to one or
                         // more Xml comment files.
                         //
-                        c.IncludeXmlComments(path);
+                        //c.IncludeXmlComments(GetXmlCommentsPath());
+                        c.IncludeXmlComments(string.Format("{0}/bin/ClothResorting.XML", System.AppDomain.CurrentDomain.BaseDirectory));
 
                         // Swashbuckle makes a best attempt at generating Swagger compliant JSON schemas for the various types
                         // exposed in your API. However, there may be occasions when more control of the output is needed.
@@ -129,7 +129,7 @@ namespace ClothResorting
                         // Swagger docs and UI. However, if you have multiple types in your API with the same class name, you'll
                         // need to opt out of this behavior to avoid Schema Id conflicts.
                         //
-                        c.UseFullTypeNameInSchemaIds();
+                        //c.UseFullTypeNameInSchemaIds();
 
                         // Alternatively, you can provide your own custom strategy for inferring SchemaId's for
                         // describing "complex" types in your API.

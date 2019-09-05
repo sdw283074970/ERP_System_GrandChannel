@@ -85,6 +85,55 @@ namespace ClothResorting.Controllers.Api
             return Ok("No operation applied.");
         }
 
+        // POST /api/RegisteredRegularSKU/?vendor={vendor}&bc={bc}&style={style}&color={color}&size={size};
+        [HttpPost]
+        public IHttpActionResult RegisterSKUItem([FromUri]string vendor, [FromUri]string bc, [FromUri]string style, [FromUri]string color, [FromUri]string size)
+        {
+            var skuInDb = _context.RegularSKURegistrations.SingleOrDefault(x => x.UPCNumber == bc);
+
+            if (skuInDb == null)
+            {
+                _context.RegularSKURegistrations.Add(new RegularSKURegistration
+                {
+                    Color = color,
+                    UPCNumber = bc,
+                    Size = size,
+                    SizeNumber = 0,
+                    Style = style,
+                    Customer = vendor
+                });;
+                _context.SaveChanges();
+                return Created(Request.RequestUri, "Success");
+            }
+            else
+            {
+                return Ok("Barcode " + bc + " has already existed in the database.");
+            }
+        }
+
+        // POST /api/RegisteredRegularSKU/?vendor={vendor}&bc={bc}&style={style}&color={color}&size={size};
+        [HttpPut]
+        public IHttpActionResult UpdateSKUItem([FromUri]string vendor, [FromUri]string bc, [FromUri]string style, [FromUri]string color, [FromUri]string size)
+        {
+            var skuInDb = _context.RegularSKURegistrations.SingleOrDefault(x => x.UPCNumber == bc);
+
+            if (skuInDb == null)
+            {
+                return Ok("Barcode " + bc + " doesn't existed in the database.");
+            }
+            else
+            {
+                skuInDb.Customer = vendor;
+                skuInDb.UPCNumber = bc;
+                skuInDb.Style = style;
+                skuInDb.Size = size;
+                skuInDb.Color = color;
+                skuInDb.SizeNumber = 0;
+
+                return Ok("Success");
+            }
+        }
+
         IList<RegularCartonDetail> GenerateNewItemList(POSummary poSummaryInDb, IEnumerable<RegularSKURegistration> registeredSKU, string cartonRange, IEnumerable<UPCItem> items)
         {
             var newItemList = new List<RegularCartonDetail>();

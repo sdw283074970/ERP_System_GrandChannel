@@ -62,6 +62,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string DockNumber { get; set; }
 
+        public string CustomerCode { get; set; }
+
         public DateTime PushTime { get; set; }
 
         public DateTime AvailableTime { get; set; }
@@ -75,8 +77,10 @@ namespace ClothResorting.Models.FBAModels
         public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
-
+        
         public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
+
+        public ICollection<FBACartonLocation> FBACartonLocations { get; set; }
 
         public ICollection<FBAPallet> FBAPallets { get; set; }
 

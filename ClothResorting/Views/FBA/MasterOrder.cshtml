@@ -71,6 +71,7 @@
                 <option value='LTL'>LTL</option>
                 <option value='FTL'>FTL</option>
                 <option value='LOOSE CTN'>LOOSE CTN</option>
+                <option value='RE_PALLETIZE'>RE-PALLETIZE</option>
                 <option value='OTHER'>SEE INSTRUCTION</option>
                 <option value='NA'>N/A</option>
             </select><br />
@@ -200,7 +201,7 @@
                 //获取所有总单
                 url = "/api/fba/fbamasterorder/";
                 //隐藏建单按钮和查看用户运单按钮
-                $("#btn-master").hide();
+                //$("#btn-master").hide();
                 $("#btn-ship").hide();
             }
 
@@ -213,6 +214,11 @@
                 $("#h2-title").html("Create new master order");
 
                 $(".input-sm").val("");
+
+                if (customerId == undefined) {
+                    $("#select-inboundtype").val("RE_PALLETIZE");
+                    $("#select-inboundtype").attr('disabled', true);
+                }
 
                 index = layer.open({
                     title: false,

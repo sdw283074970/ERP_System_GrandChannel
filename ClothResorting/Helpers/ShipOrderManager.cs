@@ -27,8 +27,7 @@ namespace ClothResorting.Helpers
                 .Include(x => x.FCRegularLocationDetail)
                 .Include(x => x.ReplenishmentLocationDetail.PurchaseOrderInventory)
                 .Include(x => x.ReplenishmentLocationDetail.SpeciesInventory)
-                .Where(x => x.ShipOrder.Id == shipOrderId
-                    && x.Status == Status.Picking);
+                .Where(x => x.ShipOrder.Id == shipOrderId);
 
             var shipOrderInDb = pickDetailsInDb.First().ShipOrder;
             //var createBy = shipOrderInDb.Operator;

@@ -12,6 +12,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string GrandNumber { get; set; }
 
+        public string CustomerCode { get; set; }
+
         public string CreatedBy { get; set; }
 
         public string UnloadingType { get; set; }
