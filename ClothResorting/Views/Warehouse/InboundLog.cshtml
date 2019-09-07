@@ -790,9 +790,9 @@
                         $(".text-container").html(data.container);
                         $(".text-grandnumber").html(data.grandNumber);
                         $(".text-start").html(transDate(data.unloadStartTime));
-                        $(".text-unloading").html(data.unloadingType);
-                        $(".text-storage").html(data.storageType);
-                        $(".text-palletizing").html(data.palletizing);
+                        $(".text-unloading").html(data.unloadingType == "OTHER" ? "SEE INSTRUCTION" : data.unloadingType);
+                        $(".text-storage").html(data.storageType == "OTHER" ? "SEE INSTRUCTION" : data.storageType);
+                        $(".text-palletizing").html(data.palletizing == "OTHER" ? "SEE INSTRUCTION" : data.palletizing);
                         $(".text-logon").html(parseFloat(data.logonProgress).toFixed(2) + "%");
                         $(".text-verified").html(data.verifiedBy);
                         $(".text-register").html(parseFloat(data.registerProgress).toFixed(2) + "%");

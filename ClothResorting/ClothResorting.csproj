@@ -1769,6 +1769,14 @@
     <Compile Include="Migrations\201909042124050_AddedCustomerCodeInFBAMasterOrder.Designer.cs">
       <DependentUpon>201909042124050_AddedCustomerCodeInFBAMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201909051857354_AddedSubCustomerInFBASystem.cs" />
+    <Compile Include="Migrations\201909051857354_AddedSubCustomerInFBASystem.Designer.cs">
+      <DependentUpon>201909051857354_AddedSubCustomerInFBASystem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201909061905432_AddedTotalCostInMasterOrderAndShipOrder.cs" />
+    <Compile Include="Migrations\201909061905432_AddedTotalCostInMasterOrderAndShipOrder.Designer.cs">
+      <DependentUpon>201909061905432_AddedTotalCostInMasterOrderAndShipOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2365,6 +2373,7 @@
     <Content Include="Views\FBA\_FBAMasterOrderPartialView.cshtml" />
     <Content Include="Views\Warehouse\FBAReceiving.cshtml" />
     <Content Include="Views\Shared\_readmePartial.cshtml" />
+    <Content Include="Views\FBA\FBAQuickTransfer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -3299,6 +3308,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201909042124050_AddedCustomerCodeInFBAMasterOrder.resx">
       <DependentUpon>201909042124050_AddedCustomerCodeInFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909051857354_AddedSubCustomerInFBASystem.resx">
+      <DependentUpon>201909051857354_AddedSubCustomerInFBASystem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909061905432_AddedTotalCostInMasterOrderAndShipOrder.resx">
+      <DependentUpon>201909061905432_AddedTotalCostInMasterOrderAndShipOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

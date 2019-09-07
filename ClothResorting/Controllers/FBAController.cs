@@ -100,5 +100,11 @@ namespace ClothResorting.Controllers
         {
             return View();
         }
+
+        //子系统：拼托业务货物页面（录入货物直接以固定托盘的形式入库存，没有收货和注册托盘内容的步骤）
+        public ActionResult FBAQuickTransfer()
+        {
+            return View();
+        }
     }
 }

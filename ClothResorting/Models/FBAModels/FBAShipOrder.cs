@@ -10,9 +10,13 @@ namespace ClothResorting.Models.FBAModels
     {
         public int Id { get; set; }
 
+        public float TotalCost { get; set; }
+
         public string ShipOrderNumber { get; set; }
 
         public string BatchNumber { get; set; }
+
+        public string SubCustomer { get; set; }
 
         public string CustomerCode { get; set; }
 

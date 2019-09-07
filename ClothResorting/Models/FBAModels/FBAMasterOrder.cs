@@ -14,7 +14,11 @@ namespace ClothResorting.Models.FBAModels
 
         public string GrandNumber { get; set; }
 
+        public float TotalCost { get; set; }
+
         public string CreatedBy { get; set; }
+
+        public string SubCustomer { get; set; }
 
         public string UnloadingType { get; set; }
 

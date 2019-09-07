@@ -50,5 +50,10 @@ namespace ClothResorting.Models
         public ReplenishmentLocationDetail ReplenishmentLocationDetail { get; set; }
 
         public PermanentSKU PermanentSKU { get; set; }
+
+        public PickDetail()
+        {
+
+        }
     }
 }

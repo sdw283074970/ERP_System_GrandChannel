@@ -23,14 +23,15 @@
                     <th style="width:120px">Ship Order #</th>
                     <th style="width:60px">Batch #</th>
                     <th>Customer Code</th>
+                    <th>Sub-customer</th>
                     <th>Destination</th>
                     <th style="width:80px">ETS</th>
                     <th>Total Ctns</th>
                     <th>Total Plts</th>
                     <th style="width:60px">Total Amount</th>
+                    <th style="width:60px">Total Cost</th>
                     <th style="width:60px">Invoice Status</th>
                     <th style="width:60px">Close Date</th>
-                    <th style="width:60px">Closed By</th>
                     <th style="width:150px">Status Control</th>
                     <th>eFolder</th>
                     <th style="width:300px">Operation</th>
@@ -41,6 +42,7 @@
                     <th style="width:80px">Released Date</th>
                     <th style="width:80px">Shipped Date</th>
                     <th style="width:80px">Created By</th>
+                    <th style="width:60px">Closed By</th>
                     <th style="width:200px">Log</th>
                 </tr>
             </thead>
@@ -61,6 +63,10 @@
             <option value='LooseCarton'>LooseCarton</option>
             <option value='Adjustment'>Adjustment</option>
         </select><br />
+        <text>Select Invoice Status: </text><select id='select-invoice' style='width:170px;height:30px;margin-top:20px' required='required'>
+            <option value='Await'>Await</option>
+            <option value='Closed'>Closed</option>
+        </select><br />
         <text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
         <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
         <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
@@ -69,6 +75,7 @@
     <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
         <text>BOL #: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
         <text>Pick #: </text><input id='input-pick' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text>Sub-customer: </text><input id='input-subcustomer' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
         <text>PO #: </text><input id='input-po' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
         <text>ETS(Required): </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
         <text>ETS Time Range: </text><input id='input-range' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
@@ -203,6 +210,14 @@
                     }
                 },
                 {
+                    data: "subCustomer",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
                     data: "destination",
                     render: function (data) {
                         return "<text>" + data + "</text>";
@@ -235,6 +250,12 @@
                     }
                 },
                 {
+                    data: "totalCost",
+                    render: function (data) {
+                        return "<font color='gold' style='background-color:black'>$" + data + "</font>";
+                    }
+                },
+                {
                     data: "invoiceStatus",
                     render: function (data) {
                         invoiceStatus = data;
@@ -248,15 +269,6 @@
                             return "<font color='red'>Open</font>"
                         else
                             return "<font>" + data.substring(0, 10) + "</font>";
-                    }
-                },
-                {
-                    data: "confirmedBy",
-                    render: function (data) {
-                        if (data == null)
-                            return "";
-                        else
-                            return "<font>" + data + "</font>";
                     }
                 },
                 {
@@ -367,6 +379,15 @@
                     }
                 },
                 {
+                    data: "confirmedBy",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        else
+                            return "<font>" + data + "</font>";
+                    }
+                },
+                {
                     data: "operationLog",
                     render: function (data) {
                         if (data == null)
@@ -408,7 +429,7 @@
                 $("#select-customercode option:first").prop("selected", 'selected');
                 $("#select-ordertype option:first").prop("selected", 'selected');
 
-                Openiframe(index, ".iframe", "700px", "500px");
+                Openiframe(index, ".iframe", "700px", "550px");
             })
 
             //点击添加按钮，新建一个新的运单
@@ -418,7 +439,9 @@
                 var orderType = $("#select-ordertype option:selected").val();
                 var destination = $("#input-destination").val();
                 var pickReference = $("#input-reference").val();
+                var invoiceStatus = $("#select-invoice option:selected").val();
                 var bol = $("#input-bol").val();
+                var subCustomer = $("#input-subcustomer").val();
                 var carrier = $("#input-carrier").val();
                 var batchNumber = $("#input-batch").val();
                 var ets = $("#input-ets").val();
@@ -439,6 +462,8 @@
                         "pickReference": pickReference.toString(),
                         "orderType": orderType.toString(),
                         "bolNumber": bol.toString(),
+                        "invoiceStatus": invoiceStatus.toString(),
+                        "subCustomer": subCustomer.toString(),
                         "carrier": carrier.toString(),
                         "ets": ets.toString(),
                         "timeRange": timeRange.toString(),
@@ -470,7 +495,7 @@
             $("#table").on("click", ".btn-fee", function () {
 
                 shipOrderId = shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
-                var tpStatus = $(this).parent().parent("tr").children('td').eq(10).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(12).children('text').html();
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")
@@ -640,7 +665,9 @@
                         $("#input-shipordernumber").val(data.shipOrderNumber);
                         $("#select-customercode").val(data.customerCode);
                         $("#select-ordertype").val(data.orderType);
+                        $("#select-invoice").val(data.invoiceStatus);
                         $("#input-destination").val(data.destination);
+                        $("#input-subcustomer").val(data.subCustomer);
                         $("#input-reference").val(data.pickReference);
                         $("#input-bol").val(data.bolNumber);
                         $("#input-carrier").val(data.carrier);
@@ -652,7 +679,7 @@
                         $("#input-instruction").val(data.instruction);
 
                         $("#h2-title").html("Update ship order");
-                        Openiframe(index, ".iframe", "700px", "500px");
+                        Openiframe(index, ".iframe", "700px", "550px");
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -672,7 +699,9 @@
                 var shipOrderNumber = $("#input-shipordernumber").val();
                 var customerCode = $("#select-customercode option:selected").val();
                 var orderType = $("#select-ordertype option:selected").val();
+                var invoiceStatus = $("#select-invoice option:selected").val();
                 var destination = $("#input-destination").val();
+                var subCustomer = $("#input-subcustomer").val();
                 var pickReference = $("#input-reference").val();
                 var bol = $("#input-bol").val();
                 var carrier = $("#input-carrier").val();
@@ -691,6 +720,8 @@
                     var obj = {
                         "shipOrderNumber": shipOrderNumber.toString(),
                         "customerCode": customerCode.toString(),
+                        "subCustomer": subCustomer.toString(),
+                        "invoiceStatus": invoiceStatus.toString(),
                         "destination": destination.toString(),
                         "pickReference": pickReference.toString(),
                         "orderType": orderType.toString(),

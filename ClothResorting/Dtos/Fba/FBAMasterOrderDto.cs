@@ -12,6 +12,10 @@ namespace ClothResorting.Dtos.Fba
 
         public string GrandNumber { get; set; }
 
+        public float TotalCost { get; set; }
+
+        public string SubCustomer { get; set; }
+
         public string CustomerCode { get; set; }
 
         public string CreatedBy { get; set; }

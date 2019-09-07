@@ -72,8 +72,9 @@
                     <input style="width:140px" id="input-location" class="input-sm" placeholder="Location" />
                 </div>
                 <div style="text-align:right;margin-right:20px">
-                    <input type="checkbox" id="check-isshipped" class="cb-selected" /> Display Picking&Shipped Items
-                    <input type="checkbox" id="check-isreplenishment" class="cb-selected" /> Is Replenishment
+                    <input type="checkbox" id="check-isshipped" class="cb-selected" /> Display Picking&Shipped Items<br/>
+                    <input type="checkbox" id="check-isreplenishment" class="cb-selected" /> Is Replenishment<br/>
+                    <input type="checkbox" id="check-istransfer" class="cb-selected" /> Include Transfer
                 </div>
                 <div style="text-align:right;margin:20px">
                     <button id="btn-search" class="btn btn-info">Search</button>
@@ -187,6 +188,7 @@
             var location = $("#input-location").val() == '' ? "NULL" : $("#input-location").val().toString();
             var isShipped = $("#check-isshipped").is(":checked");
             var isReplenishment = $("#check-isreplenishment").is(":checked");
+            var isTransfer = $("#check-istransfer").is(":checked");
             var vendor = $("#select-vendor option:selected").val();
             var endDate = $("#input-date").val();
 
@@ -199,7 +201,7 @@
             //    "location": location
             //};
 
-            var url = "/api/inventorysearch/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment + "&endDate=" + endDate;
+            var url = "/api/inventorysearch/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment + "&includeTransfer=" + isTransfer + "&endDate=" + endDate;
 
             //alert(url);
 
@@ -532,9 +534,12 @@
             var isShipped = $("#check-isshipped").is(":checked");
             var isReplenishment = $("#check-isreplenishment").is(":checked");
             var vendor = $("#select-vendor option:selected").val();
+            var isTransfer = $("#check-istransfer").is(":checked");
             var endDate = $("#input-date").val();
 
-            var url = "/api/inventoryreportdownload/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment + "&endDate=" + endDate;
+            var url = "/api/inventoryreportdownload/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment + "&includeTransfer=" + isTransfer + "&endDate=" + endDate;
+
+            //var url = "/api/inventoryreportdownload/?vendor=" + vendor + "&container=" + container + "&purchaseOrder=" + po + "&style=" + style + "&color=" + color + "&customer=" + customer + "&size=" + size + "&location=" + location + "&isShipped=" + isShipped + "&isReplenishment=" + isReplenishment + "&endDate=" + endDate;
 
             $.ajax({
                 type: "GET",

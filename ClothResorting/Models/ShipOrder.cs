@@ -40,5 +40,10 @@ namespace ClothResorting.Models
         public ICollection<PickDetail> PickDetails { get; set; }
 
         public ICollection<PullSheetDiagnostic> PullSheetDiagnostics { get; set; }
+
+        public ShipOrder()
+        {
+            ShipDate = new DateTime(1900, 1, 1);
+        }
     }
 }

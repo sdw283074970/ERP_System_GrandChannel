@@ -47,6 +47,7 @@ namespace ClothResorting.Controllers.Api.Fba
             foreach(var s in shipOrders)
             {
                 s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+                s.TotalCost = (float)s.InvoiceDetails.Sum(x => x.Cost);
                 s.TotalCtns = s.FBAPickDetails.Sum(x => x.ActualQuantity);
                 s.TotalPlts = s.FBAPickDetails.Sum(x => x.ActualPlts);
                 s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
@@ -169,6 +170,14 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.PurchaseOrderNumber = obj.PurchaseOrderNumber;
             shipOrder.Instruction = obj.Instruction;
             shipOrder.ChargingItemDetails = chargingItemDetailList;
+            shipOrder.InvoiceStatus = obj.InvoiceStatus;
+            shipOrder.SubCustomer = obj.SubCustomer;
+
+            if (obj.InvoiceStatus == "Closed")
+            {
+                shipOrder.CloseDate = DateTime.Now;
+                shipOrder.ConfirmedBy = _userName;
+            }
 
             _context.FBAShipOrders.Add(shipOrder);
             _context.SaveChanges();
@@ -245,6 +254,17 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrderInDb.PurchaseOrderNumber = obj.PurchaseOrderNumber;
             shipOrderInDb.EditBy = _userName;
             shipOrderInDb.Instruction = obj.Instruction;
+            shipOrderInDb.SubCustomer = obj.SubCustomer;
+
+            if (shipOrderInDb.InvoiceStatus == "Await" && obj.InvoiceStatus == "Closed")
+            {
+                shipOrderInDb.CloseDate = DateTime.Now;
+                shipOrderInDb.ConfirmedBy = _userName;
+            }
+
+            shipOrderInDb.InvoiceStatus = obj.InvoiceStatus;
+
+            _context.SaveChanges();
 
             var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
@@ -913,6 +933,10 @@ namespace ClothResorting.Controllers.Api.Fba
     public class ShipOrderDto
     {
         public string ShipOrderNumber { get; set; }
+
+        public string InvoiceStatus { get; set; }
+
+        public string SubCustomer { get; set; }
 
         public string BatchNumber { get; set; }
 

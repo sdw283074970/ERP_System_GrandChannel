@@ -47,6 +47,7 @@ namespace ClothResorting.Controllers.Api.Fba
             foreach (var m in masterOrders)
             {
                 m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
+                m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
                 m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
                 m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
                 m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
@@ -104,21 +105,54 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             if (orderType == FBAOrderType.MasterOrder)
             {
-                var result = _context.FBAMasterOrders
+                var masterOrders = _context.FBAMasterOrders
                     .Include(x => x.FBAOrderDetails)
+                    .Include(x => x.InvoiceDetails)
+                    .Include(x => x.FBAPallets)
                     .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
-                    .Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>);
+                    .ToList();
+                //.Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>);
 
-                return Ok(result);
+                var skuList = new List<int>();
+
+                foreach (var m in masterOrders)
+                {
+                    m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
+                    m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
+                    m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
+                    m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
+                    m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
+                    m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                    m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
+                    skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
+                }
+
+                var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
+
+                for (int i = 0; i < masterOrders.Count; i++)
+                {
+                    resultDto[i].SKUNumber = skuList[i];
+                }
+
+                return Ok(resultDto);
             }
             else if (orderType == FBAOrderType.ShipOrder)
             {
-                var result = _context.FBAShipOrders
+                var shipOrders = _context.FBAShipOrders
+                    .Include(x => x.InvoiceDetails)
                     .Include(x => x.FBAPickDetails)
-                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
-                    .Select(Mapper.Map<FBAShipOrder, FBAShipOrderDto>);
+                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku)).Any());
 
-                return Ok(result);
+                foreach (var s in shipOrders)
+                {
+                    s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+                    s.TotalCost = (float)s.InvoiceDetails.Sum(x => x.Cost);
+                    s.TotalCtns = s.FBAPickDetails.Sum(x => x.ActualQuantity);
+                    s.TotalPlts = s.FBAPickDetails.Sum(x => x.ActualPlts);
+                    s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
+                }
+
+                return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
             }
 
             return Ok();
@@ -275,6 +309,8 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.AssembeThirdPart(obj.SealNumber, obj.ContainerSize, obj.Container);
             masterOrder.GrandNumber = grandNumber;
             masterOrder.Customer = customer;
+            masterOrder.CustomerCode = customerCode;
+            masterOrder.SubCustomer = obj.SubCustomer;
             masterOrder.OriginalPlts = obj.OriginalPlts;
             masterOrder.InboundType = obj.InboundType;
             masterOrder.UnloadingType = obj.UnloadingType;
@@ -386,7 +422,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbamasterorder/?grandNumber={grandNumber}&operation={edit}
         [HttpPut]
-        public void UpdateMasterOrderInfo([FromUri]string grandNumber, [FromBody]FBAMasterOrder obj)
+        public void UpdateMasterOrder([FromUri]string grandNumber, [FromBody]FBAMasterOrder obj)
         {
             if (Checker.CheckString(obj.Container))
             {
@@ -407,6 +443,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrderInDb.Vessel = obj.Vessel;
             masterOrderInDb.Voy = obj.Voy;
             masterOrderInDb.ETA = obj.ETA;
+            masterOrderInDb.SubCustomer = obj.SubCustomer;
             masterOrderInDb.UnloadingType = obj.UnloadingType;
             masterOrderInDb.StorageType = obj.StorageType;
             masterOrderInDb.Palletizing = obj.Palletizing;

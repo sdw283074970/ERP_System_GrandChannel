@@ -20,9 +20,9 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
-        // GET /api/inventorysearch/?vendor={vendor}&container={container}&purchaseOrder={po}&style={style}&color={color}&customer={customer}&size={size}&location={location}&isShipped={isShipped}&isReplenishment={isReplenishment}&endDate={endDate}
+        // GET /api/inventorysearch/?vendor={vendor}&container={container}&purchaseOrder={po}&style={style}&color={color}&customer={customer}&size={size}&location={location}&isShipped={isShipped}&isReplenishment={isReplenishment}&includeTransfer={includeTransfer}&endDate={endDate}
         [HttpGet]
-        public IHttpActionResult SearchInInventory([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment, [FromUri]DateTime endDate)
+        public IHttpActionResult SearchInInventory([FromUri]string vendor, [FromUri]string container, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string customer, [FromUri]string size, [FromUri]string location, [FromUri]bool isShipped, [FromUri]bool isReplenishment, [FromUri]bool includeTransfer, [FromUri]DateTime endDate)
         {
 
             if (isReplenishment)
@@ -93,6 +93,7 @@ namespace ClothResorting.Controllers.Api
                 var startDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
                 var locationDetails = _context.FCRegularLocationDetails
                     .Include(x => x.RegularCaronDetail.POSummary.ContainerInfo)
+                    .Include(x => x.PreReceiveOrder)
                     .Where(x => x.Vendor == vendor 
                         && x.RegularCaronDetail.POSummary.ContainerInfo.InboundDate <= endDate 
                         && x.RegularCaronDetail.POSummary.ContainerInfo.InboundDate > startDate)
@@ -136,6 +137,11 @@ namespace ClothResorting.Controllers.Api
                 if (!isShipped)
                 {
                     locationDetails = locationDetails.Where(x => x.AvailablePcs != 0).ToList();
+                }
+
+                if (!includeTransfer)
+                {
+                    locationDetails = locationDetails.Where(x => x.PreReceiveOrder.WorkOrderType != "Transfer").ToList();
                 }
 
                 var results = new List<FCRegularLocationDetailDto>();

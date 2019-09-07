@@ -77,10 +77,10 @@
                         <th>Color</th>
                         <th>Size</th>
                         <th>Org Ctns</th>
-                        <th>Available Ctns</th>
+                        @*<th>Available Ctns</th>
                         <th>Picking Ctns</th>
-                        <th>Shipped Ctns</th>
-                        <th style="width:120px">Pick Ctns</th>
+                        <th>Shipped Ctns</th>*@
+                        @*<th style="width:120px">Pick Ctns</th>*@
                         <th>Org Qty</th>
                         <th>Available Pcs</th>
                         <th>Picking Pcs</th>
@@ -398,17 +398,17 @@
                     }
                 });
 
-                $(".input-regularctns").each(function (i) {
-                    var thisCtns = $(this).val();
-                    if (thisCtns != "" && thisCtns != 0) {
-                        var obj = {
-                            "id": $(this).attr('iid'),
-                            "pcs": 0,
-                            "ctns": $(this).val()
-                        };
-                        objArray.push(obj);
-                    }
-                });
+                //$(".input-regularctns").each(function (i) {
+                //    var thisCtns = $(this).val();
+                //    if (thisCtns != "" && thisCtns != 0) {
+                //        var obj = {
+                //            "id": $(this).attr('iid'),
+                //            "pcs": 0,
+                //            "ctns": $(this).val()
+                //        };
+                //        objArray.push(obj);
+                //    }
+                //});
 
                 $.ajax({
                     type: "POST",
@@ -787,6 +787,8 @@
                                     data: "upcNumber",
                                     render: function (data) {
                                         container = data;
+                                        if (data == null)
+                                            return "";
                                         return "<text>" + data + "</text>";
                                     }
                                 },
@@ -826,34 +828,34 @@
                                         return "<text>" + data + "</text>";
                                     }
                                 },
-                                {
-                                    data: "availableCtns",
-                                    render: function (data) {
-                                        cartons = data;
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "pickingCtns",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "shippedCtns",
-                                    render: function (data) {
-                                        return "<text>" + data + "</text>";
-                                    }
-                                },
-                                {
-                                    data: "id",
-                                    render: function (data) {
-                                        if (cartons == 0)
-                                            return "";
-                                        else
-                                            return "<input class='input-sm input-regularctns' type='number' iid='" + data + "' style='width:70px' min='0' max='" + cartons + "' value='0' /><button class='btn btn-link btn-max'>Max</button>";
-                                    }
-                                },
+                                //{
+                                //    data: "availableCtns",
+                                //    render: function (data) {
+                                //        cartons = data;
+                                //        return "<text>" + data + "</text>";
+                                //    }
+                                //},
+                                //{
+                                //    data: "pickingCtns",
+                                //    render: function (data) {
+                                //        return "<text>" + data + "</text>";
+                                //    }
+                                //},
+                                //{
+                                //    data: "shippedCtns",
+                                //    render: function (data) {
+                                //        return "<text>" + data + "</text>";
+                                //    }
+                                //},
+                                //{
+                                //    data: "id",
+                                //    render: function (data) {
+                                //        if (cartons == 0)
+                                //            return "";
+                                //        else
+                                //            return "<input class='input-sm input-regularctns' type='number' iid='" + data + "' style='width:70px' min='0' max='" + cartons + "' value='0' /><button class='btn btn-link btn-max'>Max</button>";
+                                //    }
+                                //},
                                 {
                                     data: "quantity",
                                     render: function (data) {

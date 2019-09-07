@@ -3,8 +3,8 @@ using System.Linq;
 using System.Web.Mvc;
 using ClothResorting.Models.StaticClass;
 using System.Data.Entity;
-using CoreScanner;
 using ClothResorting.Helpers;
+using System;
 
 namespace ClothResorting.Controllers
 {
@@ -13,8 +13,6 @@ namespace ClothResorting.Controllers
     {
         private ApplicationDbContext _context;
         private string _userName;
-        static CCoreScannerClass cCoreScannerClass;
-        CCoreScannerClass m_pCoreScanner;
 
         public HomeController()
         {
@@ -50,58 +48,87 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //cCoreScannerClass = new CCoreScannerClass();
+            //var adjustShipOrder = new ShipOrder {
+            //    Address = "NA",
+            //    OrderPurchaseOrder = "FixAndAdjust20190906",
+            //    Vendor = "Free Country",
+            //    OrderType = "Regular",
+            //    PickTicketsRange = "Fix",
+            //    Operator = "Stone",
+            //    CreateDate = DateTime.Now.ToString("yyyy-MM-dd")
+            //};
 
-            //short[] scannerTypes = new short[1]; // Scanner Types you are interested in
-            //scannerTypes[0] = 1; // 1 for all scanner types
-            //short numberOfScannerTypes = 1; // Size of the scannerTypes array
-            //int status; // Extended API return code
+            var adjustShipOrder = _context.ShipOrders.Find(978);
+            adjustShipOrder.Status = "Picking";
 
-            //cCoreScannerClass.Open(0, scannerTypes, numberOfScannerTypes, out status);
+            var wrongPickedLocationsInDb = _context.PickDetails
+                .Include(x => x.FCRegularLocationDetail)
+                .Where(x => x.PickCtns != 0 && x.PickPcs == 0);
 
-            ////short numberOfScanners; // Number of scanners expect to be used
-            ////int[] connectedScannerIDList = new int[255];
-            ////// List of scanner IDs to be returned
-            ////string outXML; //Scanner details output
+            foreach(var wrong in wrongPickedLocationsInDb)
+            {
+                var w = wrong.FCRegularLocationDetail;
+                if (w.AvailablePcs != 0)
+                {
+                    _context.PickDetails.Add(
+                        new PickDetail
+                        {
+                            CartonRange = w.CartonRange,
+                            Container = w.Container,
+                            UPCNumber = w.UPCNumber,
+                            PurchaseOrder = w.PurchaseOrder,
+                            Style = w.Style,
+                            Color = w.Color,
+                            SizeBundle = w.SizeBundle,
+                            PcsBundle = w.PcsBundle,
+                            PcsPerCarton = w.PcsPerCaron,
+                            PickCtns = 0,
+                            PickPcs = w.AvailablePcs,
+                            CustomerCode = w.CustomerCode,
+                            Location = w.Location,
+                            ShipOrder = adjustShipOrder
+                        }
+                    );
 
-            ////cCoreScannerClass.GetScanners(out numberOfScanners, connectedScannerIDList, out outXML, out status);
+                    w.PickingPcs += w.AvailablePcs;
+                    w.AvailablePcs = 0;
+                }
 
-            //// Let's beep the beeper
-            //int opcode = 6000; // Method for Beep the beeper
-            //string outXML; // Output
-            //string inXML = "<inArgs>" +
-            //        "<scannerID>2</scannerID>" + // The scanner you need to beep
-            //        "<cmdArgs>" +
-            //            "<arg-int>3</arg-int>" + // 4 high short beep pattern
-            //        "</cmdArgs>" +
-            //    "</inArgs>";
-            //cCoreScannerClass.ExecCommand(opcode, ref inXML, out outXML, out status);
 
-            //// Let's set the UPC-A enable/disable
-            //opcode = 5004; // Method for Set the scanner attributes
-            //inXML = "<inArgs>" +
-            //    "<scannerID>2</scannerID>" +
-            //    // The scanner you need to get the information (above)
-            //    "<cmdArgs>" +
-            //    "<arg-xml>" +
-            //    "<attrib_list>" +
-            //    "<attribute>" +
-            //    "<id>1</id>" +
-            //    // Attribute number for UPC-A
-            //    "<datatype>F</datatype>" +
-            //    "<value>False</value>" +
-            //    "</attribute>" +
-            //    "</attrib_list>" +
-            //    "</arg-xml>" +
-            //    "</cmdArgs>" +
-            //    "</inArgs>";
-            //cCoreScannerClass.ExecCommand(opcode, ref inXML, out outXML, out status);
+                var ps = _context.FCRegularLocationDetails
+                    .Where(x => x.Cartons == 0 && x.AvailablePcs != 0 && x.CartonRange == w.CartonRange && x.Container == w.Container && x.Batch == w.Batch && x.Location == w.Location);
 
-            ////var scanner = new ScannerManager();
+                foreach(var p in ps)
+                {
+                    if (p.AvailablePcs != 0)
+                    {
+                        _context.PickDetails.Add(
+                            new PickDetail
+                            {
+                                CartonRange = p.CartonRange,
+                                Container = p.Container,
+                                UPCNumber = p.UPCNumber,
+                                PurchaseOrder = p.PurchaseOrder,
+                                Style = p.Style,
+                                Color = p.Color,
+                                SizeBundle = p.SizeBundle,
+                                PcsBundle = p.PcsBundle,
+                                PcsPerCarton = p.PcsPerCaron,
+                                PickCtns = 0,
+                                PickPcs = p.AvailablePcs,
+                                Location = p.Location,
+                                CustomerCode = p.CustomerCode,
+                                ShipOrder = adjustShipOrder
+                            }
+                        );
 
-            ////scanner.Scan();
+                        p.PickingPcs += p.AvailablePcs;
+                        p.AvailablePcs = 0;
+                    }
+                }
+            }
 
-            //ViewBag.Message = outXML;
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 
