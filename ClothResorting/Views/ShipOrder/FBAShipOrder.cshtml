@@ -198,9 +198,9 @@
                 {
                     data: "batchNumber",
                     render: function (data) {
-                        if (data == null)
-                            return "";
-                        return "<text>" + data + "</text>";
+                        if (data == null || data == "") 
+                            return "<text class='text-batch'>N/A</text>";
+                        return "<text class='text-batch'>" + data + "</text>";
                     }
                 },
                 {
@@ -961,6 +961,43 @@
                     url = "/api/fbamasterorder/?sku=" + sku + "&orderType=ShipOrder";
 
                     GetAjaxTable("GET", url, "#table", table, columnArray);
+                }
+            });
+
+            //点击batch#，进入编辑模式
+            $("#table").on("click", ".text-batch", function () {
+                var currentBatch = $(this).html();
+                var shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                $(this).replaceWith("<input iid='" + shipOrderId + "' class='input-sm input-batch' style='width:80px' placeholder='" + currentBatch + "' value='" + currentBatch + "'/>");
+            });
+
+            //编辑完新batch号码以后，按下回车确认
+            $("#table").on("keypress", ".input-batch", function () {
+
+                var shipOrderId = $(this).attr('iid');
+                var batchNumber = $(this).val();
+
+                if (batchNumber == "") {
+                    batchNumber = $(this).attr('placeholder');
+                }
+
+                //按回车，触发事件
+                if (event.keyCode == "13") {
+                    var thisInput = $(this);
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/FBAShipOrder/?shipOrderId=" + shipOrderId + "&batchNumber=" + batchNumber,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        success: function () {
+                            thisInput.replaceWith("<text class='text-batch'>" + batchNumber + "</text>");
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                location.reload();
+                            });
+                        }
+                    });
                 }
             });
 

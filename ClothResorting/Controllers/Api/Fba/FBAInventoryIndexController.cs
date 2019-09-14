@@ -40,7 +40,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Ok();
             }
 
-            return Ok(customerInventoryList.FBAResidualInventories);
+            return Ok(customerInventoryList.FBACtnInventories);
 
             //阻塞线程，等待生成EXCEL方法执行完毕返回路径字符串后才执行下面的步骤
 
@@ -67,7 +67,8 @@ namespace ClothResorting.Controllers.Api.Fba
             else
             {
                 var list = new List<FBAInventoryInfo>();
-                var result = helper.ReturnInventoryInfoByCustomerCode(customerCode, closeDate);
+                //var result = helper.ReturnInventoryInfoByCustomerCode(customerCode, closeDate);
+                var result = helper.GetFBAInventoryResidualInfo(customerCode, closeDate);
                 list.Add(result);
 
                 return Ok(list);

@@ -29,18 +29,6 @@ namespace ClothResorting.Controllers.Api
         {
             return Ok(GetFCReceivingReportList(preid, container));
         }
-
-        //// POST /api/fcreveivingreport/?preid={preId}&container={container}
-        //[HttpPost]
-        //public void GenerateExcelReceivingReport([FromUri]int preid, [FromUri]string container)
-        //{
-        //    var reportList = GetFCReceivingReportList(preid, container);
-        //    var containerInDb = _context.Containers.SingleOrDefault(x => x.ContainerNumber == container);
-
-        //    var generator = new ExcelGenerator();
-        //    generator.GenerateRecevingReportExcel(containerInDb, reportList);
-        //}
-
         // PUT /api/fcreceivingreport/{id}(preId) 在Purchase Order over view 页面中一键全收货，接口放在这里挤一挤
         [HttpPut]
         public void ReceiveAllPoWithoutProblem([FromUri]int id)
@@ -54,8 +42,8 @@ namespace ClothResorting.Controllers.Api
 
             foreach(var carton in cartonDetailsInDb)
             {
-                //批量收获只对实收货物间数仍然为0的对象有效，防止多次点击生成额外的待分配件数
-                if (carton.ActualPcs == 0)
+                //批量收获只对实收货物间数仍然为0的有效收货对象有效，防止多次点击生成额外的待分配件数
+                if ((carton.Quantity != 0 && carton.ActualPcs == 0) || (carton.Cartons != 0 && carton.ActualCtns == 0))
                 {
                     //更新收货人
                     carton.Receiver = _userName;
@@ -67,21 +55,11 @@ namespace ClothResorting.Controllers.Api
                     carton.ToBeAllocatedCtns = carton.Cartons;
                     carton.ToBeAllocatedPcs = carton.Quantity;
 
-                    //carton.POSummary.ActualCtns += carton.ActualCtns;
-                    //carton.POSummary.ActualPcs += carton.ActualPcs;
-
                     actualCtns += carton.Cartons;
                     actualPcs += carton.Quantity;
 
-                    //carton.POSummary.PreReceiveOrder.ActualReceivedCtns = carton.POSummary.PreReceiveOrder.TotalCartons;
-                    //carton.POSummary.PreReceiveOrder.ActualReceivedPcs = carton.POSummary.PreReceiveOrder.TotalPcs;
                 }
             }
-
-            //var preReceiveOrderInDb = _context.PreReceiveOrders.Find(id);
-
-            //preReceiveOrderInDb.ActualReceivedCtns += actualCtns;
-            //preReceiveOrderInDb.ActualReceivedPcs += actualPcs;
 
             _context.SaveChanges();
         }

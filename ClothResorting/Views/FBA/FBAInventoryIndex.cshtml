@@ -24,9 +24,12 @@
                 <tr>
                     <th>Customer Code</th>
                     <th>Residual CBM</th>
-                    <th>Residual Total Plts</th>
-                    <th>Residual Loose Ctns</th>
-                    <th>Residual Total Ctns</th>
+                    <th>In-stock Plts</th>
+                    <th>In-stock Ctns</th>
+                    <th>In-stock In-pallet Ctns</th>
+                    <th>In-stock Loose Ctns</th>
+                    <th>Processing Plts</th>
+                    <th>Processing Ctns</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -56,6 +59,7 @@
                 if (closeDate != "")
                 {
                     url = "/api/fba/fbainventoryindex/?customerCode=" + customerCode + "&closeDate=" + closeDate;
+                    var totalCtns;
                     var columsArray = [
                         {
                             data: "customer",
@@ -66,13 +70,26 @@
                         {
                             data: "totalResidualCBM",
                             render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "currentTotalPlts",
+                            render: function (data) {
                                 return "<text>" + parseFloat(data.toFixed(2)) + "</text>";
                             }
                         },
                         {
-                            data: "currentPlts",
+                            data: "currentTotalCtns",
                             render: function (data) {
+                                totalCtns = data;
                                 return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "currentLooseCtns",
+                            render: function (data) {
+                                return "<text>" + (totalCtns - data) + "</text>";
                             }
                         },
                         {
@@ -82,7 +99,13 @@
                             }
                         },
                         {
-                            data: "totalResidualQuantity",
+                            data: "totalPickingPlts",
+                            render: function (data) {
+                                return "<text>" + data + "</text>";
+                            }
+                        },
+                        {
+                            data: "totalPickingCtns",
                             render: function (data) {
                                 return "<text>" + data + "</text>";
                             }

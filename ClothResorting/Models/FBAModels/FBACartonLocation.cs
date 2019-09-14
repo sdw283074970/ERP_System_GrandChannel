@@ -25,6 +25,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string Location { get; set; }
 
+        public int HoldCtns { get; set; }
+
         public FBAOrderDetail FBAOrderDetail { get; set; }
 
         public FBAPallet FBAPallet { get; set; }

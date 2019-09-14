@@ -494,6 +494,15 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, instructionDto, description, null, OperationLevel.Mediunm);
         }
 
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&batchNumber={batchNumber}
+        [HttpPut]
+        public void UpdateBatchNumber([FromUri]int shipOrderId, [FromUri]string batchNumber)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            shipOrderInDb.BatchNumber = batchNumber;
+            _context.SaveChanges();
+        }
+
         // DELETE /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpDelete]
         public async Task DeleteShipOrder([FromUri]int shipOrderId)

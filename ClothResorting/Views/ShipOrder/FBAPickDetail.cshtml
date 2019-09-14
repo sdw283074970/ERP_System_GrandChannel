@@ -97,6 +97,7 @@
                     <th>Ctns/Plt</th>
                     <th>Original Ttl Ctns</th>
                     <th>Available Ttl Ctns</th>
+                    <th>Hold Ctns</th>
                     <th>Pick Ctns</th>
                 </tr>
             </thead>
@@ -120,6 +121,7 @@
                     <th>Ctns/Plt</th>
                     <th>Original Ttl Ctns</th>
                     <th>Available Ttl Ctns</th>
+                    <th>Hold Ctns</th>
                     <th>Pick Ctns</th>
                 </tr>
             </thead>
@@ -325,6 +327,12 @@
                         }
                     },
                     {
+                        data: "holdCtns",
+                        render: function (data) {
+                            return "<font color='purple'>" + data + "</font>";
+                        }
+                    },
+                    {
                         data: "pickingCtns",
                         render: function (data) {
                             return "<font color='red'>" + data + "</font>";
@@ -408,6 +416,7 @@
                     Openiframe(index, ".iframe-pickpallet", "1000px", "500px");
 
                     url = "/api/fba/fbainventory/?palletLocationId=" + inventoryId;
+                    var availableCtns;
                     var ctnsInPltColumnArray = [
                         {
                             data: "id",
@@ -466,12 +475,21 @@
                         {
                             data: "availableCtns",
                             render: function (data) {
+                                availableCtns = data;
                                 return "<font color='green'>" + data + "</font>";
+                            }
+                        },
+                        {
+                            data: "holdCtns",
+                            render: function (data) {
+                                return "<font color='purple'>" + data + "</font>";
                             }
                         },
                         {
                             data: "id",
                             render: function (data) {
+                                if (availableCtns == 0)
+                                    return "<input type='number' class='input-sm input-cartons' iid='" + data + "' placeholder='Input ctn #' value='0' disabled='true' />";
                                 return "<input type='number' class='input-sm input-cartons' iid='" + data + "' placeholder='Input ctn #' value='0' />";
                             }
                         }
@@ -1044,6 +1062,7 @@
                 GetAjaxTable("GET", url, "#table-pallet", tablePallet, palletsColumnArray);
 
                 url = "/api/fba/fbainventory/?container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode + "&inventoryType=Carton";
+                var availableCtns;
                 var cartonsColumnArray = [
                     {
                         data: "id",
@@ -1109,7 +1128,14 @@
                     {
                         data: "availableCtns",
                         render: function (data) {
+                            availableCtns = data;
                             return "<font color='green'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "holdCtns",
+                        render: function (data) {
+                            return "<font color='purple'>" + data + "</font>";
                         }
                     },
                     {
@@ -1130,8 +1156,13 @@
                     {
                         data: "id",
                         render: function (data) {
-                            if (status != "InPallet")
-                                return "<input type='number' class='input-sm input-pickcarton' inventorytype='Carton' iid='" + data + "' locationtype='Carton' placeholder='Input ctn #' />";
+                            if (status != "InPallet") {
+                                if (availableCtns == 0)
+                                    return "<input type='number' class='input-sm input-pickcarton' inventorytype='Carton' iid='" + data + "' locationtype='Carton' placeholder='Input ctn #' disabled='true' />";
+                                else
+                                    return "<input type='number' class='input-sm input-pickcarton' inventorytype='Carton' iid='" + data + "' locationtype='Carton' placeholder='Input ctn #' />";
+
+                            }
                             else
                                 return "";
                         }

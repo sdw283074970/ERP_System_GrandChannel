@@ -59,6 +59,7 @@
                     <th>Available Ctns</th>
                     <th>Picking Ctns</th>
                     <th>Shipping Ctns</th>
+                    <th>Hold Ctns</th>
                     @*<th><input id="select-allctns" type="checkbox" value="12345" /></th>*@
                     <th>Location</th>
                     <th>Operation</th>
@@ -117,7 +118,6 @@
                 $("#h2").html("Grand Number: " + grandNumber);
                 url = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Pallet";
                 url2 = "/api/fba/fbainventory/?grandnumber=" + grandNumber + "&inventoryType=Carton";
-
             }
             else {
                 url = "/api/fba/fbainventory/?masterOrderId=" + masterOrderId + "&inventoryType=Pallet";
@@ -327,6 +327,12 @@
                     }
                 },
                 {
+                    data: "holdCtns",
+                    render: function (data) {
+                        return "<font color='purple' class='font-holdctns'>" + data + "</font>";
+                    }
+                },
+                {
                     data: "location",
                     render: function (data) {
                         return "<text class='text-location'>" + data + "</text>";
@@ -478,6 +484,57 @@
                             });
                         }
                     });
+                }
+            });
+
+            //点击hold ctns数量，进入编辑模式
+            $("#table-carton").on("click", ".font-holdctns", function () {
+                var currentHoldCtns = parseInt($(this).html());
+                var currentAvailableCtns = parseInt($(this).parent().parent("tr").children("td").eq(10).children("font").html());
+                var totalAvailableCtns = parseInt(currentHoldCtns + currentAvailableCtns);
+                var cartonId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
+                $(this).replaceWith("<input iid='" + cartonId + "'totalavailable='" + totalAvailableCtns + "' available='" + currentAvailableCtns + "' class='input-sm input-holdctns' style='width:80px' placeholder='" + currentHoldCtns + "' value='" + currentHoldCtns + "'/>");
+            });
+
+            //编辑完新batch号码以后，按下回车确认
+            $("#table-carton").on("keypress", ".input-holdctns", function () {
+                var cartonId = $(this).attr('iid');
+                var holdCtns = $(this).val();
+                var totalAvailableCtns = $(this).attr('totalavailable');
+
+                if (holdCtns == "") {
+                    holdCtns = $(this).attr('placeholder');
+                }
+
+                if (parseInt(holdCtns) > parseInt(totalAvailableCtns)) {
+                    alert("Not enough ctns to be hold.")
+                }
+                else if (parseInt(holdCtns) < 0)
+                {
+                    alert("Quantity cannot be smaller than 0.")
+                }
+                else {
+                    var thisInput = $(this);
+                    var availableFont = $(this).parent().parent("tr").children("td").eq(10).children("font");
+
+                    if (event.keyCode == "13") {
+                        var thisInput = $(this);
+                        $.ajax({
+                            type: "PUT",
+                            url: "/api/FBAInventory/?cartonId=" + cartonId + "&holdCtns=" + holdCtns,
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            success: function () {
+                                thisInput.replaceWith("<text class='font-holdctns'>" + holdCtns + "</font>");
+                                availableFont.html(totalAvailableCtns - holdCtns);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                                    location.reload();
+                                });
+                            }
+                        });
+                    }
                 }
             });
 

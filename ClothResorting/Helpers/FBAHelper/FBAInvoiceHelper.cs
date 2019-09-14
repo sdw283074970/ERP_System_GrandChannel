@@ -57,20 +57,23 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 1] = i.InvoiceType;
                 _ws.Cells[startRow, 2] = i.Reference;
                 _ws.Cells[startRow, 3] = i.GrandNumber;
-                _ws.Cells[startRow, 4] = i.Activity;
-                _ws.Cells[startRow, 5] = i.ChargingType;
-                _ws.Cells[startRow, 6] = i.Unit;
-                _ws.Cells[startRow, 7] = i.Quantity;
-                _ws.Cells[startRow, 8] = i.Rate;
-                _ws.Cells[startRow, 9] = i.Amount;
-                _ws.Cells[startRow, 10] = i.DateOfCost.ToString("yyyy-MM-dd");
-                _ws.Cells[startRow, 11] = i.Memo;
+                _ws.Cells[startRow, 4] = i.SubCustomer ?? "N/A";
+                _ws.Cells[startRow, 5] = i.Activity;
+                _ws.Cells[startRow, 6] = i.ChargingType;
+                _ws.Cells[startRow, 7] = i.Unit;
+                _ws.Cells[startRow, 8] = i.Quantity;
+                _ws.Cells[startRow, 9] = i.Rate;
+                _ws.Cells[startRow, 10] = i.Amount;
+                _ws.Cells[startRow, 11] = i.Cost;
+                _ws.Cells[startRow, 12] = i.DateOfCost.ToString("yyyy-MM-dd");
+                _ws.Cells[startRow, 13] = i.Memo;
 
                 startRow += 1;
             }
 
-            _ws.Cells[startRow, 8] = "Total";
-            _ws.Cells[startRow, 9] = info.InvoiceReportDetails.Sum(x => x.Amount);
+            _ws.Cells[startRow, 9] = "Total";
+            _ws.Cells[startRow, 10] = info.InvoiceReportDetails.Sum(x => x.Amount);
+            _ws.Cells[startRow, 11] = info.InvoiceReportDetails.Sum(x => x.Cost);
 
             //制作第二个收费项目统计表
             _ws = _wb.Worksheets[2];
@@ -83,9 +86,10 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 1] = "Order Type";
             _ws.Cells[startRow, 2] = "Reference #";
             _ws.Cells[startRow, 3] = "Grand #";
-            _ws.Cells[startRow, 4] = "Destination";
-            _ws.Cells[startRow, 5] = "Total Ctns";
-            _ws.Cells[startRow, 6] = "Total Plts";
+            _ws.Cells[startRow, 4] = "Sub-customer";
+            _ws.Cells[startRow, 5] = "Destination";
+            _ws.Cells[startRow, 6] = "Total Ctns";
+            _ws.Cells[startRow, 7] = "Total Plts";
 
             var columnIndex = 7;
             var activityList = new List<string>();
@@ -99,6 +103,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _ws.Cells[startRow, columnIndex] = "Date of Close";
             _ws.Cells[startRow, columnIndex + 1] = "Amount";
+            _ws.Cells[startRow, columnIndex + 2] = "Cost";
 
             startRow += 1;
             var countOfActivity = chargeActivityGroup.Count();
@@ -111,22 +116,24 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 1] = r.First().InvoiceType;
                 _ws.Cells[startRow, 2] = r.First().Reference;
                 _ws.Cells[startRow, 3] = r.First().GrandNumber;
-                _ws.Cells[startRow, 4] = r.First().Destination;
-                _ws.Cells[startRow, 5] = r.First().ActualCtnsInThisOrder;
-                _ws.Cells[startRow, 6] = r.First().ActualPltsInThisOrder;
+                _ws.Cells[startRow, 4] = r.First().SubCustomer ?? "N/A";
+                _ws.Cells[startRow, 5] = r.First().Destination;
+                _ws.Cells[startRow, 6] = r.First().ActualCtnsInThisOrder;
+                _ws.Cells[startRow, 7] = r.First().ActualPltsInThisOrder;
             
                 for (var i = 0; i < countOfActivity; i++)
                 {
-                    _ws.Cells[startRow, 7 + i] = 0.0;
+                    _ws.Cells[startRow, 8 + i] = 0.0;
                 }
 
                 _ws.Cells[startRow, columnIndex] = r.First().DateOfClose.ToString("MM/dd/yyyy");
                 _ws.Cells[startRow, columnIndex + 1] = r.Sum(x => x.Amount);
+                _ws.Cells[startRow, columnIndex + 2] = r.Sum(x => x.Cost);
 
                 foreach (var i in r)
                 {
                     var index = activityList.IndexOf(i.Activity);
-                    _ws.Cells[startRow, index + 7] = _ws.Cells[startRow, index + 7].Value2 + i.Amount;
+                    _ws.Cells[startRow, index + 8] = _ws.Cells[startRow, index + 8].Value2 + i.Amount;
                     
                 }
 
@@ -139,13 +146,14 @@ namespace ClothResorting.Helpers.FBAHelper
             foreach(var c in chargeActivityGroup)
             {
                 var activity = c.First().Activity;
-                _ws.Cells[startRow, activityList.IndexOf(activity) + 7] = info.InvoiceReportDetails.Where(x => x.Activity == activity).Sum(x => x.Amount);
+                _ws.Cells[startRow, activityList.IndexOf(activity) + 8] = info.InvoiceReportDetails.Where(x => x.Activity == activity).Sum(x => x.Amount);
             }
 
             _ws.Cells[startRow, 1] = "Total";
-            _ws.Cells[startRow, 5] = totalCtns;
-            _ws.Cells[startRow, 6] = totalPlts;
+            _ws.Cells[startRow, 6] = totalCtns;
+            _ws.Cells[startRow, 7] = totalPlts;
             _ws.Cells[startRow, columnIndex + 1] = info.InvoiceReportDetails.Sum(x => x.Amount);
+            _ws.Cells[startRow, columnIndex + 2] = info.InvoiceReportDetails.Sum(x => x.Cost);
 
             //制作第三个收费细节表
             _ws = _wb.Worksheets[3];
@@ -314,6 +322,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         InvoiceType = i.InvoiceType,
                         Reference = reference,
                         Activity = i.Activity,
+                        SubCustomer = i.FBAMasterOrder.SubCustomer,
                         ChargingType = i.ChargingType,
                         Unit = i.Unit,
                         Quantity = i.Quantity,
@@ -347,6 +356,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     {
                         InvoiceType = i.InvoiceType,
                         Reference = reference,
+                        SubCustomer = i.FBAShipOrder.SubCustomer,
                         Activity = i.Activity,
                         ChargingType = i.ChargingType,
                         Unit = i.Unit,
@@ -417,6 +427,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     newInvoiceDetail.GrandNumber = "N/A";
                     newInvoiceDetail.Reference = i.FBAShipOrder.ShipOrderNumber;
                     newInvoiceDetail.Destination = i.FBAShipOrder.Destination;
+                    newInvoiceDetail.SubCustomer = i.FBAShipOrder.SubCustomer;
                     newInvoiceDetail.ActualCtnsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
                     newInvoiceDetail.ActualPltsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
                     newInvoiceDetail.DateOfClose = i.FBAShipOrder.CloseDate;
@@ -425,6 +436,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     newInvoiceDetail.GrandNumber = i.FBAMasterOrder.GrandNumber;
                     newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
+                    newInvoiceDetail.SubCustomer = i.FBAMasterOrder.SubCustomer;
                     newInvoiceDetail.Destination = " ";
                     newInvoiceDetail.ActualCtnsInThisOrder = i.FBAMasterOrder.FBAOrderDetails.Sum(x => x.ActualQuantity);
                     newInvoiceDetail.ActualPltsInThisOrder = i.FBAMasterOrder.FBAPallets.Sum(x => x.ActualPallets);
@@ -476,6 +488,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     newInvoiceDetail.CustomerCode = i.FBAShipOrder.CustomerCode;
                     newInvoiceDetail.GrandNumber = "N/A";
                     newInvoiceDetail.Reference = i.FBAShipOrder.ShipOrderNumber;
+                    newInvoiceDetail.SubCustomer = i.FBAShipOrder.SubCustomer;
                     newInvoiceDetail.Destination = i.FBAShipOrder.Destination;
                     newInvoiceDetail.ActualCtnsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
                     newInvoiceDetail.ActualPltsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
@@ -485,6 +498,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     newInvoiceDetail.CustomerCode = i.FBAMasterOrder.Customer.CustomerCode;
                     newInvoiceDetail.GrandNumber = i.FBAMasterOrder.GrandNumber;
+                    newInvoiceDetail.SubCustomer = i.FBAMasterOrder.SubCustomer;
                     newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
                     newInvoiceDetail.Destination = " ";
                     newInvoiceDetail.ActualCtnsInThisOrder = i.FBAMasterOrder.FBAOrderDetails.Sum(x => x.ActualQuantity);
@@ -538,6 +552,8 @@ namespace ClothResorting.Helpers.FBAHelper
     {
         public string CustomerCode { get; set; }
 
+        public string SubCustomer { get; set; }
+
         public double Cost { get; set; }
 
         public string Reference { get; set; }
@@ -563,6 +579,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public double Rate { get; set; }
 
         public double Amount { get; set; }
+
+        public int Pallets { get; set; }
 
         public string Destination { get; set; }
 

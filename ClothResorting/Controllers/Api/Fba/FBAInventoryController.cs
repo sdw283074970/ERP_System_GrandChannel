@@ -141,7 +141,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var cartonInventoryInDb = _context.FBACartonLocations
                     .Include(x => x.FBAOrderDetail.FBAMasterOrder)
-                    .Where(x => x.AvailableCtns != 0);
+                    .Where(x => x.AvailableCtns != 0 || x.HoldCtns != 0);
 
                 if (container != null)
                 {
@@ -299,6 +299,17 @@ namespace ClothResorting.Controllers.Api.Fba
                 locationInDb.Location = locationValue;
             }
 
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fbainventory/?cartonId={cartonId}&holdCtns={holdCtns}
+        [HttpPut]
+        public void UpdateHoldCtns([FromUri]int cartonId, [FromUri]int holdCtns)
+        {
+            var cartonLocationInDb = _context.FBACartonLocations.Find(cartonId);
+            var totalAvailableCtns = cartonLocationInDb.AvailableCtns + cartonLocationInDb.HoldCtns;
+            cartonLocationInDb.AvailableCtns = totalAvailableCtns - holdCtns;
+            cartonLocationInDb.HoldCtns = holdCtns;
             _context.SaveChanges();
         }
 

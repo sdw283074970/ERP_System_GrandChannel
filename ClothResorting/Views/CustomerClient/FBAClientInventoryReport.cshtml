@@ -28,6 +28,7 @@
                     <th>CBM/Ctn</th>
                     <th>Received Ctns</th>
                     <th>Residual Ctns</th>
+                    <th>Processing Ctns</th>
                     <th>Location</th>
                 </tr>
             </thead>
@@ -105,6 +106,12 @@
                     },
                     {
                         data: "residualQuantity",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "pickingCtns",
                         render: function (data) {
                             return "<text>" + data + "</text>";
                         }

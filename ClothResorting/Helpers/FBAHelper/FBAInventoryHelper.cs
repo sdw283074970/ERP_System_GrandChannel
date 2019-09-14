@@ -10,6 +10,7 @@ using ClothResorting.Models.FBAModels.StaticModels;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using ClothResorting.Models.FBAModels;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -39,19 +40,10 @@ namespace ClothResorting.Helpers.FBAHelper
         //输入截止日期和客户代码，返回到截止日期时FBA的库存列表
         public FBAInventoryInfo GetFBAInventoryResidualInfo(string customerCode, DateTime CloseDate)
         {
-            var residualInventoryList = new List<FBAResidualInventory>();
+            var residualInventoryList = new List<FBACtnInventory>();
+            //在1900年与2018年之间任取一日期作为最小日期，取在下的生日
             var minDate = new DateTime(1992, 11, 17);
-            //var rCloseDate = new DateTime(CloseDate.Year, CloseDate.Month, CloseDate.Day, 23, 59, 59);
             var rCloseDate = CloseDate.AddDays(1);
-
-            //获取在指定日期前的相关拣货列表
-            //var pickDetailList = _context.FBAPickDetails
-            //    .Include(x => x.FBAPickDetailCartons)
-            //    .Include(x => x.FBAShipOrder)
-            //    .Where(x => x.FBAShipOrder.PlaceTime <= rCloseDate && x.FBAShipOrder.PlaceTime >= minDate);
-            ////.Where(x => x.FBAShipOrder.ShipDate <= closeDate && x.FBAShipOrder.ShipDate >= minDate);
-
-            //var t = pickDetailList.ToList();
 
             //获取在指定日期之前入库的总箱数库存列表
             var cartonLocationsInDb = _context.FBACartonLocations
@@ -59,7 +51,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
                 .Include(x => x.FBAPickDetailCartons
                     .Select(c => c.FBAPickDetail.FBAShipOrder))
-                .Include(x => x.FBAPickDetails)
+                .Include(x => x.FBAPickDetails
+                    .Select(c => c.FBAShipOrder))
                 .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= rCloseDate
                     && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= minDate
                     && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
@@ -79,10 +72,51 @@ namespace ClothResorting.Helpers.FBAHelper
             var originalLooseCtns = cartonLocationList.Where(x => x.Location != "Pallet").Sum(x => x.ActualQuantity);
             var currentLooseCtns = originalLooseCtns;
 
+            var pltViewList = new List<FBAPalletGroupInventory>();
+
+            var totalPickingPlts = 0;
+
+            //计算原有托盘数减去所有发出的托盘数
+            foreach (var plt in palletLocationsList)
+            {
+                var currentPickingPlt = 0;
+                var currentOriginalPlts = plt.ActualPlts;
+
+                foreach (var pick in plt.FBAPickDetails)
+                {
+                    if (pick.FBAShipOrder.PlaceTime <= rCloseDate)
+                    {
+                        plt.ActualPlts -= pick.PltsFromInventory;
+
+                        //所有运单状态不为shipped的物品都视为正在处理processing/picking
+                        if (pick.FBAShipOrder.Status != FBAStatus.Shipped)
+                        {
+                            totalPickingPlts += pick.PltsFromInventory;
+                            currentPickingPlt += pick.PltsFromInventory;
+                        }
+                    }
+                }
+
+                if (currentPickingPlt != 0 || plt.ActualPlts != 0)
+                {
+                    pltViewList.Add(new FBAPalletGroupInventory {
+                        PltId = plt.Id,
+                        Container = plt.Container,
+                        ActualPlts = currentOriginalPlts,
+                        PickingPlts = currentPickingPlt,
+                        AvailablePlts = plt.ActualPlts,
+                        Location = plt.Location
+                    });
+                }
+            }
+
+            var totalPickingCtns = 0;
+
             //计算原有箱数减去每次发出的箱数并放到列表中
             foreach (var cartonLocation in cartonLocationsInDb)
             {
                 var originalQuantity = cartonLocation.ActualQuantity;
+                var currentPickingCtns = 0;
 
                 if (cartonLocation.Location == FBAInventoryType.Pallet)
                 {
@@ -90,80 +124,104 @@ namespace ClothResorting.Helpers.FBAHelper
                     {
                         //获取在指定日期前的相关拣货列表
                         if (pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime <= rCloseDate)
+                        {
                             cartonLocation.ActualQuantity -= pickCarton.PickCtns;
+
+                            if (pickCarton.FBAPickDetail.FBAShipOrder.Status != FBAStatus.Shipped)
+                            {
+                                totalPickingCtns += pickCarton.PickCtns;
+                                currentPickingCtns += pickCarton.PickCtns;
+                            }
+                        }
+                    }
+
+                    if (cartonLocation.ActualQuantity != 0 || currentPickingCtns != 0)
+                    {
+                        var ctnInventory = new FBACtnInventory
+                        {
+                            Id = cartonLocation.Id,
+                            Container = cartonLocation.Container,
+                            Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
+                            ShipmentId = cartonLocation.ShipmentId,
+                            AmzRefId = cartonLocation.AmzRefId,
+                            WarehouseCode = cartonLocation.WarehouseCode,
+                            GrossWeightPerCtn = cartonLocation.GrossWeightPerCtn,
+                            CBMPerCtn = cartonLocation.CBMPerCtn,
+                            PickingCtns = currentPickingCtns,
+                            ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
+                            ResidualQuantity = cartonLocation.ActualQuantity,
+                            OriginalQuantity = originalQuantity,
+                            Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
+                        };
+
+                        residualInventoryList.Add(ctnInventory);
+
+                        var pltId = cartonLocation.FBAPallet.FBAPalletLocations.First().Id;
+
+                        if (pltViewList.SingleOrDefault(x => x.PltId == pltId) != null)
+                            pltViewList.SingleOrDefault(x => x.PltId == pltId).InPalletCtnInventories.Add(ctnInventory);
                     }
                 }
                 else    //直接与拣货单
                 {
                     foreach(var pickCarton in cartonLocation.FBAPickDetails)
                     {
-                        cartonLocation.ActualQuantity -= pickCarton.ActualQuantity;
-                        currentLooseCtns -= pickCarton.ActualQuantity;
+                        if (pickCarton.FBAShipOrder.PlaceTime <= rCloseDate)
+                        {
+                            cartonLocation.ActualQuantity -= pickCarton.ActualQuantity;
+                            currentLooseCtns -= pickCarton.ActualQuantity;
+
+                            if (pickCarton.FBAShipOrder.Status != FBAStatus.Shipped)
+                            {
+                                totalPickingCtns += pickCarton.ActualQuantity;
+                                currentPickingCtns += pickCarton.ActualQuantity;
+                            }
+                        }
                     }
-                }
-
-                if (cartonLocation.ActualQuantity != 0)
-                {
-                    residualInventoryList.Add(new FBAResidualInventory {
-                        Id = cartonLocation.Id,
-                        Container = cartonLocation.Container,
-                        Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
-                        ShipmentId = cartonLocation.ShipmentId,
-                        AmzRefId = cartonLocation.AmzRefId,
-                        WarehouseCode = cartonLocation.WarehouseCode,
-                        GrossWeightPerCtn = cartonLocation.GrossWeightPerCtn,
-                        CBMPerCtn = cartonLocation.CBMPerCtn,
-                        ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
-                        ResidualQuantity = cartonLocation.ActualQuantity,
-                        OriginalQuantity = originalQuantity,
-                        Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
-                    });
-                }
-            }
-
-            //计算原有托盘数减去所有发出的托盘数
-            foreach(var plt in palletLocationsList)
-            {
-                foreach(var pick in plt.FBAPickDetails)
-                {
-                    if (pick.FBAShipOrder.ShipDate < rCloseDate && pick.FBAShipOrder.ShipDate.Year != 1900)
-                        plt.ActualPlts -= pick.PltsFromInventory;
                 }
             }
 
             var info = new FBAInventoryInfo();
 
-            info.FBAResidualInventories = residualInventoryList;
+            info.FBACtnInventories = residualInventoryList;
+            info.FBAPalletGroupInventories = pltViewList;
             info.Customer = customerCode;
 
-            info.OriginalPlts = originalPlts;
-            info.CurrentPlts = palletLocationsList.Sum(x => x.ActualPlts);
+            info.OriginalTotalPlts = originalPlts;
             info.OriginalLooseCtns = originalLooseCtns;
+
             info.CurrentLooseCtns = currentLooseCtns;
 
+            info.CurrentTotalPlts = palletLocationsList.Sum(x => x.ActualPlts);
+            info.TotalPickingPlts = totalPickingPlts;
+
+            info.CurrentTotalCtns = residualInventoryList.Sum(x => x.ResidualQuantity);
+            info.TotalPickingCtns = totalPickingCtns;
+
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
-            info.TotalResidualQuantity = residualInventoryList.Sum(x => x.ResidualQuantity);
             info.CloseDate = rCloseDate;
 
             return info;
         }
 
-        //读取库存报告模板并另存报告,返回完整储存路径
+        //读取库存报告模板并另存报告,且直接下载
         public void GenerateFBAInventoryReport(FBAInventoryInfo info)
         {
             _ws = _wb.Worksheets[1];
 
             _ws.Cells[4, 2] = info.Customer;
             _ws.Cells[4, 4] = info.CloseDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 6] = info.CurrentTotalCtns - info.CurrentLooseCtns;
+            _ws.Cells[4, 8] = info.CurrentLooseCtns;
 
-            _ws.Cells[6, 2] = info.CurrentPlts;
-            _ws.Cells[6, 4] = info.TotalResidualQuantity;
-            _ws.Cells[6, 6] = info.CurrentLooseCtns;
-            _ws.Cells[6, 8] = info.TotalResidualQuantity - info.CurrentLooseCtns;
+            _ws.Cells[6, 2] = info.CurrentTotalPlts;
+            _ws.Cells[6, 4] = info.TotalPickingPlts;
+            _ws.Cells[6, 6] = info.CurrentTotalCtns;
+            _ws.Cells[6, 8] = info.TotalPickingCtns;
 
             var startRow = 9;
 
-            foreach(var i in info.FBAResidualInventories)
+            foreach(var i in info.FBACtnInventories)
             {
                 _ws.Cells[startRow, 1] = i.Container;
                 _ws.Cells[startRow, 2] = i.Type;
@@ -173,11 +231,83 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 6] = Math.Round(i.GrossWeightPerCtn, 2);
                 _ws.Cells[startRow, 7] = Math.Round(i.CBMPerCtn, 2);
                 _ws.Cells[startRow, 8] = i.OriginalQuantity;
-                _ws.Cells[startRow, 9] = Math.Round((double)i.ResidualQuantity, 2);
-                _ws.Cells[startRow, 10] = i.Location;
+                _ws.Cells[startRow, 9] = i.PickingCtns;
+                _ws.Cells[startRow, 10] = Math.Round((double)i.ResidualQuantity, 2);
+                _ws.Cells[startRow, 11] = i.Location;
 
                 startRow += 1;
             }
+
+            _ws.get_Range("A1:K" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:K" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+
+            _ws = _wb.Worksheets[2];
+
+            _ws.Cells[4, 2] = info.Customer;
+            _ws.Cells[4, 4] = info.CloseDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 6] = info.CurrentTotalCtns - info.CurrentLooseCtns;
+            _ws.Cells[4, 8] = info.CurrentLooseCtns;
+
+            _ws.Cells[6, 2] = info.CurrentTotalPlts;
+            _ws.Cells[6, 4] = info.TotalPickingPlts;
+            _ws.Cells[6, 6] = info.CurrentTotalCtns;
+            _ws.Cells[6, 8] = info.TotalPickingCtns;
+
+            startRow = 9;
+
+            foreach(var g in info.FBAPalletGroupInventories)
+            {
+                var ctnIndex = startRow;
+
+                _ws.Cells[startRow, 1] = g.PltId;
+                _ws.Cells[startRow, 2] = g.Container;
+                _ws.Cells[startRow, 3] = g.ActualPlts;
+                _ws.Cells[startRow, 4] = g.PickingPlts;
+                _ws.Cells[startRow, 5] = g.AvailablePlts;
+                _ws.Cells[startRow, 6] = g.Location;
+
+                foreach(var c in g.InPalletCtnInventories)
+                {
+                    _ws.Cells[ctnIndex, 7] = c.Id;
+                    _ws.Cells[ctnIndex, 8] = c.ShipmentId;
+                    _ws.Cells[ctnIndex, 9] = c.AmzRefId;
+                    _ws.Cells[ctnIndex, 10] = c.WarehouseCode;
+                    _ws.Cells[ctnIndex, 11] = c.GrossWeightPerCtn;
+                    _ws.Cells[ctnIndex, 12] = c.CBMPerCtn;
+                    _ws.Cells[ctnIndex, 13] = c.OriginalQuantity;
+                    _ws.Cells[ctnIndex, 14] = c.PickingCtns;
+                    _ws.Cells[ctnIndex, 15] = c.ResidualQuantity;
+
+                    ctnIndex += 1;
+                }
+
+                //如果一托盘里面有很多SKU，则合并托盘单元格
+                if (g.InPalletCtnInventories.Count > 1)
+                {
+                    var rangeId = _ws.get_Range("A" + startRow, "A" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeId.Merge(rangeId.MergeCells);
+
+                    var rangeContainer = _ws.get_Range("B" + startRow, "B" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeContainer.Merge(rangeContainer.MergeCells);
+
+                    var rangeOrgPlt = _ws.get_Range("C" + startRow, "C" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeOrgPlt.Merge(rangeOrgPlt.MergeCells);
+
+                    var rangePlt = _ws.get_Range("D" + startRow, "D" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangePlt.Merge(rangePlt.MergeCells);
+
+                    var rangeStockPlt = _ws.get_Range("E" + startRow, "E" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeStockPlt.Merge(rangeStockPlt.MergeCells);
+
+                    var rangeLocation = _ws.get_Range("F" + startRow, "F" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeLocation.Merge(rangeLocation.MergeCells);
+                }
+
+                startRow += g.InPalletCtnInventories.Count;
+            }
+
+            _ws.get_Range("A1:O" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:O" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
 
             var fullPath = @"D:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
@@ -219,7 +349,7 @@ namespace ClothResorting.Helpers.FBAHelper
             foreach(var code in customerCodeList)
             {
                 var info = GetFBAInventoryResidualInfo(code, closeDate);
-                if (info.FBAResidualInventories.Count != 0)
+                if (info.FBACtnInventories.Count != 0)
                 {
                     resultList.Add(info);
                 }
@@ -256,7 +386,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
     }
 
-    public class FBAResidualInventory
+    public class FBACtnInventory
     {
         public int Id { get; set; }
 
@@ -274,6 +404,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public float CBMPerCtn { get; set; }
 
+        public int PickingCtns { get; set; }
+
         public int OriginalQuantity { get; set; }
 
         public float ResidualCBM { get; set; }
@@ -287,9 +419,11 @@ namespace ClothResorting.Helpers.FBAHelper
     {
         public string Customer { get; set; }
 
-        public int OriginalPlts { get; set; }
+        public int OriginalTotalPlts { get; set; }
 
-        public int CurrentPlts { get; set; }
+        public int CurrentTotalPlts { get; set; }
+
+        public float CurrentTotalCtns { get; set; }
 
         public int OriginalLooseCtns { get; set; }
 
@@ -297,10 +431,36 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public float TotalResidualCBM { get; set; }
 
-        public float TotalResidualQuantity { get; set; }
+        public int TotalPickingPlts { get; set; }
+
+        public int TotalPickingCtns { get; set; }
 
         public DateTime CloseDate { get; set; }
 
-        public List<FBAResidualInventory> FBAResidualInventories { get; set; }
+        public List<FBACtnInventory> FBACtnInventories { get; set; }
+
+        public List<FBAPalletGroupInventory> FBAPalletGroupInventories { get; set; }
+    }
+
+    public class FBAPalletGroupInventory
+    {
+        public int PltId { get; set; }
+
+        public string Container { get; set; }
+
+        public string Location { get; set; }
+
+        public int ActualPlts { get; set; }
+
+        public int PickingPlts { get; set; }
+
+        public int AvailablePlts { get; set; }
+
+        public List<FBACtnInventory> InPalletCtnInventories { get; set; }
+
+        public FBAPalletGroupInventory()
+        {
+            InPalletCtnInventories = new List<FBACtnInventory>();
+        }
     }
 }

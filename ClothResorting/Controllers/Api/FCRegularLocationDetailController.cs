@@ -135,7 +135,7 @@ namespace ClothResorting.Controllers.Api
                 .Include(x => x.RegularCaronDetail)
                 .SingleOrDefault(x => x.Id == id);
 
-            //检查当前移库对象是否有正在拣货的寄生对象，如果有则抛出异常
+            //检查当前移库对象是否有正在拣货或者已经发货的寄生对象，如果有则抛出异常
             var parasitcItemsInDb = context.FCRegularLocationDetails
                 .Where(x => x.Container == locationInDb.Container
                     && x.CartonRange == locationInDb.CartonRange
@@ -146,6 +146,11 @@ namespace ClothResorting.Controllers.Api
                 if (item.PickingPcs != 0)
                 {
                     throw new Exception("Cannot relocate item PO:" + item.PurchaseOrder + " Style=:" + item.Style + " Color:" + item.Color + " Size:" + item.SizeBundle + ". Because certain items under carton range: " + item.CartonRange + " Batch:" + item.Batch + " is in picking.");
+                }
+
+                if (item.ShippedPcs != 0)
+                {
+                    throw new Exception("Cannot relocate item PO:" + item.PurchaseOrder + " Style=:" + item.Style + " Color:" + item.Color + " Size:" + item.SizeBundle + ". Because certain items under carton range: " + item.CartonRange + " Batch:" + item.Batch + " has been shipped.Please change the location manually if needed.");
                 }
             }
 
