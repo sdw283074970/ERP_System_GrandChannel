@@ -144,12 +144,13 @@ namespace ClothResorting.Helpers.FBAHelper
                             Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
                             ShipmentId = cartonLocation.ShipmentId,
                             AmzRefId = cartonLocation.AmzRefId,
+                            HoldQuantity = cartonLocation.HoldCtns,
                             WarehouseCode = cartonLocation.WarehouseCode,
                             GrossWeightPerCtn = cartonLocation.GrossWeightPerCtn,
                             CBMPerCtn = cartonLocation.CBMPerCtn,
                             PickingCtns = currentPickingCtns,
                             ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
-                            ResidualQuantity = cartonLocation.ActualQuantity,
+                            ResidualQuantity = cartonLocation.ActualQuantity - cartonLocation.HoldCtns,
                             OriginalQuantity = originalQuantity,
                             Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
                         };
@@ -233,7 +234,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 8] = i.OriginalQuantity;
                 _ws.Cells[startRow, 9] = i.PickingCtns;
                 _ws.Cells[startRow, 10] = Math.Round((double)i.ResidualQuantity, 2);
-                _ws.Cells[startRow, 11] = i.Location;
+                _ws.Cells[startRow, 11] = Math.Round((double)i.HoldQuantity, 2);
+                _ws.Cells[startRow, 12] = i.Location;
 
                 startRow += 1;
             }
@@ -277,6 +279,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[ctnIndex, 13] = c.OriginalQuantity;
                     _ws.Cells[ctnIndex, 14] = c.PickingCtns;
                     _ws.Cells[ctnIndex, 15] = c.ResidualQuantity;
+                    _ws.Cells[ctnIndex, 15] = c.HoldQuantity;
 
                     ctnIndex += 1;
                 }
@@ -411,6 +414,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public float ResidualCBM { get; set; }
 
         public int ResidualQuantity { get; set; }
+
+        public int HoldQuantity { get; set; }
 
         public string Location { get; set; }
     }
