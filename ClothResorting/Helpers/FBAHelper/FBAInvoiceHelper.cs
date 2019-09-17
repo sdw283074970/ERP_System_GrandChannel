@@ -91,7 +91,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 6] = "Total Ctns";
             _ws.Cells[startRow, 7] = "Total Plts";
 
-            var columnIndex = 7;
+            var columnIndex = 8;
             var activityList = new List<string>();
 
             foreach(var c in chargeActivityGroup)

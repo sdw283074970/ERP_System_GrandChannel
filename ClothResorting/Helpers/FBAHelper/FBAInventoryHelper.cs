@@ -134,34 +134,6 @@ namespace ClothResorting.Helpers.FBAHelper
                             }
                         }
                     }
-
-                    if (cartonLocation.ActualQuantity != 0 || currentPickingCtns != 0)
-                    {
-                        var ctnInventory = new FBACtnInventory
-                        {
-                            Id = cartonLocation.Id,
-                            Container = cartonLocation.Container,
-                            Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
-                            ShipmentId = cartonLocation.ShipmentId,
-                            AmzRefId = cartonLocation.AmzRefId,
-                            HoldQuantity = cartonLocation.HoldCtns,
-                            WarehouseCode = cartonLocation.WarehouseCode,
-                            GrossWeightPerCtn = cartonLocation.GrossWeightPerCtn,
-                            CBMPerCtn = cartonLocation.CBMPerCtn,
-                            PickingCtns = currentPickingCtns,
-                            ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
-                            ResidualQuantity = cartonLocation.ActualQuantity - cartonLocation.HoldCtns,
-                            OriginalQuantity = originalQuantity,
-                            Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
-                        };
-
-                        residualInventoryList.Add(ctnInventory);
-
-                        var pltId = cartonLocation.FBAPallet.FBAPalletLocations.First().Id;
-
-                        if (pltViewList.SingleOrDefault(x => x.PltId == pltId) != null)
-                            pltViewList.SingleOrDefault(x => x.PltId == pltId).InPalletCtnInventories.Add(ctnInventory);
-                    }
                 }
                 else    //直接与拣货单
                 {
@@ -178,6 +150,37 @@ namespace ClothResorting.Helpers.FBAHelper
                                 currentPickingCtns += pickCarton.ActualQuantity;
                             }
                         }
+                    }
+                }
+
+                if (cartonLocation.ActualQuantity != 0 || currentPickingCtns != 0)
+                {
+                    var ctnInventory = new FBACtnInventory
+                    {
+                        Id = cartonLocation.Id,
+                        Container = cartonLocation.Container,
+                        Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
+                        ShipmentId = cartonLocation.ShipmentId,
+                        AmzRefId = cartonLocation.AmzRefId,
+                        HoldQuantity = cartonLocation.HoldCtns,
+                        WarehouseCode = cartonLocation.WarehouseCode,
+                        GrossWeightPerCtn = cartonLocation.GrossWeightPerCtn,
+                        CBMPerCtn = cartonLocation.CBMPerCtn,
+                        PickingCtns = currentPickingCtns,
+                        ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
+                        ResidualQuantity = cartonLocation.ActualQuantity - cartonLocation.HoldCtns,
+                        OriginalQuantity = originalQuantity,
+                        Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
+                    };
+
+                    residualInventoryList.Add(ctnInventory);
+
+                    if (cartonLocation.Location == FBAInventoryType.Pallet)
+                    {
+                        var pltId = cartonLocation.FBAPallet.FBAPalletLocations.First().Id;
+
+                        if (pltViewList.SingleOrDefault(x => x.PltId == pltId) != null)
+                            pltViewList.SingleOrDefault(x => x.PltId == pltId).InPalletCtnInventories.Add(ctnInventory);
                     }
                 }
             }
