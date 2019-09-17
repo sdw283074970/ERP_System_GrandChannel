@@ -61,6 +61,7 @@ namespace ClothResorting.Controllers.Api.Fba
             for (int i = 0; i < masterOrders.Count; i++)
             {
                 resultDto[i].SKUNumber = skuList[i];
+                resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
             }
 
             return Ok(resultDto);
@@ -96,6 +97,7 @@ namespace ClothResorting.Controllers.Api.Fba
             for (int i = 0; i < masterOrders.Count; i++)
             {
                 resultDto[i].SKUNumber = skuList[i];
+                resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
             }
             return Ok(resultDto);
         }

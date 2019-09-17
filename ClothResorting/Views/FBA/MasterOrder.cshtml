@@ -36,11 +36,12 @@
                     <th>SKU #</th>
                     <th>Total Amount</th>
                     <th>Total Cost</th>
+                    <th>Net</th>
                     <th>Invoice Status</th>
                     <th>Close Date</th>
+                    <th>Status</th>
                     <th>eFolder</th>
                     <th style="width:240px">Operation</th>
-                    <th>Status</th>
                     <th style="width:180px">Status Control</th>
                     <th style="width:200px">INSTRUCTION</th>
                     <th style="width:80px">ETA</th>
@@ -108,7 +109,6 @@
         <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
             <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
-            @*<text>ETD: <input id='input-etd' type="date" style='width:170px;margin-top:20px' class='input-sm' /></text><br />*@
             <text>ETA PORT: <input id='input-etaPort' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>PLACE OF RECEIPT: <input id='input-receipt' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>PORT OF LOADING: <input id='input-pol' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
@@ -320,10 +320,13 @@
             //点击删除按钮，删除所选的master order
             $("#table").on("click", ".btn-delete", function () {
                 var masterOrderId = $(this).attr('grandnumber');
-
                 url = "/api/fba/fbamasterorder/?grandNumber=" + masterOrderId;
 
-                SendAjaxMethod("DELETE", url, {});
+                bootbox.confirm("Are you sure to delete this master order?", function (result) {
+                    if (result) {
+                        SendAjaxMethod("DELETE", url, {});
+                    }
+                });
             });
 
             //点击文件按钮，打开订单相关文件管理页面
@@ -819,13 +822,19 @@
                                 {
                                     data: "totalAmount",
                                     render: function (data) {
-                                        return "<font color='gold' style='background-color:black'>$" + data + "</font>";
+                                        return "<font color='gold' style='background-color:black'>$" + parseFloat(data).toFixed(2) + "</font>";
                                     }
                                 },
                                 {
                                     data: "totalCost",
                                     render: function (data) {
-                                        return "<font color='gold' style='background-color:black'>$" + data + "</font>";
+                                        return "<font color='gold' style='background-color:black'>$" + parseFloat(data).toFixed(2) + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "net",
+                                    render: function (data) {
+                                        return "<font color='gold' style='background-color:black'>$" + parseFloat(data).toFixed(2) + "</font>";
                                     }
                                 },
                                 {
@@ -842,19 +851,6 @@
                                             return "<font color='red'>Open</font>"
                                         else
                                             return "<font>" + data.substring(0, 10) + "</font>";
-                                    }
-                                },
-                                {
-                                    data: "container",
-                                    render: function (data) {
-                                        return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
-                                    }
-                                },
-                                {
-                                    data: "grandNumber",
-                                    render: function (data) {
-                                        //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
-                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
                                     }
                                 },
                                 {
@@ -879,6 +875,19 @@
                                             return "<font color='blue'>" + data + "</font>";
                                         else
                                             return "<font>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "container",
+                                    render: function (data) {
+                                        return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
+                                    }
+                                },
+                                {
+                                    data: "grandNumber",
+                                    render: function (data) {
+                                        //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
                                     }
                                 },
                                 {

@@ -53,7 +53,14 @@ namespace ClothResorting.Controllers.Api.Fba
                 s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
             }
 
-            return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
+            var dto = Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders);
+
+            foreach(var d in dto)
+            {
+                d.Net = d.TotalAmount - d.TotalCost;
+            }
+
+            return Ok(dto);
         }
 
         // GET /api/fba/fbashiporder/?customerId={customerId}
@@ -72,7 +79,14 @@ namespace ClothResorting.Controllers.Api.Fba
                 s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
             }
 
-            return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
+            var dto = Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders);
+
+            foreach (var d in dto)
+            {
+                d.Net = d.TotalAmount - d.TotalCost;
+            }
+
+            return Ok(dto);
         }
 
         // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}

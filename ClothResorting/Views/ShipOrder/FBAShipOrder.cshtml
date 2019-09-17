@@ -30,6 +30,7 @@
                     <th>Total Plts</th>
                     <th style="width:60px">Total Amount</th>
                     <th style="width:60px">Total Cost</th>
+                    <th style="width:60px">Net</th>
                     <th style="width:60px">Invoice Status</th>
                     <th style="width:60px">Close Date</th>
                     <th style="width:150px">Status Control</th>
@@ -126,6 +127,9 @@
             var customerId = getUrlParameter('customerId');
             var invoiceStatus;
             var searchBar = getUrlParameter('search');
+
+            var income;
+            var cost;
 
             $(".btn-wo-operation, #iframe-verifiedinfo, .div-readme").hide();
             $(".iframe, #btn-update, #btn-release, #btn-ship").hide();
@@ -246,13 +250,21 @@
                 {
                     data: "totalAmount",
                     render: function (data) {
-                        return "<font color='gold' style='background-color:black'>$" + data + "</font>";
+                        income = data;
+                        return "<font color='gold' style='background-color:black'>$" + parseFloat(data).toFixed(2) + "</font>";
                     }
                 },
                 {
                     data: "totalCost",
                     render: function (data) {
-                        return "<font color='gold' style='background-color:black'>$" + data + "</font>";
+                        cost = data;
+                        return "<font color='gold' style='background-color:black'>$" + parseFloat(data).toFixed(2) + "</font>";
+                    }
+                },
+                {
+                    data: "net",
+                    render: function (data) {
+                        return "<font color='gold' style='background-color:black'>$" + parseFloat(data).toFixed(2) + "</font>";
                     }
                 },
                 {
@@ -495,7 +507,7 @@
             $("#table").on("click", ".btn-fee", function () {
 
                 shipOrderId = shipOrderId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
-                var tpStatus = $(this).parent().parent("tr").children('td').eq(12).children('text').html();
+                var tpStatus = $(this).parent().parent("tr").children('td').eq(13).children('text').html();
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")

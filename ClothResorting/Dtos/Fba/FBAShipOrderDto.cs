@@ -15,6 +15,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float TotalCost { get; set; }
 
+        public float Net { get; set; }
+
         public string SubCustomer { get; set; }
 
         public string BatchNumber { get; set; }

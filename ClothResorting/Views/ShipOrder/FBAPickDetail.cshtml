@@ -948,9 +948,10 @@
                                 }
                             }
                         ];
+
                         GetAjaxTable("GET", url, "#table-pickpallet", tablePickPallet, ctnsInPltColumnArray);
                     },
-                    error: function (XMLHttpRequest, textStat us, errorThrown) {
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
                             window.location.reload();
                         });
