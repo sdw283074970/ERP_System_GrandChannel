@@ -299,7 +299,7 @@
             //点击管理总单按钮，进入所选总单的细节页面
             $("#table").on("click", ".btn-manage", function () {
                 var grandNumber = $(this).attr('iid');
-                $(window.location).attr('href', '/fba/MasterDetail/?grandNumber=' + grandNumber);
+                $(window.location).attr('href', '/fba/FBAOrderDetail/?grandNumber=' + grandNumber);
             });
 
             //点击费用按钮，进入收费项目登记页面

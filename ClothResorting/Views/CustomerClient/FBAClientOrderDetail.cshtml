@@ -154,7 +154,7 @@
                 });
             });
 
-            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+            url = '/api/fba/FBAOrderDetail/?grandNumber=' + grandNumber;
 
             GetAjaxTable("GET", url, table);
 
@@ -167,7 +167,7 @@
                     formData.append("fileName", files[0]);
                 }
 
-                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber;
+                url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber;
 
                 SendUploadAjaxMethod("POST", url, formData);
             });
@@ -197,7 +197,7 @@
 
                 if (inboundDate != "" && container != "")
                 {
-                    url = "/api/fba/masterdetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
+                    url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
                     SendAjaxMethod("PUT", url, {});
                 }
                 else
@@ -227,7 +227,7 @@
                 var model;
                 orderDetailId = $(this).attr('iid');
 
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+                url = "/api/fba/FBAOrderDetail/?orderDetailId=" + orderDetailId;
 
                 SendAjaxMethodOverrideObj("GET", url, {});
 
@@ -253,7 +253,7 @@
 
             //点击Receipt按钮，下载自动生成的Receipt
             $("#btn-receipt").on("click", function () {
-                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Download";
+                url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber + "&operation=Download";
                 grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath("GET", url, {}, index);
             });
 
@@ -261,7 +261,7 @@
             $("#btn-add").on("click", function () {
                 if (validform("#form-table").form())
                 {
-                    url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Add";
+                    url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber + "&operation=Add";
 
                     var obj = {
                         "shipmentId": $("#input-sku").val(),
@@ -289,7 +289,7 @@
                             });
                         },
                         success: function (data) {
-                            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                            url = '/api/fba/FBAOrderDetail/?grandNumber=' + grandNumber;
                             GetAjaxTable("GET", url, table);
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -308,7 +308,7 @@
             //点击删除按钮，删除对应的item
             $("#table").on("click", ".btn-delete", function () {
                 var orderDetailId = $(this).attr('iid');
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+                url = "/api/fba/FBAOrderDetail/?orderDetailId=" + orderDetailId;
 
                 $.ajax({
                     type: "DELETE",
@@ -324,7 +324,7 @@
                         });
                     },
                     success: function (data) {
-                        url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                        url = '/api/fba/FBAOrderDetail/?grandNumber=' + grandNumber;
                         GetAjaxTable("GET", url, table);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {

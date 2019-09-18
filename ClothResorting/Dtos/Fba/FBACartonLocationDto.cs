@@ -12,7 +12,9 @@ namespace ClothResorting.Dtos.Fba
 
         public float CBMPerCtn { get; set; }
 
-        public string UPCNumber { get; set; }
+        public string Barcode { get; set; }
+
+        public string Symbology { get; set; }
 
         public DateTime InboundDate { get; set; }
 

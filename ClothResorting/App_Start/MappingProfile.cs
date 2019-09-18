@@ -49,11 +49,13 @@ namespace ClothResorting.App_Start
             //FBA(Under DefaultConnection)
             Mapper.CreateMap<FBAMasterOrder, FBAMasterOrderDto>();
             Mapper.CreateMap<FBAOrderDetail, FBAOrderDetailDto>();
-            Mapper.CreateMap<FBACartonLocation, FBACartonLocationDto>();
+            Mapper.CreateMap<FBACartonLocation, FBACartonLocationDto>()
+                .ForMember(dest => dest.Barcode, opt => opt.MapFrom(src => src.FBAOrderDetail.Barcode));
             Mapper.CreateMap<FBAPallet, FBAPalletDto>();
             Mapper.CreateMap<FBAPalletLocation, FBAPalletLocationDto>();
             Mapper.CreateMap<FBAShipOrder, FBAShipOrderDto>();
             Mapper.CreateMap<FBAPickDetail, FBAPickDetailsDto>();
+                //.ForMember(dest => dest.Barcode, opt => opt.MapFrom(src => "MIX"));
             Mapper.CreateMap<FBAAddressBook, FBAAddressBookDto>();
             Mapper.CreateMap<ChargingItemDetail, ChargingItemDetailDto>();
             Mapper.CreateMap<FBAShipOrder, WarehouseOrder>();

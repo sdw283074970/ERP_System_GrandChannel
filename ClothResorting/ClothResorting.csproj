@@ -392,7 +392,7 @@
     <Compile Include="Controllers\Api\Fba\FBAPickDetailController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAReportDonwloadController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAShipOrderController.cs" />
-    <Compile Include="Controllers\Api\Fba\MasterDetailController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBAOrderDetailController.cs" />
     <Compile Include="Controllers\Api\ShipDetailHistoryController.cs" />
     <Compile Include="Controllers\Api\Fba\WarehouseOperationController.cs" />
     <Compile Include="Controllers\Api\InventoryReportDownloadController.cs" />
@@ -1781,6 +1781,10 @@
     <Compile Include="Migrations\201909132257578_AddedHoldCtns.Designer.cs">
       <DependentUpon>201909132257578_AddedHoldCtns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201909181759243_AddedBarcodeAndSymbologyPropertyInRegularWarehouseSystem.cs" />
+    <Compile Include="Migrations\201909181759243_AddedBarcodeAndSymbologyPropertyInRegularWarehouseSystem.Designer.cs">
+      <DependentUpon>201909181759243_AddedBarcodeAndSymbologyPropertyInRegularWarehouseSystem.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2343,7 +2347,7 @@
     <Content Include="Views\Customer\Index.cshtml" />
     <Content Include="Views\FBA\Index.cshtml" />
     <Content Include="Views\FBA\MasterOrder.cshtml" />
-    <Content Include="Views\FBA\MasterDetail.cshtml" />
+    <Content Include="Views\FBA\FBAOrderDetail.cshtml" />
     <Content Include="Views\FBA\WarehouseOperation.cshtml" />
     <Content Include="Views\FBA\FBAInventory.cshtml" />
     <Content Include="Views\FBA\FBAAllocating.cshtml" />
@@ -3321,6 +3325,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201909132257578_AddedHoldCtns.resx">
       <DependentUpon>201909132257578_AddedHoldCtns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909181759243_AddedBarcodeAndSymbologyPropertyInRegularWarehouseSystem.resx">
+      <DependentUpon>201909181759243_AddedBarcodeAndSymbologyPropertyInRegularWarehouseSystem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

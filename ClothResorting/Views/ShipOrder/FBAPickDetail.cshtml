@@ -28,7 +28,6 @@
         <input style="width:140px" id="input-customer" class="input-sm" placeholder="CustomerCode" />
         <input style="width:140px" id="input-shipmentid" class="input-sm" placeholder="Shipment Id/SKU" />
         <input style="width:140px" id="input-amzref" class="input-sm" placeholder="Amz Ref Id" />
-        @*<input style="width:140px" id="input-deliver" class="input-sm" placeholder="How to deliver" />*@
         <input style="width:140px" id="input-warehouse" class="input-sm" placeholder="Warehouse Code" />
         <button ordertype="Standard" class="btn btn-info btn-pick">Pick All Pallets</button>
         <button ordertype="ecommerce" class="btn btn-info btn-pick">Pick All Cartons</button>
@@ -44,7 +43,7 @@
                     <th>Type</th>
                     <th style="width:206px">FBA shmt ID./SKU</th>
                     <th style="width:64px">Amz Ref ID.</th>
-                    <th>Size</th>
+                    <th>Barcode</th>
                     <th>Delivery</th>
                     <th>Warehouse Code</th>
                     <th>Gross Weight</th>
@@ -91,7 +90,8 @@
                     <th>Status</th>
                     <th style="width:103px">FBA shmt ID./SKU</th>
                     <th style="width:64px">Amz Ref ID.</th>
-                    <th>FBA Code</th>
+                    <th>Barcode</th>
+                    <th>Whse</th>
                     <th>GW/Ctn</th>
                     <th>CBM/Ctn</th>
                     <th>Ctns/Plt</th>
@@ -135,19 +135,8 @@
         </div>
     </div>
 </div>
-@*<div class="iframe-pickcarton">
-        <div style="text-align:center">
-            <text>Pick cartons: </text><input id="input-carton-ctns" class="input-sm" style="width:170px;margin-top:20px" />
-        </div>
-        <div style="text-align:right">
-            <button id="btn-carton-pick" class="btn btn-primary" style="margin-top:20px;margin-right:20px">Update</button>
-        </div>
-    </div>*@
 <div class="iframe-adjust" style="text-align:right;margin-right:20px">
-    @*<div style="margin-top:20px">
-            <text>Current Picking Ctns:<font id="font-ctns" color="red">10</font></text><br />
-            <text>Adjust Ctns:</text><input id="input-ctns" type="number" class="input-sm" style="width:50px" value="0" />
-        </div>*@
+
     <div style="margin-top:20px">
         <text>Current Picking Plts:<font id="font-plts" color="red">10</font></text><br />
         <text>Adjust Inventory Plts:</text><input id="input-plts" type="number" class="input-sm" style="width:80px" value="0" />
@@ -287,6 +276,14 @@
                     {
                         data: "amzRefId",
                         render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "barcode",
+                        render: function (data) {
+                            if (data == null)
+                                return "";
                             return "<text>" + data + "</text>";
                         }
                     },
@@ -1225,8 +1222,10 @@
                         }
                     },
                     {
-                        data: "size",
+                        data: "barcode",
                         render: function (data) {
+                            if (data == null)
+                                return "";
                             return "<text>" + data + "</text>";
                         }
                     },

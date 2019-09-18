@@ -18,18 +18,18 @@ using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
-    public class MasterDetailController : ApiController
+    public class FBAOrderDetailController : ApiController
     {
         private ApplicationDbContext _context;
         private Logger _logger;
 
-        public MasterDetailController()
+        public FBAOrderDetailController()
         {
             _context = new ApplicationDbContext();
             _logger = new Logger(_context);
         }
 
-        // GET /api/fba/masterdetail/?grandNumber={grandNumber}&operation={operation}
+        // GET /api/fba/FBAOrderDetail/?grandNumber={grandNumber}&operation={operation}
         [HttpGet]
         public IHttpActionResult GetByOperation([FromUri]string grandNumber, [FromUri]string operation)
         {
@@ -48,9 +48,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
         }
 
-        // GET /api/fba/masterdetail/?grandNumber={grandNumber}
+        // GET /api/fba/FBAOrderDetail/?grandNumber={grandNumber}
         [HttpGet]
-        public IHttpActionResult GetMasterDetailsByGrandNumber([FromUri]string grandNumber)
+        public IHttpActionResult GetFBAOrderDetailsByGrandNumber([FromUri]string grandNumber)
         {
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
@@ -68,9 +68,9 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(Mapper.Map<IEnumerable<FBAOrderDetail>, IEnumerable<FBAOrderDetailDto>>(orderDetailsInDb));
         }
 
-        // GET /api/fba/masterdetail/?masterOrderId={masterOrderId}
+        // GET /api/fba/FBAOrderDetail/?masterOrderId={masterOrderId}
         [HttpGet]
-        public IHttpActionResult GetMasterDetailsByMasterOrderId([FromUri]int masterOrderId)
+        public IHttpActionResult GetFBAOrderDetailsByMasterOrderId([FromUri]int masterOrderId)
         {
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
@@ -88,14 +88,14 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(Mapper.Map<IEnumerable<FBAOrderDetail>, IEnumerable<FBAOrderDetailDto>>(orderDetailsInDb));
         }
 
-        // GET /api/fba/masterdetail/?orderDetailId={orderDetailId}
+        // GET /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}
         [HttpGet]
         public IHttpActionResult GetOrderDetail([FromUri]int orderDetailId)
         {
             return Ok(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(_context.FBAOrderDetails.Find(orderDetailId)));
         }
 
-        // POST /api/fbva/masterdetail/?grandNumber={grandNumber}&operation=Add
+        // POST /api/fbva/FBAOrderDetail/?grandNumber={grandNumber}&operation=Add
         [HttpPost]
         public async Task<IHttpActionResult> CreateNewManifestItem([FromUri]string grandNumber, [FromUri]string operation, [FromBody]ManifestItem item)
         {
@@ -103,6 +103,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var newItem = new FBAOrderDetail {
                 ShipmentId = item.ShipmentId,
+                Barcode = item.Barcode,
                 Container = masterOrderInDb.Container,
                 AmzRefId = item.AmzRefId,
                 WarehouseCode = item.WarehouseCode,
@@ -125,7 +126,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
         }
 
-        // POST /api/fbva/masterdetail/?grandNumber={grandNumber}
+        // POST /api/fbva/FBAOrderDetail/?grandNumber={grandNumber}
         [HttpPost]
         public void UploadFBATemplate([FromUri]string grandNumber)
         {
@@ -146,7 +147,7 @@ namespace ClothResorting.Controllers.Api.Fba
             killer.Dispose();
         }
 
-        // PUT /api/fba/masterdetail/?orderDetailId={orderDetailId}
+        // PUT /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}
         [HttpPut]
         public void UpdateInfo([FromUri]int orderDetailId, [FromBody]BaseFBAOrderDetail obj)
         {
@@ -177,7 +178,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/masterDetail/?grandNumber={grandNumber}&inboundDate={inboundDate}&container={container}
+        // PUT /api/fba/FBAOrderDetail/?grandNumber={grandNumber}&inboundDate={inboundDate}&container={container}
         [HttpPut]
         public void UpdateReceiving([FromUri]string grandNumber, [FromUri]DateTime inboundDate, [FromUri]string container)
         {
@@ -236,7 +237,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
-        // PUT /api/fba/masterDetail/?masterOrderId={masterOrderId}
+        // PUT /api/fba/FBAOrderDetail/?masterOrderId={masterOrderId}
         [HttpPut]
         public void UpdateReceivingWithoutReceivingDate([FromUri]int masterOrderId)
         {
@@ -267,7 +268,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
 
-        // DELETE /api/fba/masterdetail/?orderDetailId={orderDetailId}
+        // DELETE /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}
         [HttpDelete]
         public async Task  RemoveOrderDetail([FromUri]int orderDetailId)
         {
@@ -288,6 +289,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string ShipmentId { get; set; }
 
         public string AmzRefId { get; set; }
+
+        public string Barcode { get; set; }
 
         public string WarehouseCode { get; set; }
 

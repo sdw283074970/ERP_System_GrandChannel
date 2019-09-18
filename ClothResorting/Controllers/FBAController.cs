@@ -36,7 +36,7 @@ namespace ClothResorting.Controllers
         }
 
         //总单详细内容页面
-        public ActionResult MasterDetail()
+        public ActionResult FBAOrderDetail()
         {
             return View();
         }

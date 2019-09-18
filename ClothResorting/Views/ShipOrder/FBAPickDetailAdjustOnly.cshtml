@@ -26,7 +26,7 @@
                     <th>Type</th>
                     <th style="width:206px">FBA shmt ID./SKU</th>
                     <th style="width:64px">Amz Ref ID.</th>
-                    <th>Size</th>
+                    <th>Barcode</th>
                     <th>Delivery</th>
                     <th>Warehouse Code</th>
                     <th>Gross Weight</th>
@@ -76,7 +76,8 @@
                     <th>Status</th>
                     <th style="width:103px">FBA shmt ID./SKU</th>
                     <th style="width:64px">Amz Ref ID.</th>
-                    <th>FBA Code</th>
+                    <th>Barcode</th>
+                    <th>Whse</th>
                     <th>GW/Ctn</th>
                     <th>CBM/Ctn</th>
                     <th>Ctns/Plt</th>
@@ -217,6 +218,14 @@
                     {
                         data: "amzRefId",
                         render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "barcode",
+                        render: function (data) {
+                            if (data == null)
+                                return "";
                             return "<text>" + data + "</text>";
                         }
                     },
@@ -584,8 +593,10 @@
                         }
                     },
                     {
-                        data: "size",
+                        data: "barcode",
                         render: function (data) {
+                            if (data == null)
+                                return "";
                             return "<text>" + data + "</text>";
                         }
                     },

@@ -23,8 +23,8 @@
                     <th style="width:103px">FBA shmt ID./SKU</th>
                     <th style="width:64px">Amz Ref ID.</th>
                     <th>Pallet Size</th>
-                    <th>FBA whse Code</th>
-                    <th>How To Deliver</th>
+                    <th>Whse</th>
+                    <th>Delivery</th>
                     <th>GW(KG)/Plt</th>
                     <th>CBM/Plt</th>
                     <th>Ctns/Plt</th>
@@ -51,8 +51,9 @@
                     <th>Container</th>
                     <th>FBA shmt ID./SKU</th>
                     <th>Amz Ref ID.</th>
-                    <th>FBA whse Code</th>
-                    <th>How To Deliver</th>
+                    <th>Barcode</th>
+                    <th>Whse</th>
+                    <th>Delivery</th>
                     <th>GW(KG)/Ctn</th>
                     <th>CBM/Ctn</th>
                     <th>Original Ctns</th>
@@ -273,6 +274,14 @@
                 {
                     data: "amzRefId",
                     render: function (data) {
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "barcode",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
                         return "<text>" + data + "</text>";
                     }
                 },

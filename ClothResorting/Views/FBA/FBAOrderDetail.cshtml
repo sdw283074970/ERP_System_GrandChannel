@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "MasterDetail";
+    ViewBag.Title = "FBAOrderDetail";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -27,6 +27,7 @@
                 <tr>
                     <th>FBA shmt ID/SKU</th>
                     <th>Amz Ref ID</th>
+                    <th>Barcode</th>
                     <th>FBA whse Code</th>
                     <th>How To Deliver</th>
                     <th>GW(KG)</th>
@@ -38,6 +39,7 @@
                 <tr>
                     <td><input id="input-sku" name="sku" class="input-sm" placeholder="Required" required /></td>
                     <td><input id="input-amz" name="amz" class="input-sm" placeholder="Required" required /></td>
+                    <td><input id="input-bcd" name="bcd" class="input-sm" placeholder="Optional" /></td>
                     <td><input id="input-whs" name="whs" class="input-sm" placeholder="Required" required /></td>
                     <td><input id="input-deliver" class="input-sm" placeholder="Optional" /></td>
                     <td><input id="input-grossweight" name="grossweight" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
@@ -58,6 +60,7 @@
                     <th>Container</th>
                     <th>FBA shmt ID/SKU</th>
                     <th>Amz Ref ID</th>
+                    <th>Barcode</th>
                     <th>Lot Size</th>
                     <th>FBA whse Code</th>
                     <th>How To Deliver</th>
@@ -148,7 +151,7 @@
                 });
             });
 
-            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+            url = '/api/fba/FBAOrderDetail/?grandNumber=' + grandNumber;
 
             GetAjaxTable("GET", url, table);
 
@@ -161,7 +164,7 @@
                     formData.append("fileName", files[0]);
                 }
 
-                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber;
+                url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber;
 
                 SendUploadAjaxMethod("POST", url, formData);
             });
@@ -190,7 +193,7 @@
                 var container = $("#input-updatecontainer").val();
 
                 if (inboundDate != "" && container != "") {
-                    url = "/api/fba/masterdetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
+                    url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
                     SendAjaxMethod("PUT", url, {});
                 }
                 else {
@@ -219,7 +222,7 @@
                 var model;
                 orderDetailId = $(this).attr('iid');
 
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+                url = "/api/fba/FBAOrderDetail/?orderDetailId=" + orderDetailId;
 
                 SendAjaxMethodOverrideObj("GET", url, {});
 
@@ -245,18 +248,19 @@
 
             //点击Receipt按钮，下载自动生成的Receipt
             $("#btn-receipt").on("click", function () {
-                url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Download";
+                url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber + "&operation=Download";
                 grandChannel.sendsendAjaxMethodAndDownloadFileByFullPath("GET", url, {}, index);
             });
 
             //点击添加按钮，验证信息，如果通过则添加新的货单内容到数据库
             $("#btn-add").on("click", function () {
                 if (validform("#form-table").form()) {
-                    url = "/api/fba/MasterDetail/?grandNumber=" + grandNumber + "&operation=Add";
+                    url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber + "&operation=Add";
 
                     var obj = {
                         "shipmentId": $("#input-sku").val(),
                         "amzRefId": $("#input-amz").val(),
+                        "barcode": $("#input-bcd").val(),
                         "warehouseCode": $("#input-whs").val(),
                         "deliver": $("#input-deliver").val(),
                         "grossWeight": $("#input-grossweight").val(),
@@ -280,7 +284,7 @@
                             });
                         },
                         success: function (data) {
-                            url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                            url = '/api/fba/FBAOrderDetail/?grandNumber=' + grandNumber;
                             GetAjaxTable("GET", url, table);
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -298,7 +302,7 @@
             //点击删除按钮，删除对应的item
             $("#table").on("click", ".btn-delete", function () {
                 var orderDetailId = $(this).attr('iid');
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+                url = "/api/fba/FBAOrderDetail/?orderDetailId=" + orderDetailId;
 
                 $.ajax({
                     type: "DELETE",
@@ -314,7 +318,7 @@
                         });
                     },
                     success: function (data) {
-                        url = '/api/fba/MasterDetail/?grandNumber=' + grandNumber;
+                        url = '/api/fba/FBAOrderDetail/?grandNumber=' + grandNumber;
                         GetAjaxTable("GET", url, table);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -387,6 +391,14 @@
                                 {
                                     data: "amzRefId",
                                     render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "barcode",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
                                         return "<text>" + data + "</text>";
                                     }
                                 },

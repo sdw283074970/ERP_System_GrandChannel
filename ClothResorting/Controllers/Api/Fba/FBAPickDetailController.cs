@@ -40,10 +40,33 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetPickDetail([FromUri]int shipOrderId)
         {
-            return Ok(_context.FBAPickDetails
+            var result = _context.FBAPickDetails
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.Id == shipOrderId)
-                .Select(Mapper.Map<FBAPickDetail, FBAPickDetailsDto>));
+                .Include(x => x.FBACartonLocation.FBAOrderDetail)
+                .Include(x => x.FBAPickDetailCartons
+                    .Select(c => c.FBACartonLocation.FBAOrderDetail))
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
+            var resultDto = new List<FBAPickDetailsDto>();
+
+            foreach(var r in result)
+            {
+                var dto = Mapper.Map<FBAPickDetail, FBAPickDetailsDto>(r);
+
+                if (r.FBACartonLocation == null)
+                {
+                    dto.Barcode = r.FBAPickDetailCartons.Count == 1 
+                        ? dto.Barcode = r.FBAPickDetailCartons.First().FBACartonLocation.FBAOrderDetail.Barcode 
+                        : "MIX";
+                }
+                else
+                {
+                    dto.Barcode = r.FBACartonLocation.FBAOrderDetail.Barcode;
+                }
+                resultDto.Add(dto);
+            }
+
+            return Ok(resultDto);
         }
 
         // GET /api/FBAPickDetail/?pickDetailId={pickDetailId}
@@ -51,8 +74,10 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult GetPickedItemsInPallet([FromUri]int pickDetailId)
         {
             var pickDetailInDb = _context.FBAPickDetails
-                .Include(x => x.FBAPickDetailCartons)
-                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .Include(x => x.FBAPickDetailCartons
+                    .Select(c => c.FBACartonLocation.FBAOrderDetail))
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations
+                    .Select(c => c.FBAOrderDetail))
                 .SingleOrDefault(x => x.Id == pickDetailId);
 
             var resultDto = new List<FBACartonLocationDto>();

@@ -12,7 +12,9 @@ namespace ClothResorting.Dtos.Fba
 
         public float GrossWeight { get; set; }
 
-        public string UPCNumber { get; set; }
+        public string Barcode { get; set; }
+
+        public string Symbology { get; set; }
 
         public float CBM { get; set; }
 

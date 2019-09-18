@@ -94,7 +94,7 @@
 
             var masterOrderId = getUrlParameter('masterOrderId');
             //$("#h2-container").html("Container: " + grandNumber);
-            url = '/api/fba/MasterDetail/?masterOrderId=' + masterOrderId;
+            url = '/api/fba/FBAOrderDetail/?masterOrderId=' + masterOrderId;
             GetAjaxTable("GET", url, table);
 
             //点击各个条目的Update按钮打开更新信息弹窗
@@ -103,7 +103,7 @@
                 var model;
                 orderDetailId = $(this).attr('iid');
 
-                url = "/api/fba/MasterDetail/?orderDetailId=" + orderDetailId;
+                url = "/api/fba/FBAOrderDetail/?orderDetailId=" + orderDetailId;
 
                 SendAjaxMethodOverrideObj("GET", url, {});
 
@@ -140,7 +140,7 @@
                 var container = $("#input-updatecontainer").val();
 
                 if (inboundDate != "" && container != "") {
-                    url = "/api/fba/masterdetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
+                    url = "/api/fba/FBAOrderDetail/?grandNumber=" + grandNumber + "&inboundDate=" + inboundDate + "&container=" + container;
                     SendAjaxMethod("PUT", url, {});
                 }
                 else {
@@ -173,7 +173,7 @@
                 //    content: $(".iframe-receive")
                 //});
 
-                url = "/api/fba/masterdetail/?masterOrderId=" + masterOrderId;
+                url = "/api/fba/FBAOrderDetail/?masterOrderId=" + masterOrderId;
                 SendAjaxMethod("PUT", url, {});
             });
 

@@ -12,7 +12,9 @@ namespace ClothResorting.Models.FBAModels
 
         public int CtnsPerPlt { get; set; }
 
-        public string UPCNumber { get; set; }
+        public string Barcode { get; set; }
+
+        public string Symbology { get; set; }
 
         public int PickableCtns { get; set; }
 
