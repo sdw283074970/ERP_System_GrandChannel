@@ -75,17 +75,31 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             if (invoiceType == FBAInvoiceType.MasterOrder)
             {
-                return Ok(_context.InvoiceDetails
+                var dto = _context.InvoiceDetails
                     .Include(x => x.FBAMasterOrder)
                     .Where(x => x.FBAMasterOrder.Container == reference)
-                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>));
+                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>);
+
+                foreach(var d in dto)
+                {
+                    d.Net = d.Amount - d.Cost;
+                }
+
+                return Ok(dto);
             }
             else if (invoiceType == FBAInvoiceType.ShipOrder)
             {
-                return Ok(_context.InvoiceDetails
+                var dto = _context.InvoiceDetails
                     .Include(x => x.FBAShipOrder)
                     .Where(x => x.FBAShipOrder.ShipOrderNumber == reference)
-                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>));
+                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>);
+
+                foreach (var d in dto)
+                {
+                    d.Net = d.Amount - d.Cost;
+                }
+
+                return Ok(dto);
             }
             else
             {

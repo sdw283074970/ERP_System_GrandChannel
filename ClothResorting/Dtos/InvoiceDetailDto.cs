@@ -11,6 +11,8 @@ namespace ClothResorting.Dtos
 
         public string Activity { get; set; }
 
+        public double Net { get; set; }
+
         public string InvoiceType { get; set; }
 
         public string ChargingType { get; set; }
