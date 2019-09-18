@@ -26,6 +26,8 @@
                     <th>File Name</th>
                     <th>Upload Date</th>
                     <th>Upload By</th>
+                    <th>Status</th>
+                    <th>Discard By</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -51,6 +53,8 @@
             var index;
             var table;
             var url;
+
+            var status;
 
             var reference = getUrlParameter('reference');
             var orderType = getUrlParameter('orderType');
@@ -104,9 +108,32 @@
                     }
                 },
                 {
+                    data: "status",
+                    render: function (data) {
+                        status = data;
+                        if (status == null)
+                            return "";
+                        else if (status == "Valid")
+                            return "<font color='green'>" + data + "</font>";
+                        else
+                            return "<font color='red'>" + data + "</font>";
+                    }
+                },
+                {
+                    data: "discardBy",
+                    render: function (data) {
+                        if (data == null)
+                            return "";
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
                     data: "id",
                     render: function (data) {
-                        return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button>"
+                        if (status == "Valid")
+                            return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button><button class='btn btn-link btn-discard' iid='" + data + "'>Discard</button>"
+                        else
+                            return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button>"
                     }
                 }
             ];
@@ -147,6 +174,13 @@
             //点击下载按钮，下载选中的文件
             $("#table").on("click", ".btn-download", function () {
                 $(window.location).attr('href', "/api/fba/FBAEfolder/?fileId=" + $(this).attr('iid'));
+            });
+
+            //点击discard按钮，将该文件标记为invalid
+            $("#table").on("click", ".btn-discard", function () {
+                var fileId = $(this).attr('iid');
+                url = "/api/fba/FBAEfolder/?fileId=" + fileId;
+                SendAjaxMethod("PUT", url, {});
             });
 
             //解析url中的参数函数

@@ -7,6 +7,10 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 {
     public static class FBAStatus
     {
+        public const string Valid = "Valid";
+
+        public const string Invalid = "Invalid";
+
         public const string Updated = "Updated";
 
         public const string Confirmed = "Confirmed";

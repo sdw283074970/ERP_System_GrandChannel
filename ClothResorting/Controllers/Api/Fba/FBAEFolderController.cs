@@ -11,6 +11,7 @@ using AutoMapper;
 using ClothResorting.Dtos;
 using ClothResorting.Helpers;
 using System.Web;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -103,6 +104,18 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
 
             return Ok("File has been uploaded successfully.");
+        }
+
+        // POST /api/fba/fbaefolder/?fileId={fileId}
+        [HttpPut]
+        public void DiscardFile([FromUri]int fileId)
+        {
+            var fileInDb = _context.EFiles.Find(fileId);
+
+            fileInDb.Status = FBAStatus.Invalid;
+            fileInDb.DiscardBy = _userName;
+
+            _context.SaveChanges();
         }
     }
 }

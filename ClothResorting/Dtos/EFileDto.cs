@@ -13,6 +13,10 @@ namespace ClothResorting.Dtos
 
         public string RootPath { get; set; }
 
+        public string Status { get; set; }
+
+        public string DiscardBy { get; set; }
+
         public string CustomizedFileName { get; set; }
 
         public DateTime UploadDate { get; set; }
