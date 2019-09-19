@@ -79,6 +79,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 newFileRecord.RootPath = @"D:\eFolder\";
                 newFileRecord.UploadBy = _userName;
                 newFileRecord.UploadDate = DateTime.Now;
+                newFileRecord.Status = FBAStatus.Valid;
             }
             else
             {

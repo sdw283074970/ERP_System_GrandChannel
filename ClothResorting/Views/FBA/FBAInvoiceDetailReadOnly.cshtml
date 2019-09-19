@@ -78,6 +78,7 @@
                     <th>RATE</th>
                     <th>AMOUNT</th>
                     <th>COST</th>
+                    <th>NET</th>
                     <th>InvoiceType</th>
                     <th>Date of Cost</th>
                     <th>MEMO</th>
@@ -396,19 +397,25 @@
                                 {
                                     data: "rate",
                                     render: function (data) {
-                                        return "<text>$" + data + "</text>";
+                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
                                     }
                                 },
                                 {
                                     data: "amount",
                                     render: function (data) {
-                                        return "<text>$" + data + "</text>";
+                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
                                     }
                                 },
                                 {
                                     data: "cost",
                                     render: function (data) {
-                                        return "<text>$" + data + "</text>";
+                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "net",
+                                    render: function (data) {
+                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
                                     }
                                 },
                                 {

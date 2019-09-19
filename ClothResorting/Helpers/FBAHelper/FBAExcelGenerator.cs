@@ -169,8 +169,10 @@ namespace ClothResorting.Helpers.FBAHelper
             //对仓库剩余托盘进行收费
             foreach(var p in palletsInDbGroup)
             {
-                var pallets = p.Sum(x => x.ActualPlts);
-
+                //var pallets = p.Sum(x => x.ActualPlts);
+                var standardPlts = p.Where(x => x.PalletSize == "P1").Sum(x => x.ActualPlts);
+                var plusPlts = p.Where(x => x.PalletSize == "P2").Sum(x => x.ActualPlts);
+                var pallets = standardPlts + 2 * plusPlts;
                 //if (pallets == 0)
                 //{
                 //    continue;
@@ -178,7 +180,10 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 _ws.Cells[startIndex, 1] = FBAOrderType.MasterOrder;
                 _ws.Cells[startIndex, 2] = p.First().Container;
-                _ws.Cells[startIndex, 6] = p.First().FBAMasterOrder.FBAPallets.Sum(x => x.ActualPallets);
+                _ws.Cells[startIndex, 3] = p.First().FBAMasterOrder.FBAPallets.Where(x => x.PalletSize == "P1").Sum(x => x.ActualPallets);
+                _ws.Cells[startIndex, 4] = p.First().FBAMasterOrder.FBAPallets.Where(x => x.PalletSize == "P2").Sum(x => x.ActualPallets);
+                _ws.Cells[startIndex, 5] = standardPlts;
+                _ws.Cells[startIndex, 6] = plusPlts;
                 _ws.Cells[startIndex, 7] = pallets;
                 _ws.Cells[startIndex, 8] = p.First().FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy");
 
@@ -193,7 +198,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     Reference = s.FBAShipOrder.ShipOrderNumber,
                     ShippedPlts = s.PltsFromInventory,
                     InboundDate = s.FBAPalletLocation.FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy"),
-                    OutboundDate = s.FBAShipOrder.ShipDate.ToString("MM/dd/yyyy")
+                    OutboundDate = s.FBAShipOrder.ShipDate.ToString("MM/dd/yyyy"),
+                    PalletSize = s.Size
                 };
 
                 var sameShipRecord = shipList.SingleOrDefault(x => x.Reference == newShipRecord.Reference
@@ -212,9 +218,23 @@ namespace ClothResorting.Helpers.FBAHelper
 
             foreach(var s in shipList)
             {
+                if (s.PalletSize == "P1")
+                {
+                    _ws.Cells[startIndex, 5] = s.ShippedPlts;
+                    _ws.Cells[startIndex, 7] = s.ShippedPlts;
+                }
+                else if (s.PalletSize == "P2")
+                {
+                    _ws.Cells[startIndex, 6] = s.ShippedPlts;
+                    _ws.Cells[startIndex, 7] = s.ShippedPlts * 2;
+                }
+                else
+                {
+                    _ws.Cells[startIndex, 7] = 0;
+                }
+
                 _ws.Cells[startIndex, 1] = FBAOrderType.ShipOrder;
                 _ws.Cells[startIndex, 2] = s.Reference;
-                _ws.Cells[startIndex, 7] = s.ShippedPlts;
                 _ws.Cells[startIndex, 8] = s.InboundDate;
                 _ws.Cells[startIndex, 9] = s.OutboundDate;
 
@@ -396,5 +416,7 @@ namespace ClothResorting.Helpers.FBAHelper
         public string InboundDate { get; set; }
 
         public string OutboundDate { get; set; }
+
+        public string PalletSize { get; set; }
     }
 }

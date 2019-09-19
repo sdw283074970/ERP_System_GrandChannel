@@ -78,9 +78,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 var dto = _context.InvoiceDetails
                     .Include(x => x.FBAMasterOrder)
                     .Where(x => x.FBAMasterOrder.Container == reference)
-                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>);
+                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>)
+                    .ToList();
 
-                foreach(var d in dto)
+                foreach (var d in dto)
                 {
                     d.Net = d.Amount - d.Cost;
                 }
@@ -92,7 +93,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 var dto = _context.InvoiceDetails
                     .Include(x => x.FBAShipOrder)
                     .Where(x => x.FBAShipOrder.ShipOrderNumber == reference)
-                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>);
+                    .Select(Mapper.Map<InvoiceDetail, InvoiceDetailDto>)
+                    .ToList();
 
                 foreach (var d in dto)
                 {
