@@ -11,6 +11,8 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public string Activity { get; set; }
 
+        public float Discount { get; set; }
+
         public string ChargingType { get; set; }
 
         public string Unit { get; set; }

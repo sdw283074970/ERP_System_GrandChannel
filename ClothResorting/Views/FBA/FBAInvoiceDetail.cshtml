@@ -79,28 +79,32 @@
             <thead>
                 <tr>
                     <th style="width:45px">Id</th>
-                    <th>ACTIVITY</th>
-                    <th>CHARGING TYPE</th>
+                    <th>ACT</th>
+                    <th>TYPE</th>
                     <th>UOM</th>
                     <th>QTY</th>
                     <th>RATE</th>
-                    <th>AMOUNT</th>
+                    <th>ORG AMT</th>
+                    <th>DSCT</th>
+                    <th>FNL AMT</th>
                     <th>COST</th>
                     <th>NET</th>
-                    <th>InvoiceType</th>
-                    <th>Date of Cost</th>
+                    <th>IVC TYPE</th>
+                    <th>COST DATE</th>
                     <th>MEMO</th>
-                    <th>COST CONFIRM</th>
-                    <th>PAYMENT</th>
-                    <th>COLLECTION</th>
-                    <th>LAST OPERATOR</th>
+                    <th style="width:100px">COST CONFIRM</th>
+                    <th style="width:100px">PAYMENT</th>
+                    <th style="width:100px">COLLECT</th>
+                    <th style="width:40px">OP</th>
                     <th style="width:150px">OPERATION</th>
                 </tr>
             </thead>
             <tbody></tbody>
             <tfoot>
                 <tr>
-                    <th colspan="6" style="text-align:right">BALANCE DUE:</th>
+                    <th colspan="8" style="text-align:right">BALANCE DUE:</th>
+                    <th></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -148,7 +152,8 @@
             <text>Memo: <textarea id="input-memo" style='width:170px;height:75px' placeholder="(Optional)"></textarea></text><br />
         </div>
         <div id="div-amount" style="margin-top:20px">
-            <text>Amount: <input id="input-amount" class="input-sm" type="number" style="width:80px" ></text>
+            <text>Original Amount: <input id="input-amount" class="input-sm" type="number" style="width:80px"></text><br />
+            <text>Discount: <input id="input-discount" class="input-sm" type="number" style="width:80px;margin-top:10px" value="1"></text>
         </div>
             <button style="margin-top:20px" id="btn-charge" class='btn btn-primary'>Charge</button>
             <button style="margin-top:20px" id="btn-update" class='btn btn-primary'>Update</button>
@@ -487,6 +492,7 @@
                 var dateOfCost = $("#input-date").val();
                 var cost = $("#input-cost").val();
                 var amount = $("#input-amount").val();
+                var discount = $("#input-discount").val();
 
                 if (dateOfCost == "" || amount == "")
                 {
@@ -506,6 +512,7 @@
                         "dateOfCost": dateOfCost,
                         "unit": unit,
                         "rate": rate,
+                        "discount": discount == "" ? 1 : discount,
                         "amount": amount,
                         "quantity": quantity,
                         "memo": memo,
@@ -741,10 +748,11 @@
 
                         $("#select-type").val(data.chargingType);
                         $("#input-date").val(data.dateOfCost.toString().substring(0, 10));
-                        $("#input-cost").val(data.cost);
+                        $("#input-cost").val(data.cost.toFixed(2));
                         $("#text-unit").html(data.unit);
-                        $("#input-rate").val(data.rate);
-                        $("#input-amount").val(data.amount);
+                        $("#input-rate").val(data.rate.toFixed(2));
+                        $("#input-discount").val(data.discount.toFixed(2));
+                        $("#input-amount").val(data.amount.toFixed(2));
                         $("#input-quantity").val(data.quantity);
                         $("#input-memo").val(data.memo);
 
@@ -799,6 +807,7 @@
                 var dateOfCost = $("#input-date").val();
                 var cost = $("#input-cost").val();
                 var amount = $("#input-amount").val();
+                var discount = $("#input-discount").val();
 
                 if (dateOfCost == "" || amount == "")
                 {
@@ -816,6 +825,7 @@
                         "chargingType": chargingType,
                         "dateOfCost": dateOfCost,
                         "unit": unit,
+                        "discount": discount == "" ? 1 : discount,
                         "rate": rate,
                         "amount": amount,
                         "quantity": quantity,
@@ -946,25 +956,41 @@
                                 {
                                     data: "rate",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "originalAmount",
+                                    render: function (data) {
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "discount",
+                                    render: function (data) {
+                                        if (data == 1)
+                                            return "<text>-</text>";
+                                        return "<text>" + (100 - parseFloat(data).toFixed(2) * 100) + "% OFF</text>";
                                     }
                                 },
                                 {
                                     data: "amount",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
                                     }
                                 },
                                 {
                                     data: "cost",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        if (data == 0)
+                                            return "<text>-</text>"
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
                                     }
                                 },
                                 {
                                     data: "net",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
                                     }
                                 },
                                 {
@@ -989,7 +1015,7 @@
                                     data: "costConfirm",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<button btntype='Confirm' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Confirmed</button>";
+                                            return "<button btntype='Confirm' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px;text-aglin:left'>Confirmed</button>";
                                         else
                                             return "<button btntype='Confirm' class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unconfirmed</button>"
                                     }
@@ -1040,13 +1066,13 @@
                                 };
 
                                 var totalAmount = api
-                                    .column(6)
+                                    .column(8)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                $(api.column(6).footer()).html("<font color='red'>$" + parseFloat(totalAmount.toFixed(2)) + "</font>");
+                                $(api.column(8).footer()).html("<font color='red'>$" + parseFloat(totalAmount.toFixed(2)) + "</font>");
                             }
                         });
                     },

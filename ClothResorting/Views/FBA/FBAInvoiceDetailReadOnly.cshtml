@@ -70,29 +70,31 @@
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
             <thead>
                 <tr>
-                    <th style="width:66px">Id</th>
-                    <th>ACTIVITY</th>
-                    <th>CHARGING TYPE</th>
+                    <th style="width:45px">Id</th>
+                    <th>ACT</th>
+                    <th>TYPE</th>
                     <th>UOM</th>
                     <th>QTY</th>
                     <th>RATE</th>
-                    <th>AMOUNT</th>
+                    <th>ORG AMT</th>
+                    <th>DSCT</th>
+                    <th>FNL AMT</th>
                     <th>COST</th>
                     <th>NET</th>
-                    <th>InvoiceType</th>
-                    <th>Date of Cost</th>
+                    <th>IVC TYPE</th>
+                    <th>COST DATE</th>
                     <th>MEMO</th>
-                    <th>COST CONFIRM</th>
-                    <th>PAYMENT</th>
-                    <th>COLLECTION</th>
-                    <th>LAST OPERATOR</th>
-                    @*<th style="width:150px">OPERATION</th>*@
+                    <th style="width:100px">COST CONFIRM</th>
+                    <th style="width:100px">PAYMENT</th>
+                    <th style="width:100px">COLLECT</th>
+                    <th style="width:40px">OP</th>
                 </tr>
             </thead>
             <tbody></tbody>
             <tfoot>
                 <tr>
-                    <th colspan="6" style="text-align:right">BALANCE DUE:</th>
+                    <th colspan="8" style="text-align:right">BALANCE DUE:</th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -397,25 +399,41 @@
                                 {
                                     data: "rate",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "originalAmount",
+                                    render: function (data) {
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "discount",
+                                    render: function (data) {
+                                        if (data == 1)
+                                            return "<text>-</text>";
+                                        return "<text>" + (100 - parseFloat(data).toFixed(2) * 100) + "% OFF</text>";
                                     }
                                 },
                                 {
                                     data: "amount",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
                                     }
                                 },
                                 {
                                     data: "cost",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        if (data == 0)
+                                            return "<text>-</text>"
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
                                     }
                                 },
                                 {
                                     data: "net",
                                     render: function (data) {
-                                        return "<text>$" + parseFloat(data.toFixed(2)) + "</text>";
+                                        return "<text>$" + parseFloat(data).toFixed(2) + "</text>";
                                     }
                                 },
                                 {
@@ -440,27 +458,27 @@
                                     data: "costConfirm",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Confirmed</button>";
+                                            return "<button btntype='Confirm' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px;text-aglin:left'>Confirmed</button>";
                                         else
-                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unconfirmed</button>"
+                                            return "<button btntype='Confirm' class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unconfirmed</button>"
                                     }
                                 },
                                 {
                                     data: "paymentStatus",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Paid</button>";
+                                            return "<button btntype='Payment' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Paid</button>";
                                         else
-                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unpaid</button>"
+                                            return "<button btntype='Payment' class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Unpaid</button>"
                                     }
                                 },
                                 {
                                     data: "collectionStatus",
                                     render: function (data) {
                                         if (data == true)
-                                            return "<button class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Collected</button>";
+                                            return "<button btntype='Collection' class='btn btn-default btn-status' style='background-color:darkseagreen;width:100px'>Collected</button>";
                                         else
-                                            return "<button class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Uncollected</button>"
+                                            return "<button btntype='Collection' class='btn btn-default btn-status' style='background-color:indianred;width:100px'>Uncollected</button>"
                                     }
                                 },
                                 {
@@ -471,13 +489,7 @@
                                         else
                                             return "<text>" + data + "</text>";
                                     }
-                                },
-                                //{
-                                //    data: "id",
-                                //    render: function (data) {
-                                //        return "";
-                                //    }
-                                //}
+                                }
                             ],
                             footerCallback: function (row, data, start, end, display) {
 
@@ -491,13 +503,13 @@
                                 };
 
                                 var totalAmount = api
-                                    .column(6)
+                                    .column(8)
                                     .data()
                                     .reduce(function (a, b) {
                                         return intVal(a) + intVal(b);
                                     }, 0);
 
-                                $(api.column(6).footer()).html("<font color='red'>$" + parseFloat(totalAmount.toFixed(2)) + "</font>");
+                                $(api.column(8).footer()).html("<font color='red'>$" + parseFloat(totalAmount.toFixed(2)) + "</font>");
                             }
                         });
                     },

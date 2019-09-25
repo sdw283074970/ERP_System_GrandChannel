@@ -34,6 +34,8 @@ namespace ClothResorting.Models
 
         public bool PaymentStatus { get; set; }
 
+        public float Discount { get; set; }
+
         public DateTime DateOfCost { get; set; }
 
         public string Memo { get; set; }

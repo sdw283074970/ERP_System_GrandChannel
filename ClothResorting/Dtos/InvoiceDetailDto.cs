@@ -15,6 +15,10 @@ namespace ClothResorting.Dtos
 
         public string InvoiceType { get; set; }
 
+        public float Discount { get; set; }
+
+        public float OriginalAmount { get; set; }
+
         public string ChargingType { get; set; }
 
         public string Unit { get; set; }

@@ -84,6 +84,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 foreach (var d in dto)
                 {
                     d.Net = d.Amount - d.Cost;
+                    d.OriginalAmount = (float)(d.Amount / d.Discount);
                 }
 
                 return Ok(dto);
@@ -99,6 +100,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 foreach (var d in dto)
                 {
                     d.Net = d.Amount - d.Cost;
+                    d.OriginalAmount = (float)(d.Amount / d.Discount);
                 }
 
                 return Ok(dto);
@@ -250,9 +252,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 ChargingType = invoiceDetailIdInDb.ChargingType,
                 Cost = invoiceDetailIdInDb.Cost,
                 Rate = invoiceDetailIdInDb.Rate,
+                Discount = invoiceDetailIdInDb.Discount,
                 Quantity = invoiceDetailIdInDb.Quantity,
                 Memo = invoiceDetailIdInDb.Memo,
-                Amount = invoiceDetailIdInDb.Amount,
+                Amount = invoiceDetailIdInDb.Amount / invoiceDetailIdInDb.Discount,
                 Unit = invoiceDetailIdInDb.Unit
             };
 
@@ -350,9 +353,10 @@ namespace ClothResorting.Controllers.Api.Fba
                     Unit = obj.Unit,
                     Rate = obj.Rate,
                     Cost = obj.Cost,
+                    Discount = obj.Discount,
                     Quantity = obj.Quantity,
                     InvoiceType = invoiceType,
-                    Amount = obj.Amount,
+                    Amount = obj.Amount * obj.Discount,
                     FBAMasterOrder = masterOrderInDb,
                     Operator = _userName
                 };
@@ -372,10 +376,11 @@ namespace ClothResorting.Controllers.Api.Fba
                     Memo = obj.Memo,
                     Unit = obj.Unit,
                     Rate = obj.Rate,
+                    Discount = obj.Discount,
                     Cost = obj.Cost,
                     Quantity = obj.Quantity,
                     InvoiceType = invoiceType,
-                    Amount = obj.Amount,
+                    Amount = obj.Amount * obj.Discount,
                     FBAShipOrder = shipOrderInDb,
                     Operator = _userName
                 };
@@ -418,11 +423,12 @@ namespace ClothResorting.Controllers.Api.Fba
             var invoiceDetailInDb = _context.InvoiceDetails.Find(invoiceDetailId);
 
             invoiceDetailInDb.Activity = obj.Activity;
-            invoiceDetailInDb.Amount = obj.Amount;
+            invoiceDetailInDb.Amount = obj.Amount * obj.Discount;
             invoiceDetailInDb.ChargingType = obj.ChargingType;
             invoiceDetailInDb.Cost = obj.Cost;
             invoiceDetailInDb.DateOfCost = obj.DateOfCost;
             invoiceDetailInDb.Memo = obj.Memo;
+            invoiceDetailInDb.Discount = obj.Discount;
             invoiceDetailInDb.Operator = _userName;
             invoiceDetailInDb.Quantity = obj.Quantity;
             invoiceDetailInDb.Rate = obj.Rate;
@@ -478,6 +484,7 @@ namespace ClothResorting.Controllers.Api.Fba
                                 ChargingType = "Price Difference",
                                 Unit = "N/A",
                                 Quantity = 1,
+                                Discount = 1,
                                 Rate = pd,
                                 Amount = pd,
                                 InvoiceType = FBAInvoiceType.ShipOrder,
