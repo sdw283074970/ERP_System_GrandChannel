@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using ClothResorting.Models.FBAModels.StaticModels;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -38,9 +39,87 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetActiveCustomers()
         {
-            return Ok(_context.UpperVendors
-                .Where(x => x.Status == Status.Active && x.DepartmentCode == DepartmentCode.FBA)
-                .Select(Mapper.Map<UpperVendor, UpperVendorDto>));
+            var dtos = _context.UpperVendors
+                .Where(x => x.Status == "Active" && x.DepartmentCode == DepartmentCode.FBA)
+                .Select(Mapper.Map<UpperVendor, UpperVendorDto>)
+                .ToList();
+
+            //统计在拣货的数量
+            var pickDetails = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Status != FBAStatus.Shipped)
+                .ToList();
+
+            var customerGroupPickDetails = pickDetails.GroupBy(x => x.FBAShipOrder.CustomerCode);
+
+            foreach(var c in customerGroupPickDetails)
+            {
+                var dto = dtos.SingleOrDefault(x => x.CustomerCode == c.First().FBAShipOrder.CustomerCode);
+                dto.ProcessingCtns = c.Sum(x => x.ActualQuantity);
+                dto.ProcessingPlts = c.Sum(x => x.PltsFromInventory);
+            }
+
+            //统计库存剩余箱数
+            var cartonLocations = _context.FBACartonLocations
+                //.Include(x => x.FBAPickDetails)
+                //.Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.Customer.Status == "Active" && x.AvailableCtns != 0)
+                .ToList();
+
+            var cartonLocationGroup = cartonLocations.GroupBy(x => x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode);
+
+            foreach(var c in cartonLocationGroup)
+            {
+                var dto = dtos.SingleOrDefault(x => x.CustomerCode == c.First().FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode);
+                dto.InstockCtns = c.Sum(x => x.AvailableCtns);
+            }
+
+            //统计库存剩余托盘数
+            var palletLocations = _context.FBAPalletLocations
+                .Include(x => x.FBAPallet.FBAMasterOrder.Customer)
+                .Where(x => x.FBAPallet.FBAMasterOrder.Customer.Status == "Active" && x.AvailablePlts != 0)
+                .ToList();
+
+            var palletLocationGroup = palletLocations.GroupBy(x => x.FBAPallet.FBAMasterOrder.Customer.CustomerCode);
+
+            foreach (var p in palletLocationGroup)
+            {
+                var dto = dtos.SingleOrDefault(x => x.CustomerCode == p.First().FBAPallet.FBAMasterOrder.Customer.CustomerCode);
+                dto.InstockPlts = p.Sum(x => x.AvailablePlts);
+            }
+
+            //统计未付款发票数量
+            var payableMasterOrderInvoice = _context.FBAMasterOrders
+                .Include(x => x.Customer)
+                .Where(x => x.InvoiceStatus == "Await")
+                .ToList();
+
+            var masterOrderInvoiceGroup = payableMasterOrderInvoice.GroupBy(x => x.Customer.CustomerCode);
+
+            foreach(var m in masterOrderInvoiceGroup)
+            {
+                var dto = dtos.SingleOrDefault(x => x.CustomerCode == m.First().Customer.CustomerCode);
+                dto.PayableInvoices = m.Count();
+            }
+
+            var payableShipOrderInvoice = _context.FBAShipOrders
+                .Where(x => x.InvoiceStatus == "Await")
+                .ToList();
+
+            var shipOrderInvoiceGroup = payableShipOrderInvoice.GroupBy(x => x.CustomerCode);
+
+            foreach(var s in shipOrderInvoiceGroup)
+            {
+                var dto = dtos.SingleOrDefault(x => x.CustomerCode == s.First().CustomerCode);
+
+                if (dto == null)
+                    continue;
+
+                dto.PayableInvoices += s.Count();
+            }
+
+            return Ok(dtos);
         }
 
         // GET /api/fba/fbaindex/?customerId={customerId}&startDate={startDate}&closeDate={closeDate}

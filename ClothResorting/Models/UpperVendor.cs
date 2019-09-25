@@ -32,6 +32,8 @@ namespace ClothResorting.Models
 
         public float InboundMinCharge { get; set; }
 
+        public int WarningQuantityLevel { get; set; }
+
         public DateTime LastUpdatedTime { get; set; }
 
         public ICollection<PreReceiveOrder> WorkOrders { get; set; }

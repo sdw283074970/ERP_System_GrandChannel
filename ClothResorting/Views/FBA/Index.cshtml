@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>FBA System</h1>
+<h1>Regular Warehouse System</h1>
 <h2>Home Page</h2>
 
 <div class="maincontainer">
@@ -29,10 +29,16 @@
                     <th>Customer Code</th>
                     <th>Customer Name</th>
                     <th>Contact Tel</th>
-                    <th>Contact E-mail</th>
+                    @*<th>Contact E-mail</th>*@
                     <th>Contact Person</th>
+                    <th>Processing Plts</th>
+                    <th>Processing Ctns</th>
+                    <th>In-stock Plts</th>
+                    <th>In-stock Ctns</th>
+                    <th>Warnning Ctns Level</th>
+                    <th>Payable Invoices</th>
                     <th>Status</th>
-                    <th>Operation</th>
+                    <th style="width:500px">Operation</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -56,6 +62,8 @@
             var table;
             var url;
 
+            $(".iframe-export").hide();
+
             $.ajax({
                 type: "GET",
                 url: "/api/fba/FBAindex/",
@@ -76,6 +84,7 @@
                         data: data,
                         scrollCollapse: true,
                         scrollY: "600px",
+                        scrollX: true,
                         order: [[0, "desc"]],
                         iDisplayLength: 100,
                         columns: [
@@ -105,8 +114,16 @@
                                     return "<text>" + data + "</text>";
                                 }
                             },
+                            //{
+                            //    data: "emailAddress",
+                            //    render: function (data) {
+                            //        if (data == null)
+                            //            return "";
+                            //        return "<text>" + data + "</text>";
+                            //    }
+                            //},
                             {
-                                data: "emailAddress",
+                                data: "contactPerson",
                                 render: function (data) {
                                     if (data == null)
                                         return "";
@@ -114,10 +131,50 @@
                                 }
                             },
                             {
-                                data: "contactPerson",
+                                data: "processingPlts",
                                 render: function (data) {
-                                    if (data == null)
-                                        return "";
+                                    if (data == 0)
+                                        return "<text>-</text>";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "processingCtns",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<text>-</text>";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "instockPlts",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<text>-</text>";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "instockCtns",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<text>-</text>";
+                                    return "<text>" + data + "</text>";
+                                }
+                            },
+                            {
+                                data: "warningQuantityLevel",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<text>-</text>";
+                                    return "<font color='red'>" + data + "</font>";
+                                }
+                            },
+                            {
+                                data: "payableInvoices",
+                                render: function (data) {
+                                    if (data == 0)
+                                        return "<text>-</text>";
                                     return "<text>" + data + "</text>";
                                 }
                             },
@@ -133,7 +190,7 @@
                             {
                                 data: "id",
                                 render: function (data) {
-                                    return "<button iid='" + data + "' class='btn btn-info btn-manageorders'>Manage Rcv Orders</button><button iid='" + data + "' class='btn btn-info btn-export' style='margin-left:20px'>Export Reports</button>";
+                                    return "<button iid='" + data + "' class='btn btn-info btn-receivingorders'>Rcv Orders</button><button iid='" + data + "' class='btn btn-info btn-shippingorders' style='margin-left:5px'>Shp Orders</button><button iid='" + data + "' class='btn btn-info btn-manageinventory' style='margin-left:5px'>Ivtr Report</button><button iid='" + data + "' class='btn btn-info btn-export' style='margin-left:5px'>Other Reports</button><button iid='" + data + "' class='btn btn-info btn-manage' style='margin-left:5px'>Manage</button>";
                                 }
                             },
                         ]
@@ -146,8 +203,8 @@
                 }
             });
 
-            //点击管理订单，跳转到该用户的订单总览页面
-            $("#table").on("click", ".btn-manageorders", function () {
+            //点击管理收货订单，跳转到该用户的说活订单页面
+            $("#table").on("click", ".btn-receivingorders", function () {
                 var customerId = $(this).attr('iid');
                 $(window.location).attr('href', '/fba/masterorder/?customerId=' + customerId);
             });
@@ -155,6 +212,17 @@
             //点击管理客户，跳转到客户管理页面
             $("#btn-customer").on("click", function () {
                 $(window.location).attr('href', '/customer');
+            });
+
+            //点击管理shipping order，跳转到该用户的运单页面
+            $("#table").on("click", ".btn-shippingorders", function () {
+                var customerId = $(this).attr('iid');
+                $(window.location).attr('href', '/shiporder/fbaShipOrder/?customerId=' + customerId);
+            });
+
+            //点击库存报告按钮，跳转到该用户当前的库存统计页面
+            $("#table").on("click", ".btn-manageinventory", function () {
+                alert("Comming soon!");
             });
 
             //点击导出收费汇总表按钮，弹出选择导出日期界面

@@ -13,6 +13,14 @@ namespace ClothResorting.Dtos
 
         public string DepartmentCode { get; set; }
 
+        public int WarningQuantityLevel { get; set; }
+
+        public int InstockPlts { get; set; }
+
+        public int InstockCtns { get; set; }
+
+        public int PayableInvoices { get; set; }
+
         public string CustomerCode { get; set; }
 
         public string FirstAddressLine { get; set; }
@@ -20,6 +28,10 @@ namespace ClothResorting.Dtos
         public string SecondAddressLine { get; set; }
 
         public string TelNumber { get; set; }
+
+        public int ProcessingPlts { get; set; }
+
+        public int ProcessingCtns { get; set; }
 
         public string EmailAddress { get; set; }
 
@@ -33,5 +45,14 @@ namespace ClothResorting.Dtos
 
         public DateTime LastUpdatedTime { get; set; }
 
+        //public UpperVendorDto()
+        //{
+        //    InstockCtns = 0;
+        //    InstockPlts = 0;
+        //    WarningQuantityLevel = 0;
+        //    PayableInvoices = 0;
+        //    ProcessingCtns = 0;
+        //    ProcessingPlts = 0;
+        //}
     }
 }

@@ -71,12 +71,17 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var shipOrders = _context.FBAShipOrders
                 .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAPickDetails)
                 .Where(x => x.CustomerCode == customerCode)
                 .ToList();
 
             foreach (var s in shipOrders)
             {
                 s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+                s.TotalCost = (float)s.InvoiceDetails.Sum(x => x.Cost);
+                s.TotalCtns = s.FBAPickDetails.Sum(x => x.ActualQuantity);
+                s.TotalPlts = s.FBAPickDetails.Sum(x => x.ActualPlts);
+                s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
             }
 
             var dto = Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders);
