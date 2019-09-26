@@ -6,6 +6,7 @@
 
 <h1>FBA System</h1>
 <h2>Master Order Page（Receiving Order Page）</h2>
+<h2 class="h2-customercode"></h2>
 
 <div class="maincontainer">
     <div>
@@ -60,6 +61,7 @@
 </div>
 <div class="iframe">
     <h2 id="h2-title"></h2>
+    <h2 class="h2-customercode"></h2>
     <form id="form-create">
         <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
             <text>CONTAINER NO.: <input name="container" id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
@@ -106,6 +108,9 @@
             </select><br />
         </div>
         <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
+            <text>Customer Code: </text><select id='select-customercode' class='select-vendor input-sm' style='width:170px;height:30px;margin-top:20px' required='required'>
+                <option value='NULL'>Please select a code</option>
+            </select><br />
             <text>VESSEL: <input id='input-vessel' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>VOY: <input id='input-voy' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>ETA PORT: <input id='input-etaPort' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
@@ -208,6 +213,24 @@
                 $("#btn-ship").hide();
             }
 
+            //动态获取Customer数据
+            $.ajax({
+                type: "GET",
+                url: "/api/uppervendor/?departmentCode=FBA",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#select-customercode").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+
             GetAjaxTable("GET", url);
 
             //点击新建主单按钮，打开新建主单弹窗
@@ -228,7 +251,7 @@
                     title: false,
                     type: 1,
                     shadeclose: true,
-                    area: ["750px", "650px"],
+                    area: ["750px", "750px"],
                     content: $(".iframe")
                 });
             });
@@ -240,6 +263,13 @@
 
             //点击新建按钮，为当前客户新建一个主单
             $("#btn-new").on("click", function () {
+                var selectedCustomerCode = $("#select-customercode option:selected").val();
+
+                if (selectedCustomerCode != customerCode) {
+                    alert("所选客户代码与当前客户档案不匹配，请重新选择或切换客户。");
+                    return;
+                }
+
                 if (validform("#form-create").form()) {
                     var carrier = $("#input-carrier").val().toString();
                     var vessel = $("#input-vessel").val().toString();
@@ -368,8 +398,9 @@
                 $("#btn-new").hide();
                 $("#btn-update").show();
                 $("#h2-title").html("Update master order");
+                $("#select-customercode").val(customerCode);
                 grandNumber = $(this).attr('iid');
-                grandChannel.openiframe(index, ".iframe", "750px", "650px");
+                grandChannel.openiframe(index, ".iframe", "750px", "750px");
 
                 url = "/api/fba/fbamasterorder/?grandNumber=" + grandNumber + "&operation=Edit";
 
@@ -427,6 +458,14 @@
 
             //点击更新按钮，更新主单的所有信息
             $("#btn-update").on("click", function () {
+
+                var selectedCustomerCode = $("#select-customercode option:selected").val();
+
+                if (selectedCustomerCode != customerCode) {
+                    alert("所选客户代码与当前客户档案不匹配，请重新选择或切换客户。");
+                    return;
+                }
+
                 var carrier = $("#input-carrier").val().toString();
                 var subcustomer = $("#input-subcustomer").val().toString();
                 var vessel = $("#input-vessel").val().toString();
@@ -715,12 +754,16 @@
                     },
                     success: function (data) {
                         layer.close(index);
+
+                        customerCode = data.customerCode;
+                        $(".h2-customercode").html("Customer Code: <b><font color='red'>" +customerCode + "</font></b>");
+
                         if (table) {
                             table.destroy();
                         }
 
                         table = $("#table").DataTable({
-                            data: data,
+                            data: data.fbaMasterOrderDtos,
                             destroy: true,
                             scrollX: true,
                             order: [[0, "desc"]],

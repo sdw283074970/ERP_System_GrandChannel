@@ -64,7 +64,12 @@ namespace ClothResorting.Controllers.Api.Fba
                 resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
             }
 
-            return Ok(resultDto);
+            var masterOrderDtos = new MasterOrderDto {
+                CustomerCode = "ALL Customer",
+                FBAMasterOrderDtos = resultDto
+            };
+
+            return Ok(masterOrderDtos);
         }
 
         // GET /api/fba/fbamasterorder/{id}
@@ -78,6 +83,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPallets)
                 .Where(x => x.Customer.Id == id)
                 .ToList();
+
+            var customerCode = _context.UpperVendors.Find(id).CustomerCode;
 
             var skuList = new List<int>();
 
@@ -99,7 +106,14 @@ namespace ClothResorting.Controllers.Api.Fba
                 resultDto[i].SKUNumber = skuList[i];
                 resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
             }
-            return Ok(resultDto);
+
+            var masterOrderDto = new MasterOrderDto
+            {
+                CustomerCode = customerCode,
+                FBAMasterOrderDtos = resultDto
+            };
+
+            return Ok(masterOrderDto);
         }
 
         // GET /api/fbamasterorder/?sku={sku}&orderType={orderType}
@@ -535,6 +549,13 @@ namespace ClothResorting.Controllers.Api.Fba
             DateTime.TryParseExact(stringTime, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
             return dateTime;
         }
+    }
+
+    public class MasterOrderDto
+    {
+        public string CustomerCode { get; set; }
+
+        public IList<FBAMasterOrderDto> FBAMasterOrderDtos { get; set; }
     }
 
     public class UnloadWorkOrder
