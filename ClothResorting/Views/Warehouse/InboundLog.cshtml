@@ -103,6 +103,8 @@
             var masterOrderId;
             var searchBar = grandChannel.getUrlParameter('search');
 
+            $(".maincontainer").hide();
+
             $(".iframe-wo-warehouse, .iframe-wo-office, .div-readme").hide();
             $(".iframe-fbadate, .iframe-detail, .iframe-update").hide();
             $("#btn-update, #btn-report").hide();
@@ -719,6 +721,8 @@
                     },
                     success: function (data) {
                         layer.close(index);
+                        $(".maincontainer").show();
+
                         if (table) {
                             table.destroy();
                         }

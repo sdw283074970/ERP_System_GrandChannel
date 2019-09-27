@@ -59,6 +59,8 @@
         </table>
     </div>
 </div>
+@Html.Partial("~/Views/FBA/_FBAMasterOrderPartialView.cshtml", null)
+@Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 <div class="iframe">
     <h2 id="h2-title"></h2>
     <h2 class="h2-customercode"></h2>
@@ -158,8 +160,6 @@
         <button id="btn-rollback" class="btn btn-primary" style="margin-top:20px">Rollback</button>
     </div>
 </div>
-@Html.Partial("~/Views/FBA/_FBAMasterOrderPartialView.cshtml", null)
-@Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 
 @section scripts
 {
@@ -179,6 +179,7 @@
             var operation;
             var pageId;
 
+            $(".maincontainer").hide();
             $(".iframe-wo-warehouse, .iframe-wo-office, #div-rollback, .div-readme").hide();
             $(".iframe, .iframe-fbadate, .iframe-detail-result, .iframe-detail").hide();
             $(".div-readme.div-office.div-inbound").show();
@@ -755,8 +756,9 @@
                     success: function (data) {
                         layer.close(index);
 
+                        $(".maincontainer").show();
                         customerCode = data.customerCode;
-                        $(".h2-customercode").html("Customer Code: <b><font color='red'>" +customerCode + "</font></b>");
+                        $(".h2-customercode").html("Customer Code: <b><font color='red'>" + customerCode + "</font></b>");
 
                         if (table) {
                             table.destroy();

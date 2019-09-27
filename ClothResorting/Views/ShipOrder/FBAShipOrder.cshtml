@@ -131,6 +131,8 @@
             var income;
             var cost;
 
+            $(".maincontainer").hide();
+
             $(".btn-wo-operation, #iframe-verifiedinfo, .div-readme").hide();
             $(".iframe, #btn-update, #btn-release, #btn-ship").hide();
             $(".iframe-date").hide();
@@ -1029,6 +1031,9 @@
                     },
                     success: function (data) {
                         layer.close(index);
+
+                        $(".maincontainer").show();
+
                         if (table) {
                             table.destroy();
                         }

@@ -81,6 +81,8 @@
             var pageId;
             var searchBar = grandChannel.getUrlParameter('search');
 
+            $(".maincontainer").hide();
+
             $(".iframe-wo-warehouse, .iframe-wo-office, .div-readme").hide();
             $(".iframe-fbadate, .iframe-detail").hide();
             $(".div-readme.div-warehouse.div-outbound").show();
@@ -506,6 +508,9 @@
                     },
                     success: function (data) {
                         layer.close(index);
+
+                        $(".maincontainer").show();
+
                         if (table) {
                             table.destroy();
                         }

@@ -291,6 +291,16 @@
                 });
             });
 
+            //点击带颜色的按钮，改变状态
+            $("#table").on("click", ".btn-status", function () {
+                var buttonType = $(this).attr("btntype");
+                var invoiceDetailId = $(this).parent().parent("tr").children('td').eq(0).children('text').html();
+
+                url = "/api/fbainvoicedetail/?invoiceDetailId=" + invoiceDetailId + "&buttonType=" + buttonType;
+
+                grandChannel.sendAjaxMethod("PUT", url, {}, index);
+            });
+
             function SendAjaxMethod(methodType, url, obj) {
                 $.ajax({
                     type: methodType,
