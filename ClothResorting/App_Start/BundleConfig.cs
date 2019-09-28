@@ -17,7 +17,8 @@ namespace ClothResorting
                         "~/Scripts/bootbox.js",
                         "~/Scripts/jquery.signalR-2.4.1.js",
                         "~/Scripts/serviceWorker.min.js",
-                        "~/Scripts/push.js"));
+                        "~/Scripts/push.js",
+                        "~/Scripts/EditableSelect/dist/jquery-editable-select.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
@@ -35,7 +36,8 @@ namespace ClothResorting
                       "~/Content/bootstrap.css",
                       "~/Content/site.css",
                       "~/Content/DataTables/css/dataTables.bootstrap.css",
-                      "~/Scripts/layer/theme/default/layer.css"));
+                      "~/Scripts/layer/theme/default/layer.css",
+                      "~/Scripts/EditableSelect/dist/jquery-editable-select.min.css"));
         }
     }
 }

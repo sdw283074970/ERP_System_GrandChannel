@@ -52,6 +52,17 @@
         <button id="btn-download" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">导出收费报表</button>
     </div>
 </div>
+<div class="iframe-customer">
+    <div id="div-iframe" style="margin-top:20px;margin-right:20px;text-align:right">
+        <text style="margin-top:20px">Address Line 1: </text><input type="text" id='input-firstaddress' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text style="margin-top:20px">Address Line 2: </text><input type="text" id='input-secondaddress' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text style="margin-top:20px">Tel: </text><input type="text" id='input-tel' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. XXX-XXX-XXXX' /><br />
+        <text style="margin-top:20px">Email: </text><input type="text" id='input-email' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. customer@domain.com' /><br />
+        <text style="margin-top:20px">Contact Person: </text><input type="text" id='input-person' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+        <text style="color:red;margin-top:20px">Warning Quantitly Level: </text><input type="number" id='input-warning' style='width:300px;margin-top:20px' class='input-sm' placeholder='0' value="0" /><br />
+        <button id="btn-update" class="btn btn-primary" style="margin-top:20px">Update</button>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -62,7 +73,7 @@
             var table;
             var url;
 
-            $(".iframe-export").hide();
+            $(".iframe-export, .iframe-customer").hide();
 
             $.ajax({
                 type: "GET",
@@ -225,6 +236,51 @@
                 alert("Comming soon!");
             });
 
+            //点击管理按钮，打开管理客户基本信息弹窗
+            $("#table").on("click", ".btn-manage", function () {
+                customerId = $(this).attr('iid');
+                url = '/api/fba/fbaindex/?customerId=' + customerId;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        $("#input-firstaddress").val(data.firstAddressLine);
+                        $("#input-secondaddress").val(data.secondAddressLine);
+
+                        $("#input-tel").val(data.telNumber);
+                        $("#input-email").val(data.emailAddress);
+                        $("#input-person").val(data.contactPerson);
+
+                        $("#input-warning").val(data.warningQuantityLevel);
+
+                        index = layer.open({
+                            title: false,
+                            type: 1,
+                            shadeclose: true,
+                            area: ["500px", "400px"],
+                            content: $(".iframe-customer")
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
             //点击导出收费汇总表按钮，弹出选择导出日期界面
             $("#table").on("click", ".btn-export", function () {
                 customerId = $(this).attr('iid');
@@ -282,6 +338,35 @@
                         }
                     });
                 }
+            });
+
+            //点击update按钮，更新客户信息
+            $("#btn-update").on("click", function () {
+                var firstAddressLine = $("#input-firstaddress").val().toString();
+                var secondAddressLine = $("#input-secondaddress").val().toString();
+
+                var telNumber = $("#input-tel").val().toString();
+                var emailAddress = $("#input-email").val().toString();
+                var contactPerson = $("#input-person").val().toString();
+
+                var warningQuantityLevel = $("#input-warning").val() == "" ? 0 : $("#input-warning").val();
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/customermanagement/?customerId=" + customerId + "&firstAddressLine=" + firstAddressLine + "&secondAddressLine=" + secondAddressLine + "&telNumber=" + telNumber + "&emailAddress=" + emailAddress + "&contactPerson=" + contactPerson + "&warningQuantityLevel=" + warningQuantityLevel,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function () {
+                        layer.alert("Success!", function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             $(".btn-back").on("click", function () {

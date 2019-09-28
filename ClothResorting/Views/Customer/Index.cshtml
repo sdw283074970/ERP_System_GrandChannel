@@ -50,8 +50,7 @@
         <text style="margin-top:20px">Tel: </text><input type="text" id='input-tel' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. XXX-XXX-XXXX' /><br />
         <text style="margin-top:20px">Email: </text><input type="text" id='input-email' style='width:300px;margin-top:20px' class='input-sm' placeholder='e.g. customer@domain.com' /><br />
         <text style="margin-top:20px">Contact Person: </text><input type="text" id='input-person' style='width:300px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
-
-
+        <text style="color:red;margin-top:20px">Warning Quantitly Level: </text><input type="number" id='input-warning' style='width:300px;margin-top:20px' class='input-sm' placeholder='0' value="0" /><br />
         <button id="btn-add" class="btn btn-primary" style="margin-top:20px">Add</button>
     </div>
 </div>
@@ -298,9 +297,11 @@
                 var emailAddress = $("#input-email").val().toString();
                 var contactPerson = $("#input-person").val().toString();
 
+                var warningQuantityLevel = $("#input-warning").val() == "" ? 0 : $("#input-warning").val();
+
                 $.ajax({
                     type: "POST",
-                    url: "/api/customermanagement/?name=" + name + "&customerCode=" + customerCode + "&departmentCode=" + departmentCode + "&firstAddressLine=" + firstAddressLine + "&secondAddressLine=" + secondAddressLine + "&telNumber=" + telNumber + "&emailAddress=" + emailAddress + "&contactPerson=" + contactPerson,
+                    url: "/api/customermanagement/?name=" + name + "&customerCode=" + customerCode + "&departmentCode=" + departmentCode + "&firstAddressLine=" + firstAddressLine + "&secondAddressLine=" + secondAddressLine + "&telNumber=" + telNumber + "&emailAddress=" + emailAddress + "&contactPerson=" + contactPerson + "&warningQuantityLevel=" + warningQuantityLevel,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     success: function () {

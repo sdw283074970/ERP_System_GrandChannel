@@ -674,6 +674,17 @@ namespace ClothResorting.Controllers.Api.Fba
                 //如果订单为在拣状态，则转换为给仓库的新订单状态
                 else if (shipOrderInDb.Status == FBAStatus.Picking)
                 {
+                    //检查是否允许被push到仓库端
+                    var ifCanPush = CheckIfCanPushOrder(shipOrderInDb.CustomerCode);
+
+                    if (!ifCanPush)
+                    {
+                        if (!CheckIfCurrentUserIsT5())
+                        {
+                            throw new Exception("Permission needed. The in-stock quantity of customer: " + shipOrderInDb.CustomerCode + " is lower than Warning Quantity Level. Please contact Accounting Department to push this order.");
+                        }
+                    }
+
                     shipOrderInDb.Status = FBAStatus.NewOrder;
                     shipOrderInDb.PlacedBy = _userName;
                     shipOrderInDb.PlaceTime = operationDate;
@@ -955,6 +966,25 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
             }
             return result;
+        }
+
+        //统计库存剩余箱数
+        public bool CheckIfCanPushOrder(string customerCode)
+        {
+            var warningQuantityLevel = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).WarningQuantityLevel;
+
+            var availableCnts =_context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode && x.AvailableCtns != 0)
+                .Sum(x => x.AvailableCtns);
+
+            return availableCnts <= warningQuantityLevel ? false : true;
+        }
+
+        //检测当前用户是否拥有财务权限
+        public bool CheckIfCurrentUserIsT5()
+        {
+            return HttpContext.Current.User.IsInRole(RoleName.CanOperateAsT5);
         }
     }
 

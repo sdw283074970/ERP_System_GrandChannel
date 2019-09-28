@@ -64,12 +64,79 @@ namespace ClothResorting.Controllers.Api.Fba
                 resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
             }
 
-            var masterOrderDtos = new MasterOrderDto {
-                CustomerCode = "ALL Customer",
-                FBAMasterOrderDtos = resultDto
-            };
+            //var masterOrderDtos = new MasterOrderDto {
+            //    CustomerCode = "ALL Customer",
+            //    FBAMasterOrderDtos = resultDto
+            //};
 
-            return Ok(masterOrderDtos);
+            return Ok(resultDto);
+        }
+
+        // GET /api/fbamasterorder/?sku={sku}&orderType={orderType}
+        public IHttpActionResult GetOrdersBySKUQuery([FromUri]string sku, [FromUri]string orderType)
+        {
+            if (orderType == FBAOrderType.MasterOrder)
+            {
+                var masterOrders = _context.FBAMasterOrders
+                    .Include(x => x.FBAOrderDetails)
+                    .Include(x => x.InvoiceDetails)
+                    .Include(x => x.FBAPallets)
+                    .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
+                    .ToList();
+                //.Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>);
+
+                var skuList = new List<int>();
+
+                foreach (var m in masterOrders)
+                {
+                    m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
+                    m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
+                    m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
+                    m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
+                    m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
+                    m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                    m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
+                    skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
+                }
+
+                var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
+
+                for (int i = 0; i < masterOrders.Count; i++)
+                {
+                    resultDto[i].SKUNumber = skuList[i];
+                    resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
+                }
+
+                return Ok(resultDto);
+            }
+            else if (orderType == FBAOrderType.ShipOrder)
+            {
+                var shipOrders = _context.FBAShipOrders
+                    .Include(x => x.InvoiceDetails)
+                    .Include(x => x.FBAPickDetails)
+                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
+                    .ToList();
+
+                foreach (var s in shipOrders)
+                {
+                    s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+                    s.TotalCost = (float)s.InvoiceDetails.Sum(x => x.Cost);
+                    s.TotalCtns = s.FBAPickDetails.Sum(x => x.ActualQuantity);
+                    s.TotalPlts = s.FBAPickDetails.Sum(x => x.ActualPlts);
+                    s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
+                }
+
+                var dtos = Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders);
+
+                foreach(var d in dtos)
+                {
+                    d.Net = d.TotalAmount - d.TotalCost;
+                }
+
+                return Ok(dtos);
+            }
+
+            return Ok();
         }
 
         // GET /api/fba/fbamasterorder/{id}
@@ -107,71 +174,19 @@ namespace ClothResorting.Controllers.Api.Fba
                 resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
             }
 
-            var masterOrderDto = new MasterOrderDto
-            {
-                CustomerCode = customerCode,
-                FBAMasterOrderDtos = resultDto
-            };
+            //var masterOrderDto = new MasterOrderDto
+            //{
+            //    CustomerCode = customerCode,
+            //    FBAMasterOrderDtos = resultDto
+            //};
 
-            return Ok(masterOrderDto);
+            return Ok(resultDto);
         }
 
-        // GET /api/fbamasterorder/?sku={sku}&orderType={orderType}
-        public IHttpActionResult GetOrdersBySKUQuery([FromUri]string sku, [FromUri]string orderType)
+        // GET /api/fba/fbamasterOrder/?customerId={customerId}
+        public IHttpActionResult GetCustomerCodeByCustomerId([FromUri]int customerId)
         {
-            if (orderType == FBAOrderType.MasterOrder)
-            {
-                var masterOrders = _context.FBAMasterOrders
-                    .Include(x => x.FBAOrderDetails)
-                    .Include(x => x.InvoiceDetails)
-                    .Include(x => x.FBAPallets)
-                    .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
-                    .ToList();
-                //.Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>);
-
-                var skuList = new List<int>();
-
-                foreach (var m in masterOrders)
-                {
-                    m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
-                    m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
-                    m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
-                    m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
-                    m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
-                    m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
-                    m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
-                    skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
-                }
-
-                var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
-
-                for (int i = 0; i < masterOrders.Count; i++)
-                {
-                    resultDto[i].SKUNumber = skuList[i];
-                }
-
-                return Ok(resultDto);
-            }
-            else if (orderType == FBAOrderType.ShipOrder)
-            {
-                var shipOrders = _context.FBAShipOrders
-                    .Include(x => x.InvoiceDetails)
-                    .Include(x => x.FBAPickDetails)
-                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku)).Any());
-
-                foreach (var s in shipOrders)
-                {
-                    s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
-                    s.TotalCost = (float)s.InvoiceDetails.Sum(x => x.Cost);
-                    s.TotalCtns = s.FBAPickDetails.Sum(x => x.ActualQuantity);
-                    s.TotalPlts = s.FBAPickDetails.Sum(x => x.ActualPlts);
-                    s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
-                }
-
-                return Ok(Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders));
-            }
-
-            return Ok();
+            return Ok(_context.UpperVendors.Find(customerId).CustomerCode);
         }
 
         // GET /api/fbamasterorder/?masterOrderId={masterOrderId}&operation={operation}

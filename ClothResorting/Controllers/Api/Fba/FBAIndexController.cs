@@ -35,6 +35,15 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<UpperVendor, UpperVendorDto>));
         }
 
+        //GET /api/fba/index/?customerId={customerId}
+        [HttpGet]
+        public IHttpActionResult GetCustomerInfoByCustomerId([FromUri]int customerId)
+        {
+            var dto = Mapper.Map<UpperVendor, UpperVendorDto>(_context.UpperVendors.SingleOrDefault(x => x.Id == customerId));
+
+            return Ok(dto);
+        }
+
         // GET /api/fba/index
         [HttpGet]
         public IHttpActionResult GetActiveCustomers()
@@ -61,8 +70,6 @@ namespace ClothResorting.Controllers.Api.Fba
 
             //统计库存剩余箱数
             var cartonLocations = _context.FBACartonLocations
-                //.Include(x => x.FBAPickDetails)
-                //.Include(x => x.FBAPickDetailCartons)
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
                 .Where(x => x.FBAOrderDetail.FBAMasterOrder.Customer.Status == "Active" && x.AvailableCtns != 0)
                 .ToList();

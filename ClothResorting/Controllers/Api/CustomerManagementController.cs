@@ -49,8 +49,8 @@ namespace ClothResorting.Controllers.Api
         }
 
         [HttpPost]
-        //POST /api/customermanagement/?name={name}&customerCode={customerCode}&departmentCode={departmentCode}
-        public IHttpActionResult CreateNewCustomer([FromUri]string name, [FromUri]string customerCode, [FromUri]string departmentCode, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson)
+        //POST /api/customermanagement/?name={name}&customerCode={customerCode}&departmentCode={departmentCode}&warningQuantityLevel={warningQuantityLevel}
+        public IHttpActionResult CreateNewCustomer([FromUri]string name, [FromUri]string customerCode, [FromUri]string departmentCode, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson, [FromUri]int warningQuantityLevel)
         {
             if (_context.UpperVendors.Where(x => x.CustomerCode == customerCode).Count() != 0)
             {
@@ -67,7 +67,8 @@ namespace ClothResorting.Controllers.Api
                 TelNumber = telNumber,
                 EmailAddress = emailAddress,
                 ContactPerson = contactPerson,
-                Status = Status.Active
+                Status = Status.Active,
+                WarningQuantityLevel = warningQuantityLevel
             };
 
             _context.UpperVendors.Add(customer);
@@ -152,6 +153,22 @@ namespace ClothResorting.Controllers.Api
             var resultDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).First());
 
             return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
+        }
+
+        //PUT /api/customermanagement/?warningQuantityLevel={warningQuantityLevel}
+        [HttpPut]
+        public void UpdateCustomer([FromUri]int customerId, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson, [FromUri]int warningQuantityLevel)
+        {
+            var customerInDb = _context.UpperVendors.Find(customerId);
+
+            customerInDb.FirstAddressLine = firstAddressLine;
+            customerInDb.SecondAddressLine = secondAddressLine;
+            customerInDb.TelNumber = telNumber;
+            customerInDb.EmailAddress = emailAddress;
+            customerInDb.ContactPerson = contactPerson;
+            customerInDb.WarningQuantityLevel = warningQuantityLevel;
+
+            _context.SaveChanges();
         }
 
         [HttpDelete]

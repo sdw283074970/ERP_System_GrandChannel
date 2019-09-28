@@ -205,6 +205,21 @@
             if (customerId != undefined) {
                 //获取客户Id对应的所有总单
                 url = "/api/fba/fbamasterorder/" + customerId;
+                $.ajax({
+                    type: "GET",
+                    url: "/api/fbamasterorder/?customerId=" + customerId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        customerCode = data;
+                        $(".h2-customercode").html("Customer Code: <b><font color='red'>" + data + "</font></b>");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             }
             else {
                 //获取所有总单
@@ -212,6 +227,8 @@
                 //隐藏建单按钮和查看用户运单按钮
                 $("#btn-master").hide();
                 $("#btn-ship").hide();
+                customerCode = "ALL Customer";
+                $(".h2-customercode").html("Customer Code: <b><font color='red'>ALL Customer</font></b>");
             }
 
             //动态获取Customer数据
@@ -233,6 +250,9 @@
             });
 
             GetAjaxTable("GET", url);
+
+            $("#select-unloadingtype").editableSelect({ effects: 'slide' });
+
 
             //点击新建主单按钮，打开新建主单弹窗
             $("#btn-master").on("click", function () {
@@ -757,15 +777,13 @@
                         layer.close(index);
 
                         $(".maincontainer").show();
-                        customerCode = data.customerCode;
-                        $(".h2-customercode").html("Customer Code: <b><font color='red'>" + customerCode + "</font></b>");
 
                         if (table) {
                             table.destroy();
                         }
 
                         table = $("#table").DataTable({
-                            data: data.fbaMasterOrderDtos,
+                            data: data,
                             destroy: true,
                             scrollX: true,
                             order: [[0, "desc"]],
