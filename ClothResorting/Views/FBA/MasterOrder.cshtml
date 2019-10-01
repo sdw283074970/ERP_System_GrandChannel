@@ -6,7 +6,7 @@
 
 <h1>FBA System</h1>
 <h2>Master Order Page（Receiving Order Page）</h2>
-<h2 class="h2-customercode"></h2>
+<h2 id="h2-title-customercode"></h2>
 
 <div class="maincontainer">
     <div>
@@ -63,7 +63,7 @@
 @Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 <div class="iframe">
     <h2 id="h2-title"></h2>
-    <h2 class="h2-customercode"></h2>
+    <h2 id="h2-edit-customercode"></h2>
     <form id="form-create">
         <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
             <text>CONTAINER NO.: <input name="container" id='input-container' style='width:170px;margin-top:20px' class='input-sm' placeholder="Required" /></text><br />
@@ -123,7 +123,7 @@
             <text>SEAL NO.: <input id='input-seal' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <text>INSTRUCTION: <input id='input-instruction' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /></text><br />
             <button type="button" id="btn-new" class='btn btn-primary' style="margin-top:20px">Create</button>
-            <button type="button" id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
+            <button type="button" id="btn-edit-update" class='btn btn-primary' style="margin-top:20px">Update</button>
         </div>
     </form>
 </div>
@@ -212,7 +212,7 @@
                     dataType: "json",
                     success: function (data) {
                         customerCode = data;
-                        $(".h2-customercode").html("Customer Code: <b><font color='red'>" + data + "</font></b>");
+                        $("#h2-title-customercode").html("Customer Code: <b><font color='red'>" + data + "</font></b>");
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -228,7 +228,7 @@
                 $("#btn-master").hide();
                 $("#btn-ship").hide();
                 customerCode = "ALL Customer";
-                $(".h2-customercode").html("Customer Code: <b><font color='red'>ALL Customer</font></b>");
+                $("#h2-title-customercode").html("Customer Code: <b><font color='red'>ALL Customer</font></b>");
             }
 
             //动态获取Customer数据
@@ -251,15 +251,14 @@
 
             GetAjaxTable("GET", url);
 
-            $("#select-unloadingtype").editableSelect({ effects: 'slide' });
-
-
             //点击新建主单按钮，打开新建主单弹窗
             $("#btn-master").on("click", function () {
+
                 $("#select-inboundtype").attr('disabled', false);
                 $("#btn-new").show();
-                $("#btn-update").hide();
+                $("#btn-edit-update").hide();
                 $("#h2-title").html("Create new master order");
+                $("#h2-edit-customercode").html("");
 
                 $(".input-sm").val("");
 
@@ -416,8 +415,10 @@
 
             //点击编辑按钮，进入主单编辑页面
             $("#table").on("click", ".btn-edit", function () {
+                customerCode = $(this).attr('customercode');
+                $("#h2-edit-customercode").html("Customer Code: <b><font color='red'>" + customerCode + "</font></b>");
                 $("#btn-new").hide();
-                $("#btn-update").show();
+                $("#btn-edit-update").show();
                 $("#h2-title").html("Update master order");
                 $("#select-customercode").val(customerCode);
                 grandNumber = $(this).attr('iid');
@@ -478,8 +479,7 @@
             });
 
             //点击更新按钮，更新主单的所有信息
-            $("#btn-update").on("click", function () {
-
+            $("#btn-edit-update").on("click", function () {
                 var selectedCustomerCode = $("#select-customercode option:selected").val();
 
                 if (selectedCustomerCode != customerCode) {
@@ -827,6 +827,7 @@
                                     render: function (data) {
                                         if (data == null)
                                             return "";
+                                        customerCode = data;
                                         return "<text>" + data + "</text>";
                                     }
                                 },
@@ -949,7 +950,7 @@
                                     data: "grandNumber",
                                     render: function (data) {
                                         //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
-                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'>Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'customercode=" + customerCode + " >Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
                                     }
                                 },
                                 {

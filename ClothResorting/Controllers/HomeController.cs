@@ -48,84 +48,13 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var adjustShipOrder = new ShipOrder {
-            //    Address = "NA",
-            //    OrderPurchaseOrder = "FixAndAdjust20190906",
-            //    Vendor = "Free Country",
-            //    OrderType = "Regular",
-            //    PickTicketsRange = "Fix",
-            //    Operator = "Stone",
-            //    CreateDate = DateTime.Now.ToString("yyyy-MM-dd")
-            //};
+            var mos = _context.FBAMasterOrders
+                .Include(x => x.Customer)
+                .Where(x => x.Id > 0);
 
-            var adjustShipOrder = _context.ShipOrders.Find(978);
-            adjustShipOrder.Status = "Picking";
-
-            var wrongPickedLocationsInDb = _context.PickDetails
-                .Include(x => x.FCRegularLocationDetail)
-                .Where(x => x.PickCtns != 0 && x.PickPcs == 0);
-
-            foreach(var wrong in wrongPickedLocationsInDb)
+            foreach(var m in mos)
             {
-                var w = wrong.FCRegularLocationDetail;
-                if (w.AvailablePcs != 0)
-                {
-                    _context.PickDetails.Add(
-                        new PickDetail
-                        {
-                            CartonRange = w.CartonRange,
-                            Container = w.Container,
-                            UPCNumber = w.UPCNumber,
-                            PurchaseOrder = w.PurchaseOrder,
-                            Style = w.Style,
-                            Color = w.Color,
-                            SizeBundle = w.SizeBundle,
-                            PcsBundle = w.PcsBundle,
-                            PcsPerCarton = w.PcsPerCaron,
-                            PickCtns = 0,
-                            PickPcs = w.AvailablePcs,
-                            CustomerCode = w.CustomerCode,
-                            Location = w.Location,
-                            ShipOrder = adjustShipOrder
-                        }
-                    );
-
-                    w.PickingPcs += w.AvailablePcs;
-                    w.AvailablePcs = 0;
-                }
-
-
-                var ps = _context.FCRegularLocationDetails
-                    .Where(x => x.Cartons == 0 && x.AvailablePcs != 0 && x.CartonRange == w.CartonRange && x.Container == w.Container && x.Batch == w.Batch && x.Location == w.Location);
-
-                foreach(var p in ps)
-                {
-                    if (p.AvailablePcs != 0)
-                    {
-                        _context.PickDetails.Add(
-                            new PickDetail
-                            {
-                                CartonRange = p.CartonRange,
-                                Container = p.Container,
-                                UPCNumber = p.UPCNumber,
-                                PurchaseOrder = p.PurchaseOrder,
-                                Style = p.Style,
-                                Color = p.Color,
-                                SizeBundle = p.SizeBundle,
-                                PcsBundle = p.PcsBundle,
-                                PcsPerCarton = p.PcsPerCaron,
-                                PickCtns = 0,
-                                PickPcs = p.AvailablePcs,
-                                Location = p.Location,
-                                CustomerCode = p.CustomerCode,
-                                ShipOrder = adjustShipOrder
-                            }
-                        );
-
-                        p.PickingPcs += p.AvailablePcs;
-                        p.AvailablePcs = 0;
-                    }
-                }
+                m.CustomerCode = m.Customer.CustomerCode;
             }
 
             _context.SaveChanges();

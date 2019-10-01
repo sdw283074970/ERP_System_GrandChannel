@@ -969,7 +969,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         //统计库存剩余箱数
-        public bool CheckIfCanPushOrder(string customerCode)
+        private bool CheckIfCanPushOrder(string customerCode)
         {
             var warningQuantityLevel = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).WarningQuantityLevel;
 
@@ -982,7 +982,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         //检测当前用户是否拥有财务权限
-        public bool CheckIfCurrentUserIsT5()
+        private bool CheckIfCurrentUserIsT5()
         {
             return HttpContext.Current.User.IsInRole(RoleName.CanOperateAsT5);
         }

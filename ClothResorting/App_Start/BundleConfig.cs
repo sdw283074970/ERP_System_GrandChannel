@@ -18,7 +18,7 @@ namespace ClothResorting
                         "~/Scripts/jquery.signalR-2.4.1.js",
                         "~/Scripts/serviceWorker.min.js",
                         "~/Scripts/push.js",
-                        "~/Scripts/EditableSelect/dist/jquery-editable-select.min.js"));
+                        "~/Scripts/EditableSelect/dist/jquery-editable-select.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
