@@ -160,7 +160,32 @@
         <button id="btn-rollback" class="btn btn-primary" style="margin-top:20px">Rollback</button>
     </div>
 </div>
-
+<div id="div-efile" style="margin:20px">
+    <h2>Manage eFiles</h2>
+    <h3 id="h3-reference">Container No.:</h3>
+    <div style="margin-top:20px">
+        <text style="width:170px;margin-top:20px;margin-right:20px">Name and Type: </text><input id="input-name" style="margin-right:20px" class="input-sm" placeholder="e.g. BOL20190401" /><br />
+        <font color="red" style="margin-right:20px">* File name cannot contain any special symbol like ". \ / * ..."</font><br />
+        <input type="file" id="input-file" style="width:200px;margin-top:10px;float:left" />
+        <button id="btn-upload" style="margin-left:20px;margin-top:5px">Upload</button>
+    </div>
+    <div style="margin-top:20px">
+        <table id="table-efile" class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th style="width:50px">Id</th>
+                    <th>File Name</th>
+                    <th>Upload Date</th>
+                    <th>Upload By</th>
+                    <th>Status</th>
+                    <th>Discard By</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
 @section scripts
 {
     <script>
@@ -169,6 +194,7 @@
             var index;
             var beforeSendingIndex;
             var table;
+            var tableEfiles;
             var url;
             var grandNumber;
             var masterOrderId;
@@ -178,8 +204,10 @@
             var invoiceStatuts;
             var operation;
             var pageId;
+            var reference;
+            var orderType = "MasterOrder";
 
-            $(".maincontainer").hide();
+            $(".maincontainer, #div-efile").hide();
             $(".iframe-wo-warehouse, .iframe-wo-office, #div-rollback, .div-readme").hide();
             $(".iframe, .iframe-fbadate, .iframe-detail-result, .iframe-detail").hide();
             $(".div-readme.div-office.div-inbound").show();
@@ -380,7 +408,129 @@
 
             //点击文件按钮，打开订单相关文件管理页面
             $("#table").on("click", ".btn-file", function () {
-                $(window.location).attr('href', "/EFolder/FBAEfolder/?reference=" + $(this).attr('reference') + "&orderType=MasterOrder");
+                reference = $(this).attr('reference');
+                $("#h3-reference").html("Container No.: " + reference);
+                url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType;
+                var columsArray = [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "customizedFileName",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "uploadDate",
+                        render: function (data) {
+                            return "<text>" + data.toString().substring(0, 10) + "</text>";
+                        }
+                    },
+                    {
+                        data: "uploadBy",
+                        render: function (data) {
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (data) {
+                            status = data;
+                            if (status == null)
+                                return "";
+                            else if (status == "Valid")
+                                return "<font color='green'>" + data + "</font>";
+                            else
+                                return "<font color='red'>" + data + "</font>";
+                        }
+                    },
+                    {
+                        data: "discardBy",
+                        render: function (data) {
+                            if (data == null)
+                                return "";
+                            return "<text>" + data + "</text>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            if (status == "Valid")
+                                return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button><button class='btn btn-link btn-discard' iid='" + data + "'>Discard</button>"
+                            else
+                                return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button>"
+                        }
+                    }
+                ];
+                //获取当前单的所有相关文件列表
+                GetEfilesAjaxTable("GET", url, "#table-efile", tableEfiles, columsArray);
+                grandChannel.openiframe(index, "#div-efile", "900px", "600px");
+                //$(window.location).attr('href', "/EFolder/FBAEfolder/?reference=" + $(this).attr('reference') + "&orderType=MasterOrder");
+            });
+
+            //点击上传按钮，上传文件到服务器
+            $("#btn-upload").on("click", function () {
+
+                var fileName = $("#input-name").val();
+
+                if (fileName == "")
+                {
+                    layer.alert("File name cannot be empty.");
+                }
+                else
+                {
+                    var formData = new FormData();
+                    var files = $("#input-file").get(0).files;
+
+                    if (files.length > 0) {
+                        formData.append("fileName", files[0]);
+                        url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType + "&fileName=" + fileName + "&version=V1";
+                        SendUploadAjaxMethod("POST", url, formData);
+                    }
+                    else {
+                        alert("Please choose file first.");
+                    }
+                }
+            });
+
+            //点击下载按钮，下载选中的文件
+            $("#table-efile").on("click", ".btn-download", function () {
+                $(window.location).attr('href', "/api/fba/FBAEfolder/?fileId=" + $(this).attr('iid'));
+            });
+
+            //点击discard按钮，将该文件标记为invalid
+            $("#table-efile").on("click", ".btn-discard", function () {
+                var fileId = $(this).attr('iid');
+                var thisBtn = $(this);
+                url = "/api/fba/FBAEfolder/?fileId=" + fileId;
+                $.ajax({
+                    type: "PUT",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        thisBtn.parent().parent("tr").children('td').eq(4).children('font').html('Invalid');
+                        thisBtn.parent().parent("tr").children('td').eq(4).children('font').attr('color', 'red');
+                        thisBtn.replaceWith("");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             //临时机关，点击invoice Status可以将状态临时改成Await开放状态
@@ -1093,13 +1243,6 @@
                     return "";
             }
 
-            function transFormatDate(date) {
-                if (date != null)
-                    return date.substring(0, 4) == "1900" ? " " : date;
-                else
-                    return "";
-            }
-
             function GetWorkOrder(masterOrderId) {
 
                 url = "/api/fba/fbamasterorder/?masterOrderId=" + masterOrderId + "&operation=WO";
@@ -1346,6 +1489,131 @@
                     success: function () {
                         layer.close(index);
                         GetWorkOrder(masterOrderId, operation);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function GetEfilesAjaxTable(methodType, url, tableId, table, columsArray) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 1,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.close(index);
+                        if (table) {
+                            table.destroy();
+                        }
+
+                        table = $(tableId).DataTable({
+                            data: data,
+                            destroy: true,
+                            //scrollX: true,
+                            order: [[1, "asc"]],
+                            scrollCollapse: true,
+                            scrollY: "600px",
+                            iDisplayLength: 100,
+                            columns: columsArray
+                        });
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            };
+
+            function SendUploadAjaxMethod(methodType, url, obj) {
+                $.ajax({
+                    type: methodType,
+                    url: url,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    data: obj,
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!", function () {
+                            url = "/api/fba/FBAEfolder/?reference=" + reference + "&orderType=" + orderType;
+                            var columsArray = [
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "customizedFileName",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "uploadDate",
+                                    render: function (data) {
+                                        return "<text>" + data.toString().substring(0, 10) + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "uploadBy",
+                                    render: function (data) {
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "status",
+                                    render: function (data) {
+                                        status = data;
+                                        if (status == null)
+                                            return "";
+                                        else if (status == "Valid")
+                                            return "<font color='green'>" + data + "</font>";
+                                        else
+                                            return "<font color='red'>" + data + "</font>";
+                                    }
+                                },
+                                {
+                                    data: "discardBy",
+                                    render: function (data) {
+                                        if (data == null)
+                                            return "";
+                                        return "<text>" + data + "</text>";
+                                    }
+                                },
+                                {
+                                    data: "id",
+                                    render: function (data) {
+                                        if (status == "Valid")
+                                            return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button><button class='btn btn-link btn-discard' iid='" + data + "'>Discard</button>"
+                                        else
+                                            return "<button class='btn btn-link btn-download' iid='" + data + "'>Download</button>"
+                                    }
+                                }
+                            ];
+                            //获取当前单的所有相关文件列表
+                            GetEfilesAjaxTable("GET", url, "#table-efile", tableEfiles, columsArray);
+                        });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
