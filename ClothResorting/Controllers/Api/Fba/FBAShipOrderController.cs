@@ -835,6 +835,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             CustomerOrderNumber = cartonInPickList[i].FBACartonLocation.ShipmentId,
                             Contianer = pickDetail.Container,
                             CartonQuantity = cartonInPickList[i].PickCtns,
+                            AmzRef = cartonInPickList[i].FBACartonLocation.AmzRefId,
                             PalletQuantity = plt,
                             Weight = cartonInPickList[i].FBACartonLocation.GrossWeightPerCtn * cartonInPickList[i].PickCtns,
                             Location = pickDetail.Location,
@@ -849,6 +850,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         CustomerOrderNumber = pickDetail.ShipmentId,
                         Contianer = pickDetail.Container,
                         CartonQuantity = pickDetail.ActualQuantity,
+                        AmzRef = pickDetail.AmzRefId,
                         PalletQuantity = 0,
                         Weight = pickDetail.ActualGrossWeight,
                         Location = pickDetail.Location
@@ -903,6 +905,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         Order = order++,
                         Container = p.Container,
                         SKU = p.ShipmentId,
+                        AmzRef = p.AmzRefId,
                         PickableCtns = p.ActualQuantity,
                         PickablePlts = p.PltsFromInventory,
                         Location = p.Location
@@ -920,6 +923,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         Order = order++,
                         Container = p.FBAPickDetail.Container,
                         SKU = p.FBACartonLocation.ShipmentId,
+                        AmzRef = p.FBAPickDetail.AmzRefId,
                         PickableCtns = p.PickCtns,
                         PickablePlts = 0,
                         Location = p.FBAPickDetail.Location
@@ -1086,6 +1090,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string Container { get; set; }
 
         public string SKU { get; set; }
+
+        public string AmzRef { get; set; }
 
         public int PickableCtns { get; set; }
 

@@ -13,6 +13,8 @@ namespace ClothResorting.Models.FBAModels
 
         public int CartonQuantity { get; set; }
 
+        public string AmzRef { get; set; }
+
         public float Weight { get; set; }
 
         public int PalletQuantity { get; set; }

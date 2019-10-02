@@ -328,7 +328,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
 
                 _ws.Cells[startRow, 2] = b.Contianer;
-                _ws.Cells[startRow, 3] = "Y    N";
+                _ws.Cells[startRow, 3] = b.AmzRef;
                 _ws.Cells[startRow, 4] = b.Weight;
                 _ws.Cells[startRow, 5] = b.CartonQuantity;
                 _ws.Cells[startRow, 6] = b.IsMainItem ? b.PalletQuantity.ToString() : " ";
@@ -356,6 +356,9 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[i, j].HorizontalAlignment = XlVAlign.xlVAlignCenter;
                 }
             }
+
+            var range = _ws.get_Range("A20:G50", Type.Missing);
+            range.WrapText = true;
 
             var fullPath = @"D:\BOL\FBA-BOL-" + shipOrderInDb.ShipOrderNumber + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
