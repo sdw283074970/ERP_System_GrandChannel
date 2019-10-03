@@ -977,10 +977,12 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var warningQuantityLevel = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).WarningQuantityLevel;
 
-            var availableCnts =_context.FBACartonLocations
+            var availableList = _context.FBACartonLocations
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
                 .Where(x => x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode && x.AvailableCtns != 0)
-                .Sum(x => x.AvailableCtns);
+                .ToList();
+
+            var availableCnts = availableList.Sum(x => x.AvailableCtns);
 
             return availableCnts <= warningQuantityLevel ? false : true;
         }

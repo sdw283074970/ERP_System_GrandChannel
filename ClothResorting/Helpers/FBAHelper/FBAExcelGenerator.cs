@@ -308,7 +308,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[2, 1] = "Date: " + DateTime.Now.ToString("yyyy-MM-dd");
 
             //设置BOL#
-            _ws.Cells[3, 8] = shipOrderInDb.BOLNumber;
+            _ws.Cells[3, 6] = shipOrderInDb.BOLNumber;
 
             //设置地址
             _ws.Cells[7, 2] = shipOrderInDb.Destination;
@@ -321,21 +321,40 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[18, 1] = "Ship Order#: " + shipOrderInDb.ShipOrderNumber;
 
             var startRow = 21;
+            var mergeStartRow = 21;
+            var mergeEndRow = 21;
+            var mergeRange = _ws.get_Range("G" + mergeStartRow, "G" + mergeEndRow);
 
-            foreach(var b in bolDetailList)
+            foreach (var b in bolDetailList)
             {
                 _ws.Cells[startRow, 1] = b.CustomerOrderNumber;
                 _ws.Cells[startRow, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
 
                 _ws.Cells[startRow, 2] = b.Contianer;
                 _ws.Cells[startRow, 3] = b.AmzRef;
-                _ws.Cells[startRow, 4] = b.Weight;
-                _ws.Cells[startRow, 5] = b.CartonQuantity;
-                _ws.Cells[startRow, 6] = b.IsMainItem ? b.PalletQuantity.ToString() : " ";
-                _ws.Cells[startRow, 7] = b.Location;
+                _ws.Cells[startRow, 5] = b.Weight;
+                _ws.Cells[startRow, 6] = b.CartonQuantity;
+                //_ws.Cells[startRow, 7] = b.IsMainItem ? b.PalletQuantity.ToString() : " ";
+                //_ws.Cells[startRow, 8] = b.Location;
+
+                if (b.IsMainItem)
+                {
+                    mergeRange = _ws.get_Range("G" + mergeStartRow, "G" + mergeEndRow);
+                    mergeRange.Merge(mergeRange.MergeCells);
+                    _ws.Cells[startRow, 7] = b.PalletQuantity.ToString();
+                    mergeStartRow = startRow;
+                    mergeEndRow = startRow;
+                }
+                else
+                {
+                    mergeEndRow += 1;
+                }
 
                 startRow += 1;
             }
+
+            mergeRange = _ws.get_Range("G" + mergeStartRow, "G" + mergeEndRow);
+            mergeRange.Merge(mergeRange.MergeCells);
 
             var lastRow = startRow + 2;
 
@@ -345,19 +364,24 @@ namespace ClothResorting.Helpers.FBAHelper
             }
 
             _ws.Cells[lastRow, 1] = "Total";
-            _ws.Cells[lastRow, 5] = bolDetailList.Sum(x => x.CartonQuantity);
-            _ws.Cells[lastRow, 6] = bolDetailList.Sum(x => x.PalletQuantity);
+            _ws.Cells[lastRow, 6] = bolDetailList.Sum(x => x.CartonQuantity);
+            _ws.Cells[lastRow, 7] = bolDetailList.Sum(x => x.PalletQuantity);
 
-            for(int i = 21; i <= lastRow; i++)
-            {
-                for(int j = 1; j <= 7; j++)
-                {
-                    _ws.Cells[i, j].HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                    _ws.Cells[i, j].HorizontalAlignment = XlVAlign.xlVAlignCenter;
-                }
-            }
+            //for(int i = 21; i <= lastRow; i++)
+            //{
+            //    for(int j = 1; j <= 7; j++)
+            //    {
+            //        _ws.Cells[i, j].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            //        _ws.Cells[i, j].HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            //    }
+            //}
 
-            var range = _ws.get_Range("A20:G50", Type.Missing);
+            var range = _ws.get_Range("A20", "G50");
+            range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            range.VerticalAlignment = XlHAlign.xlHAlignCenter;
+            range.VerticalAlignment = XlVAlign.xlVAlignCenter;
+
             range.WrapText = true;
 
             var fullPath = @"D:\BOL\FBA-BOL-" + shipOrderInDb.ShipOrderNumber + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
