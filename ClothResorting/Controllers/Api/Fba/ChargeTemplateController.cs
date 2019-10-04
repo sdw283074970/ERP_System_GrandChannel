@@ -40,16 +40,16 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(templatesDto);
         }
 
-        // POST /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}
+        // POST /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}&p1Discount={p1Discount}&p2Discount={p2Discount}
         [HttpPost]
-        public void DownloadNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate)
+        public void DownloadNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate, [FromUri]float p1Discount, [FromUri]float p2Discount)
         {
             DateTime closeDate = currentBillingDate;
             DateTime startDate = lastBillingDate;
 
             var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
             var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
-            var fullPath = generator.GenerateStorageReport(customerId, lastBillingDate, closeDate);
+            var fullPath = generator.GenerateStorageReport(customerId, lastBillingDate, closeDate, p1Discount, p2Discount);
 
             var chargeMethodsList = _context.ChargeMethods
                 .Include(x => x.ChargeTemplate)

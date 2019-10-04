@@ -122,7 +122,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成StorageFee报告并返回完整路径
-        public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate)
+        public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate, float p1Discount, float p2Discount)
         {
             var actualCloseDate = closeDate.AddDays(1);
 
@@ -172,7 +172,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 //var pallets = p.Sum(x => x.ActualPlts);
                 var standardPlts = p.Where(x => x.PalletSize == "P1").Sum(x => x.ActualPlts);
                 var plusPlts = p.Where(x => x.PalletSize == "P2").Sum(x => x.ActualPlts);
-                var pallets = standardPlts + 2 * plusPlts;
+                var pallets = Math.Round(standardPlts * p1Discount + 2 * plusPlts * p2Discount, 2);
                 //if (pallets == 0)
                 //{
                 //    continue;
@@ -221,16 +221,16 @@ namespace ClothResorting.Helpers.FBAHelper
                 if (s.PalletSize == "P1")
                 {
                     _ws.Cells[startIndex, 5] = s.ShippedPlts;
-                    _ws.Cells[startIndex, 7] = s.ShippedPlts;
+                    _ws.Cells[startIndex, 7] = Math.Round(s.ShippedPlts *  p1Discount, 2);
                 }
                 else if (s.PalletSize == "P2")
                 {
                     _ws.Cells[startIndex, 6] = s.ShippedPlts;
-                    _ws.Cells[startIndex, 7] = s.ShippedPlts * 2;
+                    _ws.Cells[startIndex, 7] = Math.Round(s.ShippedPlts * 2 * p2Discount, 2);
                 }
                 else
                 {
-                    _ws.Cells[startIndex, 7] = 0;
+                    _ws.Cells[startIndex, 7] = "Invalid pallet size";
                 }
 
                 _ws.Cells[startIndex, 1] = FBAOrderType.ShipOrder;
@@ -240,6 +240,16 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 startIndex += 1;
             }
+
+            if (p1Discount != 1)
+                _ws.Cells[startIndex, 5] = (1 - p1Discount) * 100 + "%OFF";
+
+            if (p2Discount != 1)
+                _ws.Cells[startIndex, 6] = Math.Round((1 - p2Discount), 2) * 100 + "%OFF";
+
+            var range = _ws.get_Range("A1", "L" + (startIndex + 1));
+            range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            range.VerticalAlignment = XlHAlign.xlHAlignCenter;
 
             var fullPath = @"D:\StorageFee\FBA-" + customerInDb.CustomerCode + "-StorageFee-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);

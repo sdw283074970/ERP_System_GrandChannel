@@ -65,10 +65,10 @@ namespace ClothResorting.Helpers
                 var startTimeUnit = 1;
                 string inboundDate = _ws.Cells[i + 2, 8].Value.ToString("MM/dd/yyyy");
                 string outboundDate = _ws.Cells[i + 2, 9].Value2 == null ? null : _ws.Cells[i + 2, 9].Value.ToString("MM/dd/yyyy");
-                var totalPlts = _ws.Cells[i + 2, 7].Value2 == 0 || _ws.Cells[i + 2, 7].Value2 == null ? 1 : (int)_ws.Cells[i + 2, 7].Value2;
+                float totalPlts = _ws.Cells[i + 2, 7].Value2 == 0 || _ws.Cells[i + 2, 7].Value2 == null ? 1 : (float)_ws.Cells[i + 2, 7].Value2;
                 var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit);
-                double storageCharge = 0;
-                double lastFee = 0;
+                float storageCharge = 0;
+                float lastFee = 0;
 
                 _ws.Cells[i + 2, 11] = storedDuration;
                 _ws.Cells[i + 2, 12] = startTimeUnit;
@@ -92,19 +92,19 @@ namespace ClothResorting.Helpers
 
                 for( int j = starIndex; j < chargeMethods.Count(); j++)
                 {
-                    lastFee = chargeMethodsList[j].Fee;
+                    lastFee = (float)chargeMethodsList[j].Fee;
 
                     if (j == starIndex && j != chargeMethods.Count() -1)
                     {
                         var currentDuration = chargeMethodsList[j].To - startTimeUnit + 1;
                         if (storedDuration >= currentDuration)
                         {
-                            storageCharge += currentDuration * chargeMethodsList[j].Fee * totalPlts;
+                            storageCharge += (float)(currentDuration * chargeMethodsList[j].Fee * totalPlts);
                             storedDuration -= currentDuration;
                         }
                         else
                         {
-                            storageCharge += storedDuration * chargeMethodsList[j].Fee * totalPlts;
+                            storageCharge += (float)(storedDuration * chargeMethodsList[j].Fee * totalPlts);
                             storedDuration = 0;
                         }
                     }
@@ -112,12 +112,12 @@ namespace ClothResorting.Helpers
                     {
                         if (storedDuration >= chargeMethodsList[j].Duration)
                         {
-                            storageCharge += chargeMethodsList[j].Duration * chargeMethodsList[j].Fee * totalPlts;
+                            storageCharge += (float)(chargeMethodsList[j].Duration * chargeMethodsList[j].Fee * totalPlts);
                             storedDuration -= chargeMethodsList[j].Duration;
                         }
                         else if (storedDuration < chargeMethodsList[j].Duration)
                         {
-                            storageCharge += storedDuration * chargeMethodsList[j].Fee * totalPlts;
+                            storageCharge += (float)(storedDuration * chargeMethodsList[j].Fee * totalPlts);
                             storedDuration = 0;
                             break;
                         }
@@ -129,7 +129,7 @@ namespace ClothResorting.Helpers
                     storageCharge += storedDuration * lastFee * totalPlts;
                 }
 
-                _ws.Cells[i + 2, 10] = storageCharge;
+                _ws.Cells[i + 2, 10] = Math.Round(storageCharge, 2);
             }
 
             //打上账单日
