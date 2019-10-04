@@ -5,7 +5,7 @@
 }
 
 <h1>FBA Sytem</h1>
-<h2>Ship Order Page</h2>
+<h2>Shipping Order Page</h2>
 
 <div class="maincontainer">
     <div>
@@ -52,41 +52,51 @@
     </div>
 </div>
 <div class="iframe">
-    <h2 id="h2-title"></h2>
-    <div style="margin-top:20px;margin-left:30px;text-align:right;float:left">
-        <text>Ship Order #: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Required' /><br />
-        <text>Customer Code: </text><select id='select-customercode' class="input-sm" style='width:170px;height:30px;margin-top:20px' required='required'>
-            <option value='NULL'>Please select a code</option>
-        </select><br />
-        <text>Select Order Type: </text><select id='select-ordertype' class="input-sm" style='width:170px;height:30px;margin-top:20px' required='required'>
-            <option value='Standard'>Standard</option>
-            <option value='Ecommerce'>Ecommerce</option>
-            <option value='LooseCarton'>LooseCarton</option>
-            <option value='Adjustment'>Adjustment</option>
-        </select><br />
-        <text>Select Invoice Status: </text><select id='select-invoice' class="input-sm" style='width:170px;height:30px;margin-top:20px' required='required'>
-            <option value='Await'>Await</option>
-            <option value='Closed'>Closed</option>
-        </select><br />
-        @*<text>Destination: </text><input id='input-destination' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />*@
-        <text>Destination: </text><select class="input-sm" id='select-address' style='width:170px;height:30px;margin-top:20px'>
-            @*<option value="">Please select an address</option>*@
-        </select><br />
-        <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
-        <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
-        <text>Batch #: </text><input id='input-batch' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
-    </div>
-    <div style="margin-top:20px;margin-right:20px;text-align:right;float:right">
-        <text>BOL #: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
-        <text>Pick #: </text><input id='input-pick' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
-        <text>Sub-customer: </text><input id='input-subcustomer' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
-        <text>PO #: </text><input id='input-po' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
-        <text>ETS(Required): </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
-        <text>ETS Time Range: </text><input id='input-range' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
-        <text>Instruction: </text><input id='input-instruction' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
+    <h1 id="h2-title"></h1>
+    <form style="margin:20px;margin-right:0px">
+        <fieldset>
+            <legend>Required Information</legend>
+            <div style="text-align:right;float:left;width:50%">
+                <text>Ship Order #: </text><input id='input-shipordernumber' style='width:170px;margin-top:20px' class='input-sm' placeholder='Required' /><br />
+                <text>ETS: </text><input id='input-ets' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
+            </div>
+            <div style="text-align:right;float:right;width:50%">
+                <text>Customer Code: </text><select id='select-customercode' class="input-sm" style='width:170px;height:30px;margin-top:20px' required='required'>
+                    <option value='NULL'>Please select a code</option>
+                </select><br />
+                <text>Order Type: </text><select id='select-ordertype' class="input-sm" style='width:170px;height:30px;margin-top:20px' required='required'>
+                    <option value='Standard'>Standard</option>
+                    <option value='Ecommerce'>Ecommerce</option>
+                    <option value='LooseCarton'>LooseCarton</option>
+                    <option value='Adjustment'>Adjustment</option>
+                </select><br />
+                <text>Invoice Status: </text><select id='select-invoice' class="input-sm" style='width:170px;height:30px;margin-top:20px' required='required'>
+                    <option value='Await'>Await</option>
+                    <option value='Closed'>Closed</option>
+                </select><br />
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Additional Information</legend>
+            <div style="text-align:right;float:left;width:50%">
+                <text>Destination: </text><select class="input-sm" id='select-address' style='width:170px;height:30px;margin-top:20px'></select><br />
+                <text>Pick Reference: </text><input id='input-reference' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
+                <text>Carrier: </text><input id='input-carrier' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
+                <text>Batch #: </text><input id='input-batch' style='width:170px;margin-top:20px' class='input-sm' placeholder='optional' /><br />
+                <text>ETS Time Range: </text><input id='input-range' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
+            </div>
+            <div style="text-align:right;float:right;width:50%">
+                <text>BOL #: </text><input id='input-bol' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+                <text>Pick #: </text><input id='input-pick' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+                <text>Sub-customer: </text><input id='input-subcustomer' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+                <text>PO #: </text><input id='input-po' style='width:170px;margin-top:20px' class='input-sm' placeholder='Optional' /><br />
+                <text>Instruction: </text><input id='input-instruction' style='width:170px;margin-top:20px' class='input-sm' placeholder="Optional" /><br />
+            </div>
+        </fieldset>
         <button id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
         <button id="btn-add" class='btn btn-primary' style="margin-top:20px">Create</button>
-    </div>
+    </form>
+
 </div>
 <div class="iframe-date">
     <div style="margin-top:20px;margin-right:20px;text-align:right">
@@ -482,7 +492,7 @@
             $("#btn-create").click(function () {
                 $("#btn-add").show();
                 $("#btn-update").hide();
-                $("#h2-title").html("Create new ship order");
+                $("#h2-title").html("Create Shipping Order");
 
                 //取消禁用
                 $("#input-shipordernumber").removeAttr("disabled");
@@ -493,7 +503,7 @@
                 $("#select-ordertype option:first").prop("selected", 'selected');
                 $("#select-invoice option:first").prop("selected", 'selected');
 
-                Openiframe(index, ".iframe", "700px", "550px");
+                Openiframe(index, ".iframe", "700px", "700px");
             })
 
             //点击添加按钮，新建一个新的运单
@@ -864,8 +874,8 @@
                         $("#input-po").val(data.purchaseOrderNumber);
                         $("#input-instruction").val(data.instruction);
 
-                        $("#h2-title").html("Update ship order");
-                        Openiframe(index, ".iframe", "700px", "550px");
+                        $("#h2-title").html("Update Shipping Order");
+                        Openiframe(index, ".iframe", "700px", "700px");
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
@@ -941,12 +951,12 @@
 
             //点击所有与打开wo相关的按钮，根据operation显示/关闭相关按钮
             $("#table").on("click", ".btn-wo", function () {
-                customerCode = $(this).parent().parent("tr").children("td").eq(3).children("text").html();
+                customerCode = $(this).parent().parent("tr").children("td").eq(4).children("text").html();
                 shipOrderId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
                 reference = $(this).parent().parent("tr").children("td").eq(2).children("text").html();
                 var operation = $(this).attr('operation');
 
-                $(".h2-customercode").html("Customer Code: " + customerCode);
+                $(".h2-customercode").html("Customer Code: <b><font color='red'>" + customerCode + "</font></b>");
                 pageId = ".iframe-wo-office";
                 grandChannel.openiframe(index, pageId, "1000px", "800px");
 

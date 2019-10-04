@@ -1,34 +1,34 @@
 ﻿
-<div class="iframe-wo-office" style="margin:20px">
+<form class="iframe-wo-office" style="margin:20px">
     <h1>Work Order</h1>
     <h2 class="h2-customercode"></h2>
     <button class="btn btn-primary btn-downloadwo" style="margin-top:20px">Download this wo</button>
-    <div style="margin-top:20px;border:double;height:220px;padding:20px;padding-top:0px">
-        <h3>Summary</h3>
-        <div style="float:left;width:33%;border:dotted;border-color:red;padding:10px">
+    <fieldset style="margin-top:20px;height:170px;padding:20px;padding-top:0px">
+        <legend>Summary</legend>
+        <div style="float:left;width:33%;padding:10px">
             <text>Place Time:</text><text class="text-place"> </text><br />
             <text>Ready Time:</text><text class="text-ready"> </text><br />
             <text>ETS:</text><text class="text-ets"> </text><br />
             <text>Pick Man:</text><text class="text-pm"> </text><br />
             <text>Instructor:</text><text class="text-instructor"> </text><br />
         </div>
-        <div style="float:left;width:34%;border:dotted;border-color:darkseagreen;padding:10px">
+        <div style="float:left;width:34%;padding:10px">
             <text>Ship Order #:</text><text class="text-so"> </text><br />
             <text>Reference #:</text><text class="text-reference"> </text><br />
             <text>Destination:</text><text class="text-destination"> </text><br />
             <text>Carrier:</text><text class="text-carrier"> </text><br />
             <text>Lot:</text><text class="text-lot"> </text><br />
         </div>
-        <div style="float:right;width:33%;border:dotted;border-color:blue;padding:10px">
+        <div style="float:right;width:33%;padding:10px">
             <text>Pickable Ctns:</text><text class="text-ctns"> </text><br />
             <text>Pickable Plts:</text><text class="text-plts"> </text><br />
             <text>Plts From Inventory:</text><text class="text-inventory"> </text><br />
             <text>New Plts:</text><text class="text-new"> </text><br />
             <text>Actual Outbound Plts:</text><text class="text-total"> </text><br />
         </div>
-    </div>
-    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
-        <h3>Picking List</h3>
+    </fieldset>
+    <fieldset style="margin-top:20px;padding:20px;padding-top:0px">
+        <legend>Picking List</legend>
         <table class="table table-condensed table-hover table-striped table-pickinglist">
             <thead>
                 <tr>
@@ -43,11 +43,13 @@
             </thead>
             <tbody></tbody>
         </table>
-    </div>
-    <div style="margin-top:20px;border:double;padding:20px;padding-top:0px">
-        <h3>Operation Instruction</h3>
-        <button class="btn btn-primary btn-detail-create btn-wo-operation">Add new instruction</button>
-        <button id="btn-detail-reset" class="btn btn-primary btn-wo-operation">Reset</button>
+    </fieldset>
+    <fieldset style="margin-top:20px;padding:20px;padding-top:0px">
+        <legend>Operation Instruction</legend>
+        <div style="margin:10px;margin-left:0px">
+            <button class="btn btn-primary btn-detail-create btn-wo-operation">Add new instruction</button>
+            <button id="btn-detail-reset" class="btn btn-primary btn-wo-operation">Reset</button>
+        </div>
         <table class="table table-condensed table-hover table-striped table-wo">
             <thead>
                 <tr>
@@ -62,12 +64,12 @@
             </thead>
             <tbody></tbody>
         </table>
-    </div>
+    </fieldset>
     <div style="text-align:center">
         <button class="btn btn-primary btn-push btn-wo-operation" style="margin-top:20px">Push</button>
         <input type="button" style="background-color:green" class="btn btn-danger btn-wo-operation btn-wo-result-status" value="Ready" />
     </div>
-</div>
+</form>
 
 <div class="iframe-wo-warehouse" style="margin:20px">
     <h1>Work Order</h1>

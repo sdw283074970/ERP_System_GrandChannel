@@ -18,49 +18,55 @@
         <input id="btn-diag" type="button" class="btn btn-danger" value="Diagnostic system" />
         <button style="background-color:indianred;color:white" class="btn btn-group btn-template">Download Template</button>
         <input type="button" class="btn btn-info btn-updatepickinfo" value="Update picking info" />
-        <input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />
+        @*<input id="btn-inventory" type="button" class="btn btn-primary" value="Pick from inventory" />*@
     </div>
     <div id="div-partial" style="margin-top:20px">
         @Html.Partial("~/Views/shiporder/_FBAInventoryListPartial.cshtml", null)
     </div>
-    <div>
-        <input style="width:140px" id="input-container" class="input-sm" placeholder="Container" />
-        <input style="width:140px" id="input-customer" class="input-sm" placeholder="CustomerCode" />
-        <input style="width:140px" id="input-shipmentid" class="input-sm" placeholder="Shipment Id/SKU" />
-        <input style="width:140px" id="input-amzref" class="input-sm" placeholder="Amz Ref Id" />
-        <input style="width:140px" id="input-warehouse" class="input-sm" placeholder="Warehouse Code" />
-        <button ordertype="Standard" class="btn btn-info btn-pick">Pick All Pallets</button>
-        <button ordertype="ecommerce" class="btn btn-info btn-pick">Pick All Cartons</button>
-    </div>
-    <div style="margin-top:20px">
-        <table id="table" class="table table-condensed table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Status</th>
-                    <th>Grand #</th>
-                    <th>Container #</th>
-                    <th>Type</th>
-                    <th style="width:206px">FBA shmt ID./SKU</th>
-                    <th style="width:64px">Amz Ref ID.</th>
-                    <th>Barcode</th>
-                    <th>Delivery</th>
-                    <th>Warehouse Code</th>
-                    <th>Gross Weight</th>
-                    <th>CBM</th>
-                    <th>Ctns/Plt</th>
-                    <th>Pickable Ctns</th>
-                    <th>Ttl Pick Ctns</th>
-                    <th>Inventory Plts</th>
-                    <th>New Plts</th>
-                    <th>Ttl Outbound Plts</th>
-                    <th>Location</th>
-                    <th>Operation</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+    <form>
+        <fieldset>
+            <legend>Quick Pick Area</legend>
+            <label>Container:</label><input style="width:170px" id="input-container" class="input-sm" placeholder="Container" />
+            <label>Shipment Id/SKU:</label><input style="width:170px" id="input-shipmentid" class="input-sm" placeholder="Shipment Id/SKU" />
+            <label>Amazon Ref:</label><input style="width:170px" id="input-amzref" class="input-sm" placeholder="Amz Ref Id" />
+            <label>Warehouse Code:</label><input style="width:170px" id="input-warehouse" class="input-sm" placeholder="Warehouse Code" />
+            <label>Customer Code:</label><input style="width:170px" id="input-customer" class="input-sm" placeholder="CustomerCode" />
+            <button ordertype="Standard" class="btn btn-info btn-pick">Pick All Pallets</button>
+            <button ordertype="ecommerce" class="btn btn-info btn-pick">Pick All Cartons</button>
+        </fieldset>
+    </form>
+    <form style="margin-top:20px">
+        <fieldset>
+            <legend>Pick Details</legend>
+            <table id="table" class="table table-condensed table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Status</th>
+                        <th>Grand #</th>
+                        <th>Container #</th>
+                        <th>Type</th>
+                        <th style="width:206px">FBA shmt ID./SKU</th>
+                        <th style="width:64px">Amz Ref ID.</th>
+                        <th>Barcode</th>
+                        <th>Delivery</th>
+                        <th>Warehouse Code</th>
+                        <th>Gross Weight</th>
+                        <th>CBM</th>
+                        <th>Ctns/Plt</th>
+                        <th>Pickable Ctns</th>
+                        <th>Ttl Pick Ctns</th>
+                        <th>Inventory Plts</th>
+                        <th>New Plts</th>
+                        <th>Ttl Outbound Plts</th>
+                        <th>Location</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </fieldset>
+    </form>
 </div>
 
 <div class="iframe">
@@ -165,7 +171,7 @@
         $(document).ready(function () {
 
             $(".iframe,.iframe-update, .iframe-cartons, .iframe-adjust, .iframe-ship").hide();
-            $(".iframe-inventory, .iframe-pickpallet, .iframe-pickcarton").hide();
+            $(".iframe-pickpallet, .iframe-pickcarton, .iframe-pallet-inventory, .iframe-carton-inventory").hide();
 
             var index;
             var pickDetailId;
@@ -183,6 +189,7 @@
             var container;
             var palletLocationId;
             var availablePlts;
+            var isHide = true;
 
             //点击诊断系统，查看所有诊断
             $("#btn-diag").on("click", function () {
@@ -348,11 +355,13 @@
 
             //点击从库存拣货，打开库存拣货界面
             $("#btn-inventory").on("click", function () {
-                $(".iframe-inventory").show();
+                $(".iframe-pallet-inventory, .iframe-carton-inventory").show();
             });
 
             //点击库存拣货界面的搜索按钮，获取可被拣货的列表
             $("#btn-search").on("click", function () {
+                $(".iframe-pallet-inventory, .iframe-carton-inventory").show();
+                isHide = false;
                 container = $("#input-inventory-container").val();
                 var sku = $("#input-inventory-sku").val();
                 var amzRef = $("#input-inventory-amzref").val();
@@ -582,8 +591,15 @@
             });
 
             //点击关闭按钮，关闭库存件货界面
-            $("#div-partial").on("click", ".btn-close", function () {
-                $(".iframe-inventory").hide();
+            $("#btn-close").on("click", function () {
+                if (isHide == true) {
+                    $(".iframe-pallet-inventory, .iframe-carton-inventory").show();
+                    isHide = false;
+                }
+                else {
+                    $(".iframe-pallet-inventory, .iframe-carton-inventory").hide();
+                    isHide = true;
+                }
             });
 
             //点击上传，上传Template文件

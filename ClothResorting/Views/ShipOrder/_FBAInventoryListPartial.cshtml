@@ -1,69 +1,73 @@
-﻿<div class="iframe-inventory" style="background-color:navajowhite">
-    <div>
-    <button class="btn btn-link btn-close" style="float:right">Close</button><h2>Pick Area</h2>
-    </div>
-    <div>
-        <text>Container: <input id="input-inventory-container" class="input-sm" placeholder="Container #" /></text>
-        <text>Shipment Id/SKU: <input id="input-inventory-sku" class="input-sm" placeholder="Shpmt Id/SKU" /></text>
-        <text>Amazon Ref: <input id="input-inventory-amzref" class="input-sm" placeholder="Amz Ref #" /></text>
-        <text>Warehouse Code: <input id="input-inventory-warehousecode" class="input-sm" placeholder="Whse Code #" /></text>
+﻿<div>
+    <fieldset>
+        <legend>Regular Pick Area</legend>
+        <label>Container:</label><input id="input-inventory-container" class="input-sm" placeholder="Container #" />
+        <label>Shipment Id/SKU:</label><input id="input-inventory-sku" class="input-sm" placeholder="Shpmt Id/SKU" />
+        <label>Amazon Ref:</label><input id="input-inventory-amzref" class="input-sm" placeholder="Amz Ref #" />
+        <label>Warehouse Code:</label><input id="input-inventory-warehousecode" class="input-sm" placeholder="Whse Code #" />
         <button id="btn-search" class="btn btn-info">Search</button>
-    </div>
-    <div style="margin-top:20px;border:double;margin-right:auto;margin-left:auto">
-        <h2>Pallets Inventory</h2>
-        <table id="table-pallet" class="table table-condensed table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Status</th>
-                    <th>Inbound Date</th>
-                    <th>Container</th>
-                    <th>FBA shmt ID./SKU</th>
-                    <th>Amz Ref ID.</th>
-                    <th>Pallet Size</th>
-                    <th>FBA whse Code</th>
-                    <th>GW(KG)/Plt</th>
-                    <th>CBM/Plt</th>
-                    <th>Ctns/Plt</th>
-                    <th>Original Ctns</th>
-                    <th>Available Ctns</th>
-                    <th>Original Plts</th>
-                    <th>Available Plts</th>
-                    <th>Location</th>
-                    <th>Operation</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div style="margin-top:40px;margin-bottom:40px;border:double">
-        <h2>Cartons Inventory</h2>
-        <table id="table-carton" class="table table-condensed table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Status</th>
-                    <th>Inbound Date</th>
-                    <th>Container</th>
-                    <th>FBA shmt ID./SKU</th>
-                    <th>Amz Ref ID.</th>
-                    <th>FBA whse Code</th>
-                    <th>GW(KG)/Ctn</th>
-                    <th>CBM/Ctn</th>
-                    <th>Original Ctns</th>
-                    <th>Available Ctns</th>
-                    <th>Hold Ctns</th>
-                    <th>Location</th>
-                    <th>Operation</th>
-                    <th>Pick Cartons</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-            <tfoot>
-            </tfoot>
-        </table>
-        <div style="text-align:right">
-            <button id="btn-pickcarton" class="btn btn-primary">Pick filled cartons</button>
+        <button id="btn-close" class="btn btn-link" style="float:right">Hide/Show</button>
+        <div class="iframe-pallet-inventory">
+            <fieldset style="margin-top:20px;margin-right:auto;margin-left:auto">
+                <legend>Pallets Inventory</legend>
+                <table id="table-pallet" class="table table-condensed table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Status</th>
+                            <th>Inbound Date</th>
+                            <th>Container</th>
+                            <th>FBA shmt ID./SKU</th>
+                            <th>Amz Ref ID.</th>
+                            <th>Pallet Size</th>
+                            <th>FBA whse Code</th>
+                            <th>GW(KG)/Plt</th>
+                            <th>CBM/Plt</th>
+                            <th>Ctns/Plt</th>
+                            <th>Original Ctns</th>
+                            <th>Available Ctns</th>
+                            <th>Original Plts</th>
+                            <th>Available Plts</th>
+                            <th>Location</th>
+                            <th>Operation</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </fieldset>
         </div>
-    </div>
+        <div class="iframe-carton-inventory">
+            <fieldset style="margin-top:40px;margin-bottom:20px">
+                <legend>Cartons Inventory</legend>
+                <table id="table-carton" class="table table-condensed table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Status</th>
+                            <th>Inbound Date</th>
+                            <th>Container</th>
+                            <th>FBA shmt ID./SKU</th>
+                            <th>Amz Ref ID.</th>
+                            <th>FBA whse Code</th>
+                            <th>GW(KG)/Ctn</th>
+                            <th>CBM/Ctn</th>
+                            <th>Original Ctns</th>
+                            <th>Available Ctns</th>
+                            <th>Hold Ctns</th>
+                            <th>Location</th>
+                            <th>Operation</th>
+                            <th>Pick Cartons</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+                <div style="text-align:right">
+                    <button id="btn-pickcarton" class="btn btn-primary">Pick filled cartons</button>
+                </div>
+            </fieldset>
+        </div>
+    </fieldset>
+
 </div>
