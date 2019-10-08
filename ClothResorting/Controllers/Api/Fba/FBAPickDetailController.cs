@@ -343,6 +343,15 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
                 .SingleOrDefault(x => x.Id == pickDetailId);
 
+            //如果该对象中的pallet对像为空，则说明是从cartonLocation拣货，直接调整该拣货记录的outbound记录
+            if (pickDetailInDb.FBAPalletLocation == null)
+            {
+                pickDetailInDb.NewPlts += newPltsAdjust;
+                pickDetailInDb.ActualPlts += outboundAdjust;
+                _context.SaveChanges();
+                return;
+            }
+
             //调整托盘数量小于已捡托盘数量的情况
             if (pltsAdjust + pickDetailInDb.PltsFromInventory < 0)
             {

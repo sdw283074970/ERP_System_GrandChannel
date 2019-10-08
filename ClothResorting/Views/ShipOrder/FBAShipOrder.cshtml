@@ -53,7 +53,7 @@
 </div>
 <div class="iframe">
     <h1 id="h2-title"></h1>
-    <form style="margin:20px;margin-right:0px">
+    <div style="margin:20px;margin-right:0px">
         <fieldset>
             <legend>Required Information</legend>
             <div style="text-align:right;float:left;width:50%">
@@ -95,7 +95,7 @@
         </fieldset>
         <button id="btn-update" class='btn btn-primary' style="margin-top:20px">Update</button>
         <button id="btn-add" class='btn btn-primary' style="margin-top:20px">Create</button>
-    </form>
+    </div>
 
 </div>
 <div class="iframe-date">
@@ -170,7 +170,6 @@
             var orderType = "ShipOrder";
 
             $(".maincontainer, #div-efile").hide();
-
             $(".btn-wo-operation, #iframe-verifiedinfo, .div-readme").hide();
             $(".iframe, #btn-update, #btn-release, #btn-ship").hide();
             $(".iframe-date").hide();
@@ -1274,9 +1273,9 @@
                 });
             };
 
-            function ReturnDownableMenu(id) {
-                return "<div class='downablemenu'><ul><li>Operation Menu<ul><li><input type='button' class='btn btn-link btn-pick' iid='" + id + "' value='Pick' /></li><li><input type='button' class='btn btn-link btn-download' iid='" + id + "' value='Download BOL' /></li></ul></li></ul></div>"
-            }
+            //function ReturnDownableMenu(id) {
+            //    return "<div class='downablemenu'><ul><li>Operation Menu<ul><li><input type='button' class='btn btn-link btn-pick' iid='" + id + "' value='Pick' /></li><li><input type='button' class='btn btn-link btn-download' iid='" + id + "' value='Download BOL' /></li></ul></li></ul></div>"
+            //}
 
             function Openiframe(index, elementId, width, height) {
                 index = layer.open({

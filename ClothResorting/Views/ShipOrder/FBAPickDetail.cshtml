@@ -23,7 +23,7 @@
     <div id="div-partial" style="margin-top:20px">
         @Html.Partial("~/Views/shiporder/_FBAInventoryListPartial.cshtml", null)
     </div>
-    <form>
+    <div>
         <fieldset>
             <legend>Quick Pick Area</legend>
             <label>Container:</label><input style="width:170px" id="input-container" class="input-sm" placeholder="Container" />
@@ -34,8 +34,8 @@
             <button ordertype="Standard" class="btn btn-info btn-pick">Pick All Pallets</button>
             <button ordertype="ecommerce" class="btn btn-info btn-pick">Pick All Cartons</button>
         </fieldset>
-    </form>
-    <form style="margin-top:20px">
+    </div>
+    <div style="margin-top:20px">
         <fieldset>
             <legend>Pick Details</legend>
             <table id="table" class="table table-condensed table-hover table-striped">
@@ -66,7 +66,7 @@
                 <tbody></tbody>
             </table>
         </fieldset>
-    </form>
+    </div>
 </div>
 
 <div class="iframe">
