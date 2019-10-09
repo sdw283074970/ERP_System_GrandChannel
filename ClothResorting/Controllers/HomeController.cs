@@ -5,6 +5,7 @@ using ClothResorting.Models.StaticClass;
 using System.Data.Entity;
 using ClothResorting.Helpers;
 using System;
+using System.IO;
 
 namespace ClothResorting.Controllers
 {
