@@ -7,6 +7,8 @@ namespace ClothResorting.Models.FBAModels
 {
     public class FBABOLDetail
     {
+        public int ParentPalletId { get; set; }
+
         public string CustomerOrderNumber { get; set; }
 
         public string Contianer { get; set; }
@@ -17,7 +19,9 @@ namespace ClothResorting.Models.FBAModels
 
         public float Weight { get; set; }
 
-        public int PalletQuantity { get; set; }
+        public int ActualPallets { get; set; }
+
+        public int PickPallets { get; set; }
 
         public string Location { get; set; }
 

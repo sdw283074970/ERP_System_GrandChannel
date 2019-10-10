@@ -836,7 +836,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             Contianer = pickDetail.Container,
                             CartonQuantity = cartonInPickList[i].PickCtns,
                             AmzRef = cartonInPickList[i].FBACartonLocation.AmzRefId,
-                            PalletQuantity = plt,
+                            ActualPallets = plt,
                             Weight = cartonInPickList[i].FBACartonLocation.GrossWeightPerCtn * cartonInPickList[i].PickCtns,
                             Location = pickDetail.Location,
                             IsMainItem = isMainItem
@@ -851,7 +851,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         Contianer = pickDetail.Container,
                         CartonQuantity = pickDetail.ActualQuantity,
                         AmzRef = pickDetail.AmzRefId,
-                        PalletQuantity = 0,
+                        ActualPallets = 0,
                         Weight = pickDetail.ActualGrossWeight,
                         Location = pickDetail.Location
                     });

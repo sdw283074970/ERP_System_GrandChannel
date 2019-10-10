@@ -327,6 +327,8 @@
 		});
 	});
 
+
+
 	$(".btn-back").on("click", function () {
 		window.history.back(-1);
 	});

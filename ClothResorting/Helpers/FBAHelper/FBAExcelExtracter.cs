@@ -122,7 +122,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     Contianer = _ws.Cells[i + 2, 2].Value2.ToString(),
                     CartonQuantity = (int)(_ws.Cells[i + 2, 3].Value2 ?? 0),
                     Weight = (float)(_ws.Cells[i + 2, 4].Value2 ?? 0),
-                    PalletQuantity = (int)(_ws.Cells[i + 2, 5].Value2 ?? 0),
+                    ActualPallets = (int)(_ws.Cells[i + 2, 5].Value2 ?? 0),
                     Location = _ws.Cells[i + 2, 6].Value2 == null ? "NA" : _ws.Cells[i + 2, 6].ToString()
                 };
 

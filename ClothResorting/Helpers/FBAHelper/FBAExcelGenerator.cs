@@ -274,24 +274,55 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _ws.Cells[1, 2] = pickDetailInDb.First().FBAShipOrder.ShipOrderNumber.ToString();
             var bolList = GenerateFBABOLList(pickDetailInDb);
-            foreach(var p in bolList)
-            {
-                _ws.Cells[startIndex, 1] = p.CustomerOrderNumber;
-                _ws.Cells[startIndex, 2] = p.Contianer;
-                _ws.Cells[startIndex, 3] = p.CartonQuantity;
-                _ws.Cells[startIndex, 5] = p.Location;
+            var groupLis = bolList.GroupBy(x => x.ParentPalletId);
 
-                if (p.PalletQuantity != 0)
+            foreach(var g in groupLis)
+            {
+                var startRow = startIndex;
+                _ws.Cells[startIndex, 3] = g.First().Contianer;
+                _ws.Cells[startIndex, 5] = g.First().ParentPalletId == 0 ? "NA" : g.First().PickPallets.ToString();
+                _ws.Cells[startIndex, 6] = g.First().Location;
+
+                foreach (var p in g)
                 {
-                    _ws.Cells[startIndex, 4] = p.PalletQuantity;
+                    _ws.Cells[startIndex, 1] = p.CustomerOrderNumber;
+                    _ws.Cells[startIndex, 2] = p.AmzRef;
+                    _ws.Cells[startIndex, 4] = p.CartonQuantity;
+
+                    if (p.ParentPalletId == 0)
+                    {
+                        _ws.Cells[startIndex, 3] = p.Contianer;
+                        _ws.Cells[startIndex, 6] = p.Location;
+                    }
+
+                    startIndex += 1;
                 }
 
-                startIndex += 1;
+                if (g.Count() > 1) //当组内数量大于1才有纵向合并单元格的必要
+                {
+                    if (g.First().ParentPalletId != 0) //按托拣货
+                    {
+                        var rangeContainer = _ws.get_Range("C" + startRow, "C" + (startIndex - 1));
+                        rangeContainer.Merge(rangeContainer.MergeCells);
+
+                        var rangeLocation = _ws.get_Range("F" + startRow, "F" + (startIndex - 1));
+                        rangeLocation.Merge(rangeLocation.MergeCells);
+                    }
+
+                    var rangePlts = _ws.get_Range("E" + startRow, "E" + (startIndex - 1));
+                    rangePlts.Merge(rangePlts.MergeCells);
+                }
             }
 
-            _ws.Cells[startIndex + 1, 2] = "Total";
-            _ws.Cells[startIndex + 1, 3] = pickDetailInDb.Sum(x => x.ActualQuantity);
-            _ws.Cells[startIndex + 1, 4] = pickDetailInDb.Sum(x => x.ActualPlts);
+            _ws.Cells[startIndex + 1, 3] = "Total";
+            _ws.Cells[startIndex + 1, 4] = pickDetailInDb.Sum(x => x.ActualQuantity);
+            _ws.Cells[startIndex + 1, 5] = pickDetailInDb.Sum(x => x.ActualPlts);
+
+            var range = _ws.get_Range("A2:F" + (startIndex + 1), Type.Missing);
+
+            range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            range.VerticalAlignment = XlVAlign.xlVAlignCenter;
+            range.Borders.LineStyle = 1;
 
             var fullPath = @"D:\PickingList\FBA-" + pickDetailInDb.First().FBAShipOrder.CustomerCode + "-PickingList-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
@@ -351,7 +382,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     mergeRange = _ws.get_Range("G" + mergeStartRow, "G" + mergeEndRow);
                     mergeRange.Merge(mergeRange.MergeCells);
-                    _ws.Cells[startRow, 7] = b.PalletQuantity.ToString();
+                    _ws.Cells[startRow, 7] = b.ActualPallets.ToString();
                     mergeStartRow = startRow;
                     mergeEndRow = startRow;
                 }
@@ -375,7 +406,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _ws.Cells[lastRow, 1] = "Total";
             _ws.Cells[lastRow, 6] = bolDetailList.Sum(x => x.CartonQuantity);
-            _ws.Cells[lastRow, 7] = bolDetailList.Sum(x => x.PalletQuantity);
+            _ws.Cells[lastRow, 7] = bolDetailList.Sum(x => x.ActualPallets);
 
             //for(int i = 21; i <= lastRow; i++)
             //{
@@ -413,14 +444,17 @@ namespace ClothResorting.Helpers.FBAHelper
                     var cartonInPickList = pickDetail.FBAPickDetailCartons.ToList();
                     for (int i = 0; i < cartonInPickList.Count; i++)
                     {
-                        var plt = pickDetail.ActualPlts;
+                        //var plt = pickDetail.ActualPlts;
 
                         bolList.Add(new FBABOLDetail
                         {
+                            ParentPalletId = pickDetail.FBAPalletLocation.Id,
                             CustomerOrderNumber = cartonInPickList[i].FBACartonLocation.ShipmentId,
                             Contianer = pickDetail.Container,
+                            AmzRef = pickDetail.AmzRefId,
                             CartonQuantity = cartonInPickList[i].PickCtns,
-                            PalletQuantity = plt,
+                            ActualPallets = pickDetail.ActualPlts,
+                            PickPallets = pickDetail.PltsFromInventory,
                             Weight = cartonInPickList[i].FBACartonLocation.GrossWeightPerCtn * cartonInPickList[i].PickCtns,
                             Location = pickDetail.Location
                         });
@@ -430,10 +464,13 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     bolList.Add(new FBABOLDetail
                     {
+                        ParentPalletId = 0,
                         CustomerOrderNumber = pickDetail.ShipmentId,
                         Contianer = pickDetail.Container,
                         CartonQuantity = pickDetail.ActualQuantity,
-                        PalletQuantity = 0,
+                        AmzRef = pickDetail.AmzRefId,
+                        ActualPallets = 0,
+                        PickPallets = 0,
                         Weight = pickDetail.ActualGrossWeight,
                         Location = pickDetail.Location
                     });

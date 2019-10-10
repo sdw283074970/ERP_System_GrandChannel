@@ -539,7 +539,7 @@ namespace ClothResorting.Helpers
                 //AddNewCell(tableContent, list[i].CartonQuantity == 0 ? " " : list[i].CartonQuantity.ToString(), minHeight, font);
 
                 //判定是否手动合并同一托盘的单元格
-                if (list[i].PalletQuantity == 99999)
+                if (list[i].ActualPallets == 99999)
                 {
                     var tableCell = new PdfPCell(new Paragraph(" ", new Font(font, fontSize)));
                     tableCell.UseVariableBorders = true;
@@ -552,9 +552,9 @@ namespace ClothResorting.Helpers
                 }
                 else
                 {
-                    if (i != list.Count - 1 && list[i + 1].PalletQuantity == 99999)
+                    if (i != list.Count - 1 && list[i + 1].ActualPallets == 99999)
                     {
-                        var p = new Paragraph(list[i].PalletQuantity.ToString(), new Font(font, fontSize));
+                        var p = new Paragraph(list[i].ActualPallets.ToString(), new Font(font, fontSize));
                         var tableCell = new PdfPCell(p);
                         tableCell.UseVariableBorders = true;
                         tableCell.BorderColorTop = BaseColor.GRAY;
@@ -568,7 +568,7 @@ namespace ClothResorting.Helpers
                     }
                     else
                     {
-                        AddNewCell(tableContent, list[i].PalletQuantity == 0 ? " " : list[i].PalletQuantity.ToString(), minHeight, font);
+                        AddNewCell(tableContent, list[i].ActualPallets == 0 ? " " : list[i].ActualPallets.ToString(), minHeight, font);
                     }
                 }
                 var locationrCell = new PdfPCell(new Paragraph(list[i].Location, new Font(font, fontSize)));
@@ -596,7 +596,7 @@ namespace ClothResorting.Helpers
             AddNewCell(tableFoot, " ", 10f, font);
             AddNewCell(tableFoot, list.Sum(x => x.Weight).ToString(), 10f, font);
             AddNewCell(tableFoot, list.Sum(x => x.CartonQuantity).ToString(), 10f, font);
-            AddNewCell(tableFoot, list.Where(x => x.PalletQuantity != 99999).Sum(x => x.PalletQuantity).ToString(), 10f, font);
+            AddNewCell(tableFoot, list.Where(x => x.ActualPallets != 99999).Sum(x => x.ActualPallets).ToString(), 10f, font);
             AddNewCell(tableFoot, " ", 10f, font);
 
             tableFoot.WriteSelectedRows(0, -1, xPosition, yPosition, cb);

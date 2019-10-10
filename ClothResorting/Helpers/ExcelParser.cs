@@ -159,7 +159,7 @@ namespace ClothResorting.Helpers
                 {
                     index += 1;
 
-                    if (currentValue == "Totals")
+                    if (currentValue.ToString() == "Totals")
                     {
                         if (_ws.Cells[index, 1].Value2 != null)
                         {

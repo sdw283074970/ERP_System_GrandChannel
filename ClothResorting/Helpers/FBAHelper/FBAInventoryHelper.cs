@@ -101,6 +101,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     pltViewList.Add(new FBAPalletGroupInventory {
                         PltId = plt.Id,
+                        SubCustomer = plt.FBAMasterOrder.SubCustomer,
                         Container = plt.Container,
                         ActualPlts = currentOriginalPlts,
                         PickingPlts = currentPickingPlt,
@@ -157,6 +158,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     var ctnInventory = new FBACtnInventory
                     {
+                        SubCustomer = cartonLocation.FBAOrderDetail.FBAMasterOrder.SubCustomer,
                         Id = cartonLocation.Id,
                         Container = cartonLocation.Container,
                         Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
@@ -228,23 +230,25 @@ namespace ClothResorting.Helpers.FBAHelper
             foreach(var i in info.FBACtnInventories)
             {
                 _ws.Cells[startRow, 1] = i.Container;
-                _ws.Cells[startRow, 2] = i.Type;
-                _ws.Cells[startRow, 3] = i.ShipmentId;
-                _ws.Cells[startRow, 4] = i.AmzRefId;
-                _ws.Cells[startRow, 5] = i.WarehouseCode;
-                _ws.Cells[startRow, 6] = Math.Round(i.GrossWeightPerCtn, 2);
-                _ws.Cells[startRow, 7] = Math.Round(i.CBMPerCtn, 2);
-                _ws.Cells[startRow, 8] = i.OriginalQuantity;
-                _ws.Cells[startRow, 9] = i.PickingCtns;
-                _ws.Cells[startRow, 10] = Math.Round((double)i.ResidualQuantity, 2);
-                _ws.Cells[startRow, 11] = Math.Round((double)i.HoldQuantity, 2);
-                _ws.Cells[startRow, 12] = i.Location;
+                _ws.Cells[startRow, 2] = i.SubCustomer;
+                _ws.Cells[startRow, 3] = i.Type;
+                _ws.Cells[startRow, 4] = i.ShipmentId;
+                _ws.Cells[startRow, 5] = i.AmzRefId;
+                _ws.Cells[startRow, 6] = i.WarehouseCode;
+                _ws.Cells[startRow, 7] = Math.Round(i.GrossWeightPerCtn, 2);
+                _ws.Cells[startRow, 8] = Math.Round(i.CBMPerCtn, 2);
+                _ws.Cells[startRow, 9] = i.OriginalQuantity;
+                _ws.Cells[startRow, 10] = i.PickingCtns;
+                _ws.Cells[startRow, 11] = Math.Round((double)i.ResidualQuantity, 2);
+                _ws.Cells[startRow, 12] = Math.Round((double)i.HoldQuantity, 2);
+                _ws.Cells[startRow, 13] = i.Location;
 
                 startRow += 1;
             }
 
-            _ws.get_Range("A1:K" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:K" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:M" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:M" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:M" + startRow, Type.Missing).Borders.LineStyle = 1;
 
             _ws = _wb.Worksheets[2];
 
@@ -266,23 +270,24 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 _ws.Cells[startRow, 1] = g.PltId;
                 _ws.Cells[startRow, 2] = g.Container;
-                _ws.Cells[startRow, 3] = g.ActualPlts;
-                _ws.Cells[startRow, 4] = g.PickingPlts;
-                _ws.Cells[startRow, 5] = g.AvailablePlts;
-                _ws.Cells[startRow, 6] = g.Location;
+                _ws.Cells[startRow, 3] = g.SubCustomer;
+                _ws.Cells[startRow, 4] = g.ActualPlts;
+                _ws.Cells[startRow, 5] = g.PickingPlts;
+                _ws.Cells[startRow, 6] = g.AvailablePlts;
+                _ws.Cells[startRow, 7] = g.Location;
 
                 foreach(var c in g.InPalletCtnInventories)
                 {
-                    _ws.Cells[ctnIndex, 7] = c.Id;
-                    _ws.Cells[ctnIndex, 8] = c.ShipmentId;
-                    _ws.Cells[ctnIndex, 9] = c.AmzRefId;
-                    _ws.Cells[ctnIndex, 10] = c.WarehouseCode;
-                    _ws.Cells[ctnIndex, 11] = c.GrossWeightPerCtn;
-                    _ws.Cells[ctnIndex, 12] = c.CBMPerCtn;
-                    _ws.Cells[ctnIndex, 13] = c.OriginalQuantity;
-                    _ws.Cells[ctnIndex, 14] = c.PickingCtns;
-                    _ws.Cells[ctnIndex, 15] = c.ResidualQuantity;
-                    _ws.Cells[ctnIndex, 15] = c.HoldQuantity;
+                    _ws.Cells[ctnIndex, 8] = c.Id;
+                    _ws.Cells[ctnIndex, 9] = c.ShipmentId;
+                    _ws.Cells[ctnIndex, 10] = c.AmzRefId;
+                    _ws.Cells[ctnIndex, 11] = c.WarehouseCode;
+                    _ws.Cells[ctnIndex, 12] = c.GrossWeightPerCtn;
+                    _ws.Cells[ctnIndex, 13] = c.CBMPerCtn;
+                    _ws.Cells[ctnIndex, 14] = c.OriginalQuantity;
+                    _ws.Cells[ctnIndex, 15] = c.PickingCtns;
+                    _ws.Cells[ctnIndex, 16] = c.ResidualQuantity;
+                    _ws.Cells[ctnIndex, 17] = c.HoldQuantity;
 
                     ctnIndex += 1;
                 }
@@ -296,16 +301,19 @@ namespace ClothResorting.Helpers.FBAHelper
                     var rangeContainer = _ws.get_Range("B" + startRow, "B" + (startRow + g.InPalletCtnInventories.Count - 1));
                     rangeContainer.Merge(rangeContainer.MergeCells);
 
-                    var rangeOrgPlt = _ws.get_Range("C" + startRow, "C" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    var rangeSunCustomer = _ws.get_Range("C" + startRow, "C" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeSunCustomer.Merge(rangeSunCustomer.MergeCells);
+
+                    var rangeOrgPlt = _ws.get_Range("D" + startRow, "D" + (startRow + g.InPalletCtnInventories.Count - 1));
                     rangeOrgPlt.Merge(rangeOrgPlt.MergeCells);
 
-                    var rangePlt = _ws.get_Range("D" + startRow, "D" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    var rangePlt = _ws.get_Range("E" + startRow, "E" + (startRow + g.InPalletCtnInventories.Count - 1));
                     rangePlt.Merge(rangePlt.MergeCells);
 
-                    var rangeStockPlt = _ws.get_Range("E" + startRow, "E" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    var rangeStockPlt = _ws.get_Range("F" + startRow, "F" + (startRow + g.InPalletCtnInventories.Count - 1));
                     rangeStockPlt.Merge(rangeStockPlt.MergeCells);
 
-                    var rangeLocation = _ws.get_Range("F" + startRow, "F" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    var rangeLocation = _ws.get_Range("G" + startRow, "G" + (startRow + g.InPalletCtnInventories.Count - 1));
                     rangeLocation.Merge(rangeLocation.MergeCells);
                 }
 
@@ -314,6 +322,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _ws.get_Range("A1:O" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
             _ws.get_Range("A1:O" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:O" + startRow, Type.Missing).Borders.LineStyle = 1;
 
             var fullPath = @"D:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
@@ -421,6 +430,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public int HoldQuantity { get; set; }
 
         public string Location { get; set; }
+
+        public string SubCustomer { get; set; }
     }
 
     public class FBAInventoryInfo
@@ -453,6 +464,8 @@ namespace ClothResorting.Helpers.FBAHelper
     public class FBAPalletGroupInventory
     {
         public int PltId { get; set; }
+
+        public string SubCustomer { get; set; }
 
         public string Container { get; set; }
 
