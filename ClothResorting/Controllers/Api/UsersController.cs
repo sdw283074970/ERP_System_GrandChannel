@@ -21,12 +21,30 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
         }
 
+        // GET /api/users/?userName={userName}&password={password}
+        [HttpGet]
+        public IHttpActionResult GetToken([FromUri]string userName, [FromUri]string password)
+        {
+            return Ok(new { Code = 20000, Token = "admin-token"});
+        }
+
+        // GET /api/users/?token={token}
+        [HttpGet]
+        public IHttpActionResult GetUserInfo([FromUri]string token)
+        {
+            return Ok(new { 
+                Code = 20000,
+                Name = "Super Admin",
+                Avatar = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
+                Introduction = "I am a super administrator",
+                Roles = new string[] { "admin"} });
+        }
+
         // GET /api/users/
         [HttpGet]
         public IHttpActionResult GetAllUsers()
         {
             var usersDto = _context.Users.Select(Mapper.Map<ApplicationUser, ApplicationUserDto>);
-
             return Ok(usersDto);
         }
 
@@ -56,6 +74,13 @@ namespace ClothResorting.Controllers.Api
             }
 
             return Ok(resultList);
+        }
+
+        // POST /api/users/
+        [HttpPost]
+        public IHttpActionResult LogOut()
+        {
+            return Ok(new { Code = 20000, Data = "success" });
         }
 
         // POST /api/users/?userId={userId}&roleId={roleId}

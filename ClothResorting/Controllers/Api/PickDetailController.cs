@@ -53,32 +53,34 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult GetRegularInventoryTable([FromUri]string container, [FromUri]string customer, [FromUri]string purchaseOrder, [FromUri]string style, [FromUri]string color, [FromUri]string size)
         {
             var regularLocationInDb = _context.FCRegularLocationDetails
-                .Where(x => x.Vendor == customer);
+                .Include(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.UpperVendor)
+                .Where(x => x.RegularCaronDetail.POSummary.PreReceiveOrder.UpperVendor.Name == customer)
+                .ToList();
 
             if (container != null)
             {
-                regularLocationInDb = regularLocationInDb.Where(x => x.Container.Contains(container));
+                regularLocationInDb = regularLocationInDb.Where(x => x.Container.Contains(container)).ToList();
             }
 
             if (purchaseOrder != null)
 
             {
-                regularLocationInDb = regularLocationInDb.Where(x => x.PurchaseOrder.Contains(purchaseOrder));
+                regularLocationInDb = regularLocationInDb.Where(x => x.PurchaseOrder.Contains(purchaseOrder)).ToList();
             }
 
             if (style != null)
             {
-                regularLocationInDb = regularLocationInDb.Where(x => x.Style.Contains(style));
+                regularLocationInDb = regularLocationInDb.Where(x => x.Style.Contains(style)).ToList();
             }
 
             if (color != null)
             {
-                regularLocationInDb = regularLocationInDb.Where(x => x.Color.Contains(color));
+                regularLocationInDb = regularLocationInDb.Where(x => x.Color.Contains(color)).ToList();
             }
 
             if (size != null)
             {
-                regularLocationInDb = regularLocationInDb.Where(x => x.SizeBundle.Contains(size));
+                regularLocationInDb = regularLocationInDb.Where(x => x.SizeBundle.Contains(size)).ToList();
             }
 
             var result = Mapper.Map<IEnumerable<FCRegularLocationDetail>, IEnumerable<FCRegularLocationDetailDto>>(regularLocationInDb);

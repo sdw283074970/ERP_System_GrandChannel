@@ -30,7 +30,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public IHttpActionResult GetAllWarehouseOrder([FromUri]string operation)
         {
             //将FBA运单转成outbound work order
-            var list = new List<WarehouseOrder>();
+            var list = new List<WarehouseOutboundLog>();
 
             var ordersInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
@@ -55,10 +55,10 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             foreach (var o in ordersInDb)
             {
-                var order = Mapper.Map<FBAShipOrder, WarehouseOrder>(o);
+                var order = Mapper.Map<FBAShipOrder, WarehouseOutboundLog>(o);
 
                 order.Department = "FBA";
-                order.WarehouseOrderType = o.OrderType == FBAOrderType.Adjustment ? FBAOrderType.Adjustment : FBAOrderType.Inbound;
+                order.WarehouseOrderType = o.OrderType == FBAOrderType.Adjustment ? FBAOrderType.Adjustment : FBAOrderType.Outbound;
                 order.ETS = o.ETS.ToString("yyyy-MM-dd") + " " + o.ETSTimeRange;
                 order.TotalCtns = o.FBAPickDetails.Sum(x => x.ActualQuantity);
                 order.TotalPlts = o.FBAPickDetails.Sum(x => x.ActualPlts);
@@ -193,9 +193,11 @@ namespace ClothResorting.Controllers.Api.Warehouse
         }
     }
 
-    public class WarehouseOrder
+    public class WarehouseOutboundLog
     {
         public int Id { get; set; }
+
+        public string SubCustomer { get; set; }
 
         public string Department { get; set; }
 

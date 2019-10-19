@@ -58,7 +58,7 @@ namespace ClothResorting.App_Start
                 //.ForMember(dest => dest.Barcode, opt => opt.MapFrom(src => "MIX"));
             Mapper.CreateMap<FBAAddressBook, FBAAddressBookDto>();
             Mapper.CreateMap<ChargingItemDetail, ChargingItemDetailDto>();
-            Mapper.CreateMap<FBAShipOrder, WarehouseOrder>();
+            Mapper.CreateMap<FBAShipOrder, WarehouseOutboundLog>();
 
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();

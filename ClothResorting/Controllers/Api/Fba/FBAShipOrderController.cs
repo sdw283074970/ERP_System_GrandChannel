@@ -19,6 +19,7 @@ using ClothResorting.Models.StaticClass;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ClothResorting.Dtos;
+using ClothResorting.Controllers.Api.Warehouse;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -92,6 +93,22 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return Ok(dto);
+        }
+
+        // GET /api/fba/fbashiporder/?fromDate={fromDate}&toDate={toDate}&operation={operation}
+        [HttpGet]
+        public IHttpActionResult DownloadSchedule([FromUri]DateTime fromDate, [FromUri]DateTime toDate, [FromUri]string operation)
+        {
+            if (operation == "Schedule")
+            {
+                var outboundList = GetValidOutboundLogs(fromDate, toDate);
+                var inboundList = GetValidInboundLogs(fromDate, toDate);
+                var generator = new FBAExcelGenerator(@"D:\Template\FBA-WarehouseSchedule-Template.xlsx");
+                var fileName = generator.GenerateWarehouseSchedule(fromDate, toDate, outboundList, inboundList);
+                return Ok(fileName);
+            }
+
+            return Ok("No operation applied.");
         }
 
         // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
@@ -991,6 +1008,96 @@ namespace ClothResorting.Controllers.Api.Fba
         private bool CheckIfCurrentUserIsT5()
         {
             return HttpContext.Current.User.IsInRole(RoleName.CanOperateAsT5);
+        }
+
+        private IList<WarehouseOutboundLog> GetValidOutboundLogs(DateTime fromDate, DateTime toDate)
+        {
+            //将FBA运单转成outbound work order
+            var list = new List<WarehouseOutboundLog>();
+
+            //FBA部门的订单
+            var ordersInDb = _context.FBAShipOrders
+                .Include(x => x.FBAPickDetails)
+                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking
+                    && x.ETS >= fromDate && x.ETS <= toDate);
+
+            foreach (var o in ordersInDb)
+            {
+                var order = Mapper.Map<FBAShipOrder, WarehouseOutboundLog>(o);
+
+                order.Department = "FBA";
+                order.WarehouseOrderType = o.OrderType == FBAOrderType.Adjustment ? FBAOrderType.Adjustment : FBAOrderType.Outbound;
+                order.ETS = o.ETS.ToString("yyyy-MM-dd") + " " + o.ETSTimeRange;
+                order.TotalCtns = o.FBAPickDetails.Sum(x => x.ActualQuantity);
+                order.TotalPlts = o.FBAPickDetails.Sum(x => x.ActualPlts);
+                order.ShipDate = o.ShipDate;
+                order.ReleaseTime = o.ReleasedDate;
+                order.SubCustomer = o.SubCustomer;
+                order.OrderNumber = o.ShipOrderNumber;
+
+                list.Add(order);
+            }
+
+            //其他部门的订单
+
+            return list;
+        }
+
+        private IList<WarehouseInboundLog> GetValidInboundLogs(DateTime fromDate, DateTime toDate)
+        {
+            //获取FBA部门的所有待收货主单
+            var masterOrders = _context.FBAMasterOrders
+                .Include(x => x.Customer)
+                .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
+                .Include(x => x.FBAPallets)
+                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order"
+                    && ConvertStringToDateTime(x.ETA) >= fromDate && ConvertStringToDateTime(x.ETA) <= toDate)
+                .ToList();
+
+            var inboundLogList = new List<WarehouseInboundLog>();
+
+            foreach (var m in masterOrders)
+            {
+                var newLog = new WarehouseInboundLog
+                {
+                    Id = m.Id,
+                    Status = m.Status,
+                    Department = DepartmentCode.FBA,
+                    Customer = m.Customer.CustomerCode,
+                    InboundType = m.InboundType,
+                    ETA = m.ETA,
+                    InboundDate = m.InboundDate,
+                    DockNumber = m.DockNumber,
+                    Container = m.Container,
+                    Ctns = m.FBAOrderDetails.Sum(x => x.Quantity),
+                    SKU = m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count(),
+                    OriginalPlts = m.OriginalPlts,
+                    Carrier = m.Carrier,
+                    Lumper = m.Lumper,
+                    Instruction = m.Instruction,
+                    PushTime = m.PushTime,
+                    AvailableTime = m.AvailableTime,
+                    OutTime = m.OutTime,
+                    UnloadFinishTime = m.UnloadFinishTime,
+                    UnloadStartTime = m.UnloadStartTime,
+                    UpdateLog = m.UpdateLog,
+                    VerifiedBy = m.VerifiedBy
+                };
+
+                inboundLogList.Add(newLog);
+            }
+
+            //获取所有服装部待收货主单
+            //
+
+            return inboundLogList;
+        }
+
+        private DateTime ConvertStringToDateTime(string date)
+        {
+            var newDate = new DateTime();
+            DateTime.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out newDate);
+            return newDate;
         }
     }
 

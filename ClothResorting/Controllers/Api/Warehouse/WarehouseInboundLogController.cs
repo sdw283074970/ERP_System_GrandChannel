@@ -36,11 +36,11 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order")
                 .ToList();
 
-            var inboundLogList = new List<InboundLog>();
+            var inboundLogList = new List<WarehouseInboundLog>();
 
             foreach (var m in masterOrders)
             {
-                var newLog = new InboundLog {
+                var newLog = new WarehouseInboundLog {
                     Id = m.Id,
                     Status = m.Status,
                     Department = DepartmentCode.FBA,
@@ -80,7 +80,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
         {
             var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
 
-            var log = new InboundLog {
+            var log = new WarehouseInboundLog {
                 InboundDate = masterOrderInDb.InboundDate,
                 UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
                 AvailableTime = masterOrderInDb.AvailableTime,
@@ -128,7 +128,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         // PUT /api/warehouseinboundlog/?masterOrderId={masterOrderId}
         [HttpPut]
-        public void UpdateMasterOrderFromWarehouse([FromUri]int masterOrderId, [FromUri]string operation, [FromBody]InboundLog log)
+        public void UpdateMasterOrderFromWarehouse([FromUri]int masterOrderId, [FromUri]string operation, [FromBody]WarehouseInboundLog log)
         {
             var orderInDb = _context.FBAMasterOrders
                 .Include(x => x.FBAOrderDetails)
@@ -202,7 +202,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
         }
     }
 
-    public class InboundLog
+    public class WarehouseInboundLog
     {
         public int Id { get; set; }
 

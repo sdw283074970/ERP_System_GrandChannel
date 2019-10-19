@@ -499,7 +499,7 @@
             //点击hold ctns数量，进入编辑模式
             $("#table-carton").on("click", ".font-holdctns", function () {
                 var currentHoldCtns = parseInt($(this).html());
-                var currentAvailableCtns = parseInt($(this).parent().parent("tr").children("td").eq(10).children("font").html());
+                var currentAvailableCtns = parseInt($(this).parent().parent("tr").children("td").eq(11).children("font").html());
                 var totalAvailableCtns = parseInt(currentHoldCtns + currentAvailableCtns);
                 var cartonId = $(this).parent().parent("tr").children("td").eq(0).children("text").html();
                 $(this).replaceWith("<input iid='" + cartonId + "'totalavailable='" + totalAvailableCtns + "' available='" + currentAvailableCtns + "' class='input-sm input-holdctns' style='width:80px' placeholder='" + currentHoldCtns + "' value='" + currentHoldCtns + "'/>");
@@ -524,7 +524,7 @@
                 }
                 else {
                     var thisInput = $(this);
-                    var availableFont = $(this).parent().parent("tr").children("td").eq(10).children("font");
+                    var availableFont = $(this).parent().parent("tr").children("td").eq(11).children("font");
 
                     if (event.keyCode == "13") {
                         var thisInput = $(this);

@@ -8,6 +8,7 @@ using System.Data.Entity;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.FBAModels;
+using ClothResorting.Controllers.Api.Warehouse;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -433,6 +434,53 @@ namespace ClothResorting.Helpers.FBAHelper
             return fullPath;
         }
 
+        //生成Excel版本的出库计划报告并返回完整路径
+        public string GenerateWarehouseSchedule(DateTime fromDate, DateTime toDate, IList<WarehouseOutboundLog> outboundList, IList<WarehouseOutboundLog> inboundList)
+        {
+            _ws = _wb.Worksheets[2];
+
+            _ws.Cells[4, 2] = fromDate.ToString("yyyy/MM/dd");
+            _ws.Cells[4, 5] = toDate.ToString("yyyy/MM/dd");
+            _ws.Cells[4, 12] = DateTime.Now.ToString("yyyy/MM/dd");
+            _ws.Cells[6, 2] = outboundList.Count;
+            _ws.Cells[5, 12] = outboundList.Sum(x => x.TotalCtns);
+            _ws.Cells[6, 12] = outboundList.Sum(x => x.TotalPlts);
+
+            var startIndex = 9;
+
+            foreach(var l in outboundList)
+            {
+                _ws.Cells[startIndex, 1] = l.Status;
+                _ws.Cells[startIndex, 2] = l.Department;
+                _ws.Cells[startIndex, 3] = l.CustomerCode;
+                _ws.Cells[startIndex, 4] = l.SubCustomer;
+                _ws.Cells[startIndex, 5] = l.OrderNumber;
+                _ws.Cells[startIndex, 6] = l.Destination;
+                _ws.Cells[startIndex, 7] = l.Carrier;
+                _ws.Cells[startIndex, 8] = l.TotalCtns;
+                _ws.Cells[startIndex, 9] = l.TotalPlts;
+                _ws.Cells[startIndex, 10] = l.ETS;
+                _ws.Cells[startIndex, 11] = l.PlaceTime.ToString("yyyy-MM-dd");
+                _ws.Cells[startIndex, 12] = l.ReadyTime.Year == 1900 ? "-" : l.ReadyTime.ToString("yyyy-MM-dd hh:mm");
+                startIndex++;
+            }
+
+            var range = _ws.get_Range("A1", "L" + startIndex);
+            range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            range.VerticalAlignment = XlHAlign.xlHAlignCenter;
+            range.VerticalAlignment = XlVAlign.xlVAlignCenter;
+            range.Borders.LineStyle = 1;
+            range.WrapText = true;
+
+            var fullPath = @"D:\BOL\FBA-WarehouseSchedule-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
+        }
+ 
         private IList<FBABOLDetail> GenerateFBABOLList(IEnumerable<FBAPickDetail> pickDetailsInDb)
         {
             var bolList = new List<FBABOLDetail>();

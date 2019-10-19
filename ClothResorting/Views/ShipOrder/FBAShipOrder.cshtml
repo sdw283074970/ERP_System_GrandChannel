@@ -8,11 +8,28 @@
 <h2>Shipping Order Page</h2>
 
 <div class="maincontainer">
-    <div>
-        <input type="button" class="btn btn-default btn-back" value="<< Back" />
-    </div>
     <div id="div-create" style="margin:5px">
-        <input id="input-sku" class="input-sm" /><button id="btn-sku" style="margin-left:5px;margin-right:5px" class="btn-primary">Search FBA ID/SKU</button><button id="btn-create" class="btn btn-primary">Created a new ship order</button>
+        <input type="button" class="btn btn-default btn-back" value="<< Back" />
+        <button id="btn-create" class="btn btn-primary">Created a new ship order</button>
+    </div>
+    <div style="margin:5px;float:left">
+        <fieldset>
+            <legend>Search SKU</legend>
+            <input id="input-sku" class="input-sm" />
+            <button id="btn-sku" style="margin-left:5px;margin-right:5px" class="btn-primary">Search FBA ID/SKU</button>
+        </fieldset>
+    </div>
+    <div style="margin:5px;float:right">
+        <fieldset>
+            <legend>Download Schedule</legend>
+            <label>From:</label><input id="input-date-from" class="input-sm" type="date" style="margin-left:5px" />
+            <label>To:</label><input id="input-date-to" class="input-sm" type="date" style="margin-left:5px" />
+            <button id="btn-bydate" class="btn-primary">Download By Date</button>
+            <label>Qucik Download:</label>
+            <button id="btn-today" class="btn-primary" style="margin-left:5px">Today</button>
+            <button id="btn-tomorrow" class="btn-primary" style="margin-left:5px">Tomorrow</button>
+            <button id="btn-nextweek" class="btn-primary" style="margin-left:5px">Next 7 Days</button>
+        </fieldset>
     </div>
     <div>
         <table id="table" class="table table-condensed table-hover table-striped" style="table-layout:fixed;word-wrap:break-word;">
@@ -168,6 +185,15 @@
             var searchBar = getUrlParameter('search');
             var reference;
             var orderType = "ShipOrder";
+            var today = new Date();
+            var tomorrow = new Date();
+            var nextWeek = new Date();
+
+            tomorrow.setDate(today.getDate() + 1);
+            nextWeek.setDate(today.getDate() + 7);
+
+            $("#input-date-from").val(formatDate(today));
+            $("#input-date-to").val(formatDate(nextWeek));
 
             $(".maincontainer, #div-efile").hide();
             $(".btn-wo-operation, #iframe-verifiedinfo, .div-readme").hide();
@@ -469,6 +495,124 @@
                 }
             ]
             GetAjaxTable("GET", url, "#table", table, columnArray);
+
+            //点击Tomorrow按钮，下载明日的出库计划表
+            $("#btn-tomorrow").on("click", function () {
+                var from = formatDate(tomorrow);
+                url = '/api/fba/fbashiporder/?fromDate=' + from + "&toDate=" + from + "&operation=Schedule";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击today按钮，下载今日的出库计划表
+            $("#btn-today").on("click", function () {
+                var from = formatDate(today);
+                url = '/api/fba/fbashiporder/?fromDate=' + from + "&toDate=" + from + "&operation=Schedule";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击next 7 days按钮，下载接下来七天的出库计划表
+            $("#btn-nextweek").on("click", function () {
+                var from = formatDate(today);
+                var to = formatDate(nextWeek);
+                url = '/api/fba/fbashiporder/?fromDate=' + from + "&toDate=" + to + "&operation=Schedule";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击通过日期下载按钮，下载明日的出库计划表
+            $("#btn-bydate").on("click", function () {
+                var from = $("#input-date-from").val() == "" ? FormData(today) : $("#input-date-from").val();
+                var to = $("#input-date-to").val() == "" ? FormData(tomorrow) : $("#input-date-to").val();
+                url = '/api/fba/fbashiporder/?fromDate=' + from + "&toDate=" + to + "&operation=Schedule";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
 
             //点击Pick按钮，转到该运单的拣货页面
             $("#table").on("click", ".btn-pick", function () {
@@ -1649,6 +1793,18 @@
                     }
                 });
             };
+
+            function formatDate(date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear();
+
+                if (month.length < 2) month = '0' + month;
+                if (day.length < 2) day = '0' + day;
+
+                return [year, month, day].join('-');
+            }
 
             $(".btn-back").on("click", function () {
                 window.history.back(-1);

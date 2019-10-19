@@ -425,7 +425,7 @@ namespace ClothResorting.Helpers
 
             if (sizeArray.Length <= 1)
             {
-                sizeBundle = "XS,S,M,L,XL,XXL,XXXL,XXXXL,XXXXXL,XXXXXXL,2XL,3XL,4XL,5XL,1X,2X,3X,4X,5X,6X,2T,3T,4T,PS,PM,PL,PXL,XXS(4/5),XS(4/5),S(4),S(4/5),S(7/8),S(8),M(5/6),M(7/8),M(10/12),L(6X),L(7),L(14),L(14/16),L(16),L(19),XL(16),XL(18/20),12M,18M,24M,MT,LT,XLT,2XLT,3XLT,4XLT,SZ1,SZ2,SZ3,SZ4,SZ5,SZ6,SIZE 6,SIZE 7,SIZE 8,SIZE 10,SIZE 12,SIZE 14,SIZE 16,N/A";
+                sizeBundle = "XS,S,M,L,XL,XXL,XXXL,XXXXL,XXXXXL,XXXXXXL,1,2,3,4,5,6,7,8,9,10,11,12,2XL,3XL,4XL,5XL,1X,2X,3X,4X,5X,6X,2T,3T,4T,5T,PS,PM,PL,PXL,XXS(4/5),XS(4/5),XS(5/6),S(4),S(4/5),S(6X),S(6/6X),S(7/8),S(8),M(5/6),M(7/8),M(10/12),L(6),L(6X),L(7),L(7/8),L(10/12),L(14),L(14/16),L(16),L(19),XL(10/12),XL(14/16),XL(16),XL(18/20),12M,18M,24M,MT,LT,XLT,2XLT,3XLT,4XLT,SZ1,SZ2,SZ3,SZ4,SZ5,SZ6,SIZE 6,SIZE7,SIZE8,SIZE10,SIZE12,SIZE14,SIZE16,1X9,N/A,NA";
                 sizeArray = sizeBundle.Split(',');
             }
 
@@ -470,12 +470,12 @@ namespace ClothResorting.Helpers
 
                 foreach(var s in c)
                 {
-                    var size = s.SizeBundle;
+                    var size = s.SizeBundle.Replace(" ", "");
                     var columnIndex = 5 + Array.IndexOf(sizeArray, size);
                     if (columnIndex == 4)
                     {
-                        _ws.Cells[currentRow, 5] = "Unidentified Size:";
-                        _ws.Cells[currentRow, 6] = size;
+                        _ws.Cells[currentRow, sizeArray.Length + 5] = "Unidentified Size:";
+                        _ws.Cells[currentRow, sizeArray.Length + 6] = size;
                         continue;
                     }
 
@@ -488,12 +488,21 @@ namespace ClothResorting.Helpers
             for(int i = 0; i < sizeArray.Length; i++)
             {
                 var size = sizeArray[i];
-                _ws.Cells[currentRow + 1, i + 5] = inventoryList.Where(x => x.SizeBundle == size).Sum(x => x.AvailablePcs);
+                _ws.Cells[currentRow + 1, i + 5] = inventoryList.Where(x => x.SizeBundle.Replace(" ", "") == size).Sum(x => x.AvailablePcs);
             }
 
             _ws.Cells[currentRow + 3, 1] = "Total Pcs:";
             var sum3 = inventoryList.Sum(x => x.AvailablePcs);
             _ws.Cells[currentRow + 3, 2] = sum3;
+
+            for(int i = sizeArray.Length + 4; i > 4; i--)
+            {
+                Range range = _ws.Cells[currentRow + 1, i];
+                if (range.Value2 == 0)
+                {
+                    range.EntireColumn.Delete(XlDeleteShiftDirection.xlShiftToLeft);
+                }
+            }
 
             var fullPath = @"D:\InventoryReport\InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
