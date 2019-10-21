@@ -20,14 +20,15 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ClothResorting.Dtos;
 using ClothResorting.Controllers.Api.Warehouse;
+using ClothResorting.Models.Extensions;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
     public class FBAShipOrderController : ApiController
     {
-        private ApplicationDbContext _context;
-        private string _userName;
-        private Logger _logger;
+        private readonly ApplicationDbContext _context;
+        private readonly string _userName;
+        private readonly Logger _logger;
 
         public FBAShipOrderController()
         {
@@ -589,6 +590,7 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddDeletedLogAsync<InvoiceDetail>(invoiceDetailsDto, "Deleted all invoiceDetails", null, OperationLevel.High);
             await _logger.AddDeletedLogAsync<FBAShipOrder>(shipOrderDto, "Deleted ship order", null, OperationLevel.High);
 
+            fbaPickDetailAPI.Dispose();
             _context.SaveChanges();
         }
 
@@ -1050,14 +1052,15 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.Customer)
                 .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
                 .Include(x => x.FBAPallets)
-                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order"
-                    && ConvertStringToDateTime(x.ETA) >= fromDate && ConvertStringToDateTime(x.ETA) <= toDate)
+                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order")
                 .ToList();
 
             var inboundLogList = new List<WarehouseInboundLog>();
-
             foreach (var m in masterOrders)
             {
+                if (m.ETA.ConvertStringToDateTime() < fromDate || m.ETA.ConvertStringToDateTime() > toDate)
+                    continue;
+
                 var newLog = new WarehouseInboundLog
                 {
                     Id = m.Id,
@@ -1066,6 +1069,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     Customer = m.Customer.CustomerCode,
                     InboundType = m.InboundType,
                     ETA = m.ETA,
+                    CustomerCode = m.CustomerCode,
+                    SubCustomer = m.SubCustomer,
                     InboundDate = m.InboundDate,
                     DockNumber = m.DockNumber,
                     Container = m.Container,
@@ -1091,13 +1096,6 @@ namespace ClothResorting.Controllers.Api.Fba
             //
 
             return inboundLogList;
-        }
-
-        private DateTime ConvertStringToDateTime(string date)
-        {
-            var newDate = new DateTime();
-            DateTime.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out newDate);
-            return newDate;
         }
     }
 

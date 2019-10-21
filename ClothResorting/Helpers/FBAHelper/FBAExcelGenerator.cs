@@ -435,8 +435,46 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成Excel版本的出库计划报告并返回完整路径
-        public string GenerateWarehouseSchedule(DateTime fromDate, DateTime toDate, IList<WarehouseOutboundLog> outboundList, IList<WarehouseOutboundLog> inboundList)
+        public string GenerateWarehouseSchedule(DateTime fromDate, DateTime toDate, IList<WarehouseOutboundLog> outboundList, IList<WarehouseInboundLog> inboundList)
         {
+            //填充出库报告
+            _ws = _wb.Worksheets[1];
+
+            _ws.Cells[4, 2] = fromDate.ToString("yyyy/MM/dd");
+            _ws.Cells[4, 5] = toDate.ToString("yyyy/MM/dd");
+            _ws.Cells[4, 12] = DateTime.Now.ToString("yyyy/MM/dd");
+            _ws.Cells[6, 2] = inboundList.Count;
+            _ws.Cells[5, 12] = inboundList.Sum(x => x.Ctns);
+            _ws.Cells[6, 12] = inboundList.Sum(x => x.OriginalPlts);
+
+            var startIndex = 9;
+
+            foreach (var l in inboundList)
+            {
+                _ws.Cells[startIndex, 1] = l.Status;
+                _ws.Cells[startIndex, 2] = l.Department;
+                _ws.Cells[startIndex, 3] = l.CustomerCode;
+                _ws.Cells[startIndex, 4] = l.SubCustomer;
+                _ws.Cells[startIndex, 5] = l.Carrier;
+                _ws.Cells[startIndex, 6] = l.SKU;
+                _ws.Cells[startIndex, 7] = l.Container;
+                _ws.Cells[startIndex, 8] = l.Ctns;
+                _ws.Cells[startIndex, 9] = l.OriginalPlts;
+                _ws.Cells[startIndex, 10] = l.ETA;
+                _ws.Cells[startIndex, 11] = l.Lumper;
+                _ws.Cells[startIndex, 12] = l.PushTime.ToString("yyyy-MM-dd");
+                startIndex++;
+            }
+
+            var range = _ws.get_Range("A1", "L" + startIndex);
+            range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            range.VerticalAlignment = XlHAlign.xlHAlignCenter;
+            range.VerticalAlignment = XlVAlign.xlVAlignCenter;
+            range.Borders.LineStyle = 1;
+            range.WrapText = true;
+
+            //填充入库报告
             _ws = _wb.Worksheets[2];
 
             _ws.Cells[4, 2] = fromDate.ToString("yyyy/MM/dd");
@@ -446,7 +484,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[5, 12] = outboundList.Sum(x => x.TotalCtns);
             _ws.Cells[6, 12] = outboundList.Sum(x => x.TotalPlts);
 
-            var startIndex = 9;
+            startIndex = 9;
 
             foreach(var l in outboundList)
             {
@@ -465,7 +503,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 startIndex++;
             }
 
-            var range = _ws.get_Range("A1", "L" + startIndex);
+            range = _ws.get_Range("A1", "L" + startIndex);
             range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
             range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
             range.VerticalAlignment = XlHAlign.xlHAlignCenter;

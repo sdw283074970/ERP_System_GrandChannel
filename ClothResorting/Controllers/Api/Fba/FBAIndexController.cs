@@ -165,6 +165,5 @@ namespace ClothResorting.Controllers.Api.Fba
             else
                 throw new Exception("Invalid!");
         }
-
     }
 }

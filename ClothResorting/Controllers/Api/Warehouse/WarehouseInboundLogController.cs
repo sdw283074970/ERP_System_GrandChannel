@@ -47,6 +47,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     Customer = m.Customer.CustomerCode,
                     InboundType = m.InboundType,
                     ETA = m.ETA,
+                    CustomerCode = m.CustomerCode,
+                    SubCustomer = m.SubCustomer,
                     InboundDate = m.InboundDate,
                     DockNumber = m.DockNumber,
                     Container = m.Container,
@@ -85,6 +87,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 UnloadFinishTime = masterOrderInDb.UnloadFinishTime,
                 AvailableTime = masterOrderInDb.AvailableTime,
                 OutTime = masterOrderInDb.OutTime,
+                CustomerCode = masterOrderInDb.CustomerCode,
+                SubCustomer = masterOrderInDb.SubCustomer,
                 DockNumber = masterOrderInDb.DockNumber,
                 VerifiedBy = masterOrderInDb.VerifiedBy
             };
@@ -208,9 +212,13 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string Status { get; set; }
 
+        public string SubCustomer { get; set; }
+
         public string Department { get; set; }
 
         public string Customer { get; set; }
+
+        public string CustomerCode { get; set; }
 
         public string InboundType { get; set; }
 
