@@ -261,9 +261,31 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成拣货单并返回完整路径
-        public string GeneratePickingList(int shipOrderId)
+        public string GenerateWOAndPickingList(int shipOrderId)
         {
+            //第一页生成WO
             _ws = _wb.Worksheets[1];
+
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.ChargingItemDetails)
+                .Include(x => x.FBAPickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
+
+            _ws.Cells[2, 2] = shipOrderInDb.PlaceTime.ToString("yyyy-MM-dd");
+            _ws.Cells[3, 2] = shipOrderInDb.ShipOrderNumber;
+            _ws.Cells[3, 6] = shipOrderInDb.ETS.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 2] = shipOrderInDb.Destination ?? "NA";
+            _ws.Cells[5, 2] = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualQuantity);
+            _ws.Cells[5, 6] = shipOrderInDb.FBAPickDetails.Sum(x => x.PltsFromInventory);
+
+            var instructionList = shipOrderInDb.ChargingItemDetails.ToList();
+            for (int i = 0; i < instructionList.Count; i++)
+            {
+                _ws.Cells[i + 7, 1] = (i + 1).ToString() + ". " + instructionList[i].Description;
+            }
+
+            //第二页生成Picking List
+            _ws = _wb.Worksheets[2];
             var startIndex = 3;
 
             var pickDetailInDb = _context.FBAPickDetails
@@ -325,7 +347,7 @@ namespace ClothResorting.Helpers.FBAHelper
             range.VerticalAlignment = XlVAlign.xlVAlignCenter;
             range.Borders.LineStyle = 1;
 
-            var fullPath = @"D:\PickingList\FBA-" + pickDetailInDb.First().FBAShipOrder.CustomerCode + "-PickingList-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"D:\PickingList\" + pickDetailInDb.First().FBAShipOrder.CustomerCode + "-OB-WO-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();

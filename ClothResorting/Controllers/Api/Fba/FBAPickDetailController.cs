@@ -31,7 +31,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult DownloadPickingList([FromUri]int shipOrderId, [FromUri]string operation)
         {
             var generator = new FBAExcelGenerator(@"D:\Template\PickingList-Template.xlsx");
-            var path = generator.GeneratePickingList(shipOrderId);
+            var path = generator.GenerateWOAndPickingList(shipOrderId);
 
             return Ok(path);
         }
