@@ -909,6 +909,34 @@
                 grandChannel.sendAjaxMethod("PUT", url, {}, index);
             });
 
+            //点击WO中的下载WO&Picking List按钮，下载所属文件
+            $(".btn-downloadwo").on("click", function () {
+                url = "/api/fba/FbaMasterOrder/?masterOrderId=" + masterOrderId + "&operation=Download";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
             //点击搜索FBA ID/SKU，返回所有符合条件的主单
             $("#btn-sku").on("click", function () {
                 var sku = $("#input-sku").val();

@@ -261,7 +261,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成拣货单并返回完整路径
-        public string GenerateWOAndPickingList(int shipOrderId)
+        public string GenerateShippingWOAndPickingList(int shipOrderId)
         {
             //第一页生成WO
             _ws = _wb.Worksheets[1];
@@ -348,6 +348,65 @@ namespace ClothResorting.Helpers.FBAHelper
             range.Borders.LineStyle = 1;
 
             var fullPath = @"D:\PickingList\" + pickDetailInDb.First().FBAShipOrder.CustomerCode + "-OB-WO-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
+        }
+
+        public string GenerateUnloadingWOAndPackingList(int masterOrderId)
+        {
+            //第一页生成WO
+            _ws = _wb.Worksheets[1];
+
+            var masterOrder = _context.FBAMasterOrders
+                .Include(x => x.FBAOrderDetails)
+                .Include(x => x.ChargingItemDetails)
+                .SingleOrDefault(x => x.Id == masterOrderId);
+
+            _ws.Cells[2, 4] = masterOrder.Container;
+            _ws.Cells[3, 4] = masterOrder.GrandNumber;
+            _ws.Cells[4, 4] = masterOrder.FBAOrderDetails.Sum(x => x.Quantity);
+            _ws.Cells[4, 9] = masterOrder.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count();
+            _ws.Cells[5, 9] = masterOrder.ETA;
+            _ws.Cells[7, 4] = masterOrder.UnloadingType;
+            _ws.Cells[7, 9] = masterOrder.StorageType;
+
+            var instructionList = masterOrder.ChargingItemDetails.ToList();
+            for (int i = 0; i < instructionList.Count; i++)
+            {
+                _ws.Cells[i + 9, 1] = (i + 1).ToString() + ". " + instructionList[i].Description;
+            }
+
+            //第二页生成Packing List
+            _ws = _wb.Worksheets[2];
+            var startIndex = 4;
+            var orderDetails = masterOrder.FBAOrderDetails;
+            _ws.Cells[2, 2] = masterOrder.Container;
+
+            foreach(var o in orderDetails)
+            {
+                _ws.Cells[startIndex, 1] = o.ShipmentId;
+                _ws.Cells[startIndex, 2] = o.AmzRefId;
+                _ws.Cells[startIndex, 3] = Math.Round(o.GrossWeight, 2);
+                _ws.Cells[startIndex, 4] = Math.Round(o.CBM, 2);
+                _ws.Cells[startIndex, 5] = o.Quantity;
+                startIndex++;
+            }
+
+            _ws.Cells[startIndex + 1, 1] = "Total";
+            _ws.Cells[startIndex + 1, 3] = Math.Round(orderDetails.Sum(x => x.GrossWeight), 2);
+            _ws.Cells[startIndex + 1, 4] = Math.Round(orderDetails.Sum(x => x.CBM), 2);
+            _ws.Cells[startIndex + 1, 5] = orderDetails.Sum(x => x.Quantity);
+
+            var range = _ws.get_Range("A1:I" + (startIndex + 1), Type.Missing);
+
+            range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            range.VerticalAlignment = XlVAlign.xlVAlignCenter;
+            range.Borders.LineStyle = 1;
+
+            var fullPath = @"D:\PickingList\" + masterOrder.CustomerCode + "-IB-WO-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();

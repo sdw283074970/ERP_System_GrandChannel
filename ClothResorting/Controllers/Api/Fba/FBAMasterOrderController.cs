@@ -16,6 +16,7 @@ using System.Web;
 using ClothResorting.Helpers;
 using System.Threading.Tasks;
 using ClothResorting.Models.StaticClass;
+using ClothResorting.Helpers.FBAHelper;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -254,6 +255,10 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 return Ok(unloadWO);
             }
+            else if (operation == "Download")
+            {
+                return Ok(GenerateUnloadingWOAndPackingList(masterOrderId));
+            }
 
             return Ok();
         }
@@ -447,6 +452,25 @@ namespace ClothResorting.Controllers.Api.Fba
                 else
                     throw new Exception("cannot mark an order as allocated before the goods are fully allocated.");
             }
+            else if (operation == "Reverse")
+            {
+                switch(masterOrderInDb.Status)
+                {
+                    case FBAStatus.Registered:
+                        masterOrderInDb.Status = FBAStatus.Received;
+                        break;
+                    case FBAStatus.Received:
+                        masterOrderInDb.Status = FBAStatus.Processing;
+                        break;
+                    case FBAStatus.Arrived:
+                        masterOrderInDb.InboundDate = new DateTime(1900, 1, 1);
+                        masterOrderInDb.Status = FBAStatus.Incoming;
+                        break;
+                    default:
+                        masterOrderInDb.Status = FBAStatus.Arrived;
+                        break;
+                }
+            }
 
             _context.SaveChanges();
         }
@@ -563,6 +587,14 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             DateTime.TryParseExact(stringTime, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
             return dateTime;
+        }
+
+        private string GenerateUnloadingWOAndPackingList(int masterOrderId)
+        {
+            var generator = new FBAExcelGenerator(@"D:\Template\UnloadingReport-Template.xlsx");
+            var path = generator.GenerateUnloadingWOAndPackingList(masterOrderId);
+
+            return path;
         }
     }
 

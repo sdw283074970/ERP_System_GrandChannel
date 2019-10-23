@@ -147,13 +147,13 @@
                         if (status == "Incoming")
                             return "<input type='button' class='btn btn-link btn-receive' iid='" + data + "' value='Mark Received' />";
                         if (status == "Arrived")
-                            return "<input type='button' class='btn btn-link btn-start' iid='" + data + "' value='Start Unloading' />";
+                            return "<input type='button' class='btn btn-link btn-start' iid='" + data + "' value='Start' /><input type='button' class='btn btn-link btn-reverse' iid='" + data + "' value='Reverse' />";
                         else if (status == "Processing" || status == "Pending" || status == "Updated")
-                            return "<input type='button' class='btn btn-link btn-wo-process' operation='process' iid='" + data + "' value='Process WO' />";
+                            return "<input type='button' class='btn btn-link btn-wo-process' operation='process' iid='" + data + "' value='Process WO' /><input type='button' class='btn btn-link btn-reverse' iid='" + data + "' value='Stop' />";
                         else if (status == "Received")
-                            return "<input type='button' class='btn btn-link btn-registered' iid='" + data + "' value='Submit Register' />";
+                            return "<input type='button' class='btn btn-link btn-registered' iid='" + data + "' value='Next' /><input type='button' class='btn btn-link btn-reverse' iid='" + data + "' value='Reverse' />";
                         else if (status == "Registered")
-                            return "<input type='button' class='btn btn-link btn-allocated' iid='" + data + "' value='Submit Allocation' />";
+                            return "<input type='button' class='btn btn-link btn-allocated' iid='" + data + "' value='Submit' /><input type='button' class='btn btn-link btn-reverse' iid='" + data + "' value='Reverse' />";
                         else if (status == "Allocated")
                             return "";
                         else if (status == "Completed")
@@ -672,7 +672,6 @@
 
                 layer.confirm("Are you sure you have finished the registration </br> of pallet information？", { title: "Warnning", btn: ["Yes", "No"] },
                     function (index22) {
-                        alert(123);
                         grandChannel.sendAjaxMethod("PUT", url, {}, index);
                         layer.close(index22);
                     },
@@ -698,6 +697,63 @@
             $("#table").on("click", ".btn-inventory", function myfunction() {
                 masterOrderId = $(this).attr('iid');
                 $(window.location).attr('href', "/fba/Inventory/?masterOrderId=" + masterOrderId);
+            });
+
+            //点击WO中的下载WO&Picking List按钮，下载所属文件
+            $(".btn-downloadwo").on("click", function () {
+                url = "/api/fba/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&operation=Download";
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        $(window.location).attr('href', '/api/fba/downloadfile/?fullPath=' + encodeURIComponent(data));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+
+            //点击Reverse按钮，将订单状态往前逆转
+            $("#table").on("click", ".btn-reverse", function () {
+                masterOrderId = $(this).attr('iid');
+                url = "/api/fba/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&operation=Reverse";
+                $.ajax({
+                    type: "PUT",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: "json",
+                    beforeSend: function () {
+                        layer.close(index);
+                        index = layer.msg('Processing...', {
+                            icon: 3,
+                            shade: 0.01,
+                            time: 99 * 1000
+                        });
+                    },
+                    success: function (data) {
+                        layer.alert("Success!");
+                        window.location.reload();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        layer.alert(XMLHttpRequest.responseJSON.exceptionMessage, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
             });
 
             //点击outbound log按钮，跳转到outbound log管理界面
