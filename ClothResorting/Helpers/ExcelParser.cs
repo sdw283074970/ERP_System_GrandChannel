@@ -49,7 +49,7 @@ namespace ClothResorting.Helpers
                 //获取size的数量
                 var endColumnIndex = 13;
 
-                while(_ws.Cells[startIndex + 2, endColumnIndex].Value2 != "Pack")
+                while(_ws.Cells[startIndex + 2, endColumnIndex].Value2.ToString() != "Pack")
                 {
                     endColumnIndex += 1;
                 }
@@ -57,7 +57,7 @@ namespace ClothResorting.Helpers
                 //获取SKU的数量
                 var endRowIndex = startIndex + 3;
 
-                while (_ws.Cells[endRowIndex, 1].Value2 != "Totals")
+                while (_ws.Cells[endRowIndex, 1].Value2.ToString() != "Totals")
                 {
                     endRowIndex += 1;
                 }
