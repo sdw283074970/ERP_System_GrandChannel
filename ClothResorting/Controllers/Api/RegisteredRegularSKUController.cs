@@ -169,7 +169,8 @@ namespace ClothResorting.Controllers.Api
                             PcsBundle = "SCAN",
                             Container = poSummaryInDb.Container,
                             PcsPerCarton = 1,
-                            POSummary = poSummaryInDb
+                            POSummary = poSummaryInDb,
+                            Vendor = poSummaryInDb.Vendor
                         });
                     }
                 }
@@ -198,6 +199,7 @@ namespace ClothResorting.Controllers.Api
                             Container = poSummaryInDb.Container,
                             PcsBundle = "SCAN",
                             PcsPerCarton = 1,
+                            Vendor = poSummaryInDb.Vendor,
                             POSummary = poSummaryInDb
                         });
                     }
