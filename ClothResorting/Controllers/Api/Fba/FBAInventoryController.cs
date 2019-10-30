@@ -132,6 +132,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     dto.InboundDate = p.FBAMasterOrder.InboundDate;
                     dto.OriginalTotalCtns = p.FBAPallet.FBACartonLocations.Sum(x => x.ActualQuantity);
                     dto.CurrentAvailableCtns = p.FBAPallet.FBACartonLocations.Sum(x => x.AvailableCtns);
+                    dto.FBACartonLocations = GetCartonLocationDto(dto.Id);
 
                     palletInventoryDto.Add(dto);
                 }

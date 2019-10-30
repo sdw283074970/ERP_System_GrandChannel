@@ -146,6 +146,10 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 return Ok(GenerateWorkOrder(shipOrder));
             }
+            else if (operation == "Get")
+            {
+                return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.Find(shipOrderId)));
+            }
 
             return Ok();
         }

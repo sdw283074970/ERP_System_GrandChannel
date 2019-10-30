@@ -45,6 +45,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBACartonLocation.FBAOrderDetail)
                 .Include(x => x.FBAPickDetailCartons
                     .Select(c => c.FBACartonLocation.FBAOrderDetail))
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations
+                    .Select(c => c.FBAOrderDetail))
                 .Where(x => x.FBAShipOrder.Id == shipOrderId);
 
             var resultDto = new List<FBAPickDetailsDto>();
@@ -58,6 +60,16 @@ namespace ClothResorting.Controllers.Api.Fba
                     dto.Barcode = r.FBAPickDetailCartons.Count == 1 
                         ? dto.Barcode = r.FBAPickDetailCartons.First().FBACartonLocation.FBAOrderDetail.Barcode 
                         : "MIX";
+
+                    var cartonsDtoList = new List<FBACartonLocationDto>();
+
+                    foreach (var c in r.FBAPickDetailCartons)
+                    {
+                        c.FBACartonLocation.PickingCtns = c.PickCtns;
+                        cartonsDtoList.Add(Mapper.Map<FBACartonLocation, FBACartonLocationDto>(c.FBACartonLocation));
+                    }
+
+                    dto.FBACartonLocations = cartonsDtoList;
                 }
                 else
                 {

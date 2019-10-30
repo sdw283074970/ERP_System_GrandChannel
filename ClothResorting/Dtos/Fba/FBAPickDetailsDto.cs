@@ -27,5 +27,7 @@ namespace ClothResorting.Dtos.Fba
         public int PltsFromInventory { get; set; }
 
         public int NewPlts { get; set; }
+
+        public IEnumerable<FBACartonLocationDto> FBACartonLocations { get; set; }
     }
 }
