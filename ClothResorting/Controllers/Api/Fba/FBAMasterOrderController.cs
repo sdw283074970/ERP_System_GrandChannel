@@ -259,6 +259,11 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 return Ok(GenerateUnloadingWOAndPackingList(masterOrderId));
             }
+            else if (operation == "Get")
+            {
+                return Ok(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(_context.FBAMasterOrders.Find(masterOrderId)));
+            }
+
 
             return Ok();
         }
