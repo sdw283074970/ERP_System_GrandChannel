@@ -34,10 +34,22 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetAllocatablePalletsByMasterOrderId([FromUri]int masterOrderId)
         {
-            return Ok(_context.FBAPallets
+            var dtos = _context.FBAPallets
                 .Include(x => x.FBAMasterOrder)
                 .Where(x => x.FBAMasterOrder.Id == masterOrderId
-                && x.ActualPallets > x.ComsumedPallets).Select(Mapper.Map<FBAPallet, FBAPalletDto>));
+                && x.ActualPallets > x.ComsumedPallets).Select(Mapper.Map<FBAPallet, FBAPalletDto>);
+
+            var cartonLocationList = new List<FBACartonLocationDto>();
+
+            foreach(var d in dtos)
+            {
+                d.FBACartonLocations = Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(_context.FBAPallets
+                .Include(x => x.FBACartonLocations)
+                .SingleOrDefault(x => x.Id == d.Id)
+                .FBACartonLocations);
+            }
+
+            return Ok(dtos);
         }
 
         // POST /api/fba/fbaallocating/?grandNumber={grandNumber}&inventoryType={inventoryType}

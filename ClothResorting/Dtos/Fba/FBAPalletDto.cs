@@ -19,5 +19,7 @@ namespace ClothResorting.Dtos.Fba
         public int ActualPallets { get; set; }
 
         public int ComsumedPallets { get; set; }
+
+        public IEnumerable<FBACartonLocationDto> FBACartonLocations { get; set; }
     }
 }
