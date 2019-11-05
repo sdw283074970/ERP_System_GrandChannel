@@ -79,10 +79,18 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             if (inventoryType == FBAInventoryType.Pallet)
             {
-                return Ok(_context.FBAPalletLocations
+                var dtos = _context.FBAPalletLocations
                     .Include(x => x.FBAMasterOrder)
                     .Where(x => x.FBAMasterOrder.Id == masterOrderId)
-                    .Select(Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>));
+                    .Select(Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>)
+                    .ToList();
+
+                foreach(var d in dtos)
+                {
+                    d.FBACartonLocations = GetCartonLocationDto(d.Id);
+                }
+
+                return Ok(dtos);
             }
             else
             {
@@ -189,20 +197,20 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Include(x => x.FBAPalletLocation)
                     .Where(x => x.FBAPalletLocation.Id == locationId)
                     .Select(x => new {
-                        Id = x.Id,
-                        Status = x.FBAShipOrder.Status,
-                        ShipOrderNumber = x.FBAShipOrder.ShipOrderNumber,
-                        Container = x.Container,
-                        OrderType = x.OrderType,
-                        PlaceTime = x.FBAShipOrder.PlaceTime,
-                        CustomerCode= x.FBAShipOrder.CustomerCode,
-                        ShipmentId = x.ShipmentId,
-                        AmzRefId = x.AmzRefId,
-                        WarehouseCode = x.WarehouseCode,
+                        x.Id,
+                        x.FBAShipOrder.Status,
+                        x.FBAShipOrder.ShipOrderNumber,
+                        x.Container,
+                        x.OrderType,
+                        x.FBAShipOrder.PlaceTime,
+                        x.FBAShipOrder.CustomerCode,
+                        x.ShipmentId,
+                        x.AmzRefId,
+                        x.WarehouseCode,
                         GrossWeight = x.ActualGrossWeight,
                         CBM = x.ActualCBM,
                         Quantity = x.PltsFromInventory,
-                        Location = x.Location,
+                        x.Location,
                         ShipOrderId = x.FBAShipOrder.Id
                     })
                     .ToList();
