@@ -1,6 +1,6 @@
 # Grand Channel Inc ERP System Intro（Client）
 
-### 目录
+## 目录
 
 1. 简介
 2. 流程
@@ -26,7 +26,7 @@
 	4. 其他费用报告
 8. API对接
 
-##简介
+## 简介
 本系统为Grand Channel Inc自研自用系统，被设计为入库、出库、库存管理、库内工单追踪、库内货物追踪、财务管理等问题提供解决方案。因为是自研系统，所以具有高度灵活性，可以为客户定制系统方面的需求(如需要在总览页面看到图表统计)。
 
 目前系统有新旧两个本版的UI，其中新UI即将实装，本说明会尽量涵盖两套UI的版本。
@@ -73,6 +73,8 @@ st->op->e
 
 新UI界面如下图：
 
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%80%BB%E8%A7%88.png)
+
 *注意：目前在总览中客户只能读取信息，暂时没有开通编辑信息、编辑服务以及编辑指令等功能*
 
 ## 收货模块
@@ -100,7 +102,11 @@ st->op->e
 
 旧UI界面如下：
 
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%94%B6%E8%B4%A7%E5%8D%95.png)
+
 新UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E6%94%B6%E8%B4%A7%E5%8D%95.png)
 
 客户可以在建立/编辑收货单的页面填写以下必须数据：
 
@@ -115,6 +121,8 @@ st->op->e
 以及一系列选填的船运、码头等信息。
 
 就UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%96%B0%E5%BB%BA%E6%94%B6%E8%B4%A7%E5%8D%95.png)
 
 新UI界面：*暂时不可用*
 
@@ -142,7 +150,11 @@ st->op->e
 
 旧UI界面如下：
 
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E8%A3%85%E7%AE%B1%E5%8D%95.png)
+
 新UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E8%A3%85%E7%AE%B1%E5%8D%95.png)
 
 手动录入货物条目需要的信息如下：
 
@@ -156,6 +168,8 @@ st->op->e
 - 标记/备注（选填）
 
 旧UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/旧添加条目.png)
 
 新UI界面：*暂时不可用*
 
@@ -199,6 +213,8 @@ st->op->e
 
 纸箱视图的截图如下：
 
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E7%BA%B8%E7%AE%B1%E8%A7%86%E5%9B%BE.png)
+
 托盘视图中客可以看到的信息包括：
 
 - 托盘ID
@@ -226,6 +242,8 @@ st->op->e
 - 库存剩余箱数
 
 展开后的纸箱视图如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E6%89%98%E7%9B%98%E8%A7%86%E5%9B%BE.png)
 
 ### 转移库位
 目前不支持客户自己转移库位。如有需要，请联系Grand Channel员工处理。
@@ -266,6 +284,10 @@ st->op->e
 - 库位
 
 旧UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/旧库存.png)
+
+新UI界面：*暂不可用*
 
 ### 进出库报告
 本报告暂不支持客户自己下载。如有需要，请联系您在Grand Channel的联络人。
