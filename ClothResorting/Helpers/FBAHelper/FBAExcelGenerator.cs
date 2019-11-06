@@ -389,18 +389,19 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 _ws.Cells[startIndex, 1] = o.ShipmentId;
                 _ws.Cells[startIndex, 2] = o.AmzRefId;
-                _ws.Cells[startIndex, 3] = Math.Round(o.GrossWeight, 2);
-                _ws.Cells[startIndex, 4] = Math.Round(o.CBM, 2);
-                _ws.Cells[startIndex, 5] = o.Quantity;
+                _ws.Cells[startIndex, 3] = o.WarehouseCode;
+                _ws.Cells[startIndex, 4] = Math.Round(o.GrossWeight, 2);
+                _ws.Cells[startIndex, 5] = Math.Round(o.CBM, 2);
+                _ws.Cells[startIndex, 6] = o.Quantity;
                 startIndex++;
             }
-
+              
             _ws.Cells[startIndex + 1, 1] = "Total";
-            _ws.Cells[startIndex + 1, 3] = Math.Round(orderDetails.Sum(x => x.GrossWeight), 2);
-            _ws.Cells[startIndex + 1, 4] = Math.Round(orderDetails.Sum(x => x.CBM), 2);
-            _ws.Cells[startIndex + 1, 5] = orderDetails.Sum(x => x.Quantity);
+            _ws.Cells[startIndex + 1, 4] = Math.Round(orderDetails.Sum(x => x.GrossWeight), 2);
+            _ws.Cells[startIndex + 1, 5] = Math.Round(orderDetails.Sum(x => x.CBM), 2);
+            _ws.Cells[startIndex + 1, 6] = orderDetails.Sum(x => x.Quantity);
 
-            var range = _ws.get_Range("A1:I" + (startIndex + 1), Type.Missing);
+            var range = _ws.get_Range("A1:J" + (startIndex + 1), Type.Missing);
 
             range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
             range.VerticalAlignment = XlVAlign.xlVAlignCenter;

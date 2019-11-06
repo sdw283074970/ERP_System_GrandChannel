@@ -179,6 +179,11 @@ namespace ClothResorting.Helpers.FBAHelper
 
                     if (cartonLocation.Location == FBAInventoryType.Pallet)
                     {
+                        if (!cartonLocation.FBAPallet.FBAPalletLocations.Any())
+                        {
+                            throw new Exception("Unallocated pallets detected. Please check container: " + cartonLocation.Container + " and try again after all pallets are fully allocated");
+                        }
+
                         var pltId = cartonLocation.FBAPallet.FBAPalletLocations.First().Id;
 
                         if (pltViewList.SingleOrDefault(x => x.PltId == pltId) != null)
