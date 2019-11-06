@@ -73,7 +73,7 @@ st->op->e
 
 新UI界面如下图：
 
-![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%80%BB%E8%A7%88.png)
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E6%80%BB%E8%A7%88.png)
 
 *注意：目前在总览中客户只能读取信息，暂时没有开通编辑信息、编辑服务以及编辑指令等功能*
 
@@ -120,7 +120,7 @@ st->op->e
 
 以及一系列选填的船运、码头等信息。
 
-就UI界面如下：
+旧UI界面如下：
 
 ![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%96%B0%E5%BB%BA%E6%94%B6%E8%B4%A7%E5%8D%95.png)
 
@@ -187,6 +187,8 @@ st->op->e
 - 空柜离开时间
 
 新UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/新订单追踪.png)
 
 ## 库存模块
 本节主要介绍库存模块以及其涉及到的信息。
@@ -268,7 +270,10 @@ st->op->e
 
 - 库存终止日期
 
->如，查询目前的库存报告就输入目前的日期，查找昨天的库存报告就输入昨天的日期
+>如，查询目前的库存报告
+
+
+输入目前的日期，查找昨天的库存报告就输入昨天的日期
 
 在查询结果页面客户可以看到的信息包括：
 
