@@ -1,63 +1,311 @@
-# Grand Channel Inc. Enterprise Resource Planning system
+# Grand Channel Inc ERP System Intro（Client）
 
-### Version & Update Date
-beta v0.3.0 01/14/2019
+## 目录
 
-Beta v0.1.1 09/05/2018
+1. 简介
+2. 流程
+	1. 收货流程
+	2. 发货流程
+3. 总览
+4. 收货模块
+	1. 收货单
+	2. 装箱单
+	3. 入库工单
+5. 库存模块
+	1. 查看库存
+	2. 转移库位
+	3. 货物暂留
+6. 发货模块
+	1. 出货单
+	2. 拣货单
+	3. 出库工单
+7. 报告模块
+	1. 库存报告（清点）
+	2. 进出库报告
+	3. 仓储费用报告
+	4. 其他费用报告
+8. API对接
 
-### Introduction
-Currently, this system is a solution designed to automatize clothes refine business management in the warehouse of Grand Channel. Due to the particularity of the business, there is currently no software on the market that fits the business perfectly as far as we known. Therefore, the system is specially designed by software developers within the company for suiting the clothes refine business.
+## 简介
+本系统为Grand Channel Inc自研自用系统，被设计为入库、出库、库存管理、库内工单追踪、库内货物追踪、财务管理等问题提供解决方案。因为是自研系统，所以具有高度灵活性，可以为客户定制系统方面的需求(如需要在总览页面看到图表统计)。
 
-01/14/2019 updates: Added FBA system.
+目前系统有新旧两个本版的UI，其中新UI即将实装，本说明会尽量涵盖两套UI的版本。
 
-### About the release version
-After 2 weeks test(08/20~08/31), the first released version Beta v0.1.1 is released on September 5th, 2018
+## 流程
+本节主要阐述系统工作流程。
 
-After 3 months further test(09/01/2018~12/31/2018), the second released version Beta v0.3.0 released on 01/02/2019
+宏观来看，系统接受装箱单(Pakcing List)输入，输出库存和出货单(Shipping Order)，流程图如下：
 
-### Features
-This system now has the ability to:
-- Create new Pre-receive Order
-- Handle and extract uploaded original packing list from Free Country
-- Handle receiving process(Inbound)
-- Generate receiving a report for per container
-- Add a comment for each received item
-- Allocate warehouse locations(Put away)
-- Reallocate warehouse location(relocate)
-- Manage inventory addition(Inbound) and deduction(Outbound)
-- Create ship order
-- Handle uploaded pull sheet
-- Handle picking process
-- Generate downloadable PDF version of picking lists
-- Diagnose exception in the picking process 
-- Generate picking summary
-- Put back any outbound cartons and units to inventory
+```flow
+st=>start: 上传装箱单
+op=>operation: 仓库操作
+e=>end: 各种报告/订单
 
-This system can also handle exceptions as follow:
-- Free Country sometimes may send packing lists that have extra columns
-- Free Country sometimes may send packing lists that do not follow its template
-- Free Country sometimes may send packing lists that the summary does not match details
-- Free Country sometimes may send extra cartons under some new POs that does not include in the original packing list
-- Free Country sometimes may send extra items(SKU) under existed PO
-- Free Country sometimes may send existed items(SKU) but under different PO or color
-- Free Country sometimes may send some solid pack cartons mixed multiple sizes and units
-- Free Country sometimes may send short and extra items related the packing list
-- Sometimes multiple different SKU cartons may be requested to allocate to one location
-- Sometimes one SKU cartons may be requested to divided and store into multiple locations
-- Sometimes PSI information may be not correct
-- Sometimes Pull Sheet information may be not correct
-- Sometimes shortage may appear in the picking process
-- Sometimes concealed overage may appear after picking
-- Free Country/customer sometimes may request to send bulk cartons sample
-- Free Country/customer sometimes may request to send bulk pieces sample
-- Free Country/customer sometimes may request to sent bulk pieces sample from In&Out cartons
+st->op->e
+```
 
-### Limited
-Currently, the system is unable to:
-- Generate invoices
-- Handle other customer's business
+其中与客户操作相关的部分可以拆分为两个流程，分别为入库流程和出库流程。
 
-### License
-This is not an open source project. Any usage and Fork are forbidden.
+在入库流程中，客户只需建立收货单(Receiving List)和上传/输入装箱单即可。具体规则、界面和操作会在第4节详述。
 
-Copyright (c) 2018, Grand Channel Inc. All rights reserved.
+在出库流程中，客户只需建立出库单(Shipping Order)和在库存中选择出库sku生成拣货单即可。具体规则、界面和操作会在第6节详述。
+
+## 总览
+本节最主要介绍总览界面以及其涉及的信息。
+
+目前的总览界面能看到的信息包括：
+
+- 客户ID
+- 客户代码
+- 客户名称（在新UI中已移除）
+- 联系电话（在新UI中已移除）
+- 联络人（在新UI中已移除）
+- 正在处理的托盘总数
+- 正在处理的纸箱总数
+- 库存可用的托盘总数
+- 库存可用的纸箱总数
+- 库存不足警戒线
+- 待付款账单数量
+
+旧UI界面如下图：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%80%BB%E8%A7%88.png)
+
+新UI界面如下图：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E6%80%BB%E8%A7%88.png)
+
+*注意：目前在总览中客户只能读取信息，暂时没有开通编辑信息、编辑服务以及编辑指令等功能*
+
+## 收货模块
+本节主要介绍收货模块以及其涉及的信息。
+
+### 收货单
+收货模块是以建立收货单作为起点进行操作。在收货单页面可以看到的信息报告：
+
+- 收货单ID
+- Grand No.(在新UI中已移除)
+- 入库类型
+- 货柜尺寸
+- 货柜号码
+- 客户代码（新UI新增）
+- 应收CBM（在新UI中已移除）
+- 实收CBM（在新UI中已移除）
+- 应收纸箱数量
+- 实收纸箱数量
+- 应收托盘数量
+- 实收托盘数量
+- SKU数量
+- 入库日期
+- 预计到柜日期
+- 订单信息追踪以及其他细节信息（新UI中新增）
+
+旧UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%94%B6%E8%B4%A7%E5%8D%95.png)
+
+新UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E6%94%B6%E8%B4%A7%E5%8D%95.png)
+
+客户可以在建立/编辑收货单的页面填写以下必须数据：
+
+- 货柜号码
+- 预计到库日期
+- 原始到库托盘数量
+- 入库类型
+- 卸货类型
+- 仓储类型
+- 打托类型
+
+以及一系列选填的船运、码头等信息。
+
+旧UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E6%96%B0%E5%BB%BA%E6%94%B6%E8%B4%A7%E5%8D%95.png)
+
+新UI界面：*暂时不可用*
+
+### 装箱单
+装箱单是系统数据的核心，一切数据上的操作都以装箱单为起始。客户可以选择批量上传符合模板格式的装箱单，也可以手动单条输入信息，甚至在API对接完毕后，由客户其他系统推送或从客户其它系统Fetch。
+
+目前支持客户上传装箱单模板、客户手动输入或委托联络人操作。
+
+装箱单中的条目以纸箱为单位，涉及以下数据：
+
+- 货物ID
+- 货物状态（入库后为锁定，否则为可修改）
+- 所属货柜号
+- SKU号/FBA转运ID（FBA Shipment ID）
+- 亚马逊ID（Amz Ref ID）
+- 转运仓库代码
+- 送达方式
+- 预收毛重
+- 预收CBM
+- 预收箱数
+- 实收毛重
+- 实收CBM
+- 实收箱数
+- 标记/备注
+
+旧UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%97%A7%E8%A3%85%E7%AE%B1%E5%8D%95.png)
+
+新UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E8%A3%85%E7%AE%B1%E5%8D%95.png)
+
+手动录入货物条目需要的信息如下：
+
+- SKU号/FBA转运ID（FBA Shipment ID）
+- 亚马逊ID（Amz Ref ID）
+- 转运仓库代码
+- 送达方式（选填）
+- 预收毛重（选填）
+- 预收CBM（选填）
+- 预收箱数
+- 标记/备注（选填）
+
+旧UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/旧添加条目.png)
+
+新UI界面：*暂时不可用*
+
+### 入库工单
+入库工单是下达给仓库进行操作的工单，包含了订单进度、装箱单、工作指令等信息。目前不支持客户直接下达工单到仓库，需要通过联络人或Grand Channel的员工推送工单。
+
+目前只有新UI中支持订单进度追踪，客户可以追踪到包括但不仅限于以下的关键信息：
+
+- 收货单基本信息
+- 订单轨迹
+- 到货是否有损坏
+- 工单推送时间
+- 工单开始时间
+- 工单完成时间
+- 空柜离开时间
+
+新UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/新订单追踪.png)
+
+## 库存模块
+本节主要介绍库存模块以及其涉及到的信息。
+
+### 查看库存
+目前只有新UI支持客户以收货单（货柜）为单位查看库存情况和出库历史。客户在旧UI不具备此权限。
+
+在新UI中，客户能分别以`纸箱视图`和`托盘视图`查看库存，通过开关切换。
+>纸箱视图：以纸箱数量为单位查看库存信息
+>托盘视图：以托盘为单位查看库存信息，并且支持展开托盘，查看托盘内部的纸箱信息
+
+纸箱视图中客户可以看到的信息包括：
+
+- 纸箱ID
+- SKU号/FBA转运ID（FBA Shipment ID）
+- 亚马逊ID（Amz Ref ID）
+- 转运仓库代码
+- 实际入库总箱数
+- 库存剩余箱数
+- 正在处理箱数
+- 已发货箱数
+- 库位
+- 发货历史（按钮）
+
+纸箱视图的截图如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E7%BA%B8%E7%AE%B1%E8%A7%86%E5%9B%BE.png)
+
+托盘视图中客可以看到的信息包括：
+
+- 托盘ID
+- SKU号/FBA转运ID（FBA Shipment ID）
+- 亚马逊ID（Amz Ref ID）
+- 转运仓库代码
+- 托盘尺寸
+- 托盘中的原始箱数
+- 入库托盘数量
+- 库存剩余托盘数量
+- 正在处理托盘数量
+- 已发货托盘数量
+- 库位
+- 发货历史（按钮）
+
+其中，托盘展开后能看到的纸箱信息包括：
+
+- 纸箱ID
+- SKU号/FBA转运ID（FBA Shipment ID）
+- 亚马逊ID（Amz Ref ID）
+- 转运仓库代码
+- 平均箱重
+- 平均CBM
+- 实际入库总箱数
+- 库存剩余箱数
+
+展开后的纸箱视图如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/%E6%96%B0%E6%89%98%E7%9B%98%E8%A7%86%E5%9B%BE.png)
+
+### 转移库位
+目前不支持客户自己转移库位。如有需要，请联系Grand Channel员工处理。
+
+### 货物暂留
+货物暂留能将部分或全部货物标记为“暂留（Hold）”，暂留的货物不会在拣货时被搜索出来。目前不支持客户自己标记暂留货物，如有需要，请联系Grand Channel员工。
+
+## 发货模块
+本节主要介绍发货模块以及其涉及的信息。
+
+在两个版本的UI中，本模块都暂不为客户开放。目前客户发货请通过邮件发至Grand Channel员工告知出货单信息，由员工操作本模块。
+
+如客户有需求开放本模块，请告知您在Grand Channel的联络人。
+
+## 报告模块
+本节主要介绍报告模块以及其涉及到的信息。
+
+### 库存报告
+库存报告为Excel文件，自带托盘视图和纸箱视图两张表格，可由客户在结果页面自行下载。该模块还具有时间点还原功能，即可以查询历史上某一天当天的库存报告（如上周三当天的库存报告）。
+
+客户需要输入的信息包括：
+
+- 库存终止日期
+
+>如，查询目前的库存报告
+
+
+输入目前的日期，查找昨天的库存报告就输入昨天的日期
+
+在查询结果页面客户可以看到的信息包括：
+
+- 货柜号
+- 库存类型（按托盘储存/按纸箱储存）
+- SKU号/FBA转运ID（FBA Shipment ID）
+- 亚马逊ID（Amz Ref ID）
+- 平均箱重
+- 平均CBM
+- 入库箱数
+- 剩余箱数
+- 正在处理箱数
+- 库位
+
+旧UI界面如下：
+
+![](https://github.com/sdw283074970/ERP_System_GrandChannel/blob/master/Img/旧库存.png)
+
+新UI界面：*暂不可用*
+
+### 进出库报告
+本报告暂不支持客户自己下载。如有需要，请联系您在Grand Channel的联络人。
+
+### 仓储费用报告
+本报告暂不支持客户自己下载。如有需要，请联系Grand Channel的财务部门。
+
+### 其他费用报告
+本报告暂不支持客户自己下载。如有需要，请联系Grand Channel的财务部门。
+
+## API 对接
+本节主要介绍本系统的对外API情况。
+
+Grand Channel系统暂无公共API接口和相关文档，但我们支持接口定制。如有需要调用我们系统的数据，请联系您在Grand Channel的联络人。
+
+我们系统同样可以定制接口从客户的其他系统Fetch数据。如有需要，请联系您在Grand Channel的联络人。
