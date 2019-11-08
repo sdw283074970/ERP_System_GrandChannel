@@ -32,6 +32,10 @@ namespace ClothResorting.Dtos.Fba
 
         public int CurrentAvailableCtns { get; set; }
 
+        public int SelectedPlts { get; set; }
+
+        public int NewPlts { get; set; }
+
         public IEnumerable<FBACartonLocationDto> FBACartonLocations { get; set; }
     }
 }

@@ -36,6 +36,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string PlacedBy { get; set; }
 
+        public bool PODStatus { get; set; }
+
         public DateTime PlaceTime { get; set; }
 
         public DateTime ShipDate { get; set; }

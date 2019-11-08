@@ -29,5 +29,7 @@ namespace ClothResorting.Dtos.Fba
         public int HoldCtns { get; set; }
 
         public string Location { get; set; }
+
+        public int SelectedCtns { get; set; }
     }
 }

@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using ClothResorting.Dtos;
 using ClothResorting.Controllers.Api.Warehouse;
 using ClothResorting.Models.Extensions;
+using System.Web.Http.Cors;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -265,8 +266,9 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        [HttpPost]
         [HttpPut]
-        public async Task UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
+        public async Task<IHttpActionResult> UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
         {
             if (Checker.CheckString(obj.ShipOrderNumber))
             {
@@ -310,10 +312,13 @@ namespace ClothResorting.Controllers.Api.Fba
             var resultDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
             await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, "Updated some basic ship order info", null, OperationLevel.Mediunm);
+
+            return Created(Request.RequestUri, resultDto);
         }
             
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operationDate={operationDate}&operation={operation}
         [HttpPut]
+        [HttpPost]
         public async Task ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
         {
             var shipOrderInDb = _context.FBAShipOrders
@@ -334,6 +339,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
+        [HttpPost]
         [HttpPut]
         public async Task MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime operationDate)
         {
@@ -362,6 +368,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&isRelease={isRelease}
+        [HttpPost]
         [HttpPut]
         public async Task MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]bool isRelease)
         {
@@ -385,6 +392,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // PUT /api/fba/fbashiporder/?referenceId={referenceId}&orderType={orderType}}&operation={operation}
+        [HttpPost]
         [HttpPut]
         public async Task ResetWorkOrderInstruction([FromUri]int referenceId, [FromUri]string orderType, [FromUri]string operation)
         {
@@ -473,6 +481,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // PUT /api/fba/fbashiporder/?chargingDetailId={chargingDetailId}&comment={comment}&operation={operation}
+        [HttpPost]
         [HttpPut]
         public async Task UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]bool isChargingItem, [FromUri]string operation)
         {
@@ -536,6 +545,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&batchNumber={batchNumber}
+        [HttpPost]
         [HttpPut]
         public void UpdateBatchNumber([FromUri]int shipOrderId, [FromUri]string batchNumber)
         {
