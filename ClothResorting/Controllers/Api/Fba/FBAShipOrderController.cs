@@ -291,6 +291,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrderInDb.Carrier = obj.Carrier;
             shipOrderInDb.BOLNumber = obj.BOLNumber;
             shipOrderInDb.ETS = obj.ETS;
+            shipOrderInDb.PODStatus = obj.PODStatus;
             shipOrderInDb.BatchNumber = obj.BatchNumber;
             shipOrderInDb.ETSTimeRange = obj.TimeRange;
             shipOrderInDb.PickNumber = obj.PickNumber;
@@ -865,6 +866,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                         bolList.Add(new FBABOLDetail
                         {
+                            ParentPalletId = pickDetail.FBAPalletLocation.Id,
                             CustomerOrderNumber = cartonInPickList[i].FBACartonLocation.ShipmentId,
                             Contianer = pickDetail.Container,
                             CartonQuantity = cartonInPickList[i].PickCtns,
@@ -928,6 +930,9 @@ namespace ClothResorting.Controllers.Api.Fba
             wo.OutboundPlts = shipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
 
             var order = 1;
+
+            //var woHelper = new FBAWOHelper();
+            //var bolList = woHelper.GenerateFBABOLList(pickDetails);
 
             foreach(var p in pickDetails)
             {
@@ -1120,6 +1125,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string InvoiceStatus { get; set; }
 
         public string SubCustomer { get; set; }
+
+        public bool PODStatus { get; set; }
 
         public string BatchNumber { get; set; }
 

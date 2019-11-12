@@ -263,6 +263,7 @@ namespace ClothResorting.Helpers.FBAHelper
         //生成拣货单并返回完整路径
         public string GenerateShippingWOAndPickingList(int shipOrderId)
         {
+            var woHelper = new FBAWOHelper();
             //第一页生成WO
             _ws = _wb.Worksheets[1];
 
@@ -296,7 +297,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 .ToList();
 
             _ws.Cells[1, 2] = pickDetailInDb.First().FBAShipOrder.ShipOrderNumber.ToString();
-            var bolList = GenerateFBABOLList(pickDetailInDb);
+            //var bolList = GenerateFBABOLList(pickDetailInDb);
+            var bolList = woHelper.GenerateFBABOLList(pickDetailInDb);
             var groupLis = bolList.GroupBy(x => x.ParentPalletId);
 
             foreach(var g in groupLis)

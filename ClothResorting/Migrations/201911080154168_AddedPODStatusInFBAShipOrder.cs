@@ -13,6 +13,6 @@ namespace ClothResorting.Migrations
         public override void Down()
         {
             DropColumn("dbo.FBAShipOrders", "PODStatus");
-        }
+        } 
     }
 }
