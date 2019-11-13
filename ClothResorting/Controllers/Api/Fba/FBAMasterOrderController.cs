@@ -164,6 +164,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
                 m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
                 m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
+                m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
                 skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
             }
 
