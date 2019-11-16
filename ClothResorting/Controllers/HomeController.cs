@@ -6,6 +6,8 @@ using System.Data.Entity;
 using ClothResorting.Helpers;
 using System;
 using System.IO;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace ClothResorting.Controllers
 {
@@ -49,16 +51,20 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var mos = _context.FBAMasterOrders
-                .Include(x => x.Customer)
-                .Where(x => x.Id > 0);
+            var pltsLocation = _context.FBAPalletLocations
+                .Include(x => x.FBAMasterOrder)
+                .Include(x => x.FBAPickDetails)
+                .Where(x => x.FBAMasterOrder.CustomerCode == "AHKB");
 
-            foreach(var m in mos)
+            var list = new List<int>();
+
+            foreach(var p in pltsLocation)
             {
-                m.CustomerCode = m.Customer.CustomerCode;
+                if (p.FBAPickDetails.Sum(x => x.PltsFromInventory) > p.ActualPlts)
+                {
+                    list.Add(p.Id);
+                }
             }
-
-            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 

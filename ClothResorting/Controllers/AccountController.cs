@@ -12,6 +12,7 @@ using ClothResorting.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.FilterAttribute;
+using System.Web.Security;
 
 namespace ClothResorting.Controllers
 {
@@ -529,6 +530,14 @@ namespace ClothResorting.Controllers
                 }
                 context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
             }
+        }
+
+        private async Task SignInAsync(ApplicationUser user, bool isPersistent)
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+            var claimsIdentity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
+            AuthenticationManager.SignIn(new AuthenticationProperties { IsPersistent = isPersistent }, claimsIdentity);
+            FormsAuthentication.SetAuthCookie(user.UserName, false);
         }
         #endregion
     }

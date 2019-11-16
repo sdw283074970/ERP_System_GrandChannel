@@ -555,6 +555,18 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
+        [HttpPut]
+        public void FinishPicking([FromUri] int shipOrderId)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            if (shipOrderInDb.Status == FBAStatus.NewCreated)
+                shipOrderInDb.Status = FBAStatus.Picking;
+
+            _context.SaveChanges();
+        }
+
         // DELETE /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpDelete]
         public async Task DeleteShipOrder([FromUri]int shipOrderId)
