@@ -6,17 +6,15 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web;
-using Newtonsoft.Json;
 using System.Web.Security;
 using System.Security.Principal;
+using System.Threading;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -32,29 +30,31 @@ namespace ClothResorting.Controllers.Api
             //SignInManager = signInManager;
         }
 
-        public IAuthenticationManager AuthenticationManager { get { return HttpContext.Current.GetOwinContext().Authentication; } }
-        public ApplicationUserManager UserManager { get { return HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>(); } }
-        //public ApplicationSignInManager SignInManager
-        //{
-        //    get
-        //    {
-        //        return _signInManager ?? HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>();
-        //    }
-        //    private set
-        //    {
-        //        _signInManager = value;
-        //    }
-        //}
+        public IAuthenticationManager AuthenticationManager { 
+            get { return HttpContext.Current.GetOwinContext().Authentication; 
+            } 
+        }
+        public ApplicationUserManager UserManager { 
+            get { return HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+        }
+        public ApplicationSignInManager SignInManager { 
+            get { return HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>();
+            }
+        }
 
         // GET /api/users/?userName={userName}&password={password}
         [HttpGet]
         public async Task<IHttpActionResult> Login([FromUri]string userName, [FromUri]string password)
         {
             var user = UserManager.Find(userName, password);
+            //var user = new ApplicationUser() { UserName = userName };
+            //var result = await UserManager.CreateAsync(user, password);
 
             if (user != null)
             {
-                await SignInAsync(user, false);
+                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                //await SignInAsync(user, false);
                 return Ok(new { Code = 20000, Token = "admin-token" });
             }
             else
@@ -157,6 +157,15 @@ namespace ClothResorting.Controllers.Api
             userInDb.Roles.Remove(userInDb.Roles.SingleOrDefault(x => x.RoleId == roleId));
 
             _context.SaveChanges();
+        }
+
+        private void SetPrincipal(IPrincipal principal)
+        {
+            Thread.CurrentPrincipal = principal;
+            if (HttpContext.Current != null)
+            {
+                HttpContext.Current.User = principal;
+            }
         }
 
         private async Task SignInAsync(ApplicationUser user, bool isPersistent)

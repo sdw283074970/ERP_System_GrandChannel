@@ -162,6 +162,12 @@
         </table>
     </div>
 </div>
+<div class="iframe-fbadate">
+    <div style="margin-top:20px;margin-right:20px;text-align:right">
+        <text>Select Operation Date: </text><input type="datetime-local" id='input-operationdate' style='width:200px' class='input-sm' /><br />
+        <button id="btn-confirm" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">Confirm Ready</button>
+    </div>
+</div>
 @Html.Partial("~/Views/shiporder/_FBAShipOrderPartial.cshtml", null)
 @Html.Partial("~/Views/Shared/_readmePartial.cshtml", null)
 
@@ -195,7 +201,7 @@
             $("#input-date-from").val(formatDate(today));
             $("#input-date-to").val(formatDate(nextWeek));
 
-            $(".maincontainer, #div-efile").hide();
+            $(".maincontainer, #div-efile, .iframe-fbadate").hide();
             $(".btn-wo-operation, #iframe-verifiedinfo, .div-readme").hide();
             $(".iframe, #btn-update, #btn-release, #btn-ship").hide();
             $(".iframe-date").hide();
@@ -384,7 +390,7 @@
                         else if (status == "Pending" || status == "Updated")
                             return "<button class='btn btn-link btn-wo' operation='ready'>Update WO</button>";
                         else if (status == "Ready")
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unready' />";
+                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unready' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
                         else if (status == "Released")
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unrelease' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
                         else if (status == "Shipped")
@@ -1337,6 +1343,28 @@
                             });
                         }
                     });
+                }
+            });
+
+            //点击Release按钮，打开填写日期弹窗
+            $("#table").on("click", ".btn-fbadate", function () {
+                var button = $(this);
+                shipOrderId = button.attr('iid');
+
+                grandChannel.openiframe(index, ".iframe-fbadate", "400px", "150px");
+            });
+
+            //填好日期后，点击确认按钮
+            $("#btn-confirm").on("click", function () {
+                layer.close(index);
+                var operationDate = $("#input-operationdate").val();
+
+                if (operationDate != "") {
+                    url = "/api/fba/fbashiporder/?shipOrderId=" + shipOrderId + "&operationDate=" + operationDate + "&operation=ChangeStatus";
+                    grandChannel.sendAjaxMethod("PUT", url, {}, index);
+                }
+                else {
+                    alert("Ship Date cannot be empty.");
                 }
             });
 

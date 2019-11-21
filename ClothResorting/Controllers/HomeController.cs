@@ -51,20 +51,9 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var pltsLocation = _context.FBAPalletLocations
-                .Include(x => x.FBAMasterOrder)
-                .Include(x => x.FBAPickDetails)
-                .Where(x => x.FBAMasterOrder.CustomerCode == "AHKB");
+            var generator = new ExcelGenerator(@"D:\Template\RegularPullSheet-Template.xlsx");
 
-            var list = new List<int>();
-
-            foreach(var p in pltsLocation)
-            {
-                if (p.FBAPickDetails.Sum(x => x.PltsFromInventory) > p.ActualPlts)
-                {
-                    list.Add(p.Id);
-                }
-            }
+            var path = generator.Generate3PLTemplate();
 
             ViewBag.Message = "Your application description page.";
 

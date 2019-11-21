@@ -586,6 +586,94 @@ namespace ClothResorting.Helpers
             return fullPath;
         }
 
+        // 服装部收尾功能1：按模板导出5项数据: Container\SKU(Style:ColorCode-Size)\Quantity\Po\Location\Customer
+        // 服装部收尾功能2：按模板导出3项数据：style\ColorCode\ColorCode-Size|\Customer
+        public string Generate3PLTemplate()
+        {
+            // 收尾功能1
+            var inventoriesInDb = _context.FCRegularLocationDetails
+                .Include(x => x.PreReceiveOrder)
+                .Where(x => x.AvailablePcs > 0 && x.PreReceiveOrder.Id == 476);
+
+            _ws = _wb.Worksheets[3];
+
+            Microsoft.Office.Interop.Excel.Worksheet _ws2 = _wb.Worksheets[4];
+
+            var startIndex = 2;
+
+            foreach(var i in inventoriesInDb)
+            {
+                _ws.Cells[startIndex, 1] = i.Container;
+                _ws.Cells[startIndex, 2] = i.Style.Trim() + ":" + i.Color.Trim() + "-" + i.SizeBundle.Trim();
+                _ws.Cells[startIndex, 3] = i.AvailablePcs;
+                _ws.Cells[startIndex, 4] = i.PurchaseOrder;
+                _ws.Cells[startIndex, 5] = i.Location;
+                _ws.Cells[startIndex, 6] = i.PreReceiveOrder.CustomerName;
+
+                startIndex += 1;
+            }
+
+            // 收尾功能2
+            var skuList = new List<CombinedSKU>();
+            var inventories = new List<FCRegularLocationDetail>();
+
+            foreach (var i in inventoriesInDb)
+            {
+                var skuInList = inventories.SingleOrDefault(x =>  x.Style.ToUpper() == i.Style.ToUpper()
+                    && x.Color.ToUpper() == i.Color.ToUpper()
+                    && x.SizeBundle.ToUpper() == i.SizeBundle.ToUpper());
+
+                if (skuInList == null)
+                {
+                    inventories.Add(new FCRegularLocationDetail { 
+                        Style = i.Style,
+                        Color = i.Color.ToUpper(),
+                        SizeBundle = i.SizeBundle.ToUpper(),
+                        CustomerCode = i.PreReceiveOrder.CustomerName
+                    });
+                }
+            }
+            var group = inventories.GroupBy(x => new { x.Style, x.Color});
+
+            foreach (var g in group)
+            {
+                var combinedSKU = string.Empty;
+
+                foreach(var s in g)
+                {
+                    combinedSKU += s.Color + "-" + s.SizeBundle + "|";
+                }
+
+                combinedSKU = combinedSKU.Substring(0, combinedSKU.Length - 1);
+
+                skuList.Add(new CombinedSKU {
+                    Style = g.First().Style,
+                    ColorCode = g.First().Color,
+                    SKU = combinedSKU,
+                    CustomerName = g.First().CustomerCode
+                });
+            }
+
+            startIndex = 2;
+
+            foreach(var s in skuList)
+            {
+                _ws2.Cells[startIndex, 1] = s.Style;
+                _ws2.Cells[startIndex, 2] = s.ColorCode;
+                _ws2.Cells[startIndex, 3] = s.SKU;
+                _ws2.Cells[startIndex, 4] = s.CustomerName;
+                startIndex += 1;
+            }
+
+            var fullPath = @"D:\InventoryReport\3PLTemplate-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
+        }
+
         private string UnifySize(string size)
         {
             if (size == "xs")
@@ -701,5 +789,16 @@ namespace ClothResorting.Helpers
 
             return newList;
         }
+    }
+
+    public class CombinedSKU
+    { 
+        public string Style { get; set; }
+
+        public string ColorCode { get; set; }
+
+        public string SKU { get; set; }
+
+        public string CustomerName { get; set; }
     }
 }
