@@ -438,15 +438,27 @@ namespace ClothResorting.Controllers.Api.Fba
                         .Include(x => x.FBAMasterOrder)
                         .Where(x => x.FBAMasterOrder.Id == masterOrderId)
                         .Sum(x => x.ActualQuantity);
+                }
+                catch(Exception)
+                {
+                    ctnsInPlts = 0;
+                }
+
+                try 
+                {
+                    var t = _context.FBACartonLocations
+                       .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                       .Where(x => x.Status != "InPallet"
+                        && x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId).ToList();
 
                     ctnsOutPlts = _context.FBACartonLocations
                        .Include(x => x.FBAOrderDetail.FBAMasterOrder)
-                       .Where(x => x.Status != "InPallet")
+                       .Where(x => x.Status != "InPallet"
+                        && x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId)
                        .Sum(x => x.ActualQuantity);
                 }
                 catch(Exception e)
                 {
-                    ctnsInPlts = 0;
                     ctnsOutPlts = 0;
                 }
 

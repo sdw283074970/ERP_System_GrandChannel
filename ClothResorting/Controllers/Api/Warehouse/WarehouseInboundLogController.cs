@@ -42,6 +42,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             {
                 var newLog = new WarehouseInboundLog {
                     Id = m.Id,
+                    GrandNumber = m.GrandNumber,
                     Status = m.Status,
                     Department = DepartmentCode.FBA,
                     Customer = m.Customer.CustomerCode,
@@ -209,6 +210,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
     public class WarehouseInboundLog
     {
         public int Id { get; set; }
+
+        public string GrandNumber { get; set; }
 
         public string Status { get; set; }
 

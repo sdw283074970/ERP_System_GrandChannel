@@ -37,6 +37,7 @@
                     <th>ATA</th>
                     <th>DOCK#</th>
                     <th>CONTAINER #</th>
+                    <th>GRND #</th>
                     <th>ORG CTN</th>
                     <th>ORG SKU</th>
                     <th>ORG PLT</th>
@@ -102,6 +103,7 @@
             var operation;
             var masterOrderId;
             var searchBar = grandChannel.getUrlParameter('search');
+            var grandNumber;
 
             $(".maincontainer").hide();
 
@@ -223,6 +225,12 @@
                     data: "container",
                     render: function (data) {
                         orderNumber = data;
+                        return "<text>" + data + "</text>";
+                    }
+                },
+                {
+                    data: "grandNumber",
+                    render: function (data) {
                         return "<text>" + data + "</text>";
                     }
                 },
@@ -662,14 +670,14 @@
             //点击Register plt按钮，跳转到托盘注册页面
             $("#table").on("click", ".btn-registering", function () {
                 masterOrderId = $(this).attr('iid');
-                $(window.location).attr('href', "/fba/warehouseOperation/?masterOrderId=" + masterOrderId);
+                grandNumber = $(this).parent().parent("tr").children("td").eq(11).children("text").html();
+                $(window.location).attr('href', "/fba/warehouseOperation/?masterOrderId=" + masterOrderId + "&grandNumber=" + grandNumber);
             });
 
             //点击提交托盘注册表，提交注册
             $("#table").on("click", ".btn-registered", function () {
                 masterOrderId = $(this).attr('iid');
                 url = "/api/FBAMasterOrder/?masterOrderId=" + masterOrderId + "&operation=Register"
-
                 layer.confirm("Are you sure you have finished the registration </br> of pallet information？", { title: "Warnning", btn: ["Yes", "No"] },
                     function (index22) {
                         grandChannel.sendAjaxMethod("PUT", url, {}, index);
@@ -682,7 +690,8 @@
             //点击分配库位按钮，跳转到库位分配页面
             $("#table").on("click", ".btn-allocating", function () {
                 masterOrderId = $(this).attr('iid');
-                $(window.location).attr('href', "/fba/FBAAllocating/?masterOrderId=" + masterOrderId);
+                grandNumber = $(this).parent().parent("tr").children("td").eq(11).children("text").html();
+                $(window.location).attr('href', "/fba/FBAAllocating/?masterOrderId=" + masterOrderId + "&grandNumber=" + grandNumber);
             });
 
             //点击提交分配按钮，提交分配结果
