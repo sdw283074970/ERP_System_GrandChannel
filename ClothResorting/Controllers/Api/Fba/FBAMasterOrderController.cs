@@ -334,7 +334,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 throw new Exception("Contianer Number " + obj.Container + " has been taken. Please delete the existed order and try agian.");
             }
 
-            var customer = _context.UpperVendors.Find(id);
+            var customer = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == obj.CustomerCode);
             var customerCode = customer.CustomerCode;
             //Unix时间戳加客户代码组成独一无二的GrandNumber
             var grandNumber = customerCode + ((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000000).ToString();

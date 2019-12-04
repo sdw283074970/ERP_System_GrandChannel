@@ -37,7 +37,7 @@ namespace ClothResorting.Controllers
         {
             get
             {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+                return _signInManager ?? System.Web.HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>();
             }
             private set
             {
@@ -49,7 +49,7 @@ namespace ClothResorting.Controllers
         {
             get
             {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                return _userManager ?? System.Web.HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>();
             }
             private set
             {
@@ -76,7 +76,8 @@ namespace ClothResorting.Controllers
             {
                 return View(model);
             }
-
+            //var s = HttpContext.GetOwinContext().Get<ApplicationSignInManager>(); 
+            //var t = System.Web.HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>(); 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);

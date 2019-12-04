@@ -15,9 +15,11 @@ using System.Web;
 using System.Web.Security;
 using System.Security.Principal;
 using System.Threading;
+using System.Security.Claims;
 
 namespace ClothResorting.Controllers.Api
 {
+    [AllowAnonymous]
     public class UsersController : ApiController
     {
         private ApplicationDbContext _context;
@@ -29,17 +31,26 @@ namespace ClothResorting.Controllers.Api
             _context = new ApplicationDbContext();
             //SignInManager = signInManager;
         }
+        //private HttpContextBase HttpContextBase { get; }
 
         public IAuthenticationManager AuthenticationManager { 
-            get { return HttpContext.Current.GetOwinContext().Authentication; 
+            get 
+            { 
+                return HttpContext.Current.GetOwinContext().Authentication; 
             } 
         }
-        public ApplicationUserManager UserManager { 
-            get { return HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>();
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>();
             }
         }
-        public ApplicationSignInManager SignInManager { 
-            get { return HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>();
+        public ApplicationSignInManager SignInManager
+        {
+            get
+            {
+                return HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>();
             }
         }
 
@@ -47,21 +58,32 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public async Task<IHttpActionResult> Login([FromUri]string userName, [FromUri]string password)
         {
-            var user = UserManager.Find(userName, password);
+            //var s = HttpContext.Current.GetOwinContext();
+            var user = await UserManager.FindAsync(userName, password);
             //var user = new ApplicationUser() { UserName = userName };
             //var result = await UserManager.CreateAsync(user, password);
 
+            //如果数据库存在这个用户，则为这个用户重新分配一个token
+            //为了保证服务器不超载，这里的token不做保存，只做校验（等它自然过期）
             if (user != null)
             {
-                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                //var identity = new ClaimsIdentity(DefaultAuthenticationTypes.ApplicationCookie);
+                //identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userName));
+                //identity.AddClaim(new Claim(ClaimTypes.Name, userName));
+                //AuthenticationManager.SignIn(identity);
+
+                //var identity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
+                //AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = true }, identity);
+                //await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
                 //await SignInAsync(user, false);
+                //System.Diagnostics.Process.Start("https://localhost:44364/Account/Login");
                 return Ok(new { Code = 20000, Token = "admin-token" });
             }
             else
             {
                 return Ok(new { Code = 30000, Message = "RequiresVerification" });
             }
-            //var result = await SignInManager.PasswordSignInAsync(userName, password, false, shouldLockout: false);
 
             //switch (result)
             //{

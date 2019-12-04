@@ -51,8 +51,9 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var generator = new ExcelGenerator(@"D:\Template\RegularPullSheet-Template.xlsx");
+            var generator = new ExcelGenerator(@"D:\Template\InventoryReportV2.xlsx");
 
+            //var path = generator.Generate3PLTemplate();
             var path = generator.Generate3PLTemplate();
 
             ViewBag.Message = "Your application description page.";

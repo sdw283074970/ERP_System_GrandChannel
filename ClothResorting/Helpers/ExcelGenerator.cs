@@ -8,8 +8,8 @@ using System.Data.Entity;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Models.FBAModels.StaticModels;
 using System.Globalization;
-using System.IO;
 using System.Threading;
+using System.IO;
 using ClothResorting.Models.DataTransferModels;
 using org.in2bits.MyXls;
 
@@ -593,7 +593,8 @@ namespace ClothResorting.Helpers
             // 收尾功能1
             var inventoriesInDb = _context.FCRegularLocationDetails
                 .Include(x => x.PreReceiveOrder)
-                .Where(x => x.AvailablePcs > 0 && x.PreReceiveOrder.Id == 476);
+                //.Where(x => x.AvailablePcs > 0 && x.PreReceiveOrder.Id == 476);
+                .Where(x => x.AvailablePcs > 0);
 
             _ws = _wb.Worksheets[3];
 
@@ -601,17 +602,17 @@ namespace ClothResorting.Helpers
 
             var startIndex = 2;
 
-            foreach(var i in inventoriesInDb)
-            {
-                _ws.Cells[startIndex, 1] = i.Container;
-                _ws.Cells[startIndex, 2] = i.Style.Trim() + ":" + i.Color.Trim() + "-" + i.SizeBundle.Trim();
-                _ws.Cells[startIndex, 3] = i.AvailablePcs;
-                _ws.Cells[startIndex, 4] = i.PurchaseOrder;
-                _ws.Cells[startIndex, 5] = i.Location;
-                _ws.Cells[startIndex, 6] = i.PreReceiveOrder.CustomerName;
+            //foreach(var i in inventoriesInDb)
+            //{
+            //    _ws.Cells[startIndex, 1] = i.Container;
+            //    _ws.Cells[startIndex, 2] = i.Style.Trim() + ":" + i.Color.Trim() + "-" + i.SizeBundle.Trim();
+            //    _ws.Cells[startIndex, 3] = i.AvailablePcs;
+            //    _ws.Cells[startIndex, 4] = i.PurchaseOrder;
+            //    _ws.Cells[startIndex, 5] = i.Location;
+            //    _ws.Cells[startIndex, 6] = i.PreReceiveOrder.CustomerName;
 
-                startIndex += 1;
-            }
+            //    startIndex += 1;
+            //}
 
             // 收尾功能2
             var skuList = new List<CombinedSKU>();
@@ -633,8 +634,9 @@ namespace ClothResorting.Helpers
                     });
                 }
             }
-            var group = inventories.GroupBy(x => new { x.Style, x.Color});
-
+            //var group = inventories.GroupBy(x => new { x.Style, x.Color});
+            var group = inventories.GroupBy(x => x.Style);
+            
             foreach (var g in group)
             {
                 var combinedSKU = string.Empty;
@@ -650,7 +652,8 @@ namespace ClothResorting.Helpers
                     Style = g.First().Style,
                     ColorCode = g.First().Color,
                     SKU = combinedSKU,
-                    CustomerName = g.First().CustomerCode
+                    CustomerCode = g.First().CustomerCode,
+                    CustomerName = g.First().Vendor
                 });
             }
 
@@ -662,10 +665,53 @@ namespace ClothResorting.Helpers
                 _ws2.Cells[startIndex, 2] = s.ColorCode;
                 _ws2.Cells[startIndex, 3] = s.SKU;
                 _ws2.Cells[startIndex, 4] = s.CustomerName;
+                _ws2.Cells[startIndex, 5] = s.CustomerCode;
                 startIndex += 1;
             }
 
             var fullPath = @"D:\InventoryReport\3PLTemplate-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
+        }
+
+        public string Clean3PLTemplate()
+        {
+            _ws = _wb.Worksheets[1];
+            var list = new List<CombinedSKU>();
+
+            //for(var i = 2; i <= 98529; i++)
+            for (var i = 2; i <= 10000; i++)
+            {
+                list.Add(new CombinedSKU { 
+                    Style = _ws.Cells[i, 1].Value2,
+                    ColorCode = _ws.Cells[i, 2].Value2,
+                    SKU = _ws.Cells[i, 3].Value2
+                });
+            }
+
+            _ws = _wb.Worksheets[2];
+
+            var index = 2;
+
+            var group = list.GroupBy(x => x.Style);
+
+            foreach(var g in group)
+            {
+                _ws.Cells[index, 1] = g.First().Style;
+                var sku = string.Empty;
+                foreach(var l in g)
+                {
+                    sku += l.ColorCode + "-" + l.SKU + "|";
+                }
+                _ws.Cells[index, 2] = sku.Substring(0, sku.Length - 1);
+                index += 1;
+            }
+
+            var fullPath = @"D:\InventoryReport\3PLSKUList-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -796,6 +842,8 @@ namespace ClothResorting.Helpers
         public string Style { get; set; }
 
         public string ColorCode { get; set; }
+
+        public string CustomerCode { get; set; }
 
         public string SKU { get; set; }
 
