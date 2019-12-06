@@ -93,7 +93,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 shipOrderInDb.ReadyTime = DateTime.Now;
                 shipOrderInDb.ReadyBy = _userName;
 
-                if ((shipOrderInDb.OrderType == FBAOrderType.Standard && shipOrderInDb.FBAPickDetails.Count > 0 && shipOrderInDb.FBAPickDetails.Sum(x => x.ActualPlts) == 0) && shipOrderInDb.OrderType != FBAOrderType.Adjustment)
+                if ((shipOrderInDb.OrderType == FBAOrderType.Standard && shipOrderInDb.FBAPickDetails.Count > 0 && shipOrderInDb.FBAPickDetails.Sum(x => x.ActualPlts) == 0))
                 {
                     throw new Exception("Cannot ready for now. The actual outbound plts of a standard ship order cannot be 0. Please go and adjust actual plts first.");
                 }

@@ -49,6 +49,7 @@
     <div style="margin-top:20px;margin-right:20px;text-align:right">
         <text>Start Date: </text><input id='input-date-start' type="date" style='width:170px' class='input-sm' /><br />
         <text>Close Date: </text><input id='input-date-close' type="date" style='width:170px;margin-top:20px' class='input-sm' /><br />
+        <text>是否包括未关闭订单账目: </text><input type="checkbox" id="cb-all" style='margin-top:20px' /><br />
         <button id="btn-download" class='btn btn-primary' style="margin-top:20px;margin-right:20px;text-align:right">导出收费报表</button>
     </div>
 </div>
@@ -309,9 +310,10 @@
             $("#btn-download").on("click", function () {
                 var startDate = $("#input-date-start").val();
                 var closeDate = $("#input-date-close").val();
+                var ifShowUnclosed = $("#cb-all").is(':checked');
 
                 if (startDate != "" && closeDate != "") {
-                    url = "/api/fba/fbaindex/?customerId=" + customerId + "&startDate=" + startDate + "&closeDate=" + closeDate;
+                    url = "/api/fba/fbaindex/?customerId=" + customerId + "&startDate=" + startDate + "&closeDate=" + closeDate + "&ifShowUnclosed=" + ifShowUnclosed;
 
                     $.ajax({
                         type: "GET",

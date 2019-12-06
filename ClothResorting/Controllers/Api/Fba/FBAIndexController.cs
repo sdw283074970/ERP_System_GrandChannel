@@ -131,7 +131,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/fbaindex/?customerId={customerId}&startDate={startDate}&closeDate={closeDate}
         [HttpGet]
-        public IHttpActionResult GetExportedFilePath([FromUri]int customerId, [FromUri]DateTime startDate, [FromUri]DateTime closeDate)
+        public IHttpActionResult GetExportedFilePath([FromUri]int customerId, [FromUri]DateTime startDate, [FromUri]DateTime closeDate, [FromUri]bool ifShowUnclosed)
         {
             var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
 
@@ -143,6 +143,14 @@ namespace ClothResorting.Controllers.Api.Fba
                 var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate);
 
                 var path = excelGenerator.GenerateExcelFileForAllCustomerAndReturnPath(info);
+
+                return Ok(path);
+            }
+            else if (ifShowUnclosed)
+            {
+                var info = excelGenerator.GetAllChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+
+                var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
 
                 return Ok(path);
             }

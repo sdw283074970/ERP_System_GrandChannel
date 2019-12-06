@@ -126,7 +126,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[startRow, 8 + i] = 0.0;
                 }
 
-                _ws.Cells[startRow, columnIndex] = r.First().DateOfClose.ToString("MM/dd/yyyy");
+                _ws.Cells[startRow, columnIndex] = r.First().DateOfClose.Year == 1900 ? "Open" : r.First().DateOfClose.ToString("MM/dd/yyyy");
                 _ws.Cells[startRow, columnIndex + 1] = r.Sum(x => x.Amount);
                 _ws.Cells[startRow, columnIndex + 2] = r.Sum(x => x.Cost);
 
@@ -381,6 +381,7 @@ namespace ClothResorting.Helpers.FBAHelper
             return info;
         }
 
+        // 不包括未关闭的订单
         public FBAInvoiceInfo GetChargingReportFormDateRangeAndCustomerId(int customerId, DateTime startDate, DateTime closeDate)
         {
             var customer = _context.UpperVendors.Find(customerId);
@@ -407,6 +408,77 @@ namespace ClothResorting.Helpers.FBAHelper
                 .ToList();
 
             foreach(var i in invoiceDetails)
+            {
+                var newInvoiceDetail = new InvoiceReportDetail
+                {
+                    Cost = i.Cost,
+                    InvoiceType = i.InvoiceType,
+                    Activity = i.Activity,
+                    ChargingType = i.ChargingType,
+                    Unit = i.Unit,
+                    Quantity = i.Quantity,
+                    Rate = i.Rate,
+                    Amount = i.Amount,
+                    DateOfCost = i.DateOfCost,
+                    Memo = i.Memo
+                };
+
+                if (i.FBAMasterOrder == null)
+                {
+                    newInvoiceDetail.GrandNumber = "N/A";
+                    newInvoiceDetail.Reference = i.FBAShipOrder.ShipOrderNumber;
+                    newInvoiceDetail.Destination = i.FBAShipOrder.Destination;
+                    newInvoiceDetail.SubCustomer = i.FBAShipOrder.SubCustomer;
+                    newInvoiceDetail.ActualCtnsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
+                    newInvoiceDetail.ActualPltsInThisOrder = i.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualPlts);
+                    newInvoiceDetail.DateOfClose = i.FBAShipOrder.CloseDate;
+                }
+                else if (i.FBAShipOrder == null)
+                {
+                    newInvoiceDetail.GrandNumber = i.FBAMasterOrder.GrandNumber;
+                    newInvoiceDetail.Reference = i.FBAMasterOrder.Container;
+                    newInvoiceDetail.SubCustomer = i.FBAMasterOrder.SubCustomer;
+                    newInvoiceDetail.Destination = " ";
+                    newInvoiceDetail.ActualCtnsInThisOrder = i.FBAMasterOrder.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                    newInvoiceDetail.ActualPltsInThisOrder = i.FBAMasterOrder.FBAPallets.Sum(x => x.ActualPallets);
+                    newInvoiceDetail.DateOfClose = i.FBAMasterOrder.CloseDate;
+                }
+
+                invoiceReportList.Add(newInvoiceDetail);
+            }
+
+            info.InvoiceReportDetails = invoiceReportList;
+
+            return info;
+        }
+
+        // 包括未关闭的订单
+        public FBAInvoiceInfo GetAllChargingReportFormDateRangeAndCustomerId(int customerId, DateTime startDate, DateTime closeDate)
+        {
+            var customer = _context.UpperVendors.Find(customerId);
+
+            var invoiceReportList = new List<InvoiceReportDetail>();
+
+            var info = new FBAInvoiceInfo
+            {
+                FromDate = startDate,
+                ToDate = closeDate,
+                CustomerCode = customer.CustomerCode
+            };
+
+            closeDate = closeDate.AddDays(1);
+
+            var invoiceDetails = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder.Customer)
+                .Include(x => x.FBAMasterOrder.FBAOrderDetails)
+                .Include(x => x.FBAMasterOrder.FBAPallets)
+                .Include(x => x.FBAShipOrder.FBAPickDetails)
+                .Where(x => x.FBAMasterOrder.Customer.Id == customerId || x.FBAShipOrder.CustomerCode == customer.CustomerCode)
+                .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate) || x.FBAMasterOrder.CloseDate.Year == 1900 : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate) || x.FBAShipOrder.CloseDate.Year == 1900)
+                //.Where(x => x.DateOfCost >= startDate && x.DateOfCost <= closeDate)
+                .ToList();
+
+            foreach (var i in invoiceDetails)
             {
                 var newInvoiceDetail = new InvoiceReportDetail
                 {

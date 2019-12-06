@@ -193,7 +193,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fbamasterorder/?masterOrderId={masterOrderId}&operation={operation}
         [HttpGet]
-        public IHttpActionResult GetUnloadWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
+        public IHttpActionResult GetInfo([FromUri]int masterOrderId, [FromUri]string operation)
         {
             var masterOrderInDb = _context.FBAMasterOrders
                 .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
@@ -265,7 +265,6 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Ok(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(_context.FBAMasterOrders.Find(masterOrderId)));
             }
 
-
             return Ok();
         }
 
@@ -284,6 +283,49 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return Ok();
+        }
+
+        // POST /api/fbamasterorder/?masterOrderId={masterOrderId}
+        [HttpPost]
+        public IHttpActionResult UpdateMasterOrderById([FromUri]int masterOrderId, [FromBody]FBAMasterOrder obj)
+        {
+            if (Checker.CheckString(obj.Container))
+            {
+                throw new Exception("Container number cannot contain space.");
+            }
+
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            var currentContainer = masterOrderInDb.Container;
+
+            if (currentContainer != obj.Container && _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Container) != null)
+            {
+                throw new Exception("Contianer Number " + obj.Container + " has been taken. Please delete the existed order and try agian.");
+            }
+
+            masterOrderInDb.Carrier = obj.Carrier;
+            masterOrderInDb.Vessel = obj.Vessel;
+            masterOrderInDb.Voy = obj.Voy;
+            masterOrderInDb.ETA = obj.ETA;
+            masterOrderInDb.SubCustomer = obj.SubCustomer;
+            masterOrderInDb.UnloadingType = obj.UnloadingType;
+            masterOrderInDb.StorageType = obj.StorageType;
+            masterOrderInDb.Palletizing = obj.Palletizing;
+            masterOrderInDb.ETAPort = obj.ETAPort;
+            masterOrderInDb.PlaceOfReceipt = obj.PlaceOfReceipt;
+            masterOrderInDb.PortOfLoading = obj.PortOfLoading;
+            masterOrderInDb.PortOfDischarge = obj.PortOfDischarge;
+            masterOrderInDb.PlaceOfDelivery = obj.PlaceOfDelivery;
+            masterOrderInDb.Container = obj.Container;
+            masterOrderInDb.OriginalPlts = obj.OriginalPlts;
+            masterOrderInDb.SealNumber = obj.SealNumber;
+            masterOrderInDb.InboundType = obj.InboundType;
+            masterOrderInDb.ContainerSize = obj.ContainerSize;
+            masterOrderInDb.Instruction = obj.Instruction;
+
+            _context.SaveChanges();
+
+            return Ok(masterOrderInDb);
         }
 
         // POST /api/fba/fbamasterorder/?masterOrderId={masterOrderId}&comment={comment}&operation={operation}
