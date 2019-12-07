@@ -168,10 +168,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPost]
         public async Task<IHttpActionResult> CreateNewShipOrder([FromBody]ShipOrderDto obj)
         {
-            if (Checker.CheckString(obj.ShipOrderNumber))
-            {
-                throw new Exception("Container number cannot contain space.");
-            }
+            obj.ShipOrderNumber = obj.ShipOrderNumber.Trim();
 
             if (_context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.ShipOrderNumber) != null)
             {
@@ -269,10 +266,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public async Task<IHttpActionResult> UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
         {
-            if (Checker.CheckString(obj.ShipOrderNumber))
-            {
-                throw new Exception("Container number cannot contain space.");
-            }
+            obj.ShipOrderNumber = obj.ShipOrderNumber.Trim();
 
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
             var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);

@@ -95,6 +95,38 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(_context.FBAOrderDetails.Find(orderDetailId)));
         }
 
+        // POST /api/fbva/FBAOrderDetail/?masterOrderId={masterOrderId}&operation=Add
+        [HttpPost]
+        public async Task<IHttpActionResult> AddNewSKUByMasterOrderId([FromUri]int masterOrderId, [FromBody]ManifestItem item)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            var newItem = new FBAOrderDetail
+            {
+                ShipmentId = item.ShipmentId,
+                Barcode = item.Barcode,
+                Container = masterOrderInDb.Container,
+                AmzRefId = item.AmzRefId,
+                WarehouseCode = item.WarehouseCode,
+                HowToDeliver = item.Deliver,
+                GrossWeight = item.GrossWeight,
+                CBM = item.CBM,
+                Quantity = item.Quantity,
+                Remark = item.Remark,
+                FBAMasterOrder = masterOrderInDb,
+                GrandNumber = masterOrderInDb.GrandNumber
+            };
+
+            _context.FBAOrderDetails.Add(newItem);
+            _context.SaveChanges();
+
+            var resultDto = Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(_context.FBAOrderDetails.OrderByDescending(x => x.Id).First());
+
+            await _logger.AddCreatedLogAsync<FBAOrderDetail>(null, resultDto, "Added a new manifest item", null, OperationLevel.Normal);
+
+            return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
+        }
+
         // POST /api/fbva/FBAOrderDetail/?grandNumber={grandNumber}&operation=Add
         [HttpPost]
         public async Task<IHttpActionResult> CreateNewManifestItem([FromUri]string grandNumber, [FromUri]string operation, [FromBody]ManifestItem item)
@@ -182,10 +214,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateReceiving([FromUri]string grandNumber, [FromUri]DateTime inboundDate, [FromUri]string container)
         {
-            if (Checker.CheckString(container))
-            {
-                throw new Exception("Container number cannot contain space.");
-            }
+            container = container.Trim();
 
             var orderDetailsInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)

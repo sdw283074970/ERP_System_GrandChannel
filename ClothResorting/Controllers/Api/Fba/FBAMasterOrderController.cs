@@ -289,10 +289,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPost]
         public IHttpActionResult UpdateMasterOrderById([FromUri]int masterOrderId, [FromBody]FBAMasterOrder obj)
         {
-            if (Checker.CheckString(obj.Container))
-            {
-                throw new Exception("Container number cannot contain space.");
-            }
+            obj.Container = obj.Container.Trim();
 
             var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
 
@@ -366,10 +363,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPost]
         public IHttpActionResult CreateMasterOrder([FromBody]FBAMasterOrder obj, [FromUri]int id)
         {
-            if (Checker.CheckString(obj.Container))
-            {
-                throw new Exception("Container number cannot contain space.");
-            }
+            obj.Container = obj.Container.Trim();
 
             if (_context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Container) != null)
             {
@@ -417,10 +411,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateMasterOrderInfo([FromUri]int masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
         {
-            if (Checker.CheckString(container))
-            {
-                throw new Exception("Container number cannot contain space.");
-            }
+            container = container.Trim();
 
             var inboundDateTime = new DateTime();
             inboundDateTime = ParseStringToDateTime(inboundDateTime, inboundDate);
@@ -539,10 +530,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void UpdateMasterOrder([FromUri]string grandNumber, [FromBody]FBAMasterOrder obj)
         {
-            if (Checker.CheckString(obj.Container))
-            {
-                throw new Exception("Container number cannot contain space.");
-            }
+            obj.Container = obj.Container.Trim();
 
             var masterOrderInDb = _context.FBAMasterOrders
                 .SingleOrDefault(x => x.GrandNumber == grandNumber);
