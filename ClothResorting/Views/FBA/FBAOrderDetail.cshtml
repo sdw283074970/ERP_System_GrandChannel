@@ -183,6 +183,7 @@
                     "actualQuantity": actualQuantity,
                     "comment": comment
                 }
+                url = "/api/fba/FBAOrderDetail/?orderDetailId=" + orderDetailId + "&operation=Adjust";
 
                 SendAjaxMethod("PUT", url, obj);
             });

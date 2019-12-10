@@ -24,5 +24,7 @@ namespace ClothResorting.Dtos.Fba
 
         public int ComsumedQuantity { get; set; }
 
+        public int LabelFileNumbers { get; set; }
+
     }
 }

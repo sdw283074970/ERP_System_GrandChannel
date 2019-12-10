@@ -179,35 +179,51 @@ namespace ClothResorting.Controllers.Api.Fba
             killer.Dispose();
         }
 
-        // PUT /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}
+        // PUT /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}?operation={operation}
         [HttpPut]
-        public void UpdateInfo([FromUri]int orderDetailId, [FromBody]BaseFBAOrderDetail obj)
+        public IHttpActionResult UpdateInfo([FromUri]int orderDetailId, [FromUri]string operation, [FromBody]FBAOrderDetail obj)
         {
             var orderDetailInDb = _context.FBAOrderDetails
                 .Include(x => x.FBAMasterOrder)
                 .SingleOrDefault(x => x.Id == orderDetailId);
 
-            //如果该主单还未被确认收货（没有收货日期），则禁止单个调节
-            if (orderDetailInDb.FBAMasterOrder.InboundDate.Year == 1900)
+            // TO DO: 等办公室不再用旧UI操作后，这里的else中部分可以简化
+            if (operation == "Edit")
             {
-                throw new Exception("Cannot update info because this master order is unreceived yet.");
+                orderDetailInDb.ShipmentId = obj.ShipmentId;
+                orderDetailInDb.AmzRefId = obj.AmzRefId;
+                orderDetailInDb.WarehouseCode = obj.WarehouseCode;
+                orderDetailInDb.HowToDeliver = obj.HowToDeliver;
+                orderDetailInDb.GrossWeight = obj.GrossWeight;
+                orderDetailInDb.Barcode = obj.Barcode;
+                orderDetailInDb.CBM = obj.CBM;
+                orderDetailInDb.Quantity = obj.Quantity;
+                orderDetailInDb.Remark = obj.Remark;
             }
-
-            //如果该detail被分配，则禁止更改实收数据
-            if (orderDetailInDb.ComsumedQuantity != 0)
+            else
             {
-                throw new Exception("Cannot update info because this item has been comsumed.");
-            }
+                //如果该主单还未被确认收货（没有收货日期），则禁止单个调节
+                if (orderDetailInDb.FBAMasterOrder.InboundDate.Year == 1900)
+                {
+                    throw new Exception("Cannot update info because this master order is unreceived yet.");
+                }
 
-            orderDetailInDb.ActualQuantity = obj.ActualQuantity;
-            
-            orderDetailInDb.ActualGrossWeight = obj.ActualGrossWeight;
-            
-            orderDetailInDb.ActualCBM = obj.ActualCBM;
-            
-            orderDetailInDb.Comment = obj.Comment;
+                //如果该detail被分配，则禁止更改实收数据
+                if (orderDetailInDb.ComsumedQuantity != 0)
+                {
+                    throw new Exception("Cannot update info because this item has been comsumed.");
+                }
+
+                orderDetailInDb.ActualQuantity = obj.ActualQuantity;
+                orderDetailInDb.ActualGrossWeight = obj.ActualGrossWeight;
+                orderDetailInDb.ActualCBM = obj.ActualCBM;
+                orderDetailInDb.Comment = obj.Comment;
+                orderDetailInDb.Remark = obj.Remark;
+            }
 
             _context.SaveChanges();
+            return Ok(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(orderDetailInDb));
+
         }
 
         // PUT /api/fba/FBAOrderDetail/?grandNumber={grandNumber}&inboundDate={inboundDate}&container={container}
@@ -295,7 +311,6 @@ namespace ClothResorting.Controllers.Api.Fba
 
             _context.SaveChanges();
         }
-
 
         // DELETE /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}
         [HttpDelete]

@@ -1,0 +1,18 @@
+namespace ClothResorting.Migrations
+{
+    using System;
+    using System.Data.Entity.Migrations;
+    
+    public partial class AddedLabelFilesInFBAOrderDetail : DbMigration
+    {
+        public override void Up()
+        {
+            AddColumn("dbo.FBAOrderDetails", "LabelFiles", c => c.String());
+        }
+        
+        public override void Down()
+        {
+            DropColumn("dbo.FBAOrderDetails", "LabelFiles");
+        }
+    }
+}

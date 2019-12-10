@@ -24,6 +24,8 @@ namespace ClothResorting.Models.FBAModels
 
         public int ComsumedQuantity { get; set; }
 
+        public string LabelFiles { get; set; }
+
         public FBAMasterOrder FBAMasterOrder { get; set; }
 
         public ICollection<FBACartonLocation> FBACartonLocations { get; set; }
@@ -37,6 +39,7 @@ namespace ClothResorting.Models.FBAModels
             Quantity = 0;
             Remark = string.Empty;
             ComsumedQuantity = 0;
+            LabelFiles = "[]";
         }
 
         public void AssembleSecontStringPart(string lotSize, string howToDeliver, string remark)
@@ -52,5 +55,16 @@ namespace ClothResorting.Models.FBAModels
             CBM = cbm;
             Quantity = quantity;
         }
+    }
+
+    public class LabelFile
+    {
+        public string OriginalName { get; set; }
+
+        public string NameInSystem { get; set; }
+
+        public string RootPath { get; set; }
+
+        public DateTime UploadDate { get; set; }
     }
 }
