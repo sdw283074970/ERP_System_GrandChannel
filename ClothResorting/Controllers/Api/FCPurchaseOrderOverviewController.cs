@@ -73,7 +73,7 @@ namespace ClothResorting.Controllers.Api
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            var fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
 
             if (fileSavePath == "")
             {

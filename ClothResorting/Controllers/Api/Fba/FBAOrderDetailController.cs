@@ -15,6 +15,7 @@ using ClothResorting.Models.FBAModels.BaseClass;
 using ClothResorting.Models.FBAModels.StaticModels;
 using System.Threading.Tasks;
 using ClothResorting.Models.StaticClass;
+using Newtonsoft.Json;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -57,7 +58,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBACartonLocations)
                 .Where(x => x.GrandNumber == grandNumber);
 
-            foreach(var o in orderDetailsInDb)
+            foreach (var o in orderDetailsInDb)
             {
                 if (o.FBACartonLocations.Count != 0)
                     o.Status = "Locked";
@@ -93,6 +94,22 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult GetOrderDetail([FromUri]int orderDetailId)
         {
             return Ok(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>(_context.FBAOrderDetails.Find(orderDetailId)));
+        }
+
+        // GET /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}&operation={operation}
+        [HttpGet]
+        public IHttpActionResult GetOrderDetailLabelFileList([FromUri]int orderDetailId, [FromUri]string operation)
+        {
+            var orderDetailInDb = _context.FBAOrderDetails.SingleOrDefault(x => x.Id == orderDetailId);
+
+            if (operation == "Labels")
+            {
+                var list = DeserializeLabelFilesString(orderDetailInDb.LabelFiles);
+
+                return Ok(list);
+            }
+
+            return Ok("No operation applied.");
         }
 
         // POST /api/fbva/FBAOrderDetail/?masterOrderId={masterOrderId}&operation=Add
@@ -158,14 +175,14 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
         }
 
-        // POST /api/fbva/FBAOrderDetail/?grandNumber={grandNumber}
+        // POST /api/fba/FBAOrderDetail/?grandNumber={grandNumber}
         [HttpPost]
         public void UploadFBATemplate([FromUri]string grandNumber)
         {
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            var fileSavePath = filesGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
 
             if (fileSavePath == "")
             {
@@ -177,6 +194,42 @@ namespace ClothResorting.Controllers.Api.Fba
 
             excel.ExtractFBAPackingListTemplate(grandNumber);
             killer.Dispose();
+        }
+
+        // POST /api/fba/FBAOrderDetail/?orderDetailIn={orderDetailId}
+        [HttpPost]
+        public IHttpActionResult UploadLabelFiles([FromUri]int orderDetailId)
+        {
+            // 将label文件反序列化，添加新的label文件，再序列化
+            var orderDetailInDb = _context.FBAOrderDetails.Find(orderDetailId);
+            var deList = DeserializeLabelFilesString(orderDetailInDb.LabelFiles);
+            var list = new List<LabelFile>();
+            list.AddRange(deList);
+
+            //从httpRequest中获取文件并写入磁盘系统
+            var filesGetter = new FilesGetter();
+            var filePathList = filesGetter.GetAndSaveMultipleFileFromHttpRequest(@"D:\Labels\");
+
+            if (filePathList.ToList().Count == 0)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            foreach (var f in filePathList)
+            {
+                var labelFile = new LabelFile();
+                labelFile.NameInSystem = f.Split('\\').Last();
+                labelFile.OriginalName = labelFile.NameInSystem.Split('-').Last();
+                labelFile.RootPath = f;
+                labelFile.UploadDate = DateTime.Now;
+
+                list.Add(labelFile);
+            }
+
+            orderDetailInDb.LabelFiles = SerializeLabelFiles(list);
+
+            _context.SaveChanges();
+            return Ok(new { OrderDetailId = orderDetailId, list.Count });
         }
 
         // PUT /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}?operation={operation}
@@ -314,7 +367,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // DELETE /api/fba/FBAOrderDetail/?orderDetailId={orderDetailId}
         [HttpDelete]
-        public async Task  RemoveOrderDetail([FromUri]int orderDetailId)
+        public async Task RemoveOrderDetail([FromUri]int orderDetailId)
         {
             var orderDetailInDb = _context.FBAOrderDetails
                 .SingleOrDefault(x => x.Id == orderDetailId);
@@ -325,6 +378,36 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddDeletedLogAsync<FBAOrderDetail>(dto, "Deleted an order detail(manifest item)", null, OperationLevel.Mediunm);
 
             _context.SaveChanges();
+        }
+
+        // DELETE /api/FBAOrderDetail/?orderDetailId={orDerDetailId}&fileName={fileName}
+        [HttpDelete]
+        public void DeleteLabelFile([FromUri]int orderDetailId, [FromUri]string fileName)
+        {
+            var orderDetailInDb = _context.FBAOrderDetails.Find(orderDetailId);
+
+            var list = DeserializeLabelFilesString(orderDetailInDb.LabelFiles);
+            list.Remove(list.SingleOrDefault(x => x.NameInSystem == fileName));
+            orderDetailInDb.LabelFiles = SerializeLabelFiles(list);
+
+            _context.SaveChanges();
+        }
+
+        private List<LabelFile> DeserializeLabelFilesString(string js)
+        {
+            if (js == null)
+                return null;
+
+            return JsonConvert.DeserializeObject<List<LabelFile>>(js);
+        }
+
+        private string SerializeLabelFiles(List<LabelFile> list)
+        {
+            if (list == null)
+                return "[]";
+
+            return JsonConvert.SerializeObject(list);
+
         }
     }
 

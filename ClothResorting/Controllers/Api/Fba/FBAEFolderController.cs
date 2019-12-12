@@ -68,7 +68,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var fileGetter = new FilesGetter();
 
-            var path = fileGetter.GetAndSaveFileFromHttpRequest(@"D:\eFolder\");
+            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\eFolder\");
 
             var newFileRecord = new EFile();
 

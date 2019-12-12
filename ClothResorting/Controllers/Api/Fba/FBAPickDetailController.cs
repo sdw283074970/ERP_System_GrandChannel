@@ -316,7 +316,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var fileGetter = new FilesGetter();
 
-            var path = fileGetter.GetAndSaveFileFromHttpRequest(@"D:\TempFiles\");
+            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
 
             if (path == "")
             {
