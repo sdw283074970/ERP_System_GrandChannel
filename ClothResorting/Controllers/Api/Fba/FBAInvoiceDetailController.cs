@@ -262,6 +262,37 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(invoiceDetailDto);
         }
 
+        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}
+        public IHttpActionResult CreateInstructionByCustomer([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
+        {
+            var instruction = new ChargingItemDetail
+            {
+                CreateBy = _userName,
+                Description = description,
+                CreateDate = DateTime.Now,
+                HandlingStatus = "Draft",
+                Status = "TBD"
+            };
+
+            if (invoiceType == FBAOrderType.MasterOrder)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == reference);
+                instruction.FBAMasterOrder = masterOrderInDb;
+            }
+            else
+            {
+                var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference);
+                instruction.FBAShipOrder = shipOrderInDb;
+            }
+
+            _context.ChargingItemDetails.Add(instruction);
+            _context.SaveChanges();
+
+            var id = _context.ChargingItemDetails.OrderByDescending(x => x.Id).First().Id;
+
+            return Created(Request.RequestUri, new { Id = id, Description = description, HandlingStatus = "Draft" });
+        }
+
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}&isChargingIte{isChargingItem}
         [HttpPost]
         public IHttpActionResult CreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description, [FromUri]bool isChargingItem, [FromBody]ObjectBody obj)
@@ -392,6 +423,24 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/", Mapper.Map<InvoiceDetail, InvoiceDetailDto>(invoice));
+        }
+
+        // PUT /api/fba/FBAInvoiceDetail/?chargingItemDetailId={chargingItemDetailId}&description={description}
+        [HttpPut]
+        public IHttpActionResult UpdateInstructionByCustomer([FromUri]int chargingItemDetailId, [FromUri]string description)
+        {
+            var item = _context.ChargingItemDetails.Find(chargingItemDetailId);
+
+            if (item.HandlingStatus != "Draft")
+            {
+                throw new Exception("Cannot edit a instruction that status is not Draft.");
+            }
+
+            item.Description = description;
+
+            _context.SaveChanges();
+
+            return Ok(new { item.Id, item.Description, item.HandlingStatus });
         }
 
         // PUT /api/fba/fbainvoicedetail/?chargingItemDetailId={chargingItemDetailId}

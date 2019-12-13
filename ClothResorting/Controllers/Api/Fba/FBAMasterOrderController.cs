@@ -522,6 +522,13 @@ namespace ClothResorting.Controllers.Api.Fba
                         break;
                 }
             }
+            else if (operation == "Submit")
+            {
+                if (masterOrderInDb.Status == FBAStatus.NewCreated)
+                    masterOrderInDb.Status = FBAStatus.Draft;
+                else
+                    throw new Exception("Cannot submit a order that status is not new created.");
+            }
 
             _context.SaveChanges();
         }

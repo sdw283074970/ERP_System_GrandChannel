@@ -9,6 +9,8 @@ namespace ClothResorting.Models.FBAModels.StaticModels
     {
         public const string Valid = "Valid";
 
+        public const string Draft = "Draft";
+
         public const string Invalid = "Invalid";
 
         public const string Updated = "Updated";

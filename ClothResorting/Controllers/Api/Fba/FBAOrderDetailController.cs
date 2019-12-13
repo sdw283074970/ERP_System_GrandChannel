@@ -16,6 +16,7 @@ using ClothResorting.Models.FBAModels.StaticModels;
 using System.Threading.Tasks;
 using ClothResorting.Models.StaticClass;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -389,6 +390,17 @@ namespace ClothResorting.Controllers.Api.Fba
             var list = DeserializeLabelFilesString(orderDetailInDb.LabelFiles);
             list.Remove(list.SingleOrDefault(x => x.NameInSystem == fileName));
             orderDetailInDb.LabelFiles = SerializeLabelFiles(list);
+
+            var filePath = Path.GetFullPath(@"D:\Labels\" + fileName);
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch(Exception e)
+            {
+                _context.SaveChanges();
+                throw new Exception("File Doesn't exist in the server");
+            }
 
             _context.SaveChanges();
         }
