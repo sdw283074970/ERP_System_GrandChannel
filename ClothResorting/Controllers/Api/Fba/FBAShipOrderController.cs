@@ -262,6 +262,22 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
+        [HttpPut]
+        public void FinishPicking([FromUri] int shipOrderId, [FromUri]string operation)
+        {
+            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+
+            if (operation == "Submit")
+            {
+                if (shipOrderInDb.Status == FBAStatus.NewCreated || shipOrderInDb.Status == FBAStatus.Picking)
+                    shipOrderInDb.Status = FBAStatus.Draft;
+
+            }
+
+            _context.SaveChanges();
+        }
+
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpPut]
         public async Task<IHttpActionResult> UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
@@ -542,18 +558,6 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
-        //[HttpPut]
-        //public void FinishPicking([FromUri] int shipOrderId)
-        //{
-        //    var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
-
-        //    if (shipOrderInDb.Status == FBAStatus.NewCreated)
-        //        shipOrderInDb.Status = FBAStatus.Picking;
-
-        //    _context.SaveChanges();
-        //}
-
         // DELETE /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpDelete]
         public async Task DeleteShipOrder([FromUri]int shipOrderId)
@@ -718,6 +722,13 @@ namespace ClothResorting.Controllers.Api.Fba
                         }
                     }
 
+                    ifCanPush = CheckIfTranslateAllCustomerInstructions(shipOrderInDb);
+
+                    if (!ifCanPush)
+                    {
+                        throw new Exception("Must translate all customer's instruction before push");
+                    }
+
                     shipOrderInDb.Status = FBAStatus.NewOrder;
                     shipOrderInDb.PlacedBy = _userName;
                     shipOrderInDb.PlaceTime = operationDate;
@@ -782,17 +793,10 @@ namespace ClothResorting.Controllers.Api.Fba
             //当操作类型为逆向转换订单状态时
             else if (operation == FBAOperation.ReverseStatus)
             {
-                if (shipOrderInDb.Status == FBAStatus.Picking)
+                if (shipOrderInDb.Status == FBAStatus.Picking || shipOrderInDb.Status == FBAStatus.Draft)
                 {
-                    if (shipOrderInDb.FBAPickDetails.Count != 0)
-                    {
-                        throw new Exception("Cannot reverse status because the pick details is not empty.");
-                    }
-                    else
-                    {
-                        shipOrderInDb.Status = FBAStatus.NewCreated;
-                        shipOrderInDb.OperationLog = "Revert by " + _userName;
-                    }
+                    shipOrderInDb.Status = FBAStatus.NewCreated;
+                    shipOrderInDb.OperationLog = "Revert by " + _userName;
                 }
                 else if (shipOrderInDb.Status == FBAStatus.NewOrder || shipOrderInDb.Status == FBAStatus.ReturnedOrder)
                 {
@@ -1009,7 +1013,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return result;
         }
 
-        //统计库存剩余箱数
+        // 统计库存剩余箱数
         private bool CheckIfCanPushOrder(string customerCode)
         {
             var warningQuantityLevel = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).WarningQuantityLevel;
@@ -1024,7 +1028,18 @@ namespace ClothResorting.Controllers.Api.Fba
             return availableCnts <= warningQuantityLevel ? false : true;
         }
 
-        //检测当前用户是否拥有财务权限
+        // 检查是否完全翻译/转换客户指令
+        private bool CheckIfTranslateAllCustomerInstructions(FBAShipOrder shipOrderInDb)
+        {
+            var instructions = shipOrderInDb.ChargingItemDetails;
+
+            if (instructions.Where(x => x.HandlingStatus == FBAStatus.Draft).Count() > 0)
+                return false;
+            else
+                return true;
+        }
+
+        // 检测当前用户是否拥有财务权限
         private bool CheckIfCurrentUserIsT5()
         {
             return HttpContext.Current.User.IsInRole(RoleName.CanOperateAsT5);

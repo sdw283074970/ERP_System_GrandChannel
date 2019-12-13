@@ -84,7 +84,6 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[startRow, 4] = c.ActualQuantity;
                     startRow += 1;
                 }
-
             }
 
             //写入未打托的SKU

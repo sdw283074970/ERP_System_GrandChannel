@@ -23,7 +23,7 @@ namespace ClothResorting.Controllers.Api
         {
             var list = new List<string>();
 
-            var vendors = _context.UpperVendors.Where(x => x.DepartmentCode == departmentCode);
+            var vendors = _context.UpperVendors.Where(x => x.DepartmentCode == departmentCode).OrderBy(x => x.CustomerCode);
 
             if (departmentCode == "CD")
             {

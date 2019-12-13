@@ -24,7 +24,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetAllAddress()
         {
-            return Ok(Mapper.Map<IEnumerable<FBAAddressBook>, IEnumerable<FBAAddressBookDto>>(_context.FBAAddressBooks.ToList()));
+            return Ok(Mapper.Map<IEnumerable<FBAAddressBook>, IEnumerable<FBAAddressBookDto>>(_context.FBAAddressBooks.ToList().OrderBy(x => x.WarehouseCode)));
         }
 
         // GET /api/fba/fbaaddressmanagement/{id}
