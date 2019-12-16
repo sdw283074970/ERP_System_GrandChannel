@@ -68,10 +68,39 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/fbashiporder/?customerId={customerId}
         [HttpGet]
-        public IHttpActionResult GetFBAShipOrderByCustomer([FromUri]int customerId)
+        public IHttpActionResult GetFBAShipOrderByCustomerId([FromUri]int customerId)
         {
             var customerCode = _context.UpperVendors.Find(customerId).CustomerCode;
 
+            var shipOrders = _context.FBAShipOrders
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAPickDetails)
+                .Where(x => x.CustomerCode == customerCode)
+                .ToList();
+
+            foreach (var s in shipOrders)
+            {
+                s.TotalAmount = (float)s.InvoiceDetails.Sum(x => x.Amount);
+                s.TotalCost = (float)s.InvoiceDetails.Sum(x => x.Cost);
+                s.TotalCtns = s.FBAPickDetails.Sum(x => x.ActualQuantity);
+                s.TotalPlts = s.FBAPickDetails.Sum(x => x.ActualPlts);
+                s.ETSTimeRange = s.ETS.ToString("yyyy-MM-dd") + " " + s.ETSTimeRange;
+            }
+
+            var dto = Mapper.Map<IEnumerable<FBAShipOrder>, IEnumerable<FBAShipOrderDto>>(shipOrders);
+
+            foreach (var d in dto)
+            {
+                d.Net = d.TotalAmount - d.TotalCost;
+            }
+
+            return Ok(dto);
+        }
+
+        // GET /api/fba/fbashiporder/?customerId={customerId}
+        [HttpGet]
+        public IHttpActionResult GetFBAShipOrderByCustomerCode([FromUri]string customerCode)
+        {
             var shipOrders = _context.FBAShipOrders
                 .Include(x => x.InvoiceDetails)
                 .Include(x => x.FBAPickDetails)
@@ -708,8 +737,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.ReleasedDate = operationDate;
                     shipOrderInDb.OperationLog = "Ready By " + _userName;
                 }
-                //如果订单为在拣状态，则转换为给仓库的新订单状态
-                else if (shipOrderInDb.Status == FBAStatus.Picking)
+                //如果订单为在拣状态或Draft状态，则转换为给仓库的新订单状态
+                else if (shipOrderInDb.Status == FBAStatus.Picking || shipOrderInDb.Status == FBAStatus.Draft)
                 {
                     //检查是否允许被push到仓库端
                     var ifCanPush = CheckIfCanPushOrder(shipOrderInDb.CustomerCode);

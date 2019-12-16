@@ -266,7 +266,7 @@
                     data: "status",
                     render: function (data) {
                         status = data;
-                        if (data == "New Created")
+                        if (data == "New Created" || data == "Draft")
                             return "<font color='gray'>" + data + "</font>"
                         else if (data == "Picking")
                             return "<font color='vermilion'>" + data + "</font>";
@@ -380,7 +380,7 @@
                     render: function (data) {
                         if (status == "New Created")
                             return "<input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Release' />";
-                        else if (status == "Picking")
+                        else if (status == "Picking" || status == "Draft")
                             //return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
                             return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-wo' operation='push' iid='" + data + "' value='Push' />";
                         else if (status == "New Order" || status == "Returned Order")
@@ -1663,14 +1663,14 @@
                                 render: function (data) {
                                     if (data == "New")
                                         return "<font color='blue'>" + data + "</font>";
-                                    else if (data == "Pending")
+                                    else if (data == "Pending" || data == "Draft")
                                         return "<font color='red'>" + data + "</font>";
                                     else if (data == "Updated" || data == "Returned")
                                         return "<font color='Orange'>" + data + "</font>";
                                     else if (data == "Confirmed" || data == "Finished")
                                         return "<font color='green'>" + data + "</font>";
                                     else
-                                        return "<font>Invaild Date</font>"
+                                        return "<font>Invalid Date</font>"
                                 }
                             },
                             {

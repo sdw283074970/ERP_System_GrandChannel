@@ -1109,7 +1109,7 @@
                                     data: "status",
                                     render: function (data) {
                                         status = data;
-                                        if (data == "New Created")
+                                        if (data == "New Created" || data == "Draft")
                                             return "<font color='gray'>" + data + "</font>"
                                         if (data == "Incoming")
                                             return "<font color='orange'>" + data + "</font>"
@@ -1145,7 +1145,7 @@
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        if (status == "New Created")
+                                        if (status == "New Created" || status == "Draft")
                                             return "<input type='button' class='btn btn-link btn-wo-push' operation='push' iid='" + data + "' value='Push WO' />";
                                         else if (status == "Received" || status == "Registered" || status == "Completed")
                                             return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' />";
@@ -1417,7 +1417,7 @@
                                 render: function (data) {
                                     if (data == "New")
                                         return "<font color='blue'>" + data + "</font>";
-                                    else if (data == "Pending" || data == "Updated" || data == "Processing")
+                                    else if (data == "Pending" || data == "Updated" || data == "Processing" || data == "Draft")
                                         return "<font color='red'>" + data + "</font>";
                                     else if (data == "Finished" || data == "Confirmed")
                                         return "<font color='green'>" + data + "</font>";

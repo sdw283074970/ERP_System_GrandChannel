@@ -142,7 +142,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/fbamasterorder/{id}
         [HttpGet]
-        public IHttpActionResult GetMasterOrders([FromUri]int id)
+        public IHttpActionResult GetMasterOrdersByCustomerCode([FromUri]int id)
         {
             var masterOrders = _context.FBAMasterOrders
                 .Include(x => x.InvoiceDetails)
@@ -181,6 +181,43 @@ namespace ClothResorting.Controllers.Api.Fba
             //    CustomerCode = customerCode,
             //    FBAMasterOrderDtos = resultDto
             //};
+
+            return Ok(resultDto);
+        }
+
+        // GET /api/fba/fbamasterorder/{id}
+        [HttpGet]
+        public IHttpActionResult GetMasterOrders([FromUri]string customerCode)
+        {
+            var masterOrders = _context.FBAMasterOrders
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAOrderDetails)
+                .Include(x => x.Customer)
+                .Include(x => x.FBAPallets)
+                .Where(x => x.CustomerCode == customerCode && x.Status != "Old Order")
+                .ToList();
+
+            var skuList = new List<int>();
+
+            foreach (var m in masterOrders)
+            {
+                m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
+                m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
+                m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
+                m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
+                m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+                m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
+                m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
+                skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
+            }
+
+            var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
+
+            for (int i = 0; i < masterOrders.Count; i++)
+            {
+                resultDto[i].SKUNumber = skuList[i];
+                resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
+            }
 
             return Ok(resultDto);
         }

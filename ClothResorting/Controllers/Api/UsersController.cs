@@ -16,6 +16,8 @@ using System.Web.Security;
 using System.Security.Principal;
 using System.Threading;
 using System.Security.Claims;
+using System.Data.Entity;
+using ClothResorting.Models.StaticClass;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -78,7 +80,7 @@ namespace ClothResorting.Controllers.Api
 
                 //await SignInAsync(user, false);
                 //System.Diagnostics.Process.Start("https://localhost:44364/Account/Login");
-                return Ok(new { Code = 20000, Token = "admin-token" });
+                return Ok(new { Code = 20000, Token = user.Id });
             }
             else
             {
@@ -103,12 +105,42 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetUserInfo([FromUri]string token)
         {
-            return Ok(new { 
+            var user = _context.Users
+                .Include(x => x.Roles)
+                .Include(x => x.Vendors)
+                .SingleOrDefault(x => x.Id == token);
+
+            var roles = GetUserRoles(user);
+            var customerCode = "";
+
+            //检查是不是Customer账户，并检查是否这个customer账户拥有一个vendor账户
+            if (roles.First() == "Customer")
+            {
+                var vendors = _context.UpperVendors
+                    .Include(x => x.ApplicationUser)
+                    .Where(x => x.Status == Status.Active 
+                        && x.DepartmentCode == DepartmentCode.FBA 
+                        && x.ApplicationUser.Id == token);
+
+                //虽然理论上一个账户可以控制多个vendor账户，但是为了设计简单且轻量，强制人为规定一个账户只能有用一个vendor账户，多了就报错
+                if (vendors != null)
+                {
+                    if (vendors.Count() > 1)
+                        throw new System.Exception("检测到该账户上有多个Vendor账户，请联系技术人员解决");
+                    else
+                        customerCode = vendors.First().CustomerCode;
+                }
+            }
+
+            return Ok(new
+            {
                 Code = 20000,
-                Name = "Super Admin",
+                Name = user.Email,
+                CustomerCode = customerCode,
                 Avatar = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
-                Introduction = "I am a super administrator",
-                Roles = new string[] { "admin"} });
+                Introduction = "No introduction",
+                Roles = roles
+            });
         }
 
         // GET /api/users/
@@ -152,7 +184,7 @@ namespace ClothResorting.Controllers.Api
         public IHttpActionResult LogOut()
         {
             FormsAuthentication.SignOut();
-            return Ok(new { Code = 20000, Data = "success" });
+            return Ok(new { Code = 20000, Data = "Sing out success" });
         }
 
         // POST /api/users/?userId={userId}&roleId={roleId}
@@ -225,6 +257,38 @@ namespace ClothResorting.Controllers.Api
             //httpContext.Response.Cookies.Add(cookie);
 
             //httpContext.User = new GenericPrincipal(new FormsIdentity(ticket), new string[] { "admin" });
+        }
+
+        private string[] GetUserRoles(ApplicationUser user)
+        {
+            if (user.Roles.SingleOrDefault(x => x.RoleId == "4eb2760d-9486-490f-a95a-d7e99ac1257b") != null)
+            {
+                return new string[] { "Customer" };
+            }
+            else if (user.Roles.SingleOrDefault(x => x.RoleId == "fbbe09ed-8afe-430f-bd59-6295afa6c476") != null)
+            {
+                return new string[] { "Admin" };
+            }
+            else if (user.Roles.SingleOrDefault(x => x.RoleId == "a9751d35-1f00-42d0-8ca3-ba0e8d7ab6cb") != null)
+            {
+                return new string[] { "Accounting" };
+            }
+            else if (user.Roles.SingleOrDefault(x => x.RoleId == "d1934a07-751a-4387-9284-9be502ad4617") != null)
+            {
+                return new string[] { "Sales" };
+            }
+            else if (user.Roles.SingleOrDefault(x => x.RoleId == "f6e3dfd7-9a23-4825-a668-d4cbb8bbd64a") != null)
+            {
+                return new string[] { "Office" };
+            }
+            else if (user.Roles.SingleOrDefault(x => x.RoleId == "1dd0bf46-2297-496c-8e30-1e50befdcbf0") != null)
+            {
+                return new string[] { "Warehouse" };
+            }
+            else
+            {
+                return new string[] { "Guest" };
+            }
         }
     }
 }

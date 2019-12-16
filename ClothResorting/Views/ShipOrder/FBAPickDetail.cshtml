@@ -1081,7 +1081,7 @@
                 ]
                 GetAjaxTable("GET", url, "#table-pallet", tablePallet, palletsColumnArray);
 
-                url = "/api/fba/fbainventory/?shipOrderId=" + shipOrderId + "container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode + "&inventoryType=Carton";
+                url = "/api/fba/fbainventory/?shipOrderId=" + shipOrderId + "&container=" + container + "&sku=" + sku + "&amzRef=" + amzRef + "&warehouseCode=" + warehouseCode + "&inventoryType=Carton";
                 var availableCtns;
                 var cartonsColumnArray = [
                     {
