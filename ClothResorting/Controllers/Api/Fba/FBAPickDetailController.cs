@@ -519,12 +519,20 @@ namespace ClothResorting.Controllers.Api.Fba
 
             }
 
-            //如果捡完了托盘数量但是箱子还有剩余，则报错
+            // 如果捡完了托盘数量但是箱子还有剩余，则报错
             var availablePlts = fbaPalletLocationInDb.FBAPallet.FBAPalletLocations.Sum(x => x.AvailablePlts);
             var availableCtns = fbaPalletLocationInDb.FBAPallet.FBACartonLocations.Sum(x => x.AvailableCtns);
+
             if (availablePlts == 0 && availableCtns != 0)
             {
-                throw new Exception("Cannot pick because the pallets number of SKU " + fbaPalletLocationInDb.ShipmentId + "will be 0 after this pick but there are still many cartons inside. Please make sure there is no thing left before picking the last pallte.");
+                throw new Exception("Pick failed. The pallets number of SKU " + fbaPalletLocationInDb.ShipmentId + " will be 0 after this pick but there are still many cartons inside. Please make sure there is no thing left before picking the last pallte.");
+            }
+            // 如果托盘中的箱子捡完了但是托盘数没捡完，则自动把所有剩下的托盘数带上
+            else if (availableCtns == 0 && availablePlts != 0)
+            {
+                pickDetail.PltsFromInventory = availablePlts;
+                fbaPalletLocationInDb.PickingPlts += availablePlts;
+                fbaPalletLocationInDb.AvailablePlts = 0;
             }
 
             return pickDetail;
