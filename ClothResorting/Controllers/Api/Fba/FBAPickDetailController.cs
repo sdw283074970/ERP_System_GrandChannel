@@ -528,7 +528,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 throw new Exception("Pick failed. The pallets number of SKU " + fbaPalletLocationInDb.ShipmentId + " will be 0 after this pick but there are still many cartons inside. Please make sure there is no thing left before picking the last pallte.");
             }
             // 如果托盘中的箱子捡完了但是托盘数没捡完，则自动把所有剩下的托盘数带上
-            else if (availableCtns == 0 && availablePlts != 0)
+            
+            if (availableCtns == 0 && availablePlts != 0)
             {
                 pickDetail.PltsFromInventory = availablePlts;
                 fbaPalletLocationInDb.PickingPlts += availablePlts;

@@ -263,31 +263,31 @@ namespace ClothResorting.Controllers.Api
         {
             if (user.Roles.SingleOrDefault(x => x.RoleId == "4eb2760d-9486-490f-a95a-d7e99ac1257b") != null)
             {
-                return new string[] { "Customer" };
+                return new string[] { "customer" };
             }
             else if (user.Roles.SingleOrDefault(x => x.RoleId == "fbbe09ed-8afe-430f-bd59-6295afa6c476") != null)
             {
-                return new string[] { "Admin" };
+                return new string[] { "admin" };
             }
             else if (user.Roles.SingleOrDefault(x => x.RoleId == "a9751d35-1f00-42d0-8ca3-ba0e8d7ab6cb") != null)
             {
-                return new string[] { "Accounting" };
+                return new string[] { "accounting" };
             }
             else if (user.Roles.SingleOrDefault(x => x.RoleId == "d1934a07-751a-4387-9284-9be502ad4617") != null)
             {
-                return new string[] { "Sales" };
+                return new string[] { "sales" };
             }
             else if (user.Roles.SingleOrDefault(x => x.RoleId == "f6e3dfd7-9a23-4825-a668-d4cbb8bbd64a") != null)
             {
-                return new string[] { "Office" };
+                return new string[] { "office" };
             }
             else if (user.Roles.SingleOrDefault(x => x.RoleId == "1dd0bf46-2297-496c-8e30-1e50befdcbf0") != null)
             {
-                return new string[] { "Warehouse" };
+                return new string[] { "warehouse" };
             }
             else
             {
-                return new string[] { "Guest" };
+                return new string[] { "guest" };
             }
         }
     }

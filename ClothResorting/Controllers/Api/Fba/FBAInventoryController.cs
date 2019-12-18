@@ -122,6 +122,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 if (sku != null)
                 {
                     palletInventoryInDb = palletInventoryInDb.Where(x => x.ShipmentId.Contains(sku));
+                    var test = palletInventoryInDb.ToList();
                 }
 
                 if (amzRef != null)
@@ -144,13 +145,13 @@ namespace ClothResorting.Controllers.Api.Fba
                     var cartons = dto.FBACartonLocations;
 
                     if (sku != null)
-                        cartons = cartons.Where(x => x.ShipmentId == sku);
+                        cartons = cartons.Where(x => x.ShipmentId.Contains(sku));
 
                     if (amzRef != null)
-                        cartons = cartons.Where(x => x.AmzRefId == amzRef);
+                        cartons = cartons.Where(x => x.AmzRefId.Contains(amzRef));
 
                     if (warehouseCode != null)
-                        cartons = cartons.Where(x => x.WarehouseCode == warehouseCode);
+                        cartons = cartons.Where(x => x.WarehouseCode.Contains(warehouseCode));
 
                     if (cartons.Sum(x => x.AvailableCtns) == 0)
                         continue;

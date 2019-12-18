@@ -722,9 +722,9 @@
 
                 //if ($(this).attr('invoicestatus') == "Closed")
                 if (tpStatus == "Closed")
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + encodeURIComponent($(this).attr('reference')) + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
                 else
-                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + $(this).attr('reference') + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
+                    $(window.location).attr('href', '/fba/FBAinvoiceDetail/?reference=' + encodeURIComponent($(this).attr('reference')) + "&invoiceType=ShipOrder" + "&invoiceStatus=" + $(this).attr('invoicestatus') + "&shipOrderId=" + shipOrderId);
 
             });
 
