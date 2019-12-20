@@ -14,6 +14,7 @@ using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.FBAModels.Interfaces;
 using ClothResorting.Helpers;
 using ClothResorting.Helpers.FBAHelper;
+using Newtonsoft.Json;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -101,6 +102,19 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return Ok(resultDto);
+        }
+
+        // GET /api/FBAPickDetail/?cartonId={cartonId}
+        [HttpGet]
+        public IHttpActionResult GetOrderDetailId([FromUri]int cartonId)
+        {
+            var orderDetailId = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail)
+                .SingleOrDefault(x => x.Id == cartonId)
+                .FBAOrderDetail
+                .Id;
+
+            return Ok(new { orderDetailId });
         }
 
         // POST /api/fba/fbapickdetail/?shipOrderId=?shipOrderId={shipOrderId}&orderType={orderType}
@@ -345,6 +359,46 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok();
         }
 
+        // POST /api/fba/fbapickdetail/?cartonId={cartonId}
+        [HttpPost]
+        public IHttpActionResult UploadLabelFiles([FromUri]int cartonId)
+        {
+            // 将label文件反序列化，添加新的label文件，再序列化
+            var orderDetailInDb = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail)
+                .SingleOrDefault(x => x.Id == cartonId)
+                .FBAOrderDetail;
+
+            var deList = DeserializeLabelFilesString(orderDetailInDb.LabelFiles);
+            var list = new List<LabelFile>();
+            list.AddRange(deList);
+
+            //从httpRequest中获取文件并写入磁盘系统
+            var filesGetter = new FilesGetter();
+            var filePathList = filesGetter.GetAndSaveMultipleFileFromHttpRequest(@"D:\Labels\");
+
+            if (filePathList.ToList().Count == 0)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            foreach (var f in filePathList)
+            {
+                var labelFile = new LabelFile();
+                labelFile.NameInSystem = f.Split('\\').Last();
+                labelFile.OriginalName = labelFile.NameInSystem.Split('-').Last();
+                labelFile.RootPath = f;
+                labelFile.UploadDate = DateTime.Now;
+
+                list.Add(labelFile);
+            }
+
+            orderDetailInDb.LabelFiles = SerializeLabelFiles(list);
+
+            _context.SaveChanges();
+            return Ok(new { cartonId = cartonId, list.Count });
+        }
+
         // POST /api/fba/fbapickdetail/?pickDetailId={pickDetailId}&pltsAdjust={pltsAdjust}&newPltsAdjust={newPltsAdjust}&outboundAdjust={outboundAdjust}
         [HttpPut]
         public void AdjustPickDetail([FromUri]int pickDetailId, [FromUri]int pltsAdjust, [FromUri]int newPltsAdjust, [FromUri]int outboundAdjust)
@@ -565,6 +619,23 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetail.FBAShipOrder = shipOrderInDb;
 
             return pickDetail;
+        }
+
+        private List<LabelFile> DeserializeLabelFilesString(string js)
+        {
+            if (js == null)
+                js = "[]";
+
+            return JsonConvert.DeserializeObject<List<LabelFile>>(js);
+        }
+
+        private string SerializeLabelFiles(List<LabelFile> list)
+        {
+            if (list == null)
+                return "[]";
+
+            return JsonConvert.SerializeObject(list);
+
         }
     }
 

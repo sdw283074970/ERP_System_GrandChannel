@@ -390,7 +390,7 @@ namespace ClothResorting.Controllers.Api.Fba
         private IEnumerable<FBACartonLocationDto> GetCartonLocationDto(int palletLocationId)
         {
             return Mapper.Map<IEnumerable<FBACartonLocation>, IEnumerable<FBACartonLocationDto>>(_context.FBAPalletLocations
-               .Include(x => x.FBAPallet.FBACartonLocations)
+               .Include(x => x.FBAPallet.FBACartonLocations.Select(c => c.FBAOrderDetail))
                .SingleOrDefault(x => x.Id == palletLocationId)
                .FBAPallet
                .FBACartonLocations);

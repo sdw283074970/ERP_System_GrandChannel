@@ -114,7 +114,7 @@ namespace ClothResorting.Controllers.Api
             var customerCode = "";
 
             //检查是不是Customer账户，并检查是否这个customer账户拥有一个vendor账户
-            if (roles.First() == "Customer")
+            if (roles.First() == "customer")
             {
                 var vendors = _context.UpperVendors
                     .Include(x => x.ApplicationUser)

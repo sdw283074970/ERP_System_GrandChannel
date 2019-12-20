@@ -408,7 +408,7 @@ namespace ClothResorting.Controllers.Api.Fba
         private List<LabelFile> DeserializeLabelFilesString(string js)
         {
             if (js == null)
-                return null;
+                js = "[]";
 
             return JsonConvert.DeserializeObject<List<LabelFile>>(js);
         }

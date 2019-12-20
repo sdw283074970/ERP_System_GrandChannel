@@ -354,7 +354,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             return Created(Request.RequestUri, resultDto);
         }
-            
+
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operationDate={operationDate}&operation={operation}
         [HttpPut]
         public async Task ChangeShipOrderStatus([FromUri]int shipOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)

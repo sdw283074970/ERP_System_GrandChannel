@@ -31,5 +31,7 @@ namespace ClothResorting.Dtos.Fba
         public string Location { get; set; }
 
         public int SelectedCtns { get; set; }
+
+        public int LabelFileNumbers { get; set; }
     }
 }

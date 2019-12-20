@@ -51,7 +51,8 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<FBAOrderDetail, FBAOrderDetailDto>()
                 .ForMember(dest => dest.LabelFileNumbers, opt => opt.MapFrom(src => src.LabelFiles.Split('{').Length - 1));
             Mapper.CreateMap<FBACartonLocation, FBACartonLocationDto>()
-                .ForMember(dest => dest.Barcode, opt => opt.MapFrom(src => src.FBAOrderDetail.Barcode));
+                .ForMember(dest => dest.Barcode, opt => opt.MapFrom(src => src.FBAOrderDetail.Barcode))
+                .ForMember(dest => dest.LabelFileNumbers, opt => opt.MapFrom(src => (src.FBAOrderDetail == null ? -1 : src.FBAOrderDetail.LabelFiles.Split('{').Length - 1)));
             Mapper.CreateMap<FBAPallet, FBAPalletDto>();
             Mapper.CreateMap<FBAPalletLocation, FBAPalletLocationDto>();
             Mapper.CreateMap<FBAShipOrder, FBAShipOrderDto>();
