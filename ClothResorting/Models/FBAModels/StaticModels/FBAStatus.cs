@@ -67,7 +67,7 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Ready = "Ready";
 
-        public const string LossCtn = "LossCtn";
+        public const string LooseCtn = "LooseCtn";
 
         public const string Pallet = "Pallet";
     }

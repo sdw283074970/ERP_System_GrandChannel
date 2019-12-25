@@ -39,6 +39,10 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 return Ok();
             }
+            else if (operation == "DownloadFile")
+            {
+                return Ok(helper.GenerateAndReturnFBAInventoryReportPath(customerInventoryList));
+            }
 
             return Ok(customerInventoryList.FBACtnInventories);
 

@@ -265,7 +265,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             GrossWeight = p.FBACartonLocation.GrossWeightPerCtn * p.PickCtns,
                             CBM = p.FBACartonLocation.CBMPerCtn * p.PickCtns,
                             Quantity = p.PickCtns,
-                            Location = p.FBACartonLocation.Location,
+                            Location = p.FBAPickDetail.Location,
                             ShipOrderId = p.FBAPickDetail.FBAShipOrder.Id
                         };
 
@@ -296,7 +296,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             GrossWeight = p.FBACartonLocation.GrossWeightPerCtn * p.ActualQuantity,
                             CBM = p.FBACartonLocation.CBMPerCtn * p.ActualQuantity,
                             Quantity = p.ActualQuantity,
-                            Location = p.FBACartonLocation.Location,
+                            Location = p.Location,
                             ShipOrderId = p.FBAShipOrder.Id
                         };
 

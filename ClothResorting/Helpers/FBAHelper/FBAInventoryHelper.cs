@@ -161,7 +161,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         SubCustomer = cartonLocation.FBAOrderDetail.FBAMasterOrder.SubCustomer,
                         Id = cartonLocation.Id,
                         Container = cartonLocation.Container,
-                        Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LossCtn,
+                        Type = cartonLocation.Location == "Pallet" ? FBAStatus.InPallet : FBAStatus.LooseCtn,
                         ShipmentId = cartonLocation.ShipmentId,
                         AmzRefId = cartonLocation.AmzRefId,
                         HoldQuantity = cartonLocation.HoldCtns,
@@ -208,6 +208,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
             info.CurrentTotalCtns = residualInventoryList.Sum(x => x.ResidualQuantity);
             info.TotalPickingCtns = totalPickingCtns;
+
+            info.TotalInPalletCtns = (int)info.CurrentTotalCtns - info.CurrentLooseCtns;
 
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
             info.CloseDate = rCloseDate;
@@ -344,7 +346,10 @@ namespace ClothResorting.Helpers.FBAHelper
             response.ClearHeaders();
             response.Buffer = false;
             response.ContentType = "application/octet-stream";
-            response.AppendHeader("Content-Disposition", "attachment; filename=" + info.Customer + " Inventory Report - " + HttpUtility.UrlEncode(DateTime.Now.ToString("yyyyMMddhhmmss") + ".xls", System.Text.Encoding.UTF8));
+            response.AppendHeader("Access-Control-Allow-Origin", "*");
+            response.AppendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            response.AppendHeader("Access-Control-Allow-Headers", "Content-Type");
+            response.AppendHeader("Content-Disposition", "attachment; filename=" + info.Customer + "-Inventory Report-" + HttpUtility.UrlEncode(DateTime.Now.ToString("yyyyMMddhhmmss") + ".xls", System.Text.Encoding.UTF8));
             response.Clear();
             response.AppendHeader("Content-Length", downloadFile.Length.ToString());
             response.WriteFile(downloadFile.FullName);
@@ -355,6 +360,128 @@ namespace ClothResorting.Helpers.FBAHelper
             var killer = new ExcelKiller();
 
             killer.Dispose();
+        }
+
+        public string GenerateAndReturnFBAInventoryReportPath(FBAInventoryInfo info)
+        {
+            _ws = _wb.Worksheets[1];
+
+            _ws.Cells[4, 2] = info.Customer;
+            _ws.Cells[4, 4] = info.CloseDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 6] = info.CurrentTotalCtns - info.CurrentLooseCtns;
+            _ws.Cells[4, 8] = info.CurrentLooseCtns;
+
+            _ws.Cells[6, 2] = info.CurrentTotalPlts;
+            _ws.Cells[6, 4] = info.TotalPickingPlts;
+            _ws.Cells[6, 6] = info.CurrentTotalCtns;
+            _ws.Cells[6, 8] = info.TotalPickingCtns;
+
+            var startRow = 9;
+
+            foreach (var i in info.FBACtnInventories)
+            {
+                _ws.Cells[startRow, 1] = i.Container;
+                _ws.Cells[startRow, 2] = i.SubCustomer;
+                _ws.Cells[startRow, 3] = i.Type;
+                _ws.Cells[startRow, 4] = i.ShipmentId;
+                _ws.Cells[startRow, 5] = i.AmzRefId;
+                _ws.Cells[startRow, 6] = i.WarehouseCode;
+                _ws.Cells[startRow, 7] = Math.Round(i.GrossWeightPerCtn, 2);
+                _ws.Cells[startRow, 8] = Math.Round(i.CBMPerCtn, 2);
+                _ws.Cells[startRow, 9] = i.OriginalQuantity;
+                _ws.Cells[startRow, 10] = i.PickingCtns;
+                _ws.Cells[startRow, 11] = Math.Round((double)i.ResidualQuantity, 2);
+                _ws.Cells[startRow, 12] = Math.Round((double)i.HoldQuantity, 2);
+                _ws.Cells[startRow, 13] = i.Location;
+
+                startRow += 1;
+            }
+
+            _ws.get_Range("A1:M" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:M" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:M" + startRow, Type.Missing).Borders.LineStyle = 1;
+
+            _ws = _wb.Worksheets[2];
+
+            _ws.Cells[4, 2] = info.Customer;
+            _ws.Cells[4, 4] = info.CloseDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 6] = info.CurrentTotalCtns - info.CurrentLooseCtns;
+            _ws.Cells[4, 8] = info.CurrentLooseCtns;
+
+            _ws.Cells[6, 2] = info.CurrentTotalPlts;
+            _ws.Cells[6, 4] = info.TotalPickingPlts;
+            _ws.Cells[6, 6] = info.CurrentTotalCtns;
+            _ws.Cells[6, 8] = info.TotalPickingCtns;
+
+            startRow = 9;
+
+            foreach (var g in info.FBAPalletGroupInventories)
+            {
+                var ctnIndex = startRow;
+
+                _ws.Cells[startRow, 1] = g.PltId;
+                _ws.Cells[startRow, 2] = g.Container;
+                _ws.Cells[startRow, 3] = g.SubCustomer;
+                _ws.Cells[startRow, 4] = g.ActualPlts;
+                _ws.Cells[startRow, 5] = g.PickingPlts;
+                _ws.Cells[startRow, 6] = g.AvailablePlts;
+                _ws.Cells[startRow, 7] = g.Location;
+
+                foreach (var c in g.InPalletCtnInventories)
+                {
+                    _ws.Cells[ctnIndex, 8] = c.Id;
+                    _ws.Cells[ctnIndex, 9] = c.ShipmentId;
+                    _ws.Cells[ctnIndex, 10] = c.AmzRefId;
+                    _ws.Cells[ctnIndex, 11] = c.WarehouseCode;
+                    _ws.Cells[ctnIndex, 12] = c.GrossWeightPerCtn;
+                    _ws.Cells[ctnIndex, 13] = c.CBMPerCtn;
+                    _ws.Cells[ctnIndex, 14] = c.OriginalQuantity;
+                    _ws.Cells[ctnIndex, 15] = c.PickingCtns;
+                    _ws.Cells[ctnIndex, 16] = c.ResidualQuantity;
+                    _ws.Cells[ctnIndex, 17] = c.HoldQuantity;
+
+                    ctnIndex += 1;
+                }
+
+                //如果一托盘里面有很多SKU，则合并托盘单元格
+                if (g.InPalletCtnInventories.Count > 1)
+                {
+                    var rangeId = _ws.get_Range("A" + startRow, "A" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeId.Merge(rangeId.MergeCells);
+
+                    var rangeContainer = _ws.get_Range("B" + startRow, "B" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeContainer.Merge(rangeContainer.MergeCells);
+
+                    var rangeSunCustomer = _ws.get_Range("C" + startRow, "C" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeSunCustomer.Merge(rangeSunCustomer.MergeCells);
+
+                    var rangeOrgPlt = _ws.get_Range("D" + startRow, "D" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeOrgPlt.Merge(rangeOrgPlt.MergeCells);
+
+                    var rangePlt = _ws.get_Range("E" + startRow, "E" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangePlt.Merge(rangePlt.MergeCells);
+
+                    var rangeStockPlt = _ws.get_Range("F" + startRow, "F" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeStockPlt.Merge(rangeStockPlt.MergeCells);
+
+                    var rangeLocation = _ws.get_Range("G" + startRow, "G" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangeLocation.Merge(rangeLocation.MergeCells);
+                }
+
+                startRow += g.InPalletCtnInventories.Count;
+            }
+
+            _ws.get_Range("A1:O" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:O" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:O" + startRow, Type.Missing).Borders.LineStyle = 1;
+
+            var fullPath = @"D:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            return fullPath;
         }
 
         //返回库存CBM不为0的FBA客户列表
@@ -460,6 +587,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public int TotalPickingCtns { get; set; }
 
         public DateTime CloseDate { get; set; }
+
+        public int TotalInPalletCtns { get; set; }
 
         public List<FBACtnInventory> FBACtnInventories { get; set; }
 
