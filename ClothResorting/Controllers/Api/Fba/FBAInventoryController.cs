@@ -168,7 +168,8 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var cartonInventoryInDb = _context.FBACartonLocations
                     .Include(x => x.FBAOrderDetail.FBAMasterOrder)
-                    .Where(x => (x.AvailableCtns != 0 || x.HoldCtns != 0) && x.Location != "Pallet" && x.FBAMasterOrder.CustomerCode == customerCode);
+                    .Where(x => x.AvailableCtns != 0 || x.HoldCtns != 0)
+                    .Where( x => x.Location != "Pallet" && x.FBAOrderDetail.FBAMasterOrder.CustomerCode == customerCode);
 
                 if (container != null)
                 {

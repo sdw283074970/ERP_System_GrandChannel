@@ -41,6 +41,10 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.Customer)
                 .SingleOrDefault(x => x.Id == masterOrderId);
 
+            var cartonLocations = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                .Where(x => x.Location != "Pallet" && x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId);
+
             var unPalletizedSKU = masterOrderInDb.FBAOrderDetails
                 .Where(x => x.ComsumedQuantity < x.ActualQuantity);
 
@@ -66,7 +70,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             var ws = (Worksheet)_wb.ActiveSheet;
 
-            //写入打托的SKU
+            // 写入打托的SKU
             foreach (var p in palletsInDb)
             {
                 //合并单元格
@@ -86,17 +90,27 @@ namespace ClothResorting.Helpers.FBAHelper
                 }
             }
 
-            //写入未打托的SKU
-            foreach(var s in unPalletizedSKU)
+            // 写入未打托但直接分派了库位的SKU
+            foreach(var c in cartonLocations)
             {
-                _ws.Cells[startRow, 1] = s.ShipmentId;
-                _ws.Cells[startRow, 2] = s.AmzRefId;
-                _ws.Cells[startRow, 3] = s.Quantity;
-                _ws.Cells[startRow, 4] = s.ActualQuantity;
+                _ws.Cells[startRow, 1] = c.ShipmentId;
+                _ws.Cells[startRow, 2] = c.AmzRefId;
+                _ws.Cells[startRow, 3] = c.FBAOrderDetail.Quantity;
+                _ws.Cells[startRow, 4] = c.ActualQuantity;
                 startRow += 1;
             }
 
-            //写入表头信息
+            // 写入未打托且未直接入库的SKU
+            //foreach(var s in unPalletizedSKU)
+            //{
+            //    _ws.Cells[startRow, 1] = s.ShipmentId;
+            //    _ws.Cells[startRow, 2] = s.AmzRefId;
+            //    _ws.Cells[startRow, 3] = s.Quantity;
+            //    _ws.Cells[startRow, 4] = s.ActualQuantity;
+            //    startRow += 1;
+            //}
+
+            // 写入表头信息
             _ws.Cells[2, 2] = masterOrderInDb.Customer.CustomerCode;
             _ws.Cells[2, 4] = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd");
             _ws.Cells[3, 2] = masterOrderInDb.Container;
