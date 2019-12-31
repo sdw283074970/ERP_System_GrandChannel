@@ -15,6 +15,7 @@ using ClothResorting.Models.FBAModels.Interfaces;
 using ClothResorting.Helpers;
 using ClothResorting.Helpers.FBAHelper;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -55,27 +56,22 @@ namespace ClothResorting.Controllers.Api.Fba
             foreach(var r in result)
             {
                 var dto = Mapper.Map<FBAPickDetail, FBAPickDetailsDto>(r);
+                dto.Barcode = r.FBAPickDetailCartons.Count == 1 
+                    ? dto.Barcode = r.FBAPickDetailCartons.First().FBACartonLocation.FBAOrderDetail.Barcode 
+                    : "MIX";
 
-                if (r.FBACartonLocation == null)
+                var cartonsDtoList = new List<FBACartonLocationDto>();
+
+                foreach (var c in r.FBAPickDetailCartons)
                 {
-                    dto.Barcode = r.FBAPickDetailCartons.Count == 1 
-                        ? dto.Barcode = r.FBAPickDetailCartons.First().FBACartonLocation.FBAOrderDetail.Barcode 
-                        : "MIX";
-
-                    var cartonsDtoList = new List<FBACartonLocationDto>();
-
-                    foreach (var c in r.FBAPickDetailCartons)
-                    {
-                        c.FBACartonLocation.PickingCtns = c.PickCtns;
-                        cartonsDtoList.Add(Mapper.Map<FBACartonLocation, FBACartonLocationDto>(c.FBACartonLocation));
-                    }
-
-                    dto.FBACartonLocations = cartonsDtoList;
+                    c.FBACartonLocation.PickingCtns = c.PickCtns;
+                    var ctnLocationDto = Mapper.Map<FBACartonLocation, FBACartonLocationDto>(c.FBACartonLocation);
+                    ctnLocationDto.FBAPickDetailCartonId = c.Id;
+                    ctnLocationDto.LabelFileNumbers = c.LabelFiles.Split('{').Length - 1;
+                    cartonsDtoList.Add(ctnLocationDto);
                 }
-                else
-                {
-                    dto.Barcode = r.FBACartonLocation.FBAOrderDetail.Barcode;
-                }
+
+                dto.FBACartonLocations = cartonsDtoList;
                 resultDto.Add(dto);
             }
 
@@ -115,6 +111,22 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Id;
 
             return Ok(new { orderDetailId });
+        }
+
+        // GET /api/fba/FBAPickDetail/?pickDetailCartonId={pickDetailCartonId}&operation={operation}
+        [HttpGet]
+        public IHttpActionResult GetLabelFileList([FromUri]int pickDetailCartonId, [FromUri]string operation)
+        {
+            var pickedCartonInDb = _context.FBAPickDetailCartons.SingleOrDefault(x => x.Id == pickDetailCartonId);
+
+            if (operation == "Labels")
+            {
+                var list = DeserializeLabelFilesString(pickedCartonInDb.LabelFiles);
+
+                return Ok(list);
+            }
+
+            return Ok("No operation applied.");
         }
 
         // POST /api/fba/fbapickdetail/?shipOrderId=?shipOrderId={shipOrderId}&orderType={orderType}
@@ -220,7 +232,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 foreach (var r in resultsInDb)
                 {
-                    pickDetailList.Add(CreateFBAPickDetailFromCartonLocation(r, shipOrderInDb, r.AvailableCtns));
+                    pickDetailList.Add(CreateFBAPickDetailFromCartonLocation(r, shipOrderInDb, r.AvailableCtns, pickDetailCartonList));
                 }
             }
 
@@ -270,7 +282,8 @@ namespace ClothResorting.Controllers.Api.Fba
                         .Include(x => x.FBAOrderDetail.FBAMasterOrder)
                         .SingleOrDefault(x => x.Id == inventoryId);
 
-                    _context.FBAPickDetails.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, cartonLocationInDb.AvailableCtns));
+                    _context.FBAPickDetails.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, cartonLocationInDb.AvailableCtns, pickDetailCartonList));
+                    _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
                 }
 
                 shipOrderInDb.Status = FBAStatus.Picking;
@@ -312,10 +325,11 @@ namespace ClothResorting.Controllers.Api.Fba
                         .Include(x => x.FBAOrderDetail.FBAMasterOrder)
                         .SingleOrDefault(x => x.Id == obj.Id);
 
-                    pickDetailList.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, obj.Quantity));
+                    pickDetailList.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, obj.Quantity, pickDetailCartonList));
                 }
 
                 _context.FBAPickDetails.AddRange(pickDetailList);
+                _context.FBAPickDetailCartons.AddRange(pickDetailCartonList);
             }
 
             shipOrderInDb.Status = FBAStatus.Picking;
@@ -359,17 +373,16 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok();
         }
 
-        // POST /api/fba/fbapickdetail/?cartonId={cartonId}
+        // POST /api/fba/fbapickdetail/?pickDetailCartonId={pickDetailCartonId}
         [HttpPost]
-        public IHttpActionResult UploadLabelFiles([FromUri]int cartonId)
+        public IHttpActionResult UploadLabelFiles([FromUri]int pickDetailCartonId)
         {
             // 将label文件反序列化，添加新的label文件，再序列化
-            var orderDetailInDb = _context.FBACartonLocations
-                .Include(x => x.FBAOrderDetail)
-                .SingleOrDefault(x => x.Id == cartonId)
-                .FBAOrderDetail;
+            var pickDetailInDb = _context.FBAPickDetailCartons
+                .Include(x => x.FBACartonLocation)
+                .SingleOrDefault(x => x.Id == pickDetailCartonId);
 
-            var deList = DeserializeLabelFilesString(orderDetailInDb.LabelFiles);
+            var deList = DeserializeLabelFilesString(pickDetailInDb.LabelFiles);
             var list = new List<LabelFile>();
             list.AddRange(deList);
 
@@ -393,10 +406,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 list.Add(labelFile);
             }
 
-            orderDetailInDb.LabelFiles = SerializeLabelFiles(list);
+            pickDetailInDb.LabelFiles = SerializeLabelFiles(list);
 
             _context.SaveChanges();
-            return Ok(new { cartonId = cartonId, list.Count });
+            return Ok(new { cartonId = pickDetailInDb.FBACartonLocation.Id, list.Count });
         }
 
         // POST /api/fba/fbapickdetail/?pickDetailId={pickDetailId}&pltsAdjust={pltsAdjust}&newPltsAdjust={newPltsAdjust}&outboundAdjust={outboundAdjust}
@@ -463,6 +476,30 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
+        // DELETE /api/FBAOrderDetail/?pickDetailCartonId={pickDetailCartonId}&fileName={fileName}
+        [HttpDelete]
+        public void DeleteLabelFile([FromUri]int pickDetailCartonId, [FromUri]string fileName)
+        {
+            var pickedCtnInDb = _context.FBAPickDetailCartons.Find(pickDetailCartonId);
+
+            var list = DeserializeLabelFilesString(pickedCtnInDb.LabelFiles);
+            list.Remove(list.SingleOrDefault(x => x.NameInSystem == fileName));
+            pickedCtnInDb.LabelFiles = SerializeLabelFiles(list);
+
+            var filePath = Path.GetFullPath(@"D:\Labels\" + fileName);
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception e)
+            {
+                _context.SaveChanges();
+                throw new Exception("File Doesn't exist in the server");
+            }
+
+            _context.SaveChanges();
+        }
+
         public void RemovePickDetail(ApplicationDbContext context, int pickDetailId)
         {
             var pickDetailInDb = context.FBAPickDetails
@@ -471,7 +508,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPickDetailCartons)
                 .SingleOrDefault(x => x.Id == pickDetailId);
 
-            //如果palletLocation不为空，则说明是standard类型运单内容，否则是ecommerce运单内容
+            // 如果palletLocation不为空，则说明从库存拣货单位是托盘
             if (pickDetailInDb.FBAPalletLocation != null)
             {
                 pickDetailInDb.FBAPalletLocation.AvailablePlts += pickDetailInDb.PltsFromInventory;
@@ -495,6 +532,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 context.FBAPickDetailCartons.RemoveRange(pickDetailCartonsInDb);
                 context.FBAPickDetails.Remove(pickDetailInDb);
             }
+            // 反之如果palletLocation为空，则说明从库存拣货单位是箱子
             else if (pickDetailInDb.FBAPalletLocation == null)
             {
                 pickDetailInDb.FBACartonLocation.AvailableCtns += pickDetailInDb.ActualQuantity;
@@ -508,6 +546,9 @@ namespace ClothResorting.Controllers.Api.Fba
                     pickDetailInDb.FBACartonLocation.Status = FBAStatus.InPallet;
                 }
                 context.FBAPickDetails.Remove(pickDetailInDb);
+                context.FBAPickDetailCartons.RemoveRange(_context.FBAPickDetailCartons
+                    .Include(x => x.FBAPickDetail)
+                    .Where(x => x.FBAPickDetail.Id == pickDetailInDb.Id));
             }
         }
 
@@ -593,7 +634,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return pickDetail;
         }
 
-        private FBAPickDetail CreateFBAPickDetailFromCartonLocation(FBACartonLocation fbaCartonLocationInDb, FBAShipOrder shipOrderInDb, int ctnQuantity)
+        private FBAPickDetail CreateFBAPickDetailFromCartonLocation(FBACartonLocation fbaCartonLocationInDb, FBAShipOrder shipOrderInDb, int ctnQuantity, IList<FBAPickDetailCarton> pickDetailCartonList)
         {
             var pickDetail = new FBAPickDetail();
 
@@ -618,6 +659,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
             pickDetail.FBAShipOrder = shipOrderInDb;
 
+            var pickCartonDetail = new FBAPickDetailCarton();
+            pickCartonDetail.FBACartonLocation = fbaCartonLocationInDb;
+            pickCartonDetail.FBAPickDetail = pickDetail;
+            pickCartonDetail.PickCtns = ctnQuantity;
+
+            pickDetailCartonList.Add(pickCartonDetail);
             return pickDetail;
         }
 

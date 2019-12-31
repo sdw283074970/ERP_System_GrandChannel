@@ -11,8 +11,15 @@ namespace ClothResorting.Models.FBAModels
 
         public int PickCtns { get; set; }
 
+        public string LabelFiles { get; set; }
+
         public FBACartonLocation FBACartonLocation { get; set; }
 
         public FBAPickDetail FBAPickDetail { get; set; }
+
+        public FBAPickDetailCarton()
+        {
+            LabelFiles = "[]";
+        }
     }
 }

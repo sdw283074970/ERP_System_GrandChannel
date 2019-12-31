@@ -12,6 +12,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float CBMPerCtn { get; set; }
 
+        public int FBAPickDetailCartonId { get; set; }
+
         public string Barcode { get; set; }
 
         public string Symbology { get; set; }
