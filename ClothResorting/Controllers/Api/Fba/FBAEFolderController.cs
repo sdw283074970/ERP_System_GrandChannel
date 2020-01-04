@@ -104,7 +104,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.EFiles.Add(newFileRecord);
             _context.SaveChanges();
 
-            return Ok("File has been uploaded successfully.");
+            return Ok(Mapper.Map<EFile, EFileDto>(newFileRecord));
         }
 
         // POST /api/fba/fbaefolder/?fileId={fileId}
