@@ -1147,7 +1147,7 @@
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=ShipOrder&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
+                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=ShipOrder&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&isInstruction=true";
                     SendAjaxMethodAndRefreshWorkOrder("POST", url, {});
                 }
             });
@@ -1207,7 +1207,7 @@
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&operation=UpdateInstruction";
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem + "&isInstruction=true&operation=UpdateInstruction";
 
                     SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
                 }
@@ -1276,7 +1276,7 @@
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&operation=UpdateResult";
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&isInstruction=true&operation=UpdateResult";
                     SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
                 }
             });
