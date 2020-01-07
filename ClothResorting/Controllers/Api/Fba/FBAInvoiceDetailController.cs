@@ -270,6 +270,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 CreateBy = _userName,
                 Description = description,
                 CreateDate = DateTime.Now,
+                OriginalDescription = description,
                 HandlingStatus = "Draft",
                 Status = "TBD"
             };
@@ -293,9 +294,9 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri, new { Id = id, Description = description, HandlingStatus = "Draft" });
         }
 
-        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}&isChargingIte{isChargingItem}
+        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}&isChargingIte{isChargingItem}&isInstruction={isInstruction}
         [HttpPost]
-        public IHttpActionResult CreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description, [FromUri]bool isChargingItem, [FromBody]ObjectBody obj)
+        public IHttpActionResult CreateChargingItemRef([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description, [FromUri]bool isChargingItem, [FromUri]bool isInstruction, [FromBody]ObjectBody obj)
         {
             var detail = new ChargingItemDetail();
 
@@ -305,8 +306,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 var newDetail = new ChargingItemDetail {
                     Status = FBAStatus.Unhandled,
-                    HandlingStatus = FBAStatus.New,
+                    HandlingStatus = isInstruction == true ? FBAStatus.New : FBAStatus.Na,
                     CreateBy = _userName,
+                    OriginalDescription = description,
                     CreateDate = DateTime.Now,
                     Description = description,
                     FBAMasterOrder = masterOrderInDb
@@ -333,9 +335,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 var newDetail = new ChargingItemDetail
                 {
                     Status = FBAStatus.Unhandled,
-                    HandlingStatus = FBAStatus.New,
+                    HandlingStatus = isInstruction == true ? FBAStatus.New : FBAStatus.Na,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
+                    OriginalDescription = description,
                     Description = description,
                     FBAShipOrder = shipOrderInDb
                 };
@@ -437,6 +440,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             item.Description = description;
+            item.OriginalDescription = description;
 
             _context.SaveChanges();
 

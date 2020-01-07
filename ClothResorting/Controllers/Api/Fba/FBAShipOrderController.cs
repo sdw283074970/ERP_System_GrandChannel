@@ -515,9 +515,9 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
-        // PUT /api/fba/fbashiporder/?chargingDetailId={chargingDetailId}&comment={comment}&operation={operation}
+        // PUT /api/fba/fbashiporder/?chargingDetailId={chargingDetailId}&comment={comment}&isInstruction={isInstruction}&operation={operation}
         [HttpPut]
-        public async Task UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]bool isChargingItem, [FromUri]string operation)
+        public async Task UpdateInstruction([FromUri]int chargingDetailId, [FromUri]string comment, [FromUri]bool isChargingItem, [FromUri]bool isInstruction, [FromUri]string operation)
         {
             var instructionInDb = _context.ChargingItemDetails
                 .Include(x => x.FBAMasterOrder)
@@ -536,14 +536,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 else if (instructionInDb.FBAShipOrder != null && instructionInDb.FBAShipOrder.Status == FBAStatus.Pending)
                     instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
 
-                if (isChargingItem)
-                {
-                    instructionInDb.Status = FBAStatus.WaitingForCharging;
-                }
-                else
-                {
-                    instructionInDb.Status = FBAStatus.NoNeedForCharging;
-                }
+                instructionInDb.Status = isChargingItem ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
+
+                instructionInDb.HandlingStatus = isInstruction ? FBAStatus.New : FBAStatus.Na;
 
                 description = "Updated instruction by office client";
             }
@@ -1009,7 +1004,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
             }
 
-            var vaildDetails = shipOrder.ChargingItemDetails.Where(x => x.HandlingStatus != FBAStatus.Na);
+            var vaildDetails = shipOrder.ChargingItemDetails;
 
             foreach(var c in vaildDetails)
             {

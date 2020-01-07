@@ -655,7 +655,7 @@
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&operation=UpdateComment";
+                    url = "/api/fba/fbashiporder/?chargingDetailId=" + chargingDetailId + "&comment=" + encodeURIComponent(description) + "&isChargingItem=true&isInstruction=true&operation=UpdateComment";
                     SendAjaxMethodAndRefreshWorkOrder("PUT", url, {});
                 }
             });
