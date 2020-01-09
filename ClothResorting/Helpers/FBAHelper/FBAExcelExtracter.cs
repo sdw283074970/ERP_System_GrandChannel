@@ -45,11 +45,12 @@ namespace ClothResorting.Helpers.FBAHelper
         #endregion
 
         //抽取FBA通用PackingList模板
-        public void ExtractFBAPackingListTemplate(string grandNumber)
+        public List<FBAOrderDetail> ExtractFBAPackingListTemplate(string grandNumber, int masterOrderId)
         {
             var orderDetailsList = new List<FBAOrderDetail>();
             _ws = _wb.Worksheets[1];
-            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber);
+
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => masterOrderId == 0 ? x.GrandNumber == grandNumber : x.Id == masterOrderId);
 
             var countOfOrderDetail = 0;
             var index = 2;
@@ -90,7 +91,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 orderDetail.AssembleNumberPart(grossWeight, cbm, quantity);
 
                 orderDetail.Container = masterOrderInDb.Container == "" ? "NULL" : masterOrderInDb.Container;
-                orderDetail.GrandNumber = grandNumber;
+                orderDetail.GrandNumber = masterOrderInDb.GrandNumber;
                 orderDetail.FBAMasterOrder = masterOrderInDb;
 
                 orderDetailsList.Add(orderDetail);
@@ -98,6 +99,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _context.FBAOrderDetails.AddRange(orderDetailsList);
             _context.SaveChanges();
+
+            return orderDetailsList;
         }
 
         //抽取BOL模板

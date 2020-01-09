@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using ClothResorting.Models.StaticClass;
 using Newtonsoft.Json;
 using System.IO;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -193,8 +194,34 @@ namespace ClothResorting.Controllers.Api.Fba
             var excel = new FBAExcelExtracter(fileSavePath);
             var killer = new ExcelKiller();
 
-            excel.ExtractFBAPackingListTemplate(grandNumber);
+            excel.ExtractFBAPackingListTemplate(grandNumber, 0);
             killer.Dispose();
+        }
+
+        // POST /api/fba/FBAOrderDetail/?masterOrderId={masterOrderId}&operation={operation}
+        [HttpPost]
+        public IHttpActionResult UploadFBATemplateByMasterOrderId([FromUri]int masterOrderId, [FromUri]string operation)
+        {
+            //从httpRequest中获取文件并写入磁盘系统
+            var filesGetter = new FilesGetter();
+
+            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+
+            if (fileSavePath == "")
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            var excel = new FBAExcelExtracter(fileSavePath);
+            var killer = new ExcelKiller();
+            var result = new List<FBAOrderDetail>();
+
+            if (operation == "Upload")
+                result = excel.ExtractFBAPackingListTemplate("", masterOrderId);
+
+            killer.Dispose();
+
+            return Ok(Mapper.Map<IList<FBAOrderDetail>, IList<FBAOrderDetailDto>>(result));
         }
 
         // POST /api/fba/FBAOrderDetail/?orderDetailIn={orderDetailId}
