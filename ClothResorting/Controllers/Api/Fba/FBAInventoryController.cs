@@ -112,7 +112,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var palletInventoryInDb = _context.FBAPalletLocations
                     .Include(x => x.FBAMasterOrder)
                     .Include(x => x.FBAPallet.FBACartonLocations)
-                    .Where(x => x.AvailablePlts != 0 && x.FBAMasterOrder.CustomerCode == customerCode);
+                    .Where(x => x.FBAMasterOrder.CustomerCode == customerCode);
 
                 if (container != null)
                 {
@@ -122,7 +122,6 @@ namespace ClothResorting.Controllers.Api.Fba
                 if (sku != null)
                 {
                     palletInventoryInDb = palletInventoryInDb.Where(x => x.ShipmentId.Contains(sku));
-                    var test = palletInventoryInDb.ToList();
                 }
 
                 if (amzRef != null)
@@ -142,18 +141,17 @@ namespace ClothResorting.Controllers.Api.Fba
                     var dto = Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>(p);
                     dto.FBACartonLocations = GetCartonLocationDto(dto.Id);
                     // 再次筛选，如果托盘中指定的SKU箱数为0，那么就把这这个托盘除去
-                    var cartons = dto.FBACartonLocations;
 
                     if (sku != null)
-                        cartons = cartons.Where(x => x.ShipmentId.Contains(sku));
+                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.ShipmentId.Contains(sku));
 
                     if (amzRef != null)
-                        cartons = cartons.Where(x => x.AmzRefId.Contains(amzRef));
+                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.AmzRefId.Contains(amzRef));
 
                     if (warehouseCode != null)
-                        cartons = cartons.Where(x => x.WarehouseCode.Contains(warehouseCode));
+                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.WarehouseCode.Contains(warehouseCode));
 
-                    if (cartons.Sum(x => x.AvailableCtns) == 0)
+                    if (dto.FBACartonLocations.Sum(x => x.AvailableCtns) == 0)
                         continue;
 
                     dto.InboundDate = p.FBAMasterOrder.InboundDate;
