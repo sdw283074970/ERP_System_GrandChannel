@@ -51,6 +51,23 @@ namespace ClothResorting.Controllers.Api.Fba
 
         }
 
+        // GET /api/fba/FBAOrderDetail/?masterOrderId={masterOrderId}&operation={operation}
+        [HttpGet]
+        public IHttpActionResult GetByOperationById([FromUri]int masterOrderId, [FromUri]string operation)
+        {
+            if (operation == FBAOperation.Download)
+            {
+                var generator = new FBAExcelGenerator(@"D:\Template\Receipt-template.xlsx");
+
+                var fullPath = generator.GenerateReceipt(masterOrderId);
+
+                return Ok(fullPath);
+            }
+
+            return Ok("Invalid operation.");
+
+        }
+
         // GET /api/fba/FBAOrderDetail/?grandNumber={grandNumber}
         [HttpGet]
         public IHttpActionResult GetFBAOrderDetailsByGrandNumber([FromUri]string grandNumber)

@@ -42,5 +42,38 @@ namespace ClothResorting.Controllers.Api
 
             return Ok(list.ToArray());
         }
+
+        // GET /api/uppervendor/?departmentCode={departmentCode}&version={V2}
+        [HttpGet]
+        public IHttpActionResult GetFBACustomerCode([FromUri]string departmentCode, [FromUri]string version)
+        {
+            var list = new List<CustomerCodeObj>();
+
+            var vendors = _context.UpperVendors.Where(x => x.DepartmentCode == departmentCode).OrderBy(x => x.CustomerCode);
+
+            if (departmentCode == "GM")
+            {
+                foreach (var vendor in vendors)
+                {
+                    list.Add(new CustomerCodeObj { Text = vendor.Name, Value = vendor.Name });
+                }
+            }
+            else if (departmentCode == "FBA")
+            {
+                foreach (var vendor in vendors)
+                {
+                    list.Add(new CustomerCodeObj { Text = vendor.CustomerCode, Value = vendor.CustomerCode });
+                }
+            }
+
+            return Ok(list);
+        }
+    }
+
+    public class CustomerCodeObj 
+    {
+        public string Text { get; set; }
+
+        public string Value { get; set; }
     }
 }

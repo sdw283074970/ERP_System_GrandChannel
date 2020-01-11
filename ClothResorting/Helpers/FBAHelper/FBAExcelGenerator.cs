@@ -298,7 +298,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[i + 7, 1] = (i + 1).ToString() + ". " + instructionList[i].Description;
             }
 
-            //第二页生成Picking List
+            // 第二页生成Picking List
             _ws = _wb.Worksheets[2];
             var startIndex = 3;
 
@@ -309,60 +309,68 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Where(x => x.FBAShipOrder.Id == shipOrderId)
                 .ToList();
 
-            _ws.Cells[1, 2] = pickDetailInDb.First().FBAShipOrder.ShipOrderNumber.ToString();
-            //var bolList = GenerateFBABOLList(pickDetailInDb);
-            var bolList = woHelper.GenerateFBABOLList(pickDetailInDb);
-            var groupLis = bolList.GroupBy(x => x.ParentPalletId);
-
-            foreach(var g in groupLis)
+            // 如果没有拣货项目那么第二页就什么都不生成
+            if (pickDetailInDb.Count == 0)
             {
-                var startRow = startIndex;
-                _ws.Cells[startIndex, 3] = g.First().Contianer;
-                _ws.Cells[startIndex, 5] = g.First().ParentPalletId == 0 ? "NA" : g.First().PickPallets.ToString();
-                _ws.Cells[startIndex, 6] = g.First().Location;
+                _ws.Cells[1, 2] = "No need to pick";
+            }
+            else
+            {
+                _ws.Cells[1, 2] = pickDetailInDb.First().FBAShipOrder.ShipOrderNumber.ToString();
+                //var bolList = GenerateFBABOLList(pickDetailInDb);
+                var bolList = woHelper.GenerateFBABOLList(pickDetailInDb);
+                var groupLis = bolList.GroupBy(x => x.ParentPalletId);
 
-                foreach (var p in g)
+                foreach (var g in groupLis)
                 {
-                    _ws.Cells[startIndex, 1] = p.CustomerOrderNumber;
-                    _ws.Cells[startIndex, 2] = p.AmzRef;
-                    _ws.Cells[startIndex, 4] = p.CartonQuantity;
+                    var startRow = startIndex;
+                    _ws.Cells[startIndex, 3] = g.First().Contianer;
+                    _ws.Cells[startIndex, 5] = g.First().ParentPalletId == 0 ? "NA" : g.First().PickPallets.ToString();
+                    _ws.Cells[startIndex, 6] = g.First().Location;
 
-                    if (p.ParentPalletId == 0)
+                    foreach (var p in g)
                     {
-                        _ws.Cells[startIndex, 3] = p.Contianer;
-                        _ws.Cells[startIndex, 6] = p.Location;
+                        _ws.Cells[startIndex, 1] = p.CustomerOrderNumber;
+                        _ws.Cells[startIndex, 2] = p.AmzRef;
+                        _ws.Cells[startIndex, 4] = p.CartonQuantity;
+
+                        if (p.ParentPalletId == 0)
+                        {
+                            _ws.Cells[startIndex, 3] = p.Contianer;
+                            _ws.Cells[startIndex, 6] = p.Location;
+                        }
+
+                        startIndex += 1;
                     }
 
-                    startIndex += 1;
-                }
-
-                if (g.Count() > 1) //当组内数量大于1才有纵向合并单元格的必要
-                {
-                    if (g.First().ParentPalletId != 0) //按托拣货
+                    if (g.Count() > 1) //当组内数量大于1才有纵向合并单元格的必要
                     {
-                        var rangeContainer = _ws.get_Range("C" + startRow, "C" + (startIndex - 1));
-                        rangeContainer.Merge(rangeContainer.MergeCells);
+                        if (g.First().ParentPalletId != 0) //按托拣货
+                        {
+                            var rangeContainer = _ws.get_Range("C" + startRow, "C" + (startIndex - 1));
+                            rangeContainer.Merge(rangeContainer.MergeCells);
 
-                        var rangeLocation = _ws.get_Range("F" + startRow, "F" + (startIndex - 1));
-                        rangeLocation.Merge(rangeLocation.MergeCells);
+                            var rangeLocation = _ws.get_Range("F" + startRow, "F" + (startIndex - 1));
+                            rangeLocation.Merge(rangeLocation.MergeCells);
+                        }
+
+                        var rangePlts = _ws.get_Range("E" + startRow, "E" + (startIndex - 1));
+                        rangePlts.Merge(rangePlts.MergeCells);
                     }
-
-                    var rangePlts = _ws.get_Range("E" + startRow, "E" + (startIndex - 1));
-                    rangePlts.Merge(rangePlts.MergeCells);
                 }
+
+                _ws.Cells[startIndex + 1, 3] = "Total";
+                _ws.Cells[startIndex + 1, 4] = pickDetailInDb.Sum(x => x.ActualQuantity);
+                _ws.Cells[startIndex + 1, 5] = pickDetailInDb.Sum(x => x.ActualPlts);
+
+                var range = _ws.get_Range("A2:F" + (startIndex + 1), Type.Missing);
+
+                range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
+                range.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                range.Borders.LineStyle = 1;
             }
 
-            _ws.Cells[startIndex + 1, 3] = "Total";
-            _ws.Cells[startIndex + 1, 4] = pickDetailInDb.Sum(x => x.ActualQuantity);
-            _ws.Cells[startIndex + 1, 5] = pickDetailInDb.Sum(x => x.ActualPlts);
-
-            var range = _ws.get_Range("A2:F" + (startIndex + 1), Type.Missing);
-
-            range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
-            range.VerticalAlignment = XlVAlign.xlVAlignCenter;
-            range.Borders.LineStyle = 1;
-
-            var fullPath = @"D:\PickingList\" + pickDetailInDb.First().FBAShipOrder.CustomerCode + "-OB-WO-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"D:\PickingList\" + shipOrderInDb.CustomerCode + "-OB-WO-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
