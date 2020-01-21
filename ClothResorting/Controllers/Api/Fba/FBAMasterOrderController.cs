@@ -272,6 +272,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Where(x => x.FBAMasterOrder.Id == masterOrderId)
                     .Select(Mapper.Map<FBAOrderDetail, FBAOrderDetailDto>);
 
+                var s = packingList.ToList();
+
                 var chargingList = _context.ChargingItemDetails
                     .Include(x => x.FBAMasterOrder)
                     .Where(x => x.FBAMasterOrder.Id == masterOrderId);
@@ -564,6 +566,23 @@ namespace ClothResorting.Controllers.Api.Fba
                     masterOrderInDb.Status = FBAStatus.Draft;
                 else
                     throw new Exception("Cannot submit a order that status is not new created.");
+            }
+            else if (operation == "Reset")
+            {
+                masterOrderInDb.Status = FBAStatus.Arrived;
+            }
+            else if (operation == "Start")
+            {
+                masterOrderInDb.Status = FBAStatus.Processing;
+                masterOrderInDb.UnloadStartTime = DateTime.Now;
+            }
+            else if (operation == "Finish Allocating")
+            {
+                masterOrderInDb.Status = FBAStatus.Allocated;
+            }
+            else if (operation == "Finish Palletizing")
+            {
+                masterOrderInDb.Status = FBAStatus.Registered;
             }
 
             _context.SaveChanges();
