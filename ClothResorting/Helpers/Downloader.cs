@@ -82,6 +82,7 @@ namespace ClothResorting.Helpers
             response.ClearHeaders();
             response.Buffer = false;
             response.ContentType = "application/octet-stream";
+            //response.AppendHeader("Access-Control-Allow-Origin", "*");
             response.AppendHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8));
             response.Clear();
             response.AppendHeader("Content-Length", downloadFile.Length.ToString());

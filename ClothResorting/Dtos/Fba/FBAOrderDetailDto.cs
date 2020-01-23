@@ -22,9 +22,13 @@ namespace ClothResorting.Dtos.Fba
 
         public string Remark { get; set; }
 
+        public string TempLocation { get; set; }
+
         public int ComsumedQuantity { get; set; }
 
         public int LabelFileNumbers { get; set; }
+
+        public int CtnsPerLocation { get; set; }
 
     }
 }

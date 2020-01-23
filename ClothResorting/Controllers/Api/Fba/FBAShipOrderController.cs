@@ -733,7 +733,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.OperationLog = "Ready By " + _userName;
                 }
                 //如果订单为在拣状态或Draft状态，则转换为给仓库的新订单状态
-                else if (shipOrderInDb.Status == FBAStatus.Picking || shipOrderInDb.Status == FBAStatus.Draft)
+                else if (shipOrderInDb.Status == FBAStatus.Picking || shipOrderInDb.Status == FBAStatus.Draft || shipOrderInDb.Status == FBAStatus.NewCreated)
                 {
                     //检查是否允许被push到仓库端
                     var ifCanPush = CheckIfCanPushOrder(shipOrderInDb.CustomerCode);

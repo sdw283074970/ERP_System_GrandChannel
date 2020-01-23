@@ -168,6 +168,124 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
+        // POST /api/fba/fbaallocating/?masterOrderId={masterOrderId}&inventoryType={inventoryType}
+        [HttpPost]
+        public void CreateLocationObjectsByMasterOrder([FromUri]int masterOrderId, [FromUri]string inventoryType, [FromBody]IEnumerable<FBALocationDto> objArray)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Id == masterOrderId);
+            if (inventoryType == FBAInventoryType.Pallet)
+            {
+                var palletLocationList = new List<FBAPalletLocation>();
+                var palletsInDb = _context.FBAPallets
+                    .Include(x => x.FBACartonLocations)
+                    .Include(x => x.FBAMasterOrder)
+                    .Where(x => x.FBAMasterOrder.Id == masterOrderId
+                    && x.ActualPallets - x.ComsumedPallets > 0);
+
+                if (palletsInDb.Count() == 0)
+                {
+                    throw new Exception("No quantity for allocating.");
+                }
+
+                foreach (var obj in objArray)
+                {
+                    var palletInDb = palletsInDb
+                        .Include(x => x.FBACartonLocations)
+                        .SingleOrDefault(x => x.Id == obj.Id);
+
+                    //如果这是一个rough packed pallets，那么默认分配所有货物
+                    //if (palletInDb.FBACartonLocations.Sum(x => x.CtnsPerPlt) == 0)
+                    //{
+                    //    obj.Quantity = palletInDb.ActualPallets;
+                    //}
+
+                    //所有类型的pallets现在不允许分开入库
+                    obj.Quantity = palletInDb.ActualPallets - palletInDb.ComsumedPallets;
+
+                    palletInDb.ComsumedPallets += obj.Quantity;
+
+                    if (palletInDb.ComsumedPallets > palletInDb.ActualPallets)
+                    {
+                        throw new Exception("Not enough quantity for comsuming. Check Id:" + obj.Id);
+                    }
+
+                    var palletLocation = new FBAPalletLocation();
+
+                    palletLocation.Status = FBAStatus.InStock;
+                    palletLocation.HowToDeliver = palletInDb.HowToDeliver;
+                    //palletLocation.GrossWeightPerPlt = palletInDb.ActualGrossWeight / palletInDb.ActualPallets;
+                    palletLocation.GrossWeightPerPlt = palletInDb.FBACartonLocations.Sum(x => x.GrossWeightPerCtn * x.ActualQuantity) / obj.Quantity;
+                    //palletLocation.CBMPerPlt = palletInDb.ActualCBM / palletInDb.ActualPallets;
+                    palletLocation.CBMPerPlt = palletInDb.FBACartonLocations.Sum(x => x.CBMPerCtn * x.ActualQuantity) / obj.Quantity;
+                    palletLocation.CtnsPerPlt = palletInDb.FBACartonLocations.Sum(x => x.CtnsPerPlt) == 0 ? 0 : palletInDb.ActualQuantity / palletInDb.ActualPallets;
+                    palletLocation.AvailablePlts = obj.Quantity;
+                    palletLocation.Location = obj.Location;
+                    palletLocation.PalletSize = palletInDb.PalletSize;
+
+                    palletLocation.AssembleFirstStringPart(palletInDb.ShipmentId, palletInDb.AmzRefId, palletInDb.WarehouseCode);
+                    //PalletLocation的Actualquantity指内含cartons的总数量
+                    palletLocation.AssembleActualDetails(palletLocation.GrossWeightPerPlt * obj.Quantity, palletLocation.CBMPerPlt * obj.Quantity, palletInDb.FBACartonLocations.Sum(x => x.ActualQuantity));
+                    palletLocation.ActualPlts = obj.Quantity;
+                    palletLocation.AssembleUniqueIndex(palletInDb.Container, palletInDb.GrandNumber);
+
+                    palletLocation.FBAMasterOrder = masterOrderInDb;
+                    palletLocation.FBAPallet = palletInDb;
+
+                    palletLocationList.Add(palletLocation);
+                }
+                _context.FBAPalletLocations.AddRange(palletLocationList);
+            }
+            else
+            {
+                var cartonLocationList = new List<FBACartonLocation>();
+                var orderDetailsInDb = _context.FBAOrderDetails
+                    .Include(x => x.FBAMasterOrder)
+                    .Where(x => x.FBAMasterOrder.Id == masterOrderId
+                        && x.ActualQuantity - x.ComsumedQuantity > 0);
+
+                if (orderDetailsInDb.Count() == 0)
+                {
+                    throw new Exception("No quantity for allocating.");
+                }
+
+                foreach (var obj in objArray)
+                {
+                    var orderDetailInDb = orderDetailsInDb.SingleOrDefault(x => x.Id == obj.Id);
+                    orderDetailInDb.ComsumedQuantity += obj.Quantity;
+
+                    if (orderDetailInDb.ComsumedQuantity > orderDetailInDb.ActualQuantity)
+                    {
+                        throw new Exception("Not enough quantity for comsuming. Check Id:" + obj.Id);
+                    }
+
+                    if (orderDetailInDb.Container == "NULL" || orderDetailInDb.Container == "")
+                    {
+                        throw new Exception("Please assign container number first.");
+                    }
+
+                    var cartonLocation = new FBACartonLocation();
+
+                    cartonLocation.Status = FBAStatus.InStock;
+                    cartonLocation.HowToDeliver = orderDetailInDb.HowToDeliver;
+                    cartonLocation.GrossWeightPerCtn = (float)Math.Round((orderDetailInDb.ActualGrossWeight / orderDetailInDb.ActualQuantity), 2);
+                    cartonLocation.CBMPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
+                    cartonLocation.AvailableCtns = obj.Quantity;
+                    cartonLocation.Location = obj.Location;
+
+                    cartonLocation.AssembleFirstStringPart(orderDetailInDb.ShipmentId, orderDetailInDb.AmzRefId, orderDetailInDb.WarehouseCode);
+                    cartonLocation.AssembleActualDetails(cartonLocation.GrossWeightPerCtn * obj.Quantity, cartonLocation.CBMPerCtn * obj.Quantity, obj.Quantity);
+                    cartonLocation.AssembleUniqueIndex(orderDetailInDb.Container, orderDetailInDb.GrandNumber);
+
+                    cartonLocation.FBAOrderDetail = orderDetailInDb;
+
+                    cartonLocationList.Add(cartonLocation);
+                }
+
+                _context.FBACartonLocations.AddRange(cartonLocationList);
+            }
+            _context.SaveChanges();
+        }
+
         // DELETE /api/fba/fbaallocating/?palletId={palletId}
         [HttpDelete]
         public void RemovePalletAndRelatedCartonLocation([FromUri]int palletId)

@@ -59,7 +59,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var downloader = new Downloader();
             var fileInfoInDb = _context.EFiles.Find(fileId);
 
-            downloader.DownloadFromServer(fileInfoInDb.FileName, fileInfoInDb.RootPath);
+            downloader.DownloadByFullPath(fileInfoInDb.RootPath + fileInfoInDb.FileName);
         }
 
         // POST /api/fba/fbaefolder/?reference={reference}&orderType={orderType}&fileName={fileName}&version={version}
