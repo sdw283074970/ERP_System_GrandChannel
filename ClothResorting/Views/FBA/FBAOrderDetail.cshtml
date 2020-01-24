@@ -13,12 +13,13 @@
         <input type="button" class="btn btn-default btn-back" value="<< Back" />
     </div>
     <div>
-        <input id="btn-upload" type="button" class="btn btn-primary" value="Upload packing list" />
-        <input id="btn-receive" type="button" class="btn btn-primary" value="Receive all unreceived sku" />
-        <input id="btn-operation" type="button" class="btn btn-primary" value="Register pallets info" />
-        <input id="btn-receipt" type="button" class="btn btn-primary" value="Download warehouse receipt" />
-        <input id="btn-allocating" type="button" class="btn btn-primary" value="Allocate location" />
+        <input id="btn-upload" type="button" class="btn btn-primary" value="Upload packing list" disabled />
+        <input id="btn-receive" type="button" class="btn btn-primary" value="Receive all unreceived sku" disabled />
+        <input id="btn-operation" type="button" class="btn btn-primary" value="Register pallets info" disabled />
+        <input id="btn-receipt" type="button" class="btn btn-primary" value="Download warehouse receipt" disabled />
+        <input id="btn-allocating" type="button" class="btn btn-primary" value="Allocate location" disabled />
         <input id="btn-inventory" type="button" class="btn btn-primary" value="View inventory" />
+        <a class="btn btn-default" style="margin-left:10px" href="https://grandchannellogistic.site">除财务以外其他功能及服务基本关闭，点击前往新UI系统 &raquo;</a>
     </div>
     <form id="form-table" style="margin:20px">
         <fieldset>
@@ -46,7 +47,7 @@
                     <td><input id="input-add-cbm" name="cbm" type="number" class="input-sm" placeholder="Required" value="0" required /></td>
                     <td><input id="input-qty" name="quantity" type="number" class="input-sm" placeholder="Required" required /></td>
                     <td><input id="input-remark" class="input-sm" placeholder="Optional" /></td>
-                    <td><input id="btn-add" class="btn btn-primary" value="Add" /></td>
+                    <td><input id="btn-add" class="btn btn-primary" value="Add" disabled /></td>
                 </tr>
             </table>
         </fieldset>
