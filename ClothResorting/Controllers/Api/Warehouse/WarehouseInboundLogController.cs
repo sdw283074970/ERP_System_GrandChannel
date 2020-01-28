@@ -65,7 +65,13 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     UnloadFinishTime = m.UnloadFinishTime,
                     UnloadStartTime = m.UnloadStartTime,
                     UpdateLog = m.UpdateLog,
-                    VerifiedBy = m.VerifiedBy
+                    VerifiedBy = m.VerifiedBy,
+                    ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity),
+                    OriginalCtns = m.FBAOrderDetails.Sum(x => x.Quantity),
+                    StorageType = m.StorageType,
+                    ContainerSize = m.ContainerSize,
+                    Palletizing = m.Palletizing,
+                    ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets)
                 };
 
                 inboundLogList.Add(newLog);
@@ -264,6 +270,18 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public DateTime UnloadFinishTime { get; set; }
 
         public string VerifiedBy { get; set; }
+
+        public int ActualCtns { get; set; }
+
+        public int OriginalCtns { get; set; }
+
+        public int ActualPlts { get; set; }
+
+        public string StorageType { get; set; }
+
+        public string ContainerSize { get; set; }
+
+        public string Palletizing { get; set; }
     }
 
 }

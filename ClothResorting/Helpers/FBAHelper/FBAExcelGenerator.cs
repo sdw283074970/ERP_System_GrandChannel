@@ -292,7 +292,10 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[5, 2] = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualQuantity);
             _ws.Cells[5, 6] = shipOrderInDb.FBAPickDetails.Sum(x => x.PltsFromInventory);
 
-            var instructionList = shipOrderInDb.ChargingItemDetails.ToList();
+            var instructionList = shipOrderInDb.ChargingItemDetails
+                .Where(x => x.HandlingStatus != "N/A")
+                .ToList();
+
             for (int i = 0; i < instructionList.Count; i++)
             {
                 _ws.Cells[i + 7, 1] = (i + 1).ToString() + ". " + instructionList[i].Description;
@@ -396,7 +399,10 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[7, 4] = masterOrder.UnloadingType;
             _ws.Cells[7, 9] = masterOrder.StorageType;
 
-            var instructionList = masterOrder.ChargingItemDetails.ToList();
+            var instructionList = masterOrder.ChargingItemDetails
+                .Where(x => x.HandlingStatus != "N/A")
+                .ToList();
+
             for (int i = 0; i < instructionList.Count; i++)
             {
                 _ws.Cells[i + 9, 1] = (i + 1).ToString() + ". " + instructionList[i].Description;
