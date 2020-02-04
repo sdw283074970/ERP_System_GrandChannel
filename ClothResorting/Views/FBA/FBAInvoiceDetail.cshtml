@@ -447,6 +447,7 @@
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
                         success: function (data) {
+                            $("#input-cost").val(0);
                             $("#input-rate").val(data.rate);
                             $("#text-unit").html(data.unit);
                             $("#text-description").html(data.description);
