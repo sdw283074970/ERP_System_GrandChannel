@@ -74,7 +74,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (version == "V1")
             {
-                newFileRecord.CustomizedFileName = fileName + "-" + DateTime.Now.ToString("hhmmss");
+                //newFileRecord.CustomizedFileName = fileName + "-" + DateTime.Now.ToString("hhmmss");
+                newFileRecord.CustomizedFileName = path.Split('\\').Last().Split('-')[1];
                 newFileRecord.FileName = path.Split('\\').Last();
                 newFileRecord.RootPath = @"D:\eFolder\";
                 newFileRecord.UploadBy = _userName;
