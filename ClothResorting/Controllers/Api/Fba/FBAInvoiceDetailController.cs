@@ -432,39 +432,39 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}
         [HttpPost]
-        public IHttpActionResult CreateChargingItemRef([FromBody]Instruction obj)
+        public IHttpActionResult CreateInstructionByModel([FromBody]Instruction obj)
         {
             var detail = new ChargingItemDetail();
 
-                if (obj.OrderType == FBAInvoiceType.MasterOrder)
+            if (obj.OrderType == FBAInvoiceType.MasterOrder)
             {
-                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Reference);
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Reference);
 
-                var newDetail = new ChargingItemDetail
-                {
-                    Status = FBAStatus.Unhandled,
-                    HandlingStatus = obj.IsInstruction == true ? FBAStatus.New : FBAStatus.Na,
-                    CreateBy = _userName,
-                    OriginalDescription = obj.Description,
-                    IsOperation = obj.IsOperation,
-                    CreateDate = DateTime.Now,
-                    Description = obj.Description,
-                    FBAMasterOrder = masterOrderInDb
-                };
+            var newDetail = new ChargingItemDetail
+            {
+                Status = FBAStatus.Unhandled,
+                HandlingStatus = obj.IsInstruction == true ? FBAStatus.New : FBAStatus.Na,
+                CreateBy = _userName,
+                OriginalDescription = obj.Description,
+                IsOperation = obj.IsOperation,
+                CreateDate = DateTime.Now,
+                Description = obj.Description,
+                FBAMasterOrder = masterOrderInDb
+            };
 
-                if (masterOrderInDb.Status == FBAStatus.Pending)
-                    masterOrderInDb.Status = FBAStatus.Updated;
+            if (masterOrderInDb.Status == FBAStatus.Pending)
+                masterOrderInDb.Status = FBAStatus.Updated;
 
-                if (obj.IsCharging)
-                {
-                    newDetail.Status = FBAStatus.WaitingForCharging;
-                }
-                else
-                {
-                    newDetail.Status = FBAStatus.NoNeedForCharging;
-                }
+            if (obj.IsChargingItem)
+            {
+                newDetail.Status = FBAStatus.WaitingForCharging;
+            }
+            else
+            {
+                newDetail.Status = FBAStatus.NoNeedForCharging;
+            }
 
-                detail = newDetail;
+            detail = newDetail;
             }
             else if (obj.OrderType == FBAInvoiceType.ShipOrder)
             {
@@ -485,7 +485,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 if (shipOrderInDb.Status == FBAStatus.Pending)
                     shipOrderInDb.Status = FBAStatus.Updated;
 
-                if (obj.IsCharging)
+                if (obj.IsChargingItem)
                 {
                     newDetail.Status = FBAStatus.WaitingForCharging;
                 }

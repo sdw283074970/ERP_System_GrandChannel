@@ -78,7 +78,7 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 
         public bool IsOperation { get; set; }
 
-        public bool IsCharging { get; set; }
+        public bool IsChargingItem { get; set; }
 
         public string Comment { get; set; }
 

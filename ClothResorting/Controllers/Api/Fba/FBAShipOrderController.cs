@@ -595,7 +595,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 else if (instructionInDb.FBAShipOrder != null && instructionInDb.FBAShipOrder.Status == FBAStatus.Pending)
                     instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
 
-                instructionInDb.Status = obj.IsCharging ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
+                instructionInDb.Status = obj.IsChargingItem ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
                 instructionInDb.IsOperation = obj.IsOperation;
                 instructionInDb.HandlingStatus = obj.IsInstruction ? FBAStatus.New : FBAStatus.Na;
 
