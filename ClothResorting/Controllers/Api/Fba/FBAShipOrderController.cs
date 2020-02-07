@@ -22,6 +22,7 @@ using ClothResorting.Dtos;
 using ClothResorting.Controllers.Api.Warehouse;
 using ClothResorting.Models.Extensions;
 using System.Web.Http.Cors;
+using ClothResorting.Models.FBAModels.BaseClass;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -573,6 +574,66 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, instructionDto, description, null, OperationLevel.Mediunm);
         }
 
+        // PUT /api/fba/fbashiporder/?operation={operation}
+        [HttpPut]
+        public async Task UpdateInstructionByModel([FromUri]string operation, [FromBody]Instruction obj)
+        {
+            var instructionInDb = _context.ChargingItemDetails
+                .Include(x => x.FBAMasterOrder)
+                .Include(x => x.FBAShipOrder)
+                .SingleOrDefault(x => x.Id == obj.Id);
+
+            var oldValueDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(instructionInDb);
+            string description = "";
+
+            if (operation == "UpdateInstruction")
+            {
+                instructionInDb.Description = obj.Description;
+                instructionInDb.HandlingStatus = FBAStatus.New;
+                if (instructionInDb.FBAMasterOrder != null && instructionInDb.FBAMasterOrder.Status == FBAStatus.Pending)
+                    instructionInDb.FBAMasterOrder.Status = FBAStatus.Updated;
+                else if (instructionInDb.FBAShipOrder != null && instructionInDb.FBAShipOrder.Status == FBAStatus.Pending)
+                    instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
+
+                instructionInDb.Status = obj.IsCharging ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
+                instructionInDb.IsOperation = obj.IsOperation;
+                instructionInDb.HandlingStatus = obj.IsInstruction ? FBAStatus.New : FBAStatus.Na;
+
+                description = "Updated instruction by office client";
+            }
+            else if (operation == "UpdateComment")
+            {
+                instructionInDb.Comment = obj.Comment;
+                instructionInDb.HandlingStatus = FBAStatus.Pending;
+                instructionInDb.ConfirmedBy = _userName;
+                instructionInDb.IsOperation = obj.IsOperation;
+
+                description = "Updated comment by warehouse client";
+
+                if (instructionInDb.FBAShipOrder != null)
+                    instructionInDb.FBAShipOrder.Status = FBAStatus.Pending;
+                else
+                    instructionInDb.FBAMasterOrder.Status = FBAStatus.Pending;
+            }
+            else if (operation == "UpdateResult")
+            {
+                instructionInDb.Result = obj.Result;
+                instructionInDb.HandlingStatus = FBAStatus.Updated;
+
+                if (instructionInDb.FBAShipOrder != null)
+                    instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
+                else
+                    instructionInDb.FBAMasterOrder.Status = FBAStatus.Updated;
+
+                description = "Updated result by office client";
+            }
+
+            var instructionDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(instructionInDb);
+
+            await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, instructionDto, description, null, OperationLevel.Mediunm);
+        }
+
+
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&batchNumber={batchNumber}
         [HttpPut]
         public void UpdateBatchNumber([FromUri]int shipOrderId, [FromUri]string batchNumber)
@@ -1016,7 +1077,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     CreateDate = c.CreateDate,
                     Result = c.Result,
                     HandlingStatus = c.HandlingStatus,
-                    Status =c.Status
+                    Status = c.Status,
+                    IsOperation = c.IsOperation
                 });
             }
 
@@ -1271,6 +1333,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public int Id { get; set; }
 
         public string Description { get; set; }
+
+        public bool IsOperation { get; set; }
 
         public string Status { get; set; }
 

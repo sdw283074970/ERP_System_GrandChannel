@@ -63,4 +63,25 @@ namespace ClothResorting.Models.FBAModels.BaseClass
             GrandNumber = grandNumber;
         }
     }
+
+    public class Instruction
+    {
+        public int Id { get; set; }
+
+        public string Reference { get; set; }
+
+        public string OrderType { get; set; }
+
+        public string Description { get; set; }
+
+        public bool IsInstruction { get; set; }
+
+        public bool IsOperation { get; set; }
+
+        public bool IsCharging { get; set; }
+
+        public string Comment { get; set; }
+
+        public string Result { get; set; }
+    }
 }

@@ -14,6 +14,7 @@ using ClothResorting.Models.FBAModels;
 using ClothResorting.Dtos.Fba;
 using System.Web;
 using ClothResorting.Models.FBAModels.StaticModels;
+using ClothResorting.Models.FBAModels.BaseClass;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -263,6 +264,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}
+        [HttpPost]
         public IHttpActionResult CreateInstructionByCustomer([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
         {
             var instruction = new ChargingItemDetail
@@ -426,6 +428,79 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
 
             return Created(Request.RequestUri + "/", Mapper.Map<InvoiceDetail, InvoiceDetailDto>(invoice));
+        }
+
+        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}
+        [HttpPost]
+        public IHttpActionResult CreateChargingItemRef([FromBody]Instruction obj)
+        {
+            var detail = new ChargingItemDetail();
+
+                if (obj.OrderType == FBAInvoiceType.MasterOrder)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Reference);
+
+                var newDetail = new ChargingItemDetail
+                {
+                    Status = FBAStatus.Unhandled,
+                    HandlingStatus = obj.IsInstruction == true ? FBAStatus.New : FBAStatus.Na,
+                    CreateBy = _userName,
+                    OriginalDescription = obj.Description,
+                    IsOperation = obj.IsOperation,
+                    CreateDate = DateTime.Now,
+                    Description = obj.Description,
+                    FBAMasterOrder = masterOrderInDb
+                };
+
+                if (masterOrderInDb.Status == FBAStatus.Pending)
+                    masterOrderInDb.Status = FBAStatus.Updated;
+
+                if (obj.IsCharging)
+                {
+                    newDetail.Status = FBAStatus.WaitingForCharging;
+                }
+                else
+                {
+                    newDetail.Status = FBAStatus.NoNeedForCharging;
+                }
+
+                detail = newDetail;
+            }
+            else if (obj.OrderType == FBAInvoiceType.ShipOrder)
+            {
+                var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.Reference);
+
+                var newDetail = new ChargingItemDetail
+                {
+                    Status = FBAStatus.Unhandled,
+                    HandlingStatus = obj.IsInstruction == true ? FBAStatus.New : FBAStatus.Na,
+                    CreateBy = _userName,
+                    CreateDate = DateTime.Now,
+                    OriginalDescription = obj.Description,
+                    IsOperation = obj.IsOperation,
+                    Description = obj.Description,
+                    FBAShipOrder = shipOrderInDb
+                };
+
+                if (shipOrderInDb.Status == FBAStatus.Pending)
+                    shipOrderInDb.Status = FBAStatus.Updated;
+
+                if (obj.IsCharging)
+                {
+                    newDetail.Status = FBAStatus.WaitingForCharging;
+                }
+                else
+                {
+                    newDetail.Status = FBAStatus.NoNeedForCharging;
+                }
+
+                detail = newDetail;
+            }
+
+            _context.ChargingItemDetails.Add(detail);
+            _context.SaveChanges();
+
+            return Created(Request.RequestUri + "/", Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(detail));
         }
 
         // PUT /api/fba/FBAInvoiceDetail/?chargingItemDetailId={chargingItemDetailId}&description={description}

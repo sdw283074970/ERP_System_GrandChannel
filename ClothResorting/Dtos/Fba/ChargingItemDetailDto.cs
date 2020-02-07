@@ -11,6 +11,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string Description { get; set; }
 
+        public bool IsOperation { get; set; }
+
         public string OriginalDescription { get; set; }
 
         public string Status { get; set; }

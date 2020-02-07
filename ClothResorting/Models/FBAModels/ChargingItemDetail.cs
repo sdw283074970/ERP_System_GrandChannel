@@ -12,6 +12,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string Description { get; set; }
 
+        public bool IsOperation { get; set; }
+
         public string OriginalDescription { get; set; }
 
         public string Status { get; set; }
@@ -43,6 +45,8 @@ namespace ClothResorting.Models.FBAModels
             CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
 
             CreateBy = FBAStatus.NoNeedForCharging;
+
+            IsOperation = true;
         }
     }
 }

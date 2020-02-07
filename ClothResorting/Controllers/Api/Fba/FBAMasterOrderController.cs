@@ -286,7 +286,8 @@ namespace ClothResorting.Controllers.Api.Fba
                         Comment = c.Comment,
                         Result = c.Result,
                         HandlingStatus = c.HandlingStatus,
-                        Status = c.Status
+                        Status = c.Status,
+                        IsOperation = c.IsOperation
                     });
                 }
 
