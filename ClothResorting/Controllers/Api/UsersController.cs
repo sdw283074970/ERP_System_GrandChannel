@@ -18,6 +18,7 @@ using System.Threading;
 using System.Security.Claims;
 using System.Data.Entity;
 using ClothResorting.Models.StaticClass;
+using System;
 
 namespace ClothResorting.Controllers.Api
 {
@@ -80,6 +81,9 @@ namespace ClothResorting.Controllers.Api
 
                 //await SignInAsync(user, false);
                 //System.Diagnostics.Process.Start("https://localhost:44364/Account/Login");
+                var userInDb = _context.Users.Single(x => x.UserName == userName);
+                userInDb.LatestLogin = DateTime.Now;
+                _context.SaveChanges();
                 return Ok(new { Code = 20000, Token = user.Id });
             }
             else
@@ -147,8 +151,33 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetAllUsers()
         {
-            var usersDto = _context.Users.Select(Mapper.Map<ApplicationUser, ApplicationUserDto>);
-            return Ok(usersDto);
+            //var usersDto = _context.Users.Select(Mapper.Map<ApplicationUser, ApplicationUserDto>);
+            var usersInDb = _context.Users
+                .Include(x => x.Roles)
+                .Where(x => x.Id != null);
+
+            var roleList = _context.Roles.Where(x => x.Id != null).ToList();
+            var userDto = new List<ApplicationUserDto>();
+
+            foreach(var u in usersInDb)
+            {
+                var roleNames = new List<string>();
+                var dto = new ApplicationUserDto();
+
+                dto.UserName = u.UserName;
+                dto.Email = u.Email;
+                dto.LatestLogin = u.LatestLogin;
+
+                foreach(var r in u.Roles)
+                {
+                    roleNames.Add(TranslateRoleName(roleList.SingleOrDefault(x => x.Id == r.RoleId).Name));
+                }
+
+                dto.Roles = roleNames.ToArray();
+                userDto.Add(dto);
+            }
+
+            return Ok(userDto);
         }
 
         // GET /api/users/?userId={userId}
@@ -288,6 +317,31 @@ namespace ClothResorting.Controllers.Api
             else
             {
                 return new string[] { "guest" };
+            }
+        }
+
+        private string TranslateRoleName(string name)
+        {
+            switch(name)
+            {
+                case "CanDeleteEverything":
+                    return "admin";
+                case "CanViewAsClientOnly": 
+                    return "customer";
+                case "CanOperateAsT5":
+                    return "accounting";
+                case "CanOperateAsT4":
+                    return "sales";
+                case "CanOperateAsT3":
+                    return "office";
+                case "CanOperateAsT2":
+                    return "warehouse";
+                case "CanOperateAsT1":
+                    return "guest";
+                case null:
+                    return "guest";
+                default:
+                    return "guest";
             }
         }
     }

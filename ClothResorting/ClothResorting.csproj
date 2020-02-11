@@ -1817,6 +1817,10 @@
     <Compile Include="Migrations\202002070315446_AddedIsOperationInChargingItemDetail.Designer.cs">
       <DependentUpon>202002070315446_AddedIsOperationInChargingItemDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202002110111047_AddedLatestLoginInASPDotNetUser.cs" />
+    <Compile Include="Migrations\202002110111047_AddedLatestLoginInASPDotNetUser.Designer.cs">
+      <DependentUpon>202002110111047_AddedLatestLoginInASPDotNetUser.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3396,6 +3400,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202002070315446_AddedIsOperationInChargingItemDetail.resx">
       <DependentUpon>202002070315446_AddedIsOperationInChargingItemDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202002110111047_AddedLatestLoginInASPDotNetUser.resx">
+      <DependentUpon>202002110111047_AddedLatestLoginInASPDotNetUser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

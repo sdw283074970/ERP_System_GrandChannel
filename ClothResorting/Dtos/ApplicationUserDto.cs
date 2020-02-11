@@ -10,7 +10,12 @@ namespace ClothResorting.Dtos
         public string Id { get; set; }
 
         public string Email { get; set; }
+        public DateTime LatestLogin { get; set; }
 
         public string UserName { get; set; }
+
+        public string[] Roles { get; set; }
+
+        public string CustomerCodeConnection { get; set; }
     }
 }

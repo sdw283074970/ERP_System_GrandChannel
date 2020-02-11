@@ -46,10 +46,10 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/index
         [HttpGet]
-        public IHttpActionResult GetActiveCustomers()
+        public IHttpActionResult GetAllCustomers()
         {
             var dtos = _context.UpperVendors
-                .Where(x => x.Status == "Active" && x.DepartmentCode == DepartmentCode.FBA)
+                .Where(x => x.DepartmentCode == DepartmentCode.FBA)
                 .Select(Mapper.Map<UpperVendor, UpperVendorDto>)
                 .ToList();
 
@@ -71,7 +71,7 @@ namespace ClothResorting.Controllers.Api.Fba
             //统计库存剩余箱数
             var cartonLocations = _context.FBACartonLocations
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
-                .Where(x => x.FBAOrderDetail.FBAMasterOrder.Customer.Status == "Active" && x.AvailableCtns != 0)
+                .Where(x => x.AvailableCtns != 0)
                 .ToList();
 
             var cartonLocationGroup = cartonLocations.GroupBy(x => x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode);
@@ -85,7 +85,7 @@ namespace ClothResorting.Controllers.Api.Fba
             //统计库存剩余托盘数
             var palletLocations = _context.FBAPalletLocations
                 .Include(x => x.FBAPallet.FBAMasterOrder.Customer)
-                .Where(x => x.FBAPallet.FBAMasterOrder.Customer.Status == "Active" && x.AvailablePlts != 0)
+                .Where(x => x.AvailablePlts != 0)
                 .ToList();
 
             var palletLocationGroup = palletLocations.GroupBy(x => x.FBAPallet.FBAMasterOrder.Customer.CustomerCode);
@@ -126,7 +126,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 dto.PayableInvoices += s.Count();
             }
 
-            return Ok(dtos);
+            return Ok(dtos.OrderByDescending(x => x.Id));
         }
 
         // GET /api/fba/fbaindex/?customerId={customerId}&startDate={startDate}&closeDate={closeDate}
@@ -173,5 +173,6 @@ namespace ClothResorting.Controllers.Api.Fba
             else
                 throw new Exception("Invalid!");
         }
+
     }
 }

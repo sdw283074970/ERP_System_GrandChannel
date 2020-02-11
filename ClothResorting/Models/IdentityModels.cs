@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using ClothResorting.Models.Interface;
 using ClothResorting.Models.FBAModels;
 using System.Collections.Generic;
+using System;
 
 namespace ClothResorting.Models
 {
@@ -15,6 +16,7 @@ namespace ClothResorting.Models
     {
         public ICollection<OAuthInfo> OAuthInfo { get; set; }
         public string CustomerCode { get; set; }
+        public DateTime LatestLogin { get; set; }
         public ICollection<UpperVendor> Vendors { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)

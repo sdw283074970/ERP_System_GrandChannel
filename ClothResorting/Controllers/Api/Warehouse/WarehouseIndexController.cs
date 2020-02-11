@@ -34,7 +34,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
             var ordersInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
-                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking && x.Status != FBAStatus.Shipped);
+                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking && x.Status != FBAStatus.Shipped && x.Status != FBAStatus.Draft);
 
             if (operation == FBAStatus.NewOrder)
             {
@@ -65,6 +65,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 order.ShipDate = o.ShipDate;
                 order.ReleaseTime = o.ReleasedDate;
                 order.OrderNumber = o.ShipOrderNumber;
+                order.BatchNumber = o.BatchNumber;
 
                 list.Add(order);
             }
@@ -196,6 +197,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
     public class WarehouseOutboundLog
     {
         public int Id { get; set; }
+
+        public string BatchNumber { get; set; }
 
         public string SubCustomer { get; set; }
 

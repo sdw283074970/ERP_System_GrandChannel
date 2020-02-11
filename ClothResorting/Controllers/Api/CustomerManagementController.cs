@@ -73,9 +73,45 @@ namespace ClothResorting.Controllers.Api
 
             _context.UpperVendors.Add(customer);
 
-            var generator = new ChargingItemGenerator();
+            //暂时停止为新客户自动建立收费项目
+            //var generator = new ChargingItemGenerator();
+            //generator.GenerateChargingItems(_context, customer);
 
-            generator.GenerateChargingItems(_context, customer);
+            _context.SaveChanges();
+
+            var result = _context.UpperVendors.OrderByDescending(x => x.Id).First();
+
+            return Created(Request.RequestUri + "/" + result.Id, Mapper.Map<UpperVendor, UpperVendorDto>(result));
+        }
+
+        [HttpPost]
+        //POST /api/customermanagement/
+        public IHttpActionResult CreateNewCustomerByModel([FromBody]UpperVendorDto model)
+        {
+            if (_context.UpperVendors.Where(x => x.CustomerCode == model.CustomerCode).Count() != 0)
+            {
+                throw new Exception("Customer Code " + model.CustomerCode + " has been taken. Please try another one.");
+            }
+
+            var customer = new UpperVendor
+            {
+                CustomerCode = model.CustomerCode,
+                DepartmentCode = model.DepartmentCode,
+                Name = model.Name,
+                FirstAddressLine = model.FirstAddressLine,
+                SecondAddressLine = model.SecondAddressLine,
+                TelNumber = model.TelNumber,
+                EmailAddress = model.EmailAddress,
+                ContactPerson = model.ContactPerson,
+                Status = Status.Active,
+                WarningQuantityLevel = model.WarningQuantityLevel
+            };
+
+            _context.UpperVendors.Add(customer);
+
+            //暂时停止为新客户自动建立收费项目
+            //var generator = new ChargingItemGenerator();
+            //generator.GenerateChargingItems(_context, customer);
 
             _context.SaveChanges();
 
@@ -167,6 +203,22 @@ namespace ClothResorting.Controllers.Api
             customerInDb.EmailAddress = emailAddress;
             customerInDb.ContactPerson = contactPerson;
             customerInDb.WarningQuantityLevel = warningQuantityLevel;
+
+            _context.SaveChanges();
+        }
+
+        //PUT /api/customermanagement/
+        [HttpPut]
+        public void UpdateCustomerByModel([FromBody]UpperVendor model)
+        {
+            var customerInDb = _context.UpperVendors.Find(model.Id);
+
+            customerInDb.FirstAddressLine = model.FirstAddressLine;
+            customerInDb.SecondAddressLine = model.SecondAddressLine;
+            customerInDb.TelNumber = model.TelNumber;
+            customerInDb.EmailAddress = model.EmailAddress;
+            customerInDb.ContactPerson = model.ContactPerson;
+            customerInDb.WarningQuantityLevel = model.WarningQuantityLevel;
 
             _context.SaveChanges();
         }
