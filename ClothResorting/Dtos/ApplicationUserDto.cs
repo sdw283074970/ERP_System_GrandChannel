@@ -16,6 +16,6 @@ namespace ClothResorting.Dtos
 
         public string[] Roles { get; set; }
 
-        public string CustomerCodeConnection { get; set; }
+        public string[] CustomerCodes { get; set; }
     }
 }

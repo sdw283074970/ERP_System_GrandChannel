@@ -154,6 +154,7 @@ namespace ClothResorting.Controllers.Api
             //var usersDto = _context.Users.Select(Mapper.Map<ApplicationUser, ApplicationUserDto>);
             var usersInDb = _context.Users
                 .Include(x => x.Roles)
+                .Include(x => x.Vendors)
                 .Where(x => x.Id != null);
 
             var roleList = _context.Roles.Where(x => x.Id != null).ToList();
@@ -174,6 +175,7 @@ namespace ClothResorting.Controllers.Api
                 }
 
                 dto.Roles = roleNames.ToArray();
+                dto.CustomerCodes = u.Vendors.Select(x => x.CustomerCode).ToArray();
                 userDto.Add(dto);
             }
 

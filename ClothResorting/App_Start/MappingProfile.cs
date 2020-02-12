@@ -38,7 +38,8 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<PullSheetDiagnostic, PullSheetDiagnosticDto>();
             Mapper.CreateMap<Container, ContainerDto>();
             Mapper.CreateMap<GeneralLocationSummary, GeneralLocationSummaryDto>();
-            Mapper.CreateMap<UpperVendor, UpperVendorDto>();
+            Mapper.CreateMap<UpperVendor, UpperVendorDto>()
+                .ForMember(dest => dest.LinkedAccount, opt => opt.MapFrom(src => src.ApplicationUser.UserName));
             Mapper.CreateMap<ChargingItem, ChargingItemDto>();
             Mapper.CreateMap<Invoice, InvoiceDto>();
             Mapper.CreateMap<InvoiceDetail, InvoiceDetailDto>();

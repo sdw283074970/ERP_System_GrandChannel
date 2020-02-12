@@ -49,6 +49,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult GetAllCustomers()
         {
             var dtos = _context.UpperVendors
+                .Include(x => x.ApplicationUser)
                 .Where(x => x.DepartmentCode == DepartmentCode.FBA)
                 .Select(Mapper.Map<UpperVendor, UpperVendorDto>)
                 .ToList();
@@ -173,6 +174,5 @@ namespace ClothResorting.Controllers.Api.Fba
             else
                 throw new Exception("Invalid!");
         }
-
     }
 }

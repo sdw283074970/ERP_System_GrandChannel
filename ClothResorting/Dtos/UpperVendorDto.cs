@@ -45,6 +45,8 @@ namespace ClothResorting.Dtos
 
         public DateTime LastUpdatedTime { get; set; }
 
+        public string LinkedAccount { get; set; }
+
         //public UpperVendorDto()
         //{
         //    InstockCtns = 0;

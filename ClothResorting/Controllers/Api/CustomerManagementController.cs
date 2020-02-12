@@ -207,6 +207,25 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
+        // PUT /api/customermanagement/?customerId={customerId}&userAccount={userAccount}
+        [HttpPut]
+        public void LinkToUser([FromUri]int customerId, [FromUri]string userAccount)
+        {
+            var userInDb = _context.Users.SingleOrDefault(x => x.UserName == userAccount);
+            var customerInDb = _context.UpperVendors
+                .Include(x => x.ApplicationUser)
+                .Single(x => x.Id == customerId);
+
+            if (userAccount == "DISMISS")
+                customerInDb.ApplicationUser = null;
+            else if (userInDb == null)
+                throw new Exception("User account '" + userAccount + "'was not found in system.");
+            else
+                customerInDb.ApplicationUser = userInDb;
+
+            _context.SaveChanges();
+        }
+
         //PUT /api/customermanagement/
         [HttpPut]
         public void UpdateCustomerByModel([FromBody]UpperVendor model)

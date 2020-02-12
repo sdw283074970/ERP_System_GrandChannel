@@ -179,7 +179,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         bool CheckIfAllOrdersAreFinished(FBAMasterOrder orderInDb)
         {
-            if (orderInDb.ChargingItemDetails.Where(x => x.HandlingStatus !=  FBAStatus.Finished).Any())
+            if (orderInDb.ChargingItemDetails.Where(x => x.HandlingStatus !=  FBAStatus.Finished && x.HandlingStatus != FBAStatus.Na).Any())
                 throw new Exception("Failed. Please ensure that all instructions in the work order have been completed.");
 
             return true;
