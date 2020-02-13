@@ -168,6 +168,7 @@ namespace ClothResorting.Controllers.Api
                 dto.UserName = u.UserName;
                 dto.Email = u.Email;
                 dto.LatestLogin = u.LatestLogin;
+                dto.Id = u.Id;
 
                 foreach(var r in u.Roles)
                 {
@@ -208,6 +209,57 @@ namespace ClothResorting.Controllers.Api
             }
 
             return Ok(resultList);
+        }
+
+        // POST /api/users/?email={email}&tire={tire}
+        [HttpPost]
+        public async Task<IHttpActionResult> RegisterNewUser([FromUri]string email,[FromUri]string tire)
+        {
+            var userInDb = _context.Users.SingleOrDefault(x => x.UserName == email);
+
+            if (userInDb != null)
+            {
+                throw new Exception("User " + email + " is already existed.");
+            }
+
+            var newUser = new ApplicationUser { UserName = email, Email = email };
+            var passWord = email.Split('@')[0].ToLower() + "123456*";
+            passWord = passWord[0].ToString().ToUpper() + passWord.Substring(1, passWord.Length - 1);
+
+            var result = await UserManager.CreateAsync(newUser, passWord);
+
+            var user = _context.Users.SingleOrDefault(x => x.UserName == email);
+
+            if (tire == "Client")
+            {
+                await UserManager.AddToRoleAsync(user.Id, RoleName.CanViewAsClientOnly);
+            }
+            else if (tire == "T1")
+            {
+                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+            }
+            else if (tire == "T2")
+            {
+                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
+            }
+            else if (tire == "T3")
+            {
+                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
+            }
+            else if (tire == "T4")
+            {
+                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
+            }
+            else if (tire == "T5")
+            {
+                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
+            }
+            else if (tire == "Admin")
+            {
+                await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
+            }
+
+            return Ok();
         }
 
         // POST /api/users/

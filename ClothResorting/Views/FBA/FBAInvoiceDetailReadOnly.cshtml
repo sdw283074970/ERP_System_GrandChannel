@@ -160,7 +160,7 @@
                 type: "GET",
                 contentType: 'application/json, charset=utf-8',
                 dataType: "json",
-                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=false",
+                url: "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&isChargingItemDetail=false",
                 success: function (data) {
                     customerCode = data;
                     $("#h2-customer").html("Customer: " + customerCode);
@@ -177,7 +177,7 @@
                 type: "GET",
                 contentType: 'application/json, charset=utf-8',
                 dataType: "json",
-                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
+                url: "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
                 success: function (data) {
                     if (tableDetail) {
                         tableDetail.destroy();
@@ -256,7 +256,7 @@
             });
 
             //获取收费项目细节
-            url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
+            url = "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType;
             GetAjaxTable(url);
 
             if (shipOrderId != "undefined" && shipOrderId != undefined) {
@@ -268,7 +268,7 @@
             $("#btn-download").on("click", function () {
                 $.ajax({
                     type: "GET",
-                    url: "/api/fba/FBAReportDonwload/?reference=" + reference + "&invoicetype=" + invoiceType,
+                    url: "/api/fba/FBAReportDonwload/?reference=" + encodeURIComponent(reference) + "&invoicetype=" + invoiceType,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     beforeSend: function () {

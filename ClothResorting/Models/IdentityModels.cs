@@ -19,6 +19,11 @@ namespace ClothResorting.Models
         public DateTime LatestLogin { get; set; }
         public ICollection<UpperVendor> Vendors { get; set; }
 
+        public ApplicationUser()
+        {
+            LatestLogin = new DateTime(1900, 1, 1);
+        }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType

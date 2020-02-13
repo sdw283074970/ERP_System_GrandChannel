@@ -296,7 +296,7 @@
                 type: "GET",
                 contentType: 'application/json, charset=utf-8',
                 dataType: "json",
-                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=false",
+                url: "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&isChargingItemDetail=false",
                 success: function (data) {
                     customerCode = data;
                     $("#h2-customer").html("Customer: " +customerCode);
@@ -313,7 +313,7 @@
                 type: "GET",
                 contentType: 'application/json, charset=utf-8',
                 dataType: "json",
-                url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
+                url: "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
                 success: function (data) {
                     if (tableDetail) {
                         tableDetail.destroy();
@@ -336,7 +336,7 @@
             });
 
             //获取收费项目细节
-            url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
+            url = "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType;
             GetAjaxTable(url);
 
             if (shipOrderId != undefined && shipOrderId != "undefined")
@@ -365,7 +365,7 @@
                 type: "GET",
                 contentType: "application/json, charset=8-utf",
                 dataType: "json",
-                url: "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&ajaxStep=0",
+                url: "/api/FBAInvoiceDetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&ajaxStep=0",
                 success: function (data) {
                     $("#text-number").html("Reference: " + reference);
                     $("#text-ordertype").html("Invoice from: " + invoiceType);
@@ -385,7 +385,7 @@
             // Ajax1, 获取该部门该Vendor适用的收费类型
             $.ajax({
                 type: "GET",
-                url: "/api/FBAinvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&ajaxStep=1",
+                url: "/api/FBAinvoiceDetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&ajaxStep=1",
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 success: function (data) {
@@ -413,7 +413,7 @@
                 {
                     $.ajax({
                         type: "GET",
-                        url: "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&chargingType=" + chargingType,
+                        url: "/api/FBAInvoiceDetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&chargingType=" + chargingType,
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
                         success: function (data) {
@@ -443,7 +443,7 @@
                 {
                     $.ajax({
                         type: "GET",
-                        url: "/api/FBAinvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&itemName=" + encodeURIComponent(itemName),
+                        url: "/api/FBAinvoiceDetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&itemName=" + encodeURIComponent(itemName),
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
                         success: function (data) {
@@ -518,7 +518,7 @@
                         type: "POST",
                         contentType: 'application/json; charset=utf-8',
                         dataType: "json",
-                        url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType,
+                        url: "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType,
                         data: JSON.stringify(obj),
                         success: function () {
                             layer.alert("Add success!", function () {
@@ -526,7 +526,7 @@
                                 layer.close(layer.index);
                                 layer.close(index);
 
-                                url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType;
+                                url = "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType;
                                 GetAjaxTable(url);
                             });
                         },
@@ -577,7 +577,7 @@
             $("#btn-download").on("click", function () {
                 $.ajax({
                     type: "GET",
-                    url: "/api/fba/FBAReportDonwload/?reference=" + reference + "&invoicetype=" + invoiceType,
+                    url: "/api/fba/FBAReportDonwload/?reference=" + encodeURIComponent(reference) + "&invoicetype=" + invoiceType,
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     beforeSend: function () {
@@ -618,7 +618,7 @@
 
                 if (description != "") {
                     layer.close(index);
-                    url = "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
+                    url = "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&description=" + encodeURIComponent(description) + "&isChargingItem=" + isChargingItem;
                     var obj = {"content" : "N/A"};
                     SendAjaxMethod("POST", url, obj);
                 }
@@ -649,7 +649,7 @@
                             type: "GET",
                             contentType: 'application/json, charset=utf-8',
                             dataType: "json",
-                            url: "/api/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
+                            url: "/api/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&isChargingItemDetail=true",
                             success: function (data) {
                                 if (tableDetail) {
                                     tableDetail.destroy();
@@ -706,7 +706,7 @@
                 if (closeDate != "")
                 {
                     var isAppliedMinCharge = $("#input-ismincharge").is(":checked");
-                    url = "/api/fba/fbainvoicedetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&closeDate=" + closeDate + "&isAppliedMinCharge=" + isAppliedMinCharge;
+                    url = "/api/fba/fbainvoicedetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&closeDate=" + closeDate + "&isAppliedMinCharge=" + isAppliedMinCharge;
                     SendAjaxMethodAndBack("PUT", url, {});
                 }
                 else
@@ -754,7 +754,7 @@
                         //重新获取收费项目名称列表
                         $.ajax({
                             type: "GET",
-                            url: "/api/FBAInvoiceDetail/?reference=" + reference + "&invoiceType=" + invoiceType + "&chargingType=" + data.chargingType,
+                            url: "/api/FBAInvoiceDetail/?reference=" + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&chargingType=" + data.chargingType,
                             contentType: 'application/json; charset=utf-8',
                             dataType: "json",
                             success: function (data2) {
@@ -888,7 +888,7 @@
                     success: function (data) {
                         layer.alert("Success!", function () {
                             window.history.back(-1);
-                            //$(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + reference + "&invoiceType=" + invoiceType + "&invoiceStatus=Closed" + "&shipOrderId=" + shipOrderId);
+                            //$(window.location).attr('href', '/fba/FBAinvoiceDetailReadOnly/?reference=' + encodeURIComponent(reference) + "&invoiceType=" + invoiceType + "&invoiceStatus=Closed" + "&shipOrderId=" + shipOrderId);
                         });
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
