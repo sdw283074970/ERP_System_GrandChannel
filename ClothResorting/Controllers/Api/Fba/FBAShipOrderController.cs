@@ -589,15 +589,17 @@ namespace ClothResorting.Controllers.Api.Fba
             if (operation == "UpdateInstruction")
             {
                 instructionInDb.Description = obj.Description;
-                instructionInDb.HandlingStatus = FBAStatus.New;
+
                 if (instructionInDb.FBAMasterOrder != null && instructionInDb.FBAMasterOrder.Status == FBAStatus.Pending)
                     instructionInDb.FBAMasterOrder.Status = FBAStatus.Updated;
                 else if (instructionInDb.FBAShipOrder != null && instructionInDb.FBAShipOrder.Status == FBAStatus.Pending)
                     instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
 
+                instructionInDb.HandlingStatus = obj.IsInstruction || obj.IsOperation ? FBAStatus.New : FBAStatus.Na;
                 instructionInDb.Status = obj.IsChargingItem ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
                 instructionInDb.IsOperation = obj.IsOperation;
-                instructionInDb.HandlingStatus = obj.IsInstruction ? FBAStatus.New : FBAStatus.Na;
+                instructionInDb.IsInstruction = obj.IsInstruction;
+                instructionInDb.IsCharging = obj.IsChargingItem;
 
                 description = "Updated instruction by office client";
             }
@@ -1067,19 +1069,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var vaildDetails = shipOrder.ChargingItemDetails;
 
-            foreach(var c in vaildDetails)
+            foreach (var c in vaildDetails)
             {
-                wo.OperationInstructions.Add(new OperationInstruction {
-                    Id = c.Id,
-                    Description = c.Description,
-                    Comment = c.Comment,
-                    CreateBy = c.CreateBy,
-                    CreateDate = c.CreateDate,
-                    Result = c.Result,
-                    HandlingStatus = c.HandlingStatus,
-                    Status = c.Status,
-                    IsOperation = c.IsOperation
-                });
+                wo.OperationInstructions.Add(Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(c));
             }
 
             return wo;
@@ -1299,15 +1291,15 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public int OutboundPlts { get; set; }
 
-        public ICollection<PickingList> PickingLists { get; set; }
+        public IList<PickingList> PickingLists { get; set; }
 
-        public ICollection<OperationInstruction> OperationInstructions { get; set; }
+        public IList<ChargingItemDetailDto> OperationInstructions { get; set; }
 
         public FBAWorkOrder()
         {
             PickingLists = new List<PickingList>();
 
-            OperationInstructions = new List<OperationInstruction>();
+            OperationInstructions = new List<ChargingItemDetailDto>();
         }
     }
 

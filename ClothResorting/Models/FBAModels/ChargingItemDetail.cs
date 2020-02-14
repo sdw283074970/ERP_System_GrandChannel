@@ -30,6 +30,10 @@ namespace ClothResorting.Models.FBAModels
 
         public string ConfirmedBy { get; set; }
 
+        public bool IsInstruction { get; set; }
+
+        public bool IsCharging { get; set; }
+
         public FBAMasterOrder FBAMasterOrder { get; set; }
 
         public FBAShipOrder FBAShipOrder { get; set; }
@@ -43,8 +47,6 @@ namespace ClothResorting.Models.FBAModels
             Status = FBAStatus.NoNeedForCharging;
 
             CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
-
-            CreateBy = FBAStatus.NoNeedForCharging;
 
             IsOperation = true;
         }

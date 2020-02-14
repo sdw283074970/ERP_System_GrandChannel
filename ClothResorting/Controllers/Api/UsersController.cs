@@ -230,36 +230,32 @@ namespace ClothResorting.Controllers.Api
 
             var user = _context.Users.SingleOrDefault(x => x.UserName == email);
 
-            if (tire == "Client")
+            switch(tire)
             {
-                await UserManager.AddToRoleAsync(user.Id, RoleName.CanViewAsClientOnly);
-            }
-            else if (tire == "T1")
-            {
-                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
-            }
-            else if (tire == "T2")
-            {
-                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
-            }
-            else if (tire == "T3")
-            {
-                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
-            }
-            else if (tire == "T4")
-            {
-                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
-            }
-            else if (tire == "T5")
-            {
-                await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
-            }
-            else if (tire == "Admin")
-            {
-                await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
+                case "Client":
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanViewAsClientOnly);
+                    break;
+                case "T1":
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT1);
+                    break;
+                case "T2":
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT2);
+                    break;
+                case "T3":
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT3);
+                    break;
+                case "T4":
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT4);
+                    break;
+                case "T5":
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanOperateAsT5);
+                    break;
+                case "Admin":
+                    await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
+                    break;
             }
 
-            return Ok();
+            return Created(Request.RequestUri, "Register Succese!");
         }
 
         // POST /api/users/

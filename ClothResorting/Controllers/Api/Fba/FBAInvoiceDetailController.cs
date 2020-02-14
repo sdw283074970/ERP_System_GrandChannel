@@ -443,10 +443,12 @@ namespace ClothResorting.Controllers.Api.Fba
             var newDetail = new ChargingItemDetail
             {
                 Status = FBAStatus.Unhandled,
-                HandlingStatus = obj.IsInstruction == true ? FBAStatus.New : FBAStatus.Na,
+                HandlingStatus = obj.IsInstruction || obj.IsOperation ? FBAStatus.New : FBAStatus.Na,
                 CreateBy = _userName,
                 OriginalDescription = obj.Description,
                 IsOperation = obj.IsOperation,
+                IsCharging = obj.IsChargingItem,
+                IsInstruction = obj.IsInstruction,
                 CreateDate = DateTime.Now,
                 Description = obj.Description,
                 FBAMasterOrder = masterOrderInDb
@@ -473,11 +475,13 @@ namespace ClothResorting.Controllers.Api.Fba
                 var newDetail = new ChargingItemDetail
                 {
                     Status = FBAStatus.Unhandled,
-                    HandlingStatus = obj.IsInstruction == true ? FBAStatus.New : FBAStatus.Na,
+                    HandlingStatus = obj.IsInstruction || obj.IsOperation ? FBAStatus.New : FBAStatus.Na,
                     CreateBy = _userName,
                     CreateDate = DateTime.Now,
                     OriginalDescription = obj.Description,
                     IsOperation = obj.IsOperation,
+                    IsCharging = obj.IsChargingItem,
+                    IsInstruction = obj.IsInstruction,
                     Description = obj.Description,
                     FBAShipOrder = shipOrderInDb
                 };

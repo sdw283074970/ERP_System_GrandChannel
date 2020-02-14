@@ -13,6 +13,10 @@ namespace ClothResorting.Dtos.Fba
 
         public bool IsOperation { get; set; }
 
+        public bool IsInstruction { get; set; }
+
+        public bool IsCharging { get; set; }
+
         public string OriginalDescription { get; set; }
 
         public string Status { get; set; }

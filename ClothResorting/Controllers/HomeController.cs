@@ -51,10 +51,23 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var generator = new ExcelGenerator(@"D:\Template\InventoryReportV2.xlsx");
+            var instructionsInDb = _context.ChargingItemDetails.Where(x => x.Id > 0);
 
-            //var path = generator.Generate3PLTemplate();
-            var path = generator.Generate3PLTemplate();
+            foreach(var i in instructionsInDb)
+            {
+
+                if (i.Status != "No need for charging")
+                {
+                    i.IsCharging = true;
+                }
+
+                if (i.IsOperation == false)
+                {
+                    i.IsInstruction = true;
+                }
+            }
+
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 
