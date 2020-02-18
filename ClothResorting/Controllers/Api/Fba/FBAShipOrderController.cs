@@ -605,7 +605,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (operation == "UpdateComment")
             {
-                instructionInDb.Comment = obj.Comment;
+                instructionInDb.Comment = obj.Description;
                 instructionInDb.HandlingStatus = FBAStatus.Pending;
                 instructionInDb.ConfirmedBy = _userName;
                 instructionInDb.IsOperation = obj.IsOperation;

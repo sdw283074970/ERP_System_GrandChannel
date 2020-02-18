@@ -11,6 +11,7 @@ using ClothResorting.Models.FBAModels.StaticModels;
 using AutoMapper;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Models.StaticClass;
+using ClothResorting.Dtos;
 
 namespace ClothResorting.Controllers.Api.Warehouse
 {
@@ -158,6 +159,54 @@ namespace ClothResorting.Controllers.Api.Warehouse
             _context.SaveChanges();
         }
 
+        // PUT /api/warehouserIndex/?shipOrderId={shipOrderId}&operation={operation}
+        [HttpPut]
+        public void UpdateOrderProcess([FromUri]int shipOrderId, [FromUri]string operation, [FromBody]WarehouseOutboundLog report)
+        {
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.ChargingItemDetails)
+                .Include(x => x.FBAPickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
+            if (operation == "Reset")
+            {
+                shipOrderInDb.Status = FBAStatus.NewOrder;
+            }
+            else
+            {
+                shipOrderInDb.PlaceTime = report.PlaceTime;
+                shipOrderInDb.StartedTime = report.StartedTime;
+                shipOrderInDb.ReadyTime = report.ReadyTime;
+                shipOrderInDb.PickMan = report.PickMan;
+                shipOrderInDb.Lot = report.Lot;
+                shipOrderInDb.ConfirmedBy = report.ConfirmedBy;
+
+                if (operation == "Finish")
+                {
+                    if ((shipOrderInDb.OrderType == FBAOrderType.Standard && shipOrderInDb.FBAPickDetails.Count > 0 && shipOrderInDb.FBAPickDetails.Sum(x => x.ActualPlts) == 0))
+                    {
+                        throw new Exception("Cannot ready for now. The actual outbound plts of a standard ship order cannot be 0. Please go and adjust actual plts first.");
+                    }
+
+                    if (!IsAllowedToReady(shipOrderInDb))
+                    {
+                        throw new Exception("Cannot ready for now. You must finish all the instruction in this work order.");
+                    }
+                    else if (IsPending(shipOrderInDb))
+                    {
+                        shipOrderInDb.Status = FBAStatus.Pending;
+                        shipOrderInDb.OperationLog = "Submited by " + _userName;
+                    }
+                    else
+                    {
+                        shipOrderInDb.Status = FBAStatus.Ready;
+                        shipOrderInDb.OperationLog = "Ready by " + _userName;
+                    }
+                }
+            }
+
+            _context.SaveChanges();
+        }
+
         private void UpdateWOInfo(FBAShipOrder shipOrderInDb, string pickMan, string instructor, string location)
         {
             shipOrderInDb.PickMan = pickMan;
@@ -212,6 +261,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public string BOLNumber { get; set; }
 
+        public string Lot { get; set; }
+
         public string PickNumber { get; set; }
 
         public string CustomerCode { get; set; }
@@ -219,6 +270,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public string OrderType { get; set; }
 
         public string Destination { get; set; }
+
+        public string PickMan { get; set; }
 
         public int TotalCtns { get; set; }
 
@@ -240,7 +293,11 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         public DateTime PlaceTime { get; set; }
 
+        public DateTime StartedTime { get; set; }
+
         public DateTime ReleaseTime { get; set; }
+
+        public string ConfirmedBy { get; set; }
 
         public string ReleasedBy { get; set; }
 
