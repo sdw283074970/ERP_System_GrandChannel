@@ -20,5 +20,11 @@ namespace ClothResorting.Dtos
         public string Status { get; set; }
 
         public string CreateBy { get; set; }
+
+        public bool IsInstruction { get; set; }
+
+        public bool IsOperation { get; set; }
+
+        public bool IsCharging { get; set; }
     }
 }

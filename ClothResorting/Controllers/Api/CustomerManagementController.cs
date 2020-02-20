@@ -48,6 +48,13 @@ namespace ClothResorting.Controllers.Api
             return Ok(woDto);
         }
 
+        // GET /api/customermanagement/?templateId={templateId}
+        [HttpGet]
+        public IHttpActionResult GetTemplate([FromUri]int templateId)
+        {
+            return Ok(Mapper.Map<InstructionTemplate, InstructionTemplateDto>(_context.InstructionTemplates.Find(templateId)));
+        }
+
         [HttpPost]
         //POST /api/customermanagement/?name={name}&customerCode={customerCode}&departmentCode={departmentCode}&warningQuantityLevel={warningQuantityLevel}
         public IHttpActionResult CreateNewCustomer([FromUri]string name, [FromUri]string customerCode, [FromUri]string departmentCode, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson, [FromUri]int warningQuantityLevel)

@@ -438,39 +438,49 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (obj.OrderType == FBAInvoiceType.MasterOrder)
             {
-            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Reference);
+                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Reference);
 
-            var newDetail = new ChargingItemDetail
-            {
-                Status = FBAStatus.Unhandled,
-                HandlingStatus = obj.IsInstruction || obj.IsOperation ? FBAStatus.New : FBAStatus.Na,
-                CreateBy = _userName,
-                OriginalDescription = obj.Description,
-                IsOperation = obj.IsOperation,
-                IsCharging = obj.IsChargingItem,
-                IsInstruction = obj.IsInstruction,
-                CreateDate = DateTime.Now,
-                Description = obj.Description,
-                FBAMasterOrder = masterOrderInDb
-            };
+                if (masterOrderInDb.InvoiceStatus == "Closed")
+                {
+                    throw new Exception("Cannot add any items in a closed order");
+                }
 
-            if (masterOrderInDb.Status == FBAStatus.Pending)
-                masterOrderInDb.Status = FBAStatus.Updated;
+                var newDetail = new ChargingItemDetail
+                {
+                    Status = FBAStatus.Unhandled,
+                    HandlingStatus = obj.IsInstruction || obj.IsOperation ? FBAStatus.New : FBAStatus.Na,
+                    CreateBy = _userName,
+                    OriginalDescription = obj.Description,
+                    IsOperation = obj.IsOperation,
+                    IsCharging = obj.IsChargingItem,
+                    IsInstruction = obj.IsInstruction,
+                    CreateDate = DateTime.Now,
+                    Description = obj.Description,
+                    FBAMasterOrder = masterOrderInDb
+                };
 
-            if (obj.IsChargingItem)
-            {
-                newDetail.Status = FBAStatus.WaitingForCharging;
-            }
-            else
-            {
-                newDetail.Status = FBAStatus.NoNeedForCharging;
-            }
+                if (masterOrderInDb.Status == FBAStatus.Pending)
+                    masterOrderInDb.Status = FBAStatus.Updated;
 
-            detail = newDetail;
+                if (obj.IsChargingItem)
+                {
+                    newDetail.Status = FBAStatus.WaitingForCharging;
+                }
+                else
+                {
+                    newDetail.Status = FBAStatus.NoNeedForCharging;
+                }
+
+                detail = newDetail;
             }
             else if (obj.OrderType == FBAInvoiceType.ShipOrder)
             {
                 var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.Reference);
+
+                if (shipOrderInDb.InvoiceStatus == "Closed")
+                {
+                    throw new Exception("Cannot add any items in a closed order");
+                }
 
                 var newDetail = new ChargingItemDetail
                 {

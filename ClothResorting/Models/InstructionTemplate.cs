@@ -21,6 +21,12 @@ namespace ClothResorting.Models
 
         public bool IsApplyToMasterOrder { get; set; }
 
+        public bool IsInstruction { get; set; }
+
+        public bool IsOperation { get; set; }
+
+        public bool IsCharging { get; set; }
+
         public UpperVendor Customer { get; set; }
 
         public InstructionTemplate()
