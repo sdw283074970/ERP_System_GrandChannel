@@ -198,6 +198,66 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
         }
 
+        //POST /api/customermanagement/?customerId={customerId}
+        [HttpPost]
+        public IHttpActionResult CreateNewChargingDetailTemplateByModel([FromUri]int customerId, [FromBody]InstructionTemplateDto template)
+        {
+            var fbaCustomers = _context.UpperVendors
+                .Where(x => x.DepartmentCode == "FBA");
+
+            if (!template.IsApplyToAll)
+            {
+                var newTemplate = new InstructionTemplate
+                {
+                    IsApplyToMasterOrder = template.IsApplyToMasterOrder,
+                    IsApplyToShipOrder = template.IsApplyToShipOrder,
+                    IsInstruction = template.IsInstruction,
+                    IsOperation = template.IsOperation,
+                    IsCharging = template.IsCharging,
+                    CreateBy = _userName,
+                    Description = template.Description,
+                    CreateDate = DateTime.Now,
+                    Status = template.IsCharging ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging
+                };
+
+                var customerInDb = fbaCustomers.SingleOrDefault(x => x.Id == customerId);
+                newTemplate.Customer = customerInDb;
+
+                _context.InstructionTemplates.Add(newTemplate);
+            }
+            else
+            {
+                var templateList = new List<InstructionTemplate>();
+
+                foreach (var f in fbaCustomers)
+                {
+                    var newTemplate = new InstructionTemplate
+                    {
+                        IsApplyToMasterOrder = template.IsApplyToMasterOrder,
+                        IsApplyToShipOrder = template.IsApplyToShipOrder,
+                        IsInstruction = template.IsInstruction,
+                        IsOperation = template.IsOperation,
+                        IsCharging = template.IsCharging,
+                        CreateBy = _userName,
+                        Description = template.Description,
+                        CreateDate = DateTime.Now,
+                        Status = template.IsCharging ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging
+                    };
+
+                    newTemplate.Customer = f;
+                    templateList.Add(newTemplate);
+                }
+
+                _context.InstructionTemplates.AddRange(templateList);
+            }
+
+            _context.SaveChanges();
+
+            var resultDto = Mapper.Map<ChargingItemDetail, ChargingItemDetailDto>(_context.ChargingItemDetails.OrderByDescending(x => x.Id).First());
+
+            return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
+        }
+
         //PUT /api/customermanagement/?warningQuantityLevel={warningQuantityLevel}
         [HttpPut]
         public void UpdateCustomer([FromUri]int customerId, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson, [FromUri]int warningQuantityLevel)
@@ -245,6 +305,23 @@ namespace ClothResorting.Controllers.Api
             customerInDb.EmailAddress = model.EmailAddress;
             customerInDb.ContactPerson = model.ContactPerson;
             customerInDb.WarningQuantityLevel = model.WarningQuantityLevel;
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/customermanagement/?templateId={templateId}
+        [HttpPut]
+        public void UpdateInstructionTemplate([FromUri]int templateId, [FromBody]InstructionTemplateDto template)
+        {
+            var templateInDb = _context.InstructionTemplates.Find(templateId);
+
+            templateInDb.Description = template.Description;
+            templateInDb.IsInstruction = template.IsInstruction;
+            templateInDb.IsOperation = template.IsOperation;
+            templateInDb.IsCharging = template.IsCharging;
+            templateInDb.IsApplyToMasterOrder = template.IsApplyToMasterOrder;
+            templateInDb.IsApplyToShipOrder = template.IsApplyToShipOrder;
+            templateInDb.Status = template.IsCharging ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
 
             _context.SaveChanges();
         }

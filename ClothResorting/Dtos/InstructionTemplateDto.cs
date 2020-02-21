@@ -26,5 +26,7 @@ namespace ClothResorting.Dtos
         public bool IsOperation { get; set; }
 
         public bool IsCharging { get; set; }
+
+        public bool IsApplyToAll { get; set; }
     }
 }

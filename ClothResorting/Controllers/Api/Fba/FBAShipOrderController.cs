@@ -1339,5 +1339,9 @@ namespace ClothResorting.Controllers.Api.Fba
         public string Result { get; set; }
 
         public string HandlingStatus { get; set; }
+
+        public bool IsInstruction { get; set; }
+
+        public bool IsCharging { get; set; }
     }
 }
