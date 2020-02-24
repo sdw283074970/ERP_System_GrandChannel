@@ -263,6 +263,40 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(invoiceDetailDto);
         }
 
+        // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}&isChargingItem={isChargingItem}
+        public IHttpActionResult CreateChargingItemByAccounting([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description, [FromUri]bool isChargingItem)
+        {
+            var chargingItem = new ChargingItemDetail
+            {
+                CreateBy = _userName,
+                Description = description,
+                CreateDate = DateTime.Now,
+                OriginalDescription = description,
+                HandlingStatus = "N/A",
+                IsCharging = isChargingItem
+            };
+
+            chargingItem.Status = isChargingItem ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
+
+            if (invoiceType == FBAOrderType.MasterOrder)
+            {
+                var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == reference);
+                chargingItem.FBAMasterOrder = masterOrderInDb;
+            }
+            else
+            {
+                var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference);
+                chargingItem.FBAShipOrder = shipOrderInDb;
+            }
+
+            _context.ChargingItemDetails.Add(chargingItem);
+            _context.SaveChanges();
+
+            var id = _context.ChargingItemDetails.OrderByDescending(x => x.Id).First().Id;
+
+            return Created(Request.RequestUri, new { Id = id, Description = description, HandlingStatus = "Draft" });
+        }
+
         // POST /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&description={description}
         [HttpPost]
         public IHttpActionResult CreateInstructionByCustomer([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string description)
@@ -274,6 +308,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 CreateDate = DateTime.Now,
                 OriginalDescription = description,
                 HandlingStatus = "Draft",
+                IsInstruction = true,
                 Status = "TBD"
             };
 
@@ -313,20 +348,14 @@ namespace ClothResorting.Controllers.Api.Fba
                     OriginalDescription = description,
                     CreateDate = DateTime.Now,
                     Description = description,
+                    IsCharging = isChargingItem,
                     FBAMasterOrder = masterOrderInDb
                 };
 
                 if (masterOrderInDb.Status == FBAStatus.Pending)
                     masterOrderInDb.Status = FBAStatus.Updated;
 
-                if (isChargingItem)
-                {
-                    newDetail.Status = FBAStatus.WaitingForCharging;
-                }
-                else
-                {
-                    newDetail.Status = FBAStatus.NoNeedForCharging;
-                }
+                newDetail.Status = isChargingItem ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
 
                 detail = newDetail;
             }
@@ -342,21 +371,14 @@ namespace ClothResorting.Controllers.Api.Fba
                     CreateDate = DateTime.Now,
                     OriginalDescription = description,
                     Description = description,
+                    IsCharging = isChargingItem,
                     FBAShipOrder = shipOrderInDb
                 };
 
                 if (shipOrderInDb.Status == FBAStatus.Pending)
                     shipOrderInDb.Status = FBAStatus.Updated;
 
-                if (isChargingItem)
-                {
-                    newDetail.Status = FBAStatus.WaitingForCharging;
-                }
-                else
-                {
-                    newDetail.Status = FBAStatus.NoNeedForCharging;
-                }
-
+                newDetail.Status = isChargingItem ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
                 detail = newDetail;
             }
 

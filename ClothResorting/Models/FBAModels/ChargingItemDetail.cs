@@ -48,7 +48,11 @@ namespace ClothResorting.Models.FBAModels
 
             CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
 
-            IsOperation = true;
+            IsOperation = false;
+
+            IsInstruction = false;
+
+            IsCharging = false;
         }
     }
 }
