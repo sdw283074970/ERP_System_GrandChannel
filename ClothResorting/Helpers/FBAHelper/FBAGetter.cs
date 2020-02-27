@@ -26,27 +26,27 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAPallets)
                 .ToList();
 
-            var skuList = new List<int>();
+            //var skuList = new List<int>();
 
-            foreach (var m in masterOrders)
-            {
-                m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
-                m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
-                m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
-                m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
-                m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
-                m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
-                m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
-                skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
-            }
+            //foreach (var m in masterOrders)
+            //{
+            //    m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
+            //    m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
+            //    m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
+            //    m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
+            //    m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
+            //    m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
+            //    m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
+            //    skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
+            //}
 
             var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
 
-            for (int i = 0; i < masterOrders.Count; i++)
-            {
-                resultDto[i].SKUNumber = skuList[i];
-                resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
-            }
+            //for (int i = 0; i < masterOrders.Count; i++)
+            //{
+            //    resultDto[i].SKUNumber = skuList[i];
+            //    resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
+            //}
 
             return resultDto;
         }

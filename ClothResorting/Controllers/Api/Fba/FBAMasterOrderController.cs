@@ -219,6 +219,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var masterOrderInDb = _context.FBAMasterOrders
                 .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
+                .Include(x => x.InvoiceDetails)
                 .Include(x => x.FBAPallets)
                 .SingleOrDefault(x => x.Id == masterOrderId);
 
@@ -288,7 +289,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (operation == "Get")
             {
-                return Ok(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(_context.FBAMasterOrders.Find(masterOrderId)));
+                return Ok(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(masterOrderInDb));
             }
 
             return Ok();
@@ -317,7 +318,11 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             obj.Container = obj.Container.Trim();
 
-            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+            var masterOrderInDb = _context.FBAMasterOrders
+                .Include(x => x.FBAOrderDetails)
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAPallets)
+                .SingleOrDefault(x => x.Id == masterOrderId);
 
             var currentContainer = masterOrderInDb.Container;
 
@@ -348,7 +353,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             _context.SaveChanges();
 
-            return Ok(masterOrderInDb);
+            return Ok(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(masterOrderInDb));
         }
 
         // POST /api/fba/fbamasterorder/?masterOrderId={masterOrderId}&comment={comment}&operation={operation}
@@ -406,6 +411,31 @@ namespace ClothResorting.Controllers.Api.Fba
                 throw new Exception("Grand Number " + grandNumber + " has been taken. Please try agian.");
             }
 
+            var chargingItemDetailList = new List<ChargingItemDetail>();
+
+            var customerWOInstructions = _context.InstructionTemplates
+                .Include(x => x.Customer)
+                .Where(x => x.Customer.CustomerCode == obj.CustomerCode
+                    && x.IsApplyToMasterOrder == true)
+                .ToList();
+
+            foreach (var c in customerWOInstructions)
+            {
+                chargingItemDetailList.Add(new ChargingItemDetail
+                {
+                    Status = c.Status,
+                    HandlingStatus = c.IsOperation || c.IsInstruction ? FBAStatus.New : FBAStatus.Na,
+                    Description = c.Description,
+                    CreateBy = _userName,
+                    CreateDate = DateTime.Now,
+                    IsCharging = c.IsCharging,
+                    IsInstruction = c.IsInstruction,
+                    IsOperation = c.IsOperation
+                });
+            }
+
+            _context.ChargingItemDetails.AddRange(chargingItemDetailList);
+
             var masterOrder = new FBAMasterOrder();
 
             masterOrder.AssembleFirstPart(obj.ETA, obj.Carrier, obj.Vessel, obj.Voy);
@@ -425,6 +455,13 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.UpdateLog += "Update by " + _userName + " at " + DateTime.Now.ToString() + ". ";
             masterOrder.Status = FBAStatus.NewCreated;
             masterOrder.Instruction = obj.Instruction;
+            masterOrder.ChargingItemDetails = chargingItemDetailList;
+
+            if (obj.InvoiceStatus == "Closed")
+            {
+                masterOrder.CloseDate = DateTime.Now;
+                masterOrder.ConfirmedBy = _userName;
+            }
 
             _context.FBAMasterOrders.Add(masterOrder);
             _context.SaveChanges();

@@ -166,7 +166,10 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (operation == "Update")
             {
-                return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.Find(shipOrderId)));
+                var shipOrderInDb = _context.FBAShipOrders
+                    .Include(x => x.FBAPickDetails)
+                    .SingleOrDefault(x => x.Id == shipOrderId);
+                return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb));
             }
             else if (operation == "WO")
             {
@@ -179,7 +182,10 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (operation == "Get")
             {
-                return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(_context.FBAShipOrders.Find(shipOrderId)));
+                var shipOrderInDb = _context.FBAShipOrders
+                    .Include(x => x.FBAPickDetails)
+                    .SingleOrDefault(x => x.Id == shipOrderId);
+                return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb));
             }
 
             return Ok();
@@ -208,20 +214,23 @@ namespace ClothResorting.Controllers.Api.Fba
             var shipOrder = new FBAShipOrder();
             var chargingItemDetailList = new List<ChargingItemDetail>();
 
-            var customerWOInstructions = _context.UpperVendors
-                .Include(x => x.InstructionTemplates)
-                .SingleOrDefault(x => x.CustomerCode == obj.CustomerCode)
-                .InstructionTemplates
+            var customerWOInstructions = _context.InstructionTemplates
+                .Include(x => x.Customer)
+                .Where(x => x.Customer.CustomerCode == obj.CustomerCode
+                    && x.IsApplyToShipOrder == true)
                 .ToList();
 
-            foreach(var c in customerWOInstructions)
+            foreach (var c in customerWOInstructions)
             {
                 chargingItemDetailList.Add(new ChargingItemDetail {
                     Status = c.Status,
-                    HandlingStatus = FBAStatus.New,
+                    HandlingStatus = c.IsOperation || c.IsInstruction ? FBAStatus.New : FBAStatus.Na,
                     Description = c.Description,
                     CreateBy = _userName,
-                    CreateDate = DateTime.Now
+                    CreateDate = DateTime.Now,
+                    IsCharging = c.IsCharging,
+                    IsInstruction = c.IsInstruction,
+                    IsOperation = c.IsOperation
                 });
             }
 
@@ -314,7 +323,10 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             obj.ShipOrderNumber = obj.ShipOrderNumber.Trim();
 
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.FBAPickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
+
             var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
             //如果更新的运单号不是之前的运单号且在数据库中有重复，则报错
             if (obj.ShipOrderNumber != shipOrderInDb.ShipOrderNumber && _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.ShipOrderNumber) != null)
@@ -381,7 +393,9 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public async Task MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime operationDate)
         {
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.FBAPickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
             var oldStatus = shipOrderInDb.Status;
             var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
@@ -409,7 +423,9 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public async Task MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]bool isRelease)
         {
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.FBAPickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
             var oldStatus = shipOrderInDb.Status;
             var oldValueDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
@@ -462,8 +478,11 @@ namespace ClothResorting.Controllers.Api.Fba
                             CreateBy = _userName,
                             Description = i.Description,
                             CreateDate = DateTime.Now,
-                            HandlingStatus = FBAStatus.New,
-                            FBAShipOrder = referenceInDb
+                            HandlingStatus = i.IsOperation || i.IsInstruction ? FBAStatus.New : FBAStatus.Na,
+                            FBAShipOrder = referenceInDb,
+                            IsOperation = i.IsOperation,
+                            IsInstruction = i.IsInstruction,
+                            IsCharging = i.IsCharging
                         });
                     }
 
@@ -501,7 +520,10 @@ namespace ClothResorting.Controllers.Api.Fba
                             CreateBy = _userName,
                             Description = i.Description,
                             CreateDate = DateTime.Now,
-                            HandlingStatus = FBAStatus.New,
+                            HandlingStatus = i.IsOperation || i.IsInstruction ? FBAStatus.New : FBAStatus.Na,
+                            IsOperation = i.IsOperation,
+                            IsInstruction = i.IsInstruction,
+                            IsCharging = i.IsCharging,
                             FBAMasterOrder = referenceInDb
                         });
                     }
@@ -635,7 +657,6 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddUpdatedLogAndSaveChangesAsync<ChargingItemDetail>(oldValueDto, instructionDto, description, null, OperationLevel.Mediunm);
         }
 
-
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&batchNumber={batchNumber}
         [HttpPut]
         public void UpdateBatchNumber([FromUri]int shipOrderId, [FromUri]string batchNumber)
@@ -655,7 +676,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var pickDetailsDto = Mapper.Map<IEnumerable<FBAPickDetail>, IEnumerable<FBAPickDetailsDto>>(pickDetailsInDb);
 
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
+            var shipOrderInDb = _context.FBAShipOrders
+                .Include(x => x.FBAPickDetails)
+                .SingleOrDefault(x => x.Id == shipOrderId);
             var shipOrderDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
             var fbaPickDetailAPI = new FBAPickDetailController();

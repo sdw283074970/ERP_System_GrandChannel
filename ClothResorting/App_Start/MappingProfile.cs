@@ -48,7 +48,16 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<NameCrossReference, NameCrossReferenceDto>();
 
             //FBA(Under DefaultConnection)
-            Mapper.CreateMap<FBAMasterOrder, FBAMasterOrderDto>();
+            Mapper.CreateMap<FBAMasterOrder, FBAMasterOrderDto>()
+                .ForMember(dest => dest.ActualCtns, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Sum(x => x.ActualQuantity)))
+                .ForMember(dest => dest.ActualPlts, opt => opt.MapFrom(src => src.FBAPallets == null ? 0 : src.FBAPallets.Sum(x => x.ActualPallets))) 
+                .ForMember(dest => dest.TotalCtns, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Sum(x => x.Quantity)))
+                .ForMember(dest => dest.SKUNumber, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count()))
+                .ForMember(dest => dest.ActualCBM, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Sum(x => x.ActualCBM)))
+                .ForMember(dest => dest.TotalCBM, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Sum(x => x.CBM)))
+                .ForMember(dest => dest.TotalCost, opt => opt.MapFrom(src => src.InvoiceDetails == null ? 0 : src.InvoiceDetails.Sum(x => x.Cost)))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.InvoiceDetails == null ? 0 : src.InvoiceDetails.Sum(x => x.Amount)))
+                .ForMember(dest => dest.Net, opt => opt.MapFrom(src => src.InvoiceDetails == null ? 0 : (src.InvoiceDetails.Sum(x => x.Amount) - src.InvoiceDetails.Sum(x => x.Cost))));
             Mapper.CreateMap<FBAOrderDetail, FBAOrderDetailDto>()
                 .ForMember(dest => dest.LabelFileNumbers, opt => opt.MapFrom(src => src.LabelFiles.Split('{').Length - 1));
             Mapper.CreateMap<FBACartonLocation, FBACartonLocationDto>()
@@ -56,7 +65,9 @@ namespace ClothResorting.App_Start
                 .ForMember(dest => dest.LabelFileNumbers, opt => opt.MapFrom(src => (src.FBAOrderDetail == null ? -1 : src.FBAOrderDetail.LabelFiles.Split('{').Length - 1)));
             Mapper.CreateMap<FBAPallet, FBAPalletDto>();
             Mapper.CreateMap<FBAPalletLocation, FBAPalletLocationDto>();
-            Mapper.CreateMap<FBAShipOrder, FBAShipOrderDto>();
+            Mapper.CreateMap<FBAShipOrder, FBAShipOrderDto>()
+                .ForMember(dest => dest.TotalCtns, opt => opt.MapFrom(src => src.FBAPickDetails == null ? 0 : src.FBAPickDetails.Sum(x => x.ActualQuantity)))
+                .ForMember(dest => dest.TotalPlts, opt => opt.MapFrom(src => src.FBAPickDetails == null ? 0 : src.FBAPickDetails.Sum(x => x.ActualPlts)));
             Mapper.CreateMap<FBAPickDetail, FBAPickDetailsDto>();
                 //.ForMember(dest => dest.Barcode, opt => opt.MapFrom(src => "MIX"));
             Mapper.CreateMap<FBAAddressBook, FBAAddressBookDto>();
