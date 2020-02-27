@@ -110,8 +110,6 @@ namespace ClothResorting.Models.FBAModels
         {
             CreateDate = DateTime.Now;
             Status = FBAStatus.NewCreated;
-            PickMan = FBAStatus.Unassigned;
-            ShippedBy = FBAStatus.Unassigned;
             CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             PlaceTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);

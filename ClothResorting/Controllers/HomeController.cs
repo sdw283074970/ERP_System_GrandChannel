@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using ClothResorting.Helpers.FBAHelper;
 
 namespace ClothResorting.Controllers
 {
@@ -51,23 +52,17 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var instructionsInDb = _context.ChargingItemDetails.Where(x => x.Id > 0);
-
-            foreach(var i in instructionsInDb)
+            var getter = new FBAGetter();
+            var filter = new Helpers.FBAHelper.Filter
             {
+                SortBy = "Id",
+                IsDesc = true,
+                InvoiceStatus = new string[] { "Closed" },
+                Status = new string[] { "New Created" },
+                CustomerCodes = new string[] { "AW", "GDTN" }
+            };
 
-                if (i.Status != "No need for charging")
-                {
-                    i.IsCharging = true;
-                }
-
-                if (i.IsOperation == false)
-                {
-                    i.IsInstruction = true;
-                }
-            }
-
-            _context.SaveChanges();
+            var test = getter.GetFilteredMasterOrder(filter);
 
             ViewBag.Message = "Your application description page.";
 

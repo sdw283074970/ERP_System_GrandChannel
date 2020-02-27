@@ -35,45 +35,18 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/fbamasterorder/
         [HttpGet]
-        public IHttpActionResult GetAllMasterOrders()
+        public IHttpActionResult GetAllMasterOrders([FromBody]Filter filter)
         {
-            var masterOrders = _context.FBAMasterOrders
-                .Include(x => x.InvoiceDetails)
-                .Include(x => x.FBAOrderDetails)
-                .Include(x => x.FBAPallets)
-                .ToList();
+            var getter = new FBAGetter();
 
-            var skuList = new List<int>();
-
-            foreach (var m in masterOrders)
-            {
-                m.TotalAmount = (float)m.InvoiceDetails.Sum(x => x.Amount);
-                m.TotalCost = (float)m.InvoiceDetails.Sum(x => x.Cost);
-                m.TotalCBM = m.FBAOrderDetails.Sum(x => x.CBM);
-                m.TotalCtns = m.FBAOrderDetails.Sum(x => x.Quantity);
-                m.ActualCBM = m.FBAOrderDetails.Sum(x => x.ActualCBM);
-                m.ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity);
-                m.ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets);
-                skuList.Add(m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count());
-            }
-
-            var resultDto = Mapper.Map<IList<FBAMasterOrder>, IList<FBAMasterOrderDto>>(masterOrders);
-
-            for (int i = 0; i < masterOrders.Count; i++)
-            {
-                resultDto[i].SKUNumber = skuList[i];
-                resultDto[i].Net = resultDto[i].TotalAmount - resultDto[i].TotalCost;
-            }
-
-            //var masterOrderDtos = new MasterOrderDto {
-            //    CustomerCode = "ALL Customer",
-            //    FBAMasterOrderDtos = resultDto
-            //};
-
-            return Ok(resultDto);
+            if (filter == null)
+                return Ok(getter.GetAllMaterOrders());
+            else
+                return Ok(getter.GetFilteredMasterOrder(filter));
         }
 
         // GET /api/fbamasterorder/?sku={sku}&orderType={orderType}
+        [HttpGet]
         public IHttpActionResult GetOrdersBySKUQuery([FromUri]string sku, [FromUri]string orderType)
         {
             if (orderType == FBAOrderType.MasterOrder)
@@ -138,6 +111,18 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             return Ok();
+        }
+
+        // GET/api/fbamasterorder/?orderType={orderType}
+        [HttpGet]
+        public IHttpActionResult GetFilteredOrders([FromUri]string orderType, [FromBody]Filter filter)
+        {
+            var getter = new FBAGetter();
+
+            if (orderType == FBAOrderType.MasterOrder)
+                return Ok(getter.GetFilteredMasterOrder(filter));
+            else
+                return Ok(getter.GetFilteredShipOrder(filter));
         }
 
         // GET /api/fba/fbamasterorder/{id}
