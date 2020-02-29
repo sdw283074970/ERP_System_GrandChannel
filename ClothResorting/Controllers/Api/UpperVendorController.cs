@@ -55,14 +55,14 @@ namespace ClothResorting.Controllers.Api
             {
                 foreach (var vendor in vendors)
                 {
-                    list.Add(new CustomerCodeObj { Text = vendor.Name, Value = vendor.Name });
+                    list.Add(new CustomerCodeObj { Text = vendor.Name, Value = vendor.Name, Label = vendor.Name });
                 }
             }
             else if (departmentCode == "FBA")
             {
                 foreach (var vendor in vendors)
                 {
-                    list.Add(new CustomerCodeObj { Text = vendor.CustomerCode, Value = vendor.CustomerCode });
+                    list.Add(new CustomerCodeObj { Text = vendor.CustomerCode, Value = vendor.CustomerCode, Label = vendor.CustomerCode });
                 }
             }
 
@@ -75,5 +75,7 @@ namespace ClothResorting.Controllers.Api
         public string Text { get; set; }
 
         public string Value { get; set; }
+
+        public string Label { get; set; }
     }
 }

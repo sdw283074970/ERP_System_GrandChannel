@@ -113,18 +113,6 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok();
         }
 
-        // GET/api/fbamasterorder/?orderType={orderType}
-        [HttpGet]
-        public IHttpActionResult GetFilteredOrders([FromUri]string orderType, [FromBody]Filter filter)
-        {
-            var getter = new FBAGetter();
-
-            if (orderType == FBAOrderType.MasterOrder)
-                return Ok(getter.GetFilteredMasterOrder(filter));
-            else
-                return Ok(getter.GetFilteredShipOrder(filter));
-        }
-
         // GET /api/fba/fbamasterorder/{id}
         [HttpGet]
         public IHttpActionResult GetMasterOrdersByCustomerCode([FromUri]int id)
@@ -468,6 +456,18 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var resultDto = Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(_context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber));
             return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
+        }
+
+        // POST /api/fba/fbamasterOrder/?orderType={orderType}
+        [HttpPost]
+        public IHttpActionResult GetFilteredOrders([FromBody]string orderType, [FromBody]Filter filter)
+        {
+            var getter = new FBAGetter();
+
+            if (orderType == FBAOrderType.MasterOrder)
+                return Ok(getter.GetFilteredMasterOrder(filter));
+            else
+                return Ok(getter.GetFilteredShipOrder(filter));
         }
 
         // PUT /api/fba/fbamasterOrder/?masterOrderId={masterOrderId}&container={container}&inboundDate={inboundDate}
