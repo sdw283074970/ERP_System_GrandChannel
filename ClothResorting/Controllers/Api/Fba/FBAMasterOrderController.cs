@@ -458,18 +458,6 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/" + resultDto.Id, resultDto);
         }
 
-        // POST /api/fba/fbamasterOrder/?orderType={orderType}
-        [HttpPost]
-        public IHttpActionResult GetFilteredOrders([FromBody]string orderType, [FromBody]Filter filter)
-        {
-            var getter = new FBAGetter();
-
-            if (orderType == FBAOrderType.MasterOrder)
-                return Ok(getter.GetFilteredMasterOrder(filter));
-            else
-                return Ok(getter.GetFilteredShipOrder(filter));
-        }
-
         // PUT /api/fba/fbamasterOrder/?masterOrderId={masterOrderId}&container={container}&inboundDate={inboundDate}
         [HttpPut]
         public void UpdateMasterOrderInfo([FromUri]int masterOrderId, [FromUri]string container, [FromUri]string inboundDate)
