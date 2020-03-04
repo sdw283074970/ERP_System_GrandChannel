@@ -619,10 +619,18 @@ namespace ClothResorting.Controllers.Api.Fba
                     var invoiceDetailsInDb = _context.InvoiceDetails
                         .Include(x => x.FBAShipOrder)
                         .Where(x => x.FBAShipOrder.ShipOrderNumber == reference);
+                    float outboundMinCharge = 0;
 
-                    var outboundMinCharge = _context.UpperVendors
-                        .SingleOrDefault(x => x.CustomerCode == shipOrderInDb.CustomerCode)
-                        .OutboundMinCharge;
+                    try
+                    {
+                       outboundMinCharge = _context.UpperVendors
+                            .SingleOrDefault(x => x.CustomerCode == shipOrderInDb.CustomerCode)
+                            .OutboundMinCharge;
+                    }
+                    catch(Exception e)
+                    {
+                        throw new Exception("Customer code: " + shipOrderInDb.CustomerCode + " was not found in system.");
+                    }
 
                     //检查是否已经存在差价收费项目
                     var priceDifference = invoiceDetailsInDb.SingleOrDefault(x => x.Activity == "Price Difference");
@@ -662,7 +670,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     //如果已经有收费项目，则刷新收费项目中的金额
                     else
                     {
-                        var amount = invoiceDetailsInDb.Where(x => x.Activity != "Price Difference").Sum(x => x.Amount);
+                        var amount = invoiceDetailsInDb.Where(x => x.Activity != "Price Difference").ToList().Sum(x => x.Amount);
                         pd = outboundMinCharge - (float)amount;
 
                         //如果仍然有差额，则刷新差额收费
@@ -686,6 +694,32 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 masterOrder.InvoiceStatus = "Closed";
                 masterOrder.CloseDate = closeDate;
+                masterOrder.ConfirmedBy = _userName;
+            }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fbainvoicedetail/?reference={reference}&invoiceType={invoiceType}
+        [HttpPut]
+        public void ReopenOrder([FromUri]string reference, [FromUri]string invoiceType)
+        {
+            if (invoiceType == FBAInvoiceType.ShipOrder)
+            {
+                var shipOrderInDb = _context.FBAShipOrders
+                    .SingleOrDefault(x => x.ShipOrderNumber == reference);
+
+                shipOrderInDb.InvoiceStatus = "Await";
+                shipOrderInDb.CloseDate = new DateTime(1900, 1, 1);
+                shipOrderInDb.ConfirmedBy = _userName;
+            }
+            else if (invoiceType == FBAInvoiceType.MasterOrder)
+            {
+                var masterOrder = _context.FBAMasterOrders
+                    .SingleOrDefault(x => x.Container == reference);
+
+                masterOrder.InvoiceStatus = "Await";
+                masterOrder.CloseDate = new DateTime(1900, 1, 1);
                 masterOrder.ConfirmedBy = _userName;
             }
 
