@@ -379,52 +379,57 @@
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Created")
-                            return "<input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Release' />";
-                        else if (status == "Picking" || status == "Draft")
-                            //return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-wo' operation='push' iid='" + data + "' value='Push' />";
-                        else if (status == "New Order" || status == "Returned Order")
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
-                        else if (status == "Processing")
-                            return "";
-                        else if (status == "Pending" || status == "Updated")
-                            return "<button class='btn btn-link btn-wo' operation='ready'>Update WO</button>";
-                        else if (status == "Ready")
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unready' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
-                        else if (status == "Released")
-                            return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unrelease' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
-                        else if (status == "Shipped")
-                            return "";
-                        else
-                            return "";
+                        //if (status == "New Created")
+                        //    return "<input type='button' class='btn btn-link btn-changestatus' iid='" + data + "' value='Release' />";
+                        //else if (status == "Picking" || status == "Draft")
+                        //    //return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-release' iid='" + data + "' value='Release' /><input type='button' class='btn btn-link btn-wo' iid='" + data + "' value='Push' />";
+                        //    return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Revert' /><input type='button' class='btn btn-link btn-wo' operation='push' iid='" + data + "' value='Push' />";
+                        //else if (status == "New Order" || status == "Returned Order")
+                        //    return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Recall' />";
+                        //else if (status == "Processing")
+                        //    return "";
+                        //else if (status == "Pending" || status == "Updated")
+                        //    return "<button class='btn btn-link btn-wo' operation='ready'>Update WO</button>";
+                        //else if (status == "Ready")
+                        //    return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unready' /><input type='button' class='btn btn-link btn-fbadate' iid='" + data + "' value='Release' />";
+                        //else if (status == "Released")
+                        //    return "<input type='button' class='btn btn-link btn-revert' iid='" + data + "' value='Unrelease' /><input type='button' class='btn btn-link btn-ship' iid='" + data + "' value='Ship' />";
+                        //else if (status == "Shipped")
+                        //    return "";
+                        //else
+                        //    return "";
+                        return "<font>请使用新系统</font>"
                     }
                 },
                 {
                     data: "shipOrderNumber",
                     render: function (data) {
                         return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
+                        //return "<font>请使用新系统</font>"
+
                     }
                 },
                 {
                     data: "id",
                     render: function (data) {
-                        if (status == "New Created")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
-                        else if (status == "Picking")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
-                        else if (status == "New Order" || status == "Returned Order")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
-                        else if (status == "Processing" || status == "Pending")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
-                        else if (status == "Ready")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
-                        else if (status == "Released")
+                        //if (status == "New Created")
+                        //    return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                        //else if (status == "Picking")
+                        //    return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-edit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-pick' iid='" + data + "' value='Pick' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' /><input type='button' class='btn btn-link btn-delete' iid='" + data + "' value='X' />";
+                        //else if (status == "New Order" || status == "Returned Order")
+                        //    return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        //else if (status == "Processing" || status == "Pending")
+                        //    return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        //else if (status == "Ready")
+                        //    return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-partialedit' iid='" + data + "' value='Edit' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        //else if (status == "Released")
+                        //    return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        //else if (status == "Shipped")
+                        //    return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
+                        //else
+                        //    return "";
                             return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
-                        else if (status == "Shipped")
-                            return "<button reference='" + shipOrder + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatus + "'class='btn btn-link btn-fee'>Fee</button><input type='button' class='btn btn-link btn-wo' operation='readonly' iid='" + data + "' value='WO' /><input type='button' class='btn btn-link btn-view' iid='" + data + "' value='View' /><input type='button' class='btn btn-link btn-bol' iid='" + data + "' value='BOL' />";
-                        else
-                            return "";
+                        //return "<font>请使用新系统</font>"
                     }
                 },
                 {

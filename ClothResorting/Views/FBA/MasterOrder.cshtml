@@ -1135,30 +1135,34 @@
                                     data: "container",
                                     render: function (data) {
                                         return "<button class='btn btn-link btn-file' reference='" + data + "'>Files</button>";
+                                        //return "<font>请使用新系统</font>"
                                     }
                                 },
                                 {
                                     data: "grandNumber",
                                     render: function (data) {
                                         //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
-                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'customercode=" + customerCode + " >Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        //return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'customercode=" + customerCode + " >Edit</button><button iid='" + data + "' class='btn btn-link btn-manage'>Manage</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        return "<button reference='" + container + "' iid='" + data + "' customerid='" + customerId + "' invoicestatus='" + invoiceStatuts + "' class='btn btn-link btn-fee'>Fee</button><button iid='" + data + "' class='btn btn-link btn-edit'customercode=" + customerCode + " >Edit</button><button class='btn btn-link btn-delete' grandnumber='" + data + "'>Delete</button>";
+                                        //return "<font>请使用新系统</font>"
                                     }
                                 },
                                 {
                                     data: "id",
                                     render: function (data) {
-                                        if (status == "New Created" || status == "Draft")
-                                            return "<input type='button' class='btn btn-link btn-wo-push' operation='push' iid='" + data + "' value='Push WO' />";
-                                        else if (status == "Received" || status == "Registered" || status == "Completed")
-                                            return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' />";
-                                        else if (status == "Allocated")
-                                            return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' /><input type='button' class='btn btn-link btn-rollback' iid='" + data + "' value='Rollback' />";
-                                        else if (status == "Arrived")
-                                            return "<input type='button' class='btn btn-link btn-wo-update' operation='update' iid='" + data + "' value='Update WO' />";
-                                        else if (status == "Incoming")
-                                            return "<input type='button' class='btn btn-link btn-wo-update' operation='update' iid='" + data + "' value='Update WO' /><input type='button' class='btn btn-link btn-callback' iid='" + data + "' value='Call back' />";
-                                        else
-                                            return "<input type='button' class='btn btn-link btn-wo-update' operation='process' iid='" + data + "' value='Process WO' />";
+                                        //if (status == "New Created" || status == "Draft")
+                                        //    return "<input type='button' class='btn btn-link btn-wo-push' operation='push' iid='" + data + "' value='Push WO' />";
+                                        //else if (status == "Received" || status == "Registered" || status == "Completed")
+                                        //    return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' />";
+                                        //else if (status == "Allocated")
+                                        //    return "<input type='button' class='btn btn-link btn-wo-view'  operation='view' iid='" + data + "' value='View WO' /><input type='button' class='btn btn-link btn-rollback' iid='" + data + "' value='Rollback' />";
+                                        //else if (status == "Arrived")
+                                        //    return "<input type='button' class='btn btn-link btn-wo-update' operation='update' iid='" + data + "' value='Update WO' />";
+                                        //else if (status == "Incoming")
+                                        //    return "<input type='button' class='btn btn-link btn-wo-update' operation='update' iid='" + data + "' value='Update WO' /><input type='button' class='btn btn-link btn-callback' iid='" + data + "' value='Call back' />";
+                                        //else
+                                        //    return "<input type='button' class='btn btn-link btn-wo-update' operation='process' iid='" + data + "' value='Process WO' />";
+                                        return "<font>请使用新系统</font>"
                                     }
                                 },
                                 {
