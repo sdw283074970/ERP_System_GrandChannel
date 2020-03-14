@@ -76,7 +76,7 @@ namespace ClothResorting.Controllers.Api
 
                 var sameNameItem = _context.ChargingItems
                     .Include(x => x.UpperVendor)
-                    .Where(x => x.UpperVendor.Name == obj.Vendor && x.UpperVendor.DepartmentCode == obj.DepartmentCode && x.Name == obj.Name);
+                    .Where(x => x.UpperVendor.Name == obj.Vendor && x.Name == obj.Name);
 
                 if (sameNameItem.Count() != 0)
                 {
@@ -95,7 +95,7 @@ namespace ClothResorting.Controllers.Api
                 {
                     var sameNameItem = _context.ChargingItems
                         .Include(x => x.UpperVendor)
-                        .Where(x => x.UpperVendor.Name == obj.Vendor && x.UpperVendor.DepartmentCode == obj.DepartmentCode && x.Name == obj.Name);
+                        .Where(x => x.UpperVendor.Id == obj.CustomerId && x.Name == obj.Name);
 
                     if (sameNameItem.Count() != 0)
                     {

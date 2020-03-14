@@ -219,6 +219,18 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(nameList);
         }
 
+        // GET /api/fba/FBAInvoiceDetail/?reference={reference}&invoiceType={invoiceType}&operation={operation}
+        //[HttpGet]
+        //public IHttpActionResult GetCascaderChargingType([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string operation)
+        //{
+        //    var customerId = GetCustomerId(reference, invoiceType);
+
+        //    if (operation == "Cascader")
+        //    {
+                
+        //    }
+        //}
+
         // GET /api/fba/FBAInvoiceDetail/?customerId={customerId}&itemName={itemName}    ajax3，获取所选择项目的费率和计价单位
         [HttpGet]
         public IHttpActionResult GetRate([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string itemName)
@@ -227,8 +239,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var chargingItemInDb = _context.ChargingItems
                 .Include(x => x.UpperVendor)
-                .SingleOrDefault(x => x.Name == itemName
-                    && x.UpperVendor.Id == customerId);
+                .Where(x => x.Name == itemName
+                    && x.UpperVendor.Id == customerId)
+                .First();
 
             var annoyObj = new
             {
