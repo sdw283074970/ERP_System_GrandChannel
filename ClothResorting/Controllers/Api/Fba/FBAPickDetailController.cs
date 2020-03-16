@@ -316,7 +316,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 var firstId = objArray.First().Id;
                 var container = _context.FBACartonLocations.Find(firstId).Container;
                 var cartonLocationsInDb = _context.FBACartonLocations
-                    .Where(x => x.Container == container);
+                    .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                    .Where(x => x.FBAOrderDetail.FBAMasterOrder.CustomerCode == shipOrderInDb.CustomerCode);
                 var pickDetailList = new List<FBAPickDetail>();
 
                 foreach(var obj in objArray)
