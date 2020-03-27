@@ -165,6 +165,48 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
+        // GET /api/fba/fbaindex/?customerCode={customerCode}&startDate={startDate}&closeDate={closeDate}
+        [HttpGet]
+        public IHttpActionResult GetExportedFilePathByCustomerCode([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime closeDate, [FromUri]bool ifShowUnclosed)
+        {
+            var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
+
+            var excelGenerator = new FBAInvoiceHelper(templatePath);
+
+            var customerId = 0;
+
+            if (customerCode != "ALL")
+            {
+                customerId = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
+            }
+
+            //如果customerId等于0说明是要所有客户的记录
+            if (customerId == 0)
+            {
+                var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate);
+
+                var path = excelGenerator.GenerateExcelFileForAllCustomerAndReturnPath(info);
+
+                return Ok(path);
+            }
+            else if (ifShowUnclosed)
+            {
+                var info = excelGenerator.GetAllChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+
+                var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
+
+                return Ok(path);
+            }
+            else
+            {
+                var info = excelGenerator.GetChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+
+                var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
+
+                return Ok(path);
+            }
+        }
+
         // POST /api/fba/index/?requestId={requestId}
         [HttpPost]
         public IHttpActionResult PushDataFromFrontierSystem([FromUri]string requestId, [FromBody]FBAMasterOrderAPIDto order)
