@@ -40,6 +40,18 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(templatesDto);
         }
 
+        // GET /api/fba/chargetemplate/?customerId={customerId}
+        [HttpGet]
+        public IHttpActionResult GetTemplatesByCustomerId([FromUri]int customerId)
+        {
+            var customerCode = _context2.UpperVendors.Find(customerId).CustomerCode;
+            var templatesDto = _context.ChargeTemplates
+                .Where(x => x.Customer == customerCode)
+                .Select(Mapper.Map<ChargeTemplate, ChargeTemplateDto>);
+
+            return Ok(templatesDto);
+        }
+
         // POST /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}&p1Discount={p1Discount}&p2Discount={p2Discount}
         [HttpPost]
         public void DownloadNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate, [FromUri]float p1Discount, [FromUri]float p2Discount)
