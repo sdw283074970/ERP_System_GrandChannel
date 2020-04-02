@@ -78,6 +78,18 @@ namespace ClothResorting.Controllers.Api.Fba
             return Created(Request.RequestUri + "/" + sample.Id, Mapper.Map<ChargeMethod, ChargeMethodDto>(sample));
         }
 
+        // PUT /api/fba/chargemethod/?methodId={methodId}&from={from}&to={to}&fee={fee}
+        [HttpPut]
+        public void UpdateChargeMethod([FromUri]int methodId, [FromUri]int from, [FromUri]int to, [FromUri]float fee)
+        {
+            var methodInDb = _context.ChargeMethods.Find(methodId);
+            methodInDb.From = from;
+            methodInDb.To = to;
+            methodInDb.Fee = fee;
+
+            _context.SaveChanges();
+        }
+
         // DELETE /api/fba/chargemethod/?methodId={methodId}
         [HttpDelete]
         public void DeleteMethod([FromUri]int methodId)

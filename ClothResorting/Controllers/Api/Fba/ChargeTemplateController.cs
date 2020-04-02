@@ -52,6 +52,77 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(templatesDto);
         }
 
+        // GET /api/fba/chargetemplate/?storageTempId={storageTempId}
+        [HttpGet]
+        public IHttpActionResult GetTemplateByTemplateId([FromUri]int storageTempId)
+        {
+            return Ok(Mapper.Map<ChargeTemplate, ChargeTemplateDto>(_context.ChargeTemplates.SingleOrDefault(x => x.Id == storageTempId)));
+        }
+
+        // GET /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}&p1Discount={p1Discount}&p2Discount={p2Discount}
+        [HttpGet]
+        public IHttpActionResult GenerateNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate, [FromUri]float p1Discount, [FromUri]float p2Discount)
+        {
+            DateTime closeDate = currentBillingDate;
+            DateTime startDate = lastBillingDate;
+
+            var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
+            var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
+            var fullPath = generator.GenerateStorageReport(customerId, lastBillingDate, closeDate, p1Discount, p2Discount);
+
+            var chargeMethodsList = _context.ChargeMethods
+                .Include(x => x.ChargeTemplate)
+                .Where(x => x.ChargeTemplate.Id == templateId)
+                .OrderBy(x => x.From)
+                .ToList();
+
+            var calculator = new InventoryFeeCalculator(fullPath);
+
+            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate.ToString("yyyy-MM-dd"), currentBillingDate.ToString("yyyy-MM-dd"));
+
+            //强行关闭Excel进程
+            var killer = new ExcelKiller();
+            killer.Dispose();
+
+            return Ok(fullPath);
+        }
+
+        // GET /api/fba/chargetemplate/?customerCode={customerCode}
+        [HttpGet]
+        public IHttpActionResult GetTemplatesByCustomerCode([FromUri]string customerCode)
+        {
+            var templatesDto = _context.ChargeTemplates
+                .Where(x => x.Customer == customerCode)
+                .ToList();
+
+            var methodsDto = _context.ChargeMethods
+                .Include(x => x.ChargeTemplate)
+                .Where(x => x.ChargeTemplate.Customer == customerCode)
+                .Select(Mapper.Map<ChargeMethod, ChargeMethodDto>);
+
+            var results = new List<ChargeTemplatesWithDetails>();
+
+            foreach (var t in templatesDto)
+            {
+                var details = _context.ChargeMethods
+                    .Include(x => x.ChargeTemplate)
+                    .Where(x => x.ChargeTemplate.Id == t.Id)
+                    .Select(Mapper.Map<ChargeMethod, ChargeMethodDto>);
+
+                results.Add(new ChargeTemplatesWithDetails
+                {
+                    Id = t.Id,
+                    TemplateName = t.TemplateName,
+                    Customer = t.Customer,
+                    TimeUnit = t.TimeUnit,
+                    Currency = t.Currency,
+                    ChargeMethods = details
+                });
+            }
+
+            return Ok(results);
+        }
+
         // POST /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}&p1Discount={p1Discount}&p2Discount={p2Discount}
         [HttpPost]
         public void DownloadNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate, [FromUri]float p1Discount, [FromUri]float p2Discount)
@@ -134,6 +205,19 @@ namespace ClothResorting.Controllers.Api.Fba
             DownloadRecord.FilePath = path;
         }
 
+        // PUT /api/fba/chargetemplate/?storageTempId={storageTempId}&templateName={templateName}&customer={customer}&timeUnit={timeUnit}&currency={currency}
+        [HttpPut]
+        public void UpdateStorageTemplate([FromUri]int storageTempId, [FromUri]string templateName, [FromUri]string customer, [FromUri]string timeUnit, [FromUri]string currency)
+        {
+            var tempInDb = _context.ChargeTemplates.Find(storageTempId);
+            tempInDb.TemplateName = templateName;
+            tempInDb.Customer = customer;
+            tempInDb.TimeUnit = timeUnit;
+            tempInDb.Currency = currency;
+
+            _context.SaveChanges();
+        }
+
         // DELETE /api/fba/chargetemplate/?templateId={templateId}
         [HttpDelete]
         public void DeleteTemplate([FromUri]int templateId)
@@ -146,5 +230,20 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.ChargeTemplates.Remove(_context.ChargeTemplates.Find(templateId));
             _context.SaveChanges();
         }
+    }
+
+    public class ChargeTemplatesWithDetails
+    {
+        public int Id { get; set; }
+
+        public string TemplateName { get; set; }
+
+        public string Customer { get; set; }
+
+        public string TimeUnit { get; set; }
+
+        public string Currency { get; set; }
+
+        public IEnumerable<ChargeMethodDto> ChargeMethods { get; set; }
     }
 }

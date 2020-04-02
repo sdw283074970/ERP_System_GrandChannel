@@ -617,7 +617,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 else if (instructionInDb.FBAShipOrder != null && instructionInDb.FBAShipOrder.Status == FBAStatus.Pending)
                     instructionInDb.FBAShipOrder.Status = FBAStatus.Updated;
 
-                instructionInDb.HandlingStatus = obj.IsInstruction || obj.IsOperation ? FBAStatus.New : FBAStatus.Na;
+                if (instructionInDb.HandlingStatus != FBAStatus.Finished)
+                {
+                    instructionInDb.HandlingStatus = obj.IsInstruction || obj.IsOperation ? FBAStatus.New : FBAStatus.Na;
+                }
+
                 instructionInDb.Status = obj.IsChargingItem ? FBAStatus.WaitingForCharging : FBAStatus.NoNeedForCharging;
                 instructionInDb.IsOperation = obj.IsOperation;
                 instructionInDb.IsInstruction = obj.IsInstruction;
@@ -698,10 +702,21 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.Id == shipOrderId);
 
+            var efiles = _context.EFiles
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
+            var diagnostics = _context.PullSheetDiagnostics
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
             var invoiceDetailsDto = Mapper.Map<IEnumerable<InvoiceDetail>, IEnumerable<InvoiceDetailDto>>(invoiceDetailsInDb);
 
             _context.ChargingItemDetails.RemoveRange(chargingItemDetailsInDb);
             _context.InvoiceDetails.RemoveRange(invoiceDetailsInDb);
+            _context.EFiles.RemoveRange(efiles);
+            _context.PullSheetDiagnostics.RemoveRange(diagnostics);
+
             _context.FBAShipOrders.Remove(shipOrderInDb);
             try
             {
@@ -709,7 +724,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             catch(Exception e)
             {
-                throw new Exception("Please remove all diagnostics before deleting this ship order.");
+                throw new Exception("Error code: 102. Please contact stone@grandchannel.us to fix.");
                 //await _logger.AddDeletedLogAsync<FBAShipOrder>(shipOrderDto, "Attemp to delete ship order failed", e.Message, OperationLevel.Exception);
             }
 
