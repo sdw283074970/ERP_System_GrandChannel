@@ -180,7 +180,7 @@ namespace ClothResorting.Controllers.Api
                 userDto.Add(dto);
             }
 
-            return Ok(userDto);
+            return Ok(userDto.OrderBy(x => x.Email));
         }
 
         // GET /api/users/?userId={userId}
@@ -223,7 +223,8 @@ namespace ClothResorting.Controllers.Api
             }
 
             var newUser = new ApplicationUser { UserName = email, Email = email };
-            var passWord = email.Split('@')[0].ToLower() + "123456*";
+            var passWord = "User123456*";
+            //var passWord = email.Split('@')[0].ToLower() + "123456*";
             passWord = passWord[0].ToString().ToUpper() + passWord.Substring(1, passWord.Length - 1);
 
             var result = await UserManager.CreateAsync(newUser, passWord);
@@ -282,12 +283,62 @@ namespace ClothResorting.Controllers.Api
             return Created(Request.RequestUri, "Role added successfully.");
         }
 
-        // DELETE /api/users/api/users/?userId={userId}&roleId={roleId}
+        // PUT /api/users/?email={email}&oldPassword={oldPassword}&password={password}
+        [HttpPut]
+        public async Task ChangePassword([FromUri]string email, [FromUri]string oldPassword, [FromUri]string password) 
+        {
+            var userId = _context.Users.SingleOrDefault(x => x.Email == email).Id;
+            var result = await UserManager.ChangePasswordAsync(userId, oldPassword, password);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception("Password changing failed");
+            }
+        }
+
+        // PUT /api/users/?userId={userId}&tire={tire}
+        [HttpPut]
+        public void ChangeAuthority([FromUri]string userId, [FromUri]string tire)
+        {
+            var roleId = _context.Roles.SingleOrDefault(x => x.Name == tire).Id;
+            var userInDb = _context.Users
+                .Include(x => x.Roles)
+                .SingleOrDefault(x => x.Id == userId);
+
+            userInDb.Roles.Clear();
+
+            var userRole = new IdentityUserRole
+            {
+                RoleId = roleId,
+                UserId = userId
+            };
+
+            userInDb.Roles.Add(userRole);
+
+            _context.SaveChanges();
+        }
+
+        // DELETE /api/users/?userId={userId}&roleId={roleId}
         [HttpDelete]
         public void RemoveRoleFromUser([FromUri]string userId, [FromUri]string roleId)
         {
             var userInDb = _context.Users.Find(userId);
             userInDb.Roles.Remove(userInDb.Roles.SingleOrDefault(x => x.RoleId == roleId));
+
+            _context.SaveChanges();
+        }
+
+        // DELETE /api/users/?userId={userId}
+        [HttpDelete]
+        public void DeleteUser([FromUri]string userId)
+        {
+            var userInDb = _context.Users.Find(userId);
+            var authInfoInDb = _context.OAuthInfo
+                .Include(x => x.ApplicationUser)
+                .Where(x => x.ApplicationUser.Id == userId);
+
+            _context.OAuthInfo.RemoveRange(authInfoInDb);
+            _context.Users.Remove(userInDb);
 
             _context.SaveChanges();
         }
@@ -299,43 +350,6 @@ namespace ClothResorting.Controllers.Api
             {
                 HttpContext.Current.User = principal;
             }
-        }
-
-        private async Task SignInAsync(ApplicationUser user, bool isPersistent)
-        {
-            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-            var claimsIdentity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
-            AuthenticationManager.SignIn(new AuthenticationProperties { IsPersistent = isPersistent }, claimsIdentity);
-            FormsAuthentication.SetAuthCookie(user.UserName, false);
-            //var httpContext = HttpContext.Current;
-            //var version = 1;
-            //var name = user.UserName;
-            //var now = DateTime.Now.ToLocalTime();
-            //var expiration = now.Add(TimeSpan.FromDays(30));
-            //var userData = JsonConvert.SerializeObject(user);
-            //var ticket = new FormsAuthenticationTicket(version, name, now, expiration, isPersistent, userData, FormsAuthentication.FormsCookiePath);
-
-            //var encryptedTicket = FormsAuthentication.Encrypt(ticket);
-            //var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket)
-            //{
-            //    HttpOnly = true,
-            //    Secure = FormsAuthentication.RequireSSL,
-            //    Path = FormsAuthentication.FormsCookiePath
-            //};
-            //cookie.Expires = ticket.Expiration;
-            //if (FormsAuthentication.CookieDomain != null)
-            //{
-            //    cookie.Domain = FormsAuthentication.CookieDomain;
-            //}
-
-            //var url = HttpContext.Current.Request.Url.ToString();
-            //if (!string.IsNullOrEmpty(url) && url.StartsWith("https"))
-            //{
-            //    cookie.Secure = true;
-            //}
-            //httpContext.Response.Cookies.Add(cookie);
-
-            //httpContext.User = new GenericPrincipal(new FormsIdentity(ticket), new string[] { "admin" });
         }
 
         private string[] GetUserRoles(ApplicationUser user)
