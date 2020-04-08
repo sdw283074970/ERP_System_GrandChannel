@@ -140,7 +140,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     var dto = Mapper.Map<FBAPalletLocation, FBAPalletLocationDto>(p);
                     dto.FBACartonLocations = GetCartonLocationDto(dto.Id);
-                    // 再次筛选，如果托盘中指定的SKU箱数为0，那么就把这这个托盘除去
+                    // 再次筛选，如果托盘中指定的SKU箱数为0，且托盘数量为0，那么就把这这个托盘除去
 
                     if (sku != null)
                         dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.ShipmentId.Contains(sku));
@@ -151,7 +151,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     if (warehouseCode != null)
                         dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.WarehouseCode.Contains(warehouseCode));
 
-                    if (dto.FBACartonLocations.Sum(x => x.AvailableCtns) == 0)
+                    if (dto.FBACartonLocations.Sum(x => x.AvailableCtns) == 0 && dto.AvailablePlts == 0)
                         continue;
 
                     dto.InboundDate = p.FBAMasterOrder.InboundDate;
@@ -160,7 +160,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     palletInventoryDto.Add(dto);
                 }
 
-                return Ok(palletInventoryDto);
+                return Ok(palletInventoryDto.OrderByDescending(x => x.CurrentAvailableCtns).ThenByDescending(x => x.AvailablePlts));
             }
             else
             {

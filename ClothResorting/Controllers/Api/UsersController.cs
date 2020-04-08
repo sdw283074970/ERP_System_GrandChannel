@@ -333,6 +333,16 @@ namespace ClothResorting.Controllers.Api
         public void DeleteUser([FromUri]string userId)
         {
             var userInDb = _context.Users.Find(userId);
+
+            var customerInDb = _context.UpperVendors
+                .Include(x => x.ApplicationUser)
+                .Where(x => x.ApplicationUser.Id == userId);
+
+            foreach(var c in customerInDb)
+            {
+                c.ApplicationUser = null;
+            }
+
             var authInfoInDb = _context.OAuthInfo
                 .Include(x => x.ApplicationUser)
                 .Where(x => x.ApplicationUser.Id == userId);
