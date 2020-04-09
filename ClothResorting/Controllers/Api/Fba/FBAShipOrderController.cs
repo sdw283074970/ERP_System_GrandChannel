@@ -31,11 +31,12 @@ namespace ClothResorting.Controllers.Api.Fba
         private readonly ApplicationDbContext _context;
         private readonly string _userName;
         private readonly Logger _logger;
+        private string Data;
 
         public FBAShipOrderController()
         {
             _context = new ApplicationDbContext();
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
             _logger = new Logger(_context);
         }
 
@@ -43,6 +44,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetAllFBAShipOrder()
         {
+
             var shipOrders = _context.FBAShipOrders
                 .Include(x => x.InvoiceDetails)
                 .Include(x => x.FBAPickDetails)

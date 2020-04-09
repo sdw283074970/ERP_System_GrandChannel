@@ -63,7 +63,7 @@ namespace ClothResorting.Helpers
         {
             _context = new ApplicationDbContext();
             _dateTimeNow = DateTime.Now;
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         public ExcelExtracter(string path)
@@ -73,7 +73,7 @@ namespace ClothResorting.Helpers
             _dateTimeNow = DateTime.Now;
             _excel = new Application();
             _wb = _excel.Workbooks.Open(_path);
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
         #endregion
 

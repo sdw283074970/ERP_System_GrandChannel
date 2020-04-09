@@ -25,7 +25,7 @@ namespace ClothResorting.Controllers.Api
         {
             _context = new ApplicationDbContext();
             _timeNow = DateTime.Now;
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // POST /api/FCRegularLocationAllocatingBatch/?container={container}&batch={batch}&po={po}&style={style}&color={color}&sku={sku}&size={size}

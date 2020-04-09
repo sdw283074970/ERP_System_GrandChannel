@@ -26,7 +26,7 @@ namespace ClothResorting.Helpers
             _context = new ApplicationDbContext();
             _excel = new Application();
             _wb = _excel.Workbooks.Open(path);
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         //解析FreeCountry的packing List（不需要summary的版本）

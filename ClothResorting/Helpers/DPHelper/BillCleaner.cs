@@ -22,7 +22,7 @@ namespace ClothResorting.Helpers.DPHelper
         public BillCleaner()
         {
             _dateTimeNow = DateTime.Now;
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         //清理账单，将收费单号和收费项目、价格分离

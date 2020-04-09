@@ -29,7 +29,7 @@ namespace ClothResorting.Helpers
         {
             _syncDate = DateTime.Now;
             _context = new ApplicationDbContext();
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
             _baseUrl = ConfigurationManager.AppSettings["baseUrl"];
             _userId = HttpContext.Current.User.Identity.GetUserId<string>();
             _oauthInfo = _context.Users
