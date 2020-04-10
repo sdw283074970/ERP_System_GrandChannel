@@ -25,7 +25,7 @@ namespace ClothResorting.Controllers.Api
         public InvoiceManagementController()
         {
             _context = new ApplicationDbContext();
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/invoiceManagement/?vendor={vendor}&departmentCode={departmentCode}

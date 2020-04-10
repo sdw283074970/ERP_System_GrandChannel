@@ -36,7 +36,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public FBAShipOrderController()
         {
             _context = new ApplicationDbContext();
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
             _logger = new Logger(_context);
         }
 
@@ -840,10 +840,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     //检查是否允许被push到仓库端
                     var ifCanPush = CheckIfCanPushOrder(shipOrderInDb.CustomerCode);
-
+                    var checker = new AuthorityIdentifier();
                     if (!ifCanPush)
                     {
-                        if (!CheckIfCurrentUserIsT5())
+                        if (!checker.IsInRole(_userName, RoleName.CanOperateAsT5))
                         {
                             throw new Exception("Permission needed. The in-stock quantity of customer: " + shipOrderInDb.CustomerCode + " is lower than Warning Quantity Level. Please contact Accounting Department to push this order.");
                         }

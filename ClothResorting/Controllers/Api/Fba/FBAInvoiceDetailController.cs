@@ -26,7 +26,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public FBAInvoiceDetailController()
         {
             _context = new ApplicationDbContext();
-            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser").Split('@')[0]) : HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/fba/FBAInvoiceDetail/?customerId={customerId}&reference={reference}&invoiceType={invoiceType}  获取收费项目草表
@@ -796,7 +796,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     .SingleOrDefault(x => x.ShipOrderNumber == reference);
 
                 shipOrderInDb.InvoiceStatus = "Await";
-                shipOrderInDb.CloseDate = new DateTime(1900, 1, 1);
+                //shipOrderInDb.CloseDate = new DateTime(1900, 1, 1);
                 shipOrderInDb.ConfirmedBy = _userName;
             }
             else if (invoiceType == FBAInvoiceType.MasterOrder)
@@ -805,7 +805,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     .SingleOrDefault(x => x.Container == reference);
 
                 masterOrder.InvoiceStatus = "Await";
-                masterOrder.CloseDate = new DateTime(1900, 1, 1);
+                //masterOrder.CloseDate = new DateTime(1900, 1, 1);
                 masterOrder.ConfirmedBy = _userName;
             }
 

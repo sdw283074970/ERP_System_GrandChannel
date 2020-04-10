@@ -187,7 +187,7 @@ namespace ClothResorting.Controllers.Api
         [HttpGet]
         public IHttpActionResult GetUsersRoles([FromUri]string userId, [FromUri]string operation)
         {
-            var roleIds = _context.Users.Find(userId).Roles.Select(x => x.RoleId).ToList();
+            var roleIdsUnderUser = _context.Users.Find(userId).Roles.Select(x => x.RoleId).ToList();
             var rolesInDb = _context.Roles.ToList();
             var resultList = new List<IdentityRoleDto>();
 
@@ -195,7 +195,7 @@ namespace ClothResorting.Controllers.Api
             {
                 foreach (var i in rolesInDb)
                 {
-                    if (roleIds.Contains(i.Id))
+                    if (roleIdsUnderUser.Contains(i.Id))
                         resultList.Add(Mapper.Map<IdentityRole, IdentityRoleDto>(i));
                 }
             }
@@ -203,7 +203,7 @@ namespace ClothResorting.Controllers.Api
             {
                 foreach (var i in rolesInDb)
                 {
-                    if (!roleIds.Contains(i.Id))
+                    if (!roleIdsUnderUser.Contains(i.Id))
                         resultList.Add(Mapper.Map<IdentityRole, IdentityRoleDto>(i));
                 }
             }
