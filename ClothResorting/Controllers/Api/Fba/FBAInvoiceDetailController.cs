@@ -475,7 +475,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.Reference);
 
-                if (masterOrderInDb.InvoiceStatus == "Closed")
+                if (masterOrderInDb.InvoiceStatus == FBAStatus.Closed || masterOrderInDb.InvoiceStatus == FBAStatus.Generated)
                 {
                     throw new Exception("Cannot add any items in a closed order");
                 }
@@ -512,7 +512,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == obj.Reference);
 
-                if (shipOrderInDb.InvoiceStatus == "Closed")
+                if (shipOrderInDb.InvoiceStatus == FBAStatus.Generated || shipOrderInDb.InvoiceStatus == FBAStatus.Closed)
                 {
                     throw new Exception("Cannot add any items in a closed order");
                 }
@@ -616,14 +616,14 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbainvoicedetail/?reference{reference}&invoiceType={invoiceType}&closeDate={closeDate}&isAppliedMinCharge={isAppliedMinCharge}
         [HttpPut]
-        public void CloseChargeOrder([FromUri]string reference, [FromUri]string invoiceType, [FromUri]DateTime closeDate, [FromUri]bool isAppliedMinCharge)
+        public void GenerateInvoice([FromUri]string reference, [FromUri]string invoiceType, [FromUri]DateTime closeDate, [FromUri]bool isAppliedMinCharge)
         {
             if (invoiceType == FBAInvoiceType.ShipOrder)
             {
                 var shipOrderInDb = _context.FBAShipOrders
                     .SingleOrDefault(x => x.ShipOrderNumber == reference);
 
-                shipOrderInDb.InvoiceStatus = "Closed";
+                shipOrderInDb.InvoiceStatus = FBAStatus.Generated;
                 shipOrderInDb.CloseDate = closeDate;
                 shipOrderInDb.ConfirmedBy = _userName;
 
@@ -705,7 +705,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var masterOrder = _context.FBAMasterOrders
                     .SingleOrDefault(x => x.Container == reference);
 
-                masterOrder.InvoiceStatus = "Closed";
+                masterOrder.InvoiceStatus = FBAStatus.Generated;
                 masterOrder.CloseDate = closeDate;
                 masterOrder.ConfirmedBy = _userName;
 
@@ -786,17 +786,16 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fbainvoicedetail/?reference={reference}&invoiceType={invoiceType}
+        // PUT /api/fbainvoicedetail/?reference={reference}&invoiceType={invoiceType}&status={status}
         [HttpPut]
-        public void ReopenOrder([FromUri]string reference, [FromUri]string invoiceType)
+        public void UpdateOrderStatus([FromUri]string reference, [FromUri]string invoiceType, [FromUri]string status)
         {
             if (invoiceType == FBAInvoiceType.ShipOrder)
             {
                 var shipOrderInDb = _context.FBAShipOrders
                     .SingleOrDefault(x => x.ShipOrderNumber == reference);
 
-                shipOrderInDb.InvoiceStatus = "Await";
-                //shipOrderInDb.CloseDate = new DateTime(1900, 1, 1);
+                shipOrderInDb.InvoiceStatus = status;
                 shipOrderInDb.ConfirmedBy = _userName;
             }
             else if (invoiceType == FBAInvoiceType.MasterOrder)
@@ -804,8 +803,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var masterOrder = _context.FBAMasterOrders
                     .SingleOrDefault(x => x.Container == reference);
 
-                masterOrder.InvoiceStatus = "Await";
-                //masterOrder.CloseDate = new DateTime(1900, 1, 1);
+                masterOrder.InvoiceStatus = status;
                 masterOrder.ConfirmedBy = _userName;
             }
 
@@ -923,7 +921,7 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         public void CloseShipOrder(ApplicationDbContext context, FBAShipOrder shipOrderInDb, string _userName, string reference, string invoiceType, DateTime closeDate, bool isAppliedMinCharge)
         {
-            shipOrderInDb.InvoiceStatus = "Closed";
+            shipOrderInDb.InvoiceStatus = FBAStatus.Closed;
             shipOrderInDb.CloseDate = closeDate;
             shipOrderInDb.ConfirmedBy = _userName;
 
@@ -992,7 +990,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public void CloseMasterOrder(FBAMasterOrder masterOrder,string _userName, DateTime closeDate)
         {
-            masterOrder.InvoiceStatus = "Closed";
+            masterOrder.InvoiceStatus = FBAStatus.Closed;
             masterOrder.CloseDate = closeDate;
             masterOrder.ConfirmedBy = _userName;
         }

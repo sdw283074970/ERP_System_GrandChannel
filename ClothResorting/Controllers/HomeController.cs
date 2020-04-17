@@ -52,17 +52,9 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var getter = new FBAGetter();
-            var filter = new Helpers.FBAHelper.Filter
-            {
-                SortBy = "Id",
-                IsDesc = true,
-                InvoiceStatus = new string[] { "Closed" },
-                Status = new string[] { "New Created" },
-                CustomerCodes = new string[] { "AW", "GDTN" }
-            };
+            var former = new ChartFormer();
 
-            var test = getter.GetFilteredMasterOrder(filter);
+            var result = former.GetInboundAndOutboundChartData(DateTime.Now.AddDays(-50));
 
             ViewBag.Message = "Your application description page.";
 
@@ -71,7 +63,7 @@ namespace ClothResorting.Controllers
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Your contact page."; 
 
             return View();
         }

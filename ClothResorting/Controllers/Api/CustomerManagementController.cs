@@ -111,7 +111,9 @@ namespace ClothResorting.Controllers.Api
                 EmailAddress = model.EmailAddress,
                 ContactPerson = model.ContactPerson,
                 Status = Status.Active,
-                WarningQuantityLevel = model.WarningQuantityLevel
+                WarningQuantityLevel = model.WarningQuantityLevel,
+                InboundMinCharge = model.InboundMinCharge,
+                OutboundMinCharge = model.OutboundMinCharge
             };
 
             _context.UpperVendors.Add(customer);
@@ -305,6 +307,8 @@ namespace ClothResorting.Controllers.Api
             customerInDb.EmailAddress = model.EmailAddress;
             customerInDb.ContactPerson = model.ContactPerson;
             customerInDb.WarningQuantityLevel = model.WarningQuantityLevel;
+            customerInDb.InboundMinCharge = model.InboundMinCharge;
+            customerInDb.OutboundMinCharge = model.OutboundMinCharge;
 
             _context.SaveChanges();
         }

@@ -422,6 +422,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex, 4] = Math.Round(o.GrossWeight, 2);
                 _ws.Cells[startIndex, 5] = Math.Round(o.CBM, 2);
                 _ws.Cells[startIndex, 6] = o.Quantity;
+                _ws.Cells[startIndex, 10] = o.Remark;
                 startIndex++;
             }
               

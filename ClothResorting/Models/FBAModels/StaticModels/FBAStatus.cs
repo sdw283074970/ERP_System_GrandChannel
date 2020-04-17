@@ -29,6 +29,12 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Allocated = "Allocated";
 
+        public const string Await = "Await";
+
+        public const string Generated = "Generated";
+
+        public const string Closed = "Closed";
+
         public const string WaitingForCharging = "Waiting for charging";
 
         public const string New = "New";
