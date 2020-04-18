@@ -54,7 +54,7 @@ namespace ClothResorting.Controllers
         {
             var former = new ChartFormer();
 
-            var result = former.GetInboundAndOutboundChartData(DateTime.Now.AddDays(-50));
+            var result = former.GetInboundAndOutboundPltsChartData(DateTime.Now.AddDays(-50));
 
             ViewBag.Message = "Your application description page.";
 

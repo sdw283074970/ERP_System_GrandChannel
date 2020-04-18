@@ -133,7 +133,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 foreach (var i in r)
                 {
                     var index = activityList.IndexOf(i.Activity);
-                    _ws.Cells[startRow, index + 8] = _ws.Cells[startRow, index + 8].Value2 + i.Amount;
+                    _ws.Cells[startRow, index + 8] = Math.Round(_ws.Cells[startRow, index + 8].Value2 + i.Amount, 2);
                     
                 }
 
@@ -146,7 +146,7 @@ namespace ClothResorting.Helpers.FBAHelper
             foreach(var c in chargeActivityGroup)
             {
                 var activity = c.First().Activity;
-                _ws.Cells[startRow, activityList.IndexOf(activity) + 8] = info.InvoiceReportDetails.Where(x => x.Activity == activity).Sum(x => x.Amount);
+                _ws.Cells[startRow, activityList.IndexOf(activity) + 8] = Math.Round(info.InvoiceReportDetails.Where(x => x.Activity == activity).Sum(x => x.Amount), 2);
             }
 
             _ws.Cells[startRow, 1] = "Total";

@@ -18,7 +18,23 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (operation == "GetInboundAndOutboundPltsData")
             {
-                return Ok(former.GetInboundAndOutboundChartData(DateTime.Now));
+                return Ok(former.GetInboundAndOutboundPltsChartData(DateTime.Now));
+            }
+            else if (operation == "GetInboundAndOutboundCtnsData")
+            {
+                return Ok(former.GetInboundAndOutboundCtnsChartData(DateTime.Now));
+            }
+            else if (operation == "GetInboundAndOutboundIncomesData")
+            {
+                return Ok(former.GetInboundAndOutboundIncomesChartData(DateTime.Now));
+            }
+            else if (operation == "GetInboundAndOutboundCostsData")
+            {
+                return Ok(former.GetInboundAndOutboundCostsChartData(DateTime.Now));
+            }
+            else if (operation == "GetInboundAndOutboundProfitsData")
+            {
+                return Ok(former.GetInboundAndOutboundProfitsChartData(DateTime.Now));
             }
 
             return Ok();

@@ -62,10 +62,11 @@ namespace ClothResorting.Helpers
             return list.ToArray();
         }
 
-        public InboundAndOutboundChartData GetInboundAndOutboundChartData(DateTime dt)
+        public InboundAndOutboundChartData GetInboundAndOutboundPltsChartData(DateTime dt)
         {
             var weekZoneList = GenerateXAxisWeekZone(dt);
             var weekZoneArray = ConvertWeekZoneListToArray(weekZoneList);
+
             var result = new InboundAndOutboundChartData { XAxisData =  weekZoneArray };
             var firstDate = weekZoneList.First().StartDate;
             var lastDate = weekZoneList.Last().EndDate;
@@ -78,8 +79,8 @@ namespace ClothResorting.Helpers
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.ReleasedDate >= firstDate && x.FBAShipOrder.ReleasedDate <= lastDate);
 
-            var inboundPltsStack = new Stack<int>();
-            var outboundPltsStack = new Stack<int>();
+            var inboundPltsStack = new Stack<float>();
+            var outboundPltsStack = new Stack<float>();
 
             foreach (var w in weekZoneList)
             {
@@ -94,6 +95,159 @@ namespace ClothResorting.Helpers
 
             result.InboundData = inboundPltsStack.Reverse().ToArray();
             result.OutboundData = outboundPltsStack.Reverse().ToArray();
+            result.DataType = "PltsData";
+
+            return result;
+        }
+
+        public InboundAndOutboundChartData GetInboundAndOutboundCtnsChartData(DateTime dt)
+        {
+            var weekZoneList = GenerateXAxisWeekZone(dt);
+            var weekZoneArray = ConvertWeekZoneListToArray(weekZoneList);
+
+            var result = new InboundAndOutboundChartData { XAxisData = weekZoneArray };
+            var firstDate = weekZoneList.First().StartDate;
+            var lastDate = weekZoneList.Last().EndDate;
+
+            var inboundInDb = _context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.InboundDate >= firstDate && x.FBAMasterOrder.InboundDate <= lastDate);
+
+            var outboundInDb = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.ReleasedDate >= firstDate && x.FBAShipOrder.ReleasedDate <= lastDate);
+
+            var inboundStack = new Stack<float>();
+            var outboundStack = new Stack<float>();
+
+            foreach (var w in weekZoneList)
+            {
+                var inboundItems = inboundInDb.Where(x => x.FBAMasterOrder.InboundDate >= w.StartDate && x.FBAMasterOrder.InboundDate <= w.EndDate).ToList();
+                var inbound = inboundItems == null ? 0 : inboundItems.Sum(x => x.ActualQuantity);
+                inboundStack.Push(inbound);
+
+                var outboundItems = outboundInDb.Where(x => x.FBAShipOrder.ReleasedDate >= w.StartDate && x.FBAShipOrder.ReleasedDate <= w.EndDate).ToList();
+                var outbound = outboundItems == null ? 0 : outboundItems.Sum(x => x.ActualQuantity);
+                outboundStack.Push(outbound);
+            }
+
+            result.InboundData = inboundStack.Reverse().ToArray();
+            result.OutboundData = outboundStack.Reverse().ToArray();
+            result.DataType = "CtnsData";
+
+            return result;
+        }
+
+        public InboundAndOutboundChartData GetInboundAndOutboundIncomesChartData(DateTime dt)
+        {
+            var weekZoneList = GenerateXAxisWeekZone(dt);
+            var weekZoneArray = ConvertWeekZoneListToArray(weekZoneList);
+
+            var result = new InboundAndOutboundChartData { XAxisData = weekZoneArray };
+            var firstDate = weekZoneList.First().StartDate;
+            var lastDate = weekZoneList.Last().EndDate;
+
+            var inboundInDb = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.InboundDate >= firstDate && x.FBAMasterOrder.InboundDate <= lastDate);
+
+            var outboundInDb = _context.InvoiceDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.ReleasedDate >= firstDate && x.FBAShipOrder.ReleasedDate <= lastDate);
+
+            var inboundStack = new Stack<float>();
+            var outboundStack = new Stack<float>();
+
+            foreach (var w in weekZoneList)
+            {
+                var inboundItems = inboundInDb.Where(x => x.FBAMasterOrder.InboundDate >= w.StartDate && x.FBAMasterOrder.InboundDate <= w.EndDate).ToList();
+                var inbound = inboundItems == null ? 0 : (float)inboundItems.Sum(x => x.Amount);
+                inboundStack.Push(inbound);
+
+                var outboundItems = outboundInDb.Where(x => x.FBAShipOrder.ReleasedDate >= w.StartDate && x.FBAShipOrder.ReleasedDate <= w.EndDate).ToList();
+                var outbound = outboundItems == null ? 0 : (float)outboundItems.Sum(x => x.Amount);
+                outboundStack.Push(outbound);
+            }
+
+            result.InboundData = inboundStack.Reverse().ToArray();
+            result.OutboundData = outboundStack.Reverse().ToArray();
+            result.DataType = "IncomesData";
+
+            return result;
+        }
+
+        public InboundAndOutboundChartData GetInboundAndOutboundCostsChartData(DateTime dt)
+        {
+            var weekZoneList = GenerateXAxisWeekZone(dt);
+            var weekZoneArray = ConvertWeekZoneListToArray(weekZoneList);
+
+            var result = new InboundAndOutboundChartData { XAxisData = weekZoneArray };
+            var firstDate = weekZoneList.First().StartDate;
+            var lastDate = weekZoneList.Last().EndDate;
+
+            var inboundInDb = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.InboundDate >= firstDate && x.FBAMasterOrder.InboundDate <= lastDate);
+
+            var outboundInDb = _context.InvoiceDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.ReleasedDate >= firstDate && x.FBAShipOrder.ReleasedDate <= lastDate);
+
+            var inboundStack = new Stack<float>();
+            var outboundStack = new Stack<float>();
+
+            foreach (var w in weekZoneList)
+            {
+                var inboundItems = inboundInDb.Where(x => x.FBAMasterOrder.InboundDate >= w.StartDate && x.FBAMasterOrder.InboundDate <= w.EndDate).ToList();
+                var inbound = inboundItems == null ? 0 : (float)inboundItems.Sum(x => x.Cost);
+                inboundStack.Push(inbound);
+
+                var outboundItems = outboundInDb.Where(x => x.FBAShipOrder.ReleasedDate >= w.StartDate && x.FBAShipOrder.ReleasedDate <= w.EndDate).ToList();
+                var outbound = outboundItems == null ? 0 : (float)outboundItems.Sum(x => x.Cost);
+                outboundStack.Push(outbound);
+            }
+
+            result.InboundData = inboundStack.Reverse().ToArray();
+            result.OutboundData = outboundStack.Reverse().ToArray();
+            result.DataType = "CostsData";
+
+            return result;
+        }
+
+        public InboundAndOutboundChartData GetInboundAndOutboundProfitsChartData(DateTime dt)
+        {
+            var weekZoneList = GenerateXAxisWeekZone(dt);
+            var weekZoneArray = ConvertWeekZoneListToArray(weekZoneList);
+
+            var result = new InboundAndOutboundChartData { XAxisData = weekZoneArray };
+            var firstDate = weekZoneList.First().StartDate;
+            var lastDate = weekZoneList.Last().EndDate;
+
+            var inboundInDb = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.InboundDate >= firstDate && x.FBAMasterOrder.InboundDate <= lastDate);
+
+            var outboundInDb = _context.InvoiceDetails
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.ReleasedDate >= firstDate && x.FBAShipOrder.ReleasedDate <= lastDate);
+
+            var inboundStack = new Stack<float>();
+            var outboundStack = new Stack<float>();
+
+            foreach (var w in weekZoneList)
+            {
+                var inboundItems = inboundInDb.Where(x => x.FBAMasterOrder.InboundDate >= w.StartDate && x.FBAMasterOrder.InboundDate <= w.EndDate).ToList();
+                var inbound = inboundItems == null ? 0 : ((float)inboundItems.Sum(x => x.Amount) - (float)inboundItems.Sum(x => x.Cost));
+                inboundStack.Push(inbound);
+
+                var outboundItems = outboundInDb.Where(x => x.FBAShipOrder.ReleasedDate >= w.StartDate && x.FBAShipOrder.ReleasedDate <= w.EndDate).ToList();
+                var outbound = outboundItems == null ? 0 : ((float)outboundItems.Sum(x => x.Amount) - (float)outboundItems.Sum(x => x.Cost));
+                outboundStack.Push(outbound);
+            }
+
+            result.InboundData = inboundStack.Reverse().ToArray();
+            result.OutboundData = outboundStack.Reverse().ToArray();
+            result.DataType = "ProfitsData";
 
             return result;
         }
@@ -108,10 +262,12 @@ namespace ClothResorting.Helpers
 
     public class InboundAndOutboundChartData
     {
+        public string DataType { get; set; }
+
         public string[] XAxisData { get; set; }
 
-        public int[] InboundData { get; set; }
+        public float[] InboundData { get; set; }
 
-        public int[] OutboundData { get; set; }
+        public float[] OutboundData { get; set; }
     }
 }
