@@ -10,34 +10,20 @@ namespace ClothResorting.Controllers.Api.Fba
 {
     public class ChartController : ApiController
     {
-        // GET /api/fba/chart/?operation={operation}
+        // GET /api/fba/chart/?timeUnit={timeUnit}&timeCount={timeCount}
         [HttpGet]
-        public IHttpActionResult GetChartData([FromUri]string operation)
+        public IHttpActionResult GetChartData([FromUri]string timeUnit, [FromUri]int timeCount)
         {
             var former = new ChartFormer();
+            var resultList = new List<InboundAndOutboundChartData>();
 
-            if (operation == "GetInboundAndOutboundPltsData")
-            {
-                return Ok(former.GetInboundAndOutboundPltsChartData(DateTime.Now));
-            }
-            else if (operation == "GetInboundAndOutboundCtnsData")
-            {
-                return Ok(former.GetInboundAndOutboundCtnsChartData(DateTime.Now));
-            }
-            else if (operation == "GetInboundAndOutboundIncomesData")
-            {
-                return Ok(former.GetInboundAndOutboundIncomesChartData(DateTime.Now));
-            }
-            else if (operation == "GetInboundAndOutboundCostsData")
-            {
-                return Ok(former.GetInboundAndOutboundCostsChartData(DateTime.Now));
-            }
-            else if (operation == "GetInboundAndOutboundProfitsData")
-            {
-                return Ok(former.GetInboundAndOutboundProfitsChartData(DateTime.Now));
-            }
+            resultList.Add(former.GetInboundAndOutboundPltsChartData(DateTime.Today, timeUnit, timeCount));
+            resultList.Add(former.GetInboundAndOutboundCtnsChartData(DateTime.Today, timeUnit, timeCount));
+            resultList.Add(former.GetInboundAndOutboundIncomesChartData(DateTime.Today, timeUnit, timeCount));
+            resultList.Add(former.GetInboundAndOutboundCostsChartData(DateTime.Today, timeUnit, timeCount));
+            resultList.Add(former.GetInboundAndOutboundProfitsChartData(DateTime.Today, timeUnit, timeCount));
 
-            return Ok();
+            return Ok(resultList);
         }
     }
 }
