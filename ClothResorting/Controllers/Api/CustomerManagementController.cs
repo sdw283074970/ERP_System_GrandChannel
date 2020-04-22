@@ -295,6 +295,23 @@ namespace ClothResorting.Controllers.Api
             _context.SaveChanges();
         }
 
+        // PUT /api/customermanagement/?customerId={customerId}&operation={operation}
+        [HttpPut]
+        public void SwitchCustomerStatus([FromUri]int customerId, [FromUri]string operation)
+        {
+            if (operation == "Switch")
+            {
+                var customerInDb = _context.UpperVendors.Find(customerId);
+
+                if (customerInDb.Status == FBAStatus.Active)
+                    customerInDb.Status = FBAStatus.Inactive;
+                else
+                    customerInDb.Status = FBAStatus.Active;
+            }
+
+            _context.SaveChanges();
+        }
+
         //PUT /api/customermanagement/
         [HttpPut]
         public void UpdateCustomerByModel([FromBody]UpperVendor model)

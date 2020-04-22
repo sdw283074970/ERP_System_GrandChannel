@@ -1,4 +1,5 @@
 ﻿using ClothResorting.Models;
+using ClothResorting.Models.FBAModels.StaticModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,8 @@ namespace ClothResorting.Controllers.Api
             {
                 foreach (var vendor in vendors)
                 {
-                    list.Add(vendor.CustomerCode);
+                    if(vendor.Status != FBAStatus.Inactive)
+                        list.Add(vendor.CustomerCode);
                 }
             }
 
@@ -62,7 +64,8 @@ namespace ClothResorting.Controllers.Api
             {
                 foreach (var vendor in vendors)
                 {
-                    list.Add(new CustomerCodeObj { Text = vendor.CustomerCode, Value = vendor.CustomerCode, Label = vendor.CustomerCode });
+                    if (vendor.Status != FBAStatus.Inactive)
+                        list.Add(new CustomerCodeObj { Text = vendor.CustomerCode, Value = vendor.CustomerCode, Label = vendor.CustomerCode });
                 }
             }
 

@@ -61,10 +61,10 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 5] = i.Activity;
                 _ws.Cells[startRow, 6] = i.ChargingType;
                 _ws.Cells[startRow, 7] = i.Unit;
-                _ws.Cells[startRow, 8] = i.Quantity;
-                _ws.Cells[startRow, 9] = i.Rate;
-                _ws.Cells[startRow, 10] = i.Amount;
-                _ws.Cells[startRow, 11] = i.Cost;
+                _ws.Cells[startRow, 8] = Math.Round(i.Quantity, 2);
+                _ws.Cells[startRow, 9] = Math.Round(i.Rate, 2);
+                _ws.Cells[startRow, 10] = Math.Round(i.Amount, 2);
+                _ws.Cells[startRow, 11] = Math.Round(i.Cost, 2);
                 _ws.Cells[startRow, 12] = i.DateOfCost.ToString("yyyy-MM-dd");
                 _ws.Cells[startRow, 13] = i.Memo;
 
@@ -127,14 +127,13 @@ namespace ClothResorting.Helpers.FBAHelper
                 }
 
                 _ws.Cells[startRow, columnIndex] = r.First().DateOfClose.Year == 1900 ? "Open" : r.First().DateOfClose.ToString("MM/dd/yyyy");
-                _ws.Cells[startRow, columnIndex + 1] = r.Sum(x => x.Amount);
-                _ws.Cells[startRow, columnIndex + 2] = r.Sum(x => x.Cost);
+                _ws.Cells[startRow, columnIndex + 1] = Math.Round(r.Sum(x => x.Amount), 2);
+                _ws.Cells[startRow, columnIndex + 2] = Math.Round(r.Sum(x => x.Cost), 2);
 
                 foreach (var i in r)
                 {
                     var index = activityList.IndexOf(i.Activity);
                     _ws.Cells[startRow, index + 8] = Math.Round(_ws.Cells[startRow, index + 8].Value2 + i.Amount, 2);
-                    
                 }
 
                 totalCtns += r.First().ActualCtnsInThisOrder;
@@ -152,8 +151,8 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 1] = "Total";
             _ws.Cells[startRow, 6] = totalCtns;
             _ws.Cells[startRow, 7] = totalPlts;
-            _ws.Cells[startRow, columnIndex + 1] = info.InvoiceReportDetails.Sum(x => x.Amount);
-            _ws.Cells[startRow, columnIndex + 2] = info.InvoiceReportDetails.Sum(x => x.Cost);
+            _ws.Cells[startRow, columnIndex + 1] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Amount), 2);
+            _ws.Cells[startRow, columnIndex + 2] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Cost), 2);
 
             //制作第三个收费细节表
             _ws = _wb.Worksheets[3];
