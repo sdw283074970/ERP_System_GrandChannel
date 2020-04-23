@@ -48,44 +48,75 @@ namespace ClothResorting.Helpers.FBAHelper
             var unPalletizedSKU = masterOrderInDb.FBAOrderDetails
                 .Where(x => x.ComsumedQuantity < x.ActualQuantity);
 
-            var palletsInDb = _context.FBAPallets
+            var pallets = _context.FBAPallets
                 .Include(x => x.FBAMasterOrder)
                 .Include(x => x.FBACartonLocations)
-                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId)
+                .ToList();
 
-            var totalPlts = palletsInDb.Sum(x => x.ActualPallets);
+            var totalPlts = pallets == null ? 0 : pallets.Sum(x => x.ActualPallets);
 
+            // 接收报告
             _ws = _wb.Worksheets[1];
             var startRow = 5;
 
-            //foreach(var d in masterOrderInDb.FBAOrderDetails)
-            //{
-            //    _ws.Cells[startRow, 1] = d.ShipmentId;
-            //    _ws.Cells[startRow, 2] = d.AmzRefId;
-            //    _ws.Cells[startRow, 3] = d.ActualCBM;
-            //    _ws.Cells[startRow, 4] = d.ActualQuantity;
+            foreach (var d in masterOrderInDb.FBAOrderDetails)
+            {
+                _ws.Cells[startRow, 1] = d.ShipmentId;
+                _ws.Cells[startRow, 2] = d.AmzRefId;
+                _ws.Cells[startRow, 3] = d.ActualCBM;
+                _ws.Cells[startRow, 4] = d.ActualQuantity;
 
-            //    startRow += 1;
-            //}
+                startRow += 1;
+            }
 
+            // 写入表头信息
+            _ws.Cells[2, 2] = masterOrderInDb.Customer.CustomerCode;
+            _ws.Cells[2, 4] = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd");
+            _ws.Cells[3, 2] = masterOrderInDb.Container;
+            _ws.Cells[3, 4] = masterOrderInDb.OriginalPlts;
+
+            // 写入表脚信息
+            _ws.Cells[startRow, 1] = "Total:";
+            _ws.Cells[startRow, 3] = masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.Quantity);
+            _ws.Cells[startRow, 4] = masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
+
+            //加上边框
+            var range = _ws.get_Range("A5", "D" + startRow);
+            range.Borders.LineStyle = 1;
+
+            // 分配报告
+            _ws = _wb.Worksheets[2];
             var ws = (Worksheet)_wb.ActiveSheet;
 
+            startRow = 5;
+
             // 写入打托的SKU
-            foreach (var p in palletsInDb)
+            foreach (var p in pallets)
             {
                 //合并单元格
-                _ws.Cells[startRow, 5] = p.ActualPallets;
-                Range c1 = _ws.Cells[startRow, 5];
-                Range c2 = _ws.Cells[startRow + p.FBACartonLocations.Count - 1, 5];
-                Range range = ws.get_Range(c1, c2);
+                _ws.Cells[startRow, 1] = "Palletized";
+                _ws.Cells[startRow, 6] = p.ActualPallets;
+
+                var statusRange = _ws.get_Range("A" + startRow, "A" + (startRow + p.FBACartonLocations.Count - 1));
+                var palletsRange = _ws.get_Range("F" + startRow, "F" + (startRow + p.FBACartonLocations.Count - 1));
+                statusRange.Merge(statusRange.MergeCells);
+                palletsRange.Merge(palletsRange.MergeCells);
+                //Range c1 = _ws.Cells[startRow, 1];
+                //Range c2 = _ws.Cells[startRow + p.FBACartonLocations.Count - 1, 1];
+                //Range range1 = ws.get_Range(c1, c2);
+                //Range c3 = _ws.Cells[startRow, 6];
+                //Range c4 = _ws.Cells[startRow + p.FBACartonLocations.Count - 1, 6];
+                //Range range2 = ws.get_Range(c3, c4);
+
                 //range.EntireColumn.AutoFit();
 
                 foreach (var c in p.FBACartonLocations)
                 {
-                    _ws.Cells[startRow, 1] = c.ShipmentId;
-                    _ws.Cells[startRow, 2] = c.AmzRefId;
-                    _ws.Cells[startRow, 3] = c.FBAOrderDetail.Quantity;
-                    _ws.Cells[startRow, 4] = c.ActualQuantity;
+                    _ws.Cells[startRow, 2] = c.ShipmentId;
+                    _ws.Cells[startRow, 3] = c.AmzRefId;
+                    _ws.Cells[startRow, 4] = c.FBAOrderDetail.ActualQuantity;
+                    _ws.Cells[startRow, 5] = c.ActualQuantity;
                     startRow += 1;
                 }
             }
@@ -93,22 +124,26 @@ namespace ClothResorting.Helpers.FBAHelper
             // 写入未打托但直接分派了库位的SKU
             foreach(var c in cartonLocations)
             {
-                _ws.Cells[startRow, 1] = c.ShipmentId;
-                _ws.Cells[startRow, 2] = c.AmzRefId;
-                _ws.Cells[startRow, 3] = c.FBAOrderDetail.Quantity;
-                _ws.Cells[startRow, 4] = c.ActualQuantity;
+                _ws.Cells[startRow, 1] = "Allocated";
+                _ws.Cells[startRow, 2] = c.ShipmentId;
+                _ws.Cells[startRow, 3] = c.AmzRefId;
+                _ws.Cells[startRow, 4] = c.FBAOrderDetail.ActualQuantity;
+                _ws.Cells[startRow, 5] = c.ActualQuantity;
+                _ws.Cells[startRow, 6] = "None";
                 startRow += 1;
             }
 
             // 写入未打托且未直接入库的SKU
-            //foreach(var s in unPalletizedSKU)
-            //{
-            //    _ws.Cells[startRow, 1] = s.ShipmentId;
-            //    _ws.Cells[startRow, 2] = s.AmzRefId;
-            //    _ws.Cells[startRow, 3] = s.Quantity;
-            //    _ws.Cells[startRow, 4] = s.ActualQuantity;
-            //    startRow += 1;
-            //}
+            foreach (var s in unPalletizedSKU)
+            {
+                _ws.Cells[startRow, 1] = "Unallocated";
+                _ws.Cells[startRow, 2] = s.ShipmentId;
+                _ws.Cells[startRow, 3] = s.AmzRefId;
+                _ws.Cells[startRow, 4] = s.ActualQuantity;
+                _ws.Cells[startRow, 5] = s.ActualQuantity - s.ComsumedQuantity;
+                _ws.Cells[startRow, 6] = "None";
+                startRow += 1;
+            }
 
             // 写入表头信息
             _ws.Cells[2, 2] = masterOrderInDb.Customer.CustomerCode;
@@ -123,14 +158,21 @@ namespace ClothResorting.Helpers.FBAHelper
 
             //写入表脚信息
             _ws.Cells[startRow, 1] = "Total:";
-            _ws.Cells[startRow, 3] = masterOrderInDb.FBAOrderDetails.Sum(x => x.Quantity);
-            _ws.Cells[startRow, 4] = masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
-            _ws.Cells[startRow, 5] = palletsInDb.Sum(x => x.ActualPallets);
+            _ws.Cells[startRow, 5] = masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
+            _ws.Cells[startRow, 6] = pallets == null ? 0 : pallets.Sum(x => x.ActualPallets);
+
+            //加上边框
+            range = _ws.get_Range("A5", "F" + startRow);
+            range.Borders.LineStyle = 1;
 
             var fullPath = @"D:\Receipts\FBA-" + masterOrderInDb.Customer.CustomerCode + "-Receipt-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
+
+            //强行关闭Excel进程
+            var killer = new ExcelKiller();
+            killer.Dispose();
 
             return fullPath;
         }

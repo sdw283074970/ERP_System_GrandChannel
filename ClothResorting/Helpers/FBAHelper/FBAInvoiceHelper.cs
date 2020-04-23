@@ -63,17 +63,20 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 7] = i.Unit;
                 _ws.Cells[startRow, 8] = Math.Round(i.Quantity, 2);
                 _ws.Cells[startRow, 9] = Math.Round(i.Rate, 2);
-                _ws.Cells[startRow, 10] = Math.Round(i.Amount, 2);
-                _ws.Cells[startRow, 11] = Math.Round(i.Cost, 2);
-                _ws.Cells[startRow, 12] = i.DateOfCost.ToString("yyyy-MM-dd");
-                _ws.Cells[startRow, 13] = i.Memo;
+                _ws.Cells[startRow, 10] = Math.Round(i.Discount, 2);
+                _ws.Cells[startRow, 11] = Math.Round(i.OriginalAmount, 2);
+                _ws.Cells[startRow, 12] = Math.Round(i.Amount, 2);
+                _ws.Cells[startRow, 13] = Math.Round(i.Cost, 2);
+                _ws.Cells[startRow, 14] = i.DateOfCost.ToString("yyyy-MM-dd");
+                _ws.Cells[startRow, 15] = i.Memo;
 
                 startRow += 1;
             }
 
             _ws.Cells[startRow, 9] = "Total";
-            _ws.Cells[startRow, 10] = info.InvoiceReportDetails.Sum(x => x.Amount);
-            _ws.Cells[startRow, 11] = info.InvoiceReportDetails.Sum(x => x.Cost);
+            _ws.Cells[startRow, 11] = Math.Round(info.InvoiceReportDetails.Sum(x => x.OriginalAmount));
+            _ws.Cells[startRow, 12] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Amount));
+            _ws.Cells[startRow, 13] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Cost));
 
             //制作第二个收费项目统计表
             _ws = _wb.Worksheets[2];
@@ -329,6 +332,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         Amount = i.Amount,
                         DateOfCost = i.DateOfCost,
                         Memo = i.Memo,
+                        Discount = i.Discount,
+                        OriginalAmount = Math.Round(i.Amount / (double)i.Discount, 2),
                         ActualCtnsInThisOrder = masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity),
                         ActualPltsInThisOrder = masterOrderInDb.FBAPallets.Sum(x => x.ActualPallets),
                         DateOfClose = masterOrderInDb.CloseDate
@@ -364,6 +369,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         Amount = i.Amount,
                         DateOfCost = i.DateOfCost,
                         Memo = i.Memo,
+                        Discount = i.Discount,
+                        OriginalAmount = Math.Round(i.Amount / (double)i.Discount, 2),
                         ActualCtnsInThisOrder = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualPlts),
                         ActualPltsInThisOrder = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualQuantity),
                         DateOfClose = shipOrderInDb.CloseDate
@@ -419,7 +426,9 @@ namespace ClothResorting.Helpers.FBAHelper
                     Rate = i.Rate,
                     Amount = i.Amount,
                     DateOfCost = i.DateOfCost,
-                    Memo = i.Memo
+                    Memo = i.Memo,
+                    Discount = i.Discount,
+                    OriginalAmount = Math.Round(i.Amount / (double)i.Discount, 2)
                 };
 
                 if (i.FBAMasterOrder == null)
@@ -490,7 +499,9 @@ namespace ClothResorting.Helpers.FBAHelper
                     Rate = i.Rate,
                     Amount = i.Amount,
                     DateOfCost = i.DateOfCost,
-                    Memo = i.Memo
+                    Memo = i.Memo,
+                    Discount = i.Discount,
+                    OriginalAmount = Math.Round(i.Amount / (double)i.Discount, 2)
                 };
 
                 if (i.FBAMasterOrder == null)
@@ -551,7 +562,9 @@ namespace ClothResorting.Helpers.FBAHelper
                     Rate = i.Rate,
                     Amount = i.Amount,
                     DateOfCost = i.DateOfCost,
-                    Memo = i.Memo
+                    Memo = i.Memo,
+                    Discount = i.Discount,
+                    OriginalAmount = Math.Round(i.Amount / (double)i.Discount, 2)
                 };
 
                 if (i.FBAMasterOrder == null)
@@ -648,6 +661,10 @@ namespace ClothResorting.Helpers.FBAHelper
         public DateTime DateOfClose { get; set; }
 
         public double Rate { get; set; }
+
+        public double Discount { get; set; }
+
+        public double OriginalAmount { get; set; }
 
         public double Amount { get; set; }
 
