@@ -1834,6 +1834,10 @@
     <Compile Include="Migrations\202002200220285_AddedSeveralBoolValueInInstructionTemplate.Designer.cs">
       <DependentUpon>202002200220285_AddedSeveralBoolValueInInstructionTemplate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202004300039020_AddedOriginalAmountInInvoiceDetail.cs" />
+    <Compile Include="Migrations\202004300039020_AddedOriginalAmountInInvoiceDetail.Designer.cs">
+      <DependentUpon>202004300039020_AddedOriginalAmountInInvoiceDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3422,6 +3426,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202002200220285_AddedSeveralBoolValueInInstructionTemplate.resx">
       <DependentUpon>202002200220285_AddedSeveralBoolValueInInstructionTemplate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202004300039020_AddedOriginalAmountInInvoiceDetail.resx">
+      <DependentUpon>202004300039020_AddedOriginalAmountInInvoiceDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

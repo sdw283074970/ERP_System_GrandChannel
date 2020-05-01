@@ -64,7 +64,7 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 _ws.Cells[startRow, 1] = d.ShipmentId;
                 _ws.Cells[startRow, 2] = d.AmzRefId;
-                _ws.Cells[startRow, 3] = d.ActualCBM;
+                _ws.Cells[startRow, 3] = d.Quantity;
                 _ws.Cells[startRow, 4] = d.ActualQuantity;
 
                 startRow += 1;
@@ -96,20 +96,15 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 //合并单元格
                 _ws.Cells[startRow, 1] = "Palletized";
-                _ws.Cells[startRow, 6] = p.ActualPallets;
+                _ws.Cells[startRow, 6] = p.PalletSize;
+                _ws.Cells[startRow, 7] = p.ActualPallets;
 
                 var statusRange = _ws.get_Range("A" + startRow, "A" + (startRow + p.FBACartonLocations.Count - 1));
-                var palletsRange = _ws.get_Range("F" + startRow, "F" + (startRow + p.FBACartonLocations.Count - 1));
+                var pltSizeRange = _ws.get_Range("F" + startRow, "F" + (startRow + p.FBACartonLocations.Count - 1));
+                var palletsRange = _ws.get_Range("G" + startRow, "G" + (startRow + p.FBACartonLocations.Count - 1));
                 statusRange.Merge(statusRange.MergeCells);
+                pltSizeRange.Merge(pltSizeRange.MergeCells);
                 palletsRange.Merge(palletsRange.MergeCells);
-                //Range c1 = _ws.Cells[startRow, 1];
-                //Range c2 = _ws.Cells[startRow + p.FBACartonLocations.Count - 1, 1];
-                //Range range1 = ws.get_Range(c1, c2);
-                //Range c3 = _ws.Cells[startRow, 6];
-                //Range c4 = _ws.Cells[startRow + p.FBACartonLocations.Count - 1, 6];
-                //Range range2 = ws.get_Range(c3, c4);
-
-                //range.EntireColumn.AutoFit();
 
                 foreach (var c in p.FBACartonLocations)
                 {
@@ -129,7 +124,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 3] = c.AmzRefId;
                 _ws.Cells[startRow, 4] = c.FBAOrderDetail.ActualQuantity;
                 _ws.Cells[startRow, 5] = c.ActualQuantity;
-                _ws.Cells[startRow, 6] = "None";
+                _ws.Cells[startRow, 6] = "N/A";
+                _ws.Cells[startRow, 7] = "N/A";
                 startRow += 1;
             }
 
@@ -141,7 +137,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 3] = s.AmzRefId;
                 _ws.Cells[startRow, 4] = s.ActualQuantity;
                 _ws.Cells[startRow, 5] = s.ActualQuantity - s.ComsumedQuantity;
-                _ws.Cells[startRow, 6] = "None";
+                _ws.Cells[startRow, 6] = "N/A";
+                _ws.Cells[startRow, 7] = "N/A";
                 startRow += 1;
             }
 
@@ -151,18 +148,13 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[3, 2] = masterOrderInDb.Container;
             _ws.Cells[3, 4] = masterOrderInDb.OriginalPlts;
 
-            //_ws.Cells[startRow, 1] = "Total Plts:";
-            //_ws.Cells[startRow, 2] = totalPlts;
-            //_ws.Cells[startRow, 3] = "Total Ctns";
-            //_ws.Cells[startRow, 4] = masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
-
             //写入表脚信息
             _ws.Cells[startRow, 1] = "Total:";
             _ws.Cells[startRow, 5] = masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
-            _ws.Cells[startRow, 6] = pallets == null ? 0 : pallets.Sum(x => x.ActualPallets);
+            _ws.Cells[startRow, 7] = pallets == null ? 0 : pallets.Sum(x => x.ActualPallets);
 
             //加上边框
-            range = _ws.get_Range("A5", "F" + startRow);
+            range = _ws.get_Range("A5", "G" + startRow);
             range.Borders.LineStyle = 1;
 
             var fullPath = @"D:\Receipts\FBA-" + masterOrderInDb.Customer.CustomerCode + "-Receipt-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
@@ -328,6 +320,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
             _ws.Cells[2, 2] = shipOrderInDb.PlaceTime.ToString("yyyy-MM-dd");
+            _ws.Cells[2, 2] = shipOrderInDb.CustomerCode;
             _ws.Cells[3, 2] = shipOrderInDb.ShipOrderNumber;
             _ws.Cells[3, 6] = shipOrderInDb.ETS.ToString("yyyy-MM-dd");
             _ws.Cells[4, 2] = shipOrderInDb.Destination ?? "NA";

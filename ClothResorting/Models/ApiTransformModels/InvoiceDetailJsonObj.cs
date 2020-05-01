@@ -19,7 +19,7 @@ namespace ClothResorting.Models.ApiTransformModels
 
         public double Rate { get; set; }
 
-        public double Amount { get; set; }
+        public double Amount { get; set; }  // final amount
 
         public double OriginalAmount { get; set; }
 

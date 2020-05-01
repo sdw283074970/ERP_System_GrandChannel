@@ -592,10 +592,17 @@ namespace ClothResorting.Controllers.Api.Fba
             else if (operation == "Finish Allocating")
             {
                 masterOrderInDb.Status = FBAStatus.Allocated;
+                masterOrderInDb.UpdateLog = "Allocated by " + _userName;
             }
             else if (operation == "Finish Palletizing")
             {
                 masterOrderInDb.Status = FBAStatus.Registered;
+                masterOrderInDb.UpdateLog = "Palletized by " + _userName;
+            }
+            else if (operation == "Confirmed")
+            {
+                masterOrderInDb.Status = FBAStatus.Confirmed;
+                masterOrderInDb.UpdateLog = "Order complete. Confirmed by " + _userName;
             }
 
             _context.SaveChanges();

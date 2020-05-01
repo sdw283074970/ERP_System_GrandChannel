@@ -85,7 +85,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 foreach (var d in dto)
                 {
                     d.Net = d.Amount - d.Cost;
-                    d.OriginalAmount = (float)(d.Amount / d.Discount);
+                    d.OriginalAmount = d.OriginalAmount;
                 }
 
                 return Ok(dto);
@@ -101,7 +101,6 @@ namespace ClothResorting.Controllers.Api.Fba
                 foreach (var d in dto)
                 {
                     d.Net = d.Amount - d.Cost;
-                    d.OriginalAmount = (float)(d.Amount / d.Discount);
                 }
 
                 return Ok(dto);
@@ -120,7 +119,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             switch(ajaxStep)
             {
-                case 0:        //ajax 第0步 获取该单号下的托盘总数和箱子总数
+                case 0:        //ajax 第0步 获取该单号下的托盘总数和箱子总数+SKU数量
                     {
                         if (invoiceType == "MasterOrder")
                         {
@@ -138,8 +137,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
                             var plts = masterOrderPallets.Sum(x => x.ActualPallets);
                             var ctns = orderDetsils.Sum(x => x.ActualQuantity);
+                            var skuNumber = orderDetsils.GroupBy(x => x.ShipmentId).Count();
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts});
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts, SkuNumber = skuNumber });
                         }
                         else if (invoiceType == "ShipOrder")
                         {
@@ -151,7 +151,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             var plts = shipOrder.Sum(x => x.ActualPlts);
                             var ctns = shipOrder.Sum(x => x.ActualQuantity);
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A" });
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A", SkuNumber = "N/A" });
                         }
                         else
                         {
@@ -268,8 +268,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 Rate = invoiceDetailIdInDb.Rate,
                 Discount = invoiceDetailIdInDb.Discount,
                 Quantity = invoiceDetailIdInDb.Quantity,
+                OriginalAmount = (float)invoiceDetailIdInDb.OriginalAmount,
                 Memo = invoiceDetailIdInDb.Memo,
-                Amount = invoiceDetailIdInDb.Amount / invoiceDetailIdInDb.Discount,
+                Amount = invoiceDetailIdInDb.Amount,
                 Unit = invoiceDetailIdInDb.Unit
             };
 
@@ -424,10 +425,11 @@ namespace ClothResorting.Controllers.Api.Fba
                     Unit = obj.Unit,
                     Rate = obj.Rate,
                     Cost = obj.Cost,
+                    OriginalAmount = obj.OriginalAmount,
                     Discount = obj.Discount,
                     Quantity = obj.Quantity,
                     InvoiceType = invoiceType,
-                    Amount = obj.Amount * obj.Discount,
+                    Amount = obj.Amount,
                     FBAMasterOrder = masterOrderInDb,
                     Operator = _userName
                 };
@@ -450,8 +452,9 @@ namespace ClothResorting.Controllers.Api.Fba
                     Discount = obj.Discount,
                     Cost = obj.Cost,
                     Quantity = obj.Quantity,
+                    OriginalAmount = obj.OriginalAmount,
                     InvoiceType = invoiceType,
-                    Amount = obj.Amount * obj.Discount,
+                    Amount = obj.Amount,
                     FBAShipOrder = shipOrderInDb,
                     Operator = _userName
                 };
@@ -600,11 +603,12 @@ namespace ClothResorting.Controllers.Api.Fba
             var invoiceDetailInDb = _context.InvoiceDetails.Find(invoiceDetailId);
 
             invoiceDetailInDb.Activity = obj.Activity;
-            invoiceDetailInDb.Amount = obj.Amount * obj.Discount;
+            invoiceDetailInDb.Amount = obj.Amount;
             invoiceDetailInDb.ChargingType = obj.ChargingType;
             invoiceDetailInDb.Cost = obj.Cost;
             invoiceDetailInDb.DateOfCost = obj.DateOfCost;
             invoiceDetailInDb.Memo = obj.Memo;
+            invoiceDetailInDb.OriginalAmount = obj.OriginalAmount;
             invoiceDetailInDb.Discount = obj.Discount;
             invoiceDetailInDb.Operator = _userName;
             invoiceDetailInDb.Quantity = obj.Quantity;

@@ -69,6 +69,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 13] = Math.Round(i.Cost, 2);
                 _ws.Cells[startRow, 14] = i.DateOfCost.ToString("yyyy-MM-dd");
                 _ws.Cells[startRow, 15] = i.Memo;
+                _ws.Cells[startRow, 16] = i.IsConfirmedCost ? "YES" : "NO";
+                _ws.Cells[startRow, 17] = i.IsPayed ? "YES" : "NO";
+                _ws.Cells[startRow, 18] = i.IsCollected ? "YES" : "NO";
 
                 startRow += 1;
             }
@@ -245,33 +248,59 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 1] = "Order Type";
                 _ws.Cells[startRow, 2] = "Reference #";
                 _ws.Cells[startRow, 3] = "Grand #";
-                _ws.Cells[startRow, 4] = "Activity";
-                _ws.Cells[startRow, 5] = "Charging Type";
-                _ws.Cells[startRow, 6] = "UOM";
-                _ws.Cells[startRow, 7] = "Quantity";
-                _ws.Cells[startRow, 8] = "Rate";
-                _ws.Cells[startRow, 9] = "Amout";
-                _ws.Cells[startRow, 10] = "Date of Cost";
-                _ws.Cells[startRow, 11] = "Memo";
-                _ws.Cells[startRow, 12] = "Cost";
+                _ws.Cells[startRow, 4] = "Subcustomer";
+                _ws.Cells[startRow, 5] = "Activity";
+                _ws.Cells[startRow, 6] = "Charging Type";
+                _ws.Cells[startRow, 7] = "UOM";
+                _ws.Cells[startRow, 8] = "Quantity";
+                _ws.Cells[startRow, 9] = "Rate";
+                _ws.Cells[startRow, 10] = "Discount";
+                _ws.Cells[startRow, 11] = "Org Amount";
+                _ws.Cells[startRow, 12] = "Amout";
+                _ws.Cells[startRow, 13] = "Cost";
+                _ws.Cells[startRow, 14] = "Date of Cost";
+                _ws.Cells[startRow, 15] = "Memo";
+                _ws.Cells[startRow, 16] = "Cost Confirm";
+                _ws.Cells[startRow, 17] = "Payed";
+                _ws.Cells[startRow, 18] = "Collected";
 
                 startRow += 1;
 
                 foreach (var i in g)
                 {
+                    //_ws.Cells[startRow, 1] = i.InvoiceType;
+                    //_ws.Cells[startRow, 2] = i.Reference;
+                    //_ws.Cells[startRow, 3] = i.GrandNumber;
+                    //_ws.Cells[startRow, 4] = i.Activity;
+                    //_ws.Cells[startRow, 5] = i.ChargingType;
+                    //_ws.Cells[startRow, 6] = i.Unit;
+                    //_ws.Cells[startRow, 7] = i.Quantity;
+                    //_ws.Cells[startRow, 8] = i.Rate;
+                    //_ws.Cells[startRow, 9] = i.Amount;
+                    //_ws.Cells[startRow, 10] = i.DateOfCost.ToString("yyyy-MM-dd");
+                    //_ws.Cells[startRow, 11] = i.Memo;
+                    //_ws.Cells[startRow, 12] = i.Cost;
+                    //_ws.Cells[startRow, 16] = i.IsConfirmedCost ? "YES" : "NO";
+                    //_ws.Cells[startRow, 17] = i.IsPayed ? "YES" : "NO";
+                    //_ws.Cells[startRow, 18] = i.IsCollected ? "YES" : "NO";
                     _ws.Cells[startRow, 1] = i.InvoiceType;
                     _ws.Cells[startRow, 2] = i.Reference;
                     _ws.Cells[startRow, 3] = i.GrandNumber;
-                    _ws.Cells[startRow, 4] = i.Activity;
-                    _ws.Cells[startRow, 5] = i.ChargingType;
-                    _ws.Cells[startRow, 6] = i.Unit;
-                    _ws.Cells[startRow, 7] = i.Quantity;
-                    _ws.Cells[startRow, 8] = i.Rate;
-                    _ws.Cells[startRow, 9] = i.Amount;
-                    _ws.Cells[startRow, 10] = i.DateOfCost.ToString("yyyy-MM-dd");
-                    _ws.Cells[startRow, 11] = i.Memo;
-                    _ws.Cells[startRow, 12] = i.Cost;
-
+                    _ws.Cells[startRow, 4] = i.SubCustomer ?? "N/A";
+                    _ws.Cells[startRow, 5] = i.Activity;
+                    _ws.Cells[startRow, 6] = i.ChargingType;
+                    _ws.Cells[startRow, 7] = i.Unit;
+                    _ws.Cells[startRow, 8] = Math.Round(i.Quantity, 2);
+                    _ws.Cells[startRow, 9] = Math.Round(i.Rate, 2);
+                    _ws.Cells[startRow, 10] = Math.Round(i.Discount, 2);
+                    _ws.Cells[startRow, 11] = Math.Round(i.OriginalAmount, 2);
+                    _ws.Cells[startRow, 12] = Math.Round(i.Amount, 2);
+                    _ws.Cells[startRow, 13] = Math.Round(i.Cost, 2);
+                    _ws.Cells[startRow, 14] = i.DateOfCost.ToString("yyyy-MM-dd");
+                    _ws.Cells[startRow, 15] = i.Memo;
+                    _ws.Cells[startRow, 16] = i.IsConfirmedCost ? "YES" : "NO";
+                    _ws.Cells[startRow, 17] = i.IsPayed ? "YES" : "NO";
+                    _ws.Cells[startRow, 18] = i.IsCollected ? "YES" : "NO";
                     startRow += 1;
                 }
                 _ws.Cells[startRow, 8] = "Total";
@@ -497,6 +526,9 @@ namespace ClothResorting.Helpers.FBAHelper
                     Unit = i.Unit,
                     Quantity = i.Quantity,
                     Rate = i.Rate,
+                    IsConfirmedCost = i.CostConfirm,
+                    IsPayed = i.PaymentStatus,
+                    IsCollected = i.CollectionStatus,
                     Amount = i.Amount,
                     DateOfCost = i.DateOfCost,
                     Memo = i.Memo,
@@ -560,6 +592,9 @@ namespace ClothResorting.Helpers.FBAHelper
                     Unit = i.Unit,
                     Quantity = i.Quantity,
                     Rate = i.Rate,
+                    IsConfirmedCost = i.CostConfirm,
+                    IsPayed = i.PaymentStatus,
+                    IsCollected = i.CollectionStatus,
                     Amount = i.Amount,
                     DateOfCost = i.DateOfCost,
                     Memo = i.Memo,
@@ -618,7 +653,6 @@ namespace ClothResorting.Helpers.FBAHelper
 
             return customer;
         }
-
     }
 
     public class FBAInvoiceInfo
@@ -661,6 +695,12 @@ namespace ClothResorting.Helpers.FBAHelper
         public DateTime DateOfClose { get; set; }
 
         public double Rate { get; set; }
+
+        public bool IsConfirmedCost { get; set; }
+
+        public bool IsPayed { get; set; }
+
+        public bool IsCollected { get; set; }
 
         public double Discount { get; set; }
 

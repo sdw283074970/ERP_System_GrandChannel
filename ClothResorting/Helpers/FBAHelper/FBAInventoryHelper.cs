@@ -106,7 +106,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         ActualPlts = currentOriginalPlts,
                         PickingPlts = currentPickingPlt,
                         AvailablePlts = plt.ActualPlts,
-                        Location = plt.Location
+                        Location = plt.Location,
+                        PalletSize = plt.PalletSize
                     });
                 }
             }
@@ -425,20 +426,21 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 4] = g.ActualPlts;
                 _ws.Cells[startRow, 5] = g.PickingPlts;
                 _ws.Cells[startRow, 6] = g.AvailablePlts;
-                _ws.Cells[startRow, 7] = g.Location;
+                _ws.Cells[startRow, 7] = g.PalletSize;
+                _ws.Cells[startRow, 8] = g.Location;
 
                 foreach (var c in g.InPalletCtnInventories)
                 {
-                    _ws.Cells[ctnIndex, 8] = c.Id;
-                    _ws.Cells[ctnIndex, 9] = c.ShipmentId;
-                    _ws.Cells[ctnIndex, 10] = c.AmzRefId;
-                    _ws.Cells[ctnIndex, 11] = c.WarehouseCode;
-                    _ws.Cells[ctnIndex, 12] = c.GrossWeightPerCtn;
-                    _ws.Cells[ctnIndex, 13] = c.CBMPerCtn;
-                    _ws.Cells[ctnIndex, 14] = c.OriginalQuantity;
-                    _ws.Cells[ctnIndex, 15] = c.PickingCtns;
-                    _ws.Cells[ctnIndex, 16] = c.ResidualQuantity;
-                    _ws.Cells[ctnIndex, 17] = c.HoldQuantity;
+                    _ws.Cells[ctnIndex, 9] = c.Id;
+                    _ws.Cells[ctnIndex, 10] = c.ShipmentId;
+                    _ws.Cells[ctnIndex, 11] = c.AmzRefId;
+                    _ws.Cells[ctnIndex, 12] = c.WarehouseCode;
+                    _ws.Cells[ctnIndex, 13] = c.GrossWeightPerCtn;
+                    _ws.Cells[ctnIndex, 14] = c.CBMPerCtn;
+                    _ws.Cells[ctnIndex, 15] = c.OriginalQuantity;
+                    _ws.Cells[ctnIndex, 16] = c.PickingCtns;
+                    _ws.Cells[ctnIndex, 17] = c.ResidualQuantity;
+                    _ws.Cells[ctnIndex, 18] = c.HoldQuantity;
 
                     ctnIndex += 1;
                 }
@@ -464,16 +466,19 @@ namespace ClothResorting.Helpers.FBAHelper
                     var rangeStockPlt = _ws.get_Range("F" + startRow, "F" + (startRow + g.InPalletCtnInventories.Count - 1));
                     rangeStockPlt.Merge(rangeStockPlt.MergeCells);
 
-                    var rangeLocation = _ws.get_Range("G" + startRow, "G" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    var rangePltSize = _ws.get_Range("G" + startRow, "G" + (startRow + g.InPalletCtnInventories.Count - 1));
+                    rangePltSize.Merge(rangePltSize.MergeCells);
+
+                    var rangeLocation = _ws.get_Range("H" + startRow, "H" + (startRow + g.InPalletCtnInventories.Count - 1));
                     rangeLocation.Merge(rangeLocation.MergeCells);
                 }
 
                 startRow += g.InPalletCtnInventories.Count;
             }
 
-            _ws.get_Range("A1:O" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:O" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:O" + startRow, Type.Missing).Borders.LineStyle = 1;
+            _ws.get_Range("A1:R" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:R" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:R" + startRow, Type.Missing).Borders.LineStyle = 1;
 
             var fullPath = @"D:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
@@ -610,6 +615,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public int PickingPlts { get; set; }
 
         public int AvailablePlts { get; set; }
+
+        public string PalletSize { get; set; }
 
         public List<FBACtnInventory> InPalletCtnInventories { get; set; }
 
