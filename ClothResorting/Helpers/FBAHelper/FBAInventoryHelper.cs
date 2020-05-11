@@ -435,8 +435,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[ctnIndex, 10] = c.ShipmentId;
                     _ws.Cells[ctnIndex, 11] = c.AmzRefId;
                     _ws.Cells[ctnIndex, 12] = c.WarehouseCode;
-                    _ws.Cells[ctnIndex, 13] = c.GrossWeightPerCtn;
-                    _ws.Cells[ctnIndex, 14] = c.CBMPerCtn;
+                    _ws.Cells[ctnIndex, 13] = Math.Round(c.GrossWeightPerCtn, 2);
+                    _ws.Cells[ctnIndex, 14] = Math.Round(c.CBMPerCtn, 2);
                     _ws.Cells[ctnIndex, 15] = c.OriginalQuantity;
                     _ws.Cells[ctnIndex, 16] = c.PickingCtns;
                     _ws.Cells[ctnIndex, 17] = c.ResidualQuantity;

@@ -77,9 +77,9 @@ namespace ClothResorting.Helpers.FBAHelper
             }
 
             _ws.Cells[startRow, 9] = "Total";
-            _ws.Cells[startRow, 11] = Math.Round(info.InvoiceReportDetails.Sum(x => x.OriginalAmount));
-            _ws.Cells[startRow, 12] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Amount));
-            _ws.Cells[startRow, 13] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Cost));
+            _ws.Cells[startRow, 11] = Math.Round(info.InvoiceReportDetails.Sum(x => x.OriginalAmount), 2);
+            _ws.Cells[startRow, 12] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Amount), 2);
+            _ws.Cells[startRow, 13] = Math.Round(info.InvoiceReportDetails.Sum(x => x.Cost), 2);
 
             //制作第二个收费项目统计表
             _ws = _wb.Worksheets[2];

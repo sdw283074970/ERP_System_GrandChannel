@@ -320,7 +320,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
             _ws.Cells[2, 2] = shipOrderInDb.PlaceTime.ToString("yyyy-MM-dd");
-            _ws.Cells[2, 2] = shipOrderInDb.CustomerCode;
+            _ws.Cells[2, 6] = shipOrderInDb.CustomerCode + ", " + shipOrderInDb.ETSTimeRange;
             _ws.Cells[3, 2] = shipOrderInDb.ShipOrderNumber;
             _ws.Cells[3, 6] = shipOrderInDb.ETS.ToString("yyyy-MM-dd");
             _ws.Cells[4, 2] = shipOrderInDb.Destination ?? "NA";

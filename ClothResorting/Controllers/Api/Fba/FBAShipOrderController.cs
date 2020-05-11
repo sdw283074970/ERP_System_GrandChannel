@@ -204,7 +204,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/fba/fbashiporder/
         [HttpPost]
-        public async Task<IHttpActionResult> CreateNewShipOrder([FromBody]ShipOrderDto obj)
+        public async Task<IHttpActionResult> CreateNewShipOrder([FromBody]FBAShipOrderDto obj)
         {
             obj.ShipOrderNumber = obj.ShipOrderNumber.Trim();
 
@@ -245,7 +245,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.Carrier = obj.Carrier;
             shipOrder.ETS = obj.ETS;
             shipOrder.BatchNumber = obj.BatchNumber;
-            shipOrder.ETSTimeRange = obj.TimeRange;
+            shipOrder.ETSTimeRange = obj.ETSTimeRange;
             shipOrder.PickNumber = obj.PickNumber;
             shipOrder.PurchaseOrderNumber = obj.PurchaseOrderNumber;
             shipOrder.Instruction = obj.Instruction;
@@ -321,7 +321,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}
         [HttpPut]
-        public async Task<IHttpActionResult> UpdateShipOrder([FromUri]int shipOrderId, [FromBody]ShipOrderDto obj)
+        public async Task<IHttpActionResult> UpdateShipOrder([FromUri]int shipOrderId, [FromBody]FBAShipOrderDto obj)
         {
             obj.ShipOrderNumber = obj.ShipOrderNumber.Trim();
 
@@ -346,7 +346,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrderInDb.ETS = obj.ETS;
             shipOrderInDb.PODStatus = obj.PODStatus;
             shipOrderInDb.BatchNumber = obj.BatchNumber;
-            shipOrderInDb.ETSTimeRange = obj.TimeRange;
+            shipOrderInDb.ETSTimeRange = obj.ETSTimeRange;
             shipOrderInDb.PickNumber = obj.PickNumber;
             shipOrderInDb.PurchaseOrderNumber = obj.PurchaseOrderNumber;
             shipOrderInDb.EditBy = _userName;
@@ -1292,7 +1292,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public DateTime ETS { get; set; }
 
-        public string TimeRange { get; set; }
+        public string ETSTimeRange { get; set; }
 
         public string PickNumber { get; set; }
 

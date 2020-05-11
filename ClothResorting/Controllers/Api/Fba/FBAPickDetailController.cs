@@ -644,7 +644,7 @@ namespace ClothResorting.Controllers.Api.Fba
             pickDetail.AssembleActualDetails(fbaCartonLocationInDb.GrossWeightPerCtn * ctnQuantity, fbaCartonLocationInDb.CBMPerCtn * ctnQuantity, ctnQuantity);
 
             pickDetail.Status = FBAStatus.Picking;
-            pickDetail.Size = string.Empty;
+            pickDetail.Size = FBAStatus.Na;
             pickDetail.CtnsPerPlt = 0;
             pickDetail.PickableCtns = ctnQuantity;
             pickDetail.Location = fbaCartonLocationInDb.Location;
