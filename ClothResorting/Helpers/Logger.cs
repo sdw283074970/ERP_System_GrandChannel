@@ -18,14 +18,15 @@ namespace ClothResorting.Helpers
     public class Logger
     {
         private ApplicationDbContext _context;
-        private string _user;
+        private string _userName;
         private HttpContext _httpContext;
 
         public Logger(ApplicationDbContext context)
         {
             _context = context;
             _httpContext = HttpContext.Current;
-            _user = _httpContext.User.Identity.Name.Split('@')[0];
+            //_userName = _httpContext.User.Identity.Name.Split('@')[0];
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         public async Task AddCreatedLogAsync<T>(object oldValue, object newValue, string description, string exception, string level) where T : class
@@ -80,7 +81,7 @@ namespace ClothResorting.Helpers
                     NewValue = newValueStr,
                     OperationDate = DateTime.Now,
                     RequestUri = _httpContext.Request.Url.AbsoluteUri,
-                    User = _user,
+                    User = _userName,
                     EntityName = entityName,
                     RequestBody = body,
                     UserIp = GetIPAddress()

@@ -32,5 +32,7 @@ namespace ClothResorting.Models
         public string UserIp { get; set; }
 
         public string RequestBody {get;set;}
+
+        public string RequestId { get; set; }
     }
 }

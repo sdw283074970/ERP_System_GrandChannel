@@ -115,6 +115,7 @@ namespace ClothResorting.Models.FBAModels
             UnloadFinishTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             UnloadStartTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             Status = StaticClass.Status.NewCreated;
+            InvoiceStatus = "Await";
         }
     }
 }
