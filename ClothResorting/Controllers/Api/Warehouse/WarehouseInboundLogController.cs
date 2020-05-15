@@ -33,7 +33,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 .Include(x => x.Customer)
                 .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
                 .Include(x => x.FBAPallets)
-                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order")
+                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order" && x.Status != FBAStatus.Confirmed)
                 .ToList();
 
             var inboundLogList = new List<WarehouseInboundLog>();

@@ -29,6 +29,12 @@ namespace ClothResorting.Helpers
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
+        public Logger(ApplicationDbContext context, string userName)
+        {
+            _context = context;
+            _userName = userName;
+        }
+
         public async Task AddCreatedLogAsync<T>(object oldValue, object newValue, string description, string exception, string level) where T : class
         {
             var log = await CreateLogAsync<T>(oldValue, newValue, description, exception, level);

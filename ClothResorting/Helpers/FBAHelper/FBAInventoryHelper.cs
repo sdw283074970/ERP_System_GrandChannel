@@ -53,7 +53,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     .Select(c => c.FBAPickDetail.FBAShipOrder))
                 .Include(x => x.FBAPickDetails
                     .Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= rCloseDate
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= CloseDate
                     && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= minDate
                     && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
@@ -61,7 +61,7 @@ namespace ClothResorting.Helpers.FBAHelper
             var palletLocationsInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAMasterOrder.InboundDate <= rCloseDate 
+                .Where(x => x.FBAMasterOrder.InboundDate <= CloseDate 
                     && x.FBAMasterOrder.InboundDate >= minDate
                     && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
@@ -84,7 +84,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 foreach (var pick in plt.FBAPickDetails)
                 {
-                    if (pick.FBAShipOrder.PlaceTime <= rCloseDate)
+                    if (pick.FBAShipOrder.PlaceTime < rCloseDate)
                     {
                         plt.ActualPlts -= pick.PltsFromInventory;
 
@@ -125,7 +125,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     foreach(var pickCarton in cartonLocation.FBAPickDetailCartons)
                     {
                         //获取在指定日期前的相关拣货列表
-                        if (pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime <= rCloseDate)
+                        if (pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime < rCloseDate)
                         {
                             cartonLocation.ActualQuantity -= pickCarton.PickCtns;
 
@@ -141,7 +141,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     foreach(var pickCarton in cartonLocation.FBAPickDetails)
                     {
-                        if (pickCarton.FBAShipOrder.PlaceTime <= rCloseDate)
+                        if (pickCarton.FBAShipOrder.PlaceTime < rCloseDate)
                         {
                             cartonLocation.ActualQuantity -= pickCarton.ActualQuantity;
                             currentLooseCtns -= pickCarton.ActualQuantity;
@@ -213,7 +213,7 @@ namespace ClothResorting.Helpers.FBAHelper
             info.TotalInPalletCtns = (int)info.CurrentTotalCtns - info.CurrentLooseCtns;
 
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
-            info.CloseDate = rCloseDate;
+            info.CloseDate = CloseDate;
 
             return info;
         }

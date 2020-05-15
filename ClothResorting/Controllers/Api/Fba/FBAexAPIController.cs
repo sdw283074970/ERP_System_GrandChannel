@@ -63,10 +63,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 await CreateInboundOrderByAgentRequestV1(customerInDb, customerCode, order, requestId);
                 //建立分单并记录成功的操作，写入日志
                 await CreateOutboundOrdersByAgentRequestV1(customerCode, order, requestId);
-                return Created(Request.RequestUri, new { Message = "Success!" });
+                return Created(Request.RequestUri, new { Code = "200", Message = "Success!" });
             }
 
-            return Created(Request.RequestUri, new { Message = "No operation applied." });
+            return Created(Request.RequestUri, new { Code = "100", Message = "No operation applied." });
         }
 
         public async Task CreateInboundOrderByAgentRequestV1(UpperVendor customer, string customerCode, FBAAgentOrder order, string requestId)
@@ -130,7 +130,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.ChargingItemDetails.Add(instruction);
 
             // 添加Request日志
-            var logger = new Logger(_context);
+            var logger = new Logger(_context, order.Agency);
             
             await logger.AddCreatedLogAsync<FBAMasterOrder>(null, Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(newMasterOrder), "Created by agency from api.", null, OperationLevel.Mediunm);
 
@@ -144,7 +144,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public async Task CreateOutboundOrdersByAgentRequestV1(string customerCode, FBAAgentOrder order, string requestId)
         {
             // 添加Request日志
-            var logger = new Logger(_context);
+            var logger = new Logger(_context, order.Agency);
 
             var index = 1;
 
