@@ -481,7 +481,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成Excel版本的BOL并返回完整路径
-        public string GenerateExcelBol(int shipOrderId, IList<FBABOLDetail> bolDetailList)
+        public string GenerateExcelBol(int shipOrderId, IList<FBABOLDetail> bolDetailList, string freightCharge, string operatorName)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
             var addressBookInDb = _context.FBAAddressBooks.SingleOrDefault(x => x.WarehouseCode == shipOrderInDb.Destination);
@@ -505,6 +505,25 @@ namespace ClothResorting.Helpers.FBAHelper
 
             //设置carrier
             _ws.Cells[6, 6] = shipOrderInDb.Carrier;
+
+            //设置Freight Charge
+            if (freightCharge == "Prepaid")
+            {
+                _ws.Cells[16, 4] = "Prepaid ☑  Collect ☐  3rd Party ☐";
+            }
+            else if (freightCharge == "Collect")
+            {
+                _ws.Cells[16, 4] = "Prepaid ☐  Collect ☑  3rd Party ☐";
+            }
+            else if (freightCharge == "3rd Party")
+            {
+                _ws.Cells[16, 4] = "Prepaid ☐  Collect ☐  3rd Party ☑";
+
+            }
+            else
+            {
+                _ws.Cells[16, 4] = "Prepaid ☐  Collect ☐  3rd Party ☐";
+            }
 
             //设置Ship Order #
             _ws.Cells[18, 1] = "Ship Order#: " + shipOrderInDb.ShipOrderNumber;

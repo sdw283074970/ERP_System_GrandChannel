@@ -145,26 +145,33 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok("No operation applied.");
         }
 
+        // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}&freightCharge={freightCharge}&operatorName={operatorName}
+        [HttpGet]
+        public IHttpActionResult DownloadBOL([FromUri]int shipOrderId, [FromUri]string freightCharge, [FromUri]string operatorName)
+        {
+            var pickDetailsInDb = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAPickDetailCartons)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId)
+                .ToList();
+
+            var bolList = GenerateFBABOLList(pickDetailsInDb);
+
+            var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
+
+            var fileName = generator.GenerateExcelBol(shipOrderId, bolList, freightCharge, operatorName);
+
+            return Ok(fileName);
+        }
+
         // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
         [HttpGet]
         public IHttpActionResult GetShipOrderInfo([FromUri]int shipOrderId, [FromUri]string operation)
         {
             if (operation == "BOL")
             {
-                var pickDetailsInDb = _context.FBAPickDetails
-                    .Include(x => x.FBAShipOrder)
-                    .Include(x => x.FBAPickDetailCartons)
-                    .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
-                    .Where(x => x.FBAShipOrder.Id == shipOrderId)
-                    .ToList();
-
-                var bolList = GenerateFBABOLList(pickDetailsInDb);
-
-                var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
-
-                var fileName = generator.GenerateExcelBol(shipOrderId, bolList);
-
-                return Ok(fileName);
+                return Ok(new { Message = "No operation applied." });
             }
             else if (operation == "Update")
             {
