@@ -1843,6 +1843,14 @@
     <Compile Include="Migrations\202005112129179_AddedRequestIdInOperationLog.Designer.cs">
       <DependentUpon>202005112129179_AddedRequestIdInOperationLog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202005181842046_AddedAuthAppInfo.cs" />
+    <Compile Include="Migrations\202005181842046_AddedAuthAppInfo.Designer.cs">
+      <DependentUpon>202005181842046_AddedAuthAppInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202005181852571_AddedAppNameMemoAuthAppInfo.cs" />
+    <Compile Include="Migrations\202005181852571_AddedAppNameMemoAuthAppInfo.Designer.cs">
+      <DependentUpon>202005181852571_AddedAppNameMemoAuthAppInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1886,6 +1894,7 @@
     <Compile Include="Models\ApiTransformModels\ShipOrderJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\SingleInboundJsonObj.cs" />
     <Compile Include="Models\ApiTransformModels\VendorDepartmentCodeTypeJsonObj.cs" />
+    <Compile Include="Models\AuthAppInfo.cs" />
     <Compile Include="Models\CartonBreakdownOutbound.cs" />
     <Compile Include="Models\CartonInside.cs" />
     <Compile Include="Models\ChargingItem.cs" />
@@ -3437,6 +3446,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202005112129179_AddedRequestIdInOperationLog.resx">
       <DependentUpon>202005112129179_AddedRequestIdInOperationLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005181842046_AddedAuthAppInfo.resx">
+      <DependentUpon>202005181842046_AddedAuthAppInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005181852571_AddedAppNameMemoAuthAppInfo.resx">
+      <DependentUpon>202005181852571_AddedAppNameMemoAuthAppInfo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

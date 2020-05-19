@@ -90,6 +90,8 @@ namespace ClothResorting.Models
         //General
         public DbSet<InstructionTemplate> InstructionTemplates { get; set; }
 
+        public DbSet<AuthAppInfo> AuthAppInfos { get; set; }
+
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();

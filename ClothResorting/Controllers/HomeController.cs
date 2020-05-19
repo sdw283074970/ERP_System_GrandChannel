@@ -52,9 +52,13 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var former = new ChartFormer();
+            var auth = new AuthAppInfo();
+            auth.AppKey = GuidGenerator.GenerateGuid();
+            auth.SecretKey = GuidGenerator.GenerateGuid();
+            auth.AppName = "TEST";
 
-            //var result = former.GetInboundAndOutboundPltsChartData(DateTime.Now.AddDays(-50));
+            _context.AuthAppInfos.Add(auth);
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 

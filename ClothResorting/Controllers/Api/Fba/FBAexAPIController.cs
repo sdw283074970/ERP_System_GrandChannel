@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -26,26 +28,43 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/FBAexAPI/?customerCode={customerCode}&requestId={requestId}&version={version}
         [HttpPost]
-        public async Task<IHttpActionResult> CreateInboundOrderAndOutboundOrdersFromExternalRequest([FromUri]string customerCode, [FromUri]string requestId, [FromUri]string version, [FromBody]FBAAgentOrder order)
+        public async Task<IHttpActionResult> CreateInboundOrderAndOutboundOrdersFromExternalRequest([FromBody]string appKey, [FromUri]string customerCode, [FromUri]string requestId, [FromUri]string version, [FromUri]string sign, [FromBody]FBAAgentOrder order)
         {
-            //  检查customerCode是否存在，否则返回错误
+            // 参数验证加密验证
+            var auth = _context.AuthAppInfos.SingleOrDefault(x => x.AppKey == appKey);
+            if (auth == null)
+            {
+                return Json(new { Status = "Failed", Code = 500, Message = "Unregistered app request." });
+            }
+            var vs = auth.SecretKey.ToUpper() + "&appKey=" + appKey + "&customerCode=" + customerCode + "&requestId=" + requestId + "&version=" + version;
+            var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("A", "Z");
+
+            if (md5sign != sign)
+            {
+                return Json(new { Status = "Failed", Code = 501, Message = "Invalid sign." });
+            }
+
+            // 检查customerCode是否存在，否则返回错误
             var customerInDb = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode);
             if (customerInDb == null)
             {
-                return InternalServerError(new Exception("Invalid customer code."));
+                return Json(new { Status = "Failed", Code = 502, Message = "Invalid customer code." });
             }
 
-            // 检查RequestId是否重复，如重复则返回错误
+            // 防止网络延迟等非攻击意向的二次请求
+
+
+            // 防止重放攻击，如重复则返回错误
             var logInDb = _context.OperationLogs.Where(x => x.RequestId == requestId);
             if (logInDb.Count() != 0)
             {
-                return InternalServerError(new Exception("Duplicated request detectived. Please report this request Id: " + requestId + " to CSR of Grand Channel for supporting."));
+                return Json(new { Status = "Failed", Code = 503, Message = "Duplicated request detectived. Please report this request Id: " + requestId + " to CSR of Grand Channel for supporting." });
             }
 
             // 检查version是否支持，否则返回错误
             if (version != "V1")
             {
-                return InternalServerError(new Exception("Invalid version."));
+                return Json( new { Status = "Failed", Code = 504, Message = "Invalid version." });
             }
 
             // 检查Container是否重复，否则返回错误
@@ -53,20 +72,20 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (masterOrderInDb != null)
             {
-                return InternalServerError(new Exception("Container No. " + order.Container + " already existed in system. Please report this contianer No. to CSR of Grand Channel for supporting."));
+                return Json( new { Status = "Failed", Code = 505, Message = "Container No. " + order.Container + " already existed in system. Please report this contianer No. to CSR of Grand Channel for supporting." });
             }
 
-            // 创建逻辑
+            // 创建订单逻辑
             if (version == "V1")
             {
                 //建立主单并记录成功的操作，写入日志
                 await CreateInboundOrderByAgentRequestV1(customerInDb, customerCode, order, requestId);
                 //建立分单并记录成功的操作，写入日志
                 await CreateOutboundOrdersByAgentRequestV1(customerCode, order, requestId);
-                return Created(Request.RequestUri, new { Code = "200", Message = "Success!" });
+                return Created(Request.RequestUri, new { Status = "Success", Code = "200", Message = "Success!" });
             }
 
-            return Created(Request.RequestUri, new { Code = "100", Message = "No operation applied." });
+            return Created(Request.RequestUri, new { Status = "Success", Code = "100", Message = "No operation applied." });
         }
 
         public async Task CreateInboundOrderByAgentRequestV1(UpperVendor customer, string customerCode, FBAAgentOrder order, string requestId)
