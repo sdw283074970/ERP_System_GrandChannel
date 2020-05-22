@@ -485,9 +485,9 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fbamasterorder/?masterOrderId={masterOrderId}&operation={operation}
+        // PUT /api/fbamasterorder/?masterOrderId={masterOrderId}&operationDate={operationDate}&operation={operation}
         [HttpPut]
-        public void PushUnloadWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
+        public void OperateWorkOrderWithDate([FromUri]int masterOrderId, [FromUri]DateTime operationDate, [FromUri]string operation)
         {
             var masterOrderInDb = _context.FBAMasterOrders
                 .Include(x => x.FBAOrderDetails)
@@ -498,7 +498,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 if (masterOrderInDb.FBAOrderDetails == null)
                     throw new Exception("Cannot push orders with 0 SKUs");
 
-                masterOrderInDb.PushTime = DateTime.Now;
+                masterOrderInDb.PushTime = operationDate;
                 masterOrderInDb.UpdateLog = "Placed by " + _userName + " at " + DateTime.Now.ToString();
                 masterOrderInDb.Status = FBAStatus.Incoming;
             }
@@ -557,6 +557,129 @@ namespace ClothResorting.Controllers.Api.Fba
             else if (operation == "Reverse")
             {
                 switch(masterOrderInDb.Status)
+                {
+                    case FBAStatus.Registered:
+                        masterOrderInDb.Status = FBAStatus.Received;
+                        break;
+                    case FBAStatus.Received:
+                        masterOrderInDb.Status = FBAStatus.Processing;
+                        break;
+                    case FBAStatus.Arrived:
+                        masterOrderInDb.InboundDate = new DateTime(1900, 1, 1);
+                        masterOrderInDb.Status = FBAStatus.Incoming;
+                        break;
+                    default:
+                        masterOrderInDb.Status = FBAStatus.Arrived;
+                        break;
+                }
+            }
+            else if (operation == "Submit")
+            {
+                if (masterOrderInDb.Status == FBAStatus.NewCreated)
+                    masterOrderInDb.Status = FBAStatus.Draft;
+                else
+                    throw new Exception("Cannot submit a order that status is not new created.");
+            }
+            else if (operation == "Reset")
+            {
+                masterOrderInDb.Status = FBAStatus.Arrived;
+            }
+            else if (operation == "Start")
+            {
+                masterOrderInDb.Status = FBAStatus.Processing;
+                masterOrderInDb.UnloadStartTime = DateTime.Now;
+            }
+            else if (operation == "Finish Allocating")
+            {
+                masterOrderInDb.Status = FBAStatus.Allocated;
+                masterOrderInDb.UpdateLog = "Allocated by " + _userName;
+            }
+            else if (operation == "Finish Palletizing")
+            {
+                masterOrderInDb.Status = FBAStatus.Registered;
+                masterOrderInDb.UpdateLog = "Palletized by " + _userName;
+            }
+            else if (operation == "Confirmed")
+            {
+                masterOrderInDb.Status = FBAStatus.Confirmed;
+                masterOrderInDb.UpdateLog = "Order complete. Confirmed by " + _userName;
+            }
+
+            _context.SaveChanges();
+        }
+
+        // PUT /api/fbamasterorder/?masterOrderId={masterOrderId}&operationDate={operationDate}&operation={operation}
+        [HttpPut]
+        public void OperateWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders
+                .Include(x => x.FBAOrderDetails)
+                .SingleOrDefault(x => x.Id == masterOrderId);
+
+            if (operation == "Push")
+            {
+                if (masterOrderInDb.FBAOrderDetails == null)
+                    throw new Exception("Cannot push orders with 0 SKUs");
+
+                masterOrderInDb.PushTime = DateTime.Now;
+                masterOrderInDb.UpdateLog = "Placed by " + _userName + " at " + DateTime.Now.ToString();
+                masterOrderInDb.Status = FBAStatus.Incoming;
+            }
+            else if (operation == "Callback")
+            {
+                masterOrderInDb.Status = FBAStatus.NewCreated;
+                masterOrderInDb.UpdateLog = "Callback by " + _userName + " at " + DateTime.Now.ToString();
+            }
+            else if (operation == "Register")
+            {
+                masterOrderInDb.Status = FBAStatus.Registered;
+                masterOrderInDb.UpdateLog = "Registed by " + _userName + " at " + DateTime.Now.ToString();
+            }
+            else if (operation == "Allocate")
+            {
+                var ctnsInPlts = 0;
+                var ctnsOutPlts = 0;
+                try
+                {
+                    ctnsInPlts = _context.FBAPalletLocations
+                        .Include(x => x.FBAMasterOrder)
+                        .Where(x => x.FBAMasterOrder.Id == masterOrderId)
+                        .Sum(x => x.ActualQuantity);
+                }
+                catch (Exception)
+                {
+                    ctnsInPlts = 0;
+                }
+
+                try
+                {
+                    var t = _context.FBACartonLocations
+                       .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                       .Where(x => x.Status != "InPallet"
+                        && x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId).ToList();
+
+                    ctnsOutPlts = _context.FBACartonLocations
+                       .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                       .Where(x => x.Status != "InPallet"
+                        && x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId)
+                       .Sum(x => x.ActualQuantity);
+                }
+                catch (Exception e)
+                {
+                    ctnsOutPlts = 0;
+                }
+
+                if ((ctnsInPlts + ctnsOutPlts) == masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity))
+                {
+                    masterOrderInDb.UpdateLog = "Allocated by " + _userName + " at " + DateTime.Now.ToString();
+                    masterOrderInDb.Status = FBAStatus.Allocated;
+                }
+                else
+                    throw new Exception("cannot mark an order as allocated before the goods are fully allocated.");
+            }
+            else if (operation == "Reverse")
+            {
+                switch (masterOrderInDb.Status)
                 {
                     case FBAStatus.Registered:
                         masterOrderInDb.Status = FBAStatus.Received;

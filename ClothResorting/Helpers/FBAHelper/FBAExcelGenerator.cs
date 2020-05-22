@@ -85,7 +85,7 @@ namespace ClothResorting.Helpers.FBAHelper
             var range = _ws.get_Range("A5", "D" + startRow);
             range.Borders.LineStyle = 1;
 
-            // 分配报告
+            // 打托报告
             _ws = _wb.Worksheets[2];
             var ws = (Worksheet)_wb.ActiveSheet;
 
@@ -111,7 +111,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[startRow, 2] = c.ShipmentId;
                     _ws.Cells[startRow, 3] = c.AmzRefId;
                     _ws.Cells[startRow, 4] = c.FBAOrderDetail.ActualQuantity;
-                    _ws.Cells[startRow, 5] = c.ActualQuantity;
+                    _ws.Cells[startRow, 5] = c.ActualQuantity + " / " + c.FBAOrderDetail.ActualQuantity;
                     startRow += 1;
                 }
             }
@@ -119,11 +119,11 @@ namespace ClothResorting.Helpers.FBAHelper
             // 写入未打托但直接分派了库位的SKU
             foreach(var c in cartonLocations)
             {
-                _ws.Cells[startRow, 1] = "Allocated";
+                _ws.Cells[startRow, 1] = "Unpalletized";
                 _ws.Cells[startRow, 2] = c.ShipmentId;
                 _ws.Cells[startRow, 3] = c.AmzRefId;
                 _ws.Cells[startRow, 4] = c.FBAOrderDetail.ActualQuantity;
-                _ws.Cells[startRow, 5] = c.ActualQuantity;
+                _ws.Cells[startRow, 5] = c.ActualQuantity + " / " + c.FBAOrderDetail.ActualQuantity;
                 _ws.Cells[startRow, 6] = "N/A";
                 _ws.Cells[startRow, 7] = "N/A";
                 startRow += 1;
@@ -132,11 +132,11 @@ namespace ClothResorting.Helpers.FBAHelper
             // 写入未打托且未直接入库的SKU
             foreach (var s in unPalletizedSKU)
             {
-                _ws.Cells[startRow, 1] = "Unallocated";
+                _ws.Cells[startRow, 1] = "Pending";
                 _ws.Cells[startRow, 2] = s.ShipmentId;
                 _ws.Cells[startRow, 3] = s.AmzRefId;
                 _ws.Cells[startRow, 4] = s.ActualQuantity;
-                _ws.Cells[startRow, 5] = s.ActualQuantity - s.ComsumedQuantity;
+                _ws.Cells[startRow, 5] = s.ActualQuantity - s.ComsumedQuantity + " / " + s.ActualQuantity;
                 _ws.Cells[startRow, 6] = "N/A";
                 _ws.Cells[startRow, 7] = "N/A";
                 startRow += 1;
@@ -150,7 +150,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             //写入表脚信息
             _ws.Cells[startRow, 1] = "Total:";
-            _ws.Cells[startRow, 5] = masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
+            _ws.Cells[startRow, 5] = masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity) + " / " + masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
             _ws.Cells[startRow, 7] = pallets == null ? 0 : pallets.Sum(x => x.ActualPallets);
 
             //加上边框

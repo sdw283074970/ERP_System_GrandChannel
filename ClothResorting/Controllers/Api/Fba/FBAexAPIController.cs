@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ClothResorting.Controllers.Api.Filters;
 using ClothResorting.Dtos.Fba;
 using ClothResorting.Helpers;
 using ClothResorting.Models;
@@ -7,6 +8,7 @@ using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,7 +30,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // POST /api/FBAexAPI/?customerCode={customerCode}&requestId={requestId}&version={version}
         [HttpPost]
-        public async Task<IHttpActionResult> CreateInboundOrderAndOutboundOrdersFromExternalRequest([FromBody]string appKey, [FromUri]string customerCode, [FromUri]string requestId, [FromUri]string version, [FromUri]string sign, [FromBody]FBAAgentOrder order)
+        [ValidateModel]
+        public async Task<IHttpActionResult> CreateInboundOrderAndOutboundOrdersFromExternalRequest([FromUri]string appKey, [FromUri]string customerCode, [FromUri]string requestId, [FromUri]string version, [FromUri]string sign, [FromBody]FBAAgentOrder order)
         {
             // 参数验证加密验证
             var auth = _context.AuthAppInfos.SingleOrDefault(x => x.AppKey == appKey);
@@ -37,7 +40,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Json(new { Status = "Failed", Code = 500, Message = "Unregistered app request." });
             }
             var vs = auth.SecretKey.ToUpper() + "&appKey=" + appKey + "&customerCode=" + customerCode + "&requestId=" + requestId + "&version=" + version;
-            var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("A", "Z");
+            var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", "S");
 
             if (md5sign != sign)
             {
@@ -51,20 +54,29 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Json(new { Status = "Failed", Code = 502, Message = "Invalid customer code." });
             }
 
-            // 防止网络延迟等非攻击意向的二次请求
+            // 检查request body中的必填项
 
+            // 防止重放攻击和网络延迟等非攻击意向的二次请求，如请求重复则返回错误
+            if (StaticCollections.RequestIds.Contains(requestId))
+            {
+                return Json(new { Status = "Failed", Code = 504, Message = "Duplicated request detectived. Request Id: " + requestId + " has already been processed. Please report this request Id: " + requestId + " to CSR of Grand Channel for more support." });
+            }
+            else
+            {
+                StaticCollections.RequestIds.Add(requestId);
+            }
 
-            // 防止重放攻击，如重复则返回错误
+            // 防止重放攻击的二道关卡，如重复则返回错误
             var logInDb = _context.OperationLogs.Where(x => x.RequestId == requestId);
             if (logInDb.Count() != 0)
             {
-                return Json(new { Status = "Failed", Code = 503, Message = "Duplicated request detectived. Please report this request Id: " + requestId + " to CSR of Grand Channel for supporting." });
+                return Json(new { Status = "Failed", Code = 504, Message = "Duplicated request detectived. Request Id: " + requestId + " has already been processed. Please report this request Id: " + requestId + " to CSR of Grand Channel for more support." });
             }
 
             // 检查version是否支持，否则返回错误
             if (version != "V1")
             {
-                return Json( new { Status = "Failed", Code = 504, Message = "Invalid version." });
+                return Json( new { Status = "Failed", Code = 505, Message = "Invalid API version." });
             }
 
             // 检查Container是否重复，否则返回错误
@@ -72,7 +84,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (masterOrderInDb != null)
             {
-                return Json( new { Status = "Failed", Code = 505, Message = "Container No. " + order.Container + " already existed in system. Please report this contianer No. to CSR of Grand Channel for supporting." });
+                return Json( new { Status = "Failed", Code = 506, Message = "Container No. " + order.Container + " already existed in system. Please report this contianer No. to CSR of Grand Channel for more support." });
             }
 
             // 创建订单逻辑
@@ -107,14 +119,14 @@ namespace ClothResorting.Controllers.Api.Fba
             newMasterOrder.CustomerCode = customerCode;
             newMasterOrder.Customer = customer;
             newMasterOrder.PortOfLoading = order.PortOfLoading;
-            newMasterOrder.ETAPort = order.ETADate.ToString("yyyy-MM-dd");
-            newMasterOrder.ETA = order.ETADate.ToString("yyyy-MM-dd");
+            newMasterOrder.ETAPort = order.ETADate;
+            newMasterOrder.ETA = order.ETADate;
             newMasterOrder.PlaceOfDelivery = order.DeliveryPort;
             newMasterOrder.Vessel = order.Vessel;
             newMasterOrder.Carrier = order.Carrier;
             newMasterOrder.ContainerSize = order.ContainerSize;
             newMasterOrder.SealNumber = order.SealNumber;
-            newMasterOrder.Comment = "ETL DATE: " + order.ETLDate.ToString("yyyy-MM-dd");
+            newMasterOrder.Comment = "ETL DATE: " + order.ETLDate;
             newMasterOrder.UpdateLog = "Created by agency via API";
 
             _context.FBAMasterOrders.Add(newMasterOrder);
@@ -212,10 +224,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
     public class FBAAgentOrder
     {
+        [Required(ErrorMessage = "This filed is required.")]
         public string Agency { get; set; }
 
         public string MBL { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
         public string Container { get; set; }
 
         public string Subcustomer { get; set; }
@@ -224,16 +238,22 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public string DeliveryPort { get; set; }
 
-        public DateTime ETLDate { get; set; }
+        [Required(ErrorMessage = "This filed is required.")]
+        [RegularExpression(@"^\d{4}-\d{1,2}-\d{1,2}", ErrorMessage = "Must match DateTime format: yyyy-MM-dd")]
+        public string ETLDate { get; set; }
 
-        public DateTime ETADate { get; set; }
+        [Required(ErrorMessage = "This filed is required.")]
+        [RegularExpression(@"^\d{4}-\d{1,2}-\d{1,2}", ErrorMessage = "Must match DateTime format: yyyy-MM-dd")]
+        public string ETADate { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
         public string Carrier { get; set; }
 
         public string Vessel { get; set; }
 
         public string SealNumber { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
         public string ContainerSize { get; set; }
 
         public IList<FBAJob> FBAJobs { get; set; }
@@ -241,22 +261,32 @@ namespace ClothResorting.Controllers.Api.Fba
 
     public class FBAJob
     {
+        [Required(ErrorMessage = "This filed is required.")]
         public string ShipmentId { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
         public string AmzRefId { get; set; }
 
         public string ProductType { get; set; }
 
         public string Subcustomer { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
         public string WarehouseCode { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
+        [Range(typeof(int), "0", "99999")]
         public int Quantity { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
+        [Range(typeof(float), "0.00", "99999.99")]
         public float GrossWeight { get; set; }
 
+        [Required(ErrorMessage = "This filed is required.")]
+        [Range(typeof(float), "0.00", "99999.99")]
         public float CBM { get; set; }
 
+        [Range(typeof(int), "0", "99999")]
         public int PalletQuantity { get; set; }
 
         public string PackageType { get; set; }

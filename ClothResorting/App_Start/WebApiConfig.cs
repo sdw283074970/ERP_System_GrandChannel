@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ClothResorting.Controllers.Api.Filters;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace ClothResorting
             var cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(cors);
 
-
+            config.Filters.Add(new ValidateModelAttribute());
 
             config.MapHttpAttributeRoutes();
 
