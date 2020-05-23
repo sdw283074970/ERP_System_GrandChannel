@@ -23,9 +23,9 @@
 
 ### 1.4 Grand Channel颁发的应用识别符和密钥
 
-AppKey: `3be1ed1659364dbbbbfcc5ac94df0f19`
+AppKey: `3be1ed1659364dbbbbfcc5ac94df0f19`(测试用)
 
-SecretKey: `f65c8855289446ae98c0ba20e4990d9f` (机密)
+SecretKey: `f65c8855289446ae98c0ba20e4990d9f` (测试用)(机密)
 
 ## 2.	POST推送订单接口
 
