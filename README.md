@@ -1,5 +1,7 @@
 # Grand Channel Inc ERP System Intro（Client）
 
+## 最后更新 2019年10月
+
 ## 目录
 
 1. 简介
