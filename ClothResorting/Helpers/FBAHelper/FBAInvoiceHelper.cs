@@ -402,7 +402,10 @@ namespace ClothResorting.Helpers.FBAHelper
                         OriginalAmount = Math.Round(i.Amount / (double)i.Discount, 2),
                         ActualCtnsInThisOrder = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualPlts),
                         ActualPltsInThisOrder = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualQuantity),
-                        DateOfClose = shipOrderInDb.CloseDate
+                        DateOfClose = shipOrderInDb.CloseDate,
+                        IsCollected = i.CollectionStatus,
+                        IsConfirmedCost = i.CostConfirm,
+                        IsPayed = i.PaymentStatus
                     });
                 }
 

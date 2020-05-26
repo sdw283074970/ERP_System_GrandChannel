@@ -9,7 +9,7 @@ namespace ClothResorting.Models
     {
         public JsonResponse()
         {
-
+            InnerMessage = null;
         }
 
         public int Code { get; set; }

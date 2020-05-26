@@ -40,7 +40,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Json(new JsonResponse { Code = 500, ResultStatus = "Failed", Message = "Unregistered app request." });
             }
             var vs = auth.SecretKey.ToUpper() + "&appKey=" + appKey + "&customerCode=" + customerCode + "&requestId=" + requestId + "&version=" + version;
-            var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", "S");
+            var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", ""); ;
+            //var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", "S");
 
             if (md5sign != sign)
             {
