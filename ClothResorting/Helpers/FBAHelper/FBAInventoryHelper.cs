@@ -38,12 +38,12 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //输入截止日期和客户代码，返回到截止日期时FBA的库存列表
-        public FBAInventoryInfo GetFBAInventoryResidualInfo(string customerCode, DateTime CloseDate)
+        public FBAInventoryInfo GetFBAInventoryResidualInfo(string customerCode, DateTime startDate, DateTime closeDate)
         {
             var residualInventoryList = new List<FBACtnInventory>();
             //在1900年与2018年之间任取一日期作为最小日期，取在下的生日
-            var minDate = new DateTime(1992, 11, 17);
-            var rCloseDate = CloseDate.AddDays(1);
+            var inboundDate = startDate;
+            var rCloseDate = closeDate.AddDays(1);
 
             //获取在指定日期之前入库的总箱数库存列表
             var cartonLocationsInDb = _context.FBACartonLocations
@@ -53,16 +53,16 @@ namespace ClothResorting.Helpers.FBAHelper
                     .Select(c => c.FBAPickDetail.FBAShipOrder))
                 .Include(x => x.FBAPickDetails
                     .Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= CloseDate
-                    && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= minDate
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate
+                    && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= inboundDate
                     && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             //获取在指定日期前入库的托盘库存列表
             var palletLocationsInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAMasterOrder.InboundDate <= CloseDate 
-                    && x.FBAMasterOrder.InboundDate >= minDate
+                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate 
+                    && x.FBAMasterOrder.InboundDate >= inboundDate
                     && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             var palletLocationsList = palletLocationsInDb.ToList();
@@ -107,7 +107,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         PickingPlts = currentPickingPlt,
                         AvailablePlts = plt.ActualPlts,
                         Location = plt.Location,
-                        PalletSize = plt.PalletSize
+                        PalletSize = plt.PalletSize,
+                        InboundDate = plt.FBAMasterOrder.InboundDate
                     });
                 }
             }
@@ -173,6 +174,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
                         ResidualQuantity = cartonLocation.ActualQuantity - cartonLocation.HoldCtns,
                         OriginalQuantity = originalQuantity,
+                        InboundDate = cartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate,
                         Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
                     };
 
@@ -213,7 +215,8 @@ namespace ClothResorting.Helpers.FBAHelper
             info.TotalInPalletCtns = (int)info.CurrentTotalCtns - info.CurrentLooseCtns;
 
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
-            info.CloseDate = CloseDate;
+            info.CloseDate = closeDate;
+            info.StartDate = startDate;
 
             return info;
         }
@@ -368,9 +371,12 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws = _wb.Worksheets[1];
 
             _ws.Cells[4, 2] = info.Customer;
-            _ws.Cells[4, 4] = info.CloseDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 4] = DateTime.Now.ToString("yyyy-MM-dd");
             _ws.Cells[4, 6] = info.CurrentTotalCtns - info.CurrentLooseCtns;
             _ws.Cells[4, 8] = info.CurrentLooseCtns;
+
+            _ws.Cells[4, 10] = info.StartDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 12] = info.CloseDate.ToString("yyyy-MM-dd");
 
             _ws.Cells[6, 2] = info.CurrentTotalPlts;
             _ws.Cells[6, 4] = info.TotalPickingPlts;
@@ -394,20 +400,24 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 11] = Math.Round((double)i.ResidualQuantity, 2);
                 _ws.Cells[startRow, 12] = Math.Round((double)i.HoldQuantity, 2);
                 _ws.Cells[startRow, 13] = i.Location;
+                _ws.Cells[startRow, 14] = i.InboundDate.ToString("yyyy-MM-dd");
 
                 startRow += 1;
             }
 
-            _ws.get_Range("A1:M" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:M" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:M" + startRow, Type.Missing).Borders.LineStyle = 1;
+            _ws.get_Range("A1:N" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:N" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:N" + startRow, Type.Missing).Borders.LineStyle = 1;
 
             _ws = _wb.Worksheets[2];
 
             _ws.Cells[4, 2] = info.Customer;
-            _ws.Cells[4, 4] = info.CloseDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 4] = DateTime.Now.ToString("yyyy-MM-dd");
             _ws.Cells[4, 6] = info.CurrentTotalCtns - info.CurrentLooseCtns;
             _ws.Cells[4, 8] = info.CurrentLooseCtns;
+
+            _ws.Cells[4, 10] = info.StartDate.ToString("yyyy-MM-dd");
+            _ws.Cells[4, 12] = info.CloseDate.ToString("yyyy-MM-dd");
 
             _ws.Cells[6, 2] = info.CurrentTotalPlts;
             _ws.Cells[6, 4] = info.TotalPickingPlts;
@@ -441,6 +451,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[ctnIndex, 16] = c.PickingCtns;
                     _ws.Cells[ctnIndex, 17] = c.ResidualQuantity;
                     _ws.Cells[ctnIndex, 18] = c.HoldQuantity;
+                    _ws.Cells[startRow, 19] = c.InboundDate.ToString("yyyy-MM-dd");
 
                     ctnIndex += 1;
                 }
@@ -476,9 +487,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 startRow += g.InPalletCtnInventories.Count;
             }
 
-            _ws.get_Range("A1:R" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:R" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:R" + startRow, Type.Missing).Borders.LineStyle = 1;
+            _ws.get_Range("A1:S" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:S" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:S" + startRow, Type.Missing).Borders.LineStyle = 1;
 
             var fullPath = @"D:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
@@ -490,7 +501,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //返回库存CBM不为0的FBA客户列表
-        public IList<FBAInventoryInfo> ReturnNonZeroCBMInventoryInfo(DateTime closeDate)
+        public IList<FBAInventoryInfo> ReturnNonZeroCBMInventoryInfo(DateTime startDate, DateTime closeDate)
         {
             //DateTime closeDateInDateTime;
             //DateTime.TryParseExact(closeDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out closeDateInDateTime);
@@ -500,7 +511,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             foreach(var code in customerCodeList)
             {
-                var info = GetFBAInventoryResidualInfo(code, closeDate);
+                var info = GetFBAInventoryResidualInfo(code, startDate, closeDate);
                 if (info.FBACtnInventories.Count != 0)
                 {
                     resultList.Add(info);
@@ -510,9 +521,9 @@ namespace ClothResorting.Helpers.FBAHelper
             return resultList;
         }
 
-        public FBAInventoryInfo ReturnInventoryInfoByCustomerCode(string customerCode, DateTime closeDate)
+        public FBAInventoryInfo ReturnInventoryInfoByCustomerCode(string customerCode, DateTime startDate, DateTime closeDate)
         {
-            var info = GetFBAInventoryResidualInfo(customerCode, closeDate);
+            var info = GetFBAInventoryResidualInfo(customerCode, startDate, closeDate);
 
             return info;
         }
@@ -569,6 +580,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public string Location { get; set; }
 
         public string SubCustomer { get; set; }
+
+        public DateTime InboundDate { get; set; }
     }
 
     public class FBAInventoryInfo
@@ -592,6 +605,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public int TotalPickingCtns { get; set; }
 
         public DateTime CloseDate { get; set; }
+
+        public DateTime StartDate { get; set; }
 
         public int TotalInPalletCtns { get; set; }
 
@@ -617,6 +632,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public int AvailablePlts { get; set; }
 
         public string PalletSize { get; set; }
+
+        public DateTime InboundDate { get; set; }
 
         public List<FBACtnInventory> InPalletCtnInventories { get; set; }
 

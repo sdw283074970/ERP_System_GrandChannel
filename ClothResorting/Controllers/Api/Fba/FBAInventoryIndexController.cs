@@ -25,13 +25,13 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // GET /api/fba/fbainventoryindex/?customerCode={customerCode}&closeDate={closeDate} 下载FBA库存报告
         [HttpGet]
-        public IHttpActionResult DownloadInventoryReport([FromUri]string customerCode, [FromUri]DateTime closeDate, [FromUri]string operation)
+        public IHttpActionResult DownloadInventoryReport([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime closeDate, [FromUri]string operation)
         {
             var templatePath = @"D:\Template\FBA-Inventory-Template.xls";
 
             var helper = new FBAInventoryHelper(templatePath);
 
-            var customerInventoryList = helper.GetFBAInventoryResidualInfo(customerCode, closeDate);
+            var customerInventoryList = helper.GetFBAInventoryResidualInfo(customerCode, startDate, closeDate);
 
             if (operation == FBAOperation.Download)
             {
@@ -57,14 +57,14 @@ namespace ClothResorting.Controllers.Api.Fba
             //downloadHandler.Invoke(downloadSourcePath, customerCode + " Inventory Report", ".xls");
         }
 
-        // GET /api/fba/fbainventoryindex/?customerCode={customerCode}&closeDate={closeDate}
+        // GET /api/fba/fbainventoryindex/?customerCode={customerCode}&startDate={startDate}&closeDate={closeDate}
         [HttpGet]
-        public IHttpActionResult GetRemainCustomerList([FromUri]string customerCode, [FromUri]DateTime closeDate)
+        public IHttpActionResult GetRemainCustomerList([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime closeDate)
         {
             var helper = new FBAInventoryHelper();
             if (customerCode == "ALL")
             {
-                var customerInventoryList = helper.ReturnNonZeroCBMInventoryInfo(closeDate);
+                var customerInventoryList = helper.ReturnNonZeroCBMInventoryInfo(startDate, closeDate);
 
                 return Ok(customerInventoryList);
             }
@@ -72,7 +72,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var list = new List<FBAInventoryInfo>();
                 //var result = helper.ReturnInventoryInfoByCustomerCode(customerCode, closeDate);
-                var result = helper.GetFBAInventoryResidualInfo(customerCode, closeDate);
+                var result = helper.GetFBAInventoryResidualInfo(customerCode, startDate, closeDate);
                 list.Add(result);
 
                 return Ok(list);

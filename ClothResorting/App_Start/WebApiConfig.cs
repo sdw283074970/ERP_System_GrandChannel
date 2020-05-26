@@ -23,7 +23,7 @@ namespace ClothResorting
             var cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(cors);
 
-            config.Filters.Add(new ValidateModelAttribute());
+            //config.Filters.Add(new ValidateModelAttribute());
 
             config.MapHttpAttributeRoutes();
 
