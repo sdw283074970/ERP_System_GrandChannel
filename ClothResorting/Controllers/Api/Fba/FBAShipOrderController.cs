@@ -220,6 +220,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 throw new Exception("Ship Order Number " + obj.ShipOrderNumber + " has been taken. Please delete the existed order and try agian.");
             }
 
+            if (_context.FBAMasterOrders.SingleOrDefault(x => x.Container == obj.ShipOrderNumber) != null)
+            {
+                throw new Exception("Ship Order Number " + obj.ShipOrderNumber + " cannot be the same with any container number of master order.");
+            }
+
             var shipOrder = new FBAShipOrder();
             var chargingItemDetailList = new List<ChargingItemDetail>();
 

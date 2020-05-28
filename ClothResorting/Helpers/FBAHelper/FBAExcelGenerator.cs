@@ -324,8 +324,9 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[3, 2] = shipOrderInDb.ShipOrderNumber;
             _ws.Cells[3, 6] = shipOrderInDb.ETS.ToString("yyyy-MM-dd");
             _ws.Cells[4, 2] = shipOrderInDb.Destination ?? "NA";
-            _ws.Cells[5, 2] = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualQuantity);
-            _ws.Cells[5, 6] = shipOrderInDb.FBAPickDetails.Sum(x => x.PltsFromInventory);
+            _ws.Cells[5, 5] = shipOrderInDb.FBAPickDetails.Sum(x => x.ActualQuantity);
+            _ws.Cells[5, 7] = shipOrderInDb.FBAPickDetails.Sum(x => x.PltsFromInventory);
+            _ws.Cells[5, 2] = shipOrderInDb.Carrier;
 
             var instructionList = shipOrderInDb.ChargingItemDetails
                 .Where(x => x.HandlingStatus != "N/A")
