@@ -302,5 +302,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public string ReleasedBy { get; set; }
 
         public string Instruction { get; set; }
+
+        public string ETSTimeRange { get; set; }
     }
 }

@@ -94,7 +94,7 @@ namespace ClothResorting.FilterAttribute
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (!HttpContext.Current.User.IsInRole(RoleName.CanOperateAsT3))
+            if (!HttpContext.Current.User.IsInRole(RoleName.CanDeleteEverything))
             {
                 filterContext.Result = new RedirectToRouteResult("Denied", new System.Web.Routing.RouteValueDictionary(new { Controller = "Home", Action = "Denied" }), false);
             }

@@ -129,20 +129,22 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(dto);
         }
 
-        // GET /api/fba/fbashiporder/?fromDate={fromDate}&toDate={toDate}&operation={operation}
+        // GET /api/fba/fbashiporder/?fromDate={fromDate}&toDate={toDate}&isAdvaceOrderOnly={isAdvaceOrderOnly}
         [HttpGet]
-        public IHttpActionResult DownloadSchedule([FromUri]DateTime fromDate, [FromUri]DateTime toDate, [FromUri]string operation)
+        public IHttpActionResult DownloadSchedule([FromUri]DateTime fromDate, [FromUri]DateTime toDate, [FromUri]bool isAdvaceOrderOnly)
         {
-            if (operation == "Schedule")
+            var outboundList = GetValidOutboundLogs(fromDate, toDate);
+            var inboundList = GetValidInboundLogs(fromDate, toDate);
+
+            if (isAdvaceOrderOnly)
             {
-                var outboundList = GetValidOutboundLogs(fromDate, toDate);
-                var inboundList = GetValidInboundLogs(fromDate, toDate);
-                var generator = new FBAExcelGenerator(@"D:\Template\FBA-WarehouseSchedule-Template.xlsx");
-                var fileName = generator.GenerateWarehouseSchedule(fromDate, toDate, outboundList, inboundList);
-                return Ok(fileName);
+                inboundList = inboundList.Where(x => x.Status == FBAStatus.Incoming).ToList();
+                outboundList = outboundList.Where(x => x.Status == FBAStatus.NewOrder).ToList();
             }
 
-            return Ok("No operation applied.");
+            var generator = new FBAExcelGenerator(@"D:\Template\FBA-WarehouseSchedule-Template.xlsx");
+            var fileName = generator.GenerateWarehouseSchedule(fromDate, toDate, outboundList, inboundList);
+            return Ok(fileName);
         }
 
         // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}&freightCharge={freightCharge}&operatorName={operatorName}
@@ -1192,13 +1194,14 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 order.Department = "FBA";
                 order.WarehouseOrderType = o.OrderType == FBAOrderType.Adjustment ? FBAOrderType.Adjustment : FBAOrderType.Outbound;
-                order.ETS = o.ETS.ToString("yyyy-MM-dd") + " " + o.ETSTimeRange;
+                order.ETS = o.ETS.ToString("yyyy-MM-dd");
                 order.TotalCtns = o.FBAPickDetails.Sum(x => x.ActualQuantity);
                 order.TotalPlts = o.FBAPickDetails.Sum(x => x.ActualPlts);
                 order.ShipDate = o.ShipDate;
                 order.ReleaseTime = o.ReleasedDate;
                 order.SubCustomer = o.SubCustomer;
                 order.OrderNumber = o.ShipOrderNumber;
+                order.ETSTimeRange = o.ETSTimeRange;
 
                 list.Add(order);
             }
@@ -1240,6 +1243,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     Ctns = m.FBAOrderDetails.Sum(x => x.Quantity),
                     SKU = m.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count(),
                     OriginalPlts = m.OriginalPlts,
+                    OriginalCtns = m.FBAOrderDetails.Sum(x => x.Quantity),
                     Carrier = m.Carrier,
                     Lumper = m.Lumper,
                     Instruction = m.Instruction,
