@@ -66,6 +66,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 2] = d.AmzRefId;
                 _ws.Cells[startRow, 3] = d.Quantity;
                 _ws.Cells[startRow, 4] = d.ActualQuantity;
+                _ws.Cells[startRow, 5] = d.WarehouseCode;
 
                 startRow += 1;
             }
@@ -82,7 +83,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 4] = masterOrderInDb == null ? 0 : masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity);
 
             //加上边框
-            var range = _ws.get_Range("A5", "D" + startRow);
+            var range = _ws.get_Range("A5", "E" + startRow);
             range.Borders.LineStyle = 1;
 
             // 打托报告
@@ -519,7 +520,6 @@ namespace ClothResorting.Helpers.FBAHelper
             else if (freightCharge == "3rd Party")
             {
                 _ws.Cells[16, 4] = "Prepaid ☐  Collect ☐  3rd Party ☑";
-
             }
             else
             {

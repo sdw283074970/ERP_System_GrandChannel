@@ -526,6 +526,7 @@
     <Compile Include="Helpers\GuidGenerator.cs" />
     <Compile Include="Helpers\IntuitOAuthor.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Helpers\MailServiceManager.cs" />
     <Compile Include="Helpers\QBOServiceManager.cs" />
     <Compile Include="Helpers\QBOUrlGenerator.cs" />
     <Compile Include="Helpers\Checker.cs" />
@@ -1851,6 +1852,10 @@
     <Compile Include="Migrations\202005181852571_AddedAppNameMemoAuthAppInfo.cs" />
     <Compile Include="Migrations\202005181852571_AddedAppNameMemoAuthAppInfo.Designer.cs">
       <DependentUpon>202005181852571_AddedAppNameMemoAuthAppInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202006041910448_AddedSendDateInEfile.cs" />
+    <Compile Include="Migrations\202006041910448_AddedSendDateInEfile.Designer.cs">
+      <DependentUpon>202006041910448_AddedSendDateInEfile.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -3455,6 +3460,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202005181852571_AddedAppNameMemoAuthAppInfo.resx">
       <DependentUpon>202005181852571_AddedAppNameMemoAuthAppInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202006041910448_AddedSendDateInEfile.resx">
+      <DependentUpon>202006041910448_AddedSendDateInEfile.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

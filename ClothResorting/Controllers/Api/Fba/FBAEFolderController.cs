@@ -109,6 +109,38 @@ namespace ClothResorting.Controllers.Api.Fba
         }
 
         // POST /api/fba/fbaefolder/?fileId={fileId}
+        [HttpPost]
+        public void SendFileToCustomer([FromUri]int fileId)
+        {
+            var fileInDb = _context.EFiles
+                .Include(x => x.FBAMasterOrder.Customer)
+                .Include(x => x.FBAShipOrder)
+                .SingleOrDefault(x => x.Id == fileId);
+
+            var toEmail = string.Empty;
+            var subject = fileInDb.CustomizedFileName;
+
+            if (fileInDb.FBAMasterOrder != null)
+            {
+                toEmail = fileInDb.FBAMasterOrder.Customer.EmailAddress;
+                subject += "-" + fileInDb.FBAMasterOrder.Container;
+            }
+            else
+            {
+                toEmail = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == fileInDb.FBAShipOrder.CustomerCode).EmailAddress;
+                subject += "-" + fileInDb.FBAShipOrder.ShipOrderNumber;
+            }
+
+            var mailService = new MailServiceManager();
+
+            mailService.SendMail(toEmail, "no-reply@grandchannel.us", "no-reply@grandchannel.us", fileInDb.RootPath + fileInDb.FileName, subject);
+
+            fileInDb.SendDate = DateTime.Now;
+
+            _context.SaveChanges();
+        }
+
+        // POST /api/fba/fbaefolder/?fileId={fileId}
         [HttpPut]
         public void DiscardFile([FromUri]int fileId)
         {

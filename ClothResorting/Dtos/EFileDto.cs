@@ -21,6 +21,8 @@ namespace ClothResorting.Dtos
 
         public DateTime UploadDate { get; set; }
 
+        public DateTime SendDate { get; set; }
+
         public string UploadBy { get; set; }
     }
 }

@@ -8,6 +8,12 @@ namespace ClothResorting.Models
 {
     public class EFile
     {
+        public EFile()
+        {
+            UploadDate = new DateTime(1900, 1, 1);
+            SendDate = new DateTime(1900, 1, 1);
+        }
+
         public int Id { get; set; }
 
         public string FileName { get; set; }
@@ -23,6 +29,8 @@ namespace ClothResorting.Models
         public DateTime UploadDate { get; set; }
 
         public string UploadBy { get; set; }
+
+        public DateTime SendDate { get; set; }
 
         public FBAMasterOrder FBAMasterOrder { get; set; }
 

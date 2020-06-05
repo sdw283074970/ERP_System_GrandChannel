@@ -52,13 +52,10 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var auth = new AuthAppInfo();
-            auth.AppKey = GuidGenerator.GenerateGuid();
-            auth.SecretKey = GuidGenerator.GenerateGuid();
-            auth.AppName = "TEST";
-
-            _context.AuthAppInfos.Add(auth);
-            _context.SaveChanges();
+            //var mailService = new MailServiceManager();
+            //var sendTo = "stone@grandchannel.us";
+            //var filePath = @"C:\Users\downw\Desktop\API对接文档.md";
+            //mailService.SendMail(sendTo, null, null, filePath);
 
             ViewBag.Message = "Your application description page.";
 
