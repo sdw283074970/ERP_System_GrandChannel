@@ -403,7 +403,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex + 1, 4] = pickDetailInDb.Sum(x => x.ActualQuantity);
                 _ws.Cells[startIndex + 1, 5] = pickDetailInDb.Sum(x => x.ActualPlts);
 
-                var range = _ws.get_Range("A2:F" + (startIndex + 1), Type.Missing);
+                var range = _ws.get_Range("A2:G" + (startIndex + 1), Type.Missing);
 
                 range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
                 range.VerticalAlignment = XlVAlign.xlVAlignCenter;
@@ -468,7 +468,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startIndex + 1, 5] = Math.Round(orderDetails.Sum(x => x.CBM), 2);
             _ws.Cells[startIndex + 1, 6] = orderDetails.Sum(x => x.Quantity);
 
-            var range = _ws.get_Range("A1:J" + (startIndex + 1), Type.Missing);
+            var range = _ws.get_Range("A1:K" + (startIndex + 1), Type.Missing);
 
             range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
             range.VerticalAlignment = XlVAlign.xlVAlignCenter;

@@ -65,6 +65,7 @@ namespace ClothResorting.Helpers
                     mailMessage.CC.Add(new MailAddress(cc));
                 }
             }
+
             //如果你的邮件标题包含中文，这里一定要指定，否则对方收到的极有可能是乱码。
             mailMessage.SubjectEncoding = Encoding.GetEncoding(936);
 
