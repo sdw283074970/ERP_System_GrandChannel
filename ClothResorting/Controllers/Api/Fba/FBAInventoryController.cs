@@ -116,22 +116,22 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 if (container != null)
                 {
-                    palletInventoryInDb = palletInventoryInDb.Where(x => x.Container.Contains(container));
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.Container.ToUpper().Contains(container.ToUpper()));
                 }
                 
                 if (sku != null)
                 {
-                    palletInventoryInDb = palletInventoryInDb.Where(x => x.ShipmentId.Contains(sku));
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.ShipmentId.ToUpper().Contains(sku.ToUpper()));
                 }
 
                 if (amzRef != null)
                 {
-                    palletInventoryInDb = palletInventoryInDb.Where(x => x.AmzRefId.Contains(amzRef));
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.AmzRefId.ToUpper().Contains(amzRef.ToUpper()));
                 }
 
                 if (warehouseCode != null)
                 {
-                    palletInventoryInDb = palletInventoryInDb.Where(x => x.WarehouseCode.Contains(warehouseCode));
+                    palletInventoryInDb = palletInventoryInDb.Where(x => x.WarehouseCode.ToUpper().Contains(warehouseCode.ToUpper()));
                 }
 
                 var palletInventoryDto = new List<FBAPalletLocationDto>();
@@ -143,13 +143,13 @@ namespace ClothResorting.Controllers.Api.Fba
                     // 再次筛选，如果托盘中指定的SKU箱数为0，且托盘数量为0，那么就把这这个托盘除去
 
                     if (sku != null)
-                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.ShipmentId.Contains(sku));
+                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.ShipmentId.ToUpper().Contains(sku.ToUpper()));
 
                     if (amzRef != null)
-                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.AmzRefId.Contains(amzRef));
+                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.AmzRefId.ToUpper().Contains(amzRef.ToUpper()));
 
                     if (warehouseCode != null)
-                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.WarehouseCode.Contains(warehouseCode));
+                        dto.FBACartonLocations = dto.FBACartonLocations.Where(x => x.WarehouseCode.ToUpper().Contains(warehouseCode.ToUpper()));
 
                     if (dto.FBACartonLocations.Sum(x => x.AvailableCtns) == 0 && dto.AvailablePlts == 0)
                         continue;
@@ -171,22 +171,22 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 if (container != null)
                 {
-                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.Container.Contains(container));
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.Container.ToUpper().Contains(container.ToUpper()));
                 }
 
                 if (sku != null)
                 {
-                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.ShipmentId.Contains(sku));
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.ShipmentId.ToUpper().Contains(sku.ToUpper()));
                 }
 
                 if (amzRef != null)
                 {
-                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.AmzRefId.Contains(amzRef));
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.AmzRefId.ToUpper().Contains(amzRef.ToUpper()));
                 }
 
                 if (warehouseCode != null)
                 {
-                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.WarehouseCode.Contains(warehouseCode));
+                    cartonInventoryInDb = cartonInventoryInDb.Where(x => x.WarehouseCode.ToUpper().Contains(warehouseCode.ToUpper()));
                 }
 
                 var cartonInventoryDto = new List<FBACartonLocationDto>();
