@@ -53,16 +53,16 @@ namespace ClothResorting.Helpers
                 replyTo = _fromMail;
             }
 
-            //对方回复邮件时默认的接收地址(不设置也是可以的哟)
+            //对方回复邮件时默认的接收地址
             mailMessage.ReplyToList.Add(new MailAddress(replyTo));
 
             if (cc != "" && cc != null)
             {
-                List<string> CCMiallist = tomMail.Split(';').ToList();
+                List<string> CCMiallist = cc.Split(';').ToList();
                 for (int i = 0; i < CCMiallist.Count; i++)
                 {
                     //邮件的抄送者，支持群发
-                    mailMessage.CC.Add(new MailAddress(cc));
+                    mailMessage.CC.Add(new MailAddress(CCMiallist[i]));
                 }
             }
 

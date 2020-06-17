@@ -234,7 +234,17 @@ namespace ClothResorting.Controllers.Api.Fba
             var result = new List<FBAOrderDetail>();
 
             if (operation == "Upload")
-                result = excel.ExtractFBAPackingListTemplate("", masterOrderId);
+            {
+                try
+                {
+                    result = excel.ExtractFBAPackingListTemplate("", masterOrderId);
+                }
+                catch(Exception e)
+                {
+                    killer.Dispose();
+                    throw new Exception(e.Message);
+                }
+            }
 
             killer.Dispose();
 

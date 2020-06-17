@@ -133,7 +133,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var mailService = new MailServiceManager();
 
-            mailService.SendMail(toEmail, "no-reply@grandchannel.us", "no-reply@grandchannel.us;operator@grandchannel.us", fileInDb.RootPath + fileInDb.FileName, subject);
+            mailService.SendMail(toEmail, "operator@grandchannel.us", "no-reply@grandchannel.us;operator@grandchannel.us", fileInDb.RootPath + fileInDb.FileName, subject);
 
             fileInDb.SendDate = DateTime.Now;
 

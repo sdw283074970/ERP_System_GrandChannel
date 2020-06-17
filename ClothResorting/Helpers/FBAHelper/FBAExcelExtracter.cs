@@ -76,15 +76,22 @@ namespace ClothResorting.Helpers.FBAHelper
 
             for(int i = 0; i < countOfOrderDetail; i++)
             {
-                shipmentId = _ws.Cells[i + 2, 1].Value2.ToString();
-                amzRefId = _ws.Cells[i + 2, 2].Value2 == null ? "NA" : _ws.Cells[i + 2, 2].Value2.ToString();
-                lotSize = _ws.Cells[i + 2, 3].Value2 == null ? "NA" : _ws.Cells[i + 2, 3].Value2.ToString();
-                warehouseCode = _ws.Cells[i + 2, 4].Value2 == null ? "NA" : _ws.Cells[i + 2, 4].Value2.ToString();
-                howToDeliver = _ws.Cells[i + 2, 5].Value2 == null ? "NA" : _ws.Cells[i + 2, 5].Value2.ToString();
-                grossWeight = _ws.Cells[i + 2, 6].Value2 == null ? 0 : (float)_ws.Cells[i + 2, 6].Value2;
-                cbm = _ws.Cells[i + 2, 7].Value2 == null ? 0 : (float)_ws.Cells[i + 2, 7].Value2;
-                quantity = (int)_ws.Cells[i + 2, 8].Value2;
-                remark = _ws.Cells[i + 2, 9].Value2 == null ? "NA" : _ws.Cells[i + 2, 9].Value2.ToString();
+                try
+                {
+                    shipmentId = _ws.Cells[i + 2, 1].Value2.ToString();
+                    amzRefId = _ws.Cells[i + 2, 2].Value2 == null ? "NA" : _ws.Cells[i + 2, 2].Value2.ToString();
+                    lotSize = _ws.Cells[i + 2, 3].Value2 == null ? "NA" : _ws.Cells[i + 2, 3].Value2.ToString();
+                    warehouseCode = _ws.Cells[i + 2, 4].Value2 == null ? "NA" : _ws.Cells[i + 2, 4].Value2.ToString();
+                    howToDeliver = _ws.Cells[i + 2, 5].Value2 == null ? "NA" : _ws.Cells[i + 2, 5].Value2.ToString();
+                    grossWeight = _ws.Cells[i + 2, 6].Value2 == null ? 0 : (float)_ws.Cells[i + 2, 6].Value2;
+                    cbm = _ws.Cells[i + 2, 7].Value2 == null ? 0 : (float)_ws.Cells[i + 2, 7].Value2;
+                    quantity = (int)_ws.Cells[i + 2, 8].Value2;
+                    remark = _ws.Cells[i + 2, 9].Value2 == null ? "NA" : _ws.Cells[i + 2, 9].Value2.ToString();
+                }
+                catch(Exception e)
+                {
+                    throw new Exception(e.Message);
+                }
 
                 var orderDetail = new FBAOrderDetail();
 
