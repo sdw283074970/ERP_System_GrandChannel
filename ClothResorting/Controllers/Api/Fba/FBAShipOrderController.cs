@@ -129,12 +129,12 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(dto);
         }
 
-        // GET /api/fba/fbashiporder/?fromDate={fromDate}&toDate={toDate}&isAdvaceOrderOnly={isAdvaceOrderOnly}
+        // GET /api/fba/fbashiporder/?fromDate={fromDate}&toDate={toDate}&isAdvaceOrderOnly={isAdvaceOrderOnly}&customerCode={customerCode}
         [HttpGet]
-        public IHttpActionResult DownloadSchedule([FromUri]DateTime fromDate, [FromUri]DateTime toDate, [FromUri]bool isAdvaceOrderOnly)
+        public IHttpActionResult DownloadSchedule([FromUri]DateTime fromDate, [FromUri]DateTime toDate, [FromUri]bool isAdvaceOrderOnly, [FromUri]string customerCode)
         {
-            var outboundList = GetValidOutboundLogs(fromDate, toDate);
-            var inboundList = GetValidInboundLogs(fromDate, toDate);
+            var outboundList = GetValidOutboundLogs(fromDate, toDate, customerCode);
+            var inboundList = GetValidInboundLogs(fromDate, toDate, customerCode);
 
             if (isAdvaceOrderOnly)
             {
@@ -1177,7 +1177,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return HttpContext.Current.User.IsInRole(RoleName.CanOperateAsT5);
         }
 
-        private IList<WarehouseOutboundLog> GetValidOutboundLogs(DateTime fromDate, DateTime toDate)
+        private IList<WarehouseOutboundLog> GetValidOutboundLogs(DateTime fromDate, DateTime toDate, string customerCode)
         {
             //将FBA运单转成outbound work order
             var list = new List<WarehouseOutboundLog>();
@@ -1187,6 +1187,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPickDetails)
                 .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking
                     && x.ETS >= fromDate && x.ETS <= toDate);
+
+            if (customerCode != "" && customerCode != null && customerCode != "ALL" && customerCode != "undefined")
+            {
+                ordersInDb = ordersInDb.Where(x => x.CustomerCode == customerCode);
+            }
 
             foreach (var o in ordersInDb)
             {
@@ -1211,7 +1216,7 @@ namespace ClothResorting.Controllers.Api.Fba
             return list;
         }
 
-        private IList<WarehouseInboundLog> GetValidInboundLogs(DateTime fromDate, DateTime toDate)
+        private IList<WarehouseInboundLog> GetValidInboundLogs(DateTime fromDate, DateTime toDate, string customerCode)
         {
             //获取FBA部门的所有待收货主单
             var masterOrders = _context.FBAMasterOrders
@@ -1220,6 +1225,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAPallets)
                 .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order")
                 .ToList();
+
+            if (customerCode != "" && customerCode != null && customerCode != "ALL" && customerCode != "undefined")
+            {
+                masterOrders = masterOrders.Where(x => x.CustomerCode == customerCode).ToList();
+            }
 
             var inboundLogList = new List<WarehouseInboundLog>();
             foreach (var m in masterOrders)

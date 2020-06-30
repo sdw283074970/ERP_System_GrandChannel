@@ -113,6 +113,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[startRow, 3] = c.AmzRefId;
                     _ws.Cells[startRow, 4] = c.FBAOrderDetail.ActualQuantity;
                     _ws.Cells[startRow, 5] = c.ActualQuantity + " / " + c.FBAOrderDetail.ActualQuantity;
+                    _ws.Cells[startRow, 8] = c.WarehouseCode;
                     startRow += 1;
                 }
             }
@@ -127,6 +128,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 5] = c.ActualQuantity + " / " + c.FBAOrderDetail.ActualQuantity;
                 _ws.Cells[startRow, 6] = "N/A";
                 _ws.Cells[startRow, 7] = "N/A";
+                _ws.Cells[startRow, 8] = c.WarehouseCode;
                 startRow += 1;
             }
 
@@ -140,6 +142,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 5] = s.ActualQuantity - s.ComsumedQuantity + " / " + s.ActualQuantity;
                 _ws.Cells[startRow, 6] = "N/A";
                 _ws.Cells[startRow, 7] = "N/A";
+                _ws.Cells[startRow, 8] = s.WarehouseCode;
                 startRow += 1;
             }
 
@@ -155,7 +158,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, 7] = pallets == null ? 0 : pallets.Sum(x => x.ActualPallets);
 
             //加上边框
-            range = _ws.get_Range("A5", "G" + startRow);
+            range = _ws.get_Range("A5", "H" + startRow);
             range.Borders.LineStyle = 1;
 
             var fullPath = @"D:\Receipts\FBA-" + masterOrderInDb.Customer.CustomerCode + "-Receipt-" + masterOrderInDb.Container + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
