@@ -96,6 +96,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string Comment { get; set; }
 
+        public DateTime CreateDate { get; set; }
+
         //public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }
 
         public FBAMasterOrder()
@@ -108,6 +110,7 @@ namespace ClothResorting.Models.FBAModels
             TotalCtns = 0;
             OriginalPlts = 0;
             InboundDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            CreateDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             CloseDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             OutTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             AvailableTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);

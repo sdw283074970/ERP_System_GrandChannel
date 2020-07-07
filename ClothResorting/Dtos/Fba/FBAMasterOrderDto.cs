@@ -12,6 +12,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string GrandNumber { get; set; }
 
+        public DateTime CreateDate { get; set; }
+
         public float TotalCost { get; set; }
 
         public float Net { get; set; }

@@ -1,4 +1,5 @@
 ﻿using ClothResorting.Models.FBAModels;
+using ClothResorting.Models.FBAModels.StaticModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace ClothResorting.Models
         {
             UploadDate = new DateTime(1900, 1, 1);
             SendDate = new DateTime(1900, 1, 1);
+            Status = FBAStatus.Valid;
         }
 
         public int Id { get; set; }

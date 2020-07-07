@@ -25,11 +25,13 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         private ApplicationDbContext _context;
         private Logger _logger;
+        private string _userName;
 
         public FBAOrderDetailController()
         {
             _context = new ApplicationDbContext();
             _logger = new Logger(_context);
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/fba/FBAOrderDetail/?grandNumber={grandNumber}&operation={operation}
@@ -222,7 +224,7 @@ namespace ClothResorting.Controllers.Api.Fba
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\PackingLists\");
 
             if (fileSavePath == "")
             {
@@ -245,6 +247,20 @@ namespace ClothResorting.Controllers.Api.Fba
                     throw new Exception(e.Message);
                 }
             }
+
+            // 将成功上传的packing list保存到efile中
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            _context.EFiles.Add(new EFile { 
+                UploadDate = DateTime.Now,
+                CustomizedFileName = "Packing List",
+                RootPath = @"D:\PackingLists\",
+                FileName = fileSavePath.Split('\\').Last(),
+                UploadBy = _userName,
+                FBAMasterOrder = masterOrderInDb
+            });
+
+            _context.SaveChanges();
 
             killer.Dispose();
 

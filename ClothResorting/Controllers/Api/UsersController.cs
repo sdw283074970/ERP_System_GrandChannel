@@ -390,7 +390,7 @@ namespace ClothResorting.Controllers.Api
             }
             else
             {
-                return new string[] { "guest" };
+                return new string[] { "trainee" };
             }
         }
 
@@ -411,7 +411,7 @@ namespace ClothResorting.Controllers.Api
                 case "CanOperateAsT2":
                     return "warehouse";
                 case "CanOperateAsT1":
-                    return "guest";
+                    return "trainee";
                 case null:
                     return "guest";
                 default:
