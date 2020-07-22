@@ -103,6 +103,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         PltId = plt.Id,
                         SubCustomer = plt.FBAMasterOrder.SubCustomer,
                         Container = plt.Container,
+                        AmzRefId = plt.AmzRefId,
+                        ShipmentId = plt.ShipmentId,
                         ActualPlts = currentOriginalPlts,
                         PickingPlts = currentPickingPlt,
                         AvailablePlts = plt.ActualPlts,
@@ -626,6 +628,10 @@ namespace ClothResorting.Helpers.FBAHelper
         public string Location { get; set; }
 
         public int ActualPlts { get; set; }
+
+        public string ShipmentId { get; set; }
+
+        public string AmzRefId { get; set; }
 
         public int PickingPlts { get; set; }
 

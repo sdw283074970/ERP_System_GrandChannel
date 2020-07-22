@@ -326,6 +326,8 @@ namespace ClothResorting.Controllers.Api
             customerInDb.WarningQuantityLevel = model.WarningQuantityLevel;
             customerInDb.InboundMinCharge = model.InboundMinCharge;
             customerInDb.OutboundMinCharge = model.OutboundMinCharge;
+            customerInDb.Name = model.Name;
+            customerInDb.CustomerCode = model.CustomerCode;
 
             _context.SaveChanges();
         }
