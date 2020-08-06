@@ -21,6 +21,8 @@ namespace ClothResorting.Models
 
         public dynamic InnerMessage { get; set; }
 
+        public dynamic Body { get; set; }
+
         public IList<PickingStatus> PickingStatus { get; set; }
     }
 

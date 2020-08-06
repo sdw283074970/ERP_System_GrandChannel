@@ -32,6 +32,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _picker = new FBAInventoryPicker();
         }
 
+        // POST /api/FBAShipmentAPI/?customerCode={customerCode}&requestId={requestId}&version={version}
         [HttpPost]
         [ValidateModel]
         public async Task<IHttpActionResult> CreateOutboundOrderFromExternalRequest([FromUri]string appKey, [FromUri]string customerCode, [FromUri]string requestId, [FromUri]string version, [FromUri]string sign, [FromBody]FBAOutboundOrder order)
@@ -48,7 +49,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             jsonResult.PickingStatus = pickingStatus;
 
-            return Json(jsonResult);
+            return Created(Request.RequestUri, jsonResult);
         }
 
         public string GenerateShipOrderNumber(string customerCode, string shipOrderNumber)
