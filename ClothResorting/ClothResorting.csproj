@@ -383,6 +383,7 @@
     <Compile Include="Controllers\Api\Fba\DownloadFileController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAAddressManagementController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAAllocatingController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBADashboardController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAEFolderController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAexAPIController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAFilterController.cs" />
@@ -393,6 +394,7 @@
     <Compile Include="Controllers\Api\Fba\FBAMasterOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAPickDetailController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAReportDonwloadController.cs" />
+    <Compile Include="Controllers\Api\Fba\FBAShipmentAPIController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAShipOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAOrderDetailController.cs" />
     <Compile Include="Controllers\Api\Filters\ValidateModelAttribute.cs" />
@@ -517,10 +519,12 @@
     <Compile Include="Helpers\DPHelper\BillCleaner.cs" />
     <Compile Include="Helpers\DPHelper\Zipper.cs" />
     <Compile Include="Helpers\ExcelParser.cs" />
+    <Compile Include="Helpers\FBAHelper\FBAexAPIValidator.cs" />
     <Compile Include="Helpers\FBAHelper\FBAExcelExtracter.cs" />
     <Compile Include="Helpers\FBAHelper\FBAExcelGenerator.cs" />
     <Compile Include="Helpers\FBAHelper\FBAGetter.cs" />
     <Compile Include="Helpers\FBAHelper\FBAInventoryHelper.cs" />
+    <Compile Include="Helpers\FBAHelper\FBAInventoryPicker.cs" />
     <Compile Include="Helpers\FBAHelper\FBAInvoiceHelper.cs" />
     <Compile Include="Helpers\FBAHelper\FBAWOHelper.cs" />
     <Compile Include="Helpers\GuidGenerator.cs" />
@@ -1995,6 +1999,7 @@
     <Compile Include="Models\StaticClass\DownloadRecord.cs" />
     <Compile Include="Models\StaticClass\FBAInvoiceType.cs" />
     <Compile Include="Models\StaticClass\FBAPackType.cs" />
+    <Compile Include="Models\StaticClass\FBAStorageType.cs" />
     <Compile Include="Models\StaticClass\InvoiceType.cs" />
     <Compile Include="Models\StaticClass\OperationType.cs" />
     <Compile Include="Models\StaticClass\OrderType.cs" />

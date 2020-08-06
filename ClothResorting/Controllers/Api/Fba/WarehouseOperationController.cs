@@ -99,6 +99,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.ActualQuantity = ctnsPerPlt * pltQuantity;
                     cartonLocation.AvailableCtns = ctnsPerPlt * pltQuantity;
                     cartonLocation.Status = FBAStatus.InPallet;
+                    cartonLocation.FBAMasterOrder = masterOrderInDb;
 
                     cartonLocationList.Add(cartonLocation);
                 }
@@ -169,6 +170,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.FBAOrderDetail = orderDetailInDb;
                     cartonLocation.ActualQuantity = packedCtn;
                     cartonLocation.AvailableCtns = packedCtn;
+                    cartonLocation.FBAMasterOrder = masterOrderInDb;    
 
                     cartonLocationList.Add(cartonLocation);
                 }
@@ -261,6 +263,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.ActualQuantity = ctnsPerPlt * pltQuantity;
                     cartonLocation.AvailableCtns = ctnsPerPlt * pltQuantity;
                     cartonLocation.Status = FBAStatus.InPallet;
+                    cartonLocation.FBAMasterOrder = masterOrderInDb;
 
                     cartonLocationList.Add(cartonLocation);
                 }
@@ -330,6 +333,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.FBAOrderDetail = orderDetailInDb;
                     cartonLocation.ActualQuantity = packedCtn;
                     cartonLocation.AvailableCtns = packedCtn;
+                    cartonLocation.FBAMasterOrder = masterOrderInDb;
 
                     cartonLocationList.Add(cartonLocation);
                 }

@@ -53,6 +53,8 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string NoNeedForCharging = "No need for charging";
 
+        public const string TBD = "TBD";
+
         public const string Template = "Template";
 
         public const string NewCreated = "New Created";

@@ -271,6 +271,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     cartonLocation.CBMPerCtn = (float)Math.Round((orderDetailInDb.ActualCBM / orderDetailInDb.ActualQuantity), 2);
                     cartonLocation.AvailableCtns = obj.Quantity;
                     cartonLocation.Location = obj.Location;
+                    cartonLocation.FBAMasterOrder = masterOrderInDb;
 
                     cartonLocation.AssembleFirstStringPart(orderDetailInDb.ShipmentId, orderDetailInDb.AmzRefId, orderDetailInDb.WarehouseCode);
                     cartonLocation.AssembleActualDetails(cartonLocation.GrossWeightPerCtn * obj.Quantity, cartonLocation.CBMPerCtn * obj.Quantity, obj.Quantity);

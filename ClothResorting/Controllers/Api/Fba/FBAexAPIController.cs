@@ -2,6 +2,7 @@
 using ClothResorting.Controllers.Api.Filters;
 using ClothResorting.Dtos.Fba;
 using ClothResorting.Helpers;
+using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Models.FBAModels.StaticModels;
@@ -22,72 +23,33 @@ namespace ClothResorting.Controllers.Api.Fba
     public class FBAexAPIController : ApiController
     {
         private ApplicationDbContext _context;
+        private FBAexAPIValidator _validator;
 
         public FBAexAPIController()
         {
             _context = new ApplicationDbContext();
+            _validator = new FBAexAPIValidator();
         }
 
         // POST /api/FBAexAPI/?customerCode={customerCode}&requestId={requestId}&version={version}
         [HttpPost]
         [ValidateModel]
-        public async Task<IHttpActionResult> CreateInboundOrderAndOutboundOrdersFromExternalRequest([FromUri]string appKey, [FromUri]string customerCode, [FromUri]string requestId, [FromUri]string version, [FromUri]string sign, [FromBody]FBAAgentOrder order)
+        public async Task<IHttpActionResult> CreateInboundOrderFromExternalRequest([FromUri]string appKey, [FromUri]string customerCode, [FromUri]string requestId, [FromUri]string version, [FromUri]string sign, [FromBody]FBAInboundOrder order)
         {
-            // 参数验证加密验证
-            var auth = _context.AuthAppInfos.SingleOrDefault(x => x.AppKey == appKey);
-            if (auth == null)
-            {
-                return Json(new JsonResponse { Code = 500, ResultStatus = "Failed", Message = "Unregistered app request." });
-            }
-            var vs = auth.SecretKey.ToUpper() + "&appKey=" + appKey + "&customerCode=" + customerCode + "&requestId=" + requestId + "&version=" + version;
-            var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", ""); ;
-            //var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", "S");
-
-            if (md5sign != sign)
-            {
-                return Json(new JsonResponse { Code = 501, ResultStatus = "Failed", Message = "Invalid sign." });
-
-            }
-
-            // 检查customerCode是否存在，否则返回错误
-            var customerInDb = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode);
-            if (customerInDb == null)
-            {
-                return Json(new JsonResponse { Code = 501, ResultStatus = "Failed", Message = "Invalid sign." });
-            }
-
-            // 检查request body中的必填项
-
-            // 防止重放攻击和网络延迟等非攻击意向的二次请求，如请求重复则返回错误
-            if (StaticCollections.RequestIds.Contains(requestId))
-            {
-                return Json(new JsonResponse { Code = 504, ResultStatus = "Failed", Message = "Duplicated request detectived. Request Id: " + requestId + " has already been processed. Please report this request Id: " + requestId + " to CSR of Grand Channel for more support." });
-            }
-            else
-            {
-                StaticCollections.RequestIds.Add(requestId);
-            }
-
-            // 防止重放攻击的二道关卡，如重复则返回错误
-            var logInDb = _context.OperationLogs.Where(x => x.RequestId == requestId);
-            if (logInDb.Count() != 0)
-            {
-                return Json(new JsonResponse { Code = 504, ResultStatus = "Failed", Message = "Duplicated request detectived. Request Id: " + requestId + " has already been processed. Please report this request Id: " + requestId + " to CSR of Grand Channel for more support." });
-            }
-
-            // 检查version是否支持，否则返回错误
-            if (version != "V1")
-            {
-                return Json(new JsonResponse { Code = 505, ResultStatus = "Failed", Message = "Invalid API version." });
-            }
-
             // 检查Container是否重复，否则返回错误
             var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == order.Container);
 
             if (masterOrderInDb != null)
             {
-                return Json(new JsonResponse { Code = 506, ResultStatus = "Failed", Message = "Container No. " + order.Container + " already existed in system. Please report this contianer No. to CSR of Grand Channel for more support." });
+                return Json(new JsonResponse { Code = 506, ValidationStatus = "Failed", Message = "Container No. " + order.Container + " already existed in system. Please report this contianer No. to CSR of Grand Channel for more support." });
             }
+
+            var customerInDb = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode);
+
+            var jsonResult = _validator.ValidateSign(appKey, customerInDb, requestId, version, sign);
+
+            if (jsonResult.Code != 200)
+                return Json(jsonResult);
 
             // 创建订单逻辑
             if (version == "V1")
@@ -95,14 +57,14 @@ namespace ClothResorting.Controllers.Api.Fba
                 //建立主单并记录成功的操作，写入日志
                 await CreateInboundOrderByAgentRequestV1(customerInDb, customerCode, order, requestId);
                 //建立分单并记录成功的操作，写入日志
-                await CreateOutboundOrdersByAgentRequestV1(customerCode, order, requestId);
-                return Created(Request.RequestUri, new JsonResponse { Code = 200, ResultStatus = "Success", Message = "Success!" });
+                //await CreateOutboundOrdersByAgentRequestV1(customerCode, order, requestId);
+                return Created(Request.RequestUri, new JsonResponse { Code = 200, ValidationStatus = "Success", Message = "Success!" });
             }
 
-            return Ok(new JsonResponse { Code = 200, ResultStatus = "Success", Message = "No operation applied." });
+            return Ok(new JsonResponse { Code = 200, ValidationStatus = "Success", Message = "No operation applied." });
         }
 
-        public async Task CreateInboundOrderByAgentRequestV1(UpperVendor customer, string customerCode, FBAAgentOrder order, string requestId)
+        public async Task CreateInboundOrderByAgentRequestV1(UpperVendor customer, string customerCode, FBAInboundOrder order, string requestId)
         {
             // 建立主单
             var newMasterOrder = new FBAMasterOrder();
@@ -151,7 +113,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var instruction = new ChargingItemDetail();
 
-            instruction.Description = "To CSR: This inbound order is created by an agency from api. Each SKU in this inbound order corresponds to a newly created ship order and these newly ship orders have been created automatically. Please complete the shipping order corresponding to each SKU after the inbound order is physically confirmed.";
+            instruction.Description = "To CSR: This inbound order is created by an agency from api. If there is no further customer's instructions below, please contact customer to do a further confirmation.";
             instruction.HandlingStatus = "N/A";
             instruction.Status = FBAStatus.NoNeedForCharging;
             instruction.IsCharging = false;
@@ -159,12 +121,29 @@ namespace ClothResorting.Controllers.Api.Fba
             instruction.IsOperation = false;
             instruction.OriginalDescription = instruction.Description;
             instruction.FBAMasterOrder = newMasterOrder;
-
             _context.ChargingItemDetails.Add(instruction);
+
+            if (order.Instructions != null)
+            {
+                foreach (var i in order.Instructions)
+                {
+                    var customerInstruction = new ChargingItemDetail();
+
+                    customerInstruction.Description = i;
+                    customerInstruction.HandlingStatus = "N/A";
+                    customerInstruction.Status = FBAStatus.TBD;
+                    customerInstruction.IsCharging = false;
+                    customerInstruction.IsInstruction = true;
+                    customerInstruction.IsOperation = false;
+                    customerInstruction.OriginalDescription = instruction.Description;
+                    customerInstruction.FBAMasterOrder = newMasterOrder;
+                    _context.ChargingItemDetails.Add(customerInstruction);
+                }
+            }
 
             // 添加Request日志
             var logger = new Logger(_context, order.Agency);
-            
+
             await logger.AddCreatedLogAsync<FBAMasterOrder>(null, Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(newMasterOrder), "Created by agency from api.", null, OperationLevel.Mediunm);
 
             var logInDb = _context.OperationLogs.OrderByDescending(x => x.Id).First();
@@ -174,7 +153,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        public async Task CreateOutboundOrdersByAgentRequestV1(string customerCode, FBAAgentOrder order, string requestId)
+        public async Task CreateOutboundOrdersByAgentRequestV1(string customerCode, FBAInboundOrder order, string requestId)
         {
             // 添加Request日志
             var logger = new Logger(_context, order.Agency);
@@ -224,7 +203,7 @@ namespace ClothResorting.Controllers.Api.Fba
         }
     }
 
-    public class FBAAgentOrder
+    public class FBAInboundOrder
     {
         [Required(ErrorMessage = "Agency is required.")]
         public string Agency { get; set; }
@@ -259,6 +238,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string ContainerSize { get; set; }
 
         public IList<FBAJob> FBAJobs { get; set; }
+
+        public IList<string> Instructions { get; set; }
     }
 
     public class FBAJob
@@ -277,15 +258,15 @@ namespace ClothResorting.Controllers.Api.Fba
         public string WarehouseCode { get; set; }
 
         [Required(ErrorMessage = "Ctn quantity is required.")]
-        [Range(typeof(int), "0", "99999")]
+        [Range(typeof(int), "0", "9999999")]
         public int Quantity { get; set; }
 
         [Required(ErrorMessage = "Gross Weight(KG) is required.")]
-        [Range(typeof(float), "0.00", "99999.99")]
+        [Range(typeof(float), "0.00", "9999999.99")]
         public float GrossWeight { get; set; }
 
         [Required(ErrorMessage = "CBM is required.")]
-        [Range(typeof(float), "0.00", "99999.99")]
+        [Range(typeof(float), "0.00", "9999999.99")]
         public float CBM { get; set; }
 
         [Range(typeof(int), "0", "99999")]

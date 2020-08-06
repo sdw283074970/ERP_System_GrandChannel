@@ -33,6 +33,7 @@ namespace ClothResorting.Helpers
         {
             _context = context;
             _userName = userName;
+            _httpContext = HttpContext.Current;
         }
 
         public async Task AddCreatedLogAsync<T>(object oldValue, object newValue, string description, string exception, string level) where T : class
@@ -71,6 +72,7 @@ namespace ClothResorting.Helpers
             var newValueStr = JsonConvert.SerializeObject(newValue);
 
             MemoryStream m = new MemoryStream();
+            _httpContext = HttpContext.Current;
             _httpContext.Request.InputStream.CopyTo(m);
             m.Position = 0;
 

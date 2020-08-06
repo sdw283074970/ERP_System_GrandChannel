@@ -22,10 +22,12 @@ namespace ClothResorting.Controllers.Api.Fba
     public class FBAPickDetailController : ApiController
     {
         private ApplicationDbContext _context;
+        private FBAInventoryPicker _picker;
 
         public FBAPickDetailController()
         {
             _context = new ApplicationDbContext();
+            _picker = new FBAInventoryPicker();
         }
 
         // GET /api/fba/fbapickdetail/?shipOrderId={shipOrderId}&operation={Download}
@@ -181,13 +183,12 @@ namespace ClothResorting.Controllers.Api.Fba
                 foreach (var r in resultsInDb)
                 {
                     objArray.Clear();
-
                     foreach (var carton in r.FBAPallet.FBACartonLocations)
                     {
                         objArray.Add(new PickCartonDto
                         {
                             Id = carton.Id,
-                            Quantity = carton.AvailableCtns
+                            PickQuantity = carton.AvailableCtns
                         });
                     }
 
@@ -269,7 +270,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     {
                         objArray.Add(new PickCartonDto {
                             Id = carton.Id,
-                            Quantity = carton.AvailableCtns
+                            PickQuantity = carton.AvailableCtns
                         });
                     }
 
@@ -326,7 +327,7 @@ namespace ClothResorting.Controllers.Api.Fba
                         .Include(x => x.FBAOrderDetail.FBAMasterOrder)
                         .SingleOrDefault(x => x.Id == obj.Id);
 
-                    pickDetailList.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, obj.Quantity, pickDetailCartonList));
+                    pickDetailList.Add(CreateFBAPickDetailFromCartonLocation(cartonLocationInDb, shipOrderInDb, obj.PickQuantity, pickDetailCartonList));
                 }
 
                 _context.FBAPickDetails.AddRange(pickDetailList);
@@ -559,11 +560,11 @@ namespace ClothResorting.Controllers.Api.Fba
 
             pickDetail.AssembleUniqueIndex(fbaPalletLocationInDb.Container, fbaPalletLocationInDb.GrandNumber);
             pickDetail.AssembleFirstStringPart(fbaPalletLocationInDb.ShipmentId, fbaPalletLocationInDb.AmzRefId, fbaPalletLocationInDb.WarehouseCode);
-            pickDetail.AssembleActualDetails(0, 0, objArray.Sum(x => x.Quantity));
+            pickDetail.AssembleActualDetails(0, 0, objArray.Sum(x => x.PickQuantity));
 
             pickDetail.Status = FBAStatus.Picking;
             pickDetail.Size = fbaPalletLocationInDb.PalletSize;
-            pickDetail.PickableCtns = objArray.Sum(x => x.Quantity);
+            pickDetail.PickableCtns = objArray.Sum(x => x.PickQuantity);
             pickDetail.NewPlts = newPltQuantity;
             pickDetail.PltsFromInventory = pltQuantity;
             //pickDetail.ActualPlts = pltQuantity + newPltQuantity;
@@ -591,25 +592,25 @@ namespace ClothResorting.Controllers.Api.Fba
 
             foreach (var obj in objArray)
             {
-                if (obj.Quantity == 0)
+                if (obj.PickQuantity == 0)
                 {
                     continue;
                 }
 
                 var cartonInPalletInDb = cartonLocationInPalletsInDb.SingleOrDefault(x => x.Id == obj.Id);
 
-                cartonInPalletInDb.PickingCtns += obj.Quantity;
+                cartonInPalletInDb.PickingCtns += obj.PickQuantity;
 
                 var pickDetailCarton = new FBAPickDetailCarton
                 {
-                    PickCtns = obj.Quantity,
+                    PickCtns = obj.PickQuantity,
                     FBAPickDetail = pickDetail,
                     FBACartonLocation = cartonInPalletInDb
                 };
 
-                cartonInPalletInDb.AvailableCtns -= obj.Quantity;
-                pickDetail.ActualCBM += obj.Quantity * cartonInPalletInDb.CBMPerCtn;
-                pickDetail.ActualGrossWeight += obj.Quantity * cartonInPalletInDb.GrossWeightPerCtn;
+                cartonInPalletInDb.AvailableCtns -= obj.PickQuantity;
+                pickDetail.ActualCBM += obj.PickQuantity * cartonInPalletInDb.CBMPerCtn;
+                pickDetail.ActualGrossWeight += obj.PickQuantity * cartonInPalletInDb.GrossWeightPerCtn;
 
                 pickDetailCartonList.Add(pickDetailCarton);
 
@@ -707,6 +708,8 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         public int Id { get; set; }
 
-        public int Quantity { get; set; }
+        public int EstQuantity { get; set; }
+
+        public int PickQuantity { get; set; }
     }
 }

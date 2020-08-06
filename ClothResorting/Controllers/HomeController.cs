@@ -52,10 +52,19 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            //var mailService = new MailServiceManager();
-            //var sendTo = "stone@grandchannel.us";
-            //var filePath = @"C:\Users\downw\Desktop\API对接文档.md";
-            //mailService.SendMail(sendTo, null, null, filePath);
+            var inboundInvoices = _context.InvoiceDetails
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.CloseDate >= new DateTime(2020, 07, 01) && x.FBAMasterOrder.CloseDate <= new DateTime(2020, 07, 31));
+
+            var inboundInvoiceGroup = inboundInvoices.GroupBy(x => x.FBAMasterOrder.CreatedBy).ToList();
+
+            var outboundInvoices = _context.InvoiceDetails
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAShipOrder.CloseDate >= new DateTime(2020, 07, 01) && x.FBAShipOrder.CloseDate <= new DateTime(2020, 07, 31));
+
+            var outboundInvoiceGroup = outboundInvoices.GroupBy(x => x.FBAShipOrder.CreateBy).ToList();
 
             ViewBag.Message = "Your application description page.";
 

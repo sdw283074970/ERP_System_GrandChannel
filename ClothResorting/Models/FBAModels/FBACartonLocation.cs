@@ -9,6 +9,11 @@ namespace ClothResorting.Models.FBAModels
 {
     public class FBACartonLocation : BaseFBAOrderDetail, IFBALocation
     {
+        public FBACartonLocation()
+        {
+
+        }
+
         public float GrossWeightPerCtn { get; set; }
 
         public float CBMPerCtn { get; set; }

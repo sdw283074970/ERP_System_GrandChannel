@@ -31,7 +31,7 @@ namespace ClothResorting.Controllers.Api.Filters
                     }
                 }
 
-                actionContext.Response = actionContext.Request.CreateResponse<JsonResponse>(HttpStatusCode.BadRequest, new JsonResponse { Code = 503, ResultStatus = "Failed", Message = "Faild to validate request body. See inner message.", InnerMessage = innerMessages });
+                actionContext.Response = actionContext.Request.CreateResponse<JsonResponse>(HttpStatusCode.BadRequest, new JsonResponse { Code = 503, ValidationStatus = "Failed", Message = "Faild to validate request body. See inner message.", InnerMessage = innerMessages });
                 //actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.BadRequest, actionContext.ModelState);
             }
         }
