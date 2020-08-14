@@ -23,6 +23,10 @@ namespace ClothResorting.Models
 
         public dynamic Body { get; set; }
 
+        public dynamic QureyStatus { get; set; }
+
+        public dynamic QureyResults { get; set; }
+
         public IList<PickingStatus> PickingStatus { get; set; }
     }
 
@@ -31,5 +35,12 @@ namespace ClothResorting.Models
         public string Field { get; set; }
 
         public string Message { get; set; }
+    }
+
+    public class QureyResults
+    {
+        public dynamic InboundOrders { get; set; }
+
+        public dynamic OutboundOrders { get; set; }
     }
 }

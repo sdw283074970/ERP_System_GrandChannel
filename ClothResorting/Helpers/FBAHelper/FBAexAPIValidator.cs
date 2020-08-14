@@ -28,6 +28,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 return new JsonResponse { Code = 500, ValidationStatus = "Validate failed", Message = "Unregistered app request." };
             }
             var vs = auth.SecretKey.ToUpper() + "&appKey=" + appKey + "&customerCode=" + customerInDb.CustomerCode + "&requestId=" + requestId + "&version=" + version;
+
             var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", "");
             //var md5sign = BitConverter.ToString(MD5.Create().ComputeHash(Encoding.Default.GetBytes(vs))).Replace("-", "S");
 

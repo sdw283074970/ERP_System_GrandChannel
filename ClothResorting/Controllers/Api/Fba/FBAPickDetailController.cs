@@ -662,12 +662,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
             pickDetail.FBAShipOrder = shipOrderInDb;
 
-            var pickCartonDetail = new FBAPickDetailCarton();
-            pickCartonDetail.FBACartonLocation = fbaCartonLocationInDb;
-            pickCartonDetail.FBAPickDetail = pickDetail;
-            pickCartonDetail.PickCtns = ctnQuantity;
+            var pickDetailCarton = new FBAPickDetailCarton();
+            pickDetailCarton.FBACartonLocation = fbaCartonLocationInDb;
+            pickDetailCarton.FBAPickDetail = pickDetail;
+            pickDetailCarton.PickCtns = ctnQuantity;
 
-            pickDetailCartonList.Add(pickCartonDetail);
+            pickDetailCartonList.Add(pickDetailCarton);
             return pickDetail;
         }
 

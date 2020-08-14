@@ -42,7 +42,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var jsonResult = _validator.ValidateSign(appKey, customerInDb, requestId, version, sign);
 
             if (jsonResult.Code != 200)
-                return Json(jsonResult);
+                return Ok(jsonResult);
 
             // 检查推送过来的Order的字段完整性,缺省的字段套用默认值
             var pickingStatus = await CreateShipOrderAsync(order, customerInDb, requestId);

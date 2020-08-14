@@ -256,7 +256,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 var sameShipRecord = shipList.SingleOrDefault(x => x.Reference == newShipRecord.Reference
                     && x.InboundDate == newShipRecord.InboundDate
-                    && x.OutboundDate == newShipRecord.OutboundDate);
+                    && x.OutboundDate == newShipRecord.OutboundDate
+                    && x.PalletSize == newShipRecord.PalletSize);
 
                 if (sameShipRecord == null)
                 {
@@ -436,6 +437,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[4, 4] = masterOrder.FBAOrderDetails.Sum(x => x.Quantity);
             _ws.Cells[4, 9] = masterOrder.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count();
             _ws.Cells[5, 9] = masterOrder.ETA;
+            _ws.Cells[5, 9] = masterOrder.ContainerSize;
             _ws.Cells[7, 4] = masterOrder.UnloadingType;
             _ws.Cells[7, 9] = masterOrder.StorageType;
 
