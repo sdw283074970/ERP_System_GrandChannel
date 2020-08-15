@@ -40,13 +40,13 @@ namespace ClothResorting.Controllers.Api.Fba
 
             if (body.OrderType == FBAOrderType.Inbound)
             {
-                var qureyResults = QureyInboundOrders(body, out qureyStauts);
+                var qureyResults = QureyInboundOrders(body, out qureyStauts).Select(x => new { x.Container, x.Status });
                 jsonResult.QureyStatus = qureyStauts;
                 jsonResult.QureyResults = new QureyResults { InboundOrders = qureyResults };
             }
             else if (body.OrderType == FBAOrderType.Outbound)
             {
-                var qureyResults = QureyOutboundOrders(body, out qureyStauts);
+                var qureyResults = QureyOutboundOrders(body, out qureyStauts).Select(x => new { x.ShipOrderNumber, x.Status });
                 jsonResult.QureyStatus = qureyStauts;
                 jsonResult.QureyResults = new QureyResults { OutboundOrders = qureyResults };
             }

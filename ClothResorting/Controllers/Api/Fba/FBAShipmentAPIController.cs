@@ -47,7 +47,7 @@ namespace ClothResorting.Controllers.Api.Fba
             // 检查推送过来的Order的字段完整性,缺省的字段套用默认值
             var pickingStatus = await CreateShipOrderAsync(order, customerInDb, requestId);
 
-            jsonResult.PickingStatus = pickingStatus;
+            jsonResult.PickingStatus = new { Status = CheckStatus(pickingStatus) ? "Success" : "Failed", Details =  pickingStatus };
 
             return Created(Request.RequestUri, jsonResult);
         }
@@ -89,6 +89,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 ETS = DateTime.ParseExact(order.ETS, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture),
                 ETSTimeRange = order.EtsTimeRange,
                 Destination = order.Destionation,
+                CreateDate = DateTime.Now,
                 ShipOrderNumber = GenerateShipOrderNumber(customerInDb.CustomerCode, order.ShipOrderNumber)
             };
 
@@ -155,9 +156,25 @@ namespace ClothResorting.Controllers.Api.Fba
 
             logInDb.RequestId = requestId;
 
-            _context.SaveChanges();
+            if (CheckStatus(pickingStatusList))
+            {
+                _context.SaveChanges();
+            }
 
             return pickingStatusList;
+        }
+
+        private bool CheckStatus(IList<PickingStatus> pickingStatus)
+        {
+            foreach(var p in pickingStatus)
+            {
+                if (p.Status != "Success")
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 

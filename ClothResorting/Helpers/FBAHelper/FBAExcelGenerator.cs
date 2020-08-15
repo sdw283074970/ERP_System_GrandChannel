@@ -436,8 +436,9 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[3, 4] = masterOrder.GrandNumber;
             _ws.Cells[4, 4] = masterOrder.FBAOrderDetails.Sum(x => x.Quantity);
             _ws.Cells[4, 9] = masterOrder.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count();
+            _ws.Cells[5, 4] = masterOrder.OriginalPlts;
             _ws.Cells[5, 9] = masterOrder.ETA;
-            _ws.Cells[5, 9] = masterOrder.ContainerSize;
+            _ws.Cells[6, 9] = masterOrder.ContainerSize;
             _ws.Cells[7, 4] = masterOrder.UnloadingType;
             _ws.Cells[7, 9] = masterOrder.StorageType;
 

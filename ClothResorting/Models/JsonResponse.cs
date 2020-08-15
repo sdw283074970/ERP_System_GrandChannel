@@ -27,7 +27,7 @@ namespace ClothResorting.Models
 
         public dynamic QureyResults { get; set; }
 
-        public IList<PickingStatus> PickingStatus { get; set; }
+        public dynamic PickingStatus { get; set; }
     }
 
     public class JsonResponseInnerMessage

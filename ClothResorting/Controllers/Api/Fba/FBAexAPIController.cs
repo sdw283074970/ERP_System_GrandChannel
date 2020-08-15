@@ -74,6 +74,7 @@ namespace ClothResorting.Controllers.Api.Fba
             newMasterOrder.CreatedBy = order.Agency;
             newMasterOrder.SubCustomer = order.Subcustomer;
             newMasterOrder.StorageType = "SEE INSTRUCTION";
+            newMasterOrder.Status = FBAStatus.Draft;
             newMasterOrder.UnloadingType = "DROP-OFF";
             newMasterOrder.InboundType = "FCL";
             newMasterOrder.Palletizing = "<=80";
