@@ -1247,6 +1247,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     ETA = m.ETA,
                     CustomerCode = m.CustomerCode,
                     SubCustomer = m.SubCustomer,
+                    UnloadingType = m.UnloadingType,
                     InboundDate = m.InboundDate,
                     DockNumber = m.DockNumber,
                     Container = m.Container,

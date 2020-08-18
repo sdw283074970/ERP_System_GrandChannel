@@ -471,6 +471,7 @@
     <Compile Include="Dtos\ChargingItemDto.cs" />
     <Compile Include="Dtos\ContainerDto.cs" />
     <Compile Include="Dtos\EFileDto.cs" />
+    <Compile Include="Dtos\Fba\AuthAppInfoDto.cs" />
     <Compile Include="Dtos\Fba\ChargeMethodDto.cs" />
     <Compile Include="Dtos\Fba\ChargeTemplateDto.cs" />
     <Compile Include="Dtos\Fba\ChargingItemDetailDto.cs" />
@@ -1866,6 +1867,10 @@
     <Compile Include="Migrations\202007072258043_AddedCreateDateInFBAMasterOrder.cs" />
     <Compile Include="Migrations\202007072258043_AddedCreateDateInFBAMasterOrder.Designer.cs">
       <DependentUpon>202007072258043_AddedCreateDateInFBAMasterOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202008171811585_AddedCreateDateInAuthAppInfo.cs" />
+    <Compile Include="Migrations\202008171811585_AddedCreateDateInAuthAppInfo.Designer.cs">
+      <DependentUpon>202008171811585_AddedCreateDateInAuthAppInfo.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -3477,6 +3482,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202007072258043_AddedCreateDateInFBAMasterOrder.resx">
       <DependentUpon>202007072258043_AddedCreateDateInFBAMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202008171811585_AddedCreateDateInAuthAppInfo.resx">
+      <DependentUpon>202008171811585_AddedCreateDateInAuthAppInfo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

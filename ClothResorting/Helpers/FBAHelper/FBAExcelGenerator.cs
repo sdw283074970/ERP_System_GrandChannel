@@ -626,7 +626,7 @@ namespace ClothResorting.Helpers.FBAHelper
             foreach (var l in inboundList)
             {
                 _ws.Cells[startIndex, 1] = l.Status;
-                _ws.Cells[startIndex, 2] = l.Department;
+                _ws.Cells[startIndex, 2] = l.UnloadingType == "FCL" ? "FCL(" + l.ContainerSize + ")" : l.UnloadingType;
                 _ws.Cells[startIndex, 3] = l.CustomerCode;
                 _ws.Cells[startIndex, 4] = l.SubCustomer;
                 _ws.Cells[startIndex, 5] = l.ETA;

@@ -15,6 +15,7 @@ namespace ClothResorting.Models
     public class ApplicationUser : IdentityUser
     {
         public ICollection<OAuthInfo> OAuthInfo { get; set; }
+        public ICollection<AuthAppInfo> AuthAppInfos { get; set; }
         public string CustomerCode { get; set; }
         public DateTime LatestLogin { get; set; }
         public ICollection<UpperVendor> Vendors { get; set; }

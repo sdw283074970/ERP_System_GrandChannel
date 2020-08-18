@@ -217,6 +217,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
     {
         public int Id { get; set; }
 
+        public string UnloadingType { get; set; }
+
         public string GrandNumber { get; set; }
 
         public string Status { get; set; }

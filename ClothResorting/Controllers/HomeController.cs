@@ -52,19 +52,14 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var inboundInvoices = _context.InvoiceDetails
-                .Include(x => x.FBAShipOrder)
-                .Include(x => x.FBAMasterOrder)
-                .Where(x => x.FBAMasterOrder.CloseDate >= new DateTime(2020, 07, 01) && x.FBAMasterOrder.CloseDate <= new DateTime(2020, 07, 31));
+            var users = _context.Users.Where(x => x.UserName != "");
 
-            var inboundInvoiceGroup = inboundInvoices.GroupBy(x => x.FBAMasterOrder.CreatedBy).ToList();
+            foreach(var u in users)
+            {
+                _context.AuthAppInfos.Add(new AuthAppInfo().Create(u));
+            }
 
-            var outboundInvoices = _context.InvoiceDetails
-                .Include(x => x.FBAShipOrder)
-                .Include(x => x.FBAMasterOrder)
-                .Where(x => x.FBAShipOrder.CloseDate >= new DateTime(2020, 07, 01) && x.FBAShipOrder.CloseDate <= new DateTime(2020, 07, 31));
-
-            var outboundInvoiceGroup = outboundInvoices.GroupBy(x => x.FBAShipOrder.CreateBy).ToList();
+            _context.SaveChanges();
 
             ViewBag.Message = "Your application description page.";
 

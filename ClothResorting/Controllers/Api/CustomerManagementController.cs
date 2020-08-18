@@ -55,6 +55,19 @@ namespace ClothResorting.Controllers.Api
             return Ok(Mapper.Map<InstructionTemplate, InstructionTemplateDto>(_context.InstructionTemplates.Find(templateId)));
         }
 
+        // GET /api/customermanagement/?email=foo
+        [HttpGet]
+        public IHttpActionResult GetAppKeyInfo([FromUri]string email)
+        {
+            var appInfo = _context.AuthAppInfos
+                .Include(x => x.ApplicationUser)
+                .Where(x => x.ApplicationUser.UserName == email)
+                .OrderByDescending(x => x.CreateDate)
+                .First();
+
+            return Ok(Mapper.Map<AuthAppInfo, AuthAppInfoDto>(appInfo));
+        }
+
         [HttpPost]
         //POST /api/customermanagement/?name={name}&customerCode={customerCode}&departmentCode={departmentCode}&warningQuantityLevel={warningQuantityLevel}
         public IHttpActionResult CreateNewCustomer([FromUri]string name, [FromUri]string customerCode, [FromUri]string departmentCode, [FromUri]string firstAddressLine, [FromUri]string secondAddressLine, [FromUri]string telNumber, [FromUri]string emailAddress, [FromUri]string contactPerson, [FromUri]int warningQuantityLevel)
