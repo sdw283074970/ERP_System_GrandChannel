@@ -216,7 +216,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws = _wb.Worksheets[1];
             var startIndex = 2;
 
-            var palletsInDbGroup = palletLocationInDb.GroupBy(x => x.Container);
+            var palletsInDbGroup = palletLocationInDb.GroupBy(x => x.FBAMasterOrder.Container);
 
             //对仓库剩余托盘进行收费
             foreach(var p in palletsInDbGroup)
