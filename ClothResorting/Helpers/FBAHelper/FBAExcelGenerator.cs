@@ -342,7 +342,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[i + 7, 1] = (i + 1).ToString() + ". " + instructionList[i].Description;
             }
 
-            // 第二页生成Picking List
+            // 第二页生成SKU合并版Picking List
             _ws = _wb.Worksheets[2];
             var startIndex = 3;
 
@@ -397,6 +397,62 @@ namespace ClothResorting.Helpers.FBAHelper
                             var rangeLocation = _ws.get_Range("F" + startRow, "F" + (startIndex - 1));
                             rangeLocation.Merge(rangeLocation.MergeCells);
                         }
+
+                        var rangePlts = _ws.get_Range("E" + startRow, "E" + (startIndex - 1));
+                        rangePlts.Merge(rangePlts.MergeCells);
+                    }
+                }
+
+                _ws.Cells[startIndex + 1, 3] = "Total";
+                _ws.Cells[startIndex + 1, 4] = pickDetailInDb.Sum(x => x.ActualQuantity);
+                _ws.Cells[startIndex + 1, 5] = pickDetailInDb.Sum(x => x.ActualPlts);
+
+                var range = _ws.get_Range("A2:G" + (startIndex + 1), Type.Missing);
+
+                range.HorizontalAlignment = XlVAlign.xlVAlignCenter;
+                range.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                range.Borders.LineStyle = 1;
+            }
+
+            // 第三页生成非合并版Picking List
+            _ws = _wb.Worksheets[3];
+            var pickDetailsCartonsInDb = _context.FBAPickDetailCartons
+                .Include(x => x.FBAPickDetail.FBAShipOrder)
+                .Include(x => x.FBACartonLocation)
+                .Where(x => x.FBAPickDetail.FBAShipOrder.Id == shipOrderId);
+
+            startIndex = 3;
+
+            // 如果没有拣货项目那么第三页就什么都不生成
+            if (pickDetailInDb.Count == 0)
+            {
+                _ws.Cells[1, 2] = "No need to pick";
+            }
+            else
+            {
+                _ws.Cells[1, 2] = pickDetailInDb.First().FBAShipOrder.ShipOrderNumber.ToString();
+                var groupLis = pickDetailsCartonsInDb.GroupBy(x => x.FBAPickDetail.Id);
+
+                foreach (var g in groupLis)
+                {
+                    var startRow = startIndex;
+                    _ws.Cells[startIndex, 3] = g.First().FBAPickDetail.Container;
+                    _ws.Cells[startIndex, 5] = g.First().FBAPickDetail.PltsFromInventory.ToString();
+
+                    foreach (var p in g)
+                    {
+                        _ws.Cells[startIndex, 1] = p.FBACartonLocation.ShipmentId;
+                        _ws.Cells[startIndex, 2] = p.FBACartonLocation.AmzRefId;
+                        _ws.Cells[startIndex, 4] = p.PickCtns;
+                        _ws.Cells[startIndex, 6] = p.FBAPickDetail.Location;
+
+                        startIndex += 1;
+                    }
+
+                    if (g.Count() > 1) //当组内数量大于1才有纵向合并单元格的必要
+                    {
+                        var rangeContainer = _ws.get_Range("C" + startRow, "C" + (startIndex - 1));
+                        rangeContainer.Merge(rangeContainer.MergeCells);
 
                         var rangePlts = _ws.get_Range("E" + startRow, "E" + (startIndex - 1));
                         rangePlts.Merge(rangePlts.MergeCells);
