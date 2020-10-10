@@ -23,6 +23,7 @@ using ClothResorting.Controllers.Api.Warehouse;
 using ClothResorting.Models.Extensions;
 using System.Web.Http.Cors;
 using ClothResorting.Models.FBAModels.BaseClass;
+using System.Web.Configuration;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -143,7 +144,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             var generator = new FBAExcelGenerator(@"D:\Template\FBA-WarehouseSchedule-Template.xlsx");
-            var fileName = generator.GenerateWarehouseSchedule(fromDate, toDate, outboundList, inboundList);
+            var fileName = generator.GenerateWarehouseSchedule(customerCode, fromDate, toDate, outboundList, inboundList);
             return Ok(fileName);
         }
 

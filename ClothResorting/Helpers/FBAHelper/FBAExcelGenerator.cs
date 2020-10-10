@@ -664,7 +664,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成Excel版本的出库计划报告并返回完整路径
-        public string GenerateWarehouseSchedule(DateTime fromDate, DateTime toDate, IList<WarehouseOutboundLog> outboundList, IList<WarehouseInboundLog> inboundList)
+        public string GenerateWarehouseSchedule(string customerCode, DateTime fromDate, DateTime toDate, IList<WarehouseOutboundLog> outboundList, IList<WarehouseInboundLog> inboundList)
         {
             //填充入库报告
             _ws = _wb.Worksheets[1];
@@ -749,7 +749,7 @@ namespace ClothResorting.Helpers.FBAHelper
             range.Borders.LineStyle = 1;
             range.WrapText = true;
 
-            var fullPath = @"D:\BOL\FBA-WarehouseSchedule-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"D:\BOL\" + customerCode + "_" + fromDate.ToString("MMddyyyy") + "_" + toDate.ToString("MMddyyyy") + "-WarehouseSchedule-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
