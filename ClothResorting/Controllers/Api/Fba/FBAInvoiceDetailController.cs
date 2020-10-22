@@ -421,7 +421,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     Activity = obj.Activity,
                     ChargingType = obj.ChargingType,
                     DateOfCost = obj.DateOfCost,
-                    Memo = obj.Memo,
+                    Memo = obj.Memo == null ? null : obj.Memo.ToUpper(),
                     Unit = obj.Unit,
                     Rate = obj.Rate,
                     Cost = obj.Cost,
@@ -446,7 +446,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     Activity = obj.Activity,
                     ChargingType = obj.ChargingType,
                     DateOfCost = obj.DateOfCost,
-                    Memo = obj.Memo,
+                    Memo = obj.Memo == null ? null : obj.Memo.ToUpper(),
                     Unit = obj.Unit,
                     Rate = obj.Rate,
                     Discount = obj.Discount,
@@ -607,7 +607,7 @@ namespace ClothResorting.Controllers.Api.Fba
             invoiceDetailInDb.ChargingType = obj.ChargingType;
             invoiceDetailInDb.Cost = obj.Cost;
             invoiceDetailInDb.DateOfCost = obj.DateOfCost;
-            invoiceDetailInDb.Memo = obj.Memo;
+            invoiceDetailInDb.Memo = obj.Memo == null ? null : obj.Memo.ToUpper();
             invoiceDetailInDb.OriginalAmount = obj.OriginalAmount;
             invoiceDetailInDb.Discount = obj.Discount;
             invoiceDetailInDb.Operator = _userName;

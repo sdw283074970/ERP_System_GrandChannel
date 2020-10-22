@@ -152,7 +152,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 Quantity = item.Quantity,
                 Remark = item.Remark,
                 FBAMasterOrder = masterOrderInDb,
-                GrandNumber = masterOrderInDb.GrandNumber
+                GrandNumber = masterOrderInDb.GrandNumber,
+                LotSize = item.LotSize
             };
 
             _context.FBAOrderDetails.Add(newItem);
@@ -323,6 +324,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 orderDetailInDb.CBM = obj.CBM;
                 orderDetailInDb.Quantity = obj.Quantity;
                 orderDetailInDb.Remark = obj.Remark;
+                orderDetailInDb.LotSize = obj.LotSize;
             }
             else
             {
@@ -342,6 +344,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 orderDetailInDb.ActualGrossWeight = obj.ActualGrossWeight;
                 orderDetailInDb.ActualCBM = obj.ActualCBM;
                 orderDetailInDb.Comment = obj.Comment;
+                orderDetailInDb.LotSize = obj.LotSize;
                 orderDetailInDb.Remark = obj.Remark;
             }
 
@@ -500,6 +503,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string AmzRefId { get; set; }
 
         public string Barcode { get; set; }
+
+        public string LotSize { get; set; }
 
         public string WarehouseCode { get; set; }
 

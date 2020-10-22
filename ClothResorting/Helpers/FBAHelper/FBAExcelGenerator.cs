@@ -419,7 +419,8 @@ namespace ClothResorting.Helpers.FBAHelper
             var pickDetailsCartonsInDb = _context.FBAPickDetailCartons
                 .Include(x => x.FBAPickDetail.FBAShipOrder)
                 .Include(x => x.FBACartonLocation)
-                .Where(x => x.FBAPickDetail.FBAShipOrder.Id == shipOrderId);
+                .Where(x => x.FBAPickDetail.FBAShipOrder.Id == shipOrderId)
+                .ToList();
 
             startIndex = 3;
 
