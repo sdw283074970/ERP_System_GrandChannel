@@ -1,5 +1,5 @@
-# 文档版本：v 1.0.7
-# 更新日期：2020-08-14
+# 文档版本：v 1.0.8
+# 更新日期：2020-11-02
 
 ## 1.	基本信息
 
@@ -482,6 +482,54 @@ var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed165936
 #### 状态代码列表
 
 `code: 200`: 操作成功
+
+`code：500`: 无效的`AppKey`
+
+`code：501`: 无效的签名（签名验证失败）
+
+`code：503`: Request Body中的模型验证失败
+
+`code：504`: 重复请求被拦截，注意检查request Id的唯一性
+
+`code：505`: 无效的API版本号
+
+------------
+
+## 6.	DELETE删除订单状态接口
+
+### 6.1	拼接地址及参数
+
+`api/FBADeleteAPI/?appKey=foo&customerCode=bar&requestId=foo&version=bar&sign=foo`
+
+### 6.2 请求Body
+
+只有当订单存在系统中且订单状态为`Draft`的时候才能删除。否则需要联系客服删除。
+
+```JavaScript
+{
+	"orderType": "Inbound",	// "Inbound"或者"Outbound"
+	"reference": "FOO" // 需要删除的单号
+}
+```
+
+### 6.3 回执 
+
+当操作完成或遇到异常，系统会返回一个`Json`对象，包括请求状态、错误代码、错误信息和详细错误信息。
+
+#### 回执对象结构：
+
+``` JavaScript
+{
+	"code": "200",
+	"message": "Delete Success!"
+}
+```
+
+#### 状态代码列表
+
+`code: 200`: 操作成功
+
+`code: 404`: 没有找到要删除的订单号或该订单不符合删除条件
 
 `code：500`: 无效的`AppKey`
 
