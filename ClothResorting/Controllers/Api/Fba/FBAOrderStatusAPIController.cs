@@ -211,7 +211,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [Required(ErrorMessage = "Order type is required.")]
         public string OrderType { get; set; }
 
-        [Required(ErrorMessage = "Order type is required.")]
+        [Required(ErrorMessage = "Order reference is required.")]
         public string[] Reference { get; set; }
 
         [Required(ErrorMessage = "From date is required.")]

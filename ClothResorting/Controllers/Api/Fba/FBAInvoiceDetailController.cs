@@ -139,19 +139,21 @@ namespace ClothResorting.Controllers.Api.Fba
                             var ctns = orderDetsils.Sum(x => x.ActualQuantity);
                             var skuNumber = orderDetsils.GroupBy(x => x.ShipmentId).Count();
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts, SkuNumber = skuNumber });
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts, SkuNumber = skuNumber, ReleasedDate = "1900-1-1", InboundDate = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd") });
                         }
                         else if (invoiceType == "ShipOrder")
                         {
-                            var shipOrder = _context.FBAPickDetails
+                            var pickDetails = _context.FBAPickDetails
                                 .Include(x => x.FBAShipOrder)
                                 .Where(x => x.FBAShipOrder.ShipOrderNumber == reference)
                                 .ToList();
 
-                            var plts = shipOrder.Sum(x => x.ActualPlts);
-                            var ctns = shipOrder.Sum(x => x.ActualQuantity);
+                            var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference);
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A", SkuNumber = "N/A" });
+                            var plts = pickDetails.Sum(x => x.ActualPlts);
+                            var ctns = pickDetails.Sum(x => x.ActualQuantity);
+
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A", SkuNumber = "N/A" , ReleasedDate = shipOrderInDb.ReleasedDate.ToString("yyyy-MM-dd"), InboundDate = "1900-1-1"});
                         }
                         else
                         {
