@@ -73,7 +73,7 @@ var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed165936
 
 完整Api测试服请求URL示例：
 
-`https://grandchanneltest.com/api/FBAexAPI/?appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TESTCODE&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1&sign=E85154800B0DD09792E410A1E0BDA96D`
+`https://grandchanneltest.com/api/FBAexAPI/?appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TEST&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1&sign=E85154800B0DD09792E410A1E0BDA96D`
 
 ------------
 
