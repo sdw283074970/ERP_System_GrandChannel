@@ -68,7 +68,7 @@ SecretKey: `f65c8855289446ae98c0ba20e4990d9f` (测试用)(机密)
 `version`：`V1`
 
 ```c#
-var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TESTCODE&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1").ToMD5(32).Replace("-", "")
+var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TEST&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1").ToMD5(32).Replace("-", "")
 ```
 
 完整Api测试服请求URL示例：
