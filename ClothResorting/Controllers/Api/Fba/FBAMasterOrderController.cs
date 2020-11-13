@@ -54,8 +54,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 var masterOrders = _context.FBAMasterOrders
                     .Include(x => x.FBAOrderDetails)
                     .Include(x => x.InvoiceDetails)
+                    .Include(x => x.ChargingItemDetails)
                     .Include(x => x.FBAPallets)
-                    .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
+                    .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku) || c.AmzRefId.Contains(sku)).Any() || x.ChargingItemDetails.Where(c => c.Description.Contains(sku)).Any())
                     .ToList();
                 //.Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>);
 
@@ -88,7 +89,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 var shipOrders = _context.FBAShipOrders
                     .Include(x => x.InvoiceDetails)
                     .Include(x => x.FBAPickDetails)
-                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku)).Any())
+                    .Include(x => x.ChargingItemDetails)
+                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku) || c.AmzRefId.Contains(sku)).Any() || x.ChargingItemDetails.Where(c => c.Description.Contains(sku)).Any())
                     .ToList();
 
                 foreach (var s in shipOrders)
@@ -794,6 +796,65 @@ namespace ClothResorting.Controllers.Api.Fba
             var chargingItemDetails = _context.ChargingItemDetails
                 .Include(x => x.FBAMasterOrder)
                 .Where(x => x.FBAMasterOrder.GrandNumber == grandNumber);
+
+            _context.ChargingItemDetails.RemoveRange(chargingItemDetails);
+
+            var cartonLocationsInDb = _context.FBACartonLocations
+                .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.Id == masterOrderId);
+
+            _context.FBACartonLocations.RemoveRange(cartonLocationsInDb);
+
+            var palletLocationsInDb = _context.FBAPalletLocations
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.FBAPalletLocations.RemoveRange(palletLocationsInDb);
+
+            var orderDetailsInDb = _context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.FBAOrderDetails.RemoveRange(orderDetailsInDb);
+
+            var palletsInDb = _context.FBAPallets
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.FBAPallets.RemoveRange(palletsInDb);
+
+            var eFilesInDb = _context.EFiles
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.EFiles.RemoveRange(eFilesInDb);
+
+            var masterOrderInDb = _context.FBAMasterOrders.Find(masterOrderId);
+
+            _context.FBAMasterOrders.Remove(masterOrderInDb);
+
+            try
+            {
+                _context.SaveChanges();
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cannot delete this master order. Please put back or delete related picked items first.");
+            }
+        }
+
+        public void DeleteMasterOrderById(int masterOrderId)
+        {
+            var invoiceDetails = _context.InvoiceDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
+
+            _context.InvoiceDetails.RemoveRange(invoiceDetails);
+
+            var chargingItemDetails = _context.ChargingItemDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId);
 
             _context.ChargingItemDetails.RemoveRange(chargingItemDetails);
 

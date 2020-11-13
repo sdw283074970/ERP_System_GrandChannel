@@ -700,6 +700,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
+
             var shipOrderDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
             var fbaPickDetailAPI = new FBAPickDetailController();

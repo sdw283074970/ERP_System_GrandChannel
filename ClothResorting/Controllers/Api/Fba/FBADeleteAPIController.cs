@@ -12,6 +12,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -19,16 +21,20 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         private FBAexAPIValidator _validator;
         private ApplicationDbContext _context;
+        private FBAShipOrderController _soController;
+        private FBAMasterOrderController _moController;
 
         public FBADeleteAPIController()
         {
             _validator = new FBAexAPIValidator();
             _context = new ApplicationDbContext();
+            _soController = new FBAShipOrderController();
+            _moController = new FBAMasterOrderController();
         }
 
         // DELETE /api/FBADeleteAPI/?appKey=foo&customerCode=bar&requestId=foo&version=bar&sign=foo
         [HttpDelete]
-        public IHttpActionResult DeleteOrder([FromUri] string appKey, [FromUri] string customerCode, [FromUri] string requestId, [FromUri] string version, [FromUri] string sign, [FromBody] DeleteRequestBody body)
+        public async Task<IHttpActionResult> DeleteOrder([FromUri] string appKey, [FromUri] string customerCode, [FromUri] string requestId, [FromUri] string version, [FromUri] string sign, [FromBody] DeleteRequestBody body)
         {
             // 验证签名
             var customerInDb = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode);
@@ -40,21 +46,24 @@ namespace ClothResorting.Controllers.Api.Fba
             if (body.OrderType == "Inbound")
             {
                 var inboundOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == body.Reference && x.Status == FBAStatus.Draft);
+
                 if (inboundOrderInDb != null)
-                    _context.FBAMasterOrders.Remove(inboundOrderInDb);
+                {
+                    _moController.DeleteMasterOrderById(inboundOrderInDb.Id);
+                }
                 else
                     return Json(new { Code = "404", Message = "Cannot find inbound order# " + body.Reference + " or its stauts is not 'Draft'." });
             }
             else if (body.OrderType == "Outbound")
             {
                 var outboundOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == body.Reference && x.Status == FBAStatus.Draft);
+
                 if (outboundOrderInDb != null)
-                    _context.FBAShipOrders.Remove(outboundOrderInDb);
+                    await _soController.DeleteShipOrder(outboundOrderInDb.Id);
                 else
                     return Json(new { Code = "404", Message = "Cannot find outbound order# " + body.Reference + " or its stauts is not 'Draft'." });
             }
 
-            _context.SaveChanges();
             return Json(new { Code = "200", Message = "Delete Success!"});
         }
     }

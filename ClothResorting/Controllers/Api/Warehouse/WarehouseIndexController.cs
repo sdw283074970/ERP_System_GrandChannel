@@ -121,17 +121,19 @@ namespace ClothResorting.Controllers.Api.Warehouse
 
         // PUT /api/warehouseIndex/?chargingItemDetailId={chargingItemDetailId}
         [HttpPut]
-        public void ConfirmAndFinishInstruction([FromUri]int chargingItemDetailId)
+        public void ConfirmAndFinishInstruction([FromUri]int chargingItemDetailId, [FromUri]string operation)
         {
             var detailInDb = _context.ChargingItemDetails
                 .Include(x => x.FBAMasterOrder.ChargingItemDetails)
                 .Include(x => x.FBAShipOrder.ChargingItemDetails)
                 .SingleOrDefault(x => x.Id == chargingItemDetailId);
 
-            if (detailInDb.HandlingStatus == FBAStatus.Confirmed)
-                detailInDb.HandlingStatus = FBAStatus.Finished;
-            else
-                detailInDb.HandlingStatus = FBAStatus.Confirmed;
+            //if (detailInDb.HandlingStatus == FBAStatus.Confirmed)
+            //    detailInDb.HandlingStatus = FBAStatus.Finished;
+            //else
+            //    detailInDb.HandlingStatus = FBAStatus.Confirmed;
+
+            detailInDb.HandlingStatus = operation;
 
             detailInDb.ConfirmedBy = _userName;
 
