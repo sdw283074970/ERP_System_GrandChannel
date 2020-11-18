@@ -13,6 +13,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string CustomerCode { get; set; }
 
+        public string Agency { get; set; }
+
         public float TotalCost { get; set; }
 
         public bool PODStatus { get; set; }

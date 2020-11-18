@@ -70,6 +70,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var newMasterOrder = new FBAMasterOrder();
 
             newMasterOrder.GrandNumber = "N/A";
+            newMasterOrder.Agency = order.Agency;
             newMasterOrder.Container = order.Container;
             newMasterOrder.CreatedBy = order.Agency;
             newMasterOrder.SubCustomer = order.Subcustomer;
@@ -169,6 +170,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 shipOrder.CreateBy = order.Agency;
                 shipOrder.Carrier = "Unknow";
                 shipOrder.CustomerCode = customerCode;
+                shipOrder.Agency = order.Agency;
                 shipOrder.OrderType = "Standard";
                 shipOrder.ETSTimeRange = "Unknow";
                 shipOrder.Destination = j.WarehouseCode;

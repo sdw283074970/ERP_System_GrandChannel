@@ -399,6 +399,7 @@
     <Compile Include="Controllers\Api\Fba\FBAShipmentAPIController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAShipOrderController.cs" />
     <Compile Include="Controllers\Api\Fba\FBAOrderDetailController.cs" />
+    <Compile Include="Controllers\Api\Fba\NetSuitWebServiceManager.cs" />
     <Compile Include="Controllers\Api\Filters\ValidateModelAttribute.cs" />
     <Compile Include="Controllers\Api\ShipDetailHistoryController.cs" />
     <Compile Include="Controllers\Api\Fba\WarehouseOperationController.cs" />
@@ -1873,6 +1874,10 @@
     <Compile Include="Migrations\202008171811585_AddedCreateDateInAuthAppInfo.Designer.cs">
       <DependentUpon>202008171811585_AddedCreateDateInAuthAppInfo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202011180128216_AddedAgencyInMasterOrderAndShipOrder.cs" />
+    <Compile Include="Migrations\202011180128216_AddedAgencyInMasterOrderAndShipOrder.Designer.cs">
+      <DependentUpon>202011180128216_AddedAgencyInMasterOrderAndShipOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -2491,6 +2496,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\Api\CustomerClient\" />
+    <Folder Include="Controllers\Api\NetSuitAPI\" />
     <Folder Include="Scripts\dist\" />
   </ItemGroup>
   <ItemGroup>
@@ -3486,6 +3492,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202008171811585_AddedCreateDateInAuthAppInfo.resx">
       <DependentUpon>202008171811585_AddedCreateDateInAuthAppInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202011180128216_AddedAgencyInMasterOrderAndShipOrder.resx">
+      <DependentUpon>202011180128216_AddedAgencyInMasterOrderAndShipOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

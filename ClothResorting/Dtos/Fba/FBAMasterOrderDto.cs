@@ -14,6 +14,8 @@ namespace ClothResorting.Dtos.Fba
 
         public DateTime CreateDate { get; set; }
 
+        public string Agency { get; set; }
+
         public float TotalCost { get; set; }
 
         public float Net { get; set; }

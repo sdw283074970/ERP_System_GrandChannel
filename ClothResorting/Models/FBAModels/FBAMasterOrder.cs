@@ -12,6 +12,8 @@ namespace ClothResorting.Models.FBAModels
     {
         public int Id { get; set; }
 
+        public string Agency { get; set; }
+
         public string GrandNumber { get; set; }
 
         public float TotalCost { get; set; }
