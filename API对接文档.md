@@ -1,5 +1,5 @@
-# 文档版本：v 1.0.8
-# 更新日期：2020-11-02
+# 文档版本：v 1.0.9
+# 更新日期：2020-11-16
 
 ## 1.	基本信息
 
@@ -103,6 +103,7 @@ var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed165936
 	"vessel": "test vessel",  // 船名/船公司，选填
 	"sealNumber": "seal no test", // 航班号，选填
 	"containerSize": "40HQ",  // 货柜尺寸，必填
+	"instruction": "Memo", // 订单备注指令
 	"fbaJobs": [{ // 这个订单下的Packing List信息
 		"shipmentId": "SKU1111",  // SKU，必填
 		"amzRefId": "Amz11111", // 亚马逊Id，必填
@@ -187,11 +188,12 @@ var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed165936
 {
 	"agency": "agency test",  // 代理名称（调用此接口的平台名称），必填
 	"shipOrderNumber": "TEST123AAA23-TEST1",  // 运单号，选填，如果为空，系统会自动分配一个运单号
-	"orderType": "Standard", // 运单类型，Standard，Ecommerce,默认Standard,选填
+	"orderType": "Standard", // 运单类型，Standard，Ecommerce, DerectSale, Transfer,默认Standard,选填
 	"ets": "2020-05-13",  // 预计发货时间，必填
 	"etsTimeRange": "4PM-5PM",  // 预计发货时间，精确到几点钟的范围，选填
 	"destionation": "ONT8",  // 目的地代码，选填
 	"address": "13780 Central Ave. Chino CA 91709",  // 目的地地址，选填
+	"instruction": "Memo", // 订单备注指令
 	"pickingList": [{ // 这个出库单中的拣货单
 		"container": "TEST123332", // 从哪个集装箱中拣货，选填
 		"shipmentId": "SKU1111",  // SKU，选填
