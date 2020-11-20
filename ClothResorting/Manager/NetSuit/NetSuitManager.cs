@@ -39,7 +39,10 @@ namespace ClothResorting.Manager.NetSuit
                 }
             };
 
-            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body), "POST");
+            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
+            {
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            }), "POST");
 
             var responseBody = new ReturnData();
 
@@ -81,7 +84,10 @@ namespace ClothResorting.Manager.NetSuit
                 }
             };
 
-            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body), "POST");
+            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
+            {
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            }), "POST");
 
             var responseBody = new ReturnData();
 
@@ -118,7 +124,10 @@ namespace ClothResorting.Manager.NetSuit
                 SkuList = new List<Sku>()
             };
 
-            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body), "POST");
+            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
+            {
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            }), "POST");
 
             var responseBody = new ReturnData();
 
@@ -134,19 +143,28 @@ namespace ClothResorting.Manager.NetSuit
         {
             var result = string.Empty;
 
+            var oauth = new OAuth.Manager();
+            oauth["consumer_key"] = "0d5539a38fe0745596f7812befd7381efa7962d1e75494e0032d2d8d23457a93";
+            oauth["consumer_secret"] = "968077c96c6a9ecbd3ab0822f5ac482909068d9d60f680495e8919362e47d92d";
+            oauth["token"] = "2eac03aca89bfe91326890be29f3f1947fc1a4807712bb0b23fc1853bef9749d";
+            oauth["token_secret"] = "0caa44430a5c214aa7041b6d27399a7c6eb7913b372c9a3456397708213bf956";
+
+            var authzHeader = oauth.GenerateAuthzHeader(url, "POST");
+
             //发送请求
             var request = (HttpWebRequest)WebRequest.Create(url);
             var data = Encoding.UTF8.GetBytes(stringifiedJsonData);
 
             request.Method = method;
+            request.PreAuthenticate = true;
+            request.AllowWriteStreamBuffering = true;
+            request.Headers.Add("Authorization", authzHeader);
+
             request.ContentType = "application/json";
-            //request.Timeout = 20000;
             request.KeepAlive = false;
             request.ServicePoint.Expect100Continue = false;
             request.ContentLength = data.Length;
             request.Accept = "application/json";
-            request.UserAgent = "APIExplorer";
-            //request.Headers.Add("Authorization", )
             ServicePointManager.DefaultConnectionLimit = 1000;      //提高每秒默认请求数量
 
             using (var reqStream = request.GetRequestStream())

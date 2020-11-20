@@ -247,6 +247,9 @@
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="OAuth, Version=1.0.0.0, Culture=neutral, PublicKeyToken=75b3c62967edc2a2, processorArchitecture=MSIL">
+      <HintPath>..\packages\OAuth.1.0.3\lib\net40\OAuth.dll</HintPath>
+    </Reference>
     <Reference Include="Office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\packages\MicrosoftOfficeCore.15.0.0\lib\net35\Office.dll</HintPath>
@@ -559,6 +562,7 @@
     <Compile Include="Helpers\Tester.cs" />
     <Compile Include="Manager\NetSuit\NetSuitManager.cs" />
     <Compile Include="Manager\NotificationManager.cs" />
+    <Compile Include="Manager\OAuth.cs" />
     <Compile Include="Manager\ZT\ZTManager.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.Designer.cs">

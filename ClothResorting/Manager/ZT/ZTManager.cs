@@ -15,15 +15,28 @@ namespace ClothResorting.Manager.ZT
         // 中台出库请求，在Ready和Release按钮按下后触发
         public ResponseBody SendShippedOrderRequest(FBAShipOrder order)
         {
-            var url = "http://hzero-gateway.hzero-dev.nearbyexpress.com/hitf/v2/rest/invoke?namespace=HZERO&serverCode=HORD&interfaceCode=homs-order.shipment.wmsUpdate";
+            var url = "https://hzero-gateway.hzero-dev.nearbyexpress.com/hitf/v2/rest/invoke?namespace=HZERO&serverCode=HORD&interfaceCode=homs-order.shipment.wmsUpdate";
             var token = GetAccessToken();
-
+            var statusCode = order.Status == "Ready" ? "PICKED" : (order.Status == "Released" ? "PICKED" : "UNPICKED");
             var body = new RequestBody
             {
-                Payload = new { ShipmentId = order.ShipOrderNumber, SystemSource= "CHINO", ShipmentStatusCode = order.Status == "Ready" ? "PICKED" : "SHIPPED", TrackingNumber = "NA", ShippingFee = "NA"}
+                // 测试
+                Payload = JsonConvert.SerializeObject(new { ShipmentCode = "tet92", SystemSource = "CHINO", ShipmentStatusCode = "SHIPPED", TrackingNumber = 0, ShippingFee = 0 }, new JsonSerializerSettings
+                {
+                    ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                })
+
+                // 生产
+                //Payload = JsonConvert.SerializeObject(new { ShipmentCode = order.ShipOrderNumber, SystemSource = "CHINO", ShipmentStatusCode = order.Status == statusCode, TrackingNumber = 0, ShippingFee = 0 }, new JsonSerializerSettings
+                //{
+                //    ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                //})
             };
 
-            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body), "POST", token);
+            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
+            {
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            }), "POST", token);
 
             var responseBody = new ResponseBody();
 
@@ -43,9 +56,9 @@ namespace ClothResorting.Manager.ZT
 
             var lines = new List<Line>();
 
-            foreach(var d in order.FBAOrderDetails)
+            foreach (var d in order.FBAOrderDetails)
             {
-                lines.Add(new Line { 
+                lines.Add(new Line {
                     ReturnSkuId = d.ShipmentId,
                     RmaReturnQuantity = d.ActualQuantity
                 });
@@ -53,10 +66,16 @@ namespace ClothResorting.Manager.ZT
 
             var body = new RequestBody
             {
-                Payload = new { Lines = lines, ReturnStatus = 1, RmaCode = order.Container, SystemSource = "CHINO" }
+                Payload = JsonConvert.SerializeObject(new { Lines = lines, ReturnStatus = 1, RmaCode = order.Container, SystemSource = "CHINO" }, new JsonSerializerSettings
+                {
+                    ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                })
             };
 
-            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body), "POST", token);
+            var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
+            {
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            }), "POST", token);
 
             var responseBody = new ResponseBody();
 
@@ -115,14 +134,26 @@ namespace ClothResorting.Manager.ZT
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "POST";
 
-            var boundary = "---------------" + DateTime.Now.Ticks.ToString("x");
-            request.ContentType = "multipart/form-data; boundary=" + boundary;
+            var outgoingQueryString = HttpUtility.ParseQueryString(string.Empty);
 
-            var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { grant_type = "client_credentials", client_id = "wms", client_secret = "DE715D4979BBE0A778BB9A23267DCE51" }));
+            outgoingQueryString.Add("grant_type", "client_credentials");
+            outgoingQueryString.Add("client_id", "wms");
+            outgoingQueryString.Add("client_secret", "DE715D4979BBE0A778BB9A23267DCE51");
+
+            var postBytes = Encoding.UTF8.GetBytes(outgoingQueryString.ToString());
+
+            //var boundary = "---------------" + DateTime.Now.Ticks.ToString("x");
+            //request.ContentType = "multipart/form-data; boundary=" + boundary;
+
+            //var body = JsonConvert.SerializeObject(new { grant_type = "client_credentials", client_id = "wms", client_secret = "DE715D4979BBE0A778BB9A23267DCE51" });
+            //var data = Encoding.UTF8.GetBytes(body);
+
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = postBytes.Length;
 
             using (var reqStream = request.GetRequestStream())
             {
-                reqStream.Write(data, 0, data.Length);
+                reqStream.Write(postBytes, 0, postBytes.Length);
                 reqStream.Close();
             }
 
@@ -136,13 +167,15 @@ namespace ClothResorting.Manager.ZT
                 result = reader.ReadToEnd();
             }
 
+            result = JsonConvert.DeserializeObject<TokenResponseBody>(result).Access_token;
+
             return result;
         }
     }
 
     public class RequestBody
     {
-        public dynamic PathVariables { get; set; }
+        public dynamic PathVariableMap { get; set; }
 
         public dynamic Payload { get; set; }
 
@@ -150,7 +183,7 @@ namespace ClothResorting.Manager.ZT
 
         public RequestBody()
         {
-            PathVariables = new { TenantId = 0 };
+            PathVariableMap = new { TenantId = 0 };
 
             ContentType = new { MimeType = "application/json", Charset = "UTF-8" };
         }
