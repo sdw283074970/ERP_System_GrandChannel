@@ -20,7 +20,7 @@ namespace ClothResorting.Manager.ZT
 
             var body = new RequestBody
             {
-                Payload = new { ShipmentId = order.ShipOrderNumber, ShipmentStatusCode = order.Status == "Ready" ? "PICKED" : "SHIPPED", TrackingNumber = "NA", ShippingFee = "NA"}
+                Payload = new { ShipmentId = order.ShipOrderNumber, SystemSource= "CHINO", ShipmentStatusCode = order.Status == "Ready" ? "PICKED" : "SHIPPED", TrackingNumber = "NA", ShippingFee = "NA"}
             };
 
             var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body), "POST", token);
@@ -53,7 +53,7 @@ namespace ClothResorting.Manager.ZT
 
             var body = new RequestBody
             {
-                Payload = new { Lines = lines, ReturnStatus = 1, RmaCode = order.Container }
+                Payload = new { Lines = lines, ReturnStatus = 1, RmaCode = order.Container, SystemSource = "CHINO" }
             };
 
             var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body), "POST", token);
@@ -108,15 +108,21 @@ namespace ClothResorting.Manager.ZT
 
         public string GetAccessToken()
         {
-            var url = "http://hzero-gateway.hzero-dev.nearbyexpress.com/oauth/oauth/token?grant_type=client_credentials&client_id=wms&client_secret=DE715D4979BBE0A778BB9A23267DCE51";
+            var url = "https://hzero-gateway.hzero-dev.nearbyexpress.com/oauth/oauth/token";
 
             var result = string.Empty;
 
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "POST";
 
+            var boundary = "---------------" + DateTime.Now.Ticks.ToString("x");
+            request.ContentType = "multipart/form-data; boundary=" + boundary;
+
+            var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { grant_type = "client_credentials", client_id = "wms", client_secret = "DE715D4979BBE0A778BB9A23267DCE51" }));
+
             using (var reqStream = request.GetRequestStream())
             {
+                reqStream.Write(data, 0, data.Length);
                 reqStream.Close();
             }
 

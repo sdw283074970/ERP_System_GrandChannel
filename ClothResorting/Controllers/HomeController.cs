@@ -9,6 +9,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using ClothResorting.Helpers.FBAHelper;
+using ClothResorting.Manager.ZT;
 
 namespace ClothResorting.Controllers
 {
@@ -46,20 +47,16 @@ namespace ClothResorting.Controllers
             }
             else
             {
-                return RedirectToAction("Denied", "Home");
+                //return RedirectToAction("Denied", "Home");
+                return View();
             }
         }
 
         public ActionResult Test()
         {
-            var users = _context.Users.Where(x => x.UserName != "");
+            var manager = new ZTManager();
 
-            foreach(var u in users)
-            {
-                _context.AuthAppInfos.Add(new AuthAppInfo().Create(u));
-            }
-
-            _context.SaveChanges();
+            var result = manager.GetAccessToken();
 
             ViewBag.Message = "Your application description page.";
 
