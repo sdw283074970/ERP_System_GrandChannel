@@ -26,12 +26,14 @@ using ClothResorting.Models.FBAModels.BaseClass;
 using System.Web.Configuration;
 using ClothResorting.Manager.NetSuit;
 using ClothResorting.Manager.ZT;
+using ClothResorting.Manager;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
     public class FBAShipOrderController : ApiController
     {
         private readonly ApplicationDbContext _context;
+        private CustomerCallbackManager _customerCallbackManager;
         private readonly string _userName;
         private readonly Logger _logger;
         private string Data;
@@ -39,6 +41,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public FBAShipOrderController()
         {
             _context = new ApplicationDbContext();
+            _customerCallbackManager = new CustomerCallbackManager();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
             _logger = new Logger(_context);
         }
@@ -842,9 +845,6 @@ namespace ClothResorting.Controllers.Api.Fba
 
         private void ChangeStatus(FBAShipOrder shipOrderInDb, string operation, DateTime operationDate)
         {
-            var nsManager = new NetSuitManager();
-            var ztManager = new ZTManager();
-
             //当操作类型为正向转换订单状态时
             if (operation == FBAOperation.ChangeStatus)
             {
@@ -921,29 +921,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.OperationLog = "Released by " + _userName;
 
                     // 客户定制调用API反馈状态
-                    try
-                    {
-                        if (shipOrderInDb.CustomerCode == "SUNVALLEY")
-                        {
-                            var pickedCtnDetails = _context.FBAPickDetailCartons.Include(x => x.FBAPickDetail.FBAShipOrder).Include(x => x.FBACartonLocation).Where(x => x.FBAPickDetail.FBAShipOrder.Id == shipOrderInDb.Id);
-                            if (shipOrderInDb.Agency == "NetSuit" && shipOrderInDb.OrderType == FBAOrderType.Standard)
-                            {
-                                nsManager.SendStandardOrderShippedRequest(shipOrderInDb, pickedCtnDetails);
-                            }
-                            else if (shipOrderInDb.Agency == "NetSuit" && shipOrderInDb.OrderType == FBAOrderType.DirectSell)
-                            {
-                                nsManager.SendDirectSellOrderShippedRequest(shipOrderInDb, pickedCtnDetails);
-                            }
-                            else if (shipOrderInDb.Agency == "ZT")
-                            {
-                                ztManager.SendShippedOrderRequest(shipOrderInDb);
-                            }
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        throw new Exception("API call failed. Error message: " + e.Message);
-                    }
+                    _customerCallbackManager.CallBackWhenOutboundOrderReleased(_context, shipOrderInDb);
                 }
                 //当状态为Release的情况下，从库存实际扣除
                 else if (shipOrderInDb.Status == FBAStatus.Released)

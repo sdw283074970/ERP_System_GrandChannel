@@ -19,6 +19,7 @@ using ClothResorting.Models.StaticClass;
 using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Manager.NetSuit;
 using ClothResorting.Manager.ZT;
+using ClothResorting.Manager;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -26,11 +27,13 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         private ApplicationDbContext _context;
         private string _userName;
+        private CustomerCallbackManager _customerCallbackManager;
         private Logger _logger;
 
         public FBAMasterOrderController()
         {
             _context = new ApplicationDbContext();
+            _customerCallbackManager = new CustomerCallbackManager();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
             _logger = new Logger(_context);
         }
@@ -616,9 +619,6 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void OperateWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
         {
-            var nsManager = new NetSuitManager();
-            var ztManager = new ZTManager();
-
             var masterOrderInDb = _context.FBAMasterOrders
                 .Include(x => x.FBAOrderDetails)
                 .SingleOrDefault(x => x.Id == masterOrderId);
@@ -734,25 +734,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 masterOrderInDb.Status = FBAStatus.Confirmed;
                 masterOrderInDb.UpdateLog = "Order complete. Confirmed by " + _userName;
 
-                // 客户定制反馈接口 TO DO
-                try
-                {
-                    if (masterOrderInDb.CustomerCode == "SUNVALLEY")
-                    {
-                        if (masterOrderInDb.Agency == "NetSuit")
-                        {
-                            nsManager.SendStandardOrderInboundRequest(masterOrderInDb);
-                        }
-                        else if (masterOrderInDb.Agency == "ZT")
-                        {
-                            ztManager.SendInboundCompleteRequest(masterOrderInDb);
-                        }
-                    }
-                }
-                catch(Exception e)
-                {
-                    throw new Exception("API call failed. Error message: " + e.Message);
-                }
+                // 客户定制反馈接口
+                _customerCallbackManager.CallBackWhenInboundOrderCompleted(masterOrderInDb);
             }
 
             _context.SaveChanges();
