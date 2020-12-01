@@ -17,6 +17,8 @@ using ClothResorting.Helpers;
 using System.Threading.Tasks;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Helpers.FBAHelper;
+using ClothResorting.Manager.NetSuit;
+using ClothResorting.Manager.ZT;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -614,6 +616,9 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpPut]
         public void OperateWorkOrder([FromUri]int masterOrderId, [FromUri]string operation)
         {
+            var nsManager = new NetSuitManager();
+            var ztManager = new ZTManager();
+
             var masterOrderInDb = _context.FBAMasterOrders
                 .Include(x => x.FBAOrderDetails)
                 .SingleOrDefault(x => x.Id == masterOrderId);
@@ -728,6 +733,26 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 masterOrderInDb.Status = FBAStatus.Confirmed;
                 masterOrderInDb.UpdateLog = "Order complete. Confirmed by " + _userName;
+
+                // 客户定制反馈接口 TO DO
+                try
+                {
+                    if (masterOrderInDb.CustomerCode == "SUNVALLEY")
+                    {
+                        if (masterOrderInDb.Agency == "NetSuit")
+                        {
+                            nsManager.SendStandardOrderInboundRequest(masterOrderInDb);
+                        }
+                        else if (masterOrderInDb.Agency == "ZT")
+                        {
+                            ztManager.SendInboundCompleteRequest(masterOrderInDb);
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    throw new Exception("API call failed. Error message: " + e.Message);
+                }
             }
 
             _context.SaveChanges();

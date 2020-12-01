@@ -27,5 +27,9 @@ namespace ClothResorting.Models.StaticClass
         public const string Outbound = "Outbound";
 
         public const string Inbound = "Inbound";
+
+        public const string TransitShipment = "TRANSIT SHIPMENT";
+
+        public const string DirectSell = "DirectSell";
     }
 }

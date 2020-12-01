@@ -12,7 +12,7 @@ namespace ClothResorting.Manager.NetSuit
 {
     public class NetSuitManager
     {
-        public ReturnData SendTransOrderShippedRequest(FBAShipOrder order, IEnumerable<FBAPickDetailCarton> pickedCtnList)
+        public ReturnData SendStandardOrderShippedRequest(FBAShipOrder order, IEnumerable<FBAPickDetailCarton> pickedCtnList)
         {
             var url = "https://2298410.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=251&deploy=1";
 
@@ -54,7 +54,7 @@ namespace ClothResorting.Manager.NetSuit
             return responseBody;
         }
 
-        public ReturnData SendTransOrderInboundRequest(FBAMasterOrder order)
+        public ReturnData SendStandardOrderInboundRequest(FBAMasterOrder order)
         {
             var url = "https://2298410.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=248&deploy=1";
 
@@ -99,7 +99,7 @@ namespace ClothResorting.Manager.NetSuit
             return responseBody;
         }
 
-        public ReturnData SendDirectOrderShippedRequest(FBAShipOrder order, IEnumerable<FBAPickDetailCarton> pickedCtnList)
+        public ReturnData SendDirectSellOrderShippedRequest(FBAShipOrder order, IEnumerable<FBAPickDetailCarton> pickedCtnList)
         {
             var url = "https://2298410.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=297&deploy=1";
 
