@@ -48,35 +48,25 @@ namespace ClothResorting.Controllers.Api.Fba
             var pickingStatus = await CreateShipOrderAsync(order, customerInDb, requestId);
 
             jsonResult.PickingStatus = new { Status = CheckStatus(pickingStatus) ? "Success" : "Failed", Details =  pickingStatus };
-
+            jsonResult.Code = jsonResult.PickingStatus.Status == "Failed" ? 507 : jsonResult.Code;
             return Created(Request.RequestUri, jsonResult);
         }
 
         public string GenerateShipOrderNumber(string customerCode, string shipOrderNumber)
         {
+            var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == shipOrderNumber);
+
             if (shipOrderNumber != null && shipOrderNumber != "")
             {
-                var shipOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == shipOrderNumber);
-
                 if (shipOrderInDb == null)
                 {
                     return shipOrderNumber;
                 }
             }
 
-            var sequence = 1;
-            var result = customerCode + "-" +  "OUTBOUND" + "-" + DateTime.Now.ToString("yyyyMMdd") + "-" + sequence.ToString();
-            var outboundOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == result);
+            var sequence = 1 + _context.FBAShipOrders.Where(x => x.CustomerCode == customerCode).OrderByDescending(x => x.Id).First().Id;
 
-            if (outboundOrderInDb == null)
-            {
-                return result;
-            }
-            else
-            {
-                sequence += 1;
-                return customerCode + "-" + "OUTBOUND" + "-" + DateTime.Now.ToString("yyyyMMdd") + "-" + sequence.ToString();
-            }
+            return customerCode + "-" +  "OUTBOUND" + "-" + DateTime.Now.ToString("yyyyMMdd") + "-" + sequence.ToString();
         }
 
         public  async Task<IList<PickingStatus>> CreateShipOrderAsync(FBAOutboundOrder order, UpperVendor customerInDb, string requestId)
@@ -93,10 +83,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 ShipOrderNumber = GenerateShipOrderNumber(customerInDb.CustomerCode, order.ShipOrderNumber)
             };
 
-            _context.FBAShipOrders.Add(shipOrder);
-
             var pickingStatusList = new List<PickingStatus>();
             var pickDetailCartonList = new List<FBAPickDetailCarton>();
+            _context.FBAShipOrders.Add(shipOrder);
 
             foreach (var p in order.PickingList)
             {
@@ -109,6 +98,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     pickingStatus.StatusCode = 3002;
                     pickingStatus.Status = "Failed";
                     pickingStatus.Message = "Picking failed. No target was found in inventory.";
+                    pickingStatusList.Add(pickingStatus);
                     continue;
                 }
                 else if (inventoryList.Count() > 1)
@@ -116,6 +106,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     pickingStatus.StatusCode = 3001;
                     pickingStatus.Status = "Failed";
                     pickingStatus.Message = "Picking failed. More than one target found in inventory.";
+                    pickingStatusList.Add(pickingStatus);
                     continue;
                 }
 
@@ -156,10 +147,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
             logInDb.RequestId = requestId;
 
-            if (CheckStatus(pickingStatusList))
+            if (!CheckStatus(pickingStatusList))
             {
-                _context.SaveChanges();
+                _context.FBAShipOrders.Remove(_context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == shipOrder.ShipOrderNumber));
             }
+
+            _context.SaveChanges();
 
             return pickingStatusList;
         }

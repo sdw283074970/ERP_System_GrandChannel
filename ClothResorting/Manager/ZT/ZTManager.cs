@@ -91,7 +91,7 @@ namespace ClothResorting.Manager.ZT
         {
             var result = string.Empty;
 
-            //发送请求
+            // 发送请求
             var request = (HttpWebRequest)WebRequest.Create(url);
             var data = Encoding.UTF8.GetBytes(stringifiedJsonData);
 
@@ -116,7 +116,7 @@ namespace ClothResorting.Manager.ZT
 
             var stream = response.GetResponseStream();
 
-            //获取响应
+            // 获取响应
             using (var reader = new StreamReader(stream, Encoding.UTF8))
             {
                 result = reader.ReadToEnd();
@@ -161,7 +161,7 @@ namespace ClothResorting.Manager.ZT
 
             var stream = response.GetResponseStream();
 
-            //获取响应
+            // 获取响应
             using (var reader = new StreamReader(stream, Encoding.UTF8))
             {
                 result = reader.ReadToEnd();
