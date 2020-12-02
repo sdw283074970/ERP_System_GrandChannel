@@ -189,7 +189,7 @@ var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed165936
 	"agency": "agency test",  // 代理名称（调用此接口的平台名称），必填
 	"shipOrderNumber": "TEST123AAA23-TEST1",  // 运单号，选填，如果为空，系统会自动分配一个运单号
 	"orderType": "Standard", // 运单类型，Standard，Ecommerce, DerectSale, Transfer,默认Standard,选填
-	"ets": "2020-05-13",  // 预计发货时间，必填
+	"ets": "2020-05-13",  // 预计发货时间，必填，格式（yyyy-MM-dd）
 	"etsTimeRange": "4PM-5PM",  // 预计发货时间，精确到几点钟的范围，选填
 	"destionation": "ONT8",  // 目的地代码，选填
 	"address": "13780 Central Ave. Chino CA 91709",  // 目的地地址，选填
