@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
 using System.Threading.Tasks;
+using ClothResorting.Manager;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -23,6 +24,7 @@ namespace ClothResorting.Controllers.Api.Fba
         private ApplicationDbContext _context;
         private FBAShipOrderController _soController;
         private FBAMasterOrderController _moController;
+        private CustomerCallbackManager _callbackManager;
 
         public FBADeleteAPIController()
         {
@@ -30,6 +32,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
             _soController = new FBAShipOrderController();
             _moController = new FBAMasterOrderController();
+            _callbackManager = new CustomerCallbackManager();
         }
 
         // DELETE /api/FBADeleteAPI/?appKey=foo&customerCode=bar&requestId=foo&version=bar&sign=foo
@@ -59,7 +62,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 var outboundOrderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == body.Reference && x.Status == FBAStatus.Draft);
 
                 if (outboundOrderInDb != null)
+                {
                     await _soController.DeleteShipOrder(outboundOrderInDb.Id);
+                    _callbackManager.CallBackWhenOutboundOrderCancelled(outboundOrderInDb);
+                }
                 else
                     return Json(new { Code = "404", Message = "Cannot find outbound order# " + body.Reference + " or its stauts is not 'Draft'." });
             }

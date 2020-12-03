@@ -13,7 +13,7 @@ namespace ClothResorting.Manager.ZT
     public class ZTManager
     {
         // 中台出库请求，在Ready和Release按钮按下后触发
-        public ResponseBody SendShippedOrderRequest(FBAShipOrder order)
+        public ResponseBody UpdateOunboundOrderRequest(FBAShipOrder order)
         {
             var url = "https://hzero-gateway.hzero-dev.nearbyexpress.com/hitf/v2/rest/invoke?namespace=HZERO&serverCode=HORD&interfaceCode=homs-order.shipment.wmsUpdate";
             var token = GetAccessToken();
@@ -21,7 +21,7 @@ namespace ClothResorting.Manager.ZT
             var body = new RequestBody
             {
                 // 测试
-                Payload = JsonConvert.SerializeObject(new { ShipmentCode = "tet92", SystemSource = "CHINO", ShipmentStatusCode = "SHIPPED", TrackingNumber = 0, ShippingFee = 0 }, new JsonSerializerSettings
+                Payload = JsonConvert.SerializeObject(new { ShipmentCode = order.ShipOrderNumber, SystemSource = "CHINO", ShipmentStatusCode = statusCode, TrackingNumber = 0, ShippingFee = 0 }, new JsonSerializerSettings
                 {
                     ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
                 })

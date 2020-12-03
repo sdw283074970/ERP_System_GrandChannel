@@ -904,6 +904,8 @@ namespace ClothResorting.Controllers.Api.Fba
                         shipOrderInDb.ReadyBy = _userName;
                         shipOrderInDb.ReadyTime = operationDate;
                         shipOrderInDb.OperationLog = "Ready by " + _userName;
+                        // 客户定制调用API反馈状态
+                        _customerCallbackManager.CallBackWhenOutboundOrderReady(shipOrderInDb);
                     }
                 }
                 //Pending状态，则转回Processing状态

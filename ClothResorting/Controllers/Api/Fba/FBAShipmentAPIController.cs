@@ -80,6 +80,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 ETSTimeRange = order.EtsTimeRange,
                 Destination = order.Destionation,
                 CreateDate = DateTime.Now,
+                Agency = order.Agency,
                 ShipOrderNumber = GenerateShipOrderNumber(customerInDb.CustomerCode, order.ShipOrderNumber)
             };
 

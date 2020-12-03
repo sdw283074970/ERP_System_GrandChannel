@@ -56,7 +56,7 @@ namespace ClothResorting.Controllers
         {
             var manager = new ZTManager();
 
-            var result = manager.SendShippedOrderRequest(new Models.FBAModels.FBAShipOrder());
+            var result = manager.UpdateOunboundOrderRequest(new Models.FBAModels.FBAShipOrder());
 
             ViewBag.Message = "Your application description page.";
 

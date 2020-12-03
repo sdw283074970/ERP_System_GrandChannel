@@ -12,6 +12,7 @@ using AutoMapper;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Models.StaticClass;
 using ClothResorting.Dtos;
+using ClothResorting.Manager;
 
 namespace ClothResorting.Controllers.Api.Warehouse
 {
@@ -19,11 +20,13 @@ namespace ClothResorting.Controllers.Api.Warehouse
     {
         private ApplicationDbContext _context;
         private string _userName;
+        private CustomerCallbackManager _callbackManager;
 
         public WarehouseIndexController()
         {
             _context = new ApplicationDbContext();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
+            _callbackManager = new CustomerCallbackManager();
         }
 
         // GET /api/warehouseIndex/?operation
@@ -202,6 +205,9 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     {
                         shipOrderInDb.Status = FBAStatus.Ready;
                         shipOrderInDb.OperationLog = "Ready by " + _userName;
+                        
+                        // 调用客户花钱定制的回调方法
+                        _callbackManager.CallBackWhenOutboundOrderReady(shipOrderInDb);
                     }
                 }
             }
