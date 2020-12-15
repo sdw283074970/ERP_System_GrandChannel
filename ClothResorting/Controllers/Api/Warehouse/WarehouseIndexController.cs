@@ -35,7 +35,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
         {
             //将FBA运单转成outbound work order
             var list = new List<WarehouseOutboundLog>();
-
+            
             var ordersInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
                 .Where(x => x.Status != FBAStatus.NewCreated && x.Status != FBAStatus.Picking && x.Status != FBAStatus.Shipped && x.Status != FBAStatus.Draft);

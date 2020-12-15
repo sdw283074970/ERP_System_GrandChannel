@@ -92,7 +92,7 @@ namespace OAuth
             _params["consumer_secret"] = "";
             _params["timestamp"] = GenerateTimeStamp();
             _params["nonce"] = GenerateNonce();
-            _params["signature_method"] = "HMAC-SHA1";
+            _params["signature_method"] = "HMAC-SHA256";
             _params["signature"] = "";
             _params["token"] = "";
             _params["token_secret"] = "";
@@ -632,18 +632,24 @@ namespace OAuth
 
         private HashAlgorithm GetHash()
         {
-            if (this["signature_method"] != "HMAC-SHA1")
+            if (this["signature_method"] != "HMAC-SHA256")
                 throw new NotImplementedException();
 
             string keystring = string.Format("{0}&{1}",
                                              UrlEncode(this["consumer_secret"]),
                                              UrlEncode(this["token_secret"]));
             //Tracing.Trace("keystring: '{0}'", keystring);
-            var hmacsha1 = new HMACSHA1
+            var hmacsha256 = new HMACSHA256
             {
                 Key = System.Text.Encoding.ASCII.GetBytes(keystring)
             };
-            return hmacsha1;
+
+            return hmacsha256;
+            //var hmacsha1 = new HMACSHA1
+            //{
+            //    Key = System.Text.Encoding.ASCII.GetBytes(keystring)
+            //};
+            //return hmacsha1;
         }
 
 #if BROKEN

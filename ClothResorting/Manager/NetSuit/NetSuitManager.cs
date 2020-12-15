@@ -14,7 +14,7 @@ namespace ClothResorting.Manager.NetSuit
     {
         public ReturnData SendStandardOrderShippedRequest(FBAShipOrder order, IEnumerable<FBAPickDetailCarton> pickedCtnList)
         {
-            var url = "https://2298410.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=251&deploy=1";
+            var url = "https://5802100-sb1.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=425&deploy=1";
 
             var lines = new List<TransLine>();
 
@@ -56,7 +56,7 @@ namespace ClothResorting.Manager.NetSuit
 
         public ReturnData SendStandardOrderInboundRequest(FBAMasterOrder order)
         {
-            var url = "https://2298410.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=248&deploy=1";
+            var url = "https://5802100-sb1.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=430&deploy=1";
 
             var lines = new List<TransLine>();
 
@@ -144,12 +144,13 @@ namespace ClothResorting.Manager.NetSuit
             var result = string.Empty;
 
             var oauth = new OAuth.Manager();
-            oauth["consumer_key"] = "0d5539a38fe0745596f7812befd7381efa7962d1e75494e0032d2d8d23457a93";
-            oauth["consumer_secret"] = "968077c96c6a9ecbd3ab0822f5ac482909068d9d60f680495e8919362e47d92d";
-            oauth["token"] = "2eac03aca89bfe91326890be29f3f1947fc1a4807712bb0b23fc1853bef9749d";
-            oauth["token_secret"] = "0caa44430a5c214aa7041b6d27399a7c6eb7913b372c9a3456397708213bf956";
+            oauth["consumer_key"] = "43981534e855f4adca425575b4328a702ade9500a78447f2bff4dedcb3af753b";
+            oauth["consumer_secret"] = "fea909450f17d77cb578c45f59d8829bcaf18cd649f9b5edd1d0af24506e5079";
+            oauth["token"] = "bc9728a02cceb69ed4d02e80e8bed8078526395affdd4c13108b7fcaeead58b1";
+            oauth["token_secret"] = "5f44e752e4af109cdb0208895382113d5dd6ab907b065b6100a80e5874089d59";
+            var realm = "5802100_SB1";
 
-            var authzHeader = oauth.GenerateAuthzHeader(url, "POST");
+            var authzHeader = oauth.GenerateCredsHeader(url, "POST", realm);
 
             //发送请求
             var request = (HttpWebRequest)WebRequest.Create(url);

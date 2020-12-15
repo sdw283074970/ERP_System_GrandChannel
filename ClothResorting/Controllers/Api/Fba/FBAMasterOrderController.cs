@@ -733,7 +733,6 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 masterOrderInDb.Status = FBAStatus.Confirmed;
                 masterOrderInDb.UpdateLog = "Order complete. Confirmed by " + _userName;
-
                 // 客户定制反馈接口
                 _customerCallbackManager.CallBackWhenInboundOrderCompleted(masterOrderInDb);
             }
