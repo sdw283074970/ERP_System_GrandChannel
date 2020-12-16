@@ -87,7 +87,7 @@ namespace OAuth
         {
             _random = new Random();
             _params = new Dictionary<String, String>();
-            _params["callback"] = "oob"; // presume "desktop" consumer
+            //_params["callback"] = "oob"; // presume "desktop" consumer
             _params["consumer_key"] = "";
             _params["consumer_secret"] = "";
             _params["timestamp"] = GenerateTimeStamp();
@@ -343,7 +343,7 @@ namespace OAuth
             {
                 if (!String.IsNullOrEmpty(item.Value) &&
                     !item.Key.EndsWith("secret"))
-                    sb.AppendFormat("oauth_{0}=\"{1}\", ",
+                    sb.AppendFormat("oauth_{0}=\"{1}\",",
                                     item.Key,
                                     UrlEncode(item.Value));
             }
@@ -560,7 +560,7 @@ namespace OAuth
             //Tracing.Trace("erp = {0}", erp);
             return (String.IsNullOrEmpty(realm))
                 ? "OAuth " + erp
-                : String.Format("OAuth realm=\"{0}\", ", realm) + erp;
+                : String.Format("OAuth realm=\"{0}\",", realm) + erp;
         }
 
 

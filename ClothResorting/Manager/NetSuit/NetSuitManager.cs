@@ -39,15 +39,16 @@ namespace ClothResorting.Manager.NetSuit
                     ItemNum = p.FBACartonLocation.ShipmentId
                 });
             }
-
+            var list = new List<ShippedData>();
+            list.Add(new ShippedData
+            {
+                TransOrderNo = order.ShipOrderNumber,
+                Memo = "",
+                TranDate = order.ReleasedDate.ToString("yyyy-MM-dd"),
+                Lines = lines
+            });
             var body = new TransOrderRequestBody {
-                Data = new ShippedData {
-                    TransOrderNo = order.ShipOrderNumber,
-                    TransOrderId = order.Id.ToString(),
-                    Memo = "",
-                    TranDate = order.ReleasedDate.ToString("yyyy-MM-dd"),
-                    Lines = lines
-                }
+                Data = list.ToArray()
             };
 
             var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
@@ -82,17 +83,17 @@ namespace ClothResorting.Manager.NetSuit
                     ItemNum = d.ShipmentId
                 });
             }
-
+            var list = new List<ShippedData>();
+            list.Add(new ShippedData
+            {
+                TransOrderNo = order.Container,
+                Memo = "",
+                TranDate = order.InboundDate.ToString("yyyy-MM-dd"),
+                Lines = lines
+            });
             var body = new TransOrderRequestBody
             {
-                Data = new ShippedData
-                {
-                    TransOrderNo = order.Container,
-                    TransOrderId = order.Id.ToString(),
-                    Memo = "",
-                    TranDate = order.InboundDate.ToString("yyyy-MM-dd"),
-                    Lines = lines
-                }
+                Data = list.ToArray()
             };
 
             var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
@@ -160,7 +161,6 @@ namespace ClothResorting.Manager.NetSuit
             oauth["token"] = "bc9728a02cceb69ed4d02e80e8bed8078526395affdd4c13108b7fcaeead58b1";
             oauth["token_secret"] = "5f44e752e4af109cdb0208895382113d5dd6ab907b065b6100a80e5874089d59";
             var realm = "5802100_SB1";
-
             var authzHeader = oauth.GenerateCredsHeader(url, "POST", realm);
 
             //发送请求
@@ -168,9 +168,12 @@ namespace ClothResorting.Manager.NetSuit
             var data = Encoding.UTF8.GetBytes(stringifiedJsonData);
 
             request.Method = method;
+            request.Timeout = -1;
             request.PreAuthenticate = true;
             request.AllowWriteStreamBuffering = true;
             request.Headers.Add("Authorization", authzHeader);
+            //request.Headers.Add("Authorization", "OAuth realm=\"5802100_SB1\",oauth_consumer_key=\"43981534e855f4adca425575b4328a702ade9500a78447f2bff4dedcb3af753b\",oauth_token=\"bc9728a02cceb69ed4d02e80e8bed8078526395affdd4c13108b7fcaeead58b1\",oauth_signature_method=\"HMAC-SHA256\",oauth_timestamp=\"1608088304\",oauth_nonce=\"kBbOOWvNAP9\",oauth_version=\"1.0\",oauth_signature=\"EWFZBikSMI5o2zlLg4f2LevqlipvUWnZ6s3B6Alg%2FDs%3D\"");
+            //request.Headers.Add("Cookie", "lastUser=5802100_SB1_40_1016; NS_ROUTING_VERSION=LAGGING");
 
             request.ContentType = "application/json";
             request.KeepAlive = false;
@@ -209,7 +212,7 @@ namespace ClothResorting.Manager.NetSuit
 
     public class TransOrderRequestBody
     {
-        public dynamic Data { get; set; }
+        public dynamic[] Data { get; set; }
     }
 
     public class TransLine
@@ -223,8 +226,6 @@ namespace ClothResorting.Manager.NetSuit
     {
         public string TransOrderNo { get; set; }
 
-        public string TransOrderId { get; set; }
-
         public string TranDate { get; set; }
 
         public string Memo { get; set; }
@@ -236,7 +237,7 @@ namespace ClothResorting.Manager.NetSuit
     {
         public string RETURN_CODE { get; set; }
 
-        public TransOrderReturnDate RETURN_DATA { get; set; }
+        public TransOrderReturnDate[] RETURN_DATA { get; set; }
 
         public string RETURN_MSG { get; set; }
     }

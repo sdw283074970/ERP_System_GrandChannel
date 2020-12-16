@@ -21,7 +21,7 @@ namespace ClothResorting.Manager.ZT
             var body = new RequestBody
             {
                 // 测试
-                Payload = JsonConvert.SerializeObject(new { ShipmentCode = order.ShipOrderNumber, SystemSource = "CHINO", ShipmentStatusCode = statusCode, TrackingNumber = 0, ShippingFee = 0 }, new JsonSerializerSettings
+                Payload = JsonConvert.SerializeObject(new { ShipmentCode = order.ShipOrderNumber, SystemSource = "CHINO", ShipmentStatusCode = statusCode, TrackingNumber = 0, ShippingFee = 0, DeliveryDate = order.ReleasedDate.ToString("yyyy-MM-dd hh:mm:ss") }, new JsonSerializerSettings
                 {
                     ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
                 })

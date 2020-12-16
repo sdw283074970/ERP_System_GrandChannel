@@ -71,7 +71,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public  async Task<IList<PickingStatus>> CreateShipOrderAsync(FBAOutboundOrder order, UpperVendor customerInDb, string requestId)
         {
-            var shipOrder = new FBAShipOrder { 
+            var shipOrder = new FBAShipOrder
+            {
                 OrderType = order.OrderType,
                 CustomerCode = customerInDb.CustomerCode,
                 Status = FBAStatus.Draft,
@@ -84,15 +85,23 @@ namespace ClothResorting.Controllers.Api.Fba
                 ShipOrderNumber = GenerateShipOrderNumber(customerInDb.CustomerCode, order.ShipOrderNumber)
             };
 
+            var logger = new Logger(_context, order.Agency);
+
+            await logger.AddCreatedLogAsync<FBAShipOrder>(null, Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrder), "Created by agency from api.", null, OperationLevel.Mediunm);
+
+            var logInDb = _context.OperationLogs.OrderByDescending(x => x.Id).First();
+
+            logInDb.RequestId = requestId;
+
             var pickingStatusList = new List<PickingStatus>();
             var pickDetailCartonList = new List<FBAPickDetailCarton>();
             _context.FBAShipOrders.Add(shipOrder);
 
             foreach (var p in order.PickingList)
             {
-                var pickingStatus = new PickingStatus(shipOrder.ShipOrderNumber, p.Contianer, p.ShipmentId, p.AmzRefId, p.WarehouseCode, p.Quantity, p.PalletQuantity);
+                var pickingStatus = new PickingStatus(shipOrder.ShipOrderNumber, p.Container, p.ShipmentId, p.AmzRefId, p.WarehouseCode, p.Quantity, p.PalletQuantity);
 
-                var inventoryList = _picker.SearchPalletInventory(customerInDb.CustomerCode, p.Contianer, p.ShipmentId, p.AmzRefId, p.WarehouseCode);
+                var inventoryList = _picker.SearchPalletInventory(customerInDb.CustomerCode, p.Container, p.ShipmentId, p.AmzRefId, p.WarehouseCode);
 
                 if (inventoryList.Count() == 0 || inventoryList.First().FBACartonLocations.Count() == 0)
                 {
@@ -140,17 +149,9 @@ namespace ClothResorting.Controllers.Api.Fba
                 _context.FBAPickDetails.Add(pickDetail);
             }
 
-            var logger = new Logger(_context, order.Agency);
-
-            await logger.AddCreatedLogAsync<FBAShipOrder>(null, Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrder), "Created by agency from api.", null, OperationLevel.Mediunm);
-
-            var logInDb = _context.OperationLogs.OrderByDescending(x => x.Id).First();
-
-            logInDb.RequestId = requestId;
-
             if (!CheckStatus(pickingStatusList))
             {
-                _context.FBAShipOrders.Remove(_context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == shipOrder.ShipOrderNumber));
+                return pickingStatusList;
             }
 
             _context.SaveChanges();
@@ -210,7 +211,7 @@ namespace ClothResorting.Controllers.Api.Fba
             NewPallet = 0;
         }
 
-        public string Contianer { get; set; }
+        public string Container { get; set; }
 
         public string ShipmentId { get; set; }
 

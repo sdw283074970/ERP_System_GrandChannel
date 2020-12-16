@@ -69,6 +69,7 @@ namespace ClothResorting.Helpers
         {
             var log = CreateLog(url, headers, body, exception);
             _context.OperationLogs.Add(log);
+            _context.SaveChanges();
         }
 
         private OperationLog CreateLog(string url, string headers, string body, string exception)
