@@ -32,7 +32,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context = new ApplicationDbContext();
             _soController = new FBAShipOrderController();
             _moController = new FBAMasterOrderController();
-            _callbackManager = new CustomerCallbackManager();
+            _callbackManager = new CustomerCallbackManager(_context);
         }
 
         // DELETE /api/FBADeleteAPI/?appKey=foo&customerCode=bar&requestId=foo&version=bar&sign=foo

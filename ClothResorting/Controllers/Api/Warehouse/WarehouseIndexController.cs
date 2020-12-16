@@ -26,7 +26,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
         {
             _context = new ApplicationDbContext();
             _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
-            _callbackManager = new CustomerCallbackManager();
+            _callbackManager = new CustomerCallbackManager(_context);
         }
 
         // GET /api/warehouseIndex/?operation

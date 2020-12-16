@@ -1,4 +1,6 @@
-﻿using ClothResorting.Models.FBAModels;
+﻿using ClothResorting.Helpers;
+using ClothResorting.Models;
+using ClothResorting.Models.FBAModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,15 @@ namespace ClothResorting.Manager.NetSuit
 {
     public class NetSuitManager
     {
+        private Logger _logger;
+        private ApplicationDbContext _context;
+
+        public NetSuitManager(ApplicationDbContext context)
+        {
+            _context = context;
+            _logger = new Logger(_context);
+        }
+
         public ReturnData SendStandardOrderShippedRequest(FBAShipOrder order, IEnumerable<FBAPickDetailCarton> pickedCtnList)
         {
             var url = "https://5802100-sb1.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=425&deploy=1";
@@ -139,7 +150,7 @@ namespace ClothResorting.Manager.NetSuit
             return responseBody;
         }
 
-        public static string SendHttpRequest(string url, string stringifiedJsonData, string method)
+        public string SendHttpRequest(string url, string stringifiedJsonData, string method)
         {
             var result = string.Empty;
 
@@ -167,6 +178,8 @@ namespace ClothResorting.Manager.NetSuit
             request.ContentLength = data.Length;
             request.Accept = "application/json";
             ServicePointManager.DefaultConnectionLimit = 1000;      //提高每秒默认请求数量
+            var headers = request.Headers.ToString();
+            _logger.AddRequestLog(url, headers, stringifiedJsonData, null);
 
             using (var reqStream = request.GetRequestStream())
             {
@@ -174,14 +187,20 @@ namespace ClothResorting.Manager.NetSuit
                 reqStream.Close();
             }
 
-            var response = request.GetResponse();
-
-            var stream = response.GetResponseStream();
-
-            //获取响应
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            try
             {
-                result = reader.ReadToEnd();
+                var response = request.GetResponse();
+                var stream = response.GetResponseStream();
+                //获取响应
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
+                {
+                    result = reader.ReadToEnd();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.AddRequestLog(url, headers, stringifiedJsonData, e.Message);
+                throw new Exception(e.Message);
             }
 
             return result;

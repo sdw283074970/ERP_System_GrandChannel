@@ -16,9 +16,9 @@ namespace ClothResorting.Manager
         private NetSuitManager _nsManager;
         private ZTManager _ztManager;
 
-        public CustomerCallbackManager()
+        public CustomerCallbackManager(ApplicationDbContext context)
         {
-            _nsManager = new NetSuitManager();
+            _nsManager = new NetSuitManager(context);
             _ztManager = new ZTManager();
         }
 

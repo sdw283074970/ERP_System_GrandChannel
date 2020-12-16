@@ -65,6 +65,30 @@ namespace ClothResorting.Helpers
             _context.OperationLogs.Add(log);
         }
 
+        public void AddRequestLog(string url, string headers, string body, string exception)
+        {
+            var log = CreateLog(url, headers, body, exception);
+            _context.OperationLogs.Add(log);
+        }
+
+        private OperationLog CreateLog(string url, string headers, string body, string exception)
+        {
+            var newLog = new OperationLog
+            {
+                Description = "This is a request sent by system.",
+                Level = "Medium",
+                NewValue = headers,
+                Exception = exception,
+                OperationDate = DateTime.Now,
+                RequestUri = url,
+                User = _userName,
+                RequestBody = body,
+                UserIp = GetIPAddress()
+            };
+
+            return newLog;
+        }
+
         private async Task<OperationLog> CreateLogAsync<T>(object oldValue, object newValue, string description, string exception, string level) where T : class
         {
             var entityName = _context.GetTableName<T>();
