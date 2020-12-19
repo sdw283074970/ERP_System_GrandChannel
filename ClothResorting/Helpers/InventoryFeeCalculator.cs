@@ -157,9 +157,8 @@ namespace ClothResorting.Helpers
 
             //当outbound为空时，将今天当作outbound
             if (outboundDate == null)
-            {
-                outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
-            }
+                outboundDate = currentBillingDate;
+                //outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
 
             DateTime.TryParseExact(inboundDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out inboundDt);
             DateTime.TryParseExact(outboundDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out outboundDt);
@@ -168,22 +167,14 @@ namespace ClothResorting.Helpers
 
             //通过对比，得出有效的开始截至日期范围
             if (DateTime.Compare(inboundDt, lastBillingDt) > 0)
-            {
                 startDt = inboundDt;
-            }
             else
-            {
                 startDt = lastBillingDt;
-            }
 
             if (DateTime.Compare(outboundDt, currentBillingDt) > 0)
-            {
                 endDt = currentBillingDt;
-            }
             else
-            {
                 endDt = outboundDt;
-            }
 
             var currentTimeSpan = endDt.Subtract(startDt);
             var totalTimeSpan = endDt.Subtract(inboundDt);

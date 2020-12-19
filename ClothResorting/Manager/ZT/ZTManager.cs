@@ -1,4 +1,6 @@
-﻿using ClothResorting.Models.FBAModels;
+﻿using ClothResorting.Helpers;
+using ClothResorting.Models;
+using ClothResorting.Models.FBAModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,12 +14,21 @@ namespace ClothResorting.Manager.ZT
 {
     public class ZTManager
     {
+        private Logger _logger;
+        private ApplicationDbContext _context;
+
+        public ZTManager(ApplicationDbContext context)
+        {
+            _context = context;
+            _logger = new Logger(_context);
+        }
+
         // 中台出库请求，在Ready和Release按钮按下后触发
         public ResponseBody UpdateOunboundOrderRequest(FBAShipOrder order)
         {
-            var url = "https://hzero-gateway.hzero-dev.nearbyexpress.com/hitf/v2/rest/invoke?namespace=HZERO&serverCode=HORD&interfaceCode=homs-order.shipment.wmsUpdate";
+            var url = "https://hzero-gateway.hzero-uat.nearbyexpress.com/hitf/v1/rest/invoke?namespace=HZERO&serverCode=HORD&interfaceCode=homs-order.shipment.wmsUpdate";
             var token = GetAccessToken();
-            var statusCode = order.Status == "Ready" ? "PICKED" : (order.Status == "Released" ? "PICKED" : "UNPICKED");
+            var statusCode = order.Status == "Ready" ? "PICKED" : (order.Status == "Released" ? "SHIPPED" : "UNPICKED");
             var body = new RequestBody
             {
                 // 测试
@@ -51,7 +62,7 @@ namespace ClothResorting.Manager.ZT
         // 中台入库请求，在入库单complete按钮按下后触发
         public ResponseBody SendInboundCompleteRequest(FBAMasterOrder order)
         {
-            var url = "http://hzero-gateway.hzero-dev.nearbyexpress.com/hitf/v1/rest/invoke?namespace=HZERO&serverCode=HORD&interfaceCode=homs-order.rma.returnStatus";
+            var url = "https://hzero-gateway.hzero-uat.nearbyexpress.com/hitf/v1/rest/invoke?namespace=HZERO&serverCode=HORD&interfaceCode=homs-order.rma.returnStatus";
             var token = GetAccessToken();
 
             var lines = new List<Line>();
@@ -87,7 +98,7 @@ namespace ClothResorting.Manager.ZT
             return responseBody;
         }
 
-        public static string SendHttpRequest(string url, string stringifiedJsonData, string method, string accessToken)
+        public string SendHttpRequest(string url, string stringifiedJsonData, string method, string accessToken)
         {
             var result = string.Empty;
 
@@ -104,7 +115,11 @@ namespace ClothResorting.Manager.ZT
             request.Headers.Add("Authorization", "Bearer " + accessToken);
             request.Accept = "application/json";
             request.UserAgent = "APIExplorer";
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.DefaultConnectionLimit = 1000;      //提高每秒默认请求数量
+            var headers = request.Headers.ToString();
+            _logger.AddRequestLog(url, headers, stringifiedJsonData, null);
 
             using (var reqStream = request.GetRequestStream())
             {
@@ -112,14 +127,20 @@ namespace ClothResorting.Manager.ZT
                 reqStream.Close();
             }
 
-            var response = request.GetResponse();
-
-            var stream = response.GetResponseStream();
-
-            // 获取响应
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            try
             {
-                result = reader.ReadToEnd();
+                var response = request.GetResponse();
+                var stream = response.GetResponseStream();
+                //获取响应
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
+                {
+                    result = reader.ReadToEnd();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.AddRequestLog(url, headers, stringifiedJsonData, e.Message);
+                throw new Exception(e.Message);
             }
 
             return result;
@@ -127,7 +148,7 @@ namespace ClothResorting.Manager.ZT
 
         public string GetAccessToken()
         {
-            var url = "https://hzero-gateway.hzero-dev.nearbyexpress.com/oauth/oauth/token";
+            var url = "https://hzero-gateway.hzero-uat.nearbyexpress.com/oauth/oauth/token";
 
             var result = string.Empty;
 

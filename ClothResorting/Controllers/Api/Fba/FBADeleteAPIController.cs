@@ -63,8 +63,8 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 if (outboundOrderInDb != null)
                 {
-                    await _soController.DeleteShipOrder(outboundOrderInDb.Id);
                     _callbackManager.CallBackWhenOutboundOrderCancelled(outboundOrderInDb);
+                    await _soController.DeleteShipOrder(outboundOrderInDb.Id);
                 }
                 else
                     return Json(new { Code = "404", Message = "Cannot find outbound order# " + body.Reference + " or its stauts is not 'Draft'." });

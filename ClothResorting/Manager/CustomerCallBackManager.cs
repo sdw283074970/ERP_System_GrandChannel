@@ -19,7 +19,7 @@ namespace ClothResorting.Manager
         public CustomerCallbackManager(ApplicationDbContext context)
         {
             _nsManager = new NetSuitManager(context);
-            _ztManager = new ZTManager();
+            _ztManager = new ZTManager(context);
         }
 
         public void CallBackWhenInboundOrderArrrived()
@@ -42,7 +42,7 @@ namespace ClothResorting.Manager
                     {
                         _nsManager.SendStandardOrderInboundRequest(masterOrderInDb);
                     }
-                    else if (masterOrderInDb.Agency == "ZT")
+                    else if (masterOrderInDb.Agency == "跨境中台")
                     {
                         _ztManager.SendInboundCompleteRequest(masterOrderInDb);
                     }
@@ -71,7 +71,7 @@ namespace ClothResorting.Manager
                 if (shipOrderInDb.CustomerCode == "SUNVALLEY" || shipOrderInDb.CustomerCode == "TEST")
                 {
                     //var pickedCtnDetails = _context.FBAPickDetailCartons.Include(x => x.FBAPickDetail.FBAShipOrder).Include(x => x.FBACartonLocation).Where(x => x.FBAPickDetail.FBAShipOrder.Id == shipOrderInDb.Id);
-                    if (shipOrderInDb.Agency == "ZT")
+                    if (shipOrderInDb.Agency == "跨境中台")
                     {
                         _ztManager.UpdateOunboundOrderRequest(shipOrderInDb);
                     }
@@ -90,7 +90,7 @@ namespace ClothResorting.Manager
                 if (shipOrderInDb.CustomerCode == "SUNVALLEY" || shipOrderInDb.CustomerCode == "TEST")
                 {
                     var pickedCtnDetails = _context.FBAPickDetailCartons.Include(x => x.FBAPickDetail.FBAShipOrder).Include(x => x.FBACartonLocation).Where(x => x.FBAPickDetail.FBAShipOrder.Id == shipOrderInDb.Id);
-                    if (shipOrderInDb.Agency == "NetSuite" && shipOrderInDb.OrderType == FBAOrderType.Standard)
+                    if (shipOrderInDb.Agency == "NetSuite" && shipOrderInDb.OrderType == FBAOrderType.Standard || shipOrderInDb.OrderType == FBAOrderType.Transfer)
                     {
                         _nsManager.SendStandardOrderShippedRequest(shipOrderInDb, pickedCtnDetails);
                     }
@@ -98,7 +98,7 @@ namespace ClothResorting.Manager
                     {
                         _nsManager.SendDirectSellOrderShippedRequest(shipOrderInDb, pickedCtnDetails);
                     }
-                    else if (shipOrderInDb.Agency == "ZT")
+                    else if (shipOrderInDb.Agency == "跨境中台")
                     {
                         _ztManager.UpdateOunboundOrderRequest(shipOrderInDb);
                     }
@@ -116,7 +116,7 @@ namespace ClothResorting.Manager
             {
                 if (shipOrderInDb.CustomerCode == "SUNVALLEY" || shipOrderInDb.CustomerCode == "TEST")
                 {
-                    if (shipOrderInDb.Agency == "ZT")
+                    if (shipOrderInDb.Agency == "跨境中台")
                     {
                         _ztManager.UpdateOunboundOrderRequest(shipOrderInDb);
                     }

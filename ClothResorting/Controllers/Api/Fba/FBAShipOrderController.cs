@@ -900,12 +900,13 @@ namespace ClothResorting.Controllers.Api.Fba
                     }
                     else
                     {
+                        // 客户定制调用API反馈状态
+                        _customerCallbackManager.CallBackWhenOutboundOrderReady(shipOrderInDb);
+
                         shipOrderInDb.Status = FBAStatus.Ready;
                         shipOrderInDb.ReadyBy = _userName;
                         shipOrderInDb.ReadyTime = operationDate;
                         shipOrderInDb.OperationLog = "Ready by " + _userName;
-                        // 客户定制调用API反馈状态
-                        _customerCallbackManager.CallBackWhenOutboundOrderReady(shipOrderInDb);
                     }
                 }
                 //Pending状态，则转回Processing状态
@@ -917,13 +918,13 @@ namespace ClothResorting.Controllers.Api.Fba
                 //如果订单为ready状态，则转换为Released状态（如果是空单则不会返回给仓库）
                 else if (shipOrderInDb.Status == FBAStatus.Ready)
                 {
+                    // 客户定制调用API反馈状态
+                    _customerCallbackManager.CallBackWhenOutboundOrderReleased(_context, shipOrderInDb);
+
                     shipOrderInDb.Status = FBAStatus.Released;
                     shipOrderInDb.ReleasedDate = operationDate;
                     shipOrderInDb.ReleasedBy = _userName;
                     shipOrderInDb.OperationLog = "Released by " + _userName;
-
-                    // 客户定制调用API反馈状态
-                    _customerCallbackManager.CallBackWhenOutboundOrderReleased(_context, shipOrderInDb);
                 }
                 //当状态为Release的情况下，从库存实际扣除
                 else if (shipOrderInDb.Status == FBAStatus.Released)

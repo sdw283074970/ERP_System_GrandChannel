@@ -35,7 +35,7 @@ namespace ClothResorting.Manager.NetSuit
                     continue;
 
                 lines.Add(new TransLine { 
-                    Quantity = 1,
+                    Quantity = p.PickCtns,
                     ItemNum = p.FBACartonLocation.ShipmentId
                 });
             }
@@ -44,9 +44,10 @@ namespace ClothResorting.Manager.NetSuit
             {
                 TransOrderNo = order.ShipOrderNumber,
                 Memo = "",
-                TranDate = order.ReleasedDate.ToString("yyyy-MM-dd"),
+                Trandate = order.ReleasedDate.ToString("yyyy-MM-dd"),
                 Lines = lines
             });
+
             var body = new TransOrderRequestBody {
                 Data = list.ToArray()
             };
@@ -88,7 +89,7 @@ namespace ClothResorting.Manager.NetSuit
             {
                 TransOrderNo = order.Container,
                 Memo = "",
-                TranDate = order.InboundDate.ToString("yyyy-MM-dd"),
+                Trandate = order.InboundDate.ToString("yyyy-MM-dd"),
                 Lines = lines
             });
             var body = new TransOrderRequestBody
@@ -113,7 +114,7 @@ namespace ClothResorting.Manager.NetSuit
 
         public ReturnData SendDirectSellOrderShippedRequest(FBAShipOrder order, IEnumerable<FBAPickDetailCarton> pickedCtnList)
         {
-            var url = "https://2298410.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=297&deploy=1";
+            var url = "https://5802100-sb1.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=433&deploy=1";
 
             var skuList = new List<Sku>();
 
@@ -123,17 +124,16 @@ namespace ClothResorting.Manager.NetSuit
                 {
                     SkuNo = p.FBACartonLocation.ShipmentId,
                     SkuCode = p.FBACartonLocation.ShipmentId,
-                    Qty = 1
+                    Qty = p.PickCtns
                 });
             }
 
             var body = new DirectSaleOrderRequestBody
             {
                 DeliverOrderId = order.Id.ToString(),
-                SourceId = order.Id.ToString(),
                 SourceNo = order.ShipOrderNumber,
                 TrackNo = "1",
-                SkuList = new List<Sku>()
+                SkuList = skuList
             };
 
             var responseString = SendHttpRequest(url, JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
@@ -226,7 +226,7 @@ namespace ClothResorting.Manager.NetSuit
     {
         public string TransOrderNo { get; set; }
 
-        public string TranDate { get; set; }
+        public string Trandate { get; set; }
 
         public string Memo { get; set; }
 

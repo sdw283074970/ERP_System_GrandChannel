@@ -113,6 +113,8 @@ namespace ClothResorting.Controllers.Api.Fba
                 }
                 else if (inventoryList.Count() > 1)
                 {
+                    // 执行FIFO
+
                     pickingStatus.StatusCode = 3001;
                     pickingStatus.Status = "Failed";
                     pickingStatus.Message = "Picking failed. More than one target found in inventory.";

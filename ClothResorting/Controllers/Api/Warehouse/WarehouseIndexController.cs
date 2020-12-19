@@ -203,11 +203,11 @@ namespace ClothResorting.Controllers.Api.Warehouse
                     }
                     else
                     {
-                        shipOrderInDb.Status = FBAStatus.Ready;
-                        shipOrderInDb.OperationLog = "Ready by " + _userName;
-                        
                         // 调用客户花钱定制的回调方法
                         _callbackManager.CallBackWhenOutboundOrderReady(shipOrderInDb);
+
+                        shipOrderInDb.Status = FBAStatus.Ready;
+                        shipOrderInDb.OperationLog = "Ready by " + _userName;
                     }
                 }
             }
