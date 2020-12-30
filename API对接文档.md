@@ -96,7 +96,7 @@ var sign = signStr.ToMD5(32).Replace("-", "")   // sign = "E85154800B0DD09792E41
 
 `https://grandchanneltest.com/api/FBAexAPI/?appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TEST&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1&sign=E85154800B0DD09792E410A1E0BDA96D`
 
-# 错误代码
+### 错误代码
 以下是一些通用的错误代码。不同的API还可能产生不同的错误代码，详情请见文档。
 
 Error 200: 操作成功
@@ -110,6 +110,7 @@ Error 503: Request Body中的模型验证失败
 Error 504: 重复请求被拦截，注意检查request Id的唯一性
 
 Error 505: 无效的API版本号
+
 ------------
 
 ## 2.	POST推送入库单接口
