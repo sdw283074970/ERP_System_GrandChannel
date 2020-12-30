@@ -1,57 +1,75 @@
 # 文档版本：v 1.0.9
 # 更新日期：2020-11-16
 
+# 简介
+这是一套由Grand Channel提供的基础免费API。客户可以通过这套API向Grand Channel下达各种业务请求或指令。
+
+通读文档，开发者可以不需要Grand Channel提供任何协助就能实现测试环境的对接。
+
+# 谁能使用？
+这是一套免费的基础API，任何在Grand Channel系统中注册的客户都能获得Grand Channel颁发的应用识别符`appKey`和密钥`secretKey`，用于通过授权验证。授权后的请求可调用业务上一些基础的增删查改操作。
+
+如果需要进一步如定制接口回调等服务，请邮件联系Grand Channel IT部门经理stone@grandchannel.us
+
+沙盒测试环境中使用统一的`appKey`，`secretKey`以及`customerCode`
 ## 1.	基本信息
+### 基础参数说明
+所有请求采用统一的请求格式，uri中的参数始终固定(值不固定)，任何其他请求可能使用到的参数放在`body`中传递。
 
-### 1.1	BaseUrl
+#### 拼接地址格式
+`baseUrl` + `api/` + `API Name` + `/?appKey=foo&customerCode=bar&requestId=foo&version=bar&sign=foo`
 
-生产环境`BaseUrl`: https://grandchannellogistic.com/
+##### Url参数说明
 
-测试环境`BaseUrl`: https://grandchanneltest.com/
+###### 沙盒环境 Sand-box Env
+`baseUrl`: `https://grandchanneltest.com/`
 
-### 1.2 身份验证
+`API Name`: 所涉资源的接口名称
 
-采用签名验证
+`appKey`: `3be1ed1659364dbbbbfcc5ac94df0f19`
 
-### 1.3 签名(sign)算法
+`secretKey`: `f65c8855289446ae98c0ba20e4990d9f`
 
-1. 由Grand Channel分发`secretKey`+ 升序排列请求参数（包括`RequestId`）组成字符串
+`customerCode`: `TEST`
 
-2. 将字符串转换为全大写
+`requestId`: 任意不重复的字符串
 
-3. 对字符串进行MD5加密(32位大写)
+`version`: `V1`
 
-4. 生成的字符串中有横杠`-`，请去除。
+`sign`：由Grand Channel制定的签名算法规则计算得到
 
-### 1.4 Grand Channel颁发的应用识别符和密钥
+###### 生产环境 Prod Env
+`baseUrl`: `https://grandchanneltest.com/`
 
-AppKey: `3be1ed1659364dbbbbfcc5ac94df0f19`(测试用)
+`API Name`: 所涉资源的接口名称
 
-SecretKey: `f65c8855289446ae98c0ba20e4990d9f` (测试用)(机密)
+`appKey`: 由Grand Channel 分发
 
-### 1.5 拼接地址格式
+`secretKey`: 由Grand Channel 分发
 
-`baseUrl` + `api/` + `API Name` + `/?appKey=foo&customerCode=bar&requestId=fo  o&version=bar&sign=foo`
+`customerCode`: 由Grand Channel分发，只有合法的customerCode才能推送订单
 
-### 1.6	Url参数说明
+`requestId`：由请求端自己准备的UID，用于做重复请求检验，也是查询问题的依据
 
-`baseUrl`: 基础URI；
+`version`: `V1`
 
-`API Name`: 所涉资源的接口名称；
+`sign`：由Grand Channel制定的签名算法规则计算得到
 
-`appKey`: 由Grand Channel 分发；
+### 授权验证/`sign`算法
 
-`secretKey`：由Grand Channel 分发；
+本套API采用url签名验证，签名`sign`算法如下：
 
-`customerCode`：由Grand Channel分发，只有合法的customerCode才能推送订单；
+1. 由Grand Channel分发`apptKey`和`secretKey`
 
-`requestId`：由请求端自己准备的UID，用于做重复请求检验，也是查询问题的依据；
+2. 将`secretKey`字符串转换为大写
 
-`version`：接口版本。目前只接受“V1”；
+3. 升序排列请求参数（不含`secretKey`）组成字符串，拼接在`secretKey`后面，参数之间用`&`分隔，组成新字符串
 
-`sign`：由Grand Channel制定的签名算法规则计算得到。
+4. 对以上新字符串进行MD5加密(32位大写)
 
-### 1.7	签名算法说明及示例
+5. 生成的字符串中有横杠`-`，请去除。
+
+#### 示例
 
 `baseUrl`: `https://grandchanneltest.com/`
 
@@ -68,13 +86,30 @@ SecretKey: `f65c8855289446ae98c0ba20e4990d9f` (测试用)(机密)
 `version`：`V1`
 
 ```c#
-var sign = ("f65c8855289446ae98c0ba20e4990d9f".ToUpper() + "&appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TEST&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1").ToMD5(32).Replace("-", "")
+var secretKey = "f65c8855289446ae98c0ba20e4990d9f".ToUpper();
+var paramsStr = "&appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TEST&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1";
+var signStr = secretKey + paramsStr;
+var sign = signStr.ToMD5(32).Replace("-", "")   // sign = "E85154800B0DD09792E410A1E0BDA96D"
 ```
 
-完整Api测试服请求URL示例：
+#### 完整Api测试服请求URL示例：
 
 `https://grandchanneltest.com/api/FBAexAPI/?appKey=3be1ed1659364dbbbbfcc5ac94df0f19&customerCode=TEST&requestId=SDF1S3DF21-S5DF4136S2DF1-SD7F89SD51G6S-SD65FS6D31F&version=V1&sign=E85154800B0DD09792E410A1E0BDA96D`
 
+# 错误代码
+以下是一些通用的错误代码。不同的API还可能产生不同的错误代码，详情请见文档。
+
+Error 200: 操作成功
+
+Error 500: 无效的AppKey
+
+Error 501: 无效的签名（签名验证失败）
+
+Error 503: Request Body中的模型验证失败
+
+Error 504: 重复请求被拦截，注意检查request Id的唯一性
+
+Error 505: 无效的API版本号
 ------------
 
 ## 2.	POST推送入库单接口
