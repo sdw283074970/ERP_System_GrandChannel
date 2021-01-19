@@ -45,7 +45,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var getter = new FBAGetter();
 
             if (filter == null)
-                return Ok(getter.GetAllMaterOrders());
+                return Ok(getter.GetAllMasterOrders());
             else
                 return Ok(getter.GetFilteredMasterOrder(filter));
         }
@@ -298,12 +298,9 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var masterOrderInDb = _context.FBAMasterOrders
                     .SingleOrDefault(x => x.GrandNumber == grandNumber);
-
                 var resultDto = Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>(masterOrderInDb);
-
                 return Ok(resultDto);
             }
-
             return Ok();
         }
 
@@ -328,6 +325,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             masterOrderInDb.Carrier = obj.Carrier;
             masterOrderInDb.Vessel = obj.Vessel;
+            masterOrderInDb.WarehouseLocation = obj.WarehouseLocation;
             masterOrderInDb.Voy = obj.Voy;
             masterOrderInDb.ETA = obj.ETA;
             masterOrderInDb.SubCustomer = obj.SubCustomer;
@@ -437,6 +435,7 @@ namespace ClothResorting.Controllers.Api.Fba
             masterOrder.AssembeSecondPart(obj.ETAPort, obj.PlaceOfReceipt, obj.PortOfLoading, obj.PortOfDischarge, obj.PlaceOfDelivery);
             masterOrder.AssembeThirdPart(obj.SealNumber, obj.ContainerSize, obj.Container);
             masterOrder.GrandNumber = grandNumber;
+            masterOrder.WarehouseLocation = obj.WarehouseLocation;
             masterOrder.Customer = customer;
             masterOrder.CustomerCode = customerCode;
             masterOrder.SubCustomer = obj.SubCustomer;
@@ -758,6 +757,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             masterOrderInDb.Carrier = obj.Carrier;
+            masterOrderInDb.WarehouseLocation = obj.WarehouseLocation;
             masterOrderInDb.Vessel = obj.Vessel;
             masterOrderInDb.Voy = obj.Voy;
             masterOrderInDb.ETA = obj.ETA;

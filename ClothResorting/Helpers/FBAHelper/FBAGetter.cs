@@ -19,7 +19,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _context = new ApplicationDbContext();
         }
 
-        public IList<FBAMasterOrderDto> GetAllMaterOrders() {
+        public IList<FBAMasterOrderDto> GetAllMasterOrders() {
             var masterOrders = _context.FBAMasterOrders
                 .Include(x => x.InvoiceDetails)
                 .Include(x => x.FBAOrderDetails)
@@ -52,11 +52,20 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         public IList<FBAMasterOrderDto> GetFilteredMasterOrder(Filter filter) {
-            var masterOrders = GetAllMaterOrders();
+            filter.FromDate = new DateTime(filter.FromDate.Year, filter.FromDate.Month, filter.FromDate.Day, 0, 0, 0);
+            filter.ToDate = new DateTime(filter.ToDate.Year, filter.ToDate.Month, filter.ToDate.Day, 23, 59, 59);
+            var masterOrders = _context.FBAMasterOrders
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAOrderDetails)
+                .Include(x => x.FBAPallets)
+                .Where(x => x.CreateDate >= filter.FromDate && x.CreateDate <= filter.ToDate)
+                .Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>)
+                .ToList();
 
             masterOrders = masterOrders.Where(x => (filter.Status.Count() == 0 ? true : filter.Status.Contains(x.Status))
                 && (filter.CustomerCodes.Count() == 0 ? true : filter.CustomerCodes.Contains(x.CustomerCode))
                 && (filter.InvoiceStatus.Count() == 0 ? true : filter.InvoiceStatus.Contains(x.InvoiceStatus)))
+                .Where(x => x.WarehouseLocation == filter.WarehouseLocation)
                 .ToList();
 
             if (!string.IsNullOrEmpty(filter.SortBy))
@@ -65,10 +74,13 @@ namespace ClothResorting.Helpers.FBAHelper
             return masterOrders;
         }
 
-        public IList<FBAShipOrderDto> GetAllShipOrders() {
+        public IList<FBAShipOrderDto> GetAllShipOrders(Filter filter) {
+            filter.FromDate = new DateTime(filter.FromDate.Year, filter.FromDate.Month, filter.FromDate.Day, 0, 0, 0);
+            filter.ToDate = new DateTime(filter.ToDate.Year, filter.ToDate.Month, filter.ToDate.Day, 23, 59, 59);
             var shipOrders = _context.FBAShipOrders
                 .Include(x => x.InvoiceDetails)
                 .Include(x => x.FBAPickDetails)
+                .Where(x => x.CreateDate >= filter.FromDate && x.CreateDate <= filter.ToDate)
                 .ToList();
 
             foreach (var s in shipOrders)
@@ -92,11 +104,12 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public IList<FBAShipOrderDto> GetFilteredShipOrder(Filter filter)
         {
-            var shipOrders = GetAllShipOrders();
+            var shipOrders = GetAllShipOrders(filter);
 
             shipOrders = shipOrders.Where(x => (filter.Status.Count() == 0 ? true : filter.Status.Contains(x.Status))
                 && (filter.CustomerCodes.Count() == 0 ? true : filter.CustomerCodes.Contains(x.CustomerCode))
                 && (filter.InvoiceStatus.Count() == 0 ? true : filter.InvoiceStatus.Contains(x.InvoiceStatus)))
+                .Where(x => x.WarehouseLocation == filter.WarehouseLocation)
                 .ToList();
 
             if (!string.IsNullOrEmpty(filter.SortBy))
@@ -114,8 +127,14 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public string[] InvoiceStatus { get; set; }
 
+        public string WarehouseLocation { get; set; }
+
         public string SortBy { get; set; }
 
         public bool IsDesc { get; set; }
+
+        public DateTime FromDate { get; set; }
+
+        public DateTime ToDate { get; set; }
     }
 }

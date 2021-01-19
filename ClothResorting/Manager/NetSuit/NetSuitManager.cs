@@ -228,9 +228,16 @@ namespace ClothResorting.Manager.NetSuit
 
         public string Trandate { get; set; }
 
+        public string ProcessBatch { get; set; }
+
         public string Memo { get; set; }
 
         public ICollection<TransLine> Lines { get; set; }
+
+        public ShippedData()
+        {
+            ProcessBatch = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+        }
     }
 
     public class ReturnData
@@ -264,6 +271,8 @@ namespace ClothResorting.Manager.NetSuit
     {
         public string DeliverOrderId { get; set; }
 
+        public string ProcessBatch { get; set; }
+
         public string SourceNo { get; set; }
 
         public string SourceId { get; set; }
@@ -271,5 +280,10 @@ namespace ClothResorting.Manager.NetSuit
         public string TrackNo { get; set; }
 
         public ICollection<Sku> SkuList { get; set; }
+
+        public DirectSaleOrderRequestBody()
+        {
+            ProcessBatch = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+        }
     }
 }

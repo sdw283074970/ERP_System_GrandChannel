@@ -260,6 +260,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             shipOrder.AssembleBaseInfo(obj.ShipOrderNumber, obj.CustomerCode, obj.OrderType, obj.Destination, obj.PickReference);
             shipOrder.CreateBy = _userName;
+            shipOrder.WarehouseLocation = obj.WarehouseLocation;
             shipOrder.CreateDate = DateTime.Now;
             shipOrder.BOLNumber = obj.BOLNumber;
             shipOrder.Carrier = obj.Carrier;
@@ -361,6 +362,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrderInDb.OrderType = obj.OrderType;
             shipOrderInDb.Destination = obj.Destination;
             shipOrderInDb.PickReference = obj.PickReference;
+            shipOrderInDb.WarehouseLocation = obj.WarehouseLocation;
             shipOrderInDb.Carrier = obj.Carrier;
             shipOrderInDb.BOLNumber = obj.BOLNumber;
             shipOrderInDb.ETS = obj.ETS;

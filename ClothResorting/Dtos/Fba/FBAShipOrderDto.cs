@@ -9,6 +9,8 @@ namespace ClothResorting.Dtos.Fba
     {
         public int Id { get; set; }
 
+        public string WarehouseLocation { get; set; }
+
         public string ShipOrderNumber { get; set; }
 
         public string CustomerCode { get; set; }

@@ -104,21 +104,21 @@ namespace ClothResorting.Controllers.Api.Fba
             }
         }
 
-        // GET /api/fba/fbaiventory/?shipOrderId={shipOrderId}&container={container}&sku={sku}&amzRef={amzRef}&warehouseCode={warehouseCode}&inventoryType={inventoryType} 搜索获取可拣货列表
+        // GET /api/fba/fbaiventory/?shipOrderId={shipOrderId}&container={container}&sku={sku}&amzRef={amzRef}&warehouseCode={warehouseCode}&warehouseLocation={warehouseLocation}&inventoryType={inventoryType} 搜索获取可拣货列表
         [HttpGet]
-        public IHttpActionResult GetFBAInventoryViaContainer([FromUri]int shipOrderId, [FromUri]string container, [FromUri]string sku, [FromUri]string amzRef, [FromUri]string warehouseCode, [FromUri]string inventoryType)
+        public IHttpActionResult GetFBAInventoryViaContainer([FromUri]int shipOrderId, [FromUri]string container, [FromUri]string sku, [FromUri]string amzRef, [FromUri]string warehouseCode, [FromUri]string warehouseLocation, [FromUri]string inventoryType)
         {
             var customerCode = _context.FBAShipOrders.Find(shipOrderId).CustomerCode;
 
             if (inventoryType == FBAInventoryType.Pallet)
             {
-                var palletInventoryDto = _picker.SearchPalletInventory(customerCode, container, sku, amzRef, warehouseCode);
+                var palletInventoryDto = _picker.SearchPalletInventory(customerCode, container, sku, amzRef, warehouseCode, warehouseLocation);
 
                 return Ok(palletInventoryDto.OrderByDescending(x => x.CurrentAvailableCtns).ThenByDescending(x => x.AvailablePlts));
             }
             else
             {
-                var cartonInventoryDto = _picker.SearchCartonInventory(customerCode, container, sku, amzRef, warehouseCode);
+                var cartonInventoryDto = _picker.SearchCartonInventory(customerCode, container, sku, amzRef, warehouseCode, warehouseLocation);
 
                 return Ok(cartonInventoryDto);
             }

@@ -7,6 +7,8 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 {
     public class BaseFBAMasterOrder
     {
+        public string WarehouseLocation { get; set; }
+
         public string ETA { get; set; }
 
         public string Carrier { get; set; }

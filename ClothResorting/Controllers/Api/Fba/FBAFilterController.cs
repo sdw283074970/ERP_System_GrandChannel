@@ -1,6 +1,8 @@
-﻿using ClothResorting.Helpers;
+﻿using ClothResorting.Dtos.Fba;
+using ClothResorting.Helpers;
 using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models;
+using ClothResorting.Models.FBAModels;
 using ClothResorting.Models.StaticClass;
 using System;
 using System.Collections.Generic;
@@ -25,7 +27,16 @@ namespace ClothResorting.Controllers.Api.Fba
             _logger = new Logger(_context);
         }
 
-        // POST /api/fba/fbamasterOrder/?orderType={orderType}
+        // POST /api/fba/fbafilter/
+        [HttpGet]
+        public IHttpActionResult GetWarehouseLocations()
+        {
+            var locationInDb = _context.WarehouseLocations.Where(x => x.IsActive == true);
+            var result = AutoMapper.Mapper.Map<IEnumerable<WarehouseLocation>, IEnumerable<WarehouseLocationDto>>(locationInDb);
+            return Ok(result);
+        }
+
+        // POST /api/fba/fbafilter/?orderType={orderType}
         [HttpPost]
         public IHttpActionResult GetCSRFilteredOrders([FromUri]string orderType, [FromBody]Filter filter)
         {

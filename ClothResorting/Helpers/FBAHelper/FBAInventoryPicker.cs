@@ -22,12 +22,12 @@ namespace ClothResorting.Helpers.FBAHelper
             _context = new ApplicationDbContext();
         }
 
-        public IList<FBAPalletLocationDto> SearchPalletInventory(string customerCode, string container, string sku, string amzRef, string warehouseCode)
+        public IList<FBAPalletLocationDto> SearchPalletInventory(string customerCode, string container, string sku, string amzRef, string warehouseCode, string warehouseLocation)
         {
             var palletInventoryInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder)
                 .Include(x => x.FBAPallet.FBACartonLocations)
-                .Where(x => x.FBAMasterOrder.CustomerCode == customerCode);
+                .Where(x => x.FBAMasterOrder.CustomerCode == customerCode && x.FBAMasterOrder.WarehouseLocation == warehouseLocation);
 
             if (container != null && container != "")
             {
@@ -86,12 +86,13 @@ namespace ClothResorting.Helpers.FBAHelper
             return result;
         }
 
-        public IList<FBACartonLocationDto> SearchCartonInventory(string customerCode, string container, string sku, string amzRef, string warehouseCode)
+        public IList<FBACartonLocationDto> SearchCartonInventory(string customerCode, string container, string sku, string amzRef, string warehouseCode, string warehouseLocation)
         {
             var cartonInventoryInDb = _context.FBACartonLocations
                 .Include(x => x.FBAOrderDetail.FBAMasterOrder)
+                .Include(x => x.FBAMasterOrder)
                 .Where(x => x.AvailableCtns != 0 || x.HoldCtns != 0)
-                .Where(x => x.Location != "Pallet" && x.FBAOrderDetail.FBAMasterOrder.CustomerCode == customerCode);
+                .Where(x => x.Location != "Pallet" && x.FBAOrderDetail.FBAMasterOrder.CustomerCode == customerCode && x.FBAMasterOrder.WarehouseLocation == warehouseLocation);
 
             if (container != null)
             {

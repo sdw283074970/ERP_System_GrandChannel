@@ -471,7 +471,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 range.Borders.LineStyle = 1;
             }
 
-            var fullPath = @"D:\PickingList\" + shipOrderInDb.CustomerCode + "-OB-WO-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"D:\PickingList\" + shipOrderInDb.CustomerCode + "-OB-WO-" + shipOrderInDb.ShipOrderNumber + "-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
@@ -525,7 +526,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex, 10] = o.Remark;
                 startIndex++;
             }
-              
+
             _ws.Cells[startIndex + 1, 1] = "Total";
             _ws.Cells[startIndex + 1, 4] = Math.Round(orderDetails.Sum(x => x.GrossWeight), 2);
             _ws.Cells[startIndex + 1, 5] = Math.Round(orderDetails.Sum(x => x.CBM), 2);
@@ -537,11 +538,9 @@ namespace ClothResorting.Helpers.FBAHelper
             range.VerticalAlignment = XlVAlign.xlVAlignCenter;
             range.Borders.LineStyle = 1;
 
-            var fullPath = @"D:\PickingList\" + masterOrder.CustomerCode + "-IB-WO-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"D:\PickingList\" + masterOrder.CustomerCode + "-IB-WO-" + masterOrder.Container + "-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
-
             _excel.Quit();
-
             return fullPath;
         }
 

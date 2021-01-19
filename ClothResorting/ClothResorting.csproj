@@ -490,6 +490,7 @@
     <Compile Include="Dtos\Fba\FBAShipOrderDto.cs" />
     <Compile Include="Dtos\Fba\FBAWorkOrderDetailDto.cs" />
     <Compile Include="Dtos\Fba\FBAWorkOrderTemplateDto.cs" />
+    <Compile Include="Dtos\Fba\WarehouseLocationDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
     <Compile Include="Dtos\IdentityRoleDto.cs" />
@@ -1884,6 +1885,18 @@
     <Compile Include="Migrations\202011180128216_AddedAgencyInMasterOrderAndShipOrder.Designer.cs">
       <DependentUpon>202011180128216_AddedAgencyInMasterOrderAndShipOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202101141811159_AddedWarehouseLocation.cs" />
+    <Compile Include="Migrations\202101141811159_AddedWarehouseLocation.Designer.cs">
+      <DependentUpon>202101141811159_AddedWarehouseLocation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202101150143368_AddedWarehouseLocationInMasterOrderAndShipOrder.cs" />
+    <Compile Include="Migrations\202101150143368_AddedWarehouseLocationInMasterOrderAndShipOrder.Designer.cs">
+      <DependentUpon>202101150143368_AddedWarehouseLocationInMasterOrderAndShipOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202101182203183_AddedIsActiveInWarehouseLocation.cs" />
+    <Compile Include="Migrations\202101182203183_AddedIsActiveInWarehouseLocation.Designer.cs">
+      <DependentUpon>202101182203183_AddedIsActiveInWarehouseLocation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1972,6 +1985,7 @@
     <Compile Include="Models\FBAModels\StaticModels\FBAOperation.cs" />
     <Compile Include="Models\FBAModels\StaticModels\FBAStatus.cs" />
     <Compile Include="Models\FBAModels\StaticModels\TimeUnit.cs" />
+    <Compile Include="Models\FBAModels\WarehouseLocation.cs" />
     <Compile Include="Models\FCRegularLocationDetail.cs" />
     <Compile Include="Models\GeneralLocationSummary.cs" />
     <Compile Include="Models\GlobalVariable.cs" />
@@ -3501,6 +3515,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202011180128216_AddedAgencyInMasterOrderAndShipOrder.resx">
       <DependentUpon>202011180128216_AddedAgencyInMasterOrderAndShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202101141811159_AddedWarehouseLocation.resx">
+      <DependentUpon>202101141811159_AddedWarehouseLocation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202101150143368_AddedWarehouseLocationInMasterOrderAndShipOrder.resx">
+      <DependentUpon>202101150143368_AddedWarehouseLocationInMasterOrderAndShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202101182203183_AddedIsActiveInWarehouseLocation.resx">
+      <DependentUpon>202101182203183_AddedIsActiveInWarehouseLocation.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

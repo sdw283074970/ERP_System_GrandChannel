@@ -10,6 +10,8 @@ namespace ClothResorting.Models.FBAModels
     {
         public int Id { get; set; }
 
+        public string WarehouseLocation { get; set; }
+
         public string Agency { get; set; }
 
         public float TotalCost { get; set; }

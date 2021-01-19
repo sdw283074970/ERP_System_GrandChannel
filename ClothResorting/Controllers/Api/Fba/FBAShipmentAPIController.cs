@@ -101,7 +101,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var pickingStatus = new PickingStatus(shipOrder.ShipOrderNumber, p.Container, p.ShipmentId, p.AmzRefId, p.WarehouseCode, p.Quantity, p.PalletQuantity);
 
-                var inventoryList = _picker.SearchPalletInventory(customerInDb.CustomerCode, p.Container, p.ShipmentId, p.AmzRefId, p.WarehouseCode);
+                var inventoryList = _picker.SearchPalletInventory(customerInDb.CustomerCode, p.Container, p.ShipmentId, p.AmzRefId, p.WarehouseCode, order.WarehouseLocation);
 
                 if (inventoryList.Count() == 0 || inventoryList.First().FBACartonLocations.Count() == 0)
                 {
@@ -201,6 +201,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string Destionation { get; set; }
 
         public string Address { get; set; }
+
+        public string WarehouseLocation { get; set; }
 
         public IList<FBAPickingList> PickingList { get; set; }
     }

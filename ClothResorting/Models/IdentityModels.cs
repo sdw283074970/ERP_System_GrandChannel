@@ -87,6 +87,7 @@ namespace ClothResorting.Models
         public DbSet<OperationLog> OperationLogs { get; set; }
         public DbSet<FBAWorkOrderTemplate> FBAWorkOrderTemplates { get; set; }
         public DbSet<FBAWorkOrderDetail> FBAWorkOrderDetails { get; set; }
+        public DbSet<WarehouseLocation> WarehouseLocations { get; set; }
 
         //General
         public DbSet<InstructionTemplate> InstructionTemplates { get; set; }

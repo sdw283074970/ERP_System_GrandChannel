@@ -74,6 +74,7 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<ChargingItemDetail, ChargingItemDetailDto>();
             Mapper.CreateMap<FBAShipOrder, WarehouseOutboundLog>();
             Mapper.CreateMap<AuthAppInfo, AuthAppInfoDto>();
+            Mapper.CreateMap<WarehouseLocation, WarehouseLocationDto>();
 
             //FBAConnection
             Mapper.CreateMap<ChargeTemplate, ChargeTemplateDto>();
