@@ -110,6 +110,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         ShipmentId = plt.ShipmentId,
                         ActualPlts = currentOriginalPlts,
                         PickingPlts = currentPickingPlt,
+                        WarehouseLocation = plt.FBAMasterOrder.WarehouseLocation,
                         AvailablePlts = plt.ActualPlts,
                         Location = plt.Location,
                         PalletSize = plt.PalletSize,
@@ -176,6 +177,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         GrossWeightPerCtn = cartonLocation.GrossWeightPerCtn,
                         CBMPerCtn = cartonLocation.CBMPerCtn,
                         PickingCtns = currentPickingCtns,
+                        WarehouseLocation = cartonLocation.FBAOrderDetail.FBAMasterOrder.WarehouseLocation,
                         ResidualCBM = cartonLocation.CBMPerCtn * cartonLocation.ActualQuantity,
                         ResidualQuantity = cartonLocation.ActualQuantity - cartonLocation.HoldCtns,
                         OriginalQuantity = originalQuantity,
@@ -405,14 +407,15 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 11] = Math.Round((double)i.ResidualQuantity, 2);
                 _ws.Cells[startRow, 12] = Math.Round((double)i.HoldQuantity, 2);
                 _ws.Cells[startRow, 13] = i.Location;
-                _ws.Cells[startRow, 14] = i.InboundDate.ToString("yyyy-MM-dd");
+                _ws.Cells[startRow, 14] = i.WarehouseLocation;
+                _ws.Cells[startRow, 15] = i.InboundDate.ToString("yyyy-MM-dd");
 
                 startRow += 1;
             }
 
-            _ws.get_Range("A1:N" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:N" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
-            _ws.get_Range("A1:N" + startRow, Type.Missing).Borders.LineStyle = 1;
+            _ws.get_Range("A1:O" + startRow, Type.Missing).HorizontalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:O" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
+            _ws.get_Range("A1:O" + startRow, Type.Missing).Borders.LineStyle = 1;
 
             _ws = _wb.Worksheets[2];
 
@@ -435,7 +438,7 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 var ctnIndex = startRow;
 
-                _ws.Cells[startRow, 1] = g.PltId;
+                _ws.Cells[startRow, 1] = g.WarehouseLocation;
                 _ws.Cells[startRow, 2] = g.Container;
                 _ws.Cells[startRow, 3] = g.SubCustomer;
                 _ws.Cells[startRow, 4] = g.ActualPlts;
@@ -587,6 +590,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public string SubCustomer { get; set; }
 
         public DateTime InboundDate { get; set; }
+
+        public string WarehouseLocation { get; set; }
     }
 
     public class FBAInventoryInfo
@@ -643,6 +648,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public string PalletSize { get; set; }
 
         public DateTime InboundDate { get; set; }
+
+        public string WarehouseLocation { get; set; }
 
         public List<FBACtnInventory> InPalletCtnInventories { get; set; }
 
