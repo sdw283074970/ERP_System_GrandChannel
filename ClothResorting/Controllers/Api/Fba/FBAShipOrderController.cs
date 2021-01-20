@@ -443,6 +443,48 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
+        // PUT /api/fba/fbashiporder/?reference={reference}&orderType={orderType}
+        [HttpPut]
+        public void CancelOrder([FromUri]string reference, [FromUri]string orderType)
+        {
+            var fbaPickDetailAPI = new FBAPickDetailController();
+
+            if (orderType == FBAOrderType.ShipOrder)
+            {
+                var orderInDb = _context.FBAShipOrders.SingleOrDefault(x => x.ShipOrderNumber == reference);
+                var pickDetailsInDb = _context.FBAPickDetails
+                    .Include(x => x.FBAShipOrder)
+                    .Where(x => x.FBAShipOrder.ShipOrderNumber == reference);
+                var memos = new List<ChargingItemDetail>();
+
+                foreach(var p in pickDetailsInDb)
+                {
+                    memos.Add(new ChargingItemDetail {
+                        OriginalDescription = "[Put back]Container: " + p.Container + ", SKU: " + p.ShipmentId + ", Amz Ref Id: " + p.AmzRefId + ", Dest Warehouse: " + p.WarehouseCode + ", Picked Ctns: " + p.ActualQuantity + ", Picked Plts: " + p.PltsFromInventory,
+                        Description = "[Put back]Container: " + p.Container + ", SKU: " + p.ShipmentId + ", Amz Ref Id: " + p.AmzRefId + ", Dest Warehouse: " + p.WarehouseCode + ", Picked Ctns: " + p.ActualQuantity + ", Picked Plts: " + p.PltsFromInventory,
+                        FBAShipOrder = orderInDb,
+                        CreateBy = _userName,
+                        Status = "No need for charging",
+                        HandlingStatus = "N/A",
+                        IsCharging = false,
+                        IsInstruction = true,
+                        IsOperation = false
+                    });
+
+                    fbaPickDetailAPI.RemovePickDetail(_context, p.Id);
+                }
+
+                _context.ChargingItemDetails.AddRange(memos);
+                orderInDb.Status = FBAStatus.Cancelled;
+            }
+            else
+            {
+
+            }
+
+            _context.SaveChanges();
+        }
+
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&isRelease={isRelease}
         [HttpPut]
         public async Task MarkPickingToRelease([FromUri]int shipOrderId, [FromUri]bool isRelease)
@@ -959,7 +1001,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     shipOrderInDb.Status = FBAStatus.Picking;
                     shipOrderInDb.OperationLog = "Recalled by " + _userName;
                 }
-                else if (shipOrderInDb.Status == FBAStatus.Processing || shipOrderInDb.Status == FBAStatus.Pending || shipOrderInDb.Status == FBAStatus.Updated)
+                else if (shipOrderInDb.Status == FBAStatus.Processing || shipOrderInDb.Status == FBAStatus.Pending || shipOrderInDb.Status == FBAStatus.Updated || shipOrderInDb.Status == FBAStatus.Cancelled)
                 {
                     shipOrderInDb.Status = FBAStatus.ReturnedOrder;
                     shipOrderInDb.OperationLog = "Reset by " + _userName;

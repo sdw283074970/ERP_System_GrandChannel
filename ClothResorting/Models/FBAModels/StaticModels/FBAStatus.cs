@@ -11,6 +11,8 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Inactive = "Inactive";
 
+        public const string Cancelled = "Cancelled";
+
         public const string Valid = "Valid";
 
         public const string Draft = "Draft";
