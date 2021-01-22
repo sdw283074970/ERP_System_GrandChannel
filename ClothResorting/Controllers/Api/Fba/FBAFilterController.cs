@@ -27,11 +27,13 @@ namespace ClothResorting.Controllers.Api.Fba
             _logger = new Logger(_context);
         }
 
-        // POST /api/fba/fbafilter/
+        // POST /api/fba/fbafilter/?userId={foo}
         [HttpGet]
-        public IHttpActionResult GetWarehouseLocations()
+        public IHttpActionResult GetWarehouseLocations([FromUri]string userId)
         {
-            var locationInDb = _context.WarehouseLocations.Where(x => x.IsActive == true);
+            var user = _context.Users.SingleOrDefault(x => x.Id == userId);
+            var warehouseAuths = user.WarehouseAuths.Split(',');
+            var locationInDb = _context.WarehouseLocations.Where(x => x.IsActive == true && warehouseAuths.Contains(x.WarehouseCode));
             var result = AutoMapper.Mapper.Map<IEnumerable<WarehouseLocation>, IEnumerable<WarehouseLocationDto>>(locationInDb);
             return Ok(result);
         }

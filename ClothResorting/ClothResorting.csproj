@@ -1897,6 +1897,10 @@
     <Compile Include="Migrations\202101182203183_AddedIsActiveInWarehouseLocation.Designer.cs">
       <DependentUpon>202101182203183_AddedIsActiveInWarehouseLocation.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202101221001349_AddedWarehouseAuthsInUser.cs" />
+    <Compile Include="Migrations\202101221001349_AddedWarehouseAuthsInUser.Designer.cs">
+      <DependentUpon>202101221001349_AddedWarehouseAuthsInUser.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3524,6 +3528,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202101182203183_AddedIsActiveInWarehouseLocation.resx">
       <DependentUpon>202101182203183_AddedIsActiveInWarehouseLocation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202101221001349_AddedWarehouseAuthsInUser.resx">
+      <DependentUpon>202101221001349_AddedWarehouseAuthsInUser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

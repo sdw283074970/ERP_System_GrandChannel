@@ -18,6 +18,7 @@ namespace ClothResorting.Models
         public ICollection<AuthAppInfo> AuthAppInfos { get; set; }
         public string CustomerCode { get; set; }
         public DateTime LatestLogin { get; set; }
+        public string WarehouseAuths { get; set; }
         public ICollection<UpperVendor> Vendors { get; set; }
 
         public ApplicationUser()

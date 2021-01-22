@@ -266,6 +266,7 @@ namespace ClothResorting.Controllers.Api.Fba
             shipOrder.Carrier = obj.Carrier;
             shipOrder.ETS = obj.ETS;
             shipOrder.BatchNumber = obj.BatchNumber;
+            shipOrder.WarehouseLocation = obj.WarehouseLocation;
             shipOrder.ETSTimeRange = obj.ETSTimeRange;
             shipOrder.PickNumber = obj.PickNumber;
             shipOrder.PurchaseOrderNumber = obj.PurchaseOrderNumber;

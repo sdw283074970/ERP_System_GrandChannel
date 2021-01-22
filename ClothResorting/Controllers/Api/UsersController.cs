@@ -169,6 +169,7 @@ namespace ClothResorting.Controllers.Api
                 dto.Email = u.Email;
                 dto.LatestLogin = u.LatestLogin;
                 dto.Id = u.Id;
+                dto.WarehouseAuths = u.WarehouseAuths;
 
                 foreach(var r in u.Roles)
                 {
@@ -211,9 +212,9 @@ namespace ClothResorting.Controllers.Api
             return Ok(resultList);
         }
 
-        // POST /api/users/?email={email}&tire={tire}
+        // POST /api/users/?email={email}&tire={tire}&warehouseAuth={foo}
         [HttpPost]
-        public async Task<IHttpActionResult> RegisterNewUser([FromUri]string email,[FromUri]string tire)
+        public async Task<IHttpActionResult> RegisterNewUser([FromUri]string email,[FromUri]string tire, [FromUri]string warehouseAuth)
         {
             var userInDb = _context.Users.SingleOrDefault(x => x.UserName == email);
 
@@ -230,7 +231,6 @@ namespace ClothResorting.Controllers.Api
             var result = await UserManager.CreateAsync(newUser, passWord);
 
             var user = _context.Users.SingleOrDefault(x => x.UserName == email);
-
             switch(tire)
             {
                 case "Client":
@@ -255,6 +255,9 @@ namespace ClothResorting.Controllers.Api
                     await UserManager.AddToRoleAsync(user.Id, RoleName.CanDeleteEverything);
                     break;
             }
+
+            user.WarehouseAuths = warehouseAuth;
+            _context.SaveChanges();
 
             return Created(Request.RequestUri, "Register Succese!");
         }
@@ -296,9 +299,9 @@ namespace ClothResorting.Controllers.Api
             }
         }
 
-        // PUT /api/users/?userId={userId}&tire={tire}
+        // PUT /api/users/?userId={userId}&tire={tire}&warehouseAuth={foo}
         [HttpPut]
-        public void ChangeAuthority([FromUri]string userId, [FromUri]string tire)
+        public void ChangeAuthority([FromUri]string userId, [FromUri]string tire, [FromUri]string warehouseAuth)
         {
             var roleId = _context.Roles.SingleOrDefault(x => x.Name == tire).Id;
             var userInDb = _context.Users
@@ -314,7 +317,7 @@ namespace ClothResorting.Controllers.Api
             };
 
             userInDb.Roles.Add(userRole);
-
+            userInDb.WarehouseAuths = warehouseAuth;
             _context.SaveChanges();
         }
 
