@@ -34,7 +34,7 @@ namespace ClothResorting.Helpers
         }
 
         //调整Excel的主方法
-        public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string timeUnit, string lastBillingDate, string currentBillingDate)
+        public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string timeUnit, string lastBillingDate, string currentBillingDate, bool isEstimatingCharge)
         {
             //首先将ChargeMehods表按照时间顺序排序
             var chargeMethodsList = chargeMethods.OrderBy(x => x.From).ToList();
@@ -66,7 +66,7 @@ namespace ClothResorting.Helpers
                 string inboundDate = _ws.Cells[i + 2, 8].Value.ToString("MM/dd/yyyy");
                 string outboundDate = _ws.Cells[i + 2, 9].Value2 == null ? null : _ws.Cells[i + 2, 9].Value.ToString("MM/dd/yyyy");
                 float totalPlts = _ws.Cells[i + 2, 7].Value2 == 0 || _ws.Cells[i + 2, 7].Value2 == null ? 1 : (float)_ws.Cells[i + 2, 7].Value2;
-                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit);
+                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit, isEstimatingCharge);
                 float storageCharge = 0;
                 float lastFee = 0;
 
@@ -144,7 +144,7 @@ namespace ClothResorting.Helpers
         }
 
         //输入两个日期字符串以及账单日范围，算出有多少周
-        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, out int startTimeUnit)
+        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, out int startTimeUnit, bool isEstimatingCharge)
         {
             DateTime startDt;
             DateTime endDt;
@@ -155,9 +155,18 @@ namespace ClothResorting.Helpers
             DateTime lastBillingDt;
             DateTime currentBillingDt;
 
-            //当outbound为空时，将今天当作outbound
+            //当outbound为空时
             if (outboundDate == null)
-                outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+            {
+
+                if (isEstimatingCharge)
+                    // 如果是预估付费，则使用账单日作为结算日期，无论实际出库日期是多少
+                    //endDt = currentBillingDt;
+                    outboundDate = currentBillingDate;
+                else
+                    // 否则，将今天当作outbound
+                    outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+            }
             //outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
 
             DateTime.TryParseExact(inboundDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out inboundDt);

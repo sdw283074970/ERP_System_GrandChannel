@@ -59,9 +59,9 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(Mapper.Map<ChargeTemplate, ChargeTemplateDto>(_context.ChargeTemplates.SingleOrDefault(x => x.Id == storageTempId)));
         }
 
-        // GET /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}&p1Discount={p1Discount}&p2Discount={p2Discount}
+        // GET /api/fba/chargetemplate/?templateId={templateId}&customerCode={customerCode}lastBillingDate={lastBillingDate}&currentBillingDate={currentBillingDate}&p1Discount={p1Discount}&p2Discount={p2Discount}&isEstimatingCharge={foo}
         [HttpGet]
-        public IHttpActionResult GenerateNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate, [FromUri]float p1Discount, [FromUri]float p2Discount)
+        public IHttpActionResult GenerateNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate, [FromUri]float p1Discount, [FromUri]float p2Discount, [FromUri]bool isEstimatingCharge)
         {
             DateTime closeDate = currentBillingDate;
             DateTime startDate = lastBillingDate;
@@ -78,7 +78,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var calculator = new InventoryFeeCalculator(fullPath);
 
-            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate.ToString("yyyy-MM-dd"), currentBillingDate.ToString("yyyy-MM-dd"));
+            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate.ToString("yyyy-MM-dd"), currentBillingDate.ToString("yyyy-MM-dd"), isEstimatingCharge);
 
             //强行关闭Excel进程
             var killer = new ExcelKiller();
@@ -142,7 +142,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var calculator = new InventoryFeeCalculator(fullPath);
 
-            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate.ToString("yyyy-MM-dd"), currentBillingDate.ToString("yyyy-MM-dd"));
+            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate.ToString("yyyy-MM-dd"), currentBillingDate.ToString("yyyy-MM-dd"), false);
 
             //强行关闭Excel进程
             var killer = new ExcelKiller();
@@ -194,7 +194,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var calculator = new InventoryFeeCalculator(path);
 
-            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate, currentBillingDate);
+            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, lastBillingDate, currentBillingDate, false);
 
             //强行关闭Excel进程
             var killer = new ExcelKiller();
