@@ -204,6 +204,13 @@ namespace ClothResorting.Controllers.Api.Fba
                     .SingleOrDefault(x => x.Id == shipOrderId);
                 return Ok(Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb));
             }
+            else if (operation == "GetDate")
+            {
+                var shipOrderInDb = _context.FBAShipOrders
+                    .SingleOrDefault(x => x.Id == shipOrderId);
+
+                return Ok(new { CreateDate = shipOrderInDb.CreateDate, PushDate = shipOrderInDb.PlaceTime, StartDate = shipOrderInDb.StartedTime, ReadyDate = shipOrderInDb.ReadyTime, ReleasedDate = shipOrderInDb.ReleasedDate, ShipDate = shipOrderInDb.ShipDate });
+            }
 
             return Ok();
         }
@@ -327,7 +334,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
         [HttpPut]
-        public void FinishPicking([FromUri] int shipOrderId, [FromUri]string operation)
+        public void FinishPicking([FromUri] int shipOrderId, [FromUri]string operation, [FromBody]AllDateForm dateForm)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
@@ -335,7 +342,15 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 if (shipOrderInDb.Status == FBAStatus.NewCreated || shipOrderInDb.Status == FBAStatus.Picking)
                     shipOrderInDb.Status = FBAStatus.Draft;
-
+            }
+            else if (operation == "UpdateDate")
+            {
+                shipOrderInDb.CreateDate = dateForm.CreateDate;
+                shipOrderInDb.PlaceTime = dateForm.PushDate;
+                shipOrderInDb.StartedTime = dateForm.StartDate;
+                shipOrderInDb.ReadyTime = dateForm.ReadyDate;
+                shipOrderInDb.ReleasedDate = dateForm.ReleasedDate;
+                shipOrderInDb.ShipDate = dateForm.ShipDate;
             }
 
             _context.SaveChanges();
@@ -1468,5 +1483,20 @@ namespace ClothResorting.Controllers.Api.Fba
         public bool IsInstruction { get; set; }
 
         public bool IsCharging { get; set; }
+    }
+
+    public class AllDateForm
+    {
+        public DateTime CreateDate { get; set; }
+
+        public DateTime PushDate { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime ReadyDate { get; set; }
+
+        public DateTime ReleasedDate { get; set; }
+
+        public DateTime ShipDate { get; set; }
     }
 }
