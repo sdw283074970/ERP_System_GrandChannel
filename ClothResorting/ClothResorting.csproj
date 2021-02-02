@@ -488,6 +488,8 @@
     <Compile Include="Dtos\Fba\FBAPalletLocationDto.cs" />
     <Compile Include="Dtos\Fba\FBAPickDetailsDto.cs" />
     <Compile Include="Dtos\Fba\FBAShipOrderDto.cs" />
+    <Compile Include="Dtos\Fba\FBAShipOrderPickLogDto.cs" />
+    <Compile Include="Dtos\Fba\FBAShipOrderPutBackLogDto.cs" />
     <Compile Include="Dtos\Fba\FBAWorkOrderDetailDto.cs" />
     <Compile Include="Dtos\Fba\FBAWorkOrderTemplateDto.cs" />
     <Compile Include="Dtos\Fba\WarehouseLocationDto.cs" />
@@ -1901,6 +1903,14 @@
     <Compile Include="Migrations\202101221001349_AddedWarehouseAuthsInUser.Designer.cs">
       <DependentUpon>202101221001349_AddedWarehouseAuthsInUser.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202101290055398_AddedFBAShipOrderPickLogAndPutBackLog.cs" />
+    <Compile Include="Migrations\202101290055398_AddedFBAShipOrderPickLogAndPutBackLog.Designer.cs">
+      <DependentUpon>202101290055398_AddedFBAShipOrderPickLogAndPutBackLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202101290856049_AddedOriginalLocationInPutBackLog.cs" />
+    <Compile Include="Migrations\202101290856049_AddedOriginalLocationInPutBackLog.Designer.cs">
+      <DependentUpon>202101290856049_AddedOriginalLocationInPutBackLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1977,6 +1987,8 @@
     <Compile Include="Models\FBAModels\FBAPickDetail.cs" />
     <Compile Include="Models\FBAModels\FBAPickDetailCarton.cs" />
     <Compile Include="Models\FBAModels\FBAShipOrder.cs" />
+    <Compile Include="Models\FBAModels\FBAShipOrderPickLog.cs" />
+    <Compile Include="Models\FBAModels\FBAShipOrderPutBackLog.cs" />
     <Compile Include="Models\FBAModels\FBAWorkOrderDetail.cs" />
     <Compile Include="Models\FBAModels\FBAWorkOrderTemplate.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IMasterOrder.cs" />
@@ -3531,6 +3543,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202101221001349_AddedWarehouseAuthsInUser.resx">
       <DependentUpon>202101221001349_AddedWarehouseAuthsInUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202101290055398_AddedFBAShipOrderPickLogAndPutBackLog.resx">
+      <DependentUpon>202101290055398_AddedFBAShipOrderPickLogAndPutBackLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202101290856049_AddedOriginalLocationInPutBackLog.resx">
+      <DependentUpon>202101290856049_AddedOriginalLocationInPutBackLog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

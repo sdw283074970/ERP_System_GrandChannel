@@ -110,6 +110,10 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<PullSheetDiagnostic> PullDiagnostics { get; set; }
 
+        public ICollection<FBAShipOrderPickLog> FBAShipOrderPickLogs { get; set; }
+
+        public ICollection<FBAShipOrderPutBackLog> FBAShipOrderPutBackLogs { get; set; }
+
         public FBAShipOrder()
         {
             CreateDate = DateTime.Now;

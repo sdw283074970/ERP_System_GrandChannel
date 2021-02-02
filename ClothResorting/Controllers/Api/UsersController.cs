@@ -36,7 +36,7 @@ namespace ClothResorting.Controllers.Api
         }
         //private HttpContextBase HttpContextBase { get; }
 
-        public IAuthenticationManager AuthenticationManager { 
+        public IAuthenticationManager AuthenticationManager {
             get 
             { 
                 return HttpContext.Current.GetOwinContext().Authentication; 

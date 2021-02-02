@@ -82,6 +82,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 Destination = order.Destionation,
                 CreateDate = DateTime.Now,
                 Agency = order.Agency,
+                WarehouseLocation = order.WarehouseLocation == "" ? "W0" : order.WarehouseLocation,
                 ShipOrderNumber = GenerateShipOrderNumber(customerInDb.CustomerCode, order.ShipOrderNumber)
             };
 

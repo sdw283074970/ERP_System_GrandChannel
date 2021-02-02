@@ -83,6 +83,7 @@ namespace ClothResorting.Controllers.Api.Fba
             newMasterOrder.TotalCtns = order.FBAJobs.Sum(x => x.Quantity);
             newMasterOrder.OriginalPlts = order.FBAJobs.Sum(x => x.PalletQuantity);
             newMasterOrder.CustomerCode = customerCode;
+            newMasterOrder.WarehouseLocation = order.WarehouseLocation == "" ? "W0" : order.WarehouseLocation;
             newMasterOrder.Customer = customer;
             newMasterOrder.PortOfLoading = order.PortOfLoading;
             newMasterOrder.ETAPort = order.ETADate;
@@ -219,6 +220,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string Subcustomer { get; set; }
 
         public string PortOfLoading { get; set; }
+
+        public string WarehouseLocation { get; set; }
 
         public string DeliveryPort { get; set; }
 

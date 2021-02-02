@@ -549,6 +549,7 @@ namespace ClothResorting.Helpers.FBAHelper
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
             var addressBookInDb = _context.FBAAddressBooks.SingleOrDefault(x => x.WarehouseCode == shipOrderInDb.Destination);
+            var warehouseLocationInDb = _context.WarehouseLocations.SingleOrDefault(x => x.WarehouseCode == shipOrderInDb.WarehouseLocation);
             var address = " ";
             _ws = _wb.Worksheets[1];
 
@@ -559,6 +560,10 @@ namespace ClothResorting.Helpers.FBAHelper
 
             //设置BOL时间
             _ws.Cells[2, 1] = "Date: " + DateTime.Now.ToString("yyyy-MM-dd");
+
+            // 设置BOL提货地址
+            _ws.Cells[4, 1] = "Grand Channel Inc. " + shipOrderInDb.WarehouseLocation;
+            _ws.Cells[5, 1] = warehouseLocationInDb.Address;
 
             //设置BOL#
             _ws.Cells[3, 6] = shipOrderInDb.BOLNumber;
