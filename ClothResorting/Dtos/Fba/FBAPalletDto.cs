@@ -10,9 +10,13 @@ namespace ClothResorting.Dtos.Fba
     {
         public string PalletSize { get; set; }
 
+        public string LocationStatus { get; set; }
+
         public bool DoesAppliedLabel { get; set; }
 
         public bool HasSortingMarking { get; set; }
+
+        public string Memo { get; set; }
 
         public bool IsOverSizeOrOverwidth { get; set; }
 

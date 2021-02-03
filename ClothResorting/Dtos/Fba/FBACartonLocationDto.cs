@@ -12,11 +12,15 @@ namespace ClothResorting.Dtos.Fba
 
         public float CBMPerCtn { get; set; }
 
+        public string LocationStatus { get; set; }
+
         public int FBAPickDetailCartonId { get; set; }
 
         public string Barcode { get; set; }
 
         public string Symbology { get; set; }
+
+        public string Memo { get; set; }
 
         public DateTime InboundDate { get; set; }
 

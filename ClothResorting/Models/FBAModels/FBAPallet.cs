@@ -1,4 +1,5 @@
 ﻿using ClothResorting.Models.FBAModels.BaseClass;
+using ClothResorting.Models.FBAModels.StaticModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,13 @@ namespace ClothResorting.Models.FBAModels
 {
     public class FBAPallet : BaseFBAOrderDetail
     {
+        public FBAPallet()
+        {
+            LocationStatus = FBAStatus.Original;
+        }
+
+        public string LocationStatus { get; set; }
+
         public string PalletSize { get; set; }
 
         public bool DoesAppliedLabel { get; set; }
@@ -19,6 +27,8 @@ namespace ClothResorting.Models.FBAModels
         public int ActualPallets { get; set; }
 
         public int ComsumedPallets { get; set; }
+
+        public string Memo { get; set; }
 
         public FBAMasterOrder FBAMasterOrder { get; set; }
 

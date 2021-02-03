@@ -7,6 +7,12 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 {
     public static class FBAStatus
     {
+        public const string Original = "Original";
+
+        public const string Relocated = "Relocated";
+
+        public const string PutBack = "PutBack";
+
         public const string Active = "Active";
 
         public const string Inactive = "Inactive";
@@ -76,8 +82,6 @@ namespace ClothResorting.Models.FBAModels.StaticModels
         public const string InPallet = "InPallet";
 
         public const string Unassigned = "Unassigned";
-
-        public const string Relocated = "Relocated";
 
         public const string Ready = "Ready";
 

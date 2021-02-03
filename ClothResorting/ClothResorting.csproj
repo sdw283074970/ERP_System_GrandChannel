@@ -566,6 +566,7 @@
     <Compile Include="Manager\NetSuit\NetSuitManager.cs" />
     <Compile Include="Manager\NotificationManager.cs" />
     <Compile Include="Manager\OAuth.cs" />
+    <Compile Include="Manager\PutbackManager.cs" />
     <Compile Include="Manager\ZT\ZTManager.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.cs" />
     <Compile Include="Migrations\201805111640533_Initialization.Designer.cs">
@@ -1910,6 +1911,14 @@
     <Compile Include="Migrations\202101290856049_AddedOriginalLocationInPutBackLog.cs" />
     <Compile Include="Migrations\202101290856049_AddedOriginalLocationInPutBackLog.Designer.cs">
       <DependentUpon>202101290856049_AddedOriginalLocationInPutBackLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202102030345477_AddedMemoToInventoryRelatedModels.cs" />
+    <Compile Include="Migrations\202102030345477_AddedMemoToInventoryRelatedModels.Designer.cs">
+      <DependentUpon>202102030345477_AddedMemoToInventoryRelatedModels.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202102030353268_AddedLocationStatusToInventoryRelatedModels.cs" />
+    <Compile Include="Migrations\202102030353268_AddedLocationStatusToInventoryRelatedModels.Designer.cs">
+      <DependentUpon>202102030353268_AddedLocationStatusToInventoryRelatedModels.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
@@ -3549,6 +3558,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202101290856049_AddedOriginalLocationInPutBackLog.resx">
       <DependentUpon>202101290856049_AddedOriginalLocationInPutBackLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202102030345477_AddedMemoToInventoryRelatedModels.resx">
+      <DependentUpon>202102030345477_AddedMemoToInventoryRelatedModels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202102030353268_AddedLocationStatusToInventoryRelatedModels.resx">
+      <DependentUpon>202102030353268_AddedLocationStatusToInventoryRelatedModels.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

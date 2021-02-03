@@ -233,7 +233,7 @@ namespace ClothResorting.Helpers.FBAHelper
             fbaCartonLocationInDb.AvailableCtns -= ctnQuantity;
             fbaCartonLocationInDb.Status = FBAStatus.Picking;
 
-            pickDetail.FBACartonLocation = fbaCartonLocationInDb;
+            //pickDetail.FBACartonLocation = fbaCartonLocationInDb;
             pickDetail.OrderType = FBAOrderType.ECommerce;
             pickDetail.HowToDeliver = fbaCartonLocationInDb.HowToDeliver;
 

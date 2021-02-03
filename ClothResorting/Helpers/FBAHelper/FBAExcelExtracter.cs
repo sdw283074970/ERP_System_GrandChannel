@@ -268,7 +268,7 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 var location = CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList());
 
-                return new FBAPickDetail
+                var pickDetail = new FBAPickDetail
                 {
                     Location = location,
                     GrandNumber = cartonLocation.GrandNumber,
@@ -286,6 +286,15 @@ namespace ClothResorting.Helpers.FBAHelper
                     PickableCtns = ctns,
                     FBACartonLocation = cartonLocation
                 };
+
+                pickDetailCartonList.Add(new FBAPickDetailCarton
+                {
+                    PickCtns = ctns,
+                    FBAPickDetail = pickDetail,
+                    FBACartonLocation = cartonLocation
+                });
+
+                return pickDetail;
             }
             //如果是托盘里的carton，先找到其托盘对象，再在托盘对象中拣货
             else

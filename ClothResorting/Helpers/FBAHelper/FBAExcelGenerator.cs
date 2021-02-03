@@ -51,7 +51,7 @@ namespace ClothResorting.Helpers.FBAHelper
             var pallets = _context.FBAPallets
                 .Include(x => x.FBAMasterOrder)
                 .Include(x => x.FBACartonLocations)
-                .Where(x => x.FBAMasterOrder.Id == masterOrderId)
+                .Where(x => x.FBAMasterOrder.Id == masterOrderId && x.ActualPallets != 0)
                 .ToList();
 
             var totalPlts = pallets == null ? 0 : pallets.Sum(x => x.ActualPallets);

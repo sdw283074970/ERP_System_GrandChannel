@@ -11,7 +11,15 @@ namespace ClothResorting.Models.FBAModels
 {
     public class FBAPalletLocation : BaseFBAOrderDetail, IFBALocation
     {
+        public FBAPalletLocation()
+        {
+            Location = FBAStatus.Unassigned;
+            LocationStatus = FBAStatus.Original;
+        }
+
         public string PalletSize { get; set; }
+
+        public string LocationStatus { get; set; }
 
         public float GrossWeightPerPlt { get; set; }
 
@@ -22,6 +30,8 @@ namespace ClothResorting.Models.FBAModels
         public int ActualPlts { get; set; }
 
         public int AvailablePlts { get; set; }
+
+        public string Memo { get; set; }
 
         public int PickingPlts { get; set; }
 
@@ -34,11 +44,6 @@ namespace ClothResorting.Models.FBAModels
         public FBAMasterOrder FBAMasterOrder { get; set; }
 
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }
-
-        public FBAPalletLocation()
-        {
-            Location = FBAStatus.Unassigned;
-        }
 
         public void AssemblePltDetails(float grossWeightPerPlt, float cbmPerPlt, int ctnsPerPlt)
         {

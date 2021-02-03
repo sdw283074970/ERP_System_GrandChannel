@@ -16,6 +16,7 @@ using ClothResorting.Helpers;
 using ClothResorting.Helpers.FBAHelper;
 using Newtonsoft.Json;
 using System.IO;
+using ClothResorting.Manager;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -500,6 +501,23 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             _context.SaveChanges();
+        }
+
+        // DELETE /api/FBAOrderDetail/?pickDetailId={pickDetailCartonId}&newLocation={foo}
+        [HttpDelete]
+        public void PutbackPickDetail([FromUri]int pickDetailId, [FromUri]string newLocation)
+        {
+            var pickDetailInDb = _context.FBAPickDetails
+                .Include(x => x.FBAPickDetailCartons.Select(c => c.FBACartonLocation.FBAPallet.FBACartonLocations.Select(z => z.FBAPickDetails)))
+                .Include(x => x.FBAPickDetailCartons.Select(c => c.FBACartonLocation.FBAPallet.FBACartonLocations.Select(z => z.FBAMasterOrder)))
+                .Include(x => x.FBAPickDetailCartons.Select(c => c.FBACartonLocation.FBAOrderDetail))
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBAMasterOrder)
+                .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
+                .SingleOrDefault(x => x.Id == pickDetailId);
+
+            var manager = new PutbackManager(_context);
+            manager.PutbackPickedPalletItemsToNewLocation(pickDetailInDb, newLocation);
         }
 
         public void RemovePickDetail(ApplicationDbContext context, int pickDetailId)

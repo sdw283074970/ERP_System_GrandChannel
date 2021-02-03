@@ -1,5 +1,6 @@
 ﻿using ClothResorting.Models.FBAModels.BaseClass;
 using ClothResorting.Models.FBAModels.Interfaces;
+using ClothResorting.Models.FBAModels.StaticModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +12,16 @@ namespace ClothResorting.Models.FBAModels
     {
         public FBACartonLocation()
         {
-
+            LocationStatus = FBAStatus.Original;
         }
+
+        public string LocationStatus { get; set; }
 
         public float GrossWeightPerCtn { get; set; }
 
         public float CBMPerCtn { get; set; }
+
+        public string Memo { get; set; }
 
         public int CtnsPerPlt { get; set; }
 

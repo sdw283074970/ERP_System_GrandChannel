@@ -10,11 +10,15 @@ namespace ClothResorting.Dtos.Fba
     {
         public string PalletSize { get; set; }
 
+        public string LocationStatus { get; set; }
+
         public float GrossWeightPerPlt { get; set; }
 
         public DateTime InboundDate { get; set; }
 
         public float CBMPerPlt { get; set; }
+
+        public string Memo { get; set; }
 
         public int CtnsPerPlt { get; set; }
 
