@@ -16,6 +16,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string GrandNumber { get; set; }
 
+        public DateTime CancelDate { get; set; }
+
         public float TotalCost { get; set; }
 
         public string CreatedBy { get; set; }

@@ -18,6 +18,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string ShipOrderNumber { get; set; }
 
+        public DateTime CancelDate { get; set; }
+
         public string BatchNumber { get; set; }
 
         public string SubCustomer { get; set; }

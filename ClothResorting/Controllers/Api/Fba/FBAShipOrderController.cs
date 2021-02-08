@@ -493,26 +493,16 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 if (pickDetailsInDb.Count() != 0)
                     throw new Exception("Please make sure to use 'Put back to new location' feature first before cancelling this order. 请使用‘放回到新库位功能’，确保输入新的库位后再取消这个订单。");
-
-                foreach(var p in pickDetailsInDb)
-                {
-                    memos.Add(new ChargingItemDetail {
-                        OriginalDescription = "[Put back]Container: " + p.Container + ", SKU: " + p.ShipmentId + ", Amz Ref Id: " + p.AmzRefId + ", Dest Warehouse: " + p.WarehouseCode + ", Picked Ctns: " + p.ActualQuantity + ", Picked Plts: " + p.PltsFromInventory,
-                        Description = "[Put back]Container: " + p.Container + ", SKU: " + p.ShipmentId + ", Amz Ref Id: " + p.AmzRefId + ", Dest Warehouse: " + p.WarehouseCode + ", Picked Ctns: " + p.ActualQuantity + ", Picked Plts: " + p.PltsFromInventory,
-                        FBAShipOrder = orderInDb,
-                        CreateBy = _userName,
-                        Status = "No need for charging",
-                        HandlingStatus = "N/A",
-                        IsCharging = false,
-                        IsInstruction = true,
-                        IsOperation = false
-                    });
-
-                    fbaPickDetailAPI.RemovePickDetail(_context, p.Id);
-                }
-
-                _context.ChargingItemDetails.AddRange(memos);
+                
                 orderInDb.Status = FBAStatus.Cancelled;
+                orderInDb.CancelDate = DateTime.Now;
+                _context.OrderOperationLogs.Add(new OrderOperationLog {
+                    Description = "Order cancelled.",
+                    OperationDate = DateTime.Now,
+                    FBAShipOrder = orderInDb,
+                    Operator = _userName,
+                    Type = "Cancel Orders"
+                });
             }
             else
             {
@@ -781,6 +771,13 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.Id == shipOrderId);
 
+            var fbaPickDetailAPI = new FBAPickDetailController();
+
+            foreach (var detail in pickDetailsInDb)
+            {
+                fbaPickDetailAPI.RemovePickDetail(_context, detail.Id, false);
+            }
+
             var pickDetailsDto = Mapper.Map<IEnumerable<FBAPickDetail>, IEnumerable<FBAPickDetailsDto>>(pickDetailsInDb);
 
             var shipOrderInDb = _context.FBAShipOrders
@@ -789,12 +786,6 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var shipOrderDto = Mapper.Map<FBAShipOrder, FBAShipOrderDto>(shipOrderInDb);
 
-            var fbaPickDetailAPI = new FBAPickDetailController();
-
-            foreach(var detail in pickDetailsInDb)
-            {
-                fbaPickDetailAPI.RemovePickDetail(_context, detail.Id);
-            }
 
             var chargingItemDetailsInDb = _context.ChargingItemDetails
                 .Include(x => x.FBAShipOrder)
@@ -814,11 +805,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.Id == shipOrderId);
 
+            var logs = _context.OrderOperationLogs
+                .Include(x => x.FBAShipOrder)
+                .Where(x => x.FBAShipOrder.Id == shipOrderId);
+
             var invoiceDetailsDto = Mapper.Map<IEnumerable<InvoiceDetail>, IEnumerable<InvoiceDetailDto>>(invoiceDetailsInDb);
 
             _context.ChargingItemDetails.RemoveRange(chargingItemDetailsInDb);
             _context.InvoiceDetails.RemoveRange(invoiceDetailsInDb);
             _context.EFiles.RemoveRange(efiles);
+            _context.OrderOperationLogs.RemoveRange(logs);
             _context.PullSheetDiagnostics.RemoveRange(diagnostics);
 
             _context.FBAShipOrders.Remove(shipOrderInDb);

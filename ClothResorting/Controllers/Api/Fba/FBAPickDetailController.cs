@@ -478,7 +478,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpDelete]
         public void PutBackPickDetail([FromUri]int pickDetailId)
         {
-            RemovePickDetail(_context, pickDetailId);
+            RemovePickDetail(_context, pickDetailId, true);
             _context.SaveChanges();
         }
 
@@ -528,9 +528,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 manager.PutbackPickedCartonItemToNewLocation(pickDetailInDb, newLocation, _userName);
         }
 
-        public void RemovePickDetail(ApplicationDbContext context, int pickDetailId)
+        public void RemovePickDetail(ApplicationDbContext context, int pickDetailId, bool isAddLogs)
         {
             var pickDetailInDb = context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
                 .Include(x => x.FBACartonLocation)
                 .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
                 .Include(x => x.FBAPickDetailCartons)
@@ -539,6 +540,7 @@ namespace ClothResorting.Controllers.Api.Fba
             // 如果palletLocation不为空，则说明从库存拣货单位是托盘
             if (pickDetailInDb.FBAPalletLocation != null)
             {
+                var ctnLogList = new List<OrderOperationLog>();
                 pickDetailInDb.FBAPalletLocation.AvailablePlts += pickDetailInDb.PltsFromInventory;
                 pickDetailInDb.FBAPalletLocation.PickingPlts -= pickDetailInDb.PltsFromInventory;
                 if (pickDetailInDb.FBAPalletLocation.PickingPlts == 0 )
@@ -551,10 +553,38 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Include(x => x.FBAPickDetail)
                     .Where(x => x.FBAPickDetail.Id == pickDetailInDb.Id);
 
-                foreach (var c in pickDetailCartonsInDb)
+                foreach (var p in pickDetailCartonsInDb)
                 {
-                    c.FBACartonLocation.AvailableCtns += c.PickCtns;
-                    c.FBACartonLocation.PickingCtns -= c.PickCtns;
+                    p.FBACartonLocation.AvailableCtns += p.PickCtns;
+                    p.FBACartonLocation.PickingCtns -= p.PickCtns;
+
+                    ctnLogList.Add(new OrderOperationLog
+                    {
+                        Type = FBAStatus.PutBack,
+                        OperationDate = DateTime.Now,
+                        Operator = _userName,
+                        FBAShipOrder = pickDetailInDb.FBAShipOrder,
+                        Description = "Put back " + p.PickCtns + " in-pallet carton(s) from Carton Location Id: " + p.FBACartonLocation.Id + ", Container: " + p.FBACartonLocation.Container + ", ShipmentId(SKU): " + p.FBACartonLocation.ShipmentId + ", AmzRefId: " + p.FBACartonLocation.AmzRefId + ", Warehouse code: " + p.FBACartonLocation.WarehouseCode + " to original location: " + pickDetailInDb.Location
+                    });
+                }
+
+                var pltLog = new OrderOperationLog
+                {
+                    Type = FBAStatus.PutBack,
+                    FBAShipOrder = pickDetailInDb.FBAShipOrder,
+                    OperationDate = DateTime.Now,
+                    Operator = _userName
+                };
+
+                if (pickDetailInDb.FBAPickDetailCartons == null)
+                    pltLog.Description = "Put back " + pickDetailInDb.PltsFromInventory + " empty pallet(s) from Pallet Location Id: " + pickDetailInDb.FBAPalletLocation.Id + ", Container: " + pickDetailInDb.Container + ", ShipmentId(SKU): " + pickDetailInDb.ShipmentId + ", AmzRefId: " + pickDetailInDb.AmzRefId + ", Warehouse code: " + pickDetailInDb.WarehouseCode + " to original location: " + pickDetailInDb.Location;
+                else
+                    pltLog.Description = "Put back " + pickDetailInDb.PltsFromInventory + " pallet(s) from Pallet Location Id: " + pickDetailInDb.FBAPalletLocation.Id + " Container: " + pickDetailInDb.Container + ", ShipmentId(SKU): " + pickDetailInDb.ShipmentId + ", AmzRefId: " + pickDetailInDb.AmzRefId + ", Warehouse code: " + pickDetailInDb.WarehouseCode + " to original location: " + pickDetailInDb.Location;
+
+                if (isAddLogs)
+                {
+                    context.OrderOperationLogs.Add(pltLog);
+                    context.OrderOperationLogs.AddRange(ctnLogList);
                 }
 
                 context.FBAPickDetailCartons.RemoveRange(pickDetailCartonsInDb);
@@ -573,6 +603,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     pickDetailInDb.FBACartonLocation.Status = FBAStatus.InPallet;
                 }
+
+                context.OrderOperationLogs.Add(new OrderOperationLog
+                {
+                    Type = FBAStatus.PutBack,
+                    OperationDate = DateTime.Now,
+                    Operator = _userName,
+                    FBAShipOrder = pickDetailInDb.FBAShipOrder,
+                    Description = "Put back " + pickDetailInDb.ActualQuantity + " loose carton(s) from Carton Location Id: " + pickDetailInDb.FBACartonLocation.Id + ", Container: " + pickDetailInDb.FBACartonLocation.Container + ", ShipmentId(SKU): " + pickDetailInDb.FBACartonLocation.ShipmentId + ", AmzRefId: " + pickDetailInDb.FBACartonLocation.AmzRefId + ", Warehouse code: " + pickDetailInDb.FBACartonLocation.WarehouseCode + " to original location: " + pickDetailInDb.Location
+                });
+
                 context.FBAPickDetails.Remove(pickDetailInDb);
                 context.FBAPickDetailCartons.RemoveRange(_context.FBAPickDetailCartons
                     .Include(x => x.FBAPickDetail)

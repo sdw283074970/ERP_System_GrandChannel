@@ -15,6 +15,8 @@ namespace ClothResorting.Dtos.Fba
 
         public string CustomerCode { get; set; }
 
+        public DateTime CancelDate { get; set; }
+
         public string Agency { get; set; }
 
         public float TotalCost { get; set; }
