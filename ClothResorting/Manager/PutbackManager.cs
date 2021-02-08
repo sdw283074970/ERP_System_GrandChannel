@@ -18,7 +18,7 @@ namespace ClothResorting.Manager
         }
 
         // 托盘货放回方法
-        public void PutbackPickedPalletItemsToNewLocation(FBAPickDetail pickDetailInDb, string newLocation)
+        public void PutbackPickedPalletItemsToNewLocation(FBAPickDetail pickDetailInDb, string newLocation, string user)
         {
             var pickedCtns = 0;
 
@@ -55,6 +55,7 @@ namespace ClothResorting.Manager
             };
 
             var newCartonLocationsList = new List<FBACartonLocation>();
+            var ctnLogList = new List<OrderOperationLog>();
 
             foreach (var p in pickDetailInDb.FBAPickDetailCartons)
             {
@@ -93,6 +94,13 @@ namespace ClothResorting.Manager
 
                 pickedCtns += p.PickCtns;
                 newCartonLocationsList.Add(newFBACartonLocation);
+                ctnLogList.Add(new OrderOperationLog {
+                    Type = FBAStatus.PutBack,
+                    OperationDate = DateTime.Now,
+                    Operator = user,
+                    FBAShipOrder = pickDetailInDb.FBAShipOrder,
+                    Description = "Put back " + p.PickCtns + " in-pallet carton(s) from Carton Location Id: " + p.FBACartonLocation.Id + ", Container: " + p.FBACartonLocation.Container + ", ShipmentId(SKU): " + p.FBACartonLocation.ShipmentId + ", AmzRefId: " + p.FBACartonLocation.AmzRefId + ", Warehouse code: " + p.FBACartonLocation.WarehouseCode + " to new location: " + newLocation
+                });
             }
 
             pickDetailInDb.FBAPalletLocation.ActualQuantity -= pickedCtns;
@@ -121,6 +129,22 @@ namespace ClothResorting.Manager
                 Memo = "Put back from shipping order: " + pickDetailInDb.FBAShipOrder.ShipOrderNumber + " on " + DateTime.Now.ToString("yyyy-MM-dd")
             };
 
+            var pltLog = new OrderOperationLog
+            {
+                Type = FBAStatus.PutBack,
+                FBAShipOrder = pickDetailInDb.FBAShipOrder,
+                OperationDate = DateTime.Now,
+                Operator = user
+            };
+
+            if (pickDetailInDb.FBAPickDetailCartons == null)
+                pltLog.Description = "Put back " + pickDetailInDb.PltsFromInventory + " empty pallet(s) from Pallet Location Id: " + pickDetailInDb.FBAPalletLocation.Id + ", Container: " + pickDetailInDb.Container + ", ShipmentId(SKU): " + pickDetailInDb.ShipmentId + ", AmzRefId: " + pickDetailInDb.AmzRefId + ", Warehouse code: " + pickDetailInDb.WarehouseCode + " to new location: " + newLocation;
+            else
+                pltLog.Description = "Put back " + pickDetailInDb.PltsFromInventory + " pallet(s) from Pallet Location Id: " + pickDetailInDb.FBAPalletLocation.Id + " Container: " + pickDetailInDb.Container + ", ShipmentId(SKU): " + pickDetailInDb.ShipmentId + ", AmzRefId: " + pickDetailInDb.AmzRefId + ", Warehouse code: " + pickDetailInDb.WarehouseCode + " to new location: " + newLocation;
+
+            _context.OrderOperationLogs.Add(pltLog);
+            _context.OrderOperationLogs.AddRange(ctnLogList);
+
             _context.FBACartonLocations.AddRange(newCartonLocationsList);
             _context.FBAPallets.Add(newFBAPallet);
             _context.FBAPalletLocations.Add(newFBAPalletLocation);
@@ -128,6 +152,51 @@ namespace ClothResorting.Manager
             _context.FBAPickDetailCartons.RemoveRange(pickDetailInDb.FBAPickDetailCartons);
             _context.FBAPickDetails.Remove(pickDetailInDb);
 
+            _context.SaveChanges();
+        }
+
+        // 散箱放回方法
+        public void PutbackPickedCartonItemToNewLocation(FBAPickDetail pickDetailInDb, string newLocation, string user)
+        {
+            pickDetailInDb.FBACartonLocation.ActualQuantity -= pickDetailInDb.ActualQuantity;
+            pickDetailInDb.FBACartonLocation.PickingCtns -= pickDetailInDb.ActualQuantity;
+            pickDetailInDb.FBACartonLocation.ActualGrossWeight -= pickDetailInDb.ActualGrossWeight;
+            pickDetailInDb.FBACartonLocation.ActualCBM -= pickDetailInDb.ActualCBM;
+
+            var newFBACartonLocation = new FBACartonLocation
+            {
+                Status = FBAStatus.InStock,
+                ActualCBM = pickDetailInDb.FBACartonLocation.CBMPerCtn * pickDetailInDb.ActualQuantity,
+                ActualGrossWeight = pickDetailInDb.FBACartonLocation.GrossWeightPerCtn * pickDetailInDb.ActualQuantity,
+                ActualQuantity = pickDetailInDb.ActualQuantity,
+                LocationStatus = FBAStatus.PutBack,
+                AmzRefId = pickDetailInDb.FBACartonLocation.AmzRefId,
+                AvailableCtns = pickDetailInDb.ActualQuantity,
+                CBMPerCtn = pickDetailInDb.FBACartonLocation.CBMPerCtn,
+                Container = pickDetailInDb.FBACartonLocation.Container,
+                GrandNumber = pickDetailInDb.FBACartonLocation.GrandNumber,
+                ShipmentId = pickDetailInDb.FBACartonLocation.ShipmentId,
+                GrossWeightPerCtn = pickDetailInDb.FBACartonLocation.GrossWeightPerCtn,
+                Location = newLocation,
+                HowToDeliver = pickDetailInDb.FBACartonLocation.HowToDeliver,
+                WarehouseCode = pickDetailInDb.FBACartonLocation.WarehouseCode,
+                FBAOrderDetail = pickDetailInDb.FBACartonLocation.FBAOrderDetail,
+                FBAMasterOrder = pickDetailInDb.FBACartonLocation.FBAMasterOrder,
+                Memo = "Put back from shipping order: " + pickDetailInDb.FBAShipOrder.ShipOrderNumber + " on " + DateTime.Now.ToString("yyyy-MM-dd")
+            };
+
+            _context.OrderOperationLogs.Add(new OrderOperationLog
+            {
+                Type = FBAStatus.PutBack,
+                OperationDate = DateTime.Now,
+                Operator = user,
+                FBAShipOrder = pickDetailInDb.FBAShipOrder,
+                Description = "Put back " + pickDetailInDb.ActualQuantity + " loose carton(s) from Carton Location Id: " + pickDetailInDb.FBACartonLocation.Id + ", Container: " + pickDetailInDb.FBACartonLocation.Container + ", ShipmentId(SKU): " + pickDetailInDb.FBACartonLocation.ShipmentId + ", AmzRefId: " + pickDetailInDb.FBACartonLocation.AmzRefId + ", Warehouse code: " + pickDetailInDb.FBACartonLocation.WarehouseCode + " to new location: " + newLocation
+            });
+
+            _context.FBACartonLocations.Add(newFBACartonLocation);
+            _context.FBAPickDetailCartons.RemoveRange(pickDetailInDb.FBAPickDetailCartons);
+            _context.FBAPickDetails.Remove(pickDetailInDb);
             _context.SaveChanges();
         }
     }

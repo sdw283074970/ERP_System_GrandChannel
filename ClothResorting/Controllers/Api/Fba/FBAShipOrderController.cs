@@ -221,6 +221,14 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 return Ok(new { CreateDate = shipOrderInDb.CreateDate, PushDate = shipOrderInDb.PlaceTime, StartDate = shipOrderInDb.StartedTime, ReadyDate = shipOrderInDb.ReadyTime, ReleasedDate = shipOrderInDb.ReleasedDate, ShipDate = shipOrderInDb.ShipDate });
             }
+            else if (operation == "GetShipOrderLogs")
+            {
+                var logs = _context.OrderOperationLogs
+                    .Include(x => x.FBAShipOrder)
+                    .Where(x => x.FBAShipOrder.Id == shipOrderId);
+                var result = Mapper.Map<IEnumerable<OrderOperationLog>, IEnumerable<OrderOperationLogDto>>(logs);
+                return Ok(result);
+            }
 
             return Ok();
         }

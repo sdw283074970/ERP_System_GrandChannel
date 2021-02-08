@@ -488,10 +488,9 @@
     <Compile Include="Dtos\Fba\FBAPalletLocationDto.cs" />
     <Compile Include="Dtos\Fba\FBAPickDetailsDto.cs" />
     <Compile Include="Dtos\Fba\FBAShipOrderDto.cs" />
-    <Compile Include="Dtos\Fba\FBAShipOrderPickLogDto.cs" />
-    <Compile Include="Dtos\Fba\FBAShipOrderPutBackLogDto.cs" />
     <Compile Include="Dtos\Fba\FBAWorkOrderDetailDto.cs" />
     <Compile Include="Dtos\Fba\FBAWorkOrderTemplateDto.cs" />
+    <Compile Include="Dtos\Fba\OrderOperationLogDto.cs" />
     <Compile Include="Dtos\Fba\WarehouseLocationDto.cs" />
     <Compile Include="Dtos\FCRegularLocationDetailDto.cs" />
     <Compile Include="Dtos\GeneralLocationSummaryDto.cs" />
@@ -1921,6 +1920,10 @@
     <Compile Include="Migrations\202102030353268_AddedLocationStatusToInventoryRelatedModels.Designer.cs">
       <DependentUpon>202102030353268_AddedLocationStatusToInventoryRelatedModels.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202102080406057_AddedOrderOperationLogAndRemovedPickAndPutbackLog.cs" />
+    <Compile Include="Migrations\202102080406057_AddedOrderOperationLogAndRemovedPickAndPutbackLog.Designer.cs">
+      <DependentUpon>202102080406057_AddedOrderOperationLogAndRemovedPickAndPutbackLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1997,14 +2000,13 @@
     <Compile Include="Models\FBAModels\FBAPickDetail.cs" />
     <Compile Include="Models\FBAModels\FBAPickDetailCarton.cs" />
     <Compile Include="Models\FBAModels\FBAShipOrder.cs" />
-    <Compile Include="Models\FBAModels\FBAShipOrderPickLog.cs" />
-    <Compile Include="Models\FBAModels\FBAShipOrderPutBackLog.cs" />
     <Compile Include="Models\FBAModels\FBAWorkOrderDetail.cs" />
     <Compile Include="Models\FBAModels\FBAWorkOrderTemplate.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IMasterOrder.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IFBALocation.cs" />
     <Compile Include="Models\FBAModels\Interfaces\IPackingList.cs" />
     <Compile Include="Models\FBAModels\FBAMasterOrder.cs" />
+    <Compile Include="Models\FBAModels\OrderOperationLog.cs" />
     <Compile Include="Models\FBAModels\StaticModels\FBAButtonType.cs" />
     <Compile Include="Models\FBAModels\StaticModels\FBAInventoryType.cs" />
     <Compile Include="Models\FBAModels\StaticModels\FBALocationType.cs" />
@@ -3565,6 +3567,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202102030353268_AddedLocationStatusToInventoryRelatedModels.resx">
       <DependentUpon>202102030353268_AddedLocationStatusToInventoryRelatedModels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202102080406057_AddedOrderOperationLogAndRemovedPickAndPutbackLog.resx">
+      <DependentUpon>202102080406057_AddedOrderOperationLogAndRemovedPickAndPutbackLog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

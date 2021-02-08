@@ -17,6 +17,7 @@ using ClothResorting.Helpers.FBAHelper;
 using Newtonsoft.Json;
 using System.IO;
 using ClothResorting.Manager;
+using System.Web;
 
 namespace ClothResorting.Controllers.Api.Fba
 {
@@ -24,11 +25,13 @@ namespace ClothResorting.Controllers.Api.Fba
     {
         private ApplicationDbContext _context;
         private FBAInventoryPicker _picker;
+        private readonly string _userName;
 
         public FBAPickDetailController()
         {
             _context = new ApplicationDbContext();
             _picker = new FBAInventoryPicker();
+            _userName = HttpContext.Current.User.Identity.Name.Split('@')[0] == "" ? (HttpContext.Current.Request.Headers.Get("AppUser") == null ? "" : HttpContext.Current.Request.Headers.Get("AppUser")) : HttpContext.Current.User.Identity.Name.Split('@')[0];
         }
 
         // GET /api/fba/fbapickdetail/?shipOrderId={shipOrderId}&operation={Download}
@@ -507,17 +510,22 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpDelete]
         public void PutbackPickDetail([FromUri]int pickDetailId, [FromUri]string newLocation)
         {
+            var manager = new PutbackManager(_context);
+
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPickDetailCartons.Select(c => c.FBACartonLocation.FBAPallet.FBACartonLocations.Select(z => z.FBAPickDetails)))
                 .Include(x => x.FBAPickDetailCartons.Select(c => c.FBACartonLocation.FBAPallet.FBACartonLocations.Select(z => z.FBAMasterOrder)))
                 .Include(x => x.FBAPickDetailCartons.Select(c => c.FBACartonLocation.FBAOrderDetail))
                 .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBACartonLocation.FBAMasterOrder)
                 .Include(x => x.FBAPalletLocation.FBAPallet.FBAMasterOrder)
                 .Include(x => x.FBAPalletLocation.FBAPallet.FBACartonLocations)
                 .SingleOrDefault(x => x.Id == pickDetailId);
 
-            var manager = new PutbackManager(_context);
-            manager.PutbackPickedPalletItemsToNewLocation(pickDetailInDb, newLocation);
+            if (pickDetailInDb.FBAPalletLocation != null)
+                manager.PutbackPickedPalletItemsToNewLocation(pickDetailInDb, newLocation, _userName);
+            else
+                manager.PutbackPickedCartonItemToNewLocation(pickDetailInDb, newLocation, _userName);
         }
 
         public void RemovePickDetail(ApplicationDbContext context, int pickDetailId)
