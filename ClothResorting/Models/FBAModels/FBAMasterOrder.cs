@@ -92,6 +92,8 @@ namespace ClothResorting.Models.FBAModels
 
         public ICollection<FBAPallet> FBAPallets { get; set; }
 
+        public ICollection<OrderOperationLog> OrderOperationLogs { get; set; }
+
         public ICollection<EFile> Efiles { get; set; }
 
         public string UpdateLog { get; set; }

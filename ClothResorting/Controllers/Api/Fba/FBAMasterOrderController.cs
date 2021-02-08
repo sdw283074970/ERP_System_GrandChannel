@@ -61,7 +61,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Include(x => x.InvoiceDetails)
                     .Include(x => x.ChargingItemDetails)
                     .Include(x => x.FBAPallets)
-                    .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku) || c.AmzRefId.Contains(sku)).Any() || x.ChargingItemDetails.Where(c => c.Description.Contains(sku)).Any())
+                    .Where(x => x.FBAOrderDetails.Where(c => c.ShipmentId.Contains(sku) || c.AmzRefId.Contains(sku)).Any() || x.OrderOperationLogs.Where(c => c.Description.Contains(sku)).Any() || x.ChargingItemDetails.Where(c => c.Description.Contains(sku)).Any())
                     .ToList();
                 //.Select(Mapper.Map<FBAMasterOrder, FBAMasterOrderDto>);
 
@@ -95,7 +95,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Include(x => x.InvoiceDetails)
                     .Include(x => x.FBAPickDetails)
                     .Include(x => x.ChargingItemDetails)
-                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku) || c.AmzRefId.Contains(sku)).Any() || x.ChargingItemDetails.Where(c => c.Description.Contains(sku)).Any())
+                    .Where(x => x.FBAPickDetails.Where(c => c.ShipmentId.Contains(sku) || c.AmzRefId.Contains(sku)).Any() || x.OrderOperationLog.Where(c => c.Description.Contains(sku)).Any() ||x.ChargingItemDetails.Where(c => c.Description.Contains(sku)).Any())
                     .ToList();
 
                 foreach (var s in shipOrders)

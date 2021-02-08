@@ -18,5 +18,7 @@ namespace ClothResorting.Models.FBAModels
         public string Operator { get; set; }
 
         public FBAShipOrder FBAShipOrder { get; set; }
+
+        public FBAMasterOrder FBAMasterOrder { get; set; }
     }
 }
