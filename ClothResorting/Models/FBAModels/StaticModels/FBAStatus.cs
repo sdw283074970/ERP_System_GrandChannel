@@ -11,7 +11,7 @@ namespace ClothResorting.Models.FBAModels.StaticModels
 
         public const string Relocated = "Relocated";
 
-        public const string PutBack = "PutBack";
+        public const string PutBack = "Putback";
 
         public const string Active = "Active";
 

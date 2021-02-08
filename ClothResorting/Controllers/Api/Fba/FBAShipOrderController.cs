@@ -153,6 +153,16 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(fileName);
         }
 
+        // GET /api/fba/fbashiporder/?fromDate={fromDate}&toDate={toDate}&sku={foo}&customerCode={customerCode}
+        [HttpGet]
+        public IHttpActionResult DownloadSKUReport([FromUri]DateTime fromDate, [FromUri]DateTime toDate, [FromUri]string sku, [FromUri]string customerCode)
+        {
+            var manager = new ItemStatementManager(_context, @"D:\Template\SKUStatement.xlsx");
+            var fullPath = manager.GenerateSKUStatement(customerCode, sku, fromDate, toDate);
+
+            return Ok(fullPath);
+        }
+
         // GET /api/fba/fbashiporder/?shipOrderId={shipOrderId}&freightCharge={freightCharge}&operatorName={operatorName}
         [HttpGet]
         public IHttpActionResult DownloadBOL([FromUri]int shipOrderId, [FromUri]string freightCharge, [FromUri]string operatorName)
@@ -473,6 +483,9 @@ namespace ClothResorting.Controllers.Api.Fba
                     .Where(x => x.FBAShipOrder.ShipOrderNumber == reference);
                 var memos = new List<ChargingItemDetail>();
 
+                if (pickDetailsInDb.Count() != 0)
+                    throw new Exception("Please make sure to use 'Put back to new location' feature first before cancelling this order. 请使用‘放回到新库位功能’，确保输入新的库位后再取消这个订单。");
+
                 foreach(var p in pickDetailsInDb)
                 {
                     memos.Add(new ChargingItemDetail {
@@ -495,7 +508,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else
             {
-
+                // TO DO
             }
 
             _context.SaveChanges();
