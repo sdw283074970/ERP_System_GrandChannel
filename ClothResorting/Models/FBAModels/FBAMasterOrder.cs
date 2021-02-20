@@ -123,6 +123,7 @@ namespace ClothResorting.Models.FBAModels
             PushTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             UnloadFinishTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             UnloadStartTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            CancelDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             Status = StaticClass.Status.NewCreated;
             InvoiceStatus = "Await";
         }

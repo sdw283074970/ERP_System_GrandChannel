@@ -100,7 +100,7 @@ namespace ClothResorting.Controllers.Api.Fba
             //统计未付款发票数量
             var payableMasterOrderInvoice = _context.FBAMasterOrders
                 .Include(x => x.Customer)
-                .Where(x => x.InvoiceStatus == "Await")
+                .Where(x => x.InvoiceStatus == "Await" || x.InvoiceStatus == FBAStatus.Generated)
                 .ToList();
 
             var masterOrderInvoiceGroup = payableMasterOrderInvoice.GroupBy(x => x.Customer.CustomerCode);
@@ -112,7 +112,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
 
             var payableShipOrderInvoice = _context.FBAShipOrders
-                .Where(x => x.InvoiceStatus == "Await")
+                .Where(x => x.InvoiceStatus == "Await" || x.InvoiceStatus == FBAStatus.Generated)
                 .ToList();
 
             var shipOrderInvoiceGroup = payableShipOrderInvoice.GroupBy(x => x.CustomerCode);

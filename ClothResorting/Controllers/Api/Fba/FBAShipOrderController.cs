@@ -157,9 +157,17 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult DownloadSKUReport([FromUri]DateTime fromDate, [FromUri]DateTime toDate, [FromUri]string sku, [FromUri]string customerCode)
         {
-            var manager = new ItemStatementManager(_context, @"D:\Template\SKUStatement.xlsx");
-            var fullPath = manager.GenerateSKUStatement(customerCode, sku, fromDate, toDate);
-
+            var fullPath = "";
+            if (sku == null)
+            {
+                var manager = new ItemStatementManager(_context, @"D:\Template\SKUStatement-Summary.xlsx");
+                fullPath = manager.GenerateSKUSummaryStatement(customerCode, fromDate, toDate);
+            }
+            else
+            {
+                var manager = new ItemStatementManager(_context, @"D:\Template\SKUStatement.xlsx");
+                fullPath = manager.GenerateSKUStatement(customerCode, sku, fromDate, toDate);
+            }
             return Ok(fullPath);
         }
 

@@ -126,6 +126,7 @@ namespace ClothResorting.Models.FBAModels
             ReleasedDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ETS = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             StartedTime = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            CancelDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
             ConfirmedBy = "";
             ShippedBy = "";
             InvoiceStatus = "Await";

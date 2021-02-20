@@ -1928,6 +1928,10 @@
     <Compile Include="Migrations\202102080944492_AddedCancelDateToShipOrderAndMasterOrder.Designer.cs">
       <DependentUpon>202102080944492_AddedCancelDateToShipOrderAndMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202102081020525_AddedOrderOperationLogsToMasterOrder.cs" />
+    <Compile Include="Migrations\202102081020525_AddedOrderOperationLogsToMasterOrder.Designer.cs">
+      <DependentUpon>202102081020525_AddedOrderOperationLogsToMasterOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3577,6 +3581,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202102080944492_AddedCancelDateToShipOrderAndMasterOrder.resx">
       <DependentUpon>202102080944492_AddedCancelDateToShipOrderAndMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202102081020525_AddedOrderOperationLogsToMasterOrder.resx">
+      <DependentUpon>202102081020525_AddedOrderOperationLogsToMasterOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>
