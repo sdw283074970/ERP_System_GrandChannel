@@ -54,13 +54,13 @@ namespace ClothResorting.Controllers.Api.Fba
                 .Select(Mapper.Map<UpperVendor, UpperVendorDto>)
                 .ToList();
 
-            //统计在拣货的数量
-            var pickDetails = _context.FBAPickDetails
+            //统计在拣货的数量只有 shipped 算作已出库，不计入在拣数量，其他都算processing
+            var processingPickDetails = _context.FBAPickDetails
                 .Include(x => x.FBAShipOrder)
                 .Where(x => x.FBAShipOrder.Status != FBAStatus.Shipped)
                 .ToList();
 
-            var customerGroupPickDetails = pickDetails.GroupBy(x => x.FBAShipOrder.CustomerCode);
+            var customerGroupPickDetails = processingPickDetails.GroupBy(x => x.FBAShipOrder.CustomerCode);
 
             foreach(var c in customerGroupPickDetails)
             {

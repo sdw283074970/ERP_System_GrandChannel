@@ -27,6 +27,9 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult DownloadInventoryReport([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime closeDate, [FromUri]string operation)
         {
+            startDate = new DateTime(startDate.Year, startDate.Month, startDate.Day);
+            closeDate = new DateTime(closeDate.Year, closeDate.Month, closeDate.Day).AddDays(1);
+
             var templatePath = @"D:\Template\FBA-Inventory-Template.xls";
 
             var helper = new FBAInventoryHelper(templatePath);
@@ -61,6 +64,9 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetRemainCustomerList([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime closeDate)
         {
+            startDate = new DateTime(startDate.Year, startDate.Month, startDate.Day);
+            closeDate = new DateTime(closeDate.Year, closeDate.Month, closeDate.Day).AddDays(1);
+
             var helper = new FBAInventoryHelper();
             if (customerCode == "ALL")
             {

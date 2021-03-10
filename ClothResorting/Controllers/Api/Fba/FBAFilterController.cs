@@ -33,9 +33,18 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var user = _context.Users.SingleOrDefault(x => x.Id == userId);
             var warehouseAuths = user.WarehouseAuths.Split(',');
+
+            if (warehouseAuths == null)
+                throw new Exception("No valid warehouse applied to current user. Please contact administrator.");
+
             var locationInDb = _context.WarehouseLocations.Where(x => x.IsActive == true && warehouseAuths.Contains(x.WarehouseCode));
-            var result = AutoMapper.Mapper.Map<IEnumerable<WarehouseLocation>, IEnumerable<WarehouseLocationDto>>(locationInDb);
-            return Ok(result);
+            if (locationInDb.Count() > 0)
+            {
+                var result = AutoMapper.Mapper.Map<IEnumerable<WarehouseLocation>, IEnumerable<WarehouseLocationDto>>(locationInDb);
+                return Ok(result);
+            }
+            else
+                throw new Exception("No valid warehouse location found.");
         }
 
         // POST /api/fba/fbafilter/?orderType={orderType}

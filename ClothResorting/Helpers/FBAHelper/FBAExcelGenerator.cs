@@ -176,25 +176,23 @@ namespace ClothResorting.Helpers.FBAHelper
         //生成StorageFee报告并返回完整路径
         public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate, float p1Discount, float p2Discount)
         {
-            var actualCloseDate = closeDate.AddDays(1);
-
             var customerInDb = _context.UpperVendors.Find(customerId);
 
             var palletLocationInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAMasterOrder.FBAPallets)
                 .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAMasterOrder.InboundDate < actualCloseDate
+                .Where(x => x.FBAMasterOrder.InboundDate < closeDate
                     && x.FBAMasterOrder.Customer.Id == customerId);
 
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
                 .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.ShipDate < actualCloseDate
+                .Where(x => x.FBAShipOrder.ShipDate < closeDate
                     && x.FBAShipOrder.ShipDate >= startDate
                     && x.FBAShipOrder.Status == FBAStatus.Shipped
                     && x.FBAPalletLocation != null
-                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < actualCloseDate
+                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
                     && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
                     && x.PltsFromInventory != 0);
 
@@ -208,7 +206,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 foreach(var pick in p.FBAPickDetails)
                 {
                     //从原有托盘数量扣除状态为shipped状态，且发货日期在结束日期之前的运单中的托盘数量
-                    if(pick.FBAShipOrder.Status == FBAStatus.Shipped && pick.FBAShipOrder.ShipDate < actualCloseDate)
+                    if(pick.FBAShipOrder.Status == FBAStatus.Shipped && pick.FBAShipOrder.ShipDate < closeDate)
                         p.ActualPlts -= pick.PltsFromInventory;
                 }
             }

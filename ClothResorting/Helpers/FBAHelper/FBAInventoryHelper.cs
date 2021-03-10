@@ -41,9 +41,6 @@ namespace ClothResorting.Helpers.FBAHelper
         public FBAInventoryInfo GetFBAInventoryResidualInfo(string customerCode, DateTime startDate, DateTime closeDate)
         {
             var residualInventoryList = new List<FBACtnInventory>();
-            //在1900年与2018年之间任取一日期作为最小日期，取在下的生日
-            var inboundDate = startDate;
-            var rCloseDate = closeDate.AddDays(1);
 
             //获取在指定日期之前入库的总箱数库存列表
             var cartonLocationsInDb = _context.FBACartonLocations
@@ -53,16 +50,16 @@ namespace ClothResorting.Helpers.FBAHelper
                     .Select(c => c.FBAPickDetail.FBAShipOrder))
                 .Include(x => x.FBAPickDetails
                     .Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate <= closeDate
-                    && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= inboundDate
+                .Where(x => x.FBAOrderDetail.FBAMasterOrder.InboundDate < closeDate
+                    && x.FBAOrderDetail.FBAMasterOrder.InboundDate >= startDate
                     && x.FBAOrderDetail.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             //获取在指定日期前入库的托盘库存列表
             var palletLocationsInDb = _context.FBAPalletLocations
                 .Include(x => x.FBAMasterOrder.Customer)
                 .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
-                .Where(x => x.FBAMasterOrder.InboundDate <= closeDate
-                    && x.FBAMasterOrder.InboundDate >= inboundDate
+                .Where(x => x.FBAMasterOrder.InboundDate < closeDate
+                    && x.FBAMasterOrder.InboundDate >= startDate
                     && x.FBAMasterOrder.Customer.CustomerCode == customerCode);
 
             var palletLocationsList = palletLocationsInDb.ToList();
@@ -85,13 +82,13 @@ namespace ClothResorting.Helpers.FBAHelper
                 foreach (var pick in plt.FBAPickDetails)
                 {
                     //一旦客户下单，库存报告中就会扣掉库存，跟计算仓储费的时间点不一样（仓储费按照实际出库时间计算）
-                    if (pick.FBAShipOrder.PlaceTime < rCloseDate && pick.FBAShipOrder.PlaceTime.Year != 1900)
+                    if (pick.FBAShipOrder.PlaceTime < closeDate && pick.FBAShipOrder.PlaceTime.Year != 1900)
                     {
                         plt.ActualPlts -= pick.PltsFromInventory;
 
-                        // 所以还没有被标记为shipped或shipdate大于查询截止日期的货物，被视为正在处理processing的货物
+                        // 所以还没有被标记为Shipped或ShippedDate大于查询截止日期的货物，被视为正在处理processing的货物
                         //if (pick.FBAShipOrder.Status != FBAStatus.Shipped || pick.FBAShipOrder.ReleasedDate >= closeDate)
-                        if (pick.FBAShipOrder.ShipDate.Year == 1900 || pick.FBAShipOrder.ShipDate > closeDate)
+                        if (pick.FBAShipOrder.ShipDate.Year == 1900 || pick.FBAShipOrder.ShipDate >= closeDate)
                         {
                             totalPickingPlts += pick.PltsFromInventory;
                             currentPickingPlt += pick.PltsFromInventory;
@@ -132,11 +129,11 @@ namespace ClothResorting.Helpers.FBAHelper
                     foreach (var pickCarton in cartonLocation.FBAPickDetailCartons)
                     {
                         //获取在指定日期前的相关拣货列表
-                        if (pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime < rCloseDate && pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime.Year != 1900)
+                        if (pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime < closeDate && pickCarton.FBAPickDetail.FBAShipOrder.PlaceTime.Year != 1900)
                         {
                             cartonLocation.ActualQuantity -= pickCarton.PickCtns;
 
-                            if (pickCarton.FBAPickDetail.FBAShipOrder.ShipDate.Year == 1900 || pickCarton.FBAPickDetail.FBAShipOrder.ShipDate > closeDate)
+                            if (pickCarton.FBAPickDetail.FBAShipOrder.ShipDate.Year == 1900 || pickCarton.FBAPickDetail.FBAShipOrder.ShipDate >= closeDate)
                             {
                                 totalPickingCtns += pickCarton.PickCtns;
                                 currentPickingCtns += pickCarton.PickCtns;
@@ -148,12 +145,12 @@ namespace ClothResorting.Helpers.FBAHelper
                 {
                     foreach (var pickCarton in cartonLocation.FBAPickDetails)
                     {
-                        if (pickCarton.FBAShipOrder.PlaceTime < rCloseDate && pickCarton.FBAShipOrder.PlaceTime.Year != 1900)
+                        if (pickCarton.FBAShipOrder.PlaceTime < closeDate && pickCarton.FBAShipOrder.PlaceTime.Year != 1900)
                         {
                             cartonLocation.ActualQuantity -= pickCarton.ActualQuantity;
                             currentLooseCtns -= pickCarton.ActualQuantity;
 
-                            if (pickCarton.FBAShipOrder.ShipDate.Year == 1900 || pickCarton.FBAShipOrder.ShipDate > closeDate)
+                            if (pickCarton.FBAShipOrder.ShipDate.Year == 1900 || pickCarton.FBAShipOrder.ShipDate >= closeDate)
                             {
                                 totalPickingCtns += pickCarton.ActualQuantity;
                                 currentPickingCtns += pickCarton.ActualQuantity;

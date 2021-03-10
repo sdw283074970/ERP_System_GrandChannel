@@ -695,7 +695,7 @@ namespace ClothResorting.Controllers.Api.Fba
             
             if (availableCtns == 0 && availablePlts != 0)
             {
-                pickDetail.PltsFromInventory = availablePlts;
+                pickDetail.PltsFromInventory += availablePlts;
                 fbaPalletLocationInDb.PickingPlts += availablePlts;
                 fbaPalletLocationInDb.AvailablePlts = 0;
             }
