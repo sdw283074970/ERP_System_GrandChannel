@@ -138,7 +138,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
-            //如果customerId等于0说明是要所有客户的记录
+            //如果customerId等于0说明是要所有客户的记录,包括没有关闭的订单
             if (customerId == 0)
             {
                 var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate);
@@ -155,7 +155,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
                 return Ok(path);
             }
-            else
+            else  // 仅仅生成已关闭的订单
             {
                 var info = excelGenerator.GetChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
 
