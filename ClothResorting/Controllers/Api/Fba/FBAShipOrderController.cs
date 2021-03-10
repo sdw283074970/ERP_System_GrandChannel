@@ -227,7 +227,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 var shipOrderInDb = _context.FBAShipOrders
                     .SingleOrDefault(x => x.Id == shipOrderId);
 
-                return Ok(new { CreateDate = shipOrderInDb.CreateDate, PushDate = shipOrderInDb.PlaceTime, StartDate = shipOrderInDb.StartedTime, ReadyDate = shipOrderInDb.ReadyTime, ReleasedDate = shipOrderInDb.ReleasedDate, ShipDate = shipOrderInDb.ShipDate });
+                return Ok(new { CreateDate = shipOrderInDb.CreateDate, PushDate = shipOrderInDb.PlaceTime, StartDate = shipOrderInDb.StartedTime, ReadyDate = shipOrderInDb.ReadyTime, ReleasedDate = shipOrderInDb.ReleasedDate, ShipDate = shipOrderInDb.ShipDate, CancelDate = shipOrderInDb.CancelDate });
             }
             else if (operation == "GetShipOrderLogs")
             {
@@ -360,7 +360,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&operation={operation}
         [HttpPut]
-        public void FinishPicking([FromUri] int shipOrderId, [FromUri]string operation, [FromBody]AllDateForm dateForm)
+        public void UpdateDate([FromUri] int shipOrderId, [FromUri]string operation, [FromBody]AllDateForm dateForm)
         {
             var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
 
@@ -377,6 +377,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 shipOrderInDb.ReadyTime = dateForm.ReadyDate;
                 shipOrderInDb.ReleasedDate = dateForm.ReleasedDate;
                 shipOrderInDb.ShipDate = dateForm.ShipDate;
+                shipOrderInDb.CancelDate = dateForm.CancelDate;
             }
 
             _context.SaveChanges();
@@ -485,9 +486,9 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
-        // PUT /api/fba/fbashiporder/?reference={reference}&orderType={orderType}
+        // PUT /api/fba/fbashiporder/?reference={foo}&cancelDate={bar}orderType={foobar}
         [HttpPut]
-        public void CancelOrder([FromUri]string reference, [FromUri]string orderType)
+        public void CancelOrder([FromUri]string reference, [FromUri]DateTime cancelDate, [FromUri]string orderType)
         {
             var fbaPickDetailAPI = new FBAPickDetailController();
 
@@ -503,7 +504,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     throw new Exception("Please make sure to use 'Put back to new location' feature first before cancelling this order. 请使用‘放回到新库位功能’，确保输入新的库位后再取消这个订单。");
                 
                 orderInDb.Status = FBAStatus.Cancelled;
-                orderInDb.CancelDate = DateTime.Now;
+                orderInDb.CancelDate = cancelDate;
                 _context.OrderOperationLogs.Add(new OrderOperationLog {
                     Description = "Order cancelled.",
                     OperationDate = DateTime.Now,
@@ -1523,5 +1524,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public DateTime ReleasedDate { get; set; }
 
         public DateTime ShipDate { get; set; }
+
+        public DateTime CancelDate { get; set; }
     }
 }
