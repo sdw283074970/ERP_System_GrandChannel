@@ -130,6 +130,58 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(dtos.OrderByDescending(x => x.Id));
         }
 
+        // GET /api/fba/fbaindex/?operation={foo}
+        [HttpPost]
+        public IHttpActionResult GetExportedInvoiceFilePath([FromUri]string operation, [FromBody]ExpenseQueryData data)
+        {
+            if (operation != "GetInvoice")
+                throw new Exception("Invailed operation code: " + operation);
+
+            var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
+
+            var excelGenerator = new FBAInvoiceHelper(templatePath);
+
+            var startDate = new DateTime(data.StartDate.Year, data.StartDate.Month, data.StartDate.Day);
+            var closeDate = new DateTime(data.CloseDate.Year, data.CloseDate.Month, data.CloseDate.Day).AddDays(1);
+
+            var warehouseLocationsInDb = _context.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
+            var warehouseLocations = data.WarehouseLocation.Length > 0 ? data.WarehouseLocation : warehouseLocationsInDb;
+
+            var customerId = 0;
+
+            if (data.CustomerCode != "ALL")
+            {
+                customerId = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == data.CustomerCode).Id;
+            }
+
+            //如果customerId等于0说明是要所有客户的记录,包括没有关闭的订单
+            if (customerId == 0)
+            {
+                var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate, warehouseLocations);
+
+                var path = excelGenerator.GenerateExcelFileForAllCustomerAndReturnPath(info);
+
+                return Ok(path);
+            }
+            else if (data.IfShowUnclosed)
+            {
+                var info = excelGenerator.GetAllChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate, warehouseLocations);
+
+                var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
+
+                return Ok(path);
+            }
+            else  // 仅仅生成已关闭的订单
+            {
+                var info = excelGenerator.GetClosedChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate, warehouseLocations);
+
+                var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
+
+                return Ok(path);
+            }
+        }
+
+
         // GET /api/fba/fbaindex/?customerId={customerId}&startDate={startDate}&closeDate={closeDate}
         [HttpGet]
         public IHttpActionResult GetExportedFilePath([FromUri]int customerId, [FromUri]DateTime startDate, [FromUri]DateTime closeDate, [FromUri]bool ifShowUnclosed)
@@ -138,10 +190,12 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
+            var warehouseLocationsInDb = _context.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
+
             //如果customerId等于0说明是要所有客户的记录,包括没有关闭的订单
             if (customerId == 0)
             {
-                var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate);
+                var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate, warehouseLocationsInDb);
 
                 var path = excelGenerator.GenerateExcelFileForAllCustomerAndReturnPath(info);
 
@@ -149,7 +203,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (ifShowUnclosed)
             {
-                var info = excelGenerator.GetAllChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+                var info = excelGenerator.GetAllChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate, warehouseLocationsInDb);
 
                 var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
 
@@ -157,7 +211,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else  // 仅仅生成已关闭的订单
             {
-                var info = excelGenerator.GetChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+                var info = excelGenerator.GetClosedChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate, warehouseLocationsInDb);
 
                 var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
 
@@ -173,6 +227,9 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
+            startDate = new DateTime(startDate.Year, startDate.Month, startDate.Day);
+            closeDate = new DateTime(closeDate.Year, closeDate.Month, closeDate.Day).AddDays(1);
+
             var customerId = 0;
 
             if (customerCode != "ALL")
@@ -180,10 +237,12 @@ namespace ClothResorting.Controllers.Api.Fba
                 customerId = _context.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
             }
 
+            var warehouseLocationsInDb = _context.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
+
             //如果customerId等于0说明是要所有客户的记录
             if (customerId == 0)
             {
-                var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate);
+                var info = excelGenerator.GetAllFBACustomerChargingReportFromDate(startDate, closeDate, warehouseLocationsInDb);
 
                 var path = excelGenerator.GenerateExcelFileForAllCustomerAndReturnPath(info);
 
@@ -191,7 +250,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else if (ifShowUnclosed)
             {
-                var info = excelGenerator.GetAllChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+                var info = excelGenerator.GetAllChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate, warehouseLocationsInDb);
 
                 var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
 
@@ -199,7 +258,7 @@ namespace ClothResorting.Controllers.Api.Fba
             }
             else
             {
-                var info = excelGenerator.GetChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate);
+                var info = excelGenerator.GetClosedChargingReportFormDateRangeAndCustomerId(customerId, startDate, closeDate, warehouseLocationsInDb);
 
                 var path = excelGenerator.GenerateExcelFileAndReturnPath(info);
 
@@ -216,5 +275,18 @@ namespace ClothResorting.Controllers.Api.Fba
             else
                 throw new Exception("Invalid!");
         }
+    }
+
+    public class ExpenseQueryData
+    {
+        public string CustomerCode { get; set; }
+
+        public string[] WarehouseLocation { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime CloseDate { get; set; }
+
+        public bool IfShowUnclosed { get; set; }
     }
 }

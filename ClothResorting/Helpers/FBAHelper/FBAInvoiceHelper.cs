@@ -51,6 +51,9 @@ namespace ClothResorting.Helpers.FBAHelper
             //制作第一个Summary表
             _ws = _wb.Worksheets[1];
 
+            _ws.Cells[8, 19] = "Warehouse Loc";
+            _ws.Cells[8, 20] = "Carrier";
+
             var startRow = 9;
 
             foreach (var i in info.InvoiceReportDetails)
@@ -73,6 +76,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 16] = i.IsConfirmedCost ? "YES" : "NO";
                 _ws.Cells[startRow, 17] = i.IsPayed ? "YES" : "NO";
                 _ws.Cells[startRow, 18] = i.IsCollected ? "YES" : "NO";
+                _ws.Cells[startRow, 19] = i.WarehouseLocation;
+                _ws.Cells[startRow, 20] = i.Carrier;
 
                 startRow += 1;
             }
@@ -111,6 +116,8 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[startRow, columnIndex] = "Date of Close";
             _ws.Cells[startRow, columnIndex + 1] = "Amount";
             _ws.Cells[startRow, columnIndex + 2] = "Cost";
+            _ws.Cells[startRow, columnIndex + 3] = "Warehouse Loc";
+            _ws.Cells[startRow, columnIndex + 4] = "Carrier";
 
             startRow += 1;
             var countOfActivity = chargeActivityGroup.Count();
@@ -136,6 +143,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, columnIndex] = r.First().DateOfClose.Year == 1900 ? "Open" : r.First().DateOfClose.ToString("MM/dd/yyyy");
                 _ws.Cells[startRow, columnIndex + 1] = Math.Round(r.Sum(x => x.Amount), 2);
                 _ws.Cells[startRow, columnIndex + 2] = Math.Round(r.Sum(x => x.Cost), 2);
+                _ws.Cells[startRow, columnIndex + 3] = r.First().WarehouseLocation;
+                _ws.Cells[startRow, columnIndex + 4] = r.First().Carrier;
 
                 foreach (var i in r)
                 {
@@ -179,6 +188,11 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 2] = s.ShipOrderNumber;
                 _ws.Cells[startRow, 3] = "Outbound Date";
                 _ws.Cells[startRow, 4] = s.ShipDate.ToString("yyyy-MM-dd");
+                _ws.Cells[startRow, 5] = "Warehouse Location";
+                _ws.Cells[startRow, 6] = s.WarehouseLocation;
+                _ws.Cells[startRow, 7] = "Carrier";
+                _ws.Cells[startRow, 8] = s.Carrier;
+
 
                 startRow++;
 
@@ -264,6 +278,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 16] = "Cost Confirm";
                 _ws.Cells[startRow, 17] = "Payed";
                 _ws.Cells[startRow, 18] = "Collected";
+                _ws.Cells[startRow, 19] = "Warehouse Loc";
+                _ws.Cells[startRow, 20] = "Carrier";
 
                 startRow += 1;
 
@@ -302,6 +318,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[startRow, 16] = i.IsConfirmedCost ? "YES" : "NO";
                     _ws.Cells[startRow, 17] = i.IsPayed ? "YES" : "NO";
                     _ws.Cells[startRow, 18] = i.IsCollected ? "YES" : "NO";
+                    _ws.Cells[startRow, 18] = i.WarehouseLocation;
+                    _ws.Cells[startRow, 20] = i.Carrier;
                     startRow += 1;
                 }
                 _ws.Cells[startRow, 8] = "Total";
@@ -358,6 +376,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         ChargingType = i.ChargingType,
                         Unit = i.Unit,
                         Quantity = i.Quantity,
+                        Carrier = i.FBAMasterOrder == null ? i.FBAShipOrder.Carrier : i.FBAMasterOrder.Carrier,
+                        WarehouseLocation = i.FBAMasterOrder == null ? i.FBAShipOrder.WarehouseLocation : i.FBAMasterOrder.WarehouseLocation,
                         Rate = i.Rate,
                         Amount = i.Amount,
                         DateOfCost = i.DateOfCost,
@@ -396,6 +416,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         Unit = i.Unit,
                         Quantity = i.Quantity,
                         Rate = i.Rate,
+                        Carrier = i.FBAMasterOrder == null ? i.FBAShipOrder.Carrier : i.FBAMasterOrder.Carrier,
+                        WarehouseLocation = i.FBAMasterOrder == null ? i.FBAShipOrder.WarehouseLocation : i.FBAMasterOrder.WarehouseLocation,
                         Amount = i.Amount,
                         DateOfCost = i.DateOfCost,
                         Memo = i.Memo,
@@ -421,7 +443,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         // 不包括未关闭的订单
-        public FBAInvoiceInfo GetChargingReportFormDateRangeAndCustomerId(int customerId, DateTime startDate, DateTime closeDate)
+        public FBAInvoiceInfo GetClosedChargingReportFormDateRangeAndCustomerId(int customerId, DateTime startDate, DateTime closeDate, string[] warehouseLocations)
         {
             var customer = _context.UpperVendors.Find(customerId);
 
@@ -440,7 +462,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAMasterOrder.FBAPallets)
                 .Include(x => x.FBAShipOrder.FBAPickDetails)
                 .Where(x => x.FBAMasterOrder.Customer.Id == customerId || x.FBAShipOrder.CustomerCode == customer.CustomerCode)
-                .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate && x.FBAMasterOrder.Status == FBAStatus.Closed) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate && x.FBAShipOrder.Status == FBAStatus.Closed))
+                .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate && x.FBAMasterOrder.InvoiceStatus == FBAStatus.Closed) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate && x.FBAShipOrder.InvoiceStatus == FBAStatus.Closed))
+                .Where(x => x.FBAShipOrder == null ? (warehouseLocations.Contains(x.FBAMasterOrder.WarehouseLocation)) : (warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation)))
                 //.Where(x => x.DateOfCost >= startDate && x.DateOfCost <= closeDate)
                 .ToList();
 
@@ -455,6 +478,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     Unit = i.Unit,
                     Quantity = i.Quantity,
                     Rate = i.Rate,
+                    Carrier = i.FBAMasterOrder == null ? i.FBAShipOrder.Carrier : i.FBAMasterOrder.Carrier,
+                    WarehouseLocation = i.FBAMasterOrder == null ? i.FBAShipOrder.WarehouseLocation : i.FBAMasterOrder.WarehouseLocation,
                     IsConfirmedCost = i.CostConfirm,
                     IsPayed = i.PaymentStatus,
                     IsCollected = i.CollectionStatus,
@@ -495,7 +520,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         // 包括未关闭的订单
-        public FBAInvoiceInfo GetAllChargingReportFormDateRangeAndCustomerId(int customerId, DateTime startDate, DateTime closeDate)
+        public FBAInvoiceInfo GetAllChargingReportFormDateRangeAndCustomerId(int customerId, DateTime startDate, DateTime closeDate, string[] warehouseLocations)
         {
             var customer = _context.UpperVendors.Find(customerId);
 
@@ -515,6 +540,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAShipOrder.FBAPickDetails)
                 .Where(x => x.FBAMasterOrder.Customer.Id == customerId || x.FBAShipOrder.CustomerCode == customer.CustomerCode)
                 .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate) || x.FBAMasterOrder.CloseDate.Year == 1900 : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate) || x.FBAShipOrder.CloseDate.Year == 1900)
+                .Where(x => x.FBAShipOrder == null ? (warehouseLocations.Contains(x.FBAMasterOrder.WarehouseLocation)) : (warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation)))
                 //.Where(x => x.DateOfCost >= startDate && x.DateOfCost <= closeDate)
                 .ToList();
 
@@ -529,6 +555,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     Unit = i.Unit,
                     Quantity = i.Quantity,
                     Rate = i.Rate,
+                    Carrier = i.FBAMasterOrder == null ? i.FBAShipOrder.Carrier : i.FBAMasterOrder.Carrier,
+                    WarehouseLocation = i.FBAMasterOrder == null ? i.FBAShipOrder.WarehouseLocation : i.FBAMasterOrder.WarehouseLocation,
                     IsConfirmedCost = i.CostConfirm,
                     IsPayed = i.PaymentStatus,
                     IsCollected = i.CollectionStatus,
@@ -568,7 +596,7 @@ namespace ClothResorting.Helpers.FBAHelper
             return info;
         }
 
-        public FBAInvoiceInfo GetAllFBACustomerChargingReportFromDate(DateTime startDate, DateTime closeDate)
+        public FBAInvoiceInfo GetAllFBACustomerChargingReportFromDate(DateTime startDate, DateTime closeDate, string[] warehouseLocations)
         {
             var info = new FBAInvoiceInfo { CustomerCode = "ALL FBA CUSTOMER", FromDate = startDate, ToDate = closeDate };
             var invoiceReportList = new List<InvoiceReportDetail>();
@@ -579,7 +607,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAMasterOrder.FBAPallets)
                 .Include(x => x.FBAShipOrder.FBAPickDetails)
                 .Where(x => x.FBAMasterOrder.Customer.DepartmentCode == "FBA" || x.FBAShipOrder.Id > 0)
-                .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate && x.FBAMasterOrder.Status == FBAStatus.Closed) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate && x.FBAShipOrder.Status == FBAStatus.Closed))
+                //.Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate && x.FBAMasterOrder.InvoiceStatus == FBAStatus.Closed) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate && x.FBAShipOrder.InvoiceStatus == FBAStatus.Closed))
+                .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate))
+                .Where(x => x.FBAShipOrder == null ? (warehouseLocations.Contains(x.FBAMasterOrder.WarehouseLocation)) : (warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation)))
                 .ToList();
 
             foreach (var i in invoiceDetails)
@@ -594,6 +624,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     Quantity = i.Quantity,
                     Rate = i.Rate,
                     IsConfirmedCost = i.CostConfirm,
+                    Carrier = i.FBAMasterOrder == null ? i.FBAShipOrder.Carrier : i.FBAMasterOrder.Carrier,
+                    WarehouseLocation = i.FBAMasterOrder == null ? i.FBAShipOrder.WarehouseLocation : i.FBAMasterOrder.WarehouseLocation,
                     IsPayed = i.PaymentStatus,
                     IsCollected = i.CollectionStatus,
                     Amount = i.Amount,
@@ -716,5 +748,9 @@ namespace ClothResorting.Helpers.FBAHelper
         public DateTime DateOfCost { get; set; }
 
         public string Memo { get; set; }
+
+        public string Carrier { get; set; }
+
+        public string WarehouseLocation { get; set; }
     }
 }
