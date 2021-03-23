@@ -44,7 +44,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws = _wb.Worksheets[i];
                 _ws.Cells[4, 2] = info.CustomerCode;
                 _ws.Cells[4, 4] = info.FromDate == null ? "" : info.FromDate.ToString("yyyy-MM-dd").Substring(0, 10);
-                _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.ToString("yyyy-MM-dd").Substring(0, 10);
+                _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.AddDays(-1).ToString("yyyy-MM-dd").Substring(0, 10);
                 _ws.Cells[4, 8] = DateTime.Now.ToString("yyyy-MM-dd");
             }
 
@@ -251,7 +251,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _ws.Cells[4, 2] = info.CustomerCode;
             _ws.Cells[4, 4] = info.FromDate == null ? "" : info.FromDate.ToString("yyyy-MM-dd").Substring(0, 10);
-            _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.ToString("yyyy-MM-dd").Substring(0, 10);
+            _ws.Cells[4, 6] = info.ToDate == null ? "" : info.ToDate.AddDays(-1).ToString("yyyy-MM-dd").Substring(0, 10);
             _ws.Cells[4, 8] = DateTime.Now.ToString("yyyy-MM-dd");
 
             var groupByCustomer = info.InvoiceReportDetails.GroupBy(x => x.CustomerCode);

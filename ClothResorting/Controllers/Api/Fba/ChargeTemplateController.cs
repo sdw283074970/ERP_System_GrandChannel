@@ -63,12 +63,14 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GenerateNewStorageReport([FromUri]int templateId, [FromUri]string customerCode, [FromUri]DateTime lastBillingDate, [FromUri]DateTime currentBillingDate, [FromUri]float p1Discount, [FromUri]float p2Discount, [FromUri]bool isEstimatingCharge)
         {
-            DateTime closeDate = currentBillingDate;
-            DateTime startDate = lastBillingDate;
+            var closeDate = new DateTime(currentBillingDate.Year, currentBillingDate.Month, currentBillingDate.Day).AddDays(1);
+            var startDate = new DateTime(lastBillingDate.Year, currentBillingDate.Month, currentBillingDate.Day);
+
+            var warehouseLocationsInDb = _context2.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
 
             var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
             var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
-            var fullPath = generator.GenerateStorageReport(customerId, lastBillingDate, closeDate, p1Discount, p2Discount);
+            var fullPath = generator.GenerateStorageReport(customerId, lastBillingDate, closeDate, p1Discount, p2Discount, warehouseLocationsInDb);
 
             var chargeMethodsList = _context.ChargeMethods
                 .Include(x => x.ChargeTemplate)
@@ -130,9 +132,11 @@ namespace ClothResorting.Controllers.Api.Fba
             var closeDate = new DateTime(currentBillingDate.Year, currentBillingDate.Month, currentBillingDate.Day).AddDays(1);
             var startDate = new DateTime(lastBillingDate.Year, currentBillingDate.Month, currentBillingDate.Day);
 
+            var warehouseLocationsInDb = _context2.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
+
             var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
             var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
-            var fullPath = generator.GenerateStorageReport(customerId, startDate, closeDate, p1Discount, p2Discount);
+            var fullPath = generator.GenerateStorageReport(customerId, startDate, closeDate, p1Discount, p2Discount, warehouseLocationsInDb);
 
             var chargeMethodsList = _context.ChargeMethods
                 .Include(x => x.ChargeTemplate)
@@ -152,6 +156,38 @@ namespace ClothResorting.Controllers.Api.Fba
             DownloadRecord.FileName = fullPath.Split('\\').Last();
             DownloadRecord.FilePath = fullPath;
         }
+
+        // POST /api/fba/chargetemplate/
+        [HttpPost]
+        public IHttpActionResult GenerateNewStorageReportThroughPayload([FromBody]StorageChargePayload data)
+        {
+            var closeDate = new DateTime(data.CurrentBillingDate.Year, data.CurrentBillingDate.Month, data.CurrentBillingDate.Day).AddDays(1);
+            var startDate = new DateTime(data.LastBillingDate.Year, data.CurrentBillingDate.Month, data.CurrentBillingDate.Day);
+            
+            var warehouseLocationsInDb = _context2.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
+            var warehouseLocations = data.WarehouseLocation.Length > 0 ? data.WarehouseLocation : warehouseLocationsInDb;
+
+            var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == data.CustomerCode).Id;
+            var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
+            var fullPath = generator.GenerateStorageReport(customerId, data.LastBillingDate, closeDate, data.P1Discount, data.P2Discount, warehouseLocations);
+
+            var chargeMethodsList = _context.ChargeMethods
+                .Include(x => x.ChargeTemplate)
+                .Where(x => x.ChargeTemplate.Id == data.TemplateId)
+                .OrderBy(x => x.From)
+                .ToList();
+
+            var calculator = new InventoryFeeCalculator(fullPath);
+
+            calculator.RecalculateInventoryFeeInExcel(chargeMethodsList, chargeMethodsList.First().TimeUnit, data.LastBillingDate.ToString("yyyy-MM-dd"), data.CurrentBillingDate.ToString("yyyy-MM-dd"), data.IsEstimatingCharge);
+
+            //强行关闭Excel进程
+            var killer = new ExcelKiller();
+            killer.Dispose();
+
+            return Ok(fullPath);
+        }
+
 
         // POST /api/fba/chargetemplate/?templateName={templateName}&customer={customer}&timeUnit={timeUnit}&currency={currency}
         [HttpPost]
@@ -246,4 +282,25 @@ namespace ClothResorting.Controllers.Api.Fba
 
         public IEnumerable<ChargeMethodDto> ChargeMethods { get; set; }
     }
+
+    public class StorageChargePayload
+    {
+        public int TemplateId { get; set; }
+
+        public string CustomerCode { get; set; }
+
+        public DateTime LastBillingDate { get; set; }
+
+        public DateTime CurrentBillingDate { get; set; }
+
+        public float P1Discount { get; set; }
+
+        public float P2Discount { get; set; }
+
+        public bool IsEstimatingCharge { get; set; }
+
+        public string[] WarehouseLocation { get; set; }
+    }
+
+
 }

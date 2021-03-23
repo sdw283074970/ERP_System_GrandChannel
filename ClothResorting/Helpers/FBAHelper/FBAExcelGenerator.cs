@@ -174,7 +174,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成StorageFee报告并返回完整路径
-        public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate, float p1Discount, float p2Discount)
+        public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate, float p1Discount, float p2Discount, string[] warehouseLocations)
         {
             var customerInDb = _context.UpperVendors.Find(customerId);
 
@@ -183,7 +183,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAMasterOrder.FBAPallets)
                 .Include(x => x.FBAPickDetails.Select(c => c.FBAShipOrder))
                 .Where(x => x.FBAMasterOrder.InboundDate < closeDate
-                    && x.FBAMasterOrder.Customer.Id == customerId);
+                    && x.FBAMasterOrder.Customer.Id == customerId)
+                .Where(x => warehouseLocations.Contains(x.FBAMasterOrder.WarehouseLocation));
 
             var pickDetailInDb = _context.FBAPickDetails
                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
@@ -194,7 +195,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     && x.FBAPalletLocation != null
                     && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
                     && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
-                    && x.PltsFromInventory != 0);
+                    && x.PltsFromInventory != 0)
+                .Where(x => warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation));
 
             //var cartonLocationInDb = _context.FBACartonLocations
             //    .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
@@ -212,6 +214,7 @@ namespace ClothResorting.Helpers.FBAHelper
             }
 
             _ws = _wb.Worksheets[1];
+
             var startIndex = 2;
 
             var palletsInDbGroup = palletLocationInDb.GroupBy(x => x.FBAMasterOrder.Container);
@@ -236,6 +239,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex, 6] = plusPlts;
                 _ws.Cells[startIndex, 7] = pallets;
                 _ws.Cells[startIndex, 8] = p.First().FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy");
+                _ws.Cells[startIndex, 13] = p.First().FBAMasterOrder.WarehouseLocation;
 
                 startIndex += 1;
             }
@@ -249,7 +253,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     ShippedPlts = s.PltsFromInventory,
                     InboundDate = s.FBAPalletLocation.FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy"),
                     OutboundDate = s.FBAShipOrder.ShipDate.ToString("MM/dd/yyyy"),
-                    PalletSize = s.Size
+                    PalletSize = s.Size,
+                    WarehouseLocation = s.FBAShipOrder.WarehouseLocation
                 };
 
                 var sameShipRecord = shipList.SingleOrDefault(x => x.Reference == newShipRecord.Reference
@@ -288,6 +293,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex, 2] = s.Reference;
                 _ws.Cells[startIndex, 8] = s.InboundDate;
                 _ws.Cells[startIndex, 9] = s.OutboundDate;
+                _ws.Cells[startIndex, 13] = s.WarehouseLocation;
 
                 startIndex += 1;
             }
@@ -811,6 +817,8 @@ namespace ClothResorting.Helpers.FBAHelper
     public class ShipRecord
     {
         public string Reference { get; set; }
+
+        public string WarehouseLocation { get; set; }
 
         public int ShippedPlts { get; set; }
 
