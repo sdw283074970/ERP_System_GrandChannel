@@ -25,6 +25,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string Location { get; set; }
 
+        public string Memo { get; set; }
+
         //用于标记是否是宿主物品
         public bool IsMainItem { get; set; }
     }

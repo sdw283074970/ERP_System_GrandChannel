@@ -54,8 +54,22 @@ namespace ClothResorting.Controllers
 
         public ActionResult Test()
         {
-            var s = " ";
-            var ss = s.Split(' ');
+            var pickDetails = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAPickDetailCartons)
+                .Where(x => x.FBAShipOrder.CustomerCode == "FTC")
+                .ToList();
+
+            var list = new List<int>();
+
+            foreach(var p in pickDetails)
+            {
+                if (p.FBAPickDetailCartons.Sum(x => x.PickCtns) != p.ActualQuantity)
+                {
+                    if (!list.Contains(p.FBAShipOrder.Id))
+                        list.Add(p.FBAShipOrder.Id);
+                }
+            }
 
             ViewBag.Message = "Your application description page.";
 

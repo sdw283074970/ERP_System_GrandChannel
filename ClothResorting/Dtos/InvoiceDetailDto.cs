@@ -17,6 +17,8 @@ namespace ClothResorting.Dtos
 
         public float Discount { get; set; }
 
+        public bool BonusStatus { get; set; }
+
         public float OriginalAmount { get; set; }
 
         public string ChargingType { get; set; }

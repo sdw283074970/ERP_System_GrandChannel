@@ -32,6 +32,8 @@ namespace ClothResorting.Models
 
         public bool CostConfirm { get; set; }
 
+        public bool BonusStatus { get; set; }
+
         public bool CollectionStatus { get; set; }
 
         public bool PaymentStatus { get; set; }

@@ -41,7 +41,8 @@ namespace ClothResorting.Helpers.FBAHelper
                             ActualPallets = plt,
                             Weight = cartonInPickList[i].FBACartonLocation.GrossWeightPerCtn * cartonInPickList[i].PickCtns,
                             Location = pickDetail.Location,
-                            IsMainItem = isMainItem
+                            IsMainItem = isMainItem,
+                            Memo = cartonInPickList[i].FBACartonLocation.Memo
                         });
                     }
                 }

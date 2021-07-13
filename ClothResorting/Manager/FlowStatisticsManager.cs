@@ -192,7 +192,7 @@ namespace ClothResorting.Manager
             return fullPath;
         }
 
-        public string GenerateSKUSummaryStatement(string customerCode, DateTime startDate, DateTime endDate)
+        public string GenerateAllSKUStatement(string customerCode, DateTime startDate, DateTime endDate)
         {
             var originalStartDate = startDate.ToString("yyyy-MM-dd");
             var originalEndDate = endDate.ToString("yyyy-MM-dd");
@@ -212,7 +212,7 @@ namespace ClothResorting.Manager
             var outboundSKUs = _context.FBAPickDetailCartons
                 .Include(x => x.FBACartonLocation)
                 .Include(x => x.FBAPickDetail.FBAShipOrder)
-                .Where(x => x.FBAPickDetail.FBAShipOrder.CustomerCode == customerCode
+                .Where(x => x.FBAPickDetail.FBAShipOrder.ReleasedDate >= startDate
                     && x.FBAPickDetail.FBAShipOrder.ReleasedDate < endDate
                     && x.FBAPickDetail.FBAShipOrder.CustomerCode == customerCode)
                 .ToList()
@@ -277,6 +277,127 @@ namespace ClothResorting.Manager
                 _ws.Cells[index, 4] = totalInbound;
                 _ws.Cells[index, 5] = -totalOutbouns;
                 _ws.Cells[index, 6] = openingBalance + totalInbound - totalOutbouns;
+                index++;
+            }
+
+            // 生成第二张Detail表格
+            index = 5;
+            _ws = _wb.Worksheets[2];
+            _ws.Cells[3, 2] = customerCode;
+            _ws.Cells[3, 4] = "All SKU";
+            _ws.Cells[3, 6] = originalStartDate;
+            _ws.Cells[3, 8] = originalEndDate;
+
+            var skuArray = skuList.Select(x => x.SKU).ToArray();
+
+            var allInboundBeforeStartDate = _context.FBAOrderDetails
+                                                .Include(x => x.FBAMasterOrder)
+                                                .Where(x => x.FBAMasterOrder.InboundDate < startDate && skuArray.Contains(x.ShipmentId))
+                                                .ToList();
+
+            var allOutboundBeforeStartDate = _context.FBAPickDetailCartons
+                                                .Include(x => x.FBAPickDetail.FBAShipOrder)
+                                                .Include(x => x.FBACartonLocation)
+                                                .Where(x => x.FBAPickDetail.FBAShipOrder.ReleasedDate < startDate && x.FBAPickDetail.FBAShipOrder.ReleasedDate.Year != 1900 && skuArray.Contains(x.FBACartonLocation.ShipmentId))
+                                                .ToList();
+
+            var balanceList = new List<ItemStatisticLine>();
+
+            var inboundCollection = _context.FBAOrderDetails
+                .Include(x => x.FBAMasterOrder)
+                .Where(x => x.FBAMasterOrder.InboundDate >= startDate
+                    && x.FBAMasterOrder.InboundDate < endDate
+                    && x.FBAMasterOrder.CustomerCode == customerCode)
+                .ToList()
+                .OrderBy(x => x.FBAMasterOrder.InboundDate);
+
+            var outboundCollection = _context.FBAPickDetailCartons
+                .Include(x => x.FBAPickDetail.FBAShipOrder)
+                .Include(x => x.FBACartonLocation)
+                .Where(x => x.FBAPickDetail.FBAShipOrder.ReleasedDate >= startDate
+                    && x.FBAPickDetail.FBAShipOrder.ReleasedDate < endDate
+                    && x.FBAPickDetail.FBAShipOrder.CustomerCode == customerCode)
+                .ToList()
+                .OrderBy(x => x.FBAPickDetail.FBAShipOrder.ReleasedDate);
+
+            foreach (var i in inboundCollection)
+            {
+                balanceList.Add(new ItemStatisticLine
+                {
+                    Reference = i.Container,
+                    Container = i.Container,
+                    Type = FBAOrderType.Inbound,
+                    SKU = i.ShipmentId,
+                    AmzRefId = i.AmzRefId,
+                    WarehouseCode = i.WarehouseCode,
+                    WarehouseLocation = i.FBAMasterOrder.WarehouseLocation,
+                    Date = i.FBAMasterOrder.InboundDate,
+                    QuantityChange = i.ActualQuantity
+                });
+            }
+
+            foreach (var i in outboundCollection)
+            {
+                balanceList.Add(new ItemStatisticLine
+                {
+                    Reference = i.FBAPickDetail.FBAShipOrder.ShipOrderNumber,
+                    Container = i.FBACartonLocation.Container,
+                    Type = FBAOrderType.Outbound,
+                    SKU = i.FBACartonLocation.ShipmentId,
+                    AmzRefId = i.FBACartonLocation.AmzRefId,
+                    WarehouseCode = i.FBACartonLocation.WarehouseCode,
+                    WarehouseLocation = i.FBAPickDetail.FBAShipOrder.WarehouseLocation,
+                    Date = i.FBAPickDetail.FBAShipOrder.ReleasedDate,
+                    QuantityChange = -i.PickCtns
+                });
+            }
+
+            foreach (var s in skuList)
+            {
+                var allInbound = allInboundBeforeStartDate.Where(x => x.ShipmentId == s.SKU).Sum(x => x.ActualQuantity);
+                var allOutbound = allOutboundBeforeStartDate.Where(x => x.FBACartonLocation.ShipmentId == s.SKU).Sum(x => x.PickCtns);
+                var balance = allInbound - allOutbound;
+
+                _ws.Cells[index, 1] = "SKU:";
+                _ws.Cells[index, 2] = s.SKU;
+                _ws.Cells[index, 5] = "By end of " + startDate.ToString("yyyy-MM-dd");
+                _ws.Cells[index, 6] = "Quantity: " + balance.ToString();
+
+                index++;
+
+                _ws.Cells[index, 1] = "SKU";
+                _ws.Cells[index, 2] = "Reference";
+                _ws.Cells[index, 3] = "Container";
+                _ws.Cells[index, 4] = "Amz Ref Id";
+                _ws.Cells[index, 5] = "Dest. Warehouse";
+                _ws.Cells[index, 6] = "Op Warehouse";
+                _ws.Cells[index, 7] = "Type";
+                _ws.Cells[index, 8] = "Date";
+                _ws.Cells[index, 9] = "Quantity Change";
+                _ws.Cells[index, 10] = "Balance";
+
+                index++;
+
+                var list = balanceList.Where(x => x.SKU == s.SKU).OrderBy(x => x.Date).ToList();
+                foreach (var i in list)
+                {
+                    balance += i.QuantityChange;
+                    _ws.Cells[index, 1] = i.SKU;
+                    _ws.Cells[index, 2] = i.Reference;
+                    _ws.Cells[index, 3] = i.Container;
+                    _ws.Cells[index, 4] = i.AmzRefId;
+                    _ws.Cells[index, 5] = i.WarehouseCode;
+                    _ws.Cells[index, 6] = i.WarehouseLocation;
+                    _ws.Cells[index, 7] = i.Type;
+                    _ws.Cells[index, 8] = i.Date;
+                    _ws.Cells[index, 9] = i.QuantityChange;
+                    _ws.Cells[index, 10] = balance;
+                    index++;
+                }
+
+                _ws.Cells[index - 2 - list.Count, 9] = "By end of " + endDate.ToString("yyyy-MM-dd");
+                _ws.Cells[index - 2 - list.Count, 10] = "Quantity: " + balance;
+
                 index++;
             }
 

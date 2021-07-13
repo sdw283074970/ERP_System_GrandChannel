@@ -111,7 +111,8 @@ namespace ClothResorting.Helpers.FBAHelper
                         AvailablePlts = plt.ActualPlts,
                         Location = plt.Location,
                         PalletSize = plt.PalletSize,
-                        InboundDate = plt.FBAMasterOrder.InboundDate
+                        InboundDate = plt.FBAMasterOrder.InboundDate,
+                        Memo = plt.Memo
                     });
                 }
             }
@@ -179,6 +180,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         ResidualQuantity = cartonLocation.ActualQuantity - cartonLocation.HoldCtns,
                         OriginalQuantity = originalQuantity,
                         InboundDate = cartonLocation.FBAOrderDetail.FBAMasterOrder.InboundDate,
+                        Memo = cartonLocation.Memo,
                         Location = cartonLocation.Location == "Pallet" ? CombineLocation(cartonLocation.FBAPallet.FBAPalletLocations.Select(x => x.Location).ToList()) : cartonLocation.Location,
                     };
 
@@ -219,7 +221,7 @@ namespace ClothResorting.Helpers.FBAHelper
             info.TotalInPalletCtns = (int)info.CurrentTotalCtns - info.CurrentLooseCtns;
 
             info.TotalResidualCBM = residualInventoryList.Sum(x => x.ResidualCBM);
-            info.CloseDate = closeDate;
+            info.CloseDate = closeDate.AddDays(-1);     // 减去一天，是真正的截止日期
             info.StartDate = startDate;
 
             return info;
@@ -574,6 +576,8 @@ namespace ClothResorting.Helpers.FBAHelper
 
         public int PickingCtns { get; set; }
 
+        public string Memo { get; set; }
+
         public int OriginalQuantity { get; set; }
 
         public float ResidualCBM { get; set; }
@@ -647,6 +651,8 @@ namespace ClothResorting.Helpers.FBAHelper
         public DateTime InboundDate { get; set; }
 
         public string WarehouseLocation { get; set; }
+
+        public string Memo { get; set; }
 
         public List<FBACtnInventory> InPalletCtnInventories { get; set; }
 

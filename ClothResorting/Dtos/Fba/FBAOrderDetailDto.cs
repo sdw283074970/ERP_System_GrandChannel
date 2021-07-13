@@ -30,5 +30,11 @@ namespace ClothResorting.Dtos.Fba
 
         public int CtnsPerLocation { get; set; }
 
+        public int SelectedQuantity { get; set; }
+
+        public FBAOrderDetailDto()
+        {
+            SelectedQuantity = 0;
+        }
     }
 }

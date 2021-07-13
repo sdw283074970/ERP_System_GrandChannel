@@ -250,14 +250,15 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.SaveChanges();
         }
 
-        // PUT /api/fbainventory/?cartonId={cartonId}&holdCtns={holdCtns}
+        // PUT /api/fbainventory/?cartonId={foo}&holdCtns={bar}&memo={foo}
         [HttpPut]
-        public void UpdateHoldCtns([FromUri]int cartonId, [FromUri]int holdCtns)
+        public void UpdateHoldCtns([FromUri]int cartonId, [FromUri]int holdCtns, [FromUri]string memo)
         {
             var cartonLocationInDb = _context.FBACartonLocations.Find(cartonId);
             var totalAvailableCtns = cartonLocationInDb.AvailableCtns + cartonLocationInDb.HoldCtns;
             cartonLocationInDb.AvailableCtns = totalAvailableCtns - holdCtns;
             cartonLocationInDb.HoldCtns = holdCtns;
+            cartonLocationInDb.Memo = memo;
             _context.SaveChanges();
         }
 

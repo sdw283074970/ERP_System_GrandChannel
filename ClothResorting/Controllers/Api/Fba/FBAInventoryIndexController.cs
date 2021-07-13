@@ -52,11 +52,8 @@ namespace ClothResorting.Controllers.Api.Fba
             //阻塞线程，等待生成EXCEL方法执行完毕返回路径字符串后才执行下面的步骤
 
             //var handler = new GenerateFBAInventoryReportHandler(helper.GenerateFBAInventoryReport);
-
             //var downloadSourcePath = handler.Invoke(customerInventoryList);
-
             //var downloadHandler = new DownloadGeneralFileFromServer(downloader.DownloadGeneralFileFromServer);
-
             //downloadHandler.Invoke(downloadSourcePath, customerCode + " Inventory Report", ".xls");
         }
 

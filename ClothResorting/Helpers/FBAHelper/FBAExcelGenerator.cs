@@ -328,7 +328,17 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAPickDetails)
                 .SingleOrDefault(x => x.Id == shipOrderId);
 
-            _ws.Cells[2, 2] = shipOrderInDb.PlaceTime.ToString("yyyy-MM-dd");
+            if (shipOrderInDb.PlaceTime.Year == 1900)
+            {
+                _ws.Cells[2, 1] = "Order Create Date";
+                _ws.Cells[2, 2] = shipOrderInDb.CreateDate.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                _ws.Cells[2, 1] = "Order Place Date";
+                _ws.Cells[2, 2] = shipOrderInDb.PlaceTime.ToString("yyyy-MM-dd");
+            }
+
             _ws.Cells[2, 6] = shipOrderInDb.CustomerCode + ", " + shipOrderInDb.ETSTimeRange;
             _ws.Cells[3, 2] = shipOrderInDb.ShipOrderNumber;
             _ws.Cells[3, 6] = shipOrderInDb.ETS.ToString("yyyy-MM-dd");
@@ -381,11 +391,13 @@ namespace ClothResorting.Helpers.FBAHelper
                         _ws.Cells[startIndex, 1] = p.CustomerOrderNumber;
                         _ws.Cells[startIndex, 2] = p.AmzRef;
                         _ws.Cells[startIndex, 4] = p.CartonQuantity;
+                        _ws.Cells[startIndex, 7] = p.Memo;
 
                         if (p.ParentPalletId == 0)
                         {
                             _ws.Cells[startIndex, 3] = p.Contianer;
                             _ws.Cells[startIndex, 6] = p.Location;
+                            _ws.Cells[startIndex, 7] = p.Memo;
                         }
 
                         startIndex += 1;
@@ -443,13 +455,14 @@ namespace ClothResorting.Helpers.FBAHelper
                     var startRow = startIndex;
                     _ws.Cells[startIndex, 3] = g.First().FBAPickDetail.Container;
                     _ws.Cells[startIndex, 5] = g.First().FBAPickDetail.PltsFromInventory.ToString();
+                    _ws.Cells[startIndex, 6] = g.First().FBAPickDetail.Location;
 
                     foreach (var p in g)
                     {
                         _ws.Cells[startIndex, 1] = p.FBACartonLocation.ShipmentId;
                         _ws.Cells[startIndex, 2] = p.FBACartonLocation.AmzRefId;
                         _ws.Cells[startIndex, 4] = p.PickCtns;
-                        _ws.Cells[startIndex, 6] = p.FBAPickDetail.Location;
+                        _ws.Cells[startIndex, 7] = p.FBACartonLocation.Memo;
 
                         startIndex += 1;
                     }
@@ -459,7 +472,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         var rangeContainer = _ws.get_Range("C" + startRow, "C" + (startIndex - 1));
                         rangeContainer.Merge(rangeContainer.MergeCells);
 
-                        var rangePlts = _ws.get_Range("E" + startRow, "E" + (startIndex - 1));
+                        var rangePlts = _ws.get_Range("F" + startRow, "F" + (startIndex - 1));
                         rangePlts.Merge(rangePlts.MergeCells);
                     }
                 }
@@ -521,13 +534,21 @@ namespace ClothResorting.Helpers.FBAHelper
 
             foreach(var o in orderDetails)
             {
+                float kgs = (float)Math.Round(o.GrossWeight, 2);
+                float lbsPerCtn = (float)(kgs * 2.2 / o.Quantity);
+                int sgtCtnsPerplt = 0;
+
+                if (lbsPerCtn != 0)
+                    sgtCtnsPerplt = (int)(1500 / lbsPerCtn);
+
                 _ws.Cells[startIndex, 1] = o.ShipmentId;
                 _ws.Cells[startIndex, 2] = o.AmzRefId;
                 _ws.Cells[startIndex, 3] = o.WarehouseCode;
-                _ws.Cells[startIndex, 4] = Math.Round(o.GrossWeight, 2);
+                _ws.Cells[startIndex, 4] = kgs;
                 _ws.Cells[startIndex, 5] = Math.Round(o.CBM, 2);
                 _ws.Cells[startIndex, 6] = o.Quantity;
                 _ws.Cells[startIndex, 10] = o.Remark;
+                _ws.Cells[startIndex, 11] = sgtCtnsPerplt;
                 startIndex++;
             }
 
@@ -549,35 +570,69 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成Excel版本的BOL并返回完整路径
-        public string GenerateExcelBol(int shipOrderId, IList<FBABOLDetail> bolDetailList, string freightCharge, string operatorName)
+        public string GenerateExcelBol(int referenceId, string orderType, IList<FBABOLDetail> bolDetailList, string freightCharge, BOLDetail bolDetail)
         {
-            var shipOrderInDb = _context.FBAShipOrders.Find(shipOrderId);
-            var addressBookInDb = _context.FBAAddressBooks.SingleOrDefault(x => x.WarehouseCode == shipOrderInDb.Destination);
-            var warehouseLocationInDb = _context.WarehouseLocations.SingleOrDefault(x => x.WarehouseCode == shipOrderInDb.WarehouseLocation);
+            var orderNumber = "N/A";
             var address = " ";
             _ws = _wb.Worksheets[1];
-
-            if (addressBookInDb != null)
-            {
-                address = addressBookInDb.Address;
-            }
 
             //设置BOL时间
             _ws.Cells[2, 1] = "Date: " + DateTime.Now.ToString("yyyy-MM-dd");
 
-            // 设置BOL提货地址
-            _ws.Cells[4, 1] = "Grand Channel Inc. " + shipOrderInDb.WarehouseLocation;
-            _ws.Cells[5, 1] = warehouseLocationInDb.Address;
+            if (orderType == FBAOrderType.ShipOrder)
+            {
+                var orderInDb = _context.FBAShipOrders.Find(referenceId);
+                var addressBookInDb = _context.FBAAddressBooks.SingleOrDefault(x => x.WarehouseCode == orderInDb.Destination);
+                var warehouseLocationInDb = _context.WarehouseLocations.SingleOrDefault(x => x.WarehouseCode == orderInDb.WarehouseLocation);
 
-            //设置BOL#
-            _ws.Cells[3, 6] = shipOrderInDb.BOLNumber;
+                if (addressBookInDb != null)
+                {
+                    address = addressBookInDb.Address;
+                }
 
-            //设置地址
-            _ws.Cells[7, 2] = shipOrderInDb.Destination;
-            _ws.Cells[8, 1] = address;
+                // 设置BOL提货地址
+                _ws.Cells[4, 1] = "Grand Channel Inc. " + orderInDb.WarehouseLocation;
+                _ws.Cells[5, 1] = warehouseLocationInDb.Address;
 
-            //设置carrier
-            _ws.Cells[6, 6] = shipOrderInDb.Carrier;
+                //设置BOL#
+                _ws.Cells[3, 6] = orderInDb.BOLNumber;
+
+                //设置地址
+                _ws.Cells[7, 2] = orderInDb.Destination;
+                _ws.Cells[8, 1] = address;
+
+                //设置carrier
+                _ws.Cells[6, 6] = orderInDb.Carrier;
+
+                orderNumber = orderInDb.ShipOrderNumber;
+
+                //设置Ship Order #
+                _ws.Cells[18, 1] = "Ship Order#: " + orderNumber;
+            }
+            else
+            {
+                var orderInDb = _context.FBAMasterOrders.Find(referenceId);
+                var warehouseLocationInDb = _context.WarehouseLocations.SingleOrDefault(x => x.WarehouseCode == orderInDb.WarehouseLocation);
+
+                // 设置BOL提货地址
+                _ws.Cells[4, 1] = "Grand Channel Inc. " + orderInDb.WarehouseLocation;
+                _ws.Cells[5, 1] = warehouseLocationInDb.Address;
+
+                //设置BOL#
+                _ws.Cells[3, 6] = bolDetail.BOLNumber;
+
+                //设置地址
+                _ws.Cells[7, 2] = bolDetail.WarehouseCode;
+                _ws.Cells[8, 1] = bolDetail.Address;
+
+                //设置carrier
+                _ws.Cells[6, 6] = bolDetail.Carrier;
+
+                orderNumber = bolDetail.BOLNumber;
+
+                //设置Ship Order #
+                _ws.Cells[18, 1] = "Ship Order#: " + orderNumber;
+            }
 
             //设置Freight Charge
             if (freightCharge == "Prepaid")
@@ -597,9 +652,6 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[16, 4] = "Prepaid ☐  Collect ☐  3rd Party ☐";
             }
 
-            //设置Ship Order #
-            _ws.Cells[18, 1] = "Ship Order#: " + shipOrderInDb.ShipOrderNumber;
-
             var startRow = 21;
             var mergeStartRow = 21;
             var mergeEndRow = 21;
@@ -612,7 +664,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
                 _ws.Cells[startRow, 2] = b.Contianer;
                 _ws.Cells[startRow, 3] = b.AmzRef;
-                _ws.Cells[startRow, 5] = b.Weight;
+                _ws.Cells[startRow, 5] = Math.Round(b.Weight, 2);
                 _ws.Cells[startRow, 6] = b.CartonQuantity;
                 //_ws.Cells[startRow, 7] = b.IsMainItem ? b.PalletQuantity.ToString() : " ";
                 //_ws.Cells[startRow, 8] = b.Location;
@@ -647,6 +699,12 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[lastRow, 6] = bolDetailList.Sum(x => x.CartonQuantity);
             _ws.Cells[lastRow, 7] = bolDetailList.Sum(x => x.ActualPallets);
 
+            if (orderType == FBAOrderType.MasterOrder)
+            {
+                _ws.Cells[lastRow, 7] = bolDetail.PltQuantity;
+                _ws.Cells[21, 7] = bolDetail.PltQuantity;
+            }
+
             //for(int i = 21; i <= lastRow; i++)
             //{
             //    for(int j = 1; j <= 7; j++)
@@ -664,7 +722,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             range.WrapText = true;
 
-            var fullPath = @"D:\BOL\FBA-BOL-" + shipOrderInDb.ShipOrderNumber + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"D:\BOL\FBA-BOL-" + orderNumber + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();

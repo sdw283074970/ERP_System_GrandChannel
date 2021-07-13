@@ -12,5 +12,7 @@ namespace ClothResorting.Models.FBAModels.StaticModels
         public const string Payment = "Payment";
 
         public const string Collection = "Collection";
+
+        public const string Bonus = "Bonus";
     }
 }

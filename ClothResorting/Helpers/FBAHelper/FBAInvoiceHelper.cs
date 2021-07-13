@@ -8,6 +8,7 @@ using System.Linq;
 using System.Web;
 using System.Data.Entity;
 using ClothResorting.Models.FBAModels.StaticModels;
+using ClothResorting.Models.FBAModels;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -686,6 +687,157 @@ namespace ClothResorting.Helpers.FBAHelper
 
             return customer;
         }
+
+        public IList<ContainerFeeSummary> GetContainerFeeSummary(string customerCode, DateTime startDate, DateTime endDate)
+        {
+            var results = new List<ContainerFeeSummary>();
+
+            var masterOrderList = _context.FBAMasterOrders
+                .Include(x => x.FBAOrderDetails)
+                .Include(x => x.InvoiceDetails)
+                .Include(x => x.FBAPallets)
+                .Where(x => x.CustomerCode == customerCode)
+                .Where(x => x.InboundDate >= startDate && x.InboundDate < endDate)
+                .ToList();
+
+            var containerList = masterOrderList.Select(x => x.Container).ToList();
+
+            //var shipOrderList = _context.FBAShipOrders
+            //    .Include(x => x.FBAPickDetails)
+            //    .Include(x => x.InvoiceDetails)
+            //    .Where(x => x.CustomerCode == customerCode)
+            //    .Where(x => x.ReleasedDate >= startDate && x.ReleasedDate < endDate)
+            //    .ToList();
+
+            var pickDetailGroupByContainer = _context.FBAPickDetails
+                .Include(x => x.FBAShipOrder)
+                .Include(x => x.FBAShipOrder.InvoiceDetails)
+                .Include(x => x.FBAShipOrder.FBAPickDetails)
+                .Where(x => x.FBAShipOrder.CustomerCode == customerCode)
+                .Where(x => containerList.Contains(x.Container))
+                .ToList()
+                .GroupBy(x => x.Container)
+                .ToList();
+
+            foreach(var m in masterOrderList)
+            {
+                results.Add(new ContainerFeeSummary {
+                    CustomerCode = customerCode,
+                    Container = m.Container,
+                    SubCustomer = m.SubCustomer,
+                    OriginalCtns = m.FBAOrderDetails.Sum(x => x.Quantity),
+                    ActualCtns = m.FBAOrderDetails.Sum(x => x.ActualQuantity),
+                    OriginalPlts = m.OriginalPlts,
+                    ActualPlts = m.FBAPallets.Sum(x => x.ActualPallets),
+                    InvoiceStatus = m.InvoiceStatus,
+                    CloseDate = m.CloseDate,
+                    InboundDate = m.InboundDate,
+                    TotalAmount = (float)Math.Round(m.InvoiceDetails.Sum(x => x.Amount), 2),
+                    ChargingCounts = m.InvoiceDetails.Count
+                });
+            }
+
+            // 找到所有与当前container相关的出库单invoiceDetails
+            var shipOrderInvoiceDetails = new List<InvoiceDetail>();
+            var filteredPickDetails = new List<FBAPickDetail>();
+
+            foreach (var containerGroup in pickDetailGroupByContainer)
+            {
+                // 统计按照货柜号分组的拣货记录，按照shiporder再次分组
+                var pickDetailGroupByShipOrders = containerGroup.GroupBy(x => x.FBAShipOrder).ToList();
+
+                foreach (var shipOrderGroup in pickDetailGroupByShipOrders)
+                {
+                    //filteredPickDetails.AddRange(shipOrderGroup);
+                    var pickDetail = shipOrderGroup.First();
+                    pickDetail.ActualQuantity = shipOrderGroup.Sum(x => x.ActualQuantity);
+                    pickDetail.PickableCtns = pickDetail.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
+                    filteredPickDetails.Add(pickDetail);
+                }
+            }
+            
+            foreach (var f in filteredPickDetails)
+            {
+                var shipOrder = f.FBAShipOrder;
+
+                var currentQuantity = f.ActualQuantity;
+                var totalQuanity = f.PickableCtns;
+                var percent = (float)Math.Round((double)currentQuantity / totalQuanity, 2);
+
+                foreach (var i in shipOrder.InvoiceDetails)
+                {
+                    shipOrderInvoiceDetails.Add(new InvoiceDetail {
+                        Activity = i.Activity,
+                        ChargingType = i.ChargingType,
+                        Memo = i.Memo,
+                        Unit = i.Unit,
+                        Rate = i.Rate,
+                        Discount = i.Discount,
+                        Quantity = Math.Round(i.Quantity * percent, 2),
+                        OriginalAmount = Math.Round(i.Quantity * i.Rate * percent, 2),
+                        Amount = Math.Round(i.Amount * percent, 2),
+                        Operator = f.Container, // 借位记录占比
+                        Cost = Math.Round(percent, 2),   // 借位记录占比
+                        DateOfCost = i.DateOfCost,
+                        FBAShipOrder = i.FBAShipOrder
+                    });
+                }
+            }
+
+            foreach (var r in results)
+            {
+                var invoiceDetailList = new List<ContainerFeeDetail>();
+
+                // 添加主单收费条目，全部添加
+                var masterOrder = masterOrderList.SingleOrDefault(x => x.Container == r.Container);
+
+                foreach(var i in masterOrder.InvoiceDetails)
+                {
+                    invoiceDetailList.Add(new ContainerFeeDetail {
+                        Activity = i.Activity,
+                        OrderReference = masterOrder.Container,
+                        OrderType = FBAOrderType.Inbound,
+                        ChargingType = i.ChargingType,
+                        UOM = i.Unit,
+                        Quantity = (float)Math.Round(i.Quantity, 2),
+                        Rate = (float)Math.Round(i.Rate, 2),
+                        OriginalAmount = (float)Math.Round(i.OriginalAmount, 2),
+                        DiscountRate = (float)Math.Round(i.Discount, 2),
+                        FinalAmount = (float)Math.Round(i.Amount, 2),
+                        Memo = i.Memo,
+                        DateOfCost = i.DateOfCost,
+                        Percent = "100%"
+                    });
+                }
+
+                var currentContainerInvoiceDetails = shipOrderInvoiceDetails.Where(x => x.Operator == r.Container);
+
+                foreach (var i in currentContainerInvoiceDetails)
+                {
+                    invoiceDetailList.Add(new ContainerFeeDetail {
+                        Activity = i.Activity,
+                        OrderReference = i.FBAShipOrder.ShipOrderNumber,
+                        OrderType = FBAOrderType.Outbound,
+                        ChargingType = i.ChargingType,
+                        UOM = i.Unit,
+                        Quantity = (float)Math.Round(i.Quantity, 2),
+                        Rate = (float)Math.Round(i.Rate, 2),
+                        OriginalAmount = (float)Math.Round(i.OriginalAmount, 2),
+                        DiscountRate = (float)Math.Round(i.Discount, 2),
+                        FinalAmount = (float)Math.Round(i.Amount, 2),
+                        Memo = i.Memo,
+                        DateOfCost = i.DateOfCost,
+                        Percent = (i.Cost * 100).ToString() + "%"
+                    });
+                }
+
+                r.TotalAmount += (float)currentContainerInvoiceDetails.Sum(x => x.Amount);
+                r.ChargingCounts += currentContainerInvoiceDetails.Count();
+                r.ContianerFeeDetails = invoiceDetailList;
+            }
+
+            return results;
+        }
     }
 
     public class FBAInvoiceInfo
@@ -752,5 +904,63 @@ namespace ClothResorting.Helpers.FBAHelper
         public string Carrier { get; set; }
 
         public string WarehouseLocation { get; set; }
+    }
+
+    public class ContainerFeeSummary
+    {
+        public string Container { get; set; }
+
+        public DateTime InboundDate { get; set; }
+
+        public string CustomerCode { get; set; }
+
+        public string SubCustomer { get; set; }
+
+        public int OriginalCtns { get; set; }
+
+        public int ActualCtns { get; set; }
+
+        public int OriginalPlts { get; set; }
+
+        public int ActualPlts { get; set; }
+
+        public float TotalAmount { get; set; }
+
+        public string InvoiceStatus { get; set; }
+
+        public DateTime CloseDate { get; set; }
+
+        public int ChargingCounts { get; set; }
+
+        public IList<ContainerFeeDetail> ContianerFeeDetails { get; set; }
+    }
+
+    public class ContainerFeeDetail
+    {
+        public string Activity { get; set; }
+
+        public string Percent { get; set; }
+
+        public string OrderReference { get; set; }
+
+        public string OrderType { get; set; }
+
+        public string UOM { get; set; }
+
+        public string ChargingType { get; set; }
+
+        public float Quantity { get; set; }
+
+        public float Rate { get; set; }
+
+        public float OriginalAmount { get; set; }
+
+        public float DiscountRate { get; set; }
+
+        public float FinalAmount { get; set; }
+
+        public string Memo { get; set; }
+
+        public DateTime DateOfCost { get; set; }
     }
 }

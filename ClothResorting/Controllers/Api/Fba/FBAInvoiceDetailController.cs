@@ -139,7 +139,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             var ctns = orderDetsils.Sum(x => x.ActualQuantity);
                             var skuNumber = orderDetsils.GroupBy(x => x.ShipmentId).Count();
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts, SkuNumber = skuNumber, ReleasedDate = "1900-1-1", InboundDate = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd") });
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts, SkuNumber = skuNumber, ReleasedDate = "1900-1-1", InboundDate = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd"), CancelDate = masterOrderInDb.CancelDate.ToString("yyyy-MM-dd"), CreateDate = masterOrderInDb.CreateDate.ToString("yyyy-MM-dd") });
                         }
                         else if (invoiceType == "ShipOrder")
                         {
@@ -153,7 +153,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             var plts = pickDetails.Sum(x => x.ActualPlts);
                             var ctns = pickDetails.Sum(x => x.ActualQuantity);
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A", SkuNumber = "N/A" , ReleasedDate = shipOrderInDb.ReleasedDate.ToString("yyyy-MM-dd"), InboundDate = "1900-1-1"});
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A", SkuNumber = "N/A" , ReleasedDate = shipOrderInDb.ReleasedDate.ToString("yyyy-MM-dd"), InboundDate = "1900-1-1", CancelDate = shipOrderInDb.CancelDate.ToString("yyyy-MM-dd"), CreateDate = shipOrderInDb.CreateDate.ToString("yyyy-MM-dd") });
                         }
                         else
                         {
@@ -494,6 +494,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     IsOperation = obj.IsOperation,
                     IsCharging = obj.IsChargingItem,
                     IsInstruction = obj.IsInstruction,
+                    VisibleToAgent = obj.VisibleToAgent,
                     CreateDate = DateTime.Now,
                     Description = obj.Description,
                     FBAMasterOrder = masterOrderInDb
@@ -532,6 +533,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     IsOperation = obj.IsOperation,
                     IsCharging = obj.IsChargingItem,
                     IsInstruction = obj.IsInstruction,
+                    VisibleToAgent = obj.VisibleToAgent,
                     Description = obj.Description,
                     FBAShipOrder = shipOrderInDb
                 };
@@ -853,6 +855,17 @@ namespace ClothResorting.Controllers.Api.Fba
                 else
                 {
                     invoiceDetailInDb.CollectionStatus = true;
+                }
+            }
+            else if (buttonType == FBAButtonType.Bonus)
+            {
+                if (invoiceDetailInDb.BonusStatus)
+                {
+                    invoiceDetailInDb.BonusStatus = false;
+                }
+                else
+                {
+                    invoiceDetailInDb.BonusStatus = true;
                 }
             }
 

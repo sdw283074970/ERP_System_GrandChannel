@@ -91,7 +91,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 }
                 catch(Exception e)
                 {
-                    throw new Exception(e.Message);
+                    throw new Exception(e.Message + $" i={i}");
                 }
 
                 var orderDetail = new FBAOrderDetail();

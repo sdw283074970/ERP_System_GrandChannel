@@ -80,6 +80,8 @@ namespace ClothResorting.Models.FBAModels.BaseClass
 
         public bool IsChargingItem { get; set; }
 
+        public bool VisibleToAgent { get; set; }
+
         public string Comment { get; set; }
 
         public string Result { get; set; }

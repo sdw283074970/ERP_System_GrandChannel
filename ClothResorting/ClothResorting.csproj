@@ -1932,6 +1932,14 @@
     <Compile Include="Migrations\202102081020525_AddedOrderOperationLogsToMasterOrder.Designer.cs">
       <DependentUpon>202102081020525_AddedOrderOperationLogsToMasterOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202105122034374_AddedBonusStatusInInvoiceDetail.cs" />
+    <Compile Include="Migrations\202105122034374_AddedBonusStatusInInvoiceDetail.Designer.cs">
+      <DependentUpon>202105122034374_AddedBonusStatusInInvoiceDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202107122309586_AddedVisibleToAgentInChargingItemDetail.cs" />
+    <Compile Include="Migrations\202107122309586_AddedVisibleToAgentInChargingItemDetail.Designer.cs">
+      <DependentUpon>202107122309586_AddedVisibleToAgentInChargingItemDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -1995,6 +2003,7 @@
     <Compile Include="Models\Factory\FBAModelFactory.cs" />
     <Compile Include="Models\FBAModels\BaseClass\BaseFBAMasterOrder.cs" />
     <Compile Include="Models\FBAModels\BaseClass\BaseFBAOrderDetail.cs" />
+    <Compile Include="Models\FBAModels\BOLInfo.cs" />
     <Compile Include="Models\FBAModels\ChargeMethod.cs" />
     <Compile Include="Models\FBAModels\ChargeTemplate.cs" />
     <Compile Include="Models\FBAModels\ChargingItemDetail.cs" />
@@ -3584,6 +3593,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202102081020525_AddedOrderOperationLogsToMasterOrder.resx">
       <DependentUpon>202102081020525_AddedOrderOperationLogsToMasterOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202105122034374_AddedBonusStatusInInvoiceDetail.resx">
+      <DependentUpon>202105122034374_AddedBonusStatusInInvoiceDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202107122309586_AddedVisibleToAgentInChargingItemDetail.resx">
+      <DependentUpon>202107122309586_AddedVisibleToAgentInChargingItemDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

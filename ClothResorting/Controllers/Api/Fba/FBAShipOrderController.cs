@@ -161,7 +161,7 @@ namespace ClothResorting.Controllers.Api.Fba
             if (sku == null)
             {
                 var manager = new ItemStatementManager(_context, @"D:\Template\SKUStatement-Summary.xlsx");
-                fullPath = manager.GenerateSKUSummaryStatement(customerCode, fromDate, toDate);
+                fullPath = manager.GenerateAllSKUStatement(customerCode, fromDate, toDate);
             }
             else
             {
@@ -186,7 +186,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
 
-            var fileName = generator.GenerateExcelBol(shipOrderId, bolList, freightCharge, operatorName);
+            var fileName = generator.GenerateExcelBol(shipOrderId, FBAOrderType.ShipOrder, bolList, freightCharge, null);
 
             return Ok(fileName);
         }
@@ -1509,6 +1509,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public bool IsInstruction { get; set; }
 
         public bool IsCharging { get; set; }
+
+        public bool VisibleToAgent { get; set; }
     }
 
     public class AllDateForm

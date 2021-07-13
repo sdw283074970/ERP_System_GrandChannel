@@ -38,6 +38,8 @@ namespace ClothResorting.Models.FBAModels
 
         public FBAShipOrder FBAShipOrder { get; set; }
 
+        public bool VisibleToAgent { get; set; }
+
         //public UpperVendor Customer { get; set; }
 
         public ChargingItemDetail()
@@ -53,6 +55,8 @@ namespace ClothResorting.Models.FBAModels
             IsInstruction = false;
 
             IsCharging = false;
+
+            VisibleToAgent = false;
         }
     }
 }

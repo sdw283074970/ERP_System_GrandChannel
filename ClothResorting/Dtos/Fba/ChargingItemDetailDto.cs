@@ -30,5 +30,7 @@ namespace ClothResorting.Dtos.Fba
         public string Result { get; set; }
 
         public string HandlingStatus { get; set; }
+
+        public bool VisibleToAgent { get; set; }
     }
 }

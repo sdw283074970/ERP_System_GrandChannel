@@ -270,7 +270,8 @@ namespace ClothResorting.Controllers.Api.Fba
                         Status = c.Status,
                         IsOperation = c.IsOperation,
                         IsCharging = c.IsCharging,
-                        IsInstruction = c.IsInstruction
+                        IsInstruction = c.IsInstruction,
+                        VisibleToAgent = c.VisibleToAgent
                     });
                 }
 
@@ -302,6 +303,16 @@ namespace ClothResorting.Controllers.Api.Fba
                 return Ok(resultDto);
             }
             return Ok();
+        }
+
+        // GET /api/fba/fbamasterorder/?customerCode={foo}&startDate={bar}&endDate={foo}
+        public IHttpActionResult GetContianerReport([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime endDate)
+        {
+            endDate = endDate.AddDays(1);
+            
+            var helper = new FBAInvoiceHelper();
+
+            return Ok(helper.GetContainerFeeSummary(customerCode, startDate, endDate));
         }
 
         // POST /api/fbamasterorder/?masterOrderId={masterOrderId}
@@ -381,6 +392,19 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 return Ok("Invaild operation.");
             }
+        }
+
+        // POST /api/fba/fbamasterorder/?masterOrderId={masterOrderId}&freightCharge={freightCharge}&operatorName={operatorName}
+        [HttpPost]
+        public IHttpActionResult DownloadBOL([FromUri]int masterOrderId, [FromUri]string freightCharge, [FromUri]string operatorName, [FromBody]BOLInfo bolInfo)
+        {
+            var bolList = GenerateFBABOLList(bolInfo.OrderDetails);
+
+            var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
+
+            var fileName = generator.GenerateExcelBol(masterOrderId, FBAOrderType.MasterOrder, bolList, freightCharge, bolInfo.BOLDetail);
+
+            return Ok(fileName);
         }
 
         //POST /api/fba/fbamasterorder/{id}
@@ -923,6 +947,29 @@ namespace ClothResorting.Controllers.Api.Fba
             var path = generator.GenerateUnloadingWOAndPackingList(masterOrderId);
 
             return path;
+        }
+
+        private IList<FBABOLDetail> GenerateFBABOLList(IEnumerable<FBAOrderDetailDto> dtos)
+        {
+            var bolList = new List<FBABOLDetail>();
+            foreach (var d in dtos)
+            {
+                if (d.SelectedQuantity == 0)
+                    continue;
+
+                bolList.Add(new FBABOLDetail
+                {
+                    CustomerOrderNumber = d.ShipmentId,
+                    Contianer = d.Container,
+                    CartonQuantity = d.SelectedQuantity,
+                    AmzRef = d.AmzRefId,
+                    ActualPallets = 0,
+                    Weight = d.ActualGrossWeight,
+                    Location = "N/A"
+                });
+            }
+
+            return bolList;
         }
     }
 
