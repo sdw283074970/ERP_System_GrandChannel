@@ -751,7 +751,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     //filteredPickDetails.AddRange(shipOrderGroup);
                     var pickDetail = shipOrderGroup.First();
                     pickDetail.ActualQuantity = shipOrderGroup.Sum(x => x.ActualQuantity);
-                    pickDetail.PickableCtns = pickDetail.FBAShipOrder.FBAPickDetails.Sum(x => x.ActualQuantity);
+                    pickDetail.PickableCtns = pickDetail.FBAShipOrder.FBAPickDetails.Sum(x => x.PickableCtns);
+                    //pickDetail.GrandNumber = $"{pickDetail.ActualQuantity} / {pickDetail.PickableCtns}";
                     filteredPickDetails.Add(pickDetail);
                 }
             }
@@ -770,6 +771,7 @@ namespace ClothResorting.Helpers.FBAHelper
                         Activity = i.Activity,
                         ChargingType = i.ChargingType,
                         Memo = i.Memo,
+                        //Memo = f.GrandNumber,
                         Unit = i.Unit,
                         Rate = i.Rate,
                         Discount = i.Discount,

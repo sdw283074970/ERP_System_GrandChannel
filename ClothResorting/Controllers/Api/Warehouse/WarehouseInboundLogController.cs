@@ -33,7 +33,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
                 .Include(x => x.Customer)
                 .Include(x => x.FBAOrderDetails.Select(c => c.FBACartonLocations))
                 .Include(x => x.FBAPallets)
-                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order" && x.Status != FBAStatus.Confirmed)
+                .Where(x => x.Status != FBAStatus.NewCreated && x.Status != "Old Order" && x.Status != FBAStatus.Confirmed && x.Status != FBAStatus.Draft)
                 .ToList();
 
             var inboundLogList = new List<WarehouseInboundLog>();
@@ -101,6 +101,18 @@ namespace ClothResorting.Controllers.Api.Warehouse
             };
 
             return Ok(log);
+        }
+
+        // GET /api/warehouseinboundlog/?containerNumber={foo}
+        [HttpGet]
+        public IHttpActionResult GetContianerId([FromUri]string containerNumber)
+        {
+            var masterOrderInDb = _context.FBAMasterOrders.SingleOrDefault(x => x.Container == containerNumber);
+
+            if (masterOrderInDb != null)
+                return Ok(masterOrderInDb.Id);
+            else
+                return Ok(0);
         }
 
         // PUT /api/warehouseinboundlog/?masterOrderId={masterOrder}&operationDate={operationDate}&operation={operation}

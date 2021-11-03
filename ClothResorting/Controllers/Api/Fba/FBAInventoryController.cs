@@ -239,7 +239,12 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var locationInDb = _context.FBAPalletLocations.Find(locationId);
 
-                locationInDb.Location = locationValue;
+                if (locationInDb.Location != locationValue)
+                {
+                    locationInDb.Memo += MoveLoation(locationInDb.Location, locationValue, locationInDb.AvailablePlts);
+                    locationInDb.Location = locationValue;
+                }
+
             }
             else if (locationType == FBALocationType.Carton)
             {
@@ -316,6 +321,11 @@ namespace ClothResorting.Controllers.Api.Fba
                .SingleOrDefault(x => x.Id == palletLocationId)
                .FBAPallet
                .FBACartonLocations);
+        }
+
+        private string MoveLoation(string oldLoc, string newloc, int avaPlts)
+        {
+            return $"{oldLoc} => {newloc} (Plts:{avaPlts}) Date: {DateTime.Today.ToString("yyyy-MM-dd")};";
         }
     }
 

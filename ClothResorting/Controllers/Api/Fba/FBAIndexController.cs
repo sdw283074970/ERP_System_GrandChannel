@@ -97,9 +97,10 @@ namespace ClothResorting.Controllers.Api.Fba
                 dto.InstockPlts = p.Sum(x => x.AvailablePlts);
             }
 
-            //统计未付款发票数量
+            //统计未付款发票数量以及未付款金额
             var payableMasterOrderInvoice = _context.FBAMasterOrders
                 .Include(x => x.Customer)
+                .Include(x => x.InvoiceDetails)
                 .Where(x => x.InvoiceStatus == "Await" || x.InvoiceStatus == FBAStatus.Generated)
                 .ToList();
 
@@ -109,9 +110,11 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var dto = dtos.SingleOrDefault(x => x.CustomerCode == m.First().Customer.CustomerCode);
                 dto.PayableInvoices = m.Count();
+                dto.PayableAmounts = (float)m.Sum(x => x.InvoiceDetails.Sum(c => c.Amount));
             }
 
             var payableShipOrderInvoice = _context.FBAShipOrders
+                .Include(x => x.InvoiceDetails)
                 .Where(x => x.InvoiceStatus == "Await" || x.InvoiceStatus == FBAStatus.Generated)
                 .ToList();
 
@@ -125,6 +128,7 @@ namespace ClothResorting.Controllers.Api.Fba
                     continue;
 
                 dto.PayableInvoices += s.Count();
+                dto.PayableAmounts += (float)s.Sum(x => x.InvoiceDetails.Sum(c => c.Amount));
             }
 
             return Ok(dtos.OrderByDescending(x => x.Id));

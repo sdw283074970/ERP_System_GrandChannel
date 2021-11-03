@@ -47,6 +47,8 @@ namespace ClothResorting.Dtos
 
         public string LinkedAccount { get; set; }
 
+        public float PayableAmounts { get; set; }
+
         //public UpperVendorDto()
         //{
         //    InstockCtns = 0;
