@@ -102,6 +102,8 @@ namespace ClothResorting.Models.FBAModels
 
         public string Comment { get; set; }
 
+        public bool IsPrereleasing { get; set; }
+
         public ICollection<ChargingItemDetail> ChargingItemDetails { get; set; }
 
         public ICollection<FBAPickDetail> FBAPickDetails { get; set; }

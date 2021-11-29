@@ -456,9 +456,9 @@ namespace ClothResorting.Controllers.Api.Fba
             await _logger.AddUpdatedLogAndSaveChangesAsync<FBAShipOrder>(oldValueDto, resultDto, description, null, OperationLevel.Mediunm);
         }
 
-        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}
+        // PUT /api/fba/fbashiporder/?shipOrderId={shipOrderId}&shipDate={shipDate}&isPrereleasing={foo}
         [HttpPut]
-        public async Task MarkShipTime([FromUri]int shipOrderId, [FromUri]DateTime operationDate)
+        public async Task MarkReleaseDate([FromUri]int shipOrderId, [FromUri]DateTime operationDate, [FromUri]bool isPrereleasing)
         {
             var shipOrderInDb = _context.FBAShipOrders
                 .Include(x => x.FBAPickDetails)
@@ -472,13 +472,19 @@ namespace ClothResorting.Controllers.Api.Fba
             //    throw new Exception("Cannot override existed date.");
             //}
 
-            //当订单状态为picking时强行release并印上日期
-            if (shipOrderInDb.Status == FBAStatus.NewCreated)
-            {
-                shipOrderInDb.ShipDate = operationDate;
-                shipOrderInDb.Status = FBAStatus.Released;
-                shipOrderInDb.ReleasedBy = _userName;
-            }
+            //当订单状态为NewCreated时，跳过pciking阶段，直接强行release并印上日期
+            //if (shipOrderInDb.Status == FBAStatus.NewCreated)
+            //{
+            //    shipOrderInDb.ShipDate = operationDate;
+            //    shipOrderInDb.Status = FBAStatus.Released;
+            //    shipOrderInDb.ReleasedBy = _userName;
+            //}
+
+            shipOrderInDb.IsPrereleasing = isPrereleasing;
+            shipOrderInDb.ReleasedDate = operationDate;
+            shipOrderInDb.Status = FBAStatus.Released;
+            shipOrderInDb.ReleasedBy = _userName;
+            shipOrderInDb.OperationLog = "Released by " + _userName;
 
             var description = "Change ship order status from " + oldStatus + " to " + shipOrderInDb.Status;
 
@@ -947,7 +953,12 @@ namespace ClothResorting.Controllers.Api.Fba
                 {
                     //检查是否允许被push到仓库端
                     var ifCanPush = CheckIfCanPushOrder(shipOrderInDb.CustomerCode);
+
+                    if (shipOrderInDb.OrderType == FBAOrderType.ECommerce)
+                        ifCanPush = true;
+
                     var checker = new AuthorityIdentifier();
+
                     if (!ifCanPush)
                     {
                         if (!checker.IsInRole(_userName, RoleName.CanOperateAsT5))

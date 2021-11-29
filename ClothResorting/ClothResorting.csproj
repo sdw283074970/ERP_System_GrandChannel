@@ -1940,6 +1940,10 @@
     <Compile Include="Migrations\202107122309586_AddedVisibleToAgentInChargingItemDetail.Designer.cs">
       <DependentUpon>202107122309586_AddedVisibleToAgentInChargingItemDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202111290747393_AddedIsPrereleasingInFBAShipOrder.cs" />
+    <Compile Include="Migrations\202111290747393_AddedIsPrereleasingInFBAShipOrder.Designer.cs">
+      <DependentUpon>202111290747393_AddedIsPrereleasingInFBAShipOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3599,6 +3603,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202107122309586_AddedVisibleToAgentInChargingItemDetail.resx">
       <DependentUpon>202107122309586_AddedVisibleToAgentInChargingItemDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202111290747393_AddedIsPrereleasingInFBAShipOrder.resx">
+      <DependentUpon>202111290747393_AddedIsPrereleasingInFBAShipOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

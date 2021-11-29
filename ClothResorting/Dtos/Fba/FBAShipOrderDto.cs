@@ -21,6 +21,8 @@ namespace ClothResorting.Dtos.Fba
 
         public float TotalCost { get; set; }
 
+        public bool IsPrereleasing { get; set; }
+
         public bool PODStatus { get; set; }
 
         public float Net { get; set; }
