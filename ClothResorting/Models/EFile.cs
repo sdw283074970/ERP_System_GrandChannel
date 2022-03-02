@@ -16,7 +16,7 @@ namespace ClothResorting.Models
             Status = FBAStatus.Valid;
         }
 
-        public int Id { get; set; }
+        public int Id { get; set; } 
 
         public string FileName { get; set; }
 

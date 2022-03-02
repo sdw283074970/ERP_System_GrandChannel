@@ -174,7 +174,7 @@ namespace ClothResorting.Helpers.FBAHelper
         }
 
         //生成StorageFee报告并返回完整路径
-        public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate, float p1Discount, float p2Discount, string[] warehouseLocations)
+        public string GenerateStorageReport(int customerId, DateTime startDate, DateTime closeDate, float p1Discount, float p2Discount, string[] warehouseLocations, bool includePrereleasedOrder)
         {
             var customerInDb = _context.UpperVendors.Find(customerId);
 
@@ -186,17 +186,49 @@ namespace ClothResorting.Helpers.FBAHelper
                     && x.FBAMasterOrder.Customer.Id == customerId)
                 .Where(x => warehouseLocations.Contains(x.FBAMasterOrder.WarehouseLocation));
 
-            var pickDetailInDb = _context.FBAPickDetails
-                .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
-                .Include(x => x.FBAShipOrder)
-                .Where(x => x.FBAShipOrder.ShipDate < closeDate
-                    && x.FBAShipOrder.ShipDate >= startDate
-                    && x.FBAShipOrder.Status == FBAStatus.Shipped
-                    && x.FBAPalletLocation != null
-                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
-                    && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
-                    && x.PltsFromInventory != 0)
-                .Where(x => warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation));
+            IQueryable<FBAPickDetail> pickDetailInDb;
+
+            if (!includePrereleasedOrder)
+            {
+                pickDetailInDb = _context.FBAPickDetails
+                                .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
+                                .Include(x => x.FBAShipOrder)
+                                .Where(x => x.FBAShipOrder.ShipDate < closeDate
+                                    && x.FBAShipOrder.ShipDate >= startDate
+                                    && x.FBAShipOrder.Status == FBAStatus.Shipped
+                                    && x.FBAPalletLocation != null
+                                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
+                                    && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
+                                    && x.PltsFromInventory != 0)
+                                .Where(x => warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation));
+            }
+            else
+            {
+                pickDetailInDb = _context.FBAPickDetails
+                                .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
+                                .Include(x => x.FBAShipOrder)
+                                .Where(x => ((x.FBAShipOrder.ReleasedDate < closeDate && x.FBAShipOrder.ReleasedDate >= startDate)
+                                    || (x.FBAShipOrder.ShipDate < closeDate && x.FBAShipOrder.ShipDate >= startDate))
+                                    && (x.FBAShipOrder.Status == FBAStatus.Shipped || (x.FBAShipOrder.Status == FBAStatus.Released && x.FBAShipOrder.IsPrereleasing))
+                                    && x.FBAPalletLocation != null
+                                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
+                                    && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
+                                    && x.PltsFromInventory != 0)
+                                .Where(x => warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation));
+
+                //pickDetailInDb = _context.FBAPickDetails
+                //                .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
+                //                .Include(x => x.FBAShipOrder)
+                //                .Where(x => x.FBAShipOrder.ReleasedDate < closeDate
+                //                    && x.FBAShipOrder.ReleasedDate >= startDate
+                //                    && x.FBAShipOrder.Status == FBAStatus.Released
+                //                    && x.FBAShipOrder.IsPrereleasing == true
+                //                    && x.FBAPalletLocation != null
+                //                    && x.FBAPalletLocation.FBAMasterOrder.InboundDate < closeDate
+                //                    && x.FBAPalletLocation.FBAMasterOrder.Customer.Id == customerId
+                //                    && x.PltsFromInventory != 0)
+                //                .Where(x => warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation));
+            }
 
             //var cartonLocationInDb = _context.FBACartonLocations
             //    .Include(x => x.FBAOrderDetail.FBAMasterOrder.Customer)
@@ -207,9 +239,18 @@ namespace ClothResorting.Helpers.FBAHelper
             {
                 foreach(var pick in p.FBAPickDetails)
                 {
-                    //从原有托盘数量扣除状态为shipped状态，且发货日期在结束日期之前的运单中的托盘数量
-                    if(pick.FBAShipOrder.Status == FBAStatus.Shipped && pick.FBAShipOrder.ShipDate < closeDate)
-                        p.ActualPlts -= pick.PltsFromInventory;
+                    if (!includePrereleasedOrder)
+                    {
+                        //从原有托盘数量扣除状态为shipped状态，且发货日期在结束日期之前的运单中的托盘数量
+                        if (pick.FBAShipOrder.Status == FBAStatus.Shipped && pick.FBAShipOrder.ShipDate < closeDate)
+                            p.ActualPlts -= pick.PltsFromInventory;
+                    }
+                    else
+                    {
+                        //从原有托盘数量扣除状态为shipped和pre-releasing状态，且发货日期、预发货日期在结束日期之前的运单中的托盘数量
+                        if ((pick.FBAShipOrder.Status == FBAStatus.Shipped || (pick.FBAShipOrder.Status == FBAStatus.Released && pick.FBAShipOrder.IsPrereleasing)) && pick.FBAShipOrder.ShipDate < closeDate && pick.FBAShipOrder.ReleasedDate < closeDate)
+                            p.ActualPlts -= pick.PltsFromInventory;
+                    }
                 }
             }
 
@@ -257,6 +298,12 @@ namespace ClothResorting.Helpers.FBAHelper
                     WarehouseLocation = s.FBAShipOrder.WarehouseLocation
                 };
 
+                if (includePrereleasedOrder && s.FBAShipOrder.Status == FBAStatus.Released && s.FBAShipOrder.IsPrereleasing)
+                {
+                    newShipRecord.OutboundDate = s.FBAShipOrder.ReleasedDate.ToString("MM/dd/yyyy");
+                    newShipRecord.IsPreReleased = true;
+                }
+
                 var sameShipRecord = shipList.SingleOrDefault(x => x.Reference == newShipRecord.Reference
                     && x.InboundDate == newShipRecord.InboundDate
                     && x.OutboundDate == newShipRecord.OutboundDate
@@ -294,6 +341,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex, 8] = s.InboundDate;
                 _ws.Cells[startIndex, 9] = s.OutboundDate;
                 _ws.Cells[startIndex, 13] = s.WarehouseLocation;
+
+                if (s.IsPreReleased)
+                    _ws.Cells[startIndex, 14] = "Pre-released";
 
                 startIndex += 1;
             }
@@ -885,5 +935,12 @@ namespace ClothResorting.Helpers.FBAHelper
         public string OutboundDate { get; set; }
 
         public string PalletSize { get; set; }
+
+        public bool IsPreReleased { get; set; }
+
+        public ShipRecord()
+        {
+            IsPreReleased = false;
+        }
     }
 }

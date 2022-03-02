@@ -34,7 +34,7 @@ namespace ClothResorting.Helpers
         }
 
         //调整Excel的主方法
-        public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string timeUnit, string lastBillingDate, string currentBillingDate, bool isEstimatingCharge)
+        public void RecalculateInventoryFeeInExcel(IEnumerable<ChargeMethod> chargeMethods, string timeUnit, string lastBillingDate, string currentBillingDate)
         {
             //首先将ChargeMehods表按照时间顺序排序
             var chargeMethodsList = chargeMethods.OrderBy(x => x.From).ToList();
@@ -43,8 +43,8 @@ namespace ClothResorting.Helpers
             var countOfEntries = 0; //待收费条目数量
             var index = 2;
 
-            _ws.Cells[1, 11] = timeUnit + "s Stored in Billing Period";
-            _ws.Cells[1, 12] = "Charge From " + timeUnit;
+            _ws.Cells[1, 10] = timeUnit + "s Stored in Billing Period";
+            _ws.Cells[1, 11] = "Charge From " + timeUnit;
 
             while (index > 0)
             {
@@ -66,12 +66,12 @@ namespace ClothResorting.Helpers
                 string inboundDate = _ws.Cells[i + 2, 8].Value.ToString("MM/dd/yyyy");
                 string outboundDate = _ws.Cells[i + 2, 9].Value2 == null ? null : _ws.Cells[i + 2, 9].Value.ToString("MM/dd/yyyy");
                 float totalPlts = _ws.Cells[i + 2, 7].Value2 == 0 || _ws.Cells[i + 2, 7].Value2 == null ? 1 : (float)_ws.Cells[i + 2, 7].Value2;
-                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit, isEstimatingCharge);
+                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit);
                 float storageCharge = 0;
                 float lastFee = 0;
 
-                _ws.Cells[i + 2, 11] = storedDuration;
-                _ws.Cells[i + 2, 12] = startTimeUnit;
+                _ws.Cells[i + 2, 10] = storedDuration;
+                _ws.Cells[i + 2, 11] = startTimeUnit;
 
                 //查找应该从第几个时间单位开始计费(查找开始计费的时间落在哪个计费区间)
                 int starIndex = 0;
@@ -129,7 +129,7 @@ namespace ClothResorting.Helpers
                     storageCharge += storedDuration * lastFee * totalPlts;
                 }
 
-                _ws.Cells[i + 2, 10] = Math.Round(storageCharge, 2);
+                _ws.Cells[i + 2, 12] = Math.Round(storageCharge, 2);
             }
 
             //打上账单日
@@ -144,7 +144,7 @@ namespace ClothResorting.Helpers
         }
 
         //输入两个日期字符串以及账单日范围，算出有多少周
-        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, out int startTimeUnit, bool isEstimatingCharge)
+        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, out int startTimeUnit)
         {
             DateTime startDt;
             DateTime endDt;
@@ -159,13 +159,15 @@ namespace ClothResorting.Helpers
             if (outboundDate == null)
             {
 
-                if (isEstimatingCharge)
-                    // 如果是预估付费，则使用账单日作为结算日期，无论实际出库日期是多少
-                    //endDt = currentBillingDt;
-                    outboundDate = currentBillingDate;
-                else
-                    // 否则，将今天当作outbound
-                    outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+                //if (isEstimatingCharge)
+                //    // 如果是预估付费，则使用账单日作为结算日期，无论实际出库日期是多少
+                //    //endDt = currentBillingDt;
+                //    outboundDate = currentBillingDate;
+                //else
+                //    // 否则，将今天当作outbound
+                //    outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+                outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+                //outboundDate = currentBillingDate;
             }
             //outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
 

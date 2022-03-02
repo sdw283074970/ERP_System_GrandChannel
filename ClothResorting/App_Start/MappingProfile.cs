@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ClothResorting.Controllers.Api.USPrime;
 using ClothResorting.Controllers.Api.Warehouse;
 using ClothResorting.Dtos;
 using ClothResorting.Dtos.Fba;
@@ -86,6 +87,10 @@ namespace ClothResorting.App_Start
             Mapper.CreateMap<ApplicationUser, ApplicationUserDto>();
             Mapper.CreateMap<IdentityRole, IdentityRoleDto>();
             Mapper.CreateMap<InstructionTemplate, InstructionTemplateDto>();
+
+            // US Prime
+            Mapper.CreateMap<USPrimeOrder, USPrimeOrderDto>();
+            Mapper.CreateMap<SOAEntry, SOAEntryDto>();
         }
     }
 }

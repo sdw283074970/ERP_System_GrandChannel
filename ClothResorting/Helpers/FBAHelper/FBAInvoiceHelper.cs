@@ -3,12 +3,11 @@ using ClothResorting.Models.StaticClass;
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Web;
 using System.Data.Entity;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.FBAModels;
+using ClothResorting.Controllers.Api.USPrime;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -33,6 +32,11 @@ namespace ClothResorting.Helpers.FBAHelper
             _excel = new Application();
             _wb = _excel.Workbooks.Open(_path);
         }
+
+        //public FBAInvoiceHelper(string templatePath, bool isPrime)
+        //{
+        //    asposeWb = new Aspose.Cells.Workbook(templatePath);
+        //}
 
         //输入Invoice Detail列表，客户CODE，日期范围，生成Excel
         public string GenerateExcelFileAndReturnPath(FBAInvoiceInfo info)
@@ -274,7 +278,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 11] = "Org Amount";
                 _ws.Cells[startRow, 12] = "Amout";
                 _ws.Cells[startRow, 13] = "Cost";
-                _ws.Cells[startRow, 14] = "Date of Cost";
+                _ws.Cells[startRow, 14] = "Order Cost Date";
                 _ws.Cells[startRow, 15] = "Memo";
                 _ws.Cells[startRow, 16] = "Cost Confirm";
                 _ws.Cells[startRow, 17] = "Payed";
@@ -314,7 +318,8 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[startRow, 11] = Math.Round(i.OriginalAmount, 2);
                     _ws.Cells[startRow, 12] = Math.Round(i.Amount, 2);
                     _ws.Cells[startRow, 13] = Math.Round(i.Cost, 2);
-                    _ws.Cells[startRow, 14] = i.DateOfCost.ToString("yyyy-MM-dd");
+                    //_ws.Cells[startRow, 14] = i.DateOfCost.ToString("yyyy-MM-dd");
+                    _ws.Cells[startRow, 14] = i.DateOfClose.ToString("yyyy-MM-dd");
                     _ws.Cells[startRow, 15] = i.Memo;
                     _ws.Cells[startRow, 16] = i.IsConfirmedCost ? "YES" : "NO";
                     _ws.Cells[startRow, 17] = i.IsPayed ? "YES" : "NO";
@@ -335,11 +340,123 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _excel.Quit();
 
-            var killer = new ExcelKiller();
+            //var killer = new ExcelKiller();
 
-            killer.Dispose();
+            //killer.Dispose();
 
             return fullPath;
+        }
+
+        public string GenerateSingleDN(USPrimeOrderDto order)
+        {
+            _ws = _wb.Worksheets[1];
+
+            _ws.Cells[2, 11] = order.hblNumber;
+            _ws.Cells[10, 3] = order.customerName;
+            _ws.Cells[11, 3] = order.address_1;
+            _ws.Cells[12, 3] = order.address_2;
+            _ws.Cells[10, 11] = order.dnDate.ToString("yyyy-MM-dd");
+            _ws.Cells[13, 11] = order.by;
+
+            //_ws.Cells[15, 2].PutValue("HB/L# " + order.hblNumber.Substring(6));
+            //_ws.Cells[16, 2].PutValue("MB/L# " + order.mblNumber);
+
+            //_ws.Cells[18, 3].PutValue("Trucking Fee");
+            //_ws.Cells[18, 9].PutValue(1);
+            //_ws.Cells[18, 10].PutValue(order.truckingFee);
+
+            //_ws.Cells[19, 3].PutValue("Handling Fee");
+            //_ws.Cells[19, 9].PutValue(1);
+            //_ws.Cells[19, 10].PutValue(order.handlingFee);
+
+            //if (order.profitShare != 0)
+            //{
+            //    _ws.Cells[20, 3].PutValue("Profit Share");
+            //    _ws.Cells[20, 9].PutValue(1);
+            //    _ws.Cells[20, 10].PutValue(order.profitShare);
+            //}
+
+            //_ws.Cells[38, 2].PutValue(order.OriginNote);
+
+            _ws.Cells[15, 2] = "HB/L# " + order.hblNumber.Substring(6);
+            _ws.Cells[16, 2] = "MB/L# " + order.mblNumber;
+
+            if (order.truckingFee != 0)
+            {
+                _ws.Cells[18, 3] = "Trucking Fee";
+                _ws.Cells[18, 9] = 1;
+                _ws.Cells[18, 10] = order.truckingFee;
+            }
+
+            if (order.handlingFee != 0)
+            {
+                _ws.Cells[19, 3] = "Handling Fee";
+                _ws.Cells[19, 9] = 1;
+                _ws.Cells[19, 10] = order.handlingFee;
+            }
+
+            if (order.profitShare != 0)
+            {
+                _ws.Cells[20, 3] = "Profit Share";
+                _ws.Cells[20, 9] = 1;
+                _ws.Cells[20, 10] = order.profitShare;
+            }
+
+            _ws.Cells[38, 2] = order.OriginNote;
+
+            _excel.DisplayAlerts = false;
+
+            var xlsxPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".xlsx";
+            _wb.SaveAs(xlsxPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            var pdfPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
+            _wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);
+
+            _excel.Quit();
+
+            return pdfPath;
+        }
+
+        public string GenerateSOA(SOA soa)
+        {
+            _ws = _wb.Worksheets[1];
+
+            _ws.Cells[10, 3] = soa.customerName;
+            _ws.Cells[11, 3] = soa.address_1;
+            _ws.Cells[12, 3] = soa.address_2;
+            _ws.Cells[10, 10] = soa.fromDate.ToString("yyyy-MM-dd");
+            _ws.Cells[11, 10] = soa.toDate.ToString("yyyy-MM-dd");
+            _ws.Cells[12, 10] = soa.reportDate.ToString("yyyy-MM-dd");
+            _ws.Cells[13, 10] = soa.by;
+
+            var index = 18;
+
+            foreach(var e in soa.entries)
+            {
+                _ws.Cells[index, 2] = e.hblNumber;
+                _ws.Cells[index, 4] = e.mblNumber;
+                _ws.Cells[index, 6] = e.etd;
+                _ws.Cells[index, 7] = e.releasedDate;
+                _ws.Cells[index, 9] = e.balanceToOrigin;
+                //_ws.Cells[index, 10] = e.note;
+
+                index++;
+            }
+
+            //_ws.Cells[index, 6] = "ACCT";
+            _ws.Cells[index, 7] = "BALANCE";
+            _ws.Cells[index, 9] = soa.entries.Sum(x => x.balanceToOrigin);
+            _excel.DisplayAlerts = false;
+
+            var xlsxPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".xlsx";
+            _wb.SaveAs(xlsxPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            var pdfPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
+            _wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);
+
+            _excel.Quit();
+
+            return pdfPath;
         }
 
         public FBAInvoiceInfo GetChargingReportFormOrder(string reference, string invoiceType)
@@ -611,6 +728,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 //.Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate && x.FBAMasterOrder.InvoiceStatus == FBAStatus.Closed) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate && x.FBAShipOrder.InvoiceStatus == FBAStatus.Closed))
                 .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate))
                 .Where(x => x.FBAShipOrder == null ? (warehouseLocations.Contains(x.FBAMasterOrder.WarehouseLocation)) : (warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation)))
+                //.Where(x => x.FBAShipOrder.Carrier.Contains("YAO") || x.FBAShipOrder.Carrier.Contains("yao") || x.FBAShipOrder.Carrier.Contains("Yao") || x.FBAMasterOrder.Carrier.Contains("YAO") || x.FBAMasterOrder.Carrier.Contains("yao") || x.FBAMasterOrder.Carrier.Contains("Yao"))
                 .ToList();
 
             foreach (var i in invoiceDetails)
