@@ -76,6 +76,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.Cells[2, 4] = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd");
             _ws.Cells[3, 2] = masterOrderInDb.Container;
             _ws.Cells[3, 4] = masterOrderInDb.OriginalPlts;
+            _ws.Cells[3, 5] = $"{masterOrderInDb.DamagedBox} Ctns Dmg";
 
             // 写入表脚信息
             _ws.Cells[startRow, 1] = "Total:";

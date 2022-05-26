@@ -113,8 +113,11 @@ namespace ClothResorting.Controllers.Api.USPrime
             order.address_2 = customerInDb.SecondAddressLine;
 
             var templatePath = @"D:\Template\PRIME-DN-TEMPLATE.xlsx";
-            var g = new FBAInvoiceHelper(templatePath);
-            var path = g.GenerateSingleDN(order);
+            //var g = new FBAInvoiceHelper(templatePath);
+            //var path = g.GenerateSingleDN(order);
+
+            var path = GenerateSingleDN(templatePath, order);
+            var pdfPath = PDFGenerator.RemoveLastTwoPages(path);
 
             if (operation == "EMAIL")
             {
@@ -123,11 +126,10 @@ namespace ClothResorting.Controllers.Api.USPrime
                 //mailService.SendMail(destMail, null, order.cc, path, "USPRIME-DN");
 
                 var mailService = new MailServiceManager("no-reply@usaprimeagency.com", "#lxX.Py#h,9s");
-                mailService.SendMailFromUSPRIME(destMail, null, order.cc, path, $"USPRIME-DN-{order.hblNumber.Substring(6)}");
-
+                mailService.SendMailFromUSPRIME(destMail, null, order.cc, pdfPath, $"USPRIME-DN-{order.hblNumber.Substring(6)}");
             }
 
-            return Ok(path);
+            return Ok(pdfPath);
         }
 
         public string GenerateSingleDN(string templatePath, USPrimeOrderDto order)
@@ -135,44 +137,46 @@ namespace ClothResorting.Controllers.Api.USPrime
             var asposeWb = new Workbook(templatePath);
             var asposeWs = asposeWb.Worksheets[0];
 
-            asposeWs.Cells[2, 11].PutValue(order.hblNumber);
-            asposeWs.Cells[10, 3].PutValue(order.customerName);
-            asposeWs.Cells[11, 3].PutValue(order.address_1);
-            asposeWs.Cells[12, 3].PutValue(order.address_2);
-            asposeWs.Cells[10, 11].PutValue(order.dnDate.ToString("yyyy-MM-dd"));
-            asposeWs.Cells[13, 11].PutValue(order.by);
+            asposeWs.Cells[1, 10].PutValue(order.hblNumber);
+            asposeWs.Cells[9, 2].PutValue(order.customerName);
+            asposeWs.Cells[10, 2].PutValue(order.address_1);
+            asposeWs.Cells[11, 2].PutValue(order.address_2);
+            asposeWs.Cells[9, 10].PutValue(order.dnDate.ToString("yyyy-MM-dd"));
+            asposeWs.Cells[12, 10].PutValue(order.by);
 
-            asposeWs.Cells[15, 2].PutValue("HB/L# " + order.hblNumber.Substring(6));
-            asposeWs.Cells[16, 2].PutValue("MB/L# " + order.mblNumber);
+            asposeWs.Cells[14, 1].PutValue("HB/L# " + order.hblNumber.Substring(6));
+            asposeWs.Cells[15, 1].PutValue("MB/L# " + order.mblNumber);
 
-            asposeWs.Cells[18, 3].PutValue("Trucking Fee");
-            asposeWs.Cells[18, 9].PutValue(1);
-            asposeWs.Cells[18, 10].PutValue(order.truckingFee);
+            asposeWs.Cells[17, 2].PutValue("Trucking Fee");
+            asposeWs.Cells[17, 8].PutValue(1);
+            asposeWs.Cells[17, 9].PutValue(order.truckingFee);
+            asposeWs.Cells[17, 10].PutValue(order.truckingFee);
 
-            asposeWs.Cells[19, 3].PutValue("Handling Fee");
-            asposeWs.Cells[19, 9].PutValue(1);
-            asposeWs.Cells[19, 10].PutValue(order.handlingFee);
+            asposeWs.Cells[18, 2].PutValue("Handling Fee");
+            asposeWs.Cells[18, 8].PutValue(1);
+            asposeWs.Cells[18, 9].PutValue(order.handlingFee);
+            asposeWs.Cells[18, 10].PutValue(order.handlingFee);
 
             if (order.profitShare != 0)
             {
-                asposeWs.Cells[20, 3].PutValue("Profit Share");
-                asposeWs.Cells[20, 9].PutValue(1);
-                asposeWs.Cells[20, 10].PutValue(order.profitShare);
+                asposeWs.Cells[19, 2].PutValue("Profit Share");
+                asposeWs.Cells[19, 8].PutValue(1);
+                asposeWs.Cells[19, 9].PutValue(order.profitShare);
+                asposeWs.Cells[19, 10].PutValue(order.profitShare);
             }
 
-            asposeWs.Cells[38, 2].PutValue(order.OriginNote);
+            asposeWs.Cells[36, 10].PutValue(order.OriginNote + order.profitShare + order.handlingFee);
+            asposeWs.Cells[37, 1].PutValue(order.OriginNote);
 
-            var fullPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
+            var xlsxPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".xlsx";
+            asposeWb.Save(xlsxPath, SaveFormat.Xlsx);
 
-            asposeWb.Save(fullPath, SaveFormat.Xlsx);
+            var wb = new Workbook(xlsxPath);
 
-            var wb = new Workbook(fullPath);
+            var pdfPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
+            wb.Save(pdfPath, SaveFormat.Pdf);
 
-            fullPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
-
-            wb.Save(fullPath, SaveFormat.Pdf);
-
-            return fullPath;
+            return pdfPath;
         }
     }
 

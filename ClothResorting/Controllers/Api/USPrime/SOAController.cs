@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Aspose.Cells;
+using AutoMapper;
 using ClothResorting.Helpers;
 using ClothResorting.Helpers.FBAHelper;
 using ClothResorting.Models;
@@ -109,8 +110,13 @@ namespace ClothResorting.Controllers.Api.USPrime
             soa.address_2 = customerInDb.SecondAddressLine;
 
             var templatePath = @"D:\Template\PRIME-SOA-TEMPLATE.xlsx";
-            var g = new FBAInvoiceHelper(templatePath);
-            var path = g.GenerateSOA(soa);
+            //var g = new FBAInvoiceHelper();
+            //var xlsxPath = FBAInvoiceHelper.GenerateSOA(templatePath, soa);
+            //var pdfPath = PDFGenerator.ConvertExcelAsMemoryStream(xlsxPath);
+
+            var path = GenerateSOA(templatePath, soa);
+
+            var pdfPath = PDFGenerator.RemoveLastTwoPages(path);
 
             if (operation == "EMAIL")
             {
@@ -119,10 +125,52 @@ namespace ClothResorting.Controllers.Api.USPrime
                 //mailService.SendMail(destMail, null, order.cc, path, "USPRIME-DN");
 
                 var mailService = new MailServiceManager("no-reply@usaprimeagency.com", "#lxX.Py#h,9s");
-                mailService.SendMailFromUSPRIME(destMail, null, soa.cc, path, $"USPRIME-SOA-{soa.fromDate.ToString("yyyyMMdd")}-{soa.fromDate.ToString("yyyyMMdd")}");
+                mailService.SendMailFromUSPRIME(destMail, null, soa.cc, pdfPath, $"USPRIME-SOA-{soa.fromDate.ToString("yyyyMMdd")}-{soa.fromDate.ToString("yyyyMMdd")}");
             }
 
-            return Ok(path);
+            return Ok(pdfPath);
+        }
+
+        public string GenerateSOA(string templatePath, SOA soa)
+        {
+            var asposeWb = new Workbook(templatePath);
+            var asposeWs = asposeWb.Worksheets[0];
+
+            asposeWs.Cells[9, 2].PutValue(soa.customerName);
+            asposeWs.Cells[10, 2].PutValue(soa.address_1);
+            asposeWs.Cells[11, 2].PutValue(soa.address_2);
+            asposeWs.Cells[9, 9].PutValue(soa.fromDate.ToString("yyyy-MM-dd"));
+            asposeWs.Cells[10, 9].PutValue(soa.toDate.ToString("yyyy-MM-dd"));
+            asposeWs.Cells[11, 9].PutValue(soa.reportDate.ToString("yyyy-MM-dd"));
+            asposeWs.Cells[12, 9].PutValue(soa.by);
+
+            var index = 17;
+
+            foreach (var e in soa.entries)
+            {
+                asposeWs.Cells[index, 1].PutValue(e.hblNumber.Substring(6));
+                asposeWs.Cells[index, 3].PutValue(e.mblNumber);
+                asposeWs.Cells[index, 5].PutValue(e.etd.Year==1?"": e.etd.ToString("yyyy-MM-dd"));
+                asposeWs.Cells[index, 6].PutValue(e.releasedDate.ToString("yyyy-MM-dd"));
+                asposeWs.Cells[index, 8].PutValue(e.balanceToOrigin);
+                //_ws.Cells[index, 10] = e.note;
+
+                index++;
+            }
+
+            //_ws.Cells[index, 6] = "ACCT";
+            asposeWs.Cells[index, 6].PutValue("BALANCE");
+            asposeWs.Cells[index, 8].PutValue(soa.entries.Sum(x => x.balanceToOrigin));
+
+            var xlsxPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".xlsx";
+            asposeWb.Save(xlsxPath, SaveFormat.Xlsx);
+
+            var wb = new Workbook(xlsxPath);
+            var pdfPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
+            wb.Save(pdfPath, SaveFormat.Pdf);
+
+            //_wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);
+            return pdfPath;
         }
     }
 
@@ -140,8 +188,8 @@ namespace ClothResorting.Controllers.Api.USPrime
     {
         public string hblNumber { get; set; }
         public string mblNumber { get; set; }
-        public string etd { get; set; }
-        public string releasedDate { get; set; }
+        public DateTime etd { get; set; }
+        public DateTime releasedDate { get; set; }
         public float balanceToOrigin { get; set; }
         public string note { get; set; }
     }

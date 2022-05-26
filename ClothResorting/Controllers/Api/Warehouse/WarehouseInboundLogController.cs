@@ -164,6 +164,7 @@ namespace ClothResorting.Controllers.Api.Warehouse
             orderInDb.OutTime = log.OutTime;
             orderInDb.DockNumber = log.DockNumber;
             orderInDb.VerifiedBy = log.VerifiedBy;
+            orderInDb.DamagedBox = log.DamagedBox;
 
             if (operation == "Report")
             {
@@ -242,6 +243,8 @@ namespace ClothResorting.Controllers.Api.Warehouse
         public string Customer { get; set; }
 
         public string CustomerCode { get; set; }
+
+        public int DamagedBox { get; set; }
 
         public string InboundType { get; set; }
 

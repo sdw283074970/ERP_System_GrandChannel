@@ -264,6 +264,9 @@
       <HintPath>..\packages\MicrosoftOfficeCore.15.0.0\lib\net35\Office.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SautinSoft.ExcelToPdf, Version=5.4.1.20, Culture=neutral, PublicKeyToken=239046b8a1e8c07b, processorArchitecture=MSIL">
+      <HintPath>..\packages\sautinsoft.exceltopdf.5.4.1.20\lib\net461\SautinSoft.ExcelToPdf.dll</HintPath>
+    </Reference>
     <Reference Include="Sigil, Version=4.7.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Sigil.4.7.0\lib\net45\Sigil.dll</HintPath>
       <Private>True</Private>
@@ -1956,6 +1959,10 @@
     <Compile Include="Migrations\202111290747393_AddedIsPrereleasingInFBAShipOrder.Designer.cs">
       <DependentUpon>202111290747393_AddedIsPrereleasingInFBAShipOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205262129306_AddedActualSKUandDamagedBox.cs" />
+    <Compile Include="Migrations\202205262129306_AddedActualSKUandDamagedBox.Designer.cs">
+      <DependentUpon>202205262129306_AddedActualSKUandDamagedBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.cs" />
     <Compile Include="Migrations\FBA\201809191606435_Initialization.Designer.cs">
@@ -3618,6 +3625,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202111290747393_AddedIsPrereleasingInFBAShipOrder.resx">
       <DependentUpon>202111290747393_AddedIsPrereleasingInFBAShipOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205262129306_AddedActualSKUandDamagedBox.resx">
+      <DependentUpon>202205262129306_AddedActualSKUandDamagedBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\FBA\201809191606435_Initialization.resx">
       <DependentUpon>201809191606435_Initialization.cs</DependentUpon>

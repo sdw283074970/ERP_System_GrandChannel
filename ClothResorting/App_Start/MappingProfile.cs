@@ -54,6 +54,7 @@ namespace ClothResorting.App_Start
                 .ForMember(dest => dest.ActualPlts, opt => opt.MapFrom(src => src.FBAPallets == null ? 0 : src.FBAPallets.Sum(x => x.ActualPallets))) 
                 .ForMember(dest => dest.TotalCtns, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Sum(x => x.Quantity)))
                 .ForMember(dest => dest.SKUNumber, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.GroupBy(x => x.ShipmentId).Count()))
+                .ForMember(dest => dest.ActualSKU, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Where(x => x.ActualQuantity != 0).GroupBy(x => x.ShipmentId).Count()))
                 .ForMember(dest => dest.ActualCBM, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Sum(x => x.ActualCBM)))
                 .ForMember(dest => dest.TotalCBM, opt => opt.MapFrom(src => src.FBAOrderDetails == null ? 0 : src.FBAOrderDetails.Sum(x => x.CBM)))
                 .ForMember(dest => dest.TotalCost, opt => opt.MapFrom(src => src.InvoiceDetails == null ? 0 : src.InvoiceDetails.Sum(x => x.Cost)))

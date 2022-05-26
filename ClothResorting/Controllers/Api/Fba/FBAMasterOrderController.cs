@@ -236,7 +236,8 @@ namespace ClothResorting.Controllers.Api.Fba
                     IsDamaged = masterOrderInDb.IsDamaged,
                     VerifiedBy = masterOrderInDb.VerifiedBy,
                     UnloadStartTime = masterOrderInDb.UnloadStartTime,
-                    DockNumber = masterOrderInDb.DockNumber
+                    DockNumber = masterOrderInDb.DockNumber,
+                    DamagedBox = masterOrderInDb.DamagedBox
                 };
 
                 double logonProgress = masterOrderInDb.FBAOrderDetails != null ? (double)masterOrderInDb.FBAOrderDetails.Sum(x => x.ActualQuantity) / (double)masterOrderInDb.FBAOrderDetails.Sum(x => x.Quantity) : 0;
@@ -1017,6 +1018,8 @@ namespace ClothResorting.Controllers.Api.Fba
         public string StorageType { get; set; }
 
         public string Palletizing { get; set; }
+
+        public int DamagedBox { get; set; }
 
         public ICollection<FBAOrderDetailDto> PackingList { get; set; }
 

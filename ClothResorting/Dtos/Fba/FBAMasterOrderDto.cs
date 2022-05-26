@@ -74,6 +74,10 @@ namespace ClothResorting.Dtos.Fba
 
         public string Instruction { get; set; }
 
+        public int DamagedBox { get; set; }
+
+        public int ActualSKU { get; set; }
+
         public DateTime PushTime { get; set; }
 
         public DateTime UnloadFinishTime { get; set; }

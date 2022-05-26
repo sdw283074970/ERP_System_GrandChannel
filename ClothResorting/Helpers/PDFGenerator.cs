@@ -9,6 +9,7 @@ using ClothResorting.Models;
 using System.Data.Entity;
 using Spire.Pdf.Tables;
 using ClothResorting.Models.FBAModels;
+using SautinSoft;
 
 namespace ClothResorting.Helpers
 {
@@ -580,6 +581,93 @@ namespace ClothResorting.Helpers
             }
 
             tableContent.WriteSelectedRows(0, -1, xPosition, yPosition, cb);
+        }
+
+        public static string RemoveLastTwoPages(string path)
+        {
+            var outputPath = path.Split('.')[0] + "-result.pdf";
+            using (Stream resultPDFOutputStream = new FileStream(outputPath, FileMode.Create))
+            {
+                PdfReader pdfReader = new PdfReader(path);
+                Document document = new Document(PageSize.A4, 25, 25, 30, 30);
+                PdfWriter writer = PdfWriter.GetInstance(document, resultPDFOutputStream);
+
+                var totalPages = pdfReader.NumberOfPages;
+
+                if (totalPages < 3)
+                {
+                    pdfReader.SelectPages("1");
+                }
+                else
+                {
+                    pdfReader.SelectPages("1-" + (totalPages - 2).ToString());
+                }
+
+                PdfStamper pdfStamper = new PdfStamper(pdfReader, resultPDFOutputStream);
+
+                for (int i = 1; i <= totalPages - 2; i++)
+                {
+                    PdfContentByte contentByte = pdfStamper.GetOverContent(i);
+                    PdfDocument doc = contentByte.PdfDocument;
+
+                    float X = 0.0f;
+                    float Y = -25.0f;
+                    float Height = Utilities.InchesToPoints(0.50f);
+                    float Width = Utilities.InchesToPoints(10.0f);
+
+                    float llx = (doc.Left - doc.LeftMargin) + X;
+                    float lly = (doc.Top - doc.TopMargin) - (Height + Y);
+                    float urx = (doc.Left - doc.LeftMargin) + Width + X;
+                    float ury = (doc.Top - doc.TopMargin) - Y;
+
+                    Rectangle rectangle = new Rectangle(llx, lly, urx, ury)
+                    {
+                        BackgroundColor = BaseColor.WHITE
+                    };
+
+                    contentByte.Rectangle(rectangle);
+                }
+
+                pdfStamper.Close();
+                pdfReader.Close();
+
+                return outputPath;
+            }
+        }
+
+        //public static string RemoveHeader(string path)
+        //{
+
+        //}
+
+        public static string ConvertExcelAsMemoryStream(string path)
+        {
+            // Convert Excel to PDF in memory  
+            ExcelToPdf x = new ExcelToPdf();
+
+            // Set PDF as output format.  
+            x.OutputFormat = SautinSoft.ExcelToPdf.eOutputFormat.Pdf;
+
+            string excelFile = path;
+            string pdfFile = Path.ChangeExtension(excelFile, ".pdf");
+            byte[] pdfBytes = null;
+
+            try
+            {
+                // Let us say, we have a memory stream with Excel data.  
+                using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(excelFile)))
+                {
+                    pdfBytes = x.ConvertBytes(ms.ToArray());
+                }
+                // Save pdfBytes to a file for demonstration purposes.  
+                File.WriteAllBytes(pdfFile, pdfBytes);
+                System.Diagnostics.Process.Start(pdfFile);
+                return pdfFile;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         private void AttachTableFoot(Rectangle size, BaseFont font, PdfContentByte cb, IList<FBABOLDetail> list, float xPosition, float yPosition)

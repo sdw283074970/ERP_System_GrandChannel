@@ -80,6 +80,10 @@ namespace ClothResorting.Models.FBAModels
 
         public string IsDamaged { get; set; }
 
+        public int DamagedBox { get; set; }
+
+        public int ActualSKU { get; set; }
+
         public ICollection<FBAOrderDetail> FBAOrderDetails { get; set; }
 
         public ICollection<FBAPalletLocation> FBAPalletLocations { get; set; }

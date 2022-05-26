@@ -156,25 +156,33 @@ namespace ClothResorting.Helpers
             DateTime currentBillingDt;
 
             //当outbound为空时
-            if (outboundDate == null)
-            {
+            //if (outboundDate == null)
+            //{
 
-                //if (isEstimatingCharge)
-                //    // 如果是预估付费，则使用账单日作为结算日期，无论实际出库日期是多少
-                //    //endDt = currentBillingDt;
-                //    outboundDate = currentBillingDate;
-                //else
-                //    // 否则，将今天当作outbound
-                //    outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
-                outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
-                //outboundDate = currentBillingDate;
-            }
-            //outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+            //    //if (isEstimatingCharge)
+            //    //    // 如果是预估付费，则使用账单日作为结算日期，无论实际出库日期是多少
+            //    //    //endDt = currentBillingDt;
+            //    //    outboundDate = currentBillingDate;
+            //    //else
+            //    //    // 否则，将今天当作outbound
+            //    //    outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+
+            //    //outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
+
+            //    outboundDate = currentBillingDate;
+            //}
+            ////outboundDate = DateTime.Now.ToString("MM/dd/yyyy");
 
             DateTime.TryParseExact(inboundDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out inboundDt);
             DateTime.TryParseExact(outboundDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out outboundDt);
             DateTime.TryParseExact(lastBillingDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out lastBillingDt);
             DateTime.TryParseExact(currentBillingDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out currentBillingDt);
+
+            //当outbound为空时
+            if (outboundDate == null || outboundDate == "")
+            {
+                outboundDt = currentBillingDt;
+            }
 
             //通过对比，得出有效的开始截至日期范围
             if (DateTime.Compare(inboundDt, lastBillingDt) > 0)

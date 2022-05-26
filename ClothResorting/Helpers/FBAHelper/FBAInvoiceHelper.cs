@@ -8,6 +8,7 @@ using System.Data.Entity;
 using ClothResorting.Models.FBAModels.StaticModels;
 using ClothResorting.Models.FBAModels;
 using ClothResorting.Controllers.Api.USPrime;
+using Aspose.Cells;
 
 namespace ClothResorting.Helpers.FBAHelper
 {
@@ -16,8 +17,8 @@ namespace ClothResorting.Helpers.FBAHelper
         private ApplicationDbContext _context;
         private string _path = "";
         private _Application _excel;
-        private Workbook _wb;
-        private Worksheet _ws;
+        private Microsoft.Office.Interop.Excel.Workbook _wb;
+        private Microsoft.Office.Interop.Excel.Worksheet _ws;
         private delegate void QuitHandler();
 
         public FBAInvoiceHelper()
@@ -417,46 +418,50 @@ namespace ClothResorting.Helpers.FBAHelper
             return pdfPath;
         }
 
-        public string GenerateSOA(SOA soa)
+        public static string GenerateSOA(string templatePath, SOA soa)
         {
-            _ws = _wb.Worksheets[1];
+            var excel = new Application();
+            var wb = excel.Workbooks.Open(templatePath);
+            var ws = wb.Worksheets[1];
 
-            _ws.Cells[10, 3] = soa.customerName;
-            _ws.Cells[11, 3] = soa.address_1;
-            _ws.Cells[12, 3] = soa.address_2;
-            _ws.Cells[10, 10] = soa.fromDate.ToString("yyyy-MM-dd");
-            _ws.Cells[11, 10] = soa.toDate.ToString("yyyy-MM-dd");
-            _ws.Cells[12, 10] = soa.reportDate.ToString("yyyy-MM-dd");
-            _ws.Cells[13, 10] = soa.by;
+            ws.Cells[10, 3] = soa.customerName;
+            ws.Cells[11, 3] = soa.address_1;
+            ws.Cells[12, 3] = soa.address_2;
+            ws.Cells[10, 10] = soa.fromDate.ToString("yyyy-MM-dd");
+            ws.Cells[11, 10] = soa.toDate.ToString("yyyy-MM-dd");
+            ws.Cells[12, 10] = soa.reportDate.ToString("yyyy-MM-dd");
+            ws.Cells[13, 10] = soa.by;
 
             var index = 18;
 
             foreach(var e in soa.entries)
             {
-                _ws.Cells[index, 2] = e.hblNumber;
-                _ws.Cells[index, 4] = e.mblNumber;
-                _ws.Cells[index, 6] = e.etd;
-                _ws.Cells[index, 7] = e.releasedDate;
-                _ws.Cells[index, 9] = e.balanceToOrigin;
+                ws.Cells[index, 2] = e.hblNumber;
+                ws.Cells[index, 4] = e.mblNumber;
+                ws.Cells[index, 6] = e.etd;
+                ws.Cells[index, 7] = e.releasedDate;
+                ws.Cells[index, 9] = e.balanceToOrigin;
                 //_ws.Cells[index, 10] = e.note;
 
                 index++;
             }
 
             //_ws.Cells[index, 6] = "ACCT";
-            _ws.Cells[index, 7] = "BALANCE";
-            _ws.Cells[index, 9] = soa.entries.Sum(x => x.balanceToOrigin);
-            _excel.DisplayAlerts = false;
+            ws.Cells[index, 7] = "BALANCE";
+            ws.Cells[index, 9] = soa.entries.Sum(x => x.balanceToOrigin);
+            excel.DisplayAlerts = false;
 
             var xlsxPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".xlsx";
-            _wb.SaveAs(xlsxPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+            wb.SaveAs(xlsxPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
-            var pdfPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
-            _wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);
+            excel.Quit();
+            GC.Collect();
+            //var wb = new Aspose.Cells.Workbook(xlsxPath);
+            //var pdfPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
+            //wb.Save(pdfPath, SaveFormat.Pdf);
 
-            _excel.Quit();
-
-            return pdfPath;
+            //_wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);
+            return xlsxPath;
         }
 
         public FBAInvoiceInfo GetChargingReportFormOrder(string reference, string invoiceType)
