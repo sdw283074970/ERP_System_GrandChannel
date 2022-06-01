@@ -138,8 +138,9 @@ namespace ClothResorting.Controllers.Api.Fba
                             var plts = masterOrderPallets.Sum(x => x.ActualPallets);
                             var ctns = orderDetsils.Sum(x => x.ActualQuantity);
                             var skuNumber = orderDetsils.GroupBy(x => x.ShipmentId).Count();
+                            var actualSKU = orderDetsils.Where(x => x.ActualQuantity != 0).GroupBy(x => x.ShipmentId).Count();
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts, SkuNumber = skuNumber, ReleasedDate = "1900-1-1", InboundDate = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd"), CancelDate = masterOrderInDb.CancelDate.ToString("yyyy-MM-dd"), CreateDate = masterOrderInDb.CreateDate.ToString("yyyy-MM-dd") });
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = masterOrderInDb.OriginalPlts, ActualSKU = actualSKU, SkuNumber = skuNumber, ReleasedDate = "1900-1-1", InboundDate = masterOrderInDb.InboundDate.ToString("yyyy-MM-dd"), CancelDate = masterOrderInDb.CancelDate.ToString("yyyy-MM-dd"), CreateDate = masterOrderInDb.CreateDate.ToString("yyyy-MM-dd") });
                         }
                         else if (invoiceType == "ShipOrder")
                         {
@@ -153,7 +154,7 @@ namespace ClothResorting.Controllers.Api.Fba
                             var plts = pickDetails.Sum(x => x.ActualPlts);
                             var ctns = pickDetails.Sum(x => x.ActualQuantity);
 
-                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A", SkuNumber = "N/A" , ReleasedDate = shipOrderInDb.ReleasedDate.ToString("yyyy-MM-dd"), InboundDate = "1900-1-1", CancelDate = shipOrderInDb.CancelDate.ToString("yyyy-MM-dd"), CreateDate = shipOrderInDb.CreateDate.ToString("yyyy-MM-dd") });
+                            return Ok(new { Pallets = plts, Cartons = ctns, OriginalPallets = "N/A", ActualSKU = "N/A", SkuNumber = "N/A", ReleasedDate = shipOrderInDb.ReleasedDate.ToString("yyyy-MM-dd"), InboundDate = "1900-1-1", CancelDate = shipOrderInDb.CancelDate.ToString("yyyy-MM-dd"), CreateDate = shipOrderInDb.CreateDate.ToString("yyyy-MM-dd") });
                         }
                         else
                         {
