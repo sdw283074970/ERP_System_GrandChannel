@@ -34,7 +34,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult DownloadChargingReportFormOrder([FromUri]string reference, [FromUri]string invoiceType)
         {
-            var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
+            var templatePath = @"E:\Template\FBA-InvoiceReport-Template.xls";
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 

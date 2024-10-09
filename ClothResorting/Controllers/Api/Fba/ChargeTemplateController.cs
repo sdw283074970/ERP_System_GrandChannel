@@ -69,7 +69,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var warehouseLocationsInDb = _context2.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
 
             var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
-            var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\StorageFee-Template.xlsx");
             var fullPath = generator.GenerateStorageReport(customerId, lastBillingDate, closeDate, p1Discount, p2Discount, warehouseLocationsInDb, false);
 
             var chargeMethodsList = _context.ChargeMethods
@@ -135,7 +135,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var warehouseLocationsInDb = _context2.WarehouseLocations.Select(x => x.WarehouseCode).ToArray();
 
             var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == customerCode).Id;
-            var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\StorageFee-Template.xlsx");
             var fullPath = generator.GenerateStorageReport(customerId, startDate, closeDate, p1Discount, p2Discount, warehouseLocationsInDb, false);
 
             var chargeMethodsList = _context.ChargeMethods
@@ -168,7 +168,7 @@ namespace ClothResorting.Controllers.Api.Fba
             var warehouseLocations = data.WarehouseLocation.Length > 0 ? data.WarehouseLocation : warehouseLocationsInDb;
 
             var customerId = _context2.UpperVendors.SingleOrDefault(x => x.CustomerCode == data.CustomerCode).Id;
-            var generator = new FBAExcelGenerator(@"D:\Template\StorageFee-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\StorageFee-Template.xlsx");
             var fullPath = generator.GenerateStorageReport(customerId, data.LastBillingDate, closeDate, data.P1Discount, data.P2Discount, warehouseLocations, data.IncludePrereleasedOrder);
 
             var chargeMethodsList = _context.ChargeMethods
@@ -221,7 +221,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 .ToList();
 
             var fileGetter = new FilesGetter();
-            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (path == "")
             {

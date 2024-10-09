@@ -148,7 +148,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 outboundList = outboundList.Where(x => x.Status == FBAStatus.NewOrder).ToList();
             }
 
-            var generator = new FBAExcelGenerator(@"D:\Template\FBA-WarehouseSchedule-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\FBA-WarehouseSchedule-Template.xlsx");
             var fileName = generator.GenerateWarehouseSchedule(customerCode, fromDate, toDate, outboundList, inboundList);
             return Ok(fileName);
         }
@@ -160,12 +160,12 @@ namespace ClothResorting.Controllers.Api.Fba
             var fullPath = "";
             if (sku == null)
             {
-                var manager = new ItemStatementManager(_context, @"D:\Template\SKUStatement-Summary.xlsx");
+                var manager = new ItemStatementManager(_context, @"E:\Template\SKUStatement-Summary.xlsx");
                 fullPath = manager.GenerateAllSKUStatement(customerCode, fromDate, toDate);
             }
             else
             {
-                var manager = new ItemStatementManager(_context, @"D:\Template\SKUStatement.xlsx");
+                var manager = new ItemStatementManager(_context, @"E:\Template\SKUStatement.xlsx");
                 fullPath = manager.GenerateSKUStatement(customerCode, sku, fromDate, toDate);
             }
             return Ok(fullPath);
@@ -184,7 +184,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var bolList = GenerateFBABOLList(pickDetailsInDb);
 
-            var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\BOL-Template.xlsx");
 
             var fileName = generator.GenerateExcelBol(shipOrderId, FBAOrderType.ShipOrder, bolList, freightCharge, null);
 

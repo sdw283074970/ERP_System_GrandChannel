@@ -114,13 +114,13 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var palletInventoryDto = _picker.SearchPalletInventory(customerCode, container, sku, amzRef, warehouseCode, warehouseLocation);
 
-                return Ok(palletInventoryDto.OrderByDescending(x => x.CurrentAvailableCtns).ThenByDescending(x => x.AvailablePlts));
+                return Ok(palletInventoryDto.OrderBy(x => x.InboundDate).ThenByDescending(x => x.CurrentAvailableCtns).ThenByDescending(x => x.AvailablePlts));
             }
             else
             {
                 var cartonInventoryDto = _picker.SearchCartonInventory(customerCode, container, sku, amzRef, warehouseCode, warehouseLocation);
 
-                return Ok(cartonInventoryDto);
+                return Ok(cartonInventoryDto.OrderBy(x => x.InboundDate));
             }
         }
 

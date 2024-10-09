@@ -102,7 +102,7 @@ namespace ClothResorting.Helpers.DPHelper
 
             _wb.Save();
 
-            //var fullPath = @"D:\PickingList\test.xlsx";
+            //var fullPath = @"E:\PickingList\test.xlsx";
             //_wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
             _wb.Close();
             _excel.Quit();

@@ -185,7 +185,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 .Include(x => x.FBAPickDetails)
                 .Where(x => x.CustomerCode == info.CustomerCode
                     && x.ShipDate >= info.FromDate
-                    && x.ShipDate <= info.ToDate)
+                    && x.ShipDate < info.ToDate)
                 .ToList();
 
             foreach(var s in shipOrderList)
@@ -198,7 +198,8 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startRow, 6] = s.WarehouseLocation;
                 _ws.Cells[startRow, 7] = "Carrier";
                 _ws.Cells[startRow, 8] = s.Carrier;
-
+                _ws.Cells[startRow, 9] = "Sub-code";
+                _ws.Cells[startRow, 10] = s.SubCustomer;
 
                 startRow++;
 
@@ -239,7 +240,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 startRow += 2;
             }
 
-            var fullPath = @"D:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            var fullPath = @"E:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
@@ -325,7 +326,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     _ws.Cells[startRow, 16] = i.IsConfirmedCost ? "YES" : "NO";
                     _ws.Cells[startRow, 17] = i.IsPayed ? "YES" : "NO";
                     _ws.Cells[startRow, 18] = i.IsCollected ? "YES" : "NO";
-                    _ws.Cells[startRow, 18] = i.WarehouseLocation;
+                    _ws.Cells[startRow, 19] = i.WarehouseLocation;
                     _ws.Cells[startRow, 20] = i.Carrier;
                     startRow += 1;
                 }
@@ -336,7 +337,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 startRow += 3;
             }
 
-            var fullPath = @"D:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            var fullPath = @"E:\ChargingReport\FBA-" + info.CustomerCode + "-ChargingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
@@ -407,10 +408,10 @@ namespace ClothResorting.Helpers.FBAHelper
 
             _excel.DisplayAlerts = false;
 
-            var xlsxPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".xlsx";
+            var xlsxPath = @"E:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".xlsx";
             _wb.SaveAs(xlsxPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
-            var pdfPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
+            var pdfPath = @"E:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
             _wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);
 
             _excel.Quit();
@@ -451,13 +452,13 @@ namespace ClothResorting.Helpers.FBAHelper
             ws.Cells[index, 9] = soa.entries.Sum(x => x.balanceToOrigin);
             excel.DisplayAlerts = false;
 
-            var xlsxPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".xlsx";
+            var xlsxPath = @"E:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".xlsx";
             wb.SaveAs(xlsxPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             excel.Quit();
             GC.Collect();
             //var wb = new Aspose.Cells.Workbook(xlsxPath);
-            //var pdfPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
+            //var pdfPath = @"E:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
             //wb.Save(pdfPath, SaveFormat.Pdf);
 
             //_wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);
@@ -733,7 +734,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 //.Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate && x.FBAMasterOrder.InvoiceStatus == FBAStatus.Closed) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate && x.FBAShipOrder.InvoiceStatus == FBAStatus.Closed))
                 .Where(x => x.FBAShipOrder == null ? (x.FBAMasterOrder.CloseDate < closeDate && x.FBAMasterOrder.CloseDate >= startDate) : (x.FBAShipOrder.CloseDate >= startDate && x.FBAShipOrder.CloseDate < closeDate))
                 .Where(x => x.FBAShipOrder == null ? (warehouseLocations.Contains(x.FBAMasterOrder.WarehouseLocation)) : (warehouseLocations.Contains(x.FBAShipOrder.WarehouseLocation)))
-                //.Where(x => x.FBAShipOrder.Carrier.Contains("YAO") || x.FBAShipOrder.Carrier.Contains("yao") || x.FBAShipOrder.Carrier.Contains("Yao") || x.FBAMasterOrder.Carrier.Contains("YAO") || x.FBAMasterOrder.Carrier.Contains("yao") || x.FBAMasterOrder.Carrier.Contains("Yao"))
+                .Where(x => x.FBAShipOrder.Carrier.Contains("YAO") || x.FBAShipOrder.Carrier.Contains("yao") || x.FBAShipOrder.Carrier.Contains("Yao") || x.FBAMasterOrder.Carrier.Contains("YAO") || x.FBAMasterOrder.Carrier.Contains("yao") || x.FBAMasterOrder.Carrier.Contains("Yao"))
                 .ToList();
 
             foreach (var i in invoiceDetails)
@@ -962,6 +963,49 @@ namespace ClothResorting.Helpers.FBAHelper
             }
 
             return results;
+        }
+
+        public string GenerateContainerReport(string customerCode, DateTime startDate, DateTime endDate)
+        {
+            var list = GetContainerFeeSummary(customerCode, startDate, endDate);
+
+            _ws = _wb.Worksheets[1];
+
+            var index = 3;
+
+            foreach (var c in list)
+            {
+                foreach (var d in c.ContianerFeeDetails)
+                {
+                    if (d.Percent != "100%")
+                        continue;
+
+                    _ws.Cells[index, 1] = d.OrderReference;
+                    _ws.Cells[index, 2] = d.OrderType;
+                    _ws.Cells[index, 3] = d.Activity;
+                    _ws.Cells[index, 4] = d.ChargingType;
+                    _ws.Cells[index, 5] = d.UOM;
+                    _ws.Cells[index, 6] = d.Quantity;
+                    _ws.Cells[index, 7] = d.Rate;
+                    _ws.Cells[index, 8] = d.OriginalAmount;
+                    _ws.Cells[index, 9] = d.DiscountRate;
+                    _ws.Cells[index, 10] = d.FinalAmount;
+
+                    index++;
+                }
+            }
+
+            var fullPath = @"E:\ChargingReport\FBA-" + customerCode + "-ContainerReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+
+            _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
+
+            _excel.Quit();
+
+            var killer = new ExcelKiller();
+
+            killer.Dispose();
+
+            return fullPath;
         }
     }
 

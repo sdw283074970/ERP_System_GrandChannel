@@ -155,9 +155,9 @@ namespace ClothResorting.Helpers
             cells.Add(15 + index, 12, report.Sum(x => x.ReceivedCtns).ToString(), xf);
 
 
-            doc.Save(@"D:\ReceivingReport\");
+            doc.Save(@"E:\ReceivingReport\");
             var fileName = doc.FileName;
-            var path = @"D:\ReceivingReport\" + doc.FileName;
+            var path = @"E:\ReceivingReport\" + doc.FileName;
             var response = HttpContext.Current.Response;
             var downloadFile = new FileInfo(path);
             response.ClearHeaders();
@@ -304,9 +304,9 @@ namespace ClothResorting.Helpers
             cells.Add(6 + index, 14, searchResults.Sum(x => x.ActualCtns).ToString(), xf);
 
             //下载
-            doc.Save(@"D:\SearchResults\");
+            doc.Save(@"E:\SearchResults\");
             var fileName = doc.FileName;
-            var path = @"D:\SearchResults\" + doc.FileName;
+            var path = @"E:\SearchResults\" + doc.FileName;
             var response = HttpContext.Current.Response;
             var downloadFile = new FileInfo(path);
             response.ClearHeaders();
@@ -411,9 +411,9 @@ namespace ClothResorting.Helpers
             cells.Add(6 + index, 11, inventoryList.Sum(x => x.AvailablePcs).ToString(), xf);
 
             //下载
-            doc.Save(@"D:\SearchResults\");
+            doc.Save(@"E:\SearchResults\");
             var fileName = doc.FileName;
-            var path = @"D:\SearchResults\" + doc.FileName;
+            var path = @"E:\SearchResults\" + doc.FileName;
 
             return path;
         }
@@ -504,7 +504,7 @@ namespace ClothResorting.Helpers
                 }
             }
 
-            var fullPath = @"D:\InventoryReport\InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\InventoryReport\InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -573,7 +573,7 @@ namespace ClothResorting.Helpers
                 }
             }
 
-            var fullPath = @"D:\OtherReport\Pre-allocatingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\OtherReport\Pre-allocatingReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -669,7 +669,7 @@ namespace ClothResorting.Helpers
                 startIndex += 1;
             }
 
-            var fullPath = @"D:\InventoryReport\3PLTemplate-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\InventoryReport\3PLTemplate-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -711,7 +711,7 @@ namespace ClothResorting.Helpers
                 index += 1;
             }
 
-            var fullPath = @"D:\InventoryReport\3PLSKUList-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\InventoryReport\3PLSKUList-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 

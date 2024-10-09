@@ -112,7 +112,7 @@ namespace ClothResorting.Controllers.Api.USPrime
             order.address_1 = customerInDb.FirstAddressLine;
             order.address_2 = customerInDb.SecondAddressLine;
 
-            var templatePath = @"D:\Template\PRIME-DN-TEMPLATE.xlsx";
+            var templatePath = @"E:\Template\PRIME-DN-TEMPLATE.xlsx";
             //var g = new FBAInvoiceHelper(templatePath);
             //var path = g.GenerateSingleDN(order);
 
@@ -168,12 +168,12 @@ namespace ClothResorting.Controllers.Api.USPrime
             asposeWs.Cells[36, 10].PutValue(order.OriginNote + order.profitShare + order.handlingFee);
             asposeWs.Cells[37, 1].PutValue(order.OriginNote);
 
-            var xlsxPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".xlsx";
+            var xlsxPath = @"E:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".xlsx";
             asposeWb.Save(xlsxPath, SaveFormat.Xlsx);
 
             var wb = new Workbook(xlsxPath);
 
-            var pdfPath = @"D:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
+            var pdfPath = @"E:\usprime\DN\DN-" + order.customerName + "-" + order.dnDate.ToString("yyyyMMdd") + ".pdf";
             wb.Save(pdfPath, SaveFormat.Pdf);
 
             return pdfPath;

@@ -18,7 +18,7 @@ namespace ClothResorting.Controllers.Api.DP
         [HttpPost]
         public void DownloadTransferedBills()
         {
-            var targetRootPath = @"D:\TempFiles\";
+            var targetRootPath = @"E:\TempFiles\";
             var pathList = new List<string>();
             var billCleaner = new BillCleaner();
             var zipper = new ZipperNameTransform();

@@ -68,7 +68,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var fileGetter = new FilesGetter();
 
-            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\eFolder\");
+            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\eFolder\");
 
             var newFileRecord = new EFile();
 
@@ -77,7 +77,7 @@ namespace ClothResorting.Controllers.Api.Fba
                 //newFileRecord.CustomizedFileName = fileName + "-" + DateTime.Now.ToString("hhmmss");
                 newFileRecord.CustomizedFileName = path.Split('\\').Last().Split('-')[1];
                 newFileRecord.FileName = path.Split('\\').Last();
-                newFileRecord.RootPath = @"D:\eFolder\";
+                newFileRecord.RootPath = @"E:\eFolder\";
                 newFileRecord.UploadBy = _userName;
                 newFileRecord.UploadDate = DateTime.Now;
                 newFileRecord.Status = FBAStatus.Valid;
@@ -133,7 +133,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             var mailService = new MailServiceManager();
 
-            mailService.SendMail(toEmail, "operator@grandchannel.us", "no-reply@grandchannel.us;operator@grandchannel.us", fileInDb.RootPath + fileInDb.FileName, subject);
+            mailService.SendMail(toEmail, "operator@grandchannel.us", "operator@grandchannel.us", fileInDb.RootPath + fileInDb.FileName, subject);
 
             fileInDb.SendDate = DateTime.Now;
 

@@ -27,7 +27,7 @@ namespace ClothResorting.Controllers.Api
 
             var filesGetter = new FilesGetter();
 
-            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (fileSavePath == "")
             {

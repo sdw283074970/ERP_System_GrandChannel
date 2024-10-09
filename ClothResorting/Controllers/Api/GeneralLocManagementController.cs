@@ -28,7 +28,7 @@ namespace ClothResorting.Controllers.Api
         {
             var downloader = new Downloader();
 
-            downloader.DownloadFromServer("ReplenishmentLocationReport-Template.xlsx", @"D:\Template\");
+            downloader.DownloadFromServer("ReplenishmentLocationReport-Template.xlsx", @"E:\Template\");
 
             return Ok();
         }
@@ -50,7 +50,7 @@ namespace ClothResorting.Controllers.Api
             var fileSavePath = "";
             var filesGetter = new FilesGetter();
 
-            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (fileSavePath == "")
             {

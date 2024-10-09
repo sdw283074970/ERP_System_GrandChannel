@@ -56,11 +56,11 @@ namespace ClothResorting.Controllers.Api
 
             if (customer == "FreeCountry")
             {
-                downloader.DownloadFromServer("FreeCountryPackingList-Template.XLSX", @"D:\Template\");
+                downloader.DownloadFromServer("FreeCountryPackingList-Template.XLSX", @"E:\Template\");
             }
             else
             {
-                downloader.DownloadFromServer("GenericPackingList- Template.xlsx", @"D:\Template\");
+                downloader.DownloadFromServer("GenericPackingList- Template.xlsx", @"E:\Template\");
             }
 
             return Ok();
@@ -73,7 +73,7 @@ namespace ClothResorting.Controllers.Api
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (fileSavePath == "")
             {

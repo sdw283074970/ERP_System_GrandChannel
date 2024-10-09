@@ -327,7 +327,7 @@ namespace ClothResorting.Helpers
             }
 
             //读取原pdf模板文件
-            PdfReader reader = new PdfReader(@"D:\Template\BOL-Origin.pdf");
+            PdfReader reader = new PdfReader(@"E:\Template\BOL-Origin.pdf");
 
             //获取首页的大小
             Rectangle psize = reader.GetPageSize(1);
@@ -342,7 +342,7 @@ namespace ClothResorting.Helpers
 
             //以上也可写为如下
             //using (var ms = new MemoryStream())
-            using (var fs = new FileStream(@"D:\BOL\" + fileName, FileMode.OpenOrCreate))
+            using (var fs = new FileStream(@"E:\BOL\" + fileName, FileMode.OpenOrCreate))
             using (var doc = new Document(psize))
             using (var pw = PdfWriter.GetInstance(doc, fs))
             {

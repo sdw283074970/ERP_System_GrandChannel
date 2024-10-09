@@ -38,7 +38,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult DownloadPickingList([FromUri]int shipOrderId, [FromUri]string operation)
         {
-            var generator = new FBAExcelGenerator(@"D:\Template\PickingList-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\PickingList-Template.xlsx");
             var path = generator.GenerateShippingWOAndPickingList(shipOrderId);
 
             return Ok(path);
@@ -350,7 +350,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var fileGetter = new FilesGetter();
 
-            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            var path = fileGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (path == "")
             {
@@ -394,7 +394,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
-            var filePathList = filesGetter.GetAndSaveMultipleFileFromHttpRequest(@"D:\Labels\");
+            var filePathList = filesGetter.GetAndSaveMultipleFileFromHttpRequest(@"E:\Labels\");
 
             if (filePathList.ToList().Count == 0)
             {
@@ -492,7 +492,7 @@ namespace ClothResorting.Controllers.Api.Fba
             list.Remove(list.SingleOrDefault(x => x.NameInSystem == fileName));
             pickedCtnInDb.LabelFiles = SerializeLabelFiles(list);
 
-            var filePath = Path.GetFullPath(@"D:\Labels\" + fileName);
+            var filePath = Path.GetFullPath(@"E:\Labels\" + fileName);
             try
             {
                 File.Delete(filePath);

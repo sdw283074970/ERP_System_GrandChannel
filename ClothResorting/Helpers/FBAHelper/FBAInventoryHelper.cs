@@ -190,7 +190,7 @@ namespace ClothResorting.Helpers.FBAHelper
                     {
                         if (!cartonLocation.FBAPallet.FBAPalletLocations.Any())
                         {
-                            throw new Exception("Unallocated pallets detected. Please check container: " + cartonLocation.Container + " and try again after all pallets are fully allocated");
+                            throw new Exception("Unallocated pallets detected. Container: " + cartonLocation.Container + " SKU: " + cartonLocation.ShipmentId);
                         }
 
                         var pltId = cartonLocation.FBAPallet.FBAPalletLocations.First().Id;
@@ -341,7 +341,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.get_Range("A1:O" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
             _ws.get_Range("A1:O" + startRow, Type.Missing).Borders.LineStyle = 1;
 
-            var fullPath = @"D:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            var fullPath = @"E:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -498,7 +498,7 @@ namespace ClothResorting.Helpers.FBAHelper
             _ws.get_Range("A1:S" + startRow, Type.Missing).VerticalAlignment = XlVAlign.xlVAlignCenter;
             _ws.get_Range("A1:S" + startRow, Type.Missing).Borders.LineStyle = 1;
 
-            var fullPath = @"D:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
+            var fullPath = @"E:\InventoryReport\FBA-" + info.Customer + "-InventoryReport-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xls";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 

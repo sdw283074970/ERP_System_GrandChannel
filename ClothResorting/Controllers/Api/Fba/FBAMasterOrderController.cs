@@ -316,6 +316,16 @@ namespace ClothResorting.Controllers.Api.Fba
             return Ok(helper.GetContainerFeeSummary(customerCode, startDate, endDate));
         }
 
+        // GET /api/fab/fbamasterorder/?customerCode={foo}&startDate={bar}&endDate={foo}
+        public IHttpActionResult DownloadContianerReport([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime endDate)
+        {
+            endDate = endDate.AddDays(1);
+
+            var helper = new FBAInvoiceHelper(@"E:\Template\FBA-ContainerReport-Template.xlsx");
+
+            return Ok(helper.GenerateContainerReport(customerCode, startDate, endDate));
+        }
+
         // POST /api/fbamasterorder/?masterOrderId={masterOrderId}
         [HttpPost]
         public IHttpActionResult UpdateMasterOrderById([FromUri]int masterOrderId, [FromBody]FBAMasterOrder obj)
@@ -401,7 +411,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             var bolList = GenerateFBABOLList(bolInfo.OrderDetails);
 
-            var generator = new FBAExcelGenerator(@"D:\Template\BOL-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\BOL-Template.xlsx");
 
             var fileName = generator.GenerateExcelBol(masterOrderId, FBAOrderType.MasterOrder, bolList, freightCharge, bolInfo.BOLDetail);
 
@@ -944,7 +954,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
         private string GenerateUnloadingWOAndPackingList(int masterOrderId)
         {
-            var generator = new FBAExcelGenerator(@"D:\Template\UnloadingReport-Template.xlsx");
+            var generator = new FBAExcelGenerator(@"E:\Template\UnloadingReport-Template.xlsx");
             var path = generator.GenerateUnloadingWOAndPackingList(masterOrderId);
 
             return path;

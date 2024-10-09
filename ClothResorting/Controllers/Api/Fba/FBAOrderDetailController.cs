@@ -42,7 +42,7 @@ namespace ClothResorting.Controllers.Api.Fba
             {
                 var masterOrderId = _context.FBAMasterOrders.SingleOrDefault(x => x.GrandNumber == grandNumber).Id;
 
-                var generator = new FBAExcelGenerator(@"D:\Template\Receipt-template.xlsx");
+                var generator = new FBAExcelGenerator(@"E:\Template\Receipt-template.xlsx");
 
                 var fullPath = generator.GenerateReceipt(masterOrderId);
 
@@ -59,7 +59,7 @@ namespace ClothResorting.Controllers.Api.Fba
         {
             if (operation == FBAOperation.Download)
             {
-                var generator = new FBAExcelGenerator(@"D:\Template\Receipt-template.xlsx");
+                var generator = new FBAExcelGenerator(@"E:\Template\Receipt-template.xlsx");
 
                 var fullPath = generator.GenerateReceipt(masterOrderId);
 
@@ -204,7 +204,7 @@ namespace ClothResorting.Controllers.Api.Fba
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (fileSavePath == "")
             {
@@ -225,7 +225,7 @@ namespace ClothResorting.Controllers.Api.Fba
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\PackingLists\");
+            var fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\PackingLists\");
 
             if (fileSavePath == "")
             {
@@ -255,7 +255,7 @@ namespace ClothResorting.Controllers.Api.Fba
             _context.EFiles.Add(new EFile { 
                 UploadDate = DateTime.Now,
                 CustomizedFileName = "Packing List",
-                RootPath = @"D:\PackingLists\",
+                RootPath = @"E:\PackingLists\",
                 FileName = fileSavePath.Split('\\').Last(),
                 UploadBy = _userName,
                 FBAMasterOrder = masterOrderInDb
@@ -280,7 +280,7 @@ namespace ClothResorting.Controllers.Api.Fba
 
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
-            var filePathList = filesGetter.GetAndSaveMultipleFileFromHttpRequest(@"D:\Labels\");
+            var filePathList = filesGetter.GetAndSaveMultipleFileFromHttpRequest(@"E:\Labels\");
 
             if (filePathList.ToList().Count == 0)
             {
@@ -464,7 +464,7 @@ namespace ClothResorting.Controllers.Api.Fba
             list.Remove(list.SingleOrDefault(x => x.NameInSystem == fileName));
             orderDetailInDb.LabelFiles = SerializeLabelFiles(list);
 
-            var filePath = Path.GetFullPath(@"D:\Labels\" + fileName);
+            var filePath = Path.GetFullPath(@"E:\Labels\" + fileName);
             try
             {
                 File.Delete(filePath);

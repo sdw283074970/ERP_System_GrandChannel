@@ -18,7 +18,7 @@ namespace ClothResorting.Controllers.Api.Fba
         public IHttpActionResult DownloadFileWithinOperation([FromUri]string fileName)
         {
                 var response = HttpContext.Current.Response;
-                var downloadFile = new FileInfo(@"D:\BOL\" + fileName);
+                var downloadFile = new FileInfo(@"E:\BOL\" + fileName);
                 response.ClearHeaders();
                 response.Buffer = false;
                 response.ContentType = "application/pdf";

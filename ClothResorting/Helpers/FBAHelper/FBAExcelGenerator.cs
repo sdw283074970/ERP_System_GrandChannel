@@ -162,7 +162,7 @@ namespace ClothResorting.Helpers.FBAHelper
             range = _ws.get_Range("A5", "H" + startRow);
             range.Borders.LineStyle = 1;
 
-            var fullPath = @"D:\Receipts\FBA-" + masterOrderInDb.Customer.CustomerCode + "-Receipt-" + masterOrderInDb.Container + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\Receipts\FBA-" + masterOrderInDb.Customer.CustomerCode + "-Receipt-" + masterOrderInDb.Container + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
@@ -194,6 +194,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 pickDetailInDb = _context.FBAPickDetails
                                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
                                 .Include(x => x.FBAShipOrder)
+                                .Include(x => x.FBAPickDetailCartons)
                                 .Where(x => x.FBAShipOrder.ShipDate < closeDate
                                     && x.FBAShipOrder.ShipDate >= startDate
                                     && x.FBAShipOrder.Status == FBAStatus.Shipped
@@ -208,6 +209,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 pickDetailInDb = _context.FBAPickDetails
                                 .Include(x => x.FBAPalletLocation.FBAMasterOrder.Customer)
                                 .Include(x => x.FBAShipOrder)
+                                .Include(x => x.FBAPickDetailCartons)
                                 .Where(x => ((x.FBAShipOrder.ReleasedDate < closeDate && x.FBAShipOrder.ReleasedDate >= startDate)
                                     || (x.FBAShipOrder.ShipDate < closeDate && x.FBAShipOrder.ShipDate >= startDate))
                                     && (x.FBAShipOrder.Status == FBAStatus.Shipped || (x.FBAShipOrder.Status == FBAStatus.Released && x.FBAShipOrder.IsPrereleasing))
@@ -244,13 +246,19 @@ namespace ClothResorting.Helpers.FBAHelper
                     {
                         //从原有托盘数量扣除状态为shipped状态，且发货日期在结束日期之前的运单中的托盘数量
                         if (pick.FBAShipOrder.Status == FBAStatus.Shipped && pick.FBAShipOrder.ShipDate < closeDate)
+                        {
                             p.ActualPlts -= pick.PltsFromInventory;
+                            p.ActualQuantity -= pick.PickableCtns;
+                        }
                     }
                     else
                     {
                         //从原有托盘数量扣除状态为shipped和pre-releasing状态，且发货日期、预发货日期在结束日期之前的运单中的托盘数量
                         if ((pick.FBAShipOrder.Status == FBAStatus.Shipped || (pick.FBAShipOrder.Status == FBAStatus.Released && pick.FBAShipOrder.IsPrereleasing)) && pick.FBAShipOrder.ShipDate < closeDate && pick.FBAShipOrder.ReleasedDate < closeDate)
+                        {
                             p.ActualPlts -= pick.PltsFromInventory;
+                            p.ActualQuantity -= pick.PickableCtns;
+                        }
                     }
                 }
             }
@@ -282,6 +290,9 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex, 7] = pallets;
                 _ws.Cells[startIndex, 8] = p.First().FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy");
                 _ws.Cells[startIndex, 13] = p.First().FBAMasterOrder.WarehouseLocation;
+                _ws.Cells[startIndex, 14] = p.First().FBAMasterOrder.SubCustomer;
+                _ws.Cells[startIndex, 16] = p.First().FBAMasterOrder.FBAPallets.Sum(x => x.ActualQuantity);
+                _ws.Cells[startIndex, 17] = p.Sum(x => x.ActualQuantity);
 
                 startIndex += 1;
             }
@@ -296,7 +307,9 @@ namespace ClothResorting.Helpers.FBAHelper
                     InboundDate = s.FBAPalletLocation.FBAMasterOrder.InboundDate.ToString("MM/dd/yyyy"),
                     OutboundDate = s.FBAShipOrder.ShipDate.ToString("MM/dd/yyyy"),
                     PalletSize = s.Size,
-                    WarehouseLocation = s.FBAShipOrder.WarehouseLocation
+                    subCustomer = s.FBAShipOrder.SubCustomer,
+                    WarehouseLocation = s.FBAShipOrder.WarehouseLocation,
+                    ShippedCtns = s.FBAPickDetailCartons.Sum(x => x.PickCtns)
                 };
 
                 if (includePrereleasedOrder && s.FBAShipOrder.Status == FBAStatus.Released && s.FBAShipOrder.IsPrereleasing)
@@ -325,23 +338,26 @@ namespace ClothResorting.Helpers.FBAHelper
                 if (s.PalletSize == "P1")
                 {
                     _ws.Cells[startIndex, 5] = s.ShippedPlts;
-                    _ws.Cells[startIndex, 7] = Math.Round(s.ShippedPlts *  p1Discount, 2);
+                    _ws.Cells[startIndex, 7] = Math.Round(s.ShippedPlts *  p1Discount, 4);
                 }
                 else if (s.PalletSize == "P2")
                 {
                     _ws.Cells[startIndex, 6] = s.ShippedPlts;
-                    _ws.Cells[startIndex, 7] = Math.Round(s.ShippedPlts * 2 * p2Discount, 2);
+                    _ws.Cells[startIndex, 7] = Math.Round(s.ShippedPlts * 2 * p2Discount, 4);
                 }
                 else
                 {
                     _ws.Cells[startIndex, 7] = "Invalid pallet size";
                 }
 
+                _ws.Cells[startIndex, 17] = s.ShippedCtns;
+
                 _ws.Cells[startIndex, 1] = FBAOrderType.ShipOrder;
                 _ws.Cells[startIndex, 2] = s.Reference;
                 _ws.Cells[startIndex, 8] = s.InboundDate;
                 _ws.Cells[startIndex, 9] = s.OutboundDate;
                 _ws.Cells[startIndex, 13] = s.WarehouseLocation;
+                _ws.Cells[startIndex, 14] = s.subCustomer;
 
                 if (s.IsPreReleased)
                     _ws.Cells[startIndex, 14] = "Pre-released";
@@ -353,13 +369,13 @@ namespace ClothResorting.Helpers.FBAHelper
                 _ws.Cells[startIndex, 5] = (1 - p1Discount) * 100 + "%OFF";
 
             if (p2Discount != 1)
-                _ws.Cells[startIndex, 6] = Math.Round((1 - p2Discount), 2) * 100 + "%OFF";
+                _ws.Cells[startIndex, 6] = Math.Round((1 - p2Discount), 4) * 100 + "%OFF";
 
             var range = _ws.get_Range("A1", "L" + (startIndex + 1));
             range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
             range.VerticalAlignment = XlHAlign.xlHAlignCenter;
 
-            var fullPath = @"D:\StorageFee\FBA-" + customerInDb.CustomerCode + "-StorageFee-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\StorageFee\FBA-" + customerInDb.CustomerCode + "-StorageFee-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
@@ -539,7 +555,7 @@ namespace ClothResorting.Helpers.FBAHelper
                 range.Borders.LineStyle = 1;
             }
 
-            var fullPath = @"D:\PickingList\" + shipOrderInDb.CustomerCode + "-OB-WO-" + shipOrderInDb.ShipOrderNumber + "-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\PickingList\" + shipOrderInDb.CustomerCode + "-OB-WO-" + shipOrderInDb.ShipOrderNumber + "-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
 
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
@@ -614,7 +630,7 @@ namespace ClothResorting.Helpers.FBAHelper
             range.VerticalAlignment = XlVAlign.xlVAlignCenter;
             range.Borders.LineStyle = 1;
 
-            var fullPath = @"D:\PickingList\" + masterOrder.CustomerCode + "-IB-WO-" + masterOrder.Container + "-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\PickingList\" + masterOrder.CustomerCode + "-IB-WO-" + masterOrder.Container + "-PL" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
             _excel.Quit();
             return fullPath;
@@ -773,7 +789,7 @@ namespace ClothResorting.Helpers.FBAHelper
 
             range.WrapText = true;
 
-            var fullPath = @"D:\BOL\FBA-BOL-" + orderNumber + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\BOL\FBA-BOL-" + orderNumber + "-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
@@ -867,7 +883,7 @@ namespace ClothResorting.Helpers.FBAHelper
             range.Borders.LineStyle = 1;
             range.WrapText = true;
 
-            var fullPath = @"D:\BOL\" + customerCode + "_" + fromDate.ToString("MMddyyyy") + "_" + toDate.ToString("MMddyyyy") + "-WarehouseSchedule-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\BOL\" + customerCode + "_" + fromDate.ToString("MMddyyyy") + "_" + toDate.ToString("MMddyyyy") + "-WarehouseSchedule-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
 
             _excel.Quit();
@@ -938,6 +954,10 @@ namespace ClothResorting.Helpers.FBAHelper
         public string PalletSize { get; set; }
 
         public bool IsPreReleased { get; set; }
+
+        public string subCustomer { get; set; }
+
+        public int ShippedCtns { get; set; }
 
         public ShipRecord()
         {

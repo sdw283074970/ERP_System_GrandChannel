@@ -45,6 +45,7 @@ namespace ClothResorting.Helpers
 
             _ws.Cells[1, 10] = timeUnit + "s Stored in Billing Period";
             _ws.Cells[1, 11] = "Charge From " + timeUnit;
+            _ws.Cells[1, 15] = "Charge Time Period";
 
             while (index > 0)
             {
@@ -63,15 +64,17 @@ namespace ClothResorting.Helpers
             for(int i = 0; i < countOfEntries; i++)
             {
                 var startTimeUnit = 1;
+                var chargePeriod = string.Empty;
                 string inboundDate = _ws.Cells[i + 2, 8].Value.ToString("MM/dd/yyyy");
                 string outboundDate = _ws.Cells[i + 2, 9].Value2 == null ? null : _ws.Cells[i + 2, 9].Value.ToString("MM/dd/yyyy");
                 float totalPlts = _ws.Cells[i + 2, 7].Value2 == 0 || _ws.Cells[i + 2, 7].Value2 == null ? 1 : (float)_ws.Cells[i + 2, 7].Value2;
-                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit);
+                var storedDuration = CalculateDuration(timeUnit, inboundDate, outboundDate, lastBillingDate, currentBillingDate, out startTimeUnit, out chargePeriod);
                 float storageCharge = 0;
                 float lastFee = 0;
 
                 _ws.Cells[i + 2, 10] = storedDuration;
                 _ws.Cells[i + 2, 11] = startTimeUnit;
+                _ws.Cells[i + 2, 15] = chargePeriod;
 
                 //查找应该从第几个时间单位开始计费(查找开始计费的时间落在哪个计费区间)
                 int starIndex = 0;
@@ -144,7 +147,7 @@ namespace ClothResorting.Helpers
         }
 
         //输入两个日期字符串以及账单日范围，算出有多少周
-        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, out int startTimeUnit)
+        public int CalculateDuration(string timeUnit, string inboundDate, string outboundDate, string lastBillingDate, string currentBillingDate, out int startTimeUnit, out string chargePeriod)
         {
             DateTime startDt;
             DateTime endDt;
@@ -207,7 +210,8 @@ namespace ClothResorting.Helpers
             var totalTimeSpan = endDt.Subtract(inboundDt);
             double currentDuration = 0;
             var start = 1;
-
+            var startChargeDateStr = string.Empty;
+            var endChargeDateStr = string.Empty;
             if (timeUnit == TimeUnit.Week)
             {
                 double totalDuration = Math.Ceiling(((double)totalTimeSpan.Days + 1) / 7);                //第一天总是要计费的
@@ -220,11 +224,16 @@ namespace ClothResorting.Helpers
 
                     // 计算从第几个时间单位开始计费（除去账单日前计过费的时间）
                     start = (int)pastDuration + 1;
+
+                    startChargeDateStr = inboundDt.AddDays((int)pastDuration * 7).ToString("yyyy-MM-dd");
                 }
                 else
                 {
                     currentDuration = totalDuration;
+                    startChargeDateStr = inboundDt.ToString("yyyy-MM-dd");
                 }
+
+                endChargeDateStr = inboundDt.AddDays(((int)totalDuration * 7) - 1).ToString("yyyy-MM-dd");
             }
             else if (timeUnit == TimeUnit.Month)
             {
@@ -238,11 +247,17 @@ namespace ClothResorting.Helpers
 
                     // 计算从第几个时间单位开始计费（除去账单日前计过费的时间）
                     start = (int)pastDuration + 1;
+
+                    startChargeDateStr = inboundDt.AddDays((int)pastDuration * 30).ToString("yyyy-MM-dd");
                 }
                 else
                 {
                     currentDuration = totalDuration;
+
+                    startChargeDateStr = inboundDt.ToString("yyyy-MM-dd");
                 }
+
+                endChargeDateStr = inboundDt.AddDays(((int)totalDuration * 30) - 1).ToString("yyyy-MM-dd");
             }
             else if (timeUnit == TimeUnit.Day)
             {
@@ -256,15 +271,22 @@ namespace ClothResorting.Helpers
 
                     // 计算从第几个时间单位开始计费（除去账单日前计过费的时间）
                     start = (int)pastDuration + 1;
+
+                    startChargeDateStr = inboundDt.AddDays((int)pastDuration).ToString("yyyy-MM-dd");
                 }
                 else
                 {
                     currentDuration = totalDuration;
+
+                    startChargeDateStr = inboundDt.ToString("yyyy-MM-dd");
                 }
+
+                //endChargeDateStr = inboundDt.AddDays((int)totalDuration).ToString("yyyy-MM-dd");
+                endChargeDateStr = endDt.ToString("yyyy-MM-dd");
             }
 
             startTimeUnit = start;
-
+            chargePeriod = startChargeDateStr + " - " + endChargeDateStr;
             return (int)currentDuration;
         }
     }

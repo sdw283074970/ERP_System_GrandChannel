@@ -182,7 +182,7 @@ namespace ClothResorting.Manager
                 index++;
             }
 
-            var fullPath = @"D:\OtherReport\" +customerCode + "-SKU-" + sku + "-Statement-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\OtherReport\" +customerCode + "-SKU-" + sku + "-Statement-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
             _excel.Quit();
 
@@ -401,7 +401,7 @@ namespace ClothResorting.Manager
                 index++;
             }
 
-            var fullPath = @"D:\OtherReport\" + customerCode + "-SKU-Statement-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
+            var fullPath = @"E:\OtherReport\" + customerCode + "-SKU-Statement-" + DateTime.Now.ToString("yyyyMMddhhmmssffff") + ".xlsx";
             _wb.SaveAs(fullPath, Type.Missing, "", "", Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, 1, false, Type.Missing, Type.Missing, Type.Missing);
             _excel.Quit();
 

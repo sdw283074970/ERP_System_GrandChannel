@@ -30,7 +30,7 @@ namespace ClothResorting.Controllers.Api.Fba
             startDate = new DateTime(startDate.Year, startDate.Month, startDate.Day);
             closeDate = new DateTime(closeDate.Year, closeDate.Month, closeDate.Day).AddDays(1);
 
-            var templatePath = @"D:\Template\FBA-Inventory-Template.xls";
+            var templatePath = @"E:\Template\FBA-Inventory-Template.xls";
 
             var helper = new FBAInventoryHelper(templatePath);
 

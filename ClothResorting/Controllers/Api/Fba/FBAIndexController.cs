@@ -60,7 +60,7 @@ namespace ClothResorting.Controllers.Api.Fba
             if (operation == "INSTOCKCUSTOMER")
             {
                 var dtos = GetAllCustomerDtos();
-                var templatePath = @"D:\Template\Customer-Info-Template.xlsx";
+                var templatePath = @"E:\Template\Customer-Info-Template.xlsx";
                 var path = GenerateExcelFile(templatePath, dtos);
                 return Ok(path);
             }
@@ -75,7 +75,7 @@ namespace ClothResorting.Controllers.Api.Fba
             if (operation != "GetInvoice")
                 throw new Exception("Invailed operation code: " + operation);
 
-            var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
+            var templatePath = @"E:\Template\FBA-InvoiceReport-Template.xls";
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
@@ -123,7 +123,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetExportedFilePath([FromUri]int customerId, [FromUri]DateTime startDate, [FromUri]DateTime closeDate, [FromUri]bool ifShowUnclosed)
         {
-            var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
+            var templatePath = @"E:\Template\FBA-InvoiceReport-Template.xls";
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
@@ -160,7 +160,7 @@ namespace ClothResorting.Controllers.Api.Fba
         [HttpGet]
         public IHttpActionResult GetExportedFilePathByCustomerCode([FromUri]string customerCode, [FromUri]DateTime startDate, [FromUri]DateTime closeDate, [FromUri]bool ifShowUnclosed)
         {
-            var templatePath = @"D:\Template\FBA-InvoiceReport-Template.xls";
+            var templatePath = @"E:\Template\FBA-InvoiceReport-Template.xls";
 
             var excelGenerator = new FBAInvoiceHelper(templatePath);
 
@@ -328,11 +328,11 @@ namespace ClothResorting.Controllers.Api.Fba
                 index++;
             }
 
-            var xlsxPath = @"D:\TempFiles\Customer-Info-" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+            var xlsxPath = @"E:\TempFiles\Customer-Info-" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
             asposeWb.Save(xlsxPath, SaveFormat.Xlsx);
 
             //var wb = new Workbook(xlsxPath);
-            //var pdfPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
+            //var pdfPath = @"E:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
             //wb.Save(pdfPath, SaveFormat.Pdf);
 
             //_wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);

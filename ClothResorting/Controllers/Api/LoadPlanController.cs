@@ -27,7 +27,7 @@ namespace ClothResorting.Controllers.Api
             var filesGetter = new FilesGetter();
             var shipOrderInDb = _context.ShipOrders.Find(shipOrderId);
 
-            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (fileSavePath == "")
             {

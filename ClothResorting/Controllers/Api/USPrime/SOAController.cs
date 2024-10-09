@@ -109,7 +109,7 @@ namespace ClothResorting.Controllers.Api.USPrime
             soa.address_1 = customerInDb.FirstAddressLine;
             soa.address_2 = customerInDb.SecondAddressLine;
 
-            var templatePath = @"D:\Template\PRIME-SOA-TEMPLATE.xlsx";
+            var templatePath = @"E:\Template\PRIME-SOA-TEMPLATE.xlsx";
             //var g = new FBAInvoiceHelper();
             //var xlsxPath = FBAInvoiceHelper.GenerateSOA(templatePath, soa);
             //var pdfPath = PDFGenerator.ConvertExcelAsMemoryStream(xlsxPath);
@@ -162,11 +162,11 @@ namespace ClothResorting.Controllers.Api.USPrime
             asposeWs.Cells[index, 6].PutValue("BALANCE");
             asposeWs.Cells[index, 8].PutValue(soa.entries.Sum(x => x.balanceToOrigin));
 
-            var xlsxPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".xlsx";
+            var xlsxPath = @"E:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".xlsx";
             asposeWb.Save(xlsxPath, SaveFormat.Xlsx);
 
             var wb = new Workbook(xlsxPath);
-            var pdfPath = @"D:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
+            var pdfPath = @"E:\usprime\SOA\SOA-" + soa.customerName + "-" + soa.fromDate.ToString("yyyyMMdd") + "-" + soa.toDate.ToString("yyyyMMdd") + ".pdf";
             wb.Save(pdfPath, SaveFormat.Pdf);
 
             //_wb.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, pdfPath);

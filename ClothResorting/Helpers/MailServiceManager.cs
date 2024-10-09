@@ -16,10 +16,13 @@ namespace ClothResorting.Helpers
         public MailServiceManager()
         {
             //_fromMail = "downwes@gmail.com";
-            _fromMail = "grandchannel.no.reply@gmail.com";
+            //_fromMail = "grandchannel.no.reply@gmail.com";
+            _fromMail = @"no-reply@usaprimeagency.com";
             //_appSecret = "qtvkntdqgsyktdpc";
             //_appSecret = "N0qr9utwghs@!";
-            _password = "HSbtswtbc1";
+            //_password = "HSbtswtbc1";
+            //_password = "zxnihstxjvuybjhh";
+            _password = "#lxX.Py#h,9s";
         }
 
         public MailServiceManager(string from, string psw)
@@ -100,7 +103,9 @@ namespace ClothResorting.Helpers
             //在这里我使用的是163邮箱，所以是smtp.163.com，如果你使用的是qq邮箱，那么就是smtp.qq.com。
             //client.Host = "smtp.bizmail.yahoo.com";
             //client.Host = "smtp.mail.yahoo.com";
-            client.Host = "smtp.gmail.com";
+            //client.Host = "smtp.gmail.com";
+            //client.Port = 587;
+            client.Host = "mail.usaprimeagency.com";
             client.Port = 587;
             //if (FromMial.Length != 0)
             //{
@@ -136,7 +141,6 @@ namespace ClothResorting.Helpers
             //    }
             //}
             #endregion
-
             //使用安全加密连接。
             client.EnableSsl = true;
 
@@ -153,7 +157,6 @@ namespace ClothResorting.Helpers
             {
                 //发送
                 client.Send(mailMessage);
-
             }
             catch (SmtpException ex)
             {

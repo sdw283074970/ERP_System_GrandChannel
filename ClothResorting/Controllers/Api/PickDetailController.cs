@@ -39,11 +39,11 @@ namespace ClothResorting.Controllers.Api
 
             if (orderType == OrderType.Regular)
             {
-                downloader.DownloadFromServer("RegularPullSheet-Template.xlsx", @"D:\Template\");
+                downloader.DownloadFromServer("RegularPullSheet-Template.xlsx", @"E:\Template\");
             }
             else if (orderType == OrderType.Replenishment)
             {
-                downloader.DownloadFromServer("ReplenishmentLoadPlan-Template.xlsx", @"D:\Template\");
+                downloader.DownloadFromServer("ReplenishmentLoadPlan-Template.xlsx", @"E:\Template\");
             }
             return Ok();
         }
@@ -266,7 +266,7 @@ namespace ClothResorting.Controllers.Api
             //从httpRequest中获取文件并写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (fileSavePath == "")
             {

@@ -32,7 +32,7 @@ namespace ClothResorting.Controllers.Api
             //写入磁盘系统
             var filesGetter = new FilesGetter();
 
-            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"D:\TempFiles\");
+            fileSavePath = filesGetter.GetAndSaveSingleFileFromHttpRequest(@"E:\TempFiles\");
 
             if (fileSavePath == "")
             {
